@@ -75,7 +75,7 @@ object CalculatorExample extends zio.App {
       yield ()
 
     operated
-//      .provideLayer(ZLayer.succeed(FakeConsole.number))
+      .provideLayer(ZLayer.succeed(FakeConsole.number))
       .exitCode
 
 }
