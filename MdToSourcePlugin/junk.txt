@@ -1,0 +1,42 @@
+Or, "The one that slaughters thousands of braces"
+
+Seriously, check out the net LoC from this PR.
+
+Alright, I've been iterating on this throughout the day, and I'm reasonably happy with where it ended up.
+I cover some of the basic differences between the original Kotlin examples, and what we want for the Scala versions.
+The big one was eliminating braces in several situations. There are still cases where I couldn't eliminate every
+opening brace easily, so some examples will be unbalanced until they're hand-corrected.
+However, *most* of them were successfully converted.
+
+I also added the necessary `=` in between function signatures and implementations, and converted "interface" to "trait".
+
+I decided that I wouldn't try to remove any ``{{incomplete}}`` tags in this PR, even though there are many examples
+that should be valid Scala now. We can remove those tags later.
+
+To see the logic that drove these transformations, ctrl+f down to MdToSourcePlugin.scala, it's waaaaay at the
+bottom of this PR. Or check out the branch and view it there.
+
+Thanks for enabling tests here James, this wouldn't have been feasible otherwise.
+
+Known issues:
+
+There are several Kotlin-only situations, that can't be programmatically converted to Scala. At least, not without
+ significant pain and insignificant pay-off.
+
+
+One recurring issue is that Kotlin uses ':' to indicate inheritance, which results in this faulty transformation.
+
+    class SpaceShipControls : Controls {
+    // transforms into
+    class SpaceShipControls : Controls:
+    // but should be
+    class SpaceShipControls extends Controls:
+
+A case like this could be programmatically handled without too much difficulty, but when multiple
+superclasses/traits are involved across multiple lines, it gets tricky enough that I think we're better off doing
+ it by hand.
+
+Companion objects don't play nicely either. There's not a good way to convert them to Scala objects, which are in
+ a separate scope, rather than within the original class. I just leave them alone.
+
+`init` and `capture` blocks don't have a simple scala translation.
