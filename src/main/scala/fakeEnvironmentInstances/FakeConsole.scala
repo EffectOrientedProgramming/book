@@ -22,3 +22,20 @@ object FakeConsole:
 
     def putStrLn(line: String): IO[IOException, Unit] =
       ZIO.succeed(println("Automated: " + line))
+
+  def inputConsole(hardcodedInput: Ref[Seq[String]]) = new Service:
+    def curInput(input: => Seq[String]): Seq[String] = input
+
+    def getStrLn: IO[IOException, String] =
+      for
+        curInput <- hardcodedInput.get
+        (curLine :: remainingLines) = curInput
+        _ <- hardcodedInput.set(remainingLines)
+      yield curLine
+
+    def putStr(line: String): zio.IO[java.io.IOException, Unit] = ???
+    def putStrErr(line: String): zio.IO[java.io.IOException, Unit] = ???
+    def putStrLnErr(line: String): zio.IO[java.io.IOException, Unit] = ???
+
+    def putStrLn(line: String): IO[IOException, Unit] =
+      ZIO.succeed(println("Automated: " + line))

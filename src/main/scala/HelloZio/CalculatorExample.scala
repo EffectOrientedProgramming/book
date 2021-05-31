@@ -4,12 +4,12 @@ import java.io.IOException
 import zio.console.{Console, getStrLn, putStrLn}
 import fakeEnvironmentInstances.FakeConsole
 import zio.console.Console.Service
-import zio.{IO, Runtime, ZIO, ZLayer}
+import zio.{IO, Runtime, ZIO, ZLayer, Ref}
 
 //extends zio.App
 object CalculatorExample extends zio.App {
 
-  val input: ZIO[
+  def input: ZIO[
     zio.console.Console,
     IOException,
     Vector[String]
@@ -63,9 +63,14 @@ object CalculatorExample extends zio.App {
 
   def run(args: List[String]) =
     println("In tester")
+    val stringRef = Ref.make(Seq("1", "2", "3"))
+
     val operated =
       for
-        i <- input
+//        consoleInput <- Ref.make(Seq("1", "2", "3")) // Add 2 & 3
+        consoleInput <- Ref.make(Seq("4", "24", "8"))
+        console = FakeConsole.inputConsole(consoleInput)
+        i <- input.provideLayer(ZLayer.succeed(console))
         output <- operate(i)
           .catchAll {
             case x: String    => ZIO("Input failure: " + x)
@@ -74,8 +79,6 @@ object CalculatorExample extends zio.App {
         _ <- putStrLn(output)
       yield ()
 
-    operated
-      .provideLayer(ZLayer.succeed(FakeConsole.number))
-      .exitCode
+    operated.exitCode
 
 }
