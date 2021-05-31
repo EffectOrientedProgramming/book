@@ -10,13 +10,27 @@ import scala.io.Source._
 
 object Finalizers extends zio.App{
 
-  val importedFile: ZIO[Console, IOException, Vector[String]] =
-    val bufferedSource = scala.io.Source.fromFile("src/main/scala/Parallelism/csvFile.csv")
+  val readFileContents: ZIO[Console, IOException, Vector[String]] =
 
-    val lines = for
-      line <- bufferedSource.getLines
-    yield line
-    ZIO.succeed(Vector() ++ lines)
+    ZIO.succeed {
+      val bufferedSource = scala.io.Source.fromFile("src/main/scala/Parallelism/csvFile.csv")
+
+      val lines = for
+        line <- bufferedSource.getLines
+      yield line
+
+      if (true)
+        throw new IOException("Boom!")
+
+      Vector() ++ lines
+    }.ensuring(finalizer)
+
+  val finalizer =  //Define the finalizer behavior here
+    UIO.effectTotal{
+      println("Finalizing: Closing file reader")
+      //bufferedSource.close
+    }
+
 
 
   def run(args: List[String]) = //Use App's run function
@@ -24,9 +38,9 @@ object Finalizers extends zio.App{
 
     val ioExample:ZIO[Console, IOException, Unit] =
       for
-        i <- importedFile
-        vector = i.flatMap(j => toString)
-        _ <- putStrLn(vector.toString)
+      //First way of using a finalizer: When executing/interpreting a ZIO, use the .ensuring method with the finalizer value name.
+        fileLines <- readFileContents
+        _ <- putStrLn(fileLines.mkString("\n"))
       yield ()
     ioExample.exitCode //Call the Zio with exitCode.
 
