@@ -1,10 +1,42 @@
 package HelloZio
 
+import HelloZio.CalculatorExample.input
+
 import java.io.IOException
 import zio.console.{Console, getStrLn, putStrLn}
 import fakeEnvironmentInstances.FakeConsole
 import zio.console.Console.Service
-import zio.{IO, Runtime, ZIO, ZLayer, Ref}
+import zio.{IO, Ref, Runtime, ZIO, ZLayer}
+
+enum ArithmaticOperation(a: Float, b: Float):
+  case Add(first: Float, second: Float)
+      extends ArithmaticOperation(first, second)
+
+  case Divide(first: Float, second: Float)
+      extends ArithmaticOperation(first, second)
+
+//  def calculateX(): ZIO[Any, Throwable | ArithmeticException, String]
+
+  def calculate(): ZIO[Any, Throwable | ArithmeticException, String] =
+    this match {
+      case Add(first, second) =>
+        ZIO {
+          s"Adding $first and $second: ${first - second}"
+        }
+      case Divide(first, second) =>
+        if (second != 0.0)
+          ZIO {
+            s"Dividing $first by $second: ${first / second}"
+          }
+        else ZIO.fail(new ArithmeticException("divide by 0"))
+    }
+
+object ArithmaticOperation:
+  def fromInt(index: Int): (Float, Float) => ArithmaticOperation = index match {
+    case 1 => Add.apply
+    case 2 => Divide.apply
+    case _ => throw new RuntimeException("bloom")
+  }
 
 //extends zio.App
 object CalculatorExample extends zio.App {
@@ -37,29 +69,25 @@ object CalculatorExample extends zio.App {
     String | NumberFormatException | ArithmeticException | Throwable,
     String
   ] =
-    input(0) match
-      case "1" =>
-        ZIO {
-          s"Adding " + input(1) + " and " + input(2) + s": ${input(1).toFloat + input(2).toFloat}"
-        }
-
-      case "2" =>
-        ZIO {
-          s"Subtracting " + input(1) + " and " + input(2) + s": ${input(1).toFloat - input(2).toFloat}"
-        }
-
-      case "3" =>
-        ZIO {
-          s"Multiplying " + input(1) + " and " + input(2) + s": ${input(1).toFloat * input(2).toFloat}"
-        }
-
-      case "4" =>
-        if (input(2).toFloat != 0.0)
-          ZIO {
-            s"Deviding " + input(1) + " by " + input(2) + s": ${input(1).toFloat / input(2).toFloat}"
-          }
-        else ZIO.fail(new ArithmeticException("Cannot devide by 0."))
-      case badIndex => ZIO.fail("unknown program index: " + badIndex)
+    for
+      (number1, number2) <- ZIO { (input(1).toFloat, input(2).toFloat) }
+      result <-
+        ArithmaticOperation
+          .fromInt(input(0).toInt)(number1, number2)
+          .calculate()
+//      _ <- putStrLn("Typed, parse operation: " + operation)
+//      output <-
+//        input(0) match
+//          case "2" =>
+//            ZIO {
+//              s"Subtracting $number1 and $number2: ${number1 - number2}"
+//            }
+//          case "3" =>
+//            ZIO {
+//              s"Multiplying $number1 and $number2: ${number1 * number2}"
+//            }
+//          case badIndex => ZIO.fail("unknown program index: " + badIndex)
+    yield result
 
   def run(args: List[String]) =
     println("In tester")
@@ -68,7 +96,7 @@ object CalculatorExample extends zio.App {
     val operated =
       for
 //        consoleInput <- Ref.make(Seq("1", "2", "3")) // Add 2 & 3
-        consoleInput <- Ref.make(Seq("4", "24", "8"))
+        consoleInput <- Ref.make(Seq("1", "24", "8"))
         console = FakeConsole.inputConsole(consoleInput)
         i <- input.provideLayer(ZLayer.succeed(console))
         output <- operate(i)
