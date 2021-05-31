@@ -23,7 +23,11 @@ object FakeConsole:
     def putStrLn(line: String): IO[IOException, Unit] =
       ZIO.succeed(println("Automated: " + line))
 
-  def inputConsole(hardcodedInput: Ref[Seq[String]]) = new Service:
+  def createConsoleWithInput(hardcodedInput: Seq[String]) =
+    for inputVariable <- Ref.make(hardcodedInput)
+    yield inputConsole(inputVariable)
+
+  private def inputConsole(hardcodedInput: Ref[Seq[String]]) = new Service:
     def curInput(input: => Seq[String]): Seq[String] = input
 
     def getStrLn: IO[IOException, String] =

@@ -95,9 +95,9 @@ object CalculatorExample extends zio.App {
 
     val operated =
       for
-//        consoleInput <- Ref.make(Seq("1", "2", "3")) // Add 2 & 3
-        consoleInput <- Ref.make(Seq("1", "24", "8"))
-        console = FakeConsole.inputConsole(consoleInput)
+        // Sweet, this is the type of fake Console creation I've been wanting
+//        console <- FakeConsole.createConsoleWithInput(Seq("1", "24", "8"))
+        console <- FakeConsole.createConsoleWithInput(Seq("2", "96", "8"))
         i <- input.provideLayer(ZLayer.succeed(console))
         output <- operate(i)
           .catchAll {
