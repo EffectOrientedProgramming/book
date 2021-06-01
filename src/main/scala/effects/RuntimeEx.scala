@@ -8,10 +8,9 @@ import fakeEnvironmentInstances.FakeConsole
 import zio.console.Console.Service
 
 object RuntimeEx {
-//This ZIO objects's primary function is to interpret/run
-//other ZIO objects. In legacy code, it is usually better to run
-//effects with a runtime object. It allows for ZIO to be run whenever
-// and where ever.
+//This object's primary function is to interpret/run other ZIO objects.
+//In legacy code, it may be better to run effects with a runtime object to preserve the structure of the program.
+// Using a runtime object allows for ZIO to be run when ever and where ever.
 
   val runtime = Runtime.default
   val exZio: UIO[Int] = ZIO.succeed(1)
@@ -25,7 +24,6 @@ object RuntimeEx {
   def displayWord(word: String) =
     println(s"Chosen Word: ${word}")
 
-  //def f = provideLayer(ZLayer.succeed(FakeConsole.ex))
   @main def runZIO() =
     //Runtime excecutes the effects, and returns their output value.
     println(runtime.unsafeRun(exZio))

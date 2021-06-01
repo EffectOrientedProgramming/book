@@ -17,7 +17,15 @@ enum ArithmaticOperation(a: Float, b: Float):
 
 //  def calculateX(): ZIO[Any, Throwable | ArithmeticException, String]
 
-  def calculate(): ZIO[Any, Throwable | ArithmeticException, String] =
+  //This a more complicated example of using ZIO to create a safely running program.
+  //This is a simple calculator app that takes in an opperation index, and two numbers.
+  //It then prints the resulting calculation of the two numbers based on the operation index.
+
+
+  //The ZIO are used in several ways. The ZIO are used to ensure propper IO Exception and error handling,
+  // and they are used handle invalid inputs from the user.
+
+  def calculate(): ZIO[Any, Throwable | ArithmeticException, String] =   //This in an function used in calculations implemented below.
     this match {
       case Add(first, second) =>
         ZIO {
@@ -31,17 +39,17 @@ enum ArithmaticOperation(a: Float, b: Float):
         else ZIO.fail(new ArithmeticException("divide by 0"))
     }
 
-object ArithmaticOperation:
+object ArithmaticOperation:                                  //This in an object used in calculations implemented below.
   def fromInt(index: Int): (Float, Float) => ArithmaticOperation = index match {
     case 1 => Add.apply
     case 2 => Divide.apply
-    case _ => throw new RuntimeException("bloom")
+    case _ => throw new RuntimeException("boom")
   }
 
 //extends zio.App
 object CalculatorExample extends zio.App {
 
-  def input: ZIO[
+  def input: ZIO[        //This function prompts and accepts the input from the user.
     zio.console.Console,
     IOException,
     Vector[String]
@@ -54,15 +62,16 @@ object CalculatorExample extends zio.App {
           | 3) Multiply
           | 4) Devide
           |""")
-      in <- getStrLn
+      in <- getStrLn                 //User inputs the operation index
       _ <- putStrLn(s"input: ${in}")
       _ <- putStrLn("Enter first number: ")
-      firstNum <- getStrLn
+      firstNum <- getStrLn           //User inputs first and second number
       _ <- putStrLn("Enter second number: ")
       secondNum <- getStrLn
-    yield Vector(in, firstNum, secondNum)
+    yield Vector(in, firstNum, secondNum)   //The function returns a ZIO that succeeds with a vector of Strings
 
-  def operate(
+  def operate(                       //This function takes in the inputs, and processes them to ensure they are valid.
+                                     //The function then returns a String statement of the calculation.
       input: Vector[String]
   ): ZIO[
     Any,
@@ -70,11 +79,11 @@ object CalculatorExample extends zio.App {
     String
   ] =
     for
-      (number1, number2) <- ZIO { (input(1).toFloat, input(2).toFloat) }
+      (number1, number2) <- ZIO { (input(1).toFloat, input(2).toFloat) }  //The inputs are cast as Floats, and passed into a ZIO object.
       result <-
-        ArithmaticOperation
+        ArithmaticOperation          //This object, defined above, processes the operation index, and passes the according calculation to the function calculate.
           .fromInt(input(0).toInt)(number1, number2)
-          .calculate()
+          .calculate()               //calculate takes the input numbers from ArithmaticOperation, and creates the return statement
 //      _ <- putStrLn("Typed, parse operation: " + operation)
 //      output <-
 //        input(0) match
@@ -91,13 +100,12 @@ object CalculatorExample extends zio.App {
 
   def run(args: List[String]) =
     println("In tester")
-    val stringRef = Ref.make(Seq("1", "2", "3"))
+    val stringRef = Ref.make(Seq("1", "2", "3"))   //This is used in the automation software for running examples.
 
     val operated =
       for
-        // Sweet, this is the type of fake Console creation I've been wanting
-//        console <- FakeConsole.createConsoleWithInput(Seq("1", "24", "8"))
-        console <- FakeConsole.createConsoleWithInput(Seq("2", "96", "8"))
+        //console <- FakeConsole.createConsoleWithInput(Seq("1", "24", "8"))
+        console <- FakeConsole.createConsoleWithInput(Seq("2", "96", "8"))   //Run this program with the following inputs
         i <- input.provideLayer(ZLayer.succeed(console))
         output <- operate(i)
           .catchAll {

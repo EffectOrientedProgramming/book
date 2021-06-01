@@ -14,7 +14,9 @@ object Chaining extends zio.App {
 
   def chain: ZIO[Console, IOException, Unit] =
     for
-      _ <- putStrLn("Input a word: ") //flatMap putStrLn ZIO into the wildcard char
+      _ <- putStrLn(
+        "Input a word: "
+      ) //flatMap putStrLn ZIO into the wildcard char
       word <- getStrLn //flatmap getStrLn ZIO into word
       _ <- putStrLn(s"${word} is a nice word! Good choice!")
     yield ()
