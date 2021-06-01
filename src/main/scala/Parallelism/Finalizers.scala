@@ -16,7 +16,9 @@ object Finalizers extends zio.App {
       source.close
     }
 
-  val readFileContents: ZIO[Any, Throwable, Vector[String]] =
+  def readFileContents(
+      forceError: Boolean
+  ): ZIO[Any, Throwable, Vector[String]] =
     ZIO(scala.io.Source.fromFile("src/main/scala/Parallelism/csvFile.csv"))
       .bracket(finalizer) { bufferedSource =>
 
@@ -24,10 +26,12 @@ object Finalizers extends zio.App {
           for line <- bufferedSource.getLines
           yield line
 
-        if (true)
-          throw new IOException("Boom!")
-
-        ZIO.succeed(Vector() ++ lines)
+        ZIO {
+          if (forceError)
+            throw new IOException("Boom!")
+          else
+            Vector() ++ lines
+        }
       }
 
   def run(args: List[String]) = //Use App's run function
@@ -36,9 +40,11 @@ object Finalizers extends zio.App {
     val ioExample: ZIO[Console, Throwable, Unit] =
       for
         //First way of using a finalizer: When executing/interpreting a ZIO, use the .ensuring method with the finalizer value name.
-        fileLines <- readFileContents
+        fileLines <- readFileContents(forceError = true)
         _ <- putStrLn(fileLines.mkString("\n"))
       yield ()
-    ioExample.exitCode //Call the Zio with exitCode.
+    ioExample.catchAll { case throwable: Throwable =>
+      putStrLn("Expected IOException was found")
+    }.exitCode //Call the Zio with exitCode.
 
 }
