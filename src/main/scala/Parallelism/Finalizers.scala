@@ -22,7 +22,7 @@ object Finalizers extends zio.App {
 
         val lines =
           for line <- bufferedSource.getLines
-          yield line
+            yield line
 
         if (true)
           throw new IOException("Boom!")
@@ -35,7 +35,7 @@ object Finalizers extends zio.App {
 
     val ioExample: ZIO[Console, Throwable, Unit] =
       for
-        //First way of using a finalizer: When executing/interpreting a ZIO, use the .ensuring method with the finalizer value name.
+      //First way of using a finalizer: When executing/interpreting a ZIO, use the .ensuring method with the finalizer value name.
         fileLines <- readFileContents
         _ <- putStrLn(fileLines.mkString("\n"))
       yield ()

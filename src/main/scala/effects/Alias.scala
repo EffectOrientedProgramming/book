@@ -7,7 +7,7 @@ import java.io.IOException
 
 object Alias {
   //General Alias Table:
-  // UIO[A] = ZIO[Any, Nothing, A]     Any environment, not errors
+  // UIO[A] = ZIO[Any, Nothing, A]     Any environment, No Errors
   // URIO[R,A] = ZIO[R, Nothing, A]    No errors
   // Task[A] = ZIO[Any, Throwable, A]  Any environment, Throwable errors
   // RIO[A] = ZIO[R, Throwable, A]     Throwable Errors

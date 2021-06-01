@@ -8,8 +8,9 @@ import java.io.IOException
 
 object Equality extends zio.App {
 
+  //Equality may be non-intuative when it comes to ZIO.
   //suc(1-5) are all equivalant. They all equal a success with a return of 1.
-  //Their types can be aliased to be more and more specific.
+  //(Their types can be aliased to be more and more specific.)
   val suc1 = ZIO.succeed(1)
   val suc2: ZIO[Any, Nothing, Int] = ZIO.succeed(1)
   val suc3: IO[Nothing, Int] = ZIO.succeed(1)
@@ -17,7 +18,7 @@ object Equality extends zio.App {
   val suc4d: UIO[Int] = ZIO.succeed(1) //(Duplicate of suc4)
   val suc5: URIO[Any, Int] = ZIO.succeed(1)
 
-  //Here, we test the equality values of all the ZIO
+  //Here, we test the equality values of all the ZIO:
   val myAppLogic: ZIO[
     zio.console.Console,
     IOException,

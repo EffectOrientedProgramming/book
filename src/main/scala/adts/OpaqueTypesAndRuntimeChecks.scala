@@ -33,7 +33,7 @@ object Info:
     name match
       case name: Info.Name => println("I'm a name!")
       case repo: Info.Repo => println("I'm a repo!")
-  
+
    */
 
   def printName(n: Info.Name) =
