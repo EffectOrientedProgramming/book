@@ -19,7 +19,8 @@ object Mining extends zio.App {
   def findNextBlock(miners: Seq[Miner]) =
     miners
       .map(_.mine)
-      .reduce { case (minersSoFar, nextMiner) => minersSoFar.race(nextMiner) }
+//      .reduce { case (minersSoFar, nextMiner) => minersSoFar.race(nextMiner) }
+      .reduce(_.race(_)) // Much terser. I think it's worth using this form
 
   def run(args: List[String]) = //Use App's run function
     val zeb = Miner("Zeb")
