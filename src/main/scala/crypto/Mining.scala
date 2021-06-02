@@ -17,10 +17,7 @@ object Mining extends zio.App {
 
     //Inefficiently determines if the input number is prime.
     def isPrime(num: Long): Boolean =
-      for (i <- 2 to num.toInt - 1)
-        if (num % i == 0)
-          return false
-      return true
+      (2 to num.toInt - 1).forall(num % _ != 0)
 
     //Recursivley itterates up from starting value, num, until it finds a prime number, which it returns
     def findNextPrime(num: Long): Long =
@@ -30,14 +27,13 @@ object Mining extends zio.App {
         findNextPrime(num + 1)
 
     //Takes a starting value, then calls itterates up through numbers until it finds a prime number.
-    def mine2(num: Long): ZIO[zio.random.Random & zio.Has[
-      zio.clock.Clock.Service
-    ], Nothing, Object] =
-      for
-        duration <- nextInt.map(_.abs % 3 + 1)
-        _ <- ZIO.sleep(duration.second)
-        prime = findNextPrime(num)
-      yield s"$name mined the next coin at prime number: $prime"
+    def mine2(num: Long) =
+      ZIO.succeed(
+        (
+          this,
+          s"$name mined the next coin at prime number: ${findNextPrime(num)}"
+        )
+      )
 
   // Nonempty list TODO embed in the type
   def findNextBlock(miners: Seq[Miner]) =
@@ -58,7 +54,11 @@ object Mining extends zio.App {
 
     val logic1 = //Uses mine1 function (Just sleeping)
       for
-        raceResult <- findNextBlock(Seq(zeb, frop, shtep))
+        startNum <- nextIntBetween(
+          5_000_000,
+          100_000_000
+        ) //This is the value that the prime number finder starts from
+        raceResult <- findNextBlock2(Seq(zeb, frop, shtep), startNum)
         (winner, winnerText) = raceResult
         _ <- putStrLn("Winner: " + winnerText)
       yield (winner)
