@@ -8,12 +8,12 @@ import zio.random._
 
 object Mining extends zio.App {
 
-  class Miner(val name: String):
+  case class Miner(val name: String):
     val mine=
       for
         duration <- nextInt.map(_.abs % 7 + 1)
         _ <- ZIO.sleep(duration.second)
-      yield s"$name mined the next coin in $duration seconds"
+      yield (this, s"$name mined the next coin in $duration seconds")
 
     //Inefficiently determines if the input number is prime.
     def isPrime(num: Long):Boolean =
@@ -54,28 +54,43 @@ object Mining extends zio.App {
     val zeb = Miner("Zeb")
     val frop = Miner("Frop")
     val shtep = Miner("Shtep")
+
     val logic1 =     //Uses mine1 function (Just sleeping)
       for
         raceResult <- findNextBlock(Seq(zeb, frop, shtep))
-        _ <- putStrLn("Winner: " + raceResult)
-      yield ()
+        (winner, winnerText) = raceResult
+        _ <- putStrLn("Winner: " + winnerText)
+      yield (winner)
+
+//    def recordWinner(coinAccounts: Ref[Map[Miner, Int]]) =
+//      for
+//        winner <- logic1
+//        currentCoins <- coinAccounts.get
+//        _ <- coinAccounts.set(currentCoins.put(winner, currentCoins(winner) + 1))
+//      yield ()
 
     val logic2 =     //Uses mine2 function (sleep and find prime numbers)
       for
         startNum <- nextInt.map(_.abs % 1000000 + 1000000)  //This is the value that the prime number finder starts from
         raceResult <- findNextBlock2(Seq(zeb, frop, shtep), startNum )
-        _ <- putStrLn("Winner: " + raceResult)
+        _ <- putStrLn("Winner: " + raceResult )
       yield ()
-/*
-    logic1
-      .repeatN(5)
-      .exitCode
 
- */
+//      val miningWithResults =
+//          for
+//            coinResults <- Ref.make(Map(frop -> 0, zeb -> 0, shtep -> 0))
+//            _ <- recordWinner .repeatN(5)
+//          yield ()
 
-    logic2
-      .repeatN(5)
-      .exitCode
+
+//    miningWithResults.exitCode
+  logic1
+    .repeatN(5)
+    .exitCode
+
+//    logic2
+//      .repeatN(5)
+//      .exitCode
 
 
 
