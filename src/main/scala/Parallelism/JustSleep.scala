@@ -10,7 +10,7 @@ import scala.concurrent.Await
 object JustSleep extends App:
 
   override def run(args: List[String]) =
-    ZIO.collectAllPar((1 to 10000).map(_ => ZIO.sleep(10.minutes))).exitCode
+    ZIO.collectAllPar((1 to 10000).map(_ => ZIO.sleep(1.seconds))).exitCode
 
 @main def ToFuture() =
-  Await.result(Runtime.default.unsafeRunToFuture(ZIO.sleep(10.minutes)), scala.concurrent.duration.Duration.Inf)
+  Await.result(Runtime.default.unsafeRunToFuture(ZIO.sleep(1.seconds)), scala.concurrent.duration.Duration.Inf)

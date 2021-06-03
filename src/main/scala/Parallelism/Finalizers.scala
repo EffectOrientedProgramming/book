@@ -42,6 +42,8 @@ object Finalizers extends zio.App {
         fileLines <- readFileContents
         _ <- putStrLn(fileLines.mkString("\n"))   //Combine the strings of the output vector into a single string, separated by \n
       yield ()
-    ioExample.exitCode //Call the Zio with exitCode.
+    ioExample
+      .catchAllDefect( exception => putStrLn("Ultimate error message: " + exception.getMessage))
+      .exitCode //Call the Zio with exitCode.
 
 }
