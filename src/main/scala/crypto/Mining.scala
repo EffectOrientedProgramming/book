@@ -28,7 +28,6 @@ object Mining extends zio.App {
   def findNextBlock(miners: Seq[Miner]) =
     miners
       .map(_.mineBySleeping)
-//      .reduce { case (minersSoFar, nextMiner) => minersSoFar.race(nextMiner) }
       .reduce(_ race _) // Much terser. I think it's worth using this form
 
   def findNextBlock2(miners: Seq[Miner], startNum: Long) =
@@ -51,15 +50,6 @@ object Mining extends zio.App {
         (winner, winnerText) = raceResult
         _ <- putStrLn(winnerText)
       yield (winner)
-
-    val logic2 = //Uses mine2 function (sleep and find prime numbers)
-      for
-        startNum <- nextInt.map(
-          _.abs % 1000000 + 1000000
-        ) //This is the value that the prime number finder starts from
-        raceResult <- findNextBlock2(Seq(zeb, frop, shtep), startNum)
-        _ <- putStrLn("Winner: " + raceResult)
-      yield ()
 
     def miningAttempt(
         innards: ZIO[zio.random.Random & zio.Has[
@@ -90,7 +80,7 @@ object Mining extends zio.App {
               winner <-
                 calculateAndPrintWinner // TODO Factor out since it exists in the other approach too?
               currentCoins: Map[Miner, Int] <- coinResults.get
-              _ <- coinAccounts.set(
+              _ <- coinResults.set(
                 currentCoins.updated(winner, (currentCoins(winner) + 1))
               )
             yield ()).repeatN(repetitions)
@@ -109,16 +99,7 @@ object Mining extends zio.App {
         }
       )
 
-//    logic1
-//      .repeatN(5)
-//      .exitCode
-
     miningWithResults.exitCode
-//    miningWithResultsFold.exitCode
-
-//    logic2
-//      .repeatN(5)
-//      .exitCode
 
   //Inefficiently determines if the input number is prime.
   def isPrime(num: Long): Boolean =
