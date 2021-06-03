@@ -6,6 +6,7 @@ import zio.{Fiber, IO, Runtime, Schedule, UIO, ZIO, URIO, ZLayer, Ref}
 import zio.duration._
 import zio.random._
 
+// TODO Consider someone trying to cheat
 object Mining extends zio.App {
 
   case class Miner(val name: String, gigaFlops: Int):
@@ -25,12 +26,10 @@ object Mining extends zio.App {
       )
 
 
-  // Nonempty list TODO embed in the type
   def competeForNextBlock(miners: Seq[Miner], f: Miner => ZIO[zio.random.Random & zio.Has[zio.clock.Clock.Service] & zio.Has[zio.console.Console.Service],
     Exception, (Miner, String)]) =
     miners
       .map(f(_))
-      //      .foldLeft(()) // TODO Consider a cheating opportunity
       .reduce(_ race _) // Much terser. I think it's worth using this form
 
   // Nonempty list TODO embed in the type
@@ -38,17 +37,15 @@ object Mining extends zio.App {
     zio.Has[zio.console.Console.Service],
     Exception, (Miner, String)]) =
     val (head :: tail) = miners.map(miner => f(miner))
-    val res =
       ZIO.reduceAllPar(
         head,
         tail
       )((first, second) => first)
-    res
-//      .foldLeft(()) // TODO Consider a cheating opportunity
+//      .foldLeft(()) 
 //      .reduce(_ race _) // Much terser. I think it's worth using this form
 
   def findNextBlock(miners: Seq[Miner]) =
-    competeForNextBlock(miners, _.mineBySleeping(10))
+    competeForNextBlockPar(miners, _.mineBySleeping(10))
 
   def findNextBlock2(miners: Seq[Miner]) =
     for
@@ -60,15 +57,14 @@ object Mining extends zio.App {
     yield ((miner, completionMessage))
 
   def run(args: List[String]) = //Use App's run function
-    val frop = Miner("Wealthy Frop", gigaFlops = 120)
-    val zeb = Miner("Average Zeb", gigaFlops = 100)
-    val shtep = Miner("Poor Shtep", gigaFlops = 80)
+    val activeMiners = Seq(
+      Miner("Wealthy Frop", gigaFlops = 120),
+      Miner("Average Zeb", gigaFlops = 100),
+      Miner("Poor Shtep", gigaFlops = 80),
+      Miner("Cheatin' cheep", gigaFlops = 150),
+    )
 
-    val cheep = Miner("Cheatin' cheep", gigaFlops = 150)
-
-    val miners = Seq(cheep, zeb, frop, shtep)
-
-    val calculateAndPrintWinner = //Uses mine1 function (Just sleeping)
+    def calculateAndPrintWinner(miners: Seq[Miner]) = //Uses mine1 function (Just sleeping)
       for
         raceResult <- findNextBlock2(miners)
         (winner, winnerText) = raceResult
@@ -92,17 +88,17 @@ object Mining extends zio.App {
             .mkString("\n")
         )
       yield ()
-
+    val initialCoinCounts =Map(activeMiners.map(_ -> 0):_*)
     val repetitions = 50
     // Demonstrating Refs vs Fold. These 2 approaches are the exact same
     val miningWithResults =
       miningAttempt(
         for
-          coinResults <- Ref.make(Map(miners.map(_ -> 0):_*))
+          coinResults <- Ref.make(initialCoinCounts)
           _ <-
             (for
               // TODO Factor out since it exists in the other approach too?
-              winner <- calculateAndPrintWinner
+              winner <- calculateAndPrintWinner(activeMiners)
               currentCoins: Map[Miner, Int] <- coinResults.get
               _ <- coinResults.set(
                 currentCoins.updated(winner, (currentCoins(winner) + 1))
@@ -114,11 +110,11 @@ object Mining extends zio.App {
 
     val miningWithResultsFold =
       miningAttempt(
-        ZIO.foldLeft((1 to repetitions))(Map(frop -> 0, zeb -> 0, shtep -> 0)) {
+        ZIO.foldLeft((1 to repetitions))(initialCoinCounts) {
           case (coinResults, _) =>
             for
               // TODO Factor out since it exists in the other approach too?
-              winner <- calculateAndPrintWinner
+              winner <- calculateAndPrintWinner(activeMiners)
             yield coinResults.updated(winner, (coinResults(winner) + 1))
         }
       )
