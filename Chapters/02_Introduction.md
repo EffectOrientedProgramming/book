@@ -2,17 +2,28 @@
 
 Thesis Statement:
 
-* Support for programming has increased exponentially since computers were invented.
-* We have made numerous semi-successful experiments in improving how we organize code and model systems in code.
-* Bringing up the rear: *Reliability*. Efforts to consistently create reliable systems seem to be the last thing we work on.
+* Support for programming has increased exponentially since computers were
+  invented.
+* We have made numerous semi-successful experiments in improving how we organize
+  code and model systems in code.
+* Bringing up the rear: *Reliability*. Efforts to consistently create reliable
+  systems seem to be the last thing we work on.
 
 ...
 
 ## Who this book is for
 
+* Your background
+* What to expect
+
+This is not a comprehensive Scala 3 book. For that we recommend [Programming in
+Scala 3](). We will, however, introduce the subset of the Scala 3 language
+features that we use in the book.
+
 ## How to use this book
 
-Each section answers a fundamental question through a sequence of lessons/chapters/lectures, each with a set of exercises.
+Each section answers a fundamental question through a sequence of
+lessons/chapters/lectures, each with a set of exercises.
 
 * Designed Around a Workshop
 
