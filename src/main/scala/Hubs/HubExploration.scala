@@ -1,11 +1,20 @@
 package Hubs
 
-object HubExploration {
+object HubExploration extends zio.App {
   import zio._
 
-  trait Hub[A] {
-    def publish(a: A): UIO[Boolean]
-    def subscribe: ZManaged[Any, Nothing, Dequeue[A]]
-  }
+  def run(args: List[String]) = //Use App's run function
+    val logic =
+      for
+        hub <- Hub.bounded[Int] (2)
+        _ <- hub.subscribe.use {
+          case hubSubscription =>
+            for
+              _ <- hub.publish(42)
+              _ <- hubSubscription.take.flatMap(currentInt => console.putStrLn("Int: " + currentInt))
+            yield ()
+        }
+      yield ()
 
+    logic.exitCode
 }
