@@ -8,7 +8,7 @@ resolvers += Resolver.JCenterRepository
 
 MdToSource / mdDirectory := file("Chapters")
 
-val zioVersion = "1.0.8"
+val zioVersion = "1.0.9"
 
 libraryDependencies ++= Seq(
   "org.jetbrains" % "annotations-java5" % "15.0",
@@ -27,10 +27,19 @@ testPar := Def.taskDyn {
   val allMainTasks = (Compile / discoveredMainClasses).value.map { m =>
     (Compile / runMain).toTask(s" $m")
   }
-// bill input
   Def.sequential(allMainTasks)
 }.value
 
 scalacOptions += "-Yexplicit-nulls"
 scalacOptions -= "-explain-types"
 scalacOptions -= "-explain"
+
+
+/*
+  Some options:
+    1. Hub Examples
+    2. Crypto Examples
+    3. GitHub Action improvements
+      - Recognize when `runAll` is happening over on Github, and use a fake console
+    4. Something totally different
+ */

@@ -16,4 +16,4 @@ cs java --jvm adopt:11 --setup
 To ensure that you don't break the build and/or inconvenience your collaborators, execute this script in the project 
 root to setup our hooks:
 
-    /bin/bash /home/bfrasure/Repositories/AtomicScala3/bin/setupGitHooks.sh
+    ./bin/setupGitHooks.sh

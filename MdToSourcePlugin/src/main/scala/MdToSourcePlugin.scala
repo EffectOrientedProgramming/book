@@ -18,7 +18,6 @@ object MdToSourcePlugin extends AutoPlugin {
   import autoImport._
 
   lazy val generateSourcesTask = Def.task {
-    println((MdToSource / mdDirectory).value.listFiles(FileFilter.globFilter("*.md")))
     (MdToSource / mdDirectory).value.listFiles(FileFilter.globFilter("*.md"))
       .flatMap { md =>
         val contents: String = IO.read(md)
