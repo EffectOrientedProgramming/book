@@ -1,3 +1,4 @@
 #!/bin/sh
 
-./bin/sbt scalafmt
+# Currently doesn't work because scalafmt is struggling to support optional braces :(
+# ./bin/sbt scalafmt
