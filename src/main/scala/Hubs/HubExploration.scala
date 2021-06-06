@@ -1,8 +1,11 @@
 package Hubs
 
+import fakeEnvironmentInstances.FakeConsole
+
 object HubExploration extends zio.App {
   import zio._
   import zio.duration._
+  import zio.clock._
 
   def run(args: List[String]) = //Use App's run function
     val getAnInt =
@@ -37,5 +40,11 @@ object HubExploration extends zio.App {
         }
       yield ()
 
-    logic.exitCode
+    (for
+      fakeConsole <- FakeConsole.createConsoleWithInput(Seq("3", "5", "7", "9", "11", "13"))
+      _ <- logic
+        .provideCustomLayer(Clock.live ++ ZLayer.succeed(fakeConsole))
+
+    yield ()
+      ).exitCode
 }
