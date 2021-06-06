@@ -2,13 +2,14 @@ package Hubs
 
 object HubExploration extends zio.App {
   import zio._
+  import zio.duration._
 
   def run(args: List[String]) = //Use App's run function
     val getAnInt =
       for
         _ <- console.putStrLn("Please provide an int")
-        input <- console.getStrLn
-      yield input.toInt
+        input <- console.getStrLn.timeout(5.seconds)// .map(_.getOrElse(-1))
+      yield input.getOrElse("-1").toInt
 
     val logic =
       for
@@ -27,9 +28,11 @@ object HubExploration extends zio.App {
                 _ <- console.putStrLn("Int: " + nextInt)
               yield ()
 
+            val reps = 5
             for
-              _ <- ZIO.collectAllPar(Set(getAndStoreInput, processNextIntAndPrint))
-                    .repeatN(3)
+              _ <- ZIO.collectAllPar(Set(getAndStoreInput.repeatN(reps), processNextIntAndPrint.forever))
+                .timeout(5.seconds)
+
             yield ()
         }
       yield ()
