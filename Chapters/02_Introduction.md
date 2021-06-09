@@ -8,6 +8,8 @@ Thesis Statement:
   code and model systems in code.
 * Bringing up the rear: *Reliability*. Efforts to consistently create reliable
   systems seem to be the last thing we work on.
+* We want to leverage the compiler and type system to bring reliability to 
+  the fore
 
 ...
 
