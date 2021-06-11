@@ -17,7 +17,9 @@ object Mining extends zio.App {
       yield (this, s"$name mined the next coin in $duration seconds")
 
     //Takes a starting value, then calls itterates up through numbers until it finds a prime number.
-    def mineByCalculatingPrimeNumbers(num: Long): ZIO[Any, Nothing, (Miner, String)] =
+    def mineByCalculatingPrimeNumbers(
+        num: Long
+    ): ZIO[Any, Nothing, (Miner, String)] =
       ZIO.succeed(
         (
           this,
@@ -25,23 +27,29 @@ object Mining extends zio.App {
         )
       )
 
-
-  def competeForNextBlock(miners: Seq[Miner], f: Miner => ZIO[zio.random.Random & zio.Has[zio.clock.Clock.Service] & zio.Has[zio.console.Console.Service],
-    Exception, (Miner, String)]) =
+  def competeForNextBlock(
+      miners: Seq[Miner],
+      f: Miner => ZIO[zio.random.Random & zio.Has[
+        zio.clock.Clock.Service
+      ] & zio.Has[zio.console.Console.Service], Exception, (Miner, String)]
+  ) =
     miners
       .map(f(_))
       .reduce(_ race _) // Much terser. I think it's worth using this form
 
   // Nonempty list TODO embed in the type
-  def competeForNextBlockPar(miners: Seq[Miner], f: Miner => ZIO[zio.random.Random & zio.Has[zio.clock.Clock.Service] &
-    zio.Has[zio.console.Console.Service],
-    Exception, (Miner, String)]) =
+  def competeForNextBlockPar(
+      miners: Seq[Miner],
+      f: Miner => ZIO[zio.random.Random & zio.Has[
+        zio.clock.Clock.Service
+      ] & zio.Has[zio.console.Console.Service], Exception, (Miner, String)]
+  ) =
     val (head :: tail) = miners.map(miner => f(miner))
-      ZIO.reduceAllPar(
-        head,
-        tail
-      )((first, second) => first)
-//      .foldLeft(()) 
+    ZIO.reduceAllPar(
+      head,
+      tail
+    )((first, second) => first)
+//      .foldLeft(())
 //      .reduce(_ race _) // Much terser. I think it's worth using this form
 
   def findNextBlock(miners: Seq[Miner]) =
@@ -53,7 +61,10 @@ object Mining extends zio.App {
         5_000_000,
         100_000_000
       ) //This is the value that the prime number finder starts from
-      (miner, completionMessage) <- competeForNextBlockPar(miners, _.mineByCalculatingPrimeNumbers(startNum))
+      (miner, completionMessage) <- competeForNextBlockPar(
+        miners,
+        _.mineByCalculatingPrimeNumbers(startNum)
+      )
     yield ((miner, completionMessage))
 
   def run(args: List[String]) = //Use App's run function
@@ -61,10 +72,12 @@ object Mining extends zio.App {
       Miner("Wealthy Frop", gigaFlops = 120),
       Miner("Average Zeb", gigaFlops = 100),
       Miner("Poor Shtep", gigaFlops = 80),
-      Miner("Cheatin' cheep", gigaFlops = 150),
+      Miner("Cheatin' cheep", gigaFlops = 150)
     )
 
-    def calculateAndPrintWinner(miners: Seq[Miner]) = //Uses mine1 function (Just sleeping)
+    def calculateAndPrintWinner(
+        miners: Seq[Miner]
+    ) = //Uses mine1 function (Just sleeping)
       for
         raceResult <- findNextBlock2(miners)
         (winner, winnerText) = raceResult
@@ -88,7 +101,7 @@ object Mining extends zio.App {
             .mkString("\n")
         )
       yield ()
-    val initialCoinCounts =Map(activeMiners.map(_ -> 0):_*)
+    val initialCoinCounts = Map(activeMiners.map(_ -> 0): _*)
     val repetitions = 50
     // Demonstrating Refs vs Fold. These 2 approaches are the exact same
     val miningWithResults =

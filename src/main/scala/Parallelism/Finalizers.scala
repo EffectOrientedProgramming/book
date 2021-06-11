@@ -47,7 +47,9 @@ object Finalizers extends zio.App {
         ) //Combine the strings of the output vector into a single string, separated by \n
       yield ()
     ioExample
-      .catchAllDefect( exception => putStrLn("Ultimate error message: " + exception.getMessage))
+      .catchAllDefect(exception =>
+        putStrLn("Ultimate error message: " + exception.getMessage)
+      )
       .exitCode //Call the Zio with exitCode.
 
 }

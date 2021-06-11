@@ -24,7 +24,7 @@ object HubExploration extends zio.App {
 
 //    def calculatePointsFor(answer: List[Answer]): List[(Student, Int)] = ???
 
-    class Scores (studentPoints: Map[Student, Int]):
+    class Scores(studentPoints: Map[Student, Int]):
       def finalResults(): String = ???
 
     /*
@@ -42,55 +42,63 @@ object HubExploration extends zio.App {
     val cahootSingleRound =
       for
         questionHub <- Hub.bounded[Question](1)
-        answerHub <-  Hub.bounded[Answer](students.size)
+        answerHub <- Hub.bounded[Answer](students.size)
         _ <- questionHub.subscribe.zip(answerHub.subscribe).use {
-          case (questions, answers) => // TODO When do we actually use these subscriptions instead of the outter hub?
+          case (
+                questions,
+                answers
+              ) => // TODO When do we actually use these subscriptions instead of the outter hub?
             for
               _ <- questionHub.publish(Question("How do you use Hubs?"))
               question <- questions.take
               _ <- answerHub.publish(Answer("Carefully", students.head))
               receivedAnswer <- answers.take
-              _ <- putStrLn("Round trip result: " + calculatePointsFor(receivedAnswer))
+              _ <- putStrLn(
+                "Round trip result: " + calculatePointsFor(receivedAnswer)
+              )
             yield ()
         }
       yield ()
 
     val logic =
       for
-        hub <- Hub.bounded[Int] (2)
-        _ <- hub.subscribe.use {
-          case hubSubscription =>
-
-            val getAndStoreInput =
-              for
-                _ <- console.putStrLn("Please provide an int")
-                input <- console.getStrLn
-                nextInt = input.toInt
-                _ <- hub.publish(nextInt)
-              yield ()
-
-            val processNextIntAndPrint =
-              for
-                nextInt <- hubSubscription.take
-                _ <- console.putStrLn("Multiplied Int: " + nextInt * 5)
-              yield ()
-
-            val reps = 5
+        hub <- Hub.bounded[Int](2)
+        _ <- hub.subscribe.use { case hubSubscription =>
+          val getAndStoreInput =
             for
-              _ <- ZIO.collectAllPar(Set(getAndStoreInput.repeatN(reps), processNextIntAndPrint.forever))
-                .timeout(5.seconds)
-
+              _ <- console.putStrLn("Please provide an int")
+              input <- console.getStrLn
+              nextInt = input.toInt
+              _ <- hub.publish(nextInt)
             yield ()
+
+          val processNextIntAndPrint =
+            for
+              nextInt <- hubSubscription.take
+              _ <- console.putStrLn("Multiplied Int: " + nextInt * 5)
+            yield ()
+
+          val reps = 5
+          for
+            _ <- ZIO
+              .collectAllPar(
+                Set(
+                  getAndStoreInput.repeatN(reps),
+                  processNextIntAndPrint.forever
+                )
+              )
+              .timeout(5.seconds)
+          yield ()
         }
       yield ()
 
     (for
-      fakeConsole <- FakeConsole.createConsoleWithInput(Seq("3", "5", "7", "9", "11", "13"))
+      fakeConsole <- FakeConsole.createConsoleWithInput(
+        Seq("3", "5", "7", "9", "11", "13")
+      )
       _ <-
 //        logic
         cahootSingleRound
 //        .provideCustomLayer(Clock.live ++ ZLayer.succeed(fakeConsole))
-
-    yield ()
-      ).exitCode
+    yield ()).exitCode
 }
