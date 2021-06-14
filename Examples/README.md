@@ -5,15 +5,12 @@ If you want to experiment with the code examples from the book [Effect Oriented 
 These examples are automatically extracted directly from the book. This repository
 includes tests to verify that the code in the book is correct.
 
-!!!!!!
+TODO: UPDATE NOTE
 > **NOTE** If you are planning to solve the exercises after reading each atom
 > (and you should), you can get the exercises AND all these examples together by
 > installing [the educational course](https://www.atomickotlin.com/exercises/).
 > If you're going to solve the exercises, you can just install the course and you
 > don't need to install the examples from this repository.
-
-!!!!!!
-
 
 
 ## Contents
@@ -45,7 +42,7 @@ download [Coursier](https://get-coursier.io/), which will be very helpful when u
 The remainder of this README shows you how to build and test the provided examples using
  IntelliJ IDEA, SBT, and the command line.
 
-!!!!!
+TODO: Where will examples be posted?
 Exercises and solutions for the book can be found at
 [AtomicKotlin.com/exercises](https://www.atomickotlin.com/exercises).
 
@@ -201,7 +198,7 @@ on the Mac, "Extract Here" on Linux, or "Extract all ..." on Windows.
 
 Scala runs on top of Java, so you must first install Java version 1.6 or later
 (you only need basic Java; the development kit also works but is not
-required). In this book we use JDK8 (Java 1.8). !!!!(JDK8 ?)
+required). In this book we use JDK8 (Java 1.8). TODO: Which JDK will we use?(JDK8 ?)
 
 Follow the instructions in `The Shell` to open a Powershell. 
 Run **java -version** at the prompt (regardless of the subdirectory you’re in) to see if
@@ -264,7 +261,7 @@ Run **java -version** at the prompt (regardless of the subdirectory you’re in)
 ###Install Scala
    In this book, we use Scala version 2.11, the latest available at the time. In
    general, the code in this book should also work on versions more recent
-   than 2.11. !!!! (version 2.11?)
+   than 2.11. TODO: Are we using Scala 3? (version 2.11?)
 
    The main download site for Scala is:
    
@@ -291,8 +288,7 @@ Run **java -version** at the prompt (regardless of the subdirectory you’re in)
    at the Powershell prompt. You’ll see the version information for your Scala
    installation.
 
-
-!!!!!
+TODO: Where will ex code be listed? 
 ###Source Code for the Book
    We include a way to easily test the Scala exercises in this book with a
    minimum of configuration and download. Follow the links for the book’s
@@ -627,7 +623,7 @@ Reset your **PATH** with the command
 run scala -version and see a version number that agrees with what you’ve
 just installed.
 
-!!!!!
+TODO: Where will example code be listed?
 ###Source Code for the Book
 We include a way to easily test the Scala exercises in this book with a
 minimum of configuration and download. Follow the links for the book’s
@@ -726,7 +722,7 @@ To update **Coursier** in the future, use the command:
 
 ### Use Coursier to Download Several Useful Applications (All OS)
 
-!!!!!
+TODO: IS this the right command?
 To install several use full applications, including the SBT system, which will be very useful 
 later, simply run the command:
 > cs
@@ -828,7 +824,7 @@ file.
 
 Assuming you’ve followed the instructions in the “Installation” section for
 your computer’s operating system, the book’s examples are in a directory
-called !!!!**AtomicScala**. Although you can download the code, we urge you to
+called (TODO: Insert dir name here). Although you can download the code, we urge you to
 type in the code from the book, since the hands-on experience can help
 you learn.
 
@@ -867,7 +863,7 @@ Here are some value definitions:
 > */
 
 The first line of each example in this book contains the name of the source
-code file as you find it in the !!!!**AtomicScala** directory that you set up in your 
+code file as you find it in the (TODO: Insert dir name here) directory that you set up in your 
 appropriate “Installation” atom. You also see line numbers on all of our
 code samples. Line numbers do not appear in legal Scala code, so don’t
 add them in your code. We use them merely as a convenience when
@@ -900,7 +896,7 @@ the listing, inside a multiline comment. Note that **println** will take a singl
 value, or a comma-separated sequence of values.
 
 We include exercises with each atom from this point forward. The solutions
-are available at !!!!**AtomicScala.com**. The solution folders match the names of
+are available at (TODO: Insert website name here). The solution folders match the names of
 the atoms.
 
 # Compiling and Running Programs in IntelliJ IDEA
@@ -911,7 +907,7 @@ compiling and running them using IntelliJ IDEA:
 1. Follow the instructions [here](https://www.jetbrains.com/help/idea/installation-guide.html)
    to install IntelliJ IDEA.
 
-!!!!!!
+TODO: Where will the code be?
 2. Download the [zipped code
    repository](https://github.com/BruceEckel/AtomicKotlinExamples/archive/master.zip)
    and [unzip it](#unpacking-a-zip-archive).
@@ -989,7 +985,7 @@ If the program is packaged under `bar`, we give the package name followed by a
 scala bar.Foo
 ```
 
-!!!!
+TODO: Are we planning on using Ammonite?
 # Appendix C: Testing
 
 The test system is built in so that we (the authors) can verify the correctness
