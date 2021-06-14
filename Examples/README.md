@@ -42,7 +42,7 @@ The easiest way to access and experiment with the book examples is to
 clone/download this repository and open it with IntelliJ IDEA. This README will also cover how to 
 download [Coursier](https://get-coursier.io/), which will be very helpful when using [SBT](https://www.scala-sbt.org/).
 
-The remainder of this README shows you how to build and test the examples using
+The remainder of this README shows you how to build and test the provided examples using
  IntelliJ IDEA, SBT, and the command line.
 
 !!!!!
@@ -60,7 +60,7 @@ instructions on [YouTube](https://www.youtube.com/).
 Because it is possible for a "dedicated beginner" to learn programming from
 this book, you may not have previously used your computer's command-line shell.
 If you have, you can go directly to the
-[installation instructions](#building-from-the-command-line-detailed-instructions).
+[installation instructions](#installations).
 
 ## Editors
 
@@ -201,7 +201,7 @@ on the Mac, "Extract Here" on Linux, or "Extract all ..." on Windows.
 
 Scala runs on top of Java, so you must first install Java version 1.6 or later
 (you only need basic Java; the development kit also works but is not
-required). In this book we use JDK8 (Java 1.8).
+required). In this book we use JDK8 (Java 1.8). !!!!(JDK8 ?)
 
 Follow the instructions in `The Shell` to open a Powershell. 
 Run **java -version** at the prompt (regardless of the subdirectory you’re in) to see if
@@ -264,7 +264,7 @@ Run **java -version** at the prompt (regardless of the subdirectory you’re in)
 ###Install Scala
    In this book, we use Scala version 2.11, the latest available at the time. In
    general, the code in this book should also work on versions more recent
-   than 2.11.
+   than 2.11. !!!! (version 2.11?)
 
    The main download site for Scala is:
    
@@ -352,7 +352,7 @@ Run **java -version** at the prompt (regardless of the subdirectory you’re in)
 
 ## Macintosh
 Scala runs atop Java, and the Mac comes with Java pre-installed. Use
-**Software Update** on the Apple menu to check that you have the most upto-date version of Java for your Mac, and update it if necessary. You need
+**Software Update** on the Apple menu to check that you have the most up-to-date version of Java for your Mac, and update it if necessary. You need
 at least Java version 1.6. It is not necessary to update your Mac operating
 system software. In this book we use JDK8 (Java 1.8).
 
@@ -726,6 +726,7 @@ To update **Coursier** in the future, use the command:
 
 ### Use Coursier to Download Several Useful Applications (All OS)
 
+!!!!!
 To install several use full applications, including the SBT system, which will be very useful 
 later, simply run the command:
 > cs
@@ -825,9 +826,9 @@ println("Hello, Scala!")
 We always begin a code file with a comment that contains the name of the
 file.
 
-Assuming you’ve followed the instructions in the “Installation” atom for
+Assuming you’ve followed the instructions in the “Installation” section for
 your computer’s operating system, the book’s examples are in a directory
-called **AtomicScala**. Although you can download the code, we urge you to
+called !!!!**AtomicScala**. Although you can download the code, we urge you to
 type in the code from the book, since the hands-on experience can help
 you learn.
 
@@ -866,7 +867,7 @@ Here are some value definitions:
 > */
 
 The first line of each example in this book contains the name of the source
-code file as you find it in the **AtomicScala** directory that you set up in your 
+code file as you find it in the !!!!**AtomicScala** directory that you set up in your 
 appropriate “Installation” atom. You also see line numbers on all of our
 code samples. Line numbers do not appear in legal Scala code, so don’t
 add them in your code. We use them merely as a convenience when
@@ -899,7 +900,7 @@ the listing, inside a multiline comment. Note that **println** will take a singl
 value, or a comma-separated sequence of values.
 
 We include exercises with each atom from this point forward. The solutions
-are available at **AtomicScala.com**. The solution folders match the names of
+are available at !!!!**AtomicScala.com**. The solution folders match the names of
 the atoms.
 
 # Compiling and Running Programs in IntelliJ IDEA
@@ -919,15 +920,15 @@ compiling and running them using IntelliJ IDEA:
    where you unzipped the repository and open the `build.sbt` file.
     
 4. Go to the menu and select: <br />
-   `View | Tool Windows | sbt`. Right click the directory name, and reload the sbt project.
-   This should ensure your machine has all nessessary plugins and extentions installed.
+   `View | Tool Windows | sbt`. Right-click the directory name, and reload the sbt project.
+   This should ensure your machine has all necessary plugins and extensions installed.
    
 5. In a terminal, run the command:
   > sbt
 
 This will open the sbt shell. From there, you can run the programs in your project.
 
-6. Here are several usefull comands when using the sbt shell:
+6. Here are several useful commands when using the sbt shell:
 
 > compile
 
@@ -935,7 +936,7 @@ This will open the sbt shell. From there, you can run the programs in your proje
 
 >run
 
-* This command will display a list of all excecutables in the project. In the comand prompt, input the 
+* This command will display a list of all executables in the project. In the comand prompt, input the 
 index of the file to run.
   
 >runMain (filename)
@@ -945,7 +946,7 @@ index of the file to run.
 
 
 For example, to run `helloWorld`, the main function of the HelloWorld object located in
-the directory `src | main | scala`, input the following comands into the sbt shell:
+the directory `Examples`, input the following commands into the sbt shell:
 
 >run <br />
 > (input the index of helloWorld)
@@ -957,51 +958,10 @@ or
 7. To exit the sbt shell, press **ctrl + d**
 
 
-# Appendix B: Command-Line Hello World
-
-This appendix explains how to compile and run the program shown in the "Hello
-World" atom in the book, using the latest version (1.4 or higher) of the
-[Kotlin command-line compiler](http://kotlinlang.org/docs/tutorials/command-line.html).
-
-Open up a console window in the `HelloWorld` directory, where you'll see
-`HelloWorld.kt`, and type:
-
-```
-kotlinc HelloWorld.kt
-```
-
-`kotlinc` means "Kotlin compiler." The compiler is the program that takes
-your program and turns it into something that will run; this process is
-called *compiling*.
-
-Assuming you've typed the code correctly, you should get back the console
-prompt, with no other messages. If you get error messages, try to discover
-where you've mis-typed the code, correct it and try again. Once you are
-successful, you're ready to run the program.
-
-There's one more thing: When you run `kotlinc`, the resulting program doesn't
-have the same name as the source program. Instead, the compiler appends a `Kt`
-to the name. To see it, run `ls` or `dir` on the `helloworld` subdirectory.
-You'll see that the directory contains `HelloWorldKt.class`. What's important
-is the part before the `.class`. This is the actual name of the program:
-`HelloWorldKt`.
-
-Now we can run the program:
-
-```
-kotlin HelloWorldKt
-```
-
-And you'll see the output on the console:
-
-```
-Hello, world!
-```
-
-## Packages
+# Packages
 
 If the program is in a package, the package name is also required to run the
-program. That is, if `Foo.kt` contains a `package` statement:
+program. That is, if `Foo.scala` contains a `package` statement:
 
 ```
 package bar
@@ -1010,80 +970,27 @@ package bar
 then you cannot simply say:
 
 ```
-kotlin Foo
+scala Foo
 ```
 
-You'll get a message starting with `error: could not find or load`...
+You'll get a message starting with `error: could not find or load...`
 
 If you were to compile this program, you'd see there's a new subdirectory
-called `bar`. The name of the subdirectory that appears when you run `kotlinc`
+called `bar`. The name of the subdirectory that appears when you run `scalac`
 corresponds to the `package` name in the program that was compiled.
 
+```
+scalac bar
+```
 If the program is packaged under `bar`, we give the package name followed by a
 "dot," then the program's name:
 
 ```
-kotlin bar.FooKt
+scala bar.Foo
 ```
 
-# Appendix C: The Kotlin REPL
-
-The Kotlin interpreter is also called the REPL (for *Read-Evaluate-Print-
-Loop*). To use this you must first install the
-latest version (1.4 or higher) of the [Kotlin command-line
-compiler](http://kotlinlang.org/docs/tutorials/command-line.html).
-
-> NOTE: You do not need to install command-line Kotlin for the operations
-> described previously in this README.
-
-## Install Kotlin
-
-In this book, we use Kotlin version 1.4, the latest available at the time. The
-detailed installation instructions for the command-line compiler are available
-at [The Kotlin Site](https://kotlinlang.org/docs/tutorials/command-line.html).
-
-To check your installation, open a new shell and type:
-
-```
-kotlin -version
-```
-
-at the shell prompt. You'll see the version information for your Kotlin
-installation.
-
-## The REPL
-
-To start the REPL, type `kotlinc` by itself on the command line. You should see
-something like the following:
-
-```
-Welcome to Kotlin version 1.4 (JRE 1.8.0_144-b01)
-Type :help for help, :quit for quit
->>>
-```
-
-The exact version numbers will vary depending on the versions of Kotlin
-and Java you've installed, but make sure that you're running Kotlin 1.4
-or greater.
-
-The REPL gives you immediate interactive feedback, which is helpful for
-experimentation. For example, you can do arithmetic:
-
-```
->>> 42 * 11.3
-474.6
-```
-
-Find out more by typing `:help` at the Kotlin prompt. To exit the REPL, type:
-
-```
->>> :quit
-```
-
-To compile and run examples using the Kotlin command-line tools, see
-[Command-Line Hello World](#appendix-b-command-line-hello-world).
-
-# Appendix D: Testing
+!!!!
+# Appendix C: Testing
 
 The test system is built in so that we (the authors) can verify the correctness
 of what goes into the book.
