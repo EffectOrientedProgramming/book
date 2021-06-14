@@ -13,6 +13,9 @@ TODO: UPDATE NOTE
 > don't need to install the examples from this repository.
 
 
+TODO: What level of knowledge can we assume? This is a readme for beginners, but I know we are making the book for higher level programmers...
+
+
 ## Contents
 - [Introduction](#introduction)
 - [Command-Line Basics](#command-line-basics)

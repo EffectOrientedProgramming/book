@@ -37,7 +37,7 @@ lessons/chapters/lectures, each with a set of exercises.
 
 ## Getting Started
 
-* Pointer to book's Examples repository. README for that walks through all the
+* Pointer to book's Examples repository. README that walks through all the
   details of setup and tools. Start by copying from AtomicKotlinExamples (I've
   asked Wyett to look into this). This way we can make modifications as we
   discover what people do and don't understand, without having to update the
