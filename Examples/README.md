@@ -5,15 +5,16 @@ If you want to experiment with the code examples from the book [Effect Oriented 
 These examples are automatically extracted directly from the book. This repository
 includes tests to verify that the code in the book is correct.
 
-TODO: UPDATE NOTE
-> **NOTE** If you are planning to solve the exercises after reading each atom
+TODO: Correct Download Location?
+> **NOTE** If you are planning to solve the exercises after reading each section
 > (and you should), you can get the exercises AND all these examples together by
-> installing [the educational course](https://www.atomickotlin.com/exercises/).
-> If you're going to solve the exercises, you can just install the course and you
+> installing [the educational course](https://github.com/EffectOrientedProgramming/book/Examples).
+> If you're going to solve the exercises, you can just install the course, and you
 > don't need to install the examples from this repository.
 
 
 TODO: What level of knowledge can we assume? This is a readme for beginners, but I know we are making the book for higher level programmers...
+(I figured it is always easier to remove than to add, so I just left the beginner level things in.)
 
 
 ## Contents
@@ -47,7 +48,7 @@ The remainder of this README shows you how to build and test the provided exampl
 
 TODO: Where will examples be posted?
 Exercises and solutions for the book can be found at
-[AtomicKotlin.com/exercises](https://www.atomickotlin.com/exercises).
+[E.O.P. Examples](https://github.com/EffectOrientedProgramming/book/Examples).
 
 **Note**: If any terminology or processes described here are still not clear to
 you, you can usually find explanations or answers through
@@ -295,7 +296,7 @@ TODO: Where will ex code be listed?
 ###Source Code for the Book
    We include a way to easily test the Scala exercises in this book with a
    minimum of configuration and download. Follow the links for the book’s
-   source code at AtomicScala.com and download the package (this places it
+   source code at https://github.com/EffectOrientedProgramming/book/Examples and download the package (this places it
    in your “Downloads” directory unless you have configured your system to
    place it elsewhere).
    To unpack the book’s source code, locate the file using the Windows
@@ -426,7 +427,7 @@ at the shell prompt. You’ll see the version information for your Scala
 installation.
 
 
-!!!!
+TODO: Correct Download Location?
 ###Source Code for the Book
 We include a way to easily test the Scala exercises in this book with a
 minimum of configuration and download. Follow the links for the book’s
@@ -582,7 +583,7 @@ directory and run the command:
 
 This creates a subdirectory starting with **jre** and ending with the version of
 Java you just installed. Below is a **bin** directory. Edit your **.profile** (following
-the instructions earlier in this atom) and locate the last **PATH** directive, if
+the instructions earlier in this section) and locate the last **PATH** directive, if
 there is one. Add or modify your **PATH** so Java’s **bin** directory is the first
 one in your **PATH** (there are more “proper” ways to do this but we’re
 being expedient). For example, the beginning of the **PATH** directive in your
@@ -634,7 +635,7 @@ source code at AtomicScala.com into a convenient location on your
 computer.
 Move atomic-scala-examples-master.zip to your home directory using the
 shell command:
-cp atomic-scala-examples-master.zip ~48 • Atomic Scala • Installation (Linux)
+cp atomic-scala-examples-master.zip 
 Unpack the book’s source code by running unzip atomic-scala-examplesmaster.zip. Navigate down into the resulting unpacked folder until you
 find the examples directory.
 Create an AtomicScala directory in your home directory, and move
@@ -825,9 +826,11 @@ println("Hello, Scala!")
 We always begin a code file with a comment that contains the name of the
 file.
 
+TODO:Correct Download Location?
 Assuming you’ve followed the instructions in the “Installation” section for
 your computer’s operating system, the book’s examples are in a directory
-called (TODO: Insert dir name here). Although you can download the code, we urge you to
+called `Examples`([Download Here](https://github.com/EffectOrientedProgramming/book/Examples)) 
+. Although you can download the code, we urge you to
 type in the code from the book, since the hands-on experience can help
 you learn.
 
@@ -865,9 +868,11 @@ Here are some value definitions:
 > (11,1.4,A value)<br />
 > */
 
+TODO: Correct Download Location?
 The first line of each example in this book contains the name of the source
-code file as you find it in the (TODO: Insert dir name here) directory that you set up in your 
-appropriate “Installation” atom. You also see line numbers on all of our
+code file as you find it in the `Examples` ([Download Here](https://github.com/EffectOrientedProgramming/book/Examples))
+directory that you set up in your appropriate “Installation” section. 
+You also see line numbers on all of our
 code samples. Line numbers do not appear in legal Scala code, so don’t
 add them in your code. We use them merely as a convenience when
 describing the code.
@@ -897,10 +902,10 @@ of day when you get coffee, it’s more obvious to others if you name it
 In the first few examples of this book, we show the output at the end of
 the listing, inside a multiline comment. Note that **println** will take a single
 value, or a comma-separated sequence of values.
-
-We include exercises with each atom from this point forward. The solutions
-are available at (TODO: Insert website name here). The solution folders match the names of
-the atoms.
+TODO: Correct Download Location?
+We include exercises with each section from this point forward. The solutions
+are available at https://github.com/EffectOrientedProgramming/book/Examples. The solution folders match the names of
+the sections.
 
 # Compiling and Running Programs in IntelliJ IDEA
 
@@ -910,9 +915,9 @@ compiling and running them using IntelliJ IDEA:
 1. Follow the instructions [here](https://www.jetbrains.com/help/idea/installation-guide.html)
    to install IntelliJ IDEA.
 
-TODO: Where will the code be?
+TODO: Correct Download Location?
 2. Download the [zipped code
-   repository](https://github.com/BruceEckel/AtomicKotlinExamples/archive/master.zip)
+   repository](https://github.com/EffectOrientedProgramming/book/Examples)
    and [unzip it](#unpacking-a-zip-archive).
 
 3. Start IntelliJ IDEA, and select the `File | Open` menu item.  Navigate to
