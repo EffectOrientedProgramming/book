@@ -1,5 +1,5 @@
 #Monads
-In the world of Functional Programming, Monads are a data type that can be for handling errors. Monads 
+In the world of Functional Programming, *Monads* are a data type that can be used for handling errors. Monads 
 can be though of as a way of wrapping existing variable types in an abstraction as to
 better represent their possible uncertainty. 
 
@@ -15,6 +15,19 @@ The monadic function may return an intended value on success, but it might retur
 the intended functionality of an object with the possible error types, a programmer can create data types that
 express all possibilities for the function. The monadic data type is thus consistent, safe, and conveys information
 clearly. 
+
+In addition to monadic data types containing uncertainty, monads must also have a 'flatmap' function. This flatmap function
+will be able to identify and return one of the possibilities the monad represents as the 'favored' outcome. Once one of the outcomes is 
+extracted from the monad, it can be passed into another function, which is given to flatmap as a parameter. At runtime, this other function 
+will only be called when the monad represents the successful, or favored output. 
+For example:
+
+>//This is pseudocode
+> monad = success | failure
+> value = monad.flatmap(doSomething)
+
+At runtime, `monad` will either end up being a success or a failure. If it is successful, the success output of `monad` will be
+passed into `doSomething()`. If monad fails, then the function `doSomething()` will not be called at all. 
 
 Monads allow programmers to access all the benefits of Functional Programming while being able to handle effects. 
 By incorporating monads, programmers can still follow all the rules of FP, while being able to deal with uncertain

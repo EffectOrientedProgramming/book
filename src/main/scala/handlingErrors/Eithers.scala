@@ -18,12 +18,12 @@ object Eithers {
   //IO.fail("Boom") is naturlally type ZIO[R,String,Int], but is
   //converted into type UIO[Either[String, Int]
 
-  def sqrt(input:UIO[Double]): IO[String, Double] =
+  def sqrt(input: UIO[Double]): IO[String, Double] =
     ZIO.absolve(
       input.map(value =>
-      if (value < 0.0) Left("Value must be >= 0.0")
-      else Right(Math.sqrt(value))
-      )
+        if (value < 0.0) Left("Value must be >= 0.0")
+        else Right(Math.sqrt(value))
+        )
     )
 
   //The Left-Right statements naturally from an 'either' of type either[String, Double].

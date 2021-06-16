@@ -13,9 +13,6 @@ TODO: Correct Download Location?
 > don't need to install the examples from this repository.
 
 
-TODO: What level of knowledge can we assume? This is a readme for beginners, but I know we are making the book for higher level programmers...
-(I figured it is always easier to remove than to add, so I just left the beginner level things in.)
-
 
 ## Contents
 - [Introduction](#introduction)
