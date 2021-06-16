@@ -723,10 +723,9 @@ To update **Coursier** in the future, use the command:
 
 ### Use Coursier to Download Several Useful Applications (All OS)
 
-TODO: IS this the right command?
 To install several use full applications, including the SBT system, which will be very useful 
 later, simply run the command:
-> cs
+> cs setup
 
 This will trigger several downloads that may take a few minutes. 
 

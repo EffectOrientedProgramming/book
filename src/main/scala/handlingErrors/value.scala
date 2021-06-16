@@ -2,7 +2,7 @@ package handlingErrors
 
 import zio.*
 
-object Eithers {
+object value {
   //Either and Absolve take ZIO types and 'surface' or 'submerge'
   //the error.
 

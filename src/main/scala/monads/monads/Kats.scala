@@ -3,11 +3,12 @@ package monads.monads
 import scala.util.Random
 
 case object Box
+
 sealed trait Kat:
   def doOnSuccess(f: Kat => Kat): Kat =
     this match
       case Alive => f(this)
-      case _ => this
+      case _     => this
 
 case object Dead extends Kat
 case object Alive extends Kat
@@ -24,6 +25,6 @@ def kick(kat: Kat): Kat =
 @main def kickKat =
   val kat = observe(Box).doOnSuccess(kick)
   kat match
-    case Dead => println("it's still dead jim")
+    case Dead  => println("it's still dead jim")
     case Alive => println("oh hi there")
     case Angry => println("hissssss")

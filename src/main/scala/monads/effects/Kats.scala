@@ -1,6 +1,5 @@
 package monads.effects
 
-
 case object Box
 case object Dead
 case object Alive

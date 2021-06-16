@@ -25,10 +25,11 @@ def kick(kat: Alive.type): Either[Dead.type, Angry.type] =
 @main def kickKat =
   //val kat = kick(observe(Box)) // this doesn't work because you shouldn't kick a dead kat
   //val kat: Either[Dead.type, Angry.type] = observe(Box).flatMap(kick)
-  val kat = for
-    alive <- observe(Box)
-    angry <- kick(alive)
-  yield angry
+  val kat =
+    for
+      alive <- observe(Box)
+      angry <- kick(alive)
+    yield angry
 
   println(kat)
 
