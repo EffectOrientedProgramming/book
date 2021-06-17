@@ -8,7 +8,7 @@ Thesis Statement:
   code and model systems in code.
 * Bringing up the rear: *Reliability*. Efforts to consistently create reliable
   systems seem to be the last thing we work on.
-* We want to leverage the compiler and type system to bring reliability to 
+* We want to leverage the compiler and type system to bring reliability to
   the fore
 
 ...
@@ -20,7 +20,8 @@ Thesis Statement:
 
 This is not a comprehensive Scala 3 book. For that we recommend [Programming in
 Scala 3](). We will, however, introduce the subset of the Scala 3 language
-features that we use in the book.
+features that we use in the book. (Also, we might describe why we're using
+Scala 3. But that might not be necessary).
 
 ## How to use this book
 

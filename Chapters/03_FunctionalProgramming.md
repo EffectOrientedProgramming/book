@@ -1,4 +1,7 @@
-# What is an Effect?
+# Functional Programming
+
+> [[[The goal of this chapter is to go from zero to the "Schrödinger's Cheshire Cat" program.
+> This will set the reader up for the "What is an Effect" Chapter.]]]
 
 ## Pure Functions
 The most familiar example of a pure function is a mathematical function.
@@ -29,21 +32,6 @@ This function is *pure* because the parameters completely determine its behavior
 ## Pure Functional Programming
 ### Referential transparency
 
-A pure program is useless.
 
 
-## Effects: The Impure World
 
-- Changes from the world
-- Changes to the world
-- Failures
-
-## Putting Effects in a Box
-
-## Previous Attempts
-- Haskell's approach
-- Cats Effect
-- Maybe Elm
-
-## The Advent of ZIO
-### Why are we using Scala 3
