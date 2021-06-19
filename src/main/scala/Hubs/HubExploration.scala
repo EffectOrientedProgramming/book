@@ -9,13 +9,9 @@ object HubExploration extends zio.App {
   import zio.console.*
 
   def run(args: List[String]) = //Use App's run function
-
-//    trait Teacher
     case class Student(name: String)
     case class Question(text: String)
-//    case class Survey(questions: List[Question])
     case class Answer(text: String, student: Student)
-//    case class Responses(answers: List[Answer])
 
     def calculatePointsFor(answer: Answer): Int = {
       // TODO Ensure Students only send a single response
@@ -33,29 +29,78 @@ object HubExploration extends zio.App {
                              Student3
      */
 
+    val frop = Student("Frop")
+    val zeb = Student("Zeb")
+    val shtep = Student("Shtep")
+    val cheep = Student("Cheep")
+
     val students: List[Student] =
       List(
-        Student("Wyett"),
-        Student("Bill")
+        frop,
+        zeb,
+        shtep,
+        cheep
       )
 
     val cahootSingleRound =
       for
         questionHub <- Hub.bounded[Question](1)
         answerHub <- Hub.bounded[Answer](students.size)
+        correctAnswers <- Ref.make[Scores](
+          Scores(
+            students.map((_, 0)).toMap
+          )
+        )
         _ <- questionHub.subscribe.zip(answerHub.subscribe).use {
           case (
                 questions,
                 answers
               ) => // TODO When do we actually use these subscriptions instead of the outter hub?
             for
+              correctRespondants <- Ref.make[List[Student]](List.empty)
               _ <- questionHub.publish(Question("How do you use Hubs?"))
               question <- questions.take
-              _ <- answerHub.publish(Answer("Carefully", students.head))
-              receivedAnswer <- answers.take
-              _ <- putStrLn(
-                "Round trip result: " + calculatePointsFor(receivedAnswer)
+              _ <- ZIO.collectAllPar(
+                Seq(
+                  answerHub.publish(Answer("Spain", frop)),
+                  for
+                    _ <- ZIO.sleep(2.second)
+                    _ <- answerHub.publish(Answer("Spain", shtep))
+                  yield (),
+                  answerHub.publish(Answer("Germany", zeb)),
+                  for
+                    _ <- ZIO.sleep(1.second)
+                    _ <- answerHub.publish(Answer("Spain", cheep))
+                  yield ()
+                )
               )
+              // TODO Add a timeout
+
+              _ <-
+                (for // gather answers until there's a winner
+                  answer <- answers.take
+                  _ <- putStrLn("Response: " + answer)
+                  currentCorrectRespondents <- correctRespondants.get
+                  _ <-
+                    if (answer.text == "Spain")
+                      correctRespondants
+                        .set(currentCorrectRespondents :+ answer.student)
+                    else
+                      ZIO.unit
+                yield ()).repeat(
+                  Schedule
+                    .recurUntilM(_ =>
+                      correctRespondants.get.map(_.size > 1)
+                    ) && Schedule.recurs(3) && Schedule.spaced(1.second)
+                )
+              winners <- correctRespondants.get
+              _ <- putStrLn("Winners: " + winners.mkString(","))
+//              _ <- putStrLn(
+//                "1st place: " + (firstAnswer, calculatePointsFor(firstAnswer))
+//              )
+//              _ <- putStrLn(
+//                "2nd place: " + (secondAnswer, calculatePointsFor(secondAnswer))
+//              )
             yield ()
         }
       yield ()
