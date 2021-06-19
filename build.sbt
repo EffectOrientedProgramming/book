@@ -2,7 +2,7 @@ import scala.concurrent.duration._
 
 enablePlugins(MdToSourcePlugin)
 
-scalaVersion := "3.0.0"
+scalaVersion := "3.0.1-RC1"
 
 resolvers += Resolver.JCenterRepository
 
@@ -33,8 +33,6 @@ testPar := Def.taskDyn {
 scalacOptions += "-Yexplicit-nulls"
 scalacOptions -= "-explain-types"
 scalacOptions -= "-explain"
-
-
 /*
   Some options:
     1. Hub Examples
