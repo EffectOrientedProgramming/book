@@ -1,0 +1,6 @@
+package scalaBasics
+
+object flatMap {
+
+
+}

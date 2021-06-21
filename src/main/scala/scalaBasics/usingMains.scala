@@ -18,6 +18,18 @@ object usingMains {
   //sbt will recognize it as a main function, and it will be seen
   //as runnable.
 
+  //This is a great way to run specific functions, or combination of functions.
 
+  def foo(input:String) = print(input)
+
+  def bar = print("llo")
+
+  def f = println(" there!")
+
+  @main def message =
+    val str = "He"
+    foo(str)
+    bar
+    f
 
 }
