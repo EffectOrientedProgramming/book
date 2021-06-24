@@ -6,7 +6,7 @@ case class Box[A, V <: Dead.type | A](v: V):
   def doOnSuccess[B](f: A => Box[B, Dead.type | B]): Box[B, Dead.type | B] =
     v match
       case Dead => this.asInstanceOf[Box[B, Dead.type | B]]
-      case a => f(v.asInstanceOf[A])
+      case a    => f(v.asInstanceOf[A])
 
 object Box:
   def observe: Box[Alive.type, Dead.type | Alive.type] =
@@ -15,7 +15,6 @@ object Box:
 case object Dead
 case object Alive
 case object Angry
-
 
 def kick(alive: Alive.type): Box[Angry.type, Dead.type | Angry.type] =
   Box(Angry)

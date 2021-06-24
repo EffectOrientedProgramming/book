@@ -22,5 +22,4 @@ def kick(kat: Alive.type): Either[Dead.type, Angry.type] =
   //val kat = kick(observe(Box)) // this doesn't work because you shouldn't kick a dead kat
   val kat = observe(Box).flatMap(kick)
   println(kat)
-*/
-
+ */

@@ -22,11 +22,8 @@ def kick(kat: Dead.type | Alive.type): Dead.type | Angry.type =
     case Dead  => Dead
     case Alive => Angry
 
-
 @main def kickKat =
   val kat = kick(observe(Box))
   kat match
     case Dead  => println("it's still dead jim")
     case Angry => println("hissssss")
-
-

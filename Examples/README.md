@@ -130,7 +130,7 @@ Windows Powershell." This opens a shell in the destination directory.
 
 ### Directories
 
-*Directories* are one of the fundamental elements of a shell. Directories hold
+*Directories* are one of the fundamental parts of a shell. Directories hold
 files, as well as other directories. Think of a directory as a tree with
 branches. If `books` is a directory on your system and it has two other
 directories as branches, for example `math` and `art`, we say that you have a
