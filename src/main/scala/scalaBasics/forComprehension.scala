@@ -59,43 +59,36 @@ object forComprehension {
     println(evenGT5v1(v))
     println(evenGT5v2(v))
 
-  //For comprehensions can also be used to string together multiple events.
+/*  //For comprehensions can also be used to string together multiple events.
   //In some cases, this is called chainging.
-
-  /* case class intHolder(int:Int){
+  case class stringHolder(num:String) :
     def flatMap =
-      this.int
-  }
+      println("Str Fm")
+      this.num.toDouble
 
-  case class floatHolder(float:Float){
-    def flatMap =
-      this.float
-  }
+    def foreach(f: String => Double): Double =
+      println("Str Fe")
+      f(this.num)
 
-  case class doubleHolder(double:Double){
-    def flatMap =
-      this.double
-  }
-
-  def strToInt(num:String):intHolder =
-    intHolder(num.toInt)
+  case class doubleHolder(num:Double) :
+    def flatMap(f: Double => Int): Int =
+      println("Doub Fm")
+      f(this.num)
 
 
-  def intToFloat(num:Int) =
-    floatHolder(num.toFloat)
+  case class intHolder(num:Int) :
+    def map(f: Int => Int) =
+      println("Int M")
+      f(this.num)
 
-
-  def fltToDouble(num:Float) =
-    doubleHolder(num)
 
 
   @main def run2() =
     val startNum:String = "1"
     val double = for
-        int <- strToInt(startNum)
-        float <- intToFloat(int)
-        double <- fltToDouble(float)
-    yield double
-    println(double)
-   */
+      doub <- stringHolder
+      int <- intHolder(doub)
+    yield int
+    println(double)*/
+
 }

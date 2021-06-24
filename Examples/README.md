@@ -955,6 +955,17 @@ or
 > 
 > runMain helloWorld
 
+Another useful trick is to use the `~` modification on any command. This modfication 
+will make sbt continuously run whatever you put it in front of. Whenever there is a change to the files,
+sbt will run the `~`'d command automatically. 
+
+> ~runMain helloWorld 
+
+This will automatically run helloWorld whenever there is a change to the file system. 
+Pressing enter into the command line will stop the automated command. 
+
+
+
 7. To exit the sbt shell, press **ctrl + d**
 
 
