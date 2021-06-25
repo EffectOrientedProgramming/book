@@ -20,9 +20,6 @@ object directoryExample extends zio.App {
   //The non fatal error is for when a search fucntion does not find the target and throws an error.
   //This is handled by a catch block.
 
-
-
-
   case class employee(
       ID: Int,
       firstName: String,
@@ -89,36 +86,49 @@ object directoryExample extends zio.App {
   //Compile list of emp data
   def compileEmps: ZIO[Any, Any, Vector[employee]] =
     for
-      lines <- readFileContents.retryN(5) //An attempt to open the file occurs 5 times.
+      lines <- readFileContents.retryN(
+        5
+      ) //An attempt to open the file occurs 5 times.
       emps = linesToEmps(lines)
     yield emps
 
-
-
-  case class empNotFound(message:String)
+  case class empNotFound(message: String)
 
   //This function uses recursion to search the list of employees for the given ID.
   // findEmp is a wrapper function for itterate, which is the actual recursive function
   //itterate returns a monad. Either the ID was found, or it wasn't.
-  def findEmp(ID:Int, emps:Vector[employee]):ZIO[Any, empNotFound, employee] =
-    def itterate(index:Int, emps:Vector[employee], targetID:Int):ZIO[Any, empNotFound, employee] =
-      if(emps(index).ID == targetID)
+  def findEmp(
+      ID: Int,
+      emps: Vector[employee]
+  ): ZIO[Any, empNotFound, employee] =
+    def itterate(
+        index: Int,
+        emps: Vector[employee],
+        targetID: Int
+    ): ZIO[Any, empNotFound, employee] =
+      if (emps(index).ID == targetID)
         ZIO.succeed(emps(index))
-      else if(index == 0 )
-        ZIO.fail(new empNotFound(s"Employee with ID $ID does not exit in the firm directory."))
+      else if (index == 0)
+        ZIO.fail(
+          new empNotFound(
+            s"Employee with ID $ID does not exit in the firm directory."
+          )
+        )
       else
-        itterate(index-1, emps, targetID)
-    itterate(emps.length-1, emps, ID)
-
-
+        itterate(index - 1, emps, targetID)
+    itterate(emps.length - 1, emps, ID)
 
 /////////////////////////////////////
   def run(args: List[String]) =
     val logic =
       for
-        emps <- compileEmps          //Note: Excecutable logic is very concise. The behavior is predefined elsewhere, and only just excecuted in the main.
+        emps <-
+          compileEmps //Note: Excecutable logic is very concise. The behavior is predefined elsewhere, and only just excecuted in the main.
         _ <- putStrLn(emps.toString)
-        searchedEmp <- findEmp(4, emps)  //look for different employees based on ID
+        searchedEmp <- findEmp(
+          4,
+          emps
+        ) //look for different employees based on ID
         _ <- putStrLn(s"Looking for employee... \n" + searchedEmp.toString)
       yield ()
 
@@ -127,11 +137,11 @@ object directoryExample extends zio.App {
       //catch error handling...
       .catchSome(i =>
         i match
-          case e:empNotFound => putStrLn("Target employee not in System...")
-          case e:IOException => putStrLn("Unexpected IOExceptions are the worst...")
-          case e:Any => putStrLn(s"Huh, wasn't expecting $e")
+          case e: empNotFound => putStrLn("Target employee not in System...")
+          case e: IOException =>
+            putStrLn("Unexpected IOExceptions are the worst...")
+          case e: Any => putStrLn(s"Huh, wasn't expecting $e")
       )
-
       .exitCode
 ////////////////////////////////////
 }

@@ -59,36 +59,73 @@ object forComprehension {
     println(evenGT5v1(v))
     println(evenGT5v2(v))
 
-/*  //For comprehensions can also be used to string together multiple events.
-  //In some cases, this is called chainging.
-  case class stringHolder(num:String) :
-    def flatMap =
-      println("Str Fm")
-      this.num.toDouble
+  //For comprehensions can also be used to string together multiple events.
+  //In some cases, this is called chainging. A programmer would use a for comprehension
+  //as it more clearly shows the sequentialsim of a chain.
 
-    def foreach(f: String => Double): Double =
-      println("Str Fe")
-      f(this.num)
+  //At this level, the arrow '<-" is called the generator. The generator acts as either a flatmap function,
+  //or a map function. When using the 'yield' functionality, the last '<-' represents a map function instead of a
+  //flatmap.
 
-  case class doubleHolder(num:Double) :
-    def flatMap(f: Double => Int): Int =
-      println("Doub Fm")
-      f(this.num)
+  //Here is a side by side example of a series of function when called inside a for comprehension vs not in a for comprehension:
+
+  case class color(name:String) :
+    def flatMap(f: String => color):color =
+      f(this.name)
+    def map(f: String => String):color =
+      color(f(this.name))
+
+  object color :
+    def makeRed:color =
+      new color("red")
+
+    def changeColor( name2:String):color =
+      new color(name2)
+
+    def changeColor2( name2:String):color =
+      new color(name2)
+////////////////////////////////////////////////////////
+  @main def thefor =
+    val colorChanges =
+      for
+        color1 <- color.makeRed
+        color2 <- color.changeColor("green")
+        color3 <- color.changeColor2("yellow")
+      yield color3
+    println(colorChanges)
 
 
-  case class intHolder(num:Int) :
-    def map(f: Int => Int) =
-      println("Int M")
-      f(this.num)
+  @main def unraveled =
+    val colorChanges = color.makeRed.flatMap { color1 =>  //color1 is a string
+      color.changeColor("green").flatMap { color2 =>    //color2 is a string
+        color.changeColor2("yellow").map { color3 =>   //color3 is a color
+          color3
+          }
+        }
+      }
+    println(colorChanges)
+
+/*
 
 
 
-  @main def run2() =
-    val startNum:String = "1"
-    val double = for
-      doub <- stringHolder
-      int <- intHolder(doub)
-    yield int
-    println(double)*/
+        kat2 <- again(kat1)
+        kat3 <- again(kat2)
+      yield kat3 // what we return here has to be a Contents because it must fit in the Box
+*/
+
+     // println(colorChanges)
+
+/*
+@main def unravelled =
+  val kats = Box.observe.flatMap { kat1 =>
+    again(kat1).flatMap { kat2 =>
+      again(kat2).map { kat3 =>
+        kat3
+      }
+    }
+  }
+*/
+
 
 }
