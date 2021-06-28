@@ -1,13 +1,11 @@
-package HelloZio
+package directoryExample
 
-import zio.*
-import zio.{UIO, ZIO}
-import zio.console.{putStrLn}
 import exIOError.errorAtNPerc
-
+import zio.{UIO, ZIO}
+import zio.console.{putStrLn, getStrLn}
 import java.io.IOException
 
-object directoryExample extends zio.App {
+object directoryExample_full extends zio.App {
 
   //This example will model a database with a list of employees and their information.
 
@@ -45,7 +43,7 @@ object directoryExample extends zio.App {
 
   val readFileContents: ZIO[Any, Throwable | IOException, Vector[String]] =
     ZIO(
-      scala.io.Source.fromFile("src/main/scala/HelloZio/firmData.csv")
+      scala.io.Source.fromFile("src/main/scala/directoryExample/firmData.csv")
     ) //Open the file to read its contents
       .bracket(finalizer) {
         bufferedSource => //Use the bracket method with the finalizer defined above to define behavior on fail.
@@ -118,13 +116,34 @@ object directoryExample extends zio.App {
         itterate(index - 1, emps, targetID)
     itterate(emps.length - 1, emps, ID)
 
+  def findEmp( //This is an overloaded function. The compiler can identify the correct 'findEmp' function by looking at the parameters used
+      name: String,
+      emps: Vector[employee]
+  ): ZIO[Any, empNotFound, employee] =
+    def itterate( //Example of tail recursion (linear) search
+        index: Int,
+        emps: Vector[employee],
+        targetName: String
+    ): ZIO[Any, empNotFound, employee] =
+      if (emps(index).getName == targetName)
+        ZIO.succeed(emps(index))
+      else if (index == 0)
+        ZIO.fail(
+          new empNotFound(
+            s"Employee with name $targetName does not exit in the firm directory."
+          )
+        )
+      else
+        itterate(index - 1, emps, targetName)
+    itterate(emps.length - 1, emps, name)
+
 /////////////////////////////////////
   def run(args: List[String]) =
     val logic =
       for
         emps <-
           compileEmps //Note: Excecutable logic is very concise. The behavior is predefined elsewhere, and only just excecuted in the main.
-        _ <- putStrLn(emps.toString)
+        //_ <- putStrLn(emps.toString)
         searchedEmp <- findEmp(
           4,
           emps
@@ -144,4 +163,5 @@ object directoryExample extends zio.App {
       )
       .exitCode
 ////////////////////////////////////
+
 }

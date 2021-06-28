@@ -1,9 +1,7 @@
-package HelloZio
+package directoryExample
 
-import scala.util.*
 import java.io.IOException
-//This file is used to simulate possible IO errors
-
+import scala.util.Random
 object exIOError {
 
   //The input needs to be within the range 1-100.

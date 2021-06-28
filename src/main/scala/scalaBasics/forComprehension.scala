@@ -69,21 +69,23 @@ object forComprehension {
 
   //Here is a side by side example of a series of function when called inside a for comprehension vs not in a for comprehension:
 
-  case class color(name:String) :
-    def flatMap(f: String => color):color =
+  case class color(name: String):
+    def flatMap(f: String => color): color =
       f(this.name)
-    def map(f: String => String):color =
+
+    def map(f: String => String): color =
       color(f(this.name))
 
-  object color :
-    def makeRed:color =
+  object color:
+    def makeRed: color =
       new color("red")
 
-    def changeColor( name2:String):color =
+    def changeColor(name2: String): color =
       new color(name2)
 
-    def changeColor2( name2:String):color =
+    def changeColor2(name2: String): color =
       new color(name2)
+
 ////////////////////////////////////////////////////////
   @main def thefor =
     val colorChanges =
@@ -94,29 +96,28 @@ object forComprehension {
       yield color3
     println(colorChanges)
 
-
   @main def unraveled =
-    val colorChanges = color.makeRed.flatMap { color1 =>  //color1 is a string
-      color.changeColor("green").flatMap { color2 =>    //color2 is a string
-        color.changeColor2("yellow").map { color3 =>   //color3 is a color
+    val colorChanges = color.makeRed.flatMap { color1 => //color1 is a string
+      color.changeColor("green").flatMap { color2 => //color2 is a string
+        color.changeColor2("yellow").map { color3 => //color3 is a color
           color3
-          }
         }
       }
+    }
     println(colorChanges)
 
-/*
+  /*
 
 
 
         kat2 <- again(kat1)
         kat3 <- again(kat2)
       yield kat3 // what we return here has to be a Contents because it must fit in the Box
-*/
+   */
 
-     // println(colorChanges)
+  // println(colorChanges)
 
-/*
+  /*
 @main def unravelled =
   val kats = Box.observe.flatMap { kat1 =>
     again(kat1).flatMap { kat2 =>
@@ -125,7 +126,6 @@ object forComprehension {
       }
     }
   }
-*/
-
+   */
 
 }
