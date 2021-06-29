@@ -3,6 +3,7 @@ package directoryExample
 import zio.ZIO
 
 object processingFunctions {
+
   // Read a line, and return an employee object
   def linesToEmps(lines: Vector[String]): Vector[employee] =
     val logic =
@@ -21,7 +22,7 @@ object processingFunctions {
   def safeSplit(line: String, key: String) =
     val nSplit = line.split(key)
     val arr = nSplit match
-      case x: Null => Array[String]("1", "2", "3")
+      case x: Null                 => Array[String]("1", "2", "3")
       case x: Array[String | Null] => x
     arr.collect { case s: String =>
       s
@@ -36,6 +37,4 @@ object processingFunctions {
       emps = linesToEmps(lines)
     yield emps
 
-
 }
-

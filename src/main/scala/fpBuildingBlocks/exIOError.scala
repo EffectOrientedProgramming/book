@@ -1,4 +1,4 @@
-package directoryExample
+package fpBuildingBlocks
 
 import java.io.IOException
 import scala.util.Random

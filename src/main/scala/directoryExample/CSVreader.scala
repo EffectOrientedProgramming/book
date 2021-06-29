@@ -19,7 +19,7 @@ val readFileContents: ZIO[Any, Throwable | IOException, Vector[String]] =
 
         val lines =
           for line <- bufferedSource.getLines
-            yield line
+          yield line
         //This is where you can set the error likely hood
         //This models a fatal IOException
         errorAtNPerc(10) //ie, 10 % chance to fail...

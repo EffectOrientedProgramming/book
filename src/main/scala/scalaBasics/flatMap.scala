@@ -1,21 +1,29 @@
 package scalaBasics
 
+import scala.util.*
+
 object flatMap {
 //In it's most basic sense, flatMap is the combination of
 // the two functions map(), and flatten().
+
   /*
-
   @main def flatMapEx =
-    val words = Seq("Hello", "World", "Of", "Scala!")
+    val nums = Seq(List(1,2,3),List(1,2,3),List(1,2,3))
 
-    val flattenedWords = words.flatten
-    val upperFlattenedWords = flattenedWords.map(_.toUpper)
-    println(upperFlattenedWords)
+    def addOne(num:Int): Int =
+      num + 1
 
-    val flatMapped = words.flatMap(_.toUpperCase)
+    println("\nFlat, then map: ")
+    val flatWords = nums.flatten
+    println(flatWords)
+    val mappedFlatWords = flatWords.map(addOne)
+    println(mappedFlatWords)
+
+
+    println("\nflatMap: ")
+    val flatMapped = nums.flatMap(addOne)
     println(flatMapped)
    */
-
   /*
 //In Funcitonal Programming, flatMap can be used in error handling.
 // Flat Map can behave like a Map() that can fail.
