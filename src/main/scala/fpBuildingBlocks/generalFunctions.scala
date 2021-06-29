@@ -1,7 +1,5 @@
 package fpBuildingBlocks
 
-
-
 //The purpose of this example is to show the reader how general functions work.
 //How a function can be passed in a type as a parameter, and how it may effect the
 //behavior of the function.
@@ -43,5 +41,5 @@ object generalFunctions {
     println(sAdded)
     println(iAdded)
 
-*/
+   */
 }

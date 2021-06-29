@@ -5,7 +5,7 @@ import zio._
 import zio.console._
 import zio.duration.durationInt
 
-class Interupt {
+class Interrupt {
   val n = 100
 
   //This ZIO does nothing but count to n.
