@@ -1,4 +1,4 @@
-package effects
+package zioBasics
 
 import java.io
 import zio._

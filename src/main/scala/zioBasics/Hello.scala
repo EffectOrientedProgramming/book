@@ -1,4 +1,4 @@
-package effects
+package zioBasics
 
 import java.io.IOException
 import zio.console.{Console, getStrLn, putStrLn}

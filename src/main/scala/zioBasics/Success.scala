@@ -1,6 +1,6 @@
 //Success.scala
 
-package effects
+package zioBasics
 
 import zio._
 import java.io

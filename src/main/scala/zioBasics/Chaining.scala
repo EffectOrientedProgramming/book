@@ -1,4 +1,4 @@
-package effects
+package zioBasics
 
 import fakeEnvironmentInstances.FakeConsole
 
