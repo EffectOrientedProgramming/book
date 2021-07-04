@@ -1,10 +1,11 @@
 package directoryExample
 
-import zio.{UIO, ZIO}
-import zio.console.{putStrLn, getStrLn}
-import java.io.IOException
+import zio.{UIO, ZIO, ZLayer}
+import zio.console.{getStrLn, putStrLn}
 
+import java.io.IOException
 import employee.*
+import fakeEnvironmentInstances.FakeConsole
 import processingFunctions.*
 import searchFunctions.*
 
@@ -27,16 +28,24 @@ object userInputLookup extends zio.App {
         ) //look for different employees based on Input Name
         _ <- putStrLn(s"Looking for employee... \n" + searchedEmp.toString)
       yield ()
+    (for
+      console <- FakeConsole.withInput(
+        "2",
+        "96",
+        "8"
+      ) //Run this program with the following inputs
 
-    logic
-      //You can comment out this section if you want to see what the code looks like without
-      //catch error handling...
-      .catchSome(i =>
-        i match
-          case e: empNotFound => putStrLn("Target employee not in System...")
-          case e: IOException =>
-            putStrLn("Unexpected IOExceptions are the worst...")
-          case e: Any => putStrLn(s"Huh, wasn't expecting $e")
-      )
-      .exitCode
+      _ <- logic
+        .provideLayer(ZLayer.succeed(console))
+        //You can comment out this section if you want to see what the code looks like without
+        //catch error handling...
+        .catchSome(i =>
+          i match
+            case e: empNotFound =>
+              putStrLn("Target employee not in System...")
+            case e: IOException =>
+              putStrLn("Unexpected IOExceptions are the worst...")
+            case e: Any => putStrLn(s"Huh, wasn't expecting $e")
+        )
+    yield ()).exitCode
 }
