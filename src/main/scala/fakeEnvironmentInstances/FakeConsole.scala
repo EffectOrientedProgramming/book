@@ -21,12 +21,12 @@ object FakeConsole:
     def putStrLnErr(line: String): zio.IO[java.io.IOException, Unit] = ???
 
     def putStrLn(line: String): IO[IOException, Unit] =
-      ZIO.succeed(println("Automated: " + line))
+      ZIO.succeed(println("Hard-coded: " + line))
 
-  def createConsoleWithInput(
-      hardcodedInput: Seq[String]
+  def withInput(
+      hardcodedInput: String*
   ): ZIO[Any, Nothing, Console.Service] =
-    for inputVariable <- Ref.make(hardcodedInput)
+    for inputVariable <- Ref.make(hardcodedInput.toSeq)
     yield inputConsole(inputVariable)
 
   private def inputConsole(hardcodedInput: Ref[Seq[String]]) = new Service:

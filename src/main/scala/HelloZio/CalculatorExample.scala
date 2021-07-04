@@ -116,8 +116,10 @@ object CalculatorExample extends zio.App {
     val operated =
       for
         //console <- FakeConsole.createConsoleWithInput(Seq("1", "24", "8"))
-        console <- FakeConsole.createConsoleWithInput(
-          Seq("2", "96", "8")
+        console <- FakeConsole.withInput(
+          "2",
+          "96",
+          "8"
         ) //Run this program with the following inputs
         i <- input.provideLayer(ZLayer.succeed(console))
         output <- operate(i)

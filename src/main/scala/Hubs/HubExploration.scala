@@ -42,10 +42,26 @@ object HubExploration extends zio.App {
         cheep
       )
 
+    def processAnswers(
+        answers: ZDequeue[Any, Nothing, Answer],
+        correctRespondants: Ref[List[Student]]
+    ) =
+      for // gather answers until there's a winner
+        answer <- answers.take
+        _ <- putStrLn("Response: " + answer)
+        currentCorrectRespondents <- correctRespondants.get
+        _ <-
+          if (answer.text == "Spain")
+            correctRespondants
+              .set(currentCorrectRespondents :+ answer.student)
+          else
+            ZIO.unit
+      yield ()
+
     val cahootSingleRound =
       for
         questionHub <- Hub.bounded[Question](1)
-        answerHub <- Hub.bounded[Answer](students.size)
+        answerHub: Hub[Answer] <- Hub.bounded[Answer](students.size)
         correctAnswers <- Ref.make[Scores](
           Scores(
             students.map((_, 0)).toMap
@@ -54,11 +70,14 @@ object HubExploration extends zio.App {
         _ <- questionHub.subscribe.zip(answerHub.subscribe).use {
           case (
                 questions,
-                answers
+                answers: ZDequeue[Any, Nothing, Answer]
               ) => // TODO When do we actually use these subscriptions instead of the outter hub?
             for
-              correctRespondants <- Ref.make[List[Student]](List.empty)
-              _ <- questionHub.publish(Question("How do you use Hubs?"))
+              correctRespondants: Ref[List[Student]] <- Ref
+                .make[List[Student]](List.empty)
+              _ <- questionHub.publish(
+                Question("What is the southern-most European country?")
+              )
               question <- questions.take
               _ <- ZIO.collectAllPar(
                 Seq(
@@ -74,20 +93,9 @@ object HubExploration extends zio.App {
                   yield ()
                 )
               )
-              // TODO Add a timeout
-
+              // TODO This next part should happen *simultaneously* with the contestants answering.
               _ <-
-                (for // gather answers until there's a winner
-                  answer <- answers.take
-                  _ <- putStrLn("Response: " + answer)
-                  currentCorrectRespondents <- correctRespondants.get
-                  _ <-
-                    if (answer.text == "Spain")
-                      correctRespondants
-                        .set(currentCorrectRespondents :+ answer.student)
-                    else
-                      ZIO.unit
-                yield ()).repeat(
+                (processAnswers(answers, correctRespondants)).repeat(
                   Schedule
                     .recurUntilM(_ =>
                       correctRespondants.get.map(_.size > 1)
@@ -138,8 +146,13 @@ object HubExploration extends zio.App {
       yield ()
 
     (for
-      fakeConsole <- FakeConsole.createConsoleWithInput(
-        Seq("3", "5", "7", "9", "11", "13")
+      fakeConsole <- FakeConsole.withInput(
+        "3",
+        "5",
+        "7",
+        "9",
+        "11",
+        "13"
       )
       _ <-
 //        logic
