@@ -35,9 +35,8 @@ object FakeConsole:
     def getStrLn: IO[IOException, String] =
       for
         curInput <- hardcodedInput.get
-        (curLine :: remainingLines) = curInput
-        _ <- hardcodedInput.set(remainingLines)
-      yield curLine
+        _ <- hardcodedInput.set(curInput.tail)
+      yield curInput.head
 
     def putStr(line: String): zio.IO[java.io.IOException, Unit] = ???
     def putStrErr(line: String): zio.IO[java.io.IOException, Unit] = ???

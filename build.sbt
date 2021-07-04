@@ -2,7 +2,7 @@ import scala.concurrent.duration._
 
 enablePlugins(MdToSourcePlugin)
 
-scalaVersion := "3.0.1-RC1"
+scalaVersion := "3.0.1-RC2"
 
 resolvers += Resolver.JCenterRepository
 
