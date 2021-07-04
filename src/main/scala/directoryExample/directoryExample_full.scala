@@ -41,6 +41,9 @@ object directoryExample_full extends zio.App {
       source.close //Close the input source
     }
 
+  // TODO Wyett: With the current setup, this means that our Github Actions will fail 10% of the time. Consider a
+  //  FakeRandom that behaves similarly to our FakeConsole. So we could do the 10% failure when running locally, but
+  //  have a 100% success rate on Github
   val readFileContents: ZIO[Any, Throwable | IOException, Vector[String]] =
     ZIO(
       scala.io.Source.fromFile("src/main/scala/directoryExample/firmData.csv")
