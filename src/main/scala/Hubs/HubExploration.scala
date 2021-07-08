@@ -39,41 +39,38 @@ object HubExploration extends zio.App {
         cheep
       )
 
-    def processAnswers(
+    def checkIfAnswerIsCorrect(
         correctAnswer: String,
         answers: ZDequeue[Any, Nothing, Answer],
         correctRespondants: Ref[List[Student]]
     ) =
       for // gather answers until there's a winner
         answer <- answers.take
-        _ <- putStrLn("Response: " + answer)
-        currentCorrectRespondents <- correctRespondants.get
         _ <-
           if (answer.text == correctAnswer)
             for
               _ <- putStrLn("Correct response from: " + answer.student)
+              currentCorrectRespondents <- correctRespondants.get
               _ <- correctRespondants
                 .set(currentCorrectRespondents :+ answer.student)
             yield ()
           else
-            ZIO.unit
+            putStrLn("Incorrect response from: " + answer.student)
       yield ()
 
     def untilWinnersAreFound(correctRespondants: Ref[List[Student]]) =
       Schedule
-        .recurUntilM(_ => correctRespondants.get.map(_.size > 1))
-
-    val round1Responses = Seq(
-      Answer(frop, "Spain", 1.seconds),
-      Answer(zeb, "Germany", 2.seconds),
-      Answer(cheep, "Spain", 3.seconds),
-      Answer(shtep, "Spain", 4.seconds)
-    )
+        .recurUntilM(_ => correctRespondants.get.map(_.size == 2))
 
     val round1 =
       RoundDescription(
         Question("What is the southern-most European country?", "Spain"),
-        round1Responses
+        Seq(
+          Answer(zeb, "Germany", 2.seconds),
+          Answer(frop, "Spain", 1.seconds)
+//          Answer(cheep, "Spain", 3.seconds),
+//          Answer(shtep, "Spain", 4.seconds)
+        )
       )
 
     val cahootSingleRound =
@@ -93,11 +90,10 @@ object HubExploration extends zio.App {
                 answers: ZDequeue[Any, Nothing, Answer]
               ) => { // TODO When do we actually use these subscriptions instead of the outter hub?
 
-            // TODO Get types of these 2 operations to sync up, so they can be run in parallel
             val answerProcessingAndReporting =
               for
                 successfulCompletion <-
-                  processAnswers("Spain", answers, correctRespondants)
+                  checkIfAnswerIsCorrect("Spain", answers, correctRespondants)
                     .repeat(
                       untilWinnersAreFound(correctRespondants)
                     )
@@ -108,12 +104,18 @@ object HubExploration extends zio.App {
                 _ <- successfulCompletion match {
                   case Some(_) => putStrLn("Winners: " + winners.mkString(","))
                   case None =>
-                    putStrLn(
-                      "Winners of incomplete round: " + winners.mkString(",")
-                    )
+                    if (winners.isEmpty)
+                      putStrLn(
+                        "Nobody submitted a correct response"
+                      )
+                    else
+                      putStrLn(
+                        "Winners of incomplete round: " + winners.mkString(",")
+                      )
                 }
               yield ()
-            val submitAnswers =
+
+            val submitAnswersAfterDelay =
               ZIO
                 .collectAllPar(
                   round1.answers.map { case answer =>
@@ -124,6 +126,7 @@ object HubExploration extends zio.App {
                   }
                 )
                 .map(_ => ())
+
             for
               _ <- questionHub.publish(
                 round1.question
@@ -131,7 +134,7 @@ object HubExploration extends zio.App {
               question <- questions.take
               _ <- ZIO
                 .collectAllPar(
-                  Seq(submitAnswers, answerProcessingAndReporting)
+                  Seq(submitAnswersAfterDelay, answerProcessingAndReporting)
                 )
             yield ()
           }
