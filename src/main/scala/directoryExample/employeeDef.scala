@@ -1,6 +1,6 @@
 package directoryExample
 
-case class employee(
+case class Employee(
     ID: Int,
     firstName: String,
     lastName: String,

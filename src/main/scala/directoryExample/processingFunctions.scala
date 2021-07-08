@@ -5,7 +5,7 @@ import zio.ZIO
 object processingFunctions {
 
   // Read a line, and return an employee object
-  def linesToEmps(lines: Vector[String]): Vector[employee] =
+  def linesToEmps(lines: Vector[String]): Vector[Employee] =
     val logic =
       for
         line <- lines
@@ -13,9 +13,9 @@ object processingFunctions {
       yield emp
     logic
 
-  def lineToEmp(line: String): employee =
+  def lineToEmp(line: String): Employee =
     val parts: Array[String] = safeSplit(line, ",")
-    val emp = employee(parts(0).toInt, parts(1), parts(2), parts(3))
+    val emp = Employee(parts(0).toInt, parts(1), parts(2), parts(3))
     emp
 
   //This function deals with split() complications with the null safety element of the sbt.
@@ -29,7 +29,7 @@ object processingFunctions {
     }
 
   //Compile list of emp data
-  def compileEmps: ZIO[Any, Any, Vector[employee]] =
+  def compileEmps: ZIO[Any, Any, Vector[Employee]] =
     for
       lines <- readFileContents.retryN(
         5

@@ -4,7 +4,7 @@ import zio.{UIO, ZIO, ZLayer}
 import zio.console.{getStrLn, putStrLn}
 
 import java.io.IOException
-import employee.*
+import Employee.*
 import fakeEnvironmentInstances.FakeConsole
 import processingFunctions.*
 import searchFunctions.*
@@ -41,7 +41,7 @@ object userInputLookup extends zio.App {
         //catch error handling...
         .catchSome(i =>
           i match
-            case e: empNotFound =>
+            case e: EmpNotFound =>
               putStrLn("Target employee not in System...")
             case e: IOException =>
               putStrLn("Unexpected IOExceptions are the worst...")
