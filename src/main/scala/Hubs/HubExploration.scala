@@ -4,22 +4,18 @@ import fakeEnvironmentInstances.FakeConsole
 
 import java.io.IOException
 
+import zio.{Hub, Ref, Schedule, ZDequeue, ZIO}
+import zio.duration.{Duration, durationInt}
+import zio.clock.Clock
+import zio.console.{Console, putStrLn}
+
 object HubExploration extends zio.App {
-  import zio.*
-  import zio.duration.*
-  import zio.clock.*
-  import zio.console.*
+  case class Student(name: String)
+  case class Question(text: String, correctResponse: String)
+  case class Answer(student: Student, text: String, delay: Duration)
+  case class RoundDescription(question: Question, answers: Seq[Answer])
 
   def run(args: List[String]) = //Use App's run function
-    case class Student(name: String)
-    case class Question(text: String, correctResponse: String)
-    case class Answer(student: Student, text: String, delay: Duration)
-    case class RoundDescription(question: Question, answers: Seq[Answer])
-
-    def calculatePointsFor(answer: Answer): Int = {
-      // TODO Ensure Students only send a single response
-      1
-    }
 
     class Scores(studentPoints: Map[Student, Int]):
       def finalResults(): String = ???

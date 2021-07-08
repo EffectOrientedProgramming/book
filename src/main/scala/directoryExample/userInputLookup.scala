@@ -43,9 +43,12 @@ object userInputLookup extends zio.App {
           i match
             case e: EmpNotFound =>
               putStrLn("Target employee not in System...")
+        )
+        .catchSomeDefect(i =>
+          i match
             case e: IOException =>
               putStrLn("Unexpected IOExceptions are the worst...")
-            case e: Any => putStrLn(s"Huh, wasn't expecting $e")
+            case e: Throwable => putStrLn(s"Huh, wasn't expecting $e")
         )
     yield ()).exitCode
 }
