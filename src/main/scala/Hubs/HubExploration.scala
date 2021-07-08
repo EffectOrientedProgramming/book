@@ -2,6 +2,8 @@ package Hubs
 
 import fakeEnvironmentInstances.FakeConsole
 
+import java.io.IOException
+
 object HubExploration extends zio.App {
   import zio.*
   import zio.duration.*
@@ -10,15 +12,14 @@ object HubExploration extends zio.App {
 
   def run(args: List[String]) = //Use App's run function
     case class Student(name: String)
-    case class Question(text: String)
-    case class Answer(text: String, student: Student)
+    case class Question(text: String, correctResponse: String)
+    case class Answer(student: Student, text: String, delay: Duration)
+    case class RoundDescription(question: Question, answers: Seq[Answer])
 
     def calculatePointsFor(answer: Answer): Int = {
       // TODO Ensure Students only send a single response
       1
     }
-
-//    def calculatePointsFor(answer: List[Answer]): List[(Student, Int)] = ???
 
     class Scores(studentPoints: Map[Student, Int]):
       def finalResults(): String = ???
@@ -43,6 +44,7 @@ object HubExploration extends zio.App {
       )
 
     def processAnswers(
+        correctAnswer: String,
         answers: ZDequeue[Any, Nothing, Answer],
         correctRespondants: Ref[List[Student]]
     ) =
@@ -51,12 +53,32 @@ object HubExploration extends zio.App {
         _ <- putStrLn("Response: " + answer)
         currentCorrectRespondents <- correctRespondants.get
         _ <-
-          if (answer.text == "Spain")
-            correctRespondants
-              .set(currentCorrectRespondents :+ answer.student)
+          if (answer.text == correctAnswer)
+            for
+              _ <- putStrLn("Correct response from: " + answer.student)
+              _ <- correctRespondants
+                .set(currentCorrectRespondents :+ answer.student)
+            yield ()
           else
             ZIO.unit
       yield ()
+
+    def untilWinnersAreFound(correctRespondants: Ref[List[Student]]) =
+      Schedule
+        .recurUntilM(_ => correctRespondants.get.map(_.size > 1))
+
+    val round1Responses = Seq(
+      Answer(frop, "Spain", 1.seconds),
+      Answer(zeb, "Germany", 1.seconds),
+      Answer(cheep, "Spain", 2.seconds),
+      Answer(shtep, "Spain", 3.seconds)
+    )
+
+    val round1 =
+      RoundDescription(
+        Question("What is the southern-most European country?", "Spain"),
+        round1Responses
+      )
 
     val cahootSingleRound =
       for
@@ -67,96 +89,56 @@ object HubExploration extends zio.App {
             students.map((_, 0)).toMap
           )
         )
+        correctRespondants: Ref[List[Student]] <- Ref
+          .make[List[Student]](List.empty)
         _ <- questionHub.subscribe.zip(answerHub.subscribe).use {
           case (
                 questions,
                 answers: ZDequeue[Any, Nothing, Answer]
-              ) => // TODO When do we actually use these subscriptions instead of the outter hub?
+              ) => { // TODO When do we actually use these subscriptions instead of the outter hub?
+
+            // TODO Get types of these 2 operations to sync up, so they can be run in parallel
+            val answerProcessingAndReporting =
+              for
+                successfulCompletion <-
+                  processAnswers("Spain", answers, correctRespondants)
+                    .repeat(
+                      untilWinnersAreFound(correctRespondants)
+                    )
+                    .timeout(
+                      2.second
+                    )
+                winners <- correctRespondants.get
+                _ <- successfulCompletion match {
+                  case Some(_) => putStrLn("Winners: " + winners.mkString(","))
+                  case None =>
+                    putStrLn(
+                      "Winners of incomplete round: " + winners.mkString(",")
+                    )
+                }
+              yield ()
+            val submitAnswers =
+              ZIO
+                .collectAllPar(
+                  round1.answers.map { case answer =>
+                    for
+                      _ <- ZIO.sleep(answer.delay)
+                      _ <- answerHub.publish(answer)
+                    yield ()
+                  }
+                )
             for
-              correctRespondants: Ref[List[Student]] <- Ref
-                .make[List[Student]](List.empty)
               _ <- questionHub.publish(
-                Question("What is the southern-most European country?")
+                round1.question
               )
               question <- questions.take
-              _ <- ZIO.collectAllPar(
-                Seq(
-                  answerHub.publish(Answer("Spain", frop)),
-                  for
-                    _ <- ZIO.sleep(2.second)
-                    _ <- answerHub.publish(Answer("Spain", shtep))
-                  yield (),
-                  answerHub.publish(Answer("Germany", zeb)),
-                  for
-                    _ <- ZIO.sleep(1.second)
-                    _ <- answerHub.publish(Answer("Spain", cheep))
-                  yield ()
-                )
-              )
+              _ <- submitAnswers
               // TODO This next part should happen *simultaneously* with the contestants answering.
-              _ <-
-                (processAnswers(answers, correctRespondants)).repeat(
-                  Schedule
-                    .recurUntilM(_ =>
-                      correctRespondants.get.map(_.size > 1)
-                    ) && Schedule.recurs(3) && Schedule.spaced(1.second)
-                )
-              winners <- correctRespondants.get
-              _ <- putStrLn("Winners: " + winners.mkString(","))
-//              _ <- putStrLn(
-//                "1st place: " + (firstAnswer, calculatePointsFor(firstAnswer))
-//              )
-//              _ <- putStrLn(
-//                "2nd place: " + (secondAnswer, calculatePointsFor(secondAnswer))
-//              )
+              _ <- answerProcessingAndReporting
             yield ()
+          }
         }
       yield ()
 
-    val logic =
-      for
-        hub <- Hub.bounded[Int](2)
-        _ <- hub.subscribe.use { case hubSubscription =>
-          val getAndStoreInput =
-            for
-              _ <- console.putStrLn("Please provide an int")
-              input <- console.getStrLn
-              nextInt = input.toInt
-              _ <- hub.publish(nextInt)
-            yield ()
-
-          val processNextIntAndPrint =
-            for
-              nextInt <- hubSubscription.take
-              _ <- console.putStrLn("Multiplied Int: " + nextInt * 5)
-            yield ()
-
-          val reps = 5
-          for
-            _ <- ZIO
-              .collectAllPar(
-                Set(
-                  getAndStoreInput.repeatN(reps),
-                  processNextIntAndPrint.forever
-                )
-              )
-              .timeout(5.seconds)
-          yield ()
-        }
-      yield ()
-
-    (for
-      fakeConsole <- FakeConsole.withInput(
-        "3",
-        "5",
-        "7",
-        "9",
-        "11",
-        "13"
-      )
-      _ <-
-//        logic
-        cahootSingleRound
-//        .provideCustomLayer(Clock.live ++ ZLayer.succeed(fakeConsole))
-    yield ()).exitCode
+    cahootSingleRound.exitCode
 }
