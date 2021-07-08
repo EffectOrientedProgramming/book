@@ -56,7 +56,7 @@ object directoryExample_full extends zio.App {
             yield line
           //This is where you can set the error likely hood
           //This models a fatal IOException
-          errorAtNPerc(10) //ie, 10 % chance to fail...
+          errorAtNPerc(100) //ie, 10 % chance to fail...
           ZIO.succeed(Vector() ++ lines)
       }
 
@@ -93,7 +93,7 @@ object directoryExample_full extends zio.App {
       emps = linesToEmps(lines)
     yield emps
 
-  case class empNotFound(message: String)
+  case class empNotFound(message: String) extends Throwable
 
   //This function uses recursion to search the list of employees for the given ID.
   // findEmp is a wrapper function for itterate, which is the actual recursive function
@@ -157,7 +157,7 @@ object directoryExample_full extends zio.App {
     logic
       //You can comment out this section if you want to see what the code looks like without
       //catch error handling...
-      .catchSome(i =>
+      .catchSomeDefect(i =>
         i match
           case e: empNotFound => putStrLn("Target employee not in System...")
           case e: IOException =>
