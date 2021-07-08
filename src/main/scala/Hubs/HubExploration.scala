@@ -69,9 +69,9 @@ object HubExploration extends zio.App {
 
     val round1Responses = Seq(
       Answer(frop, "Spain", 1.seconds),
-      Answer(zeb, "Germany", 1.seconds),
-      Answer(cheep, "Spain", 2.seconds),
-      Answer(shtep, "Spain", 3.seconds)
+      Answer(zeb, "Germany", 2.seconds),
+      Answer(cheep, "Spain", 3.seconds),
+      Answer(shtep, "Spain", 4.seconds)
     )
 
     val round1 =
@@ -106,7 +106,7 @@ object HubExploration extends zio.App {
                       untilWinnersAreFound(correctRespondants)
                     )
                     .timeout(
-                      2.second
+                      4.second
                     )
                 winners <- correctRespondants.get
                 _ <- successfulCompletion match {
@@ -127,14 +127,16 @@ object HubExploration extends zio.App {
                     yield ()
                   }
                 )
+                .map(_ => ())
             for
               _ <- questionHub.publish(
                 round1.question
               )
               question <- questions.take
-              _ <- submitAnswers
-              // TODO This next part should happen *simultaneously* with the contestants answering.
-              _ <- answerProcessingAndReporting
+              _ <- ZIO
+                .collectAllPar(
+                  Seq(submitAnswers, answerProcessingAndReporting)
+                )
             yield ()
           }
         }
