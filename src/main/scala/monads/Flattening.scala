@@ -7,7 +7,7 @@ package monads
   val abbccc = abc.flatMap { s =>
     s.toCharArray match {
       case a: Array[Char] => a.toList
-      case _: Null => List.empty
+      case _: Null        => List.empty
     }
   }
   println(abbccc)

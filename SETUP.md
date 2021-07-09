@@ -9,6 +9,9 @@ If Java is already installed, you might be missing the JDK, so execute this comm
 
 cs java --jvm adopt:11 --setup
 
+Periodically update your exectuables by re-installing them, eg:
+
+    cs install scalafmt
 
 
 ## For contributors:

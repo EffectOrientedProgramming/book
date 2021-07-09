@@ -1,4 +1,3 @@
-
 object ExampleValidator {
 //  val fencedBlock = DumbFenceFinder.
 

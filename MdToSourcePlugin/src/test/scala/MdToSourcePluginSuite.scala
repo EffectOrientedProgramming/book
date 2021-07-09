@@ -6,7 +6,9 @@ class MdToSourcePluginSuite extends munit.FunSuite {
 
     assertEquals(
       KotlinConversion.convert(kotlinSignature),
-      Some("def buildNumberToContactMap(contactList: List<Contact>): Map<String, Contact> =")
+      Some(
+        "def buildNumberToContactMap(contactList: List<Contact>): Map<String, Contact> ="
+      )
     )
   }
 
@@ -20,9 +22,9 @@ class MdToSourcePluginSuite extends munit.FunSuite {
 
   test("not affect this line") {
     val unaffectedLine =
-    """// {{incomplete}} TODO Can we define some different behavior for examples that deliberately don't compile?"""
+      """// {{incomplete}} TODO Can we define some different behavior for examples that deliberately don't compile?"""
     assertEquals(
-      KotlinConversion.convert( unaffectedLine ),
+      KotlinConversion.convert(unaffectedLine),
       Some(unaffectedLine)
     )
   }
@@ -30,7 +32,7 @@ class MdToSourcePluginSuite extends munit.FunSuite {
   test("converts a function that contains braced if/else") {
 
     val original =
-    """
+      """
       |   private def crossBoundary(coordinate: Int): Int {
       |     val inBounds = coordinate % fieldSize
       |     return if (inBounds < 0) {
@@ -41,17 +43,18 @@ class MdToSourcePluginSuite extends munit.FunSuite {
       |   }""".stripMargin
 
     val expected =
-    """
+      """
       |   private def crossBoundary(coordinate: Int): Int =
       |     val inBounds = coordinate % fieldSize
       |     return if (inBounds < 0) 
       |       fieldSize + inBounds
       |     else
       |       inBounds""".stripMargin
-      assertEquals(
-        original.split("\n").flatMap(KotlinConversion.convert).mkString("\n"),
-        expected)
-      println(original)
+    assertEquals(
+      original.split("\n").flatMap(KotlinConversion.convert).mkString("\n"),
+      expected
+    )
+    println(original)
   }
 
   test("doesn't affect quoted lines") {
@@ -60,22 +63,20 @@ class MdToSourcePluginSuite extends munit.FunSuite {
       val expected =
         Some(""" "if (condition) 'a' else 'b'}")  // [2] """.stripMargin)
 
-    assertEquals(
-      KotlinConversion.convert(original),
-      expected)
+    assertEquals(KotlinConversion.convert(original), expected)
   }
 
   test("eliminate opening brace after a for") {
-   val original = "  for (i in start..end) {"
+    val original = "  for (i in start..end) {"
     val expected = Some("  for (i in start..end) ")
     assertEquals(KotlinConversion.convert(original), expected)
   }
 
   test("doesn't affect lines that are part of a template") {
-   val original =
-    """**[2]** `$if(condition) 'a' else 'b'}` evaluates and substitutes the result"""
-    val expected = Some(original)
-    assertEquals(KotlinConversion.convert(original), expected)
+    val original =
+      """**[2]** `$if(condition) 'a' else 'b'}` evaluates and substitutes the result"""
+      val expected = Some(original)
+      assertEquals(KotlinConversion.convert(original), expected)
   }
 
   test("converts the end of of a function signature on its own line") {
@@ -101,7 +102,8 @@ class MdToSourcePluginSuite extends munit.FunSuite {
   }
 
   test("ignores opening brace in this funky line") {
-    val original = """ contactsByNumber eq "{1-234-567890=Contact('Miffy', '1-234-567890'), """"
+    val original =
+      """ contactsByNumber eq "{1-234-567890=Contact('Miffy', '1-234-567890'), """"
     val expected = original
     assertEquals(
       KotlinConversion.convert(original),
@@ -155,17 +157,21 @@ class MdToSourcePluginSuite extends munit.FunSuite {
     )
   }
 
-  test("converts tricky angle brace situations to square braces without hitting lambdas or comparisons") {
+  test(
+    "converts tricky angle brace situations to square braces without hitting lambdas or comparisons"
+  ) {
 
     val original1 = "ReadOnlyProperty<Person, String> { _, _ ->"
     val original2 = "   property: KProperty<*>"
     val original3 = "  operator def List<String>.getValue("
     val original4 = "  private var list = listOf<E>()"
     val original5 = "  val info = mutableMapOf<String, Any?>("
-    val original6 = """  var captain: String by observable("<0>") {""" // should leave this alone
+    val original6 =
+      """  var captain: String by observable("<0>") {""" // should leave this alone
     val original7 = "  def show(prop: KProperty1<Properties, *>) ="
     val original8 = "class CrateList<T> : ArrayList<Crate<T>>():"
-    val original9 = "by upcasting from `Box<Cat>` to `OutBox<Any>` and from `Box<Any>` to"
+    val original9 =
+      "by upcasting from `Box<Cat>` to `OutBox<Any>` and from `Box<Any>` to"
   }
 
   test("should convert import wildcards from '*' to '_' ") {

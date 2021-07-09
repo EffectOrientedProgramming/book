@@ -18,34 +18,44 @@ object MdToSourcePlugin extends AutoPlugin {
   import autoImport._
 
   lazy val generateSourcesTask = Def.task {
-    (MdToSource / mdDirectory).value.listFiles(FileFilter.globFilter("*.md"))
+    (MdToSource / mdDirectory).value
+      .listFiles(FileFilter.globFilter("*.md"))
       .flatMap { md =>
         val contents: String = IO.read(md)
 
-        val codeFiles = FenceFinder.findNamedCodeBlocksInFile(contents, md.getCanonicalPath)
+        val codeFiles =
+          FenceFinder.findNamedCodeBlocksInFile(contents, md.getCanonicalPath)
 
-  //      IO.write(md,
-  //        ContentRules.digestContentsAndApplyUpdatesInPlace(contents, md.getCanonicalPath)
-  //      )
+        //      IO.write(md,
+        //        ContentRules.digestContentsAndApplyUpdatesInPlace(contents, md.getCanonicalPath)
+        //      )
 
         codeFiles.map { case NamedCodeBlock(name, contents) =>
           val file = (MdToSource / sourceManaged).value / name
-          IO.write(file, contents.content.mkString("\n").concat("\n") )
+          IO.write(file, contents.content.mkString("\n").concat("\n"))
 
           file
         }
-      }.toSeq
+      }
+      .toSeq
   }
 
   def alterExamplesInPlace(md: File) = {
     val contents: String = IO.read(md)
-    if (!md.name.contains("Java_Interoperability")) // If we don't check this, we start hitting Java code that should _not_ be converted
-      IO.write(md, contents.linesIterator.flatMap(KotlinConversion.convert).mkString("\n"))
+    if (
+      !md.name.contains("Java_Interoperability")
+    ) // If we don't check this, we start hitting Java code that should _not_ be converted
+      IO.write(
+        md,
+        contents.linesIterator.flatMap(KotlinConversion.convert).mkString("\n")
+      )
   }
 
   override lazy val projectSettings = Seq(
     Compile / sourceGenerators += generateSourcesTask.taskValue,
-    Compile / watchSources += file((MdToSource / mdDirectory).value.getAbsolutePath),
+    Compile / watchSources += file(
+      (MdToSource / mdDirectory).value.getAbsolutePath
+    )
   )
 
 }
