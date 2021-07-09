@@ -39,7 +39,32 @@ object HubExploration extends zio.App {
         cheep
       )
 
-    def checkIfAnswerIsCorrect(
+    def answerProcessingAndReporting(
+        answers: ZDequeue[Any, Nothing, Answer],
+        correctRespondants: Ref[List[Student]]
+    ) =
+      for
+        successfulCompletion <-
+          recordCorrectAnswers("Spain", answers, correctRespondants)
+            .repeat(
+              untilWinnersAreFound(correctRespondants)
+            )
+            .timeout(
+              4.second
+            )
+        winners <- correctRespondants.get
+        finalOutput = successfulCompletion match {
+          case Some(_) => "Winners: " + winners.mkString(",")
+          case None =>
+            if (winners.isEmpty)
+              "Nobody submitted a correct response"
+            else
+              "Winners of incomplete round: " + winners.mkString(",")
+        }
+        _ <- putStrLn(finalOutput)
+      yield ()
+
+    def recordCorrectAnswers(
         correctAnswer: String,
         answers: ZDequeue[Any, Nothing, Answer],
         correctRespondants: Ref[List[Student]]
@@ -67,9 +92,9 @@ object HubExploration extends zio.App {
         Question("What is the southern-most European country?", "Spain"),
         Seq(
           Answer(zeb, "Germany", 2.seconds),
-          Answer(frop, "Spain", 1.seconds)
-//          Answer(cheep, "Spain", 3.seconds),
-//          Answer(shtep, "Spain", 4.seconds)
+          Answer(frop, "Spain", 1.seconds),
+          Answer(cheep, "Spain", 3.seconds),
+          Answer(shtep, "Spain", 4.seconds)
         )
       )
 
@@ -90,31 +115,6 @@ object HubExploration extends zio.App {
                 answers: ZDequeue[Any, Nothing, Answer]
               ) => { // TODO When do we actually use these subscriptions instead of the outter hub?
 
-            val answerProcessingAndReporting =
-              for
-                successfulCompletion <-
-                  checkIfAnswerIsCorrect("Spain", answers, correctRespondants)
-                    .repeat(
-                      untilWinnersAreFound(correctRespondants)
-                    )
-                    .timeout(
-                      4.second
-                    )
-                winners <- correctRespondants.get
-                _ <- successfulCompletion match {
-                  case Some(_) => putStrLn("Winners: " + winners.mkString(","))
-                  case None =>
-                    if (winners.isEmpty)
-                      putStrLn(
-                        "Nobody submitted a correct response"
-                      )
-                    else
-                      putStrLn(
-                        "Winners of incomplete round: " + winners.mkString(",")
-                      )
-                }
-              yield ()
-
             val submitAnswersAfterDelay =
               ZIO
                 .collectAllPar(
@@ -133,8 +133,11 @@ object HubExploration extends zio.App {
               )
               question <- questions.take
               _ <- ZIO
-                .collectAllPar(
-                  Seq(submitAnswersAfterDelay, answerProcessingAndReporting)
+                .collectAllPar( // TODO timeout for this composed piece, so submitAnswersAfterDelay can't block
+                  Seq(
+                    submitAnswersAfterDelay,
+                    answerProcessingAndReporting(answers, correctRespondants)
+                  )
                 )
             yield ()
           }
