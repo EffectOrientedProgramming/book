@@ -46,10 +46,18 @@ def change(description: String): Diaper =
   Diaper.Empty()
 
 @main def baby =
-  val diaper =
+  val diaper: Diaper =
     for
-      soiled <- look
-      freshy <- change(soiled)
-    yield freshy
+      soiled <-
+        look // When this returns Diaper.empty, we fall out and don't get to the left side
+      freshy <-
+        change(
+          soiled
+        ) // When this returns Diaper.empty, we fall out and don't get to the left side
+    yield {
+      throw new RuntimeException(
+        "This will never happen."
+      ) // TODO Alter example so we don't have a pointless yield
+    }
 
   println(diaper)
