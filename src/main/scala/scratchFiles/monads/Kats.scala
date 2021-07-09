@@ -1,4 +1,4 @@
-package monads.monads.monads
+package scratchFiles.monads.monads
 
 import scala.util.Random
 
