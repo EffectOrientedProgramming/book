@@ -19,9 +19,6 @@ object QuizGame extends zio.App {
 
   def run(args: List[String]) = //Use App's run function
 
-    class Scores(points: Map[Player, Int]):
-      def finalResults(): String = ???
-
     /*
       Teacher --> Questions --> Student1 --> Answers --> Teacher
                                 Student2
@@ -103,11 +100,6 @@ object QuizGame extends zio.App {
       for
         questionHub <- Hub.bounded[Question](1)
         answerHub: Hub[Answer] <- Hub.bounded[Answer](students.size)
-        correctAnswers <- Ref.make[Scores](
-          Scores(
-            students.map((_, 0)).toMap
-          )
-        )
         correctRespondants: Ref[List[Player]] <- Ref
           .make[List[Player]](List.empty)
         _ <- questionHub.subscribe.zip(answerHub.subscribe).use {
