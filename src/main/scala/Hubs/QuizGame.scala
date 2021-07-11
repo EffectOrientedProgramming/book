@@ -96,6 +96,33 @@ object QuizGame extends zio.App {
         )
       )
 
+    val round2 =
+      RoundDescription(
+        Question("What is the lightest element?", "Hydrogen"),
+        Seq(
+          Answer(frop, "Lead", 2.seconds),
+          Answer(zeb, "Hydrogen", 1.seconds),
+          Answer(cheep, "Gold", 3.seconds),
+          Answer(shtep, "Hydrogen", 10.seconds)
+        )
+      )
+
+    val round3 =
+      RoundDescription(
+        Question(
+          "What is the average airspeed of an unladen swallow?",
+          "INSUFFICENT DATA FOR MEANINGFUL ANSWER"
+        ),
+        Seq(
+          Answer(frop, "3.0 m/s", 1.seconds),
+          Answer(zeb, "Too fast", 1.seconds),
+          Answer(cheep, "Not fast enough", 1.seconds),
+          Answer(shtep, "Scary", 1.seconds)
+        )
+      )
+
+    val rounds = Seq(round1, round2, round3)
+
     val cahootSingleRound =
       for
         questionHub <- Hub.bounded[Question](1)
@@ -108,32 +135,45 @@ object QuizGame extends zio.App {
                 answers: ZDequeue[Any, Nothing, Answer]
               ) => {
 
-            for
-              _ <- questionHub.publish(
-                round1.question
-              )
-              question <- questions.take
-              _ <- ZIO
-                .collectAllPar(
-                  Seq(
-                    submitAnswersAfterDelay(answerHub, round1.answers),
-                    recordCorrectAnswers(
-                      round1.question.correctResponse,
-                      answers,
-                      correctRespondants
-                    )
-                      .repeat(
-                        untilWinnersAreFound(correctRespondants)
+            def playARound(roundDescription: RoundDescription) =
+              for
+                _ <- putStrLn("===============================")
+                _ <- putStrLn(
+                  "Question for round: " + roundDescription.question.text
+                )
+                _ <- correctRespondants.set(List.empty)
+                _ <- questionHub.publish(
+                  roundDescription.question
+                )
+                question <- questions.take
+                _ <- ZIO
+                  .collectAllPar(
+                    Seq(
+                      submitAnswersAfterDelay(
+                        answerHub,
+                        roundDescription.answers
+                      ),
+                      recordCorrectAnswers(
+                        roundDescription.question.correctResponse,
+                        answers,
+                        correctRespondants
                       )
+                        .repeat(
+                          untilWinnersAreFound(correctRespondants)
+                        )
+                    )
                   )
-                )
-                .timeout(
-                  4.second
-                )
-              winners <- correctRespondants.get
+                  .timeout(
+                    4.second
+                  )
+                winners <- correctRespondants.get
+                _ <- printRoundResults(winners)
+                _ <- putStrLn("===============================")
+              yield ()
 
-              _ <- printRoundResults(winners)
-            yield ()
+            ZIO.foreach(rounds)(playARound)
+            //            rounds.foreach(playARound)
+            //            playARound(round1)
           }
         }
       yield ()
