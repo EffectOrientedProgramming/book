@@ -4,3 +4,5 @@
 .bsp/
 .idea/
 *.pyc
+BookBuilding/project/
+BookBuilding/target/
