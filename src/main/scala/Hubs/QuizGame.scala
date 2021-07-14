@@ -48,9 +48,7 @@ object QuizGame extends zio.App {
             yield ()
           }
         )
-        .map(_ =>
-          ()
-        ) // TODO Ugh. Try to find a better way to ignore/unify this result/type.
+        .unit
 
     def recordCorrectAnswers(
         correctAnswer: String,
@@ -85,7 +83,7 @@ object QuizGame extends zio.App {
           "Winners of incomplete round: " + winners.mkString(",")
       putStrLn(finalOutput)
 
-    val round1 =
+    val roundWithMultipleCorrectAnswers =
       RoundDescription(
         Question("What is the southern-most European country?", "Spain"),
         Seq(
@@ -96,7 +94,7 @@ object QuizGame extends zio.App {
         )
       )
 
-    val round2 =
+    val roundWithOnly1CorrectAnswer =
       RoundDescription(
         Question("What is the lightest element?", "Hydrogen"),
         Seq(
@@ -107,7 +105,7 @@ object QuizGame extends zio.App {
         )
       )
 
-    val round3 =
+    val roundWhereEverybodyIsWrong =
       RoundDescription(
         Question(
           "What is the average airspeed of an unladen swallow?",
@@ -121,7 +119,11 @@ object QuizGame extends zio.App {
         )
       )
 
-    val rounds = Seq(round1, round2, round3)
+    val rounds = Seq(
+      roundWithMultipleCorrectAnswers,
+      roundWithOnly1CorrectAnswer,
+      roundWhereEverybodyIsWrong
+    )
 
     val cahootSingleRound =
       for
@@ -172,8 +174,6 @@ object QuizGame extends zio.App {
               yield ()
 
             ZIO.foreach(rounds)(playARound)
-            //            rounds.foreach(playARound)
-            //            playARound(round1)
           }
         }
       yield ()

@@ -4,11 +4,8 @@ enum Operation:
 
   def flatMap(f: String => Operation): Operation =
     this match
-      case _: Bad => this
-      case s: Good =>
-        f(
-          s.content
-        ) // written a different way for illustrating the different syntax options
+      case _: Bad  => this
+      case s: Good => f(s.content)
 
   def map(f: String => String): Operation =
     this match
