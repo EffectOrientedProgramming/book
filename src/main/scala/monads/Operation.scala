@@ -53,3 +53,18 @@ def businessLogic(content: String, result: String): Operation =
       logicContent <- businessLogic(httpContent, "Expected")
     yield logicContent
   )
+
+@main def failAfterSpecifiedNumber =
+  def operationConstructor(x: Int, limit: Int): Operation =
+    if (x < limit) Operation.Good(s"Finished step $x")
+    else Operation.Bad("Failed after max number")
+
+  def badAfterXInvocations(x: Int): Operation =
+    for
+      result1 <- operationConstructor(0, x)
+      result2 <- operationConstructor(1, x)
+      result3 <- operationConstructor(2, x)
+      result4 <- operationConstructor(3, x)
+    yield result4
+
+  println(badAfterXInvocations(5))
