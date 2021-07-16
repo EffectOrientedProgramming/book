@@ -50,8 +50,10 @@ object MatrixExample {
   println("\n \n Flipped Matrix:")
   val flippedMat = mEx.flipMatrix(matrix)
   mEx.printMat(flippedMat)
-  //flippedMat.printMat()
+//flippedMat.printMat()
 
+/*
+  Disabled to stop breaking build in Github Actions
   val bigMat = mEx.makeMatrix2D(6000, 6000) //from clean, takes around 15 sec
   //mEx.printMat(bigMat)
   val zbigMat = ZIO { bigMat }
@@ -62,3 +64,5 @@ object MatrixExample {
     yield zbigger
 
   logic.exitCode
+
+ */
