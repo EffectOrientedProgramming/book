@@ -33,10 +33,14 @@ This mathematical rigor is what ultimately produces a reliable system.
 
 This takes patience.
 
-It can seem like a painfully long process before you can begin writing working programs.
-Most of us are used to the more immediate feedback and satisfaction of getting something working, so this can be challenging.
-But would you rather create an unreliable system quickly?
-Presumably you do not, otherwise you wouldn't be reading this book.
-
+It can seem like a painfully long process before you can begin writing working programs. Most of us are used to the more
+immediate feedback and satisfaction of getting something working, so this can be challenging. But would you rather
+create an unreliable system quickly? Presumably you do not, otherwise you wouldn't be reading this book.
 
 Recursion, for example
+
+
+---
+
+A reliable system isolates parts that are always the same (pure functions)
+from the parts that can change (effects).

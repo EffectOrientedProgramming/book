@@ -1,4 +1,4 @@
-#Monads
+# Monads
 In the world of Functional Programming, *Monads* are a data type that can be used for handling errors. Monads 
 can be though of as a way of wrapping existing variable types in an abstraction as to
 better represent their possible uncertainty. 

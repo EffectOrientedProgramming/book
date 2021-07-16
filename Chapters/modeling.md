@@ -1,4 +1,4 @@
-#Data Modeling
+# Data Modeling
 
 
 Data Modeling is the act of fitting, or matching a defined pattern or system to a set of data. It is a very broad topic 

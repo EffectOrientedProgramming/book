@@ -1,4 +1,4 @@
-# 
+# Hello Failures
 
 ```scala
 // Value.scala

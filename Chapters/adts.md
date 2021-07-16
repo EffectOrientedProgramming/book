@@ -1,1 +1,1 @@
-Scala 3 - ADTs. 
+# Scala 3 - ADTs. 

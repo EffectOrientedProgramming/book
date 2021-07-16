@@ -1,4 +1,5 @@
 # Immutable
+
 Part of the Functional Programming world is the lack of mutable variables. 
 Mutable variables, being defined variables that can change their values after instantiation,
 pose a problem to pure functions. Part of the definition pure functions is that they are non-reliant 
