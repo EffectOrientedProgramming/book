@@ -6,10 +6,18 @@ import ammonite.ops._
 import pprint.PPrinter
 //val listed = ls! (pwd / up )
 val eopDir = pwd / up / up / up / up
-val markdownDir = eopDir / "Chapters"
+val markdownDir = eopDir / "manuscript"
+val bookTxt = markdownDir / "Book.txt"
 val markdownFiles = ls! markdownDir
 val allContents = markdownFiles.map(read)
 write.over(eopDir / "target" / "fullBook.md", allContents.mkString("\n"))
-PPrinter.BlackWhite.pprintln(allContents)
-//pprint.pprintln(allContents)
-//val contents = read(resource/'test/'ammonite/'ops/'folder/"file.txt")
+
+rm! bookTxt
+write(bookTxt, "")
+
+markdownFiles.foreach {
+  mdFile =>
+    write.append(bookTxt, mdFile.last + "\n")
+}
+
+// PPrinter.BlackWhite.pprintln(allContents)

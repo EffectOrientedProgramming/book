@@ -6,7 +6,7 @@ scalaVersion := "3.0.1-RC2"
 
 resolvers += Resolver.JCenterRepository
 
-MdToSource / mdDirectory := file("Chapters")
+MdToSource / mdDirectory := file("manuscript")
 
 val zioVersion = "1.0.9"
 
