@@ -2,25 +2,23 @@
 
 > A function can take any number of inputs, but it can only return a single result.
 
-However, we often need to convey more information than can fit into a simple result.
-
-You can't return all necessary information in a single simple result.
+We often need to convey more information than can fit into a simple result.
 The programmer is forced to use side effects to express all the outcomes of a function call.
 Side effects produce unpredictable results and an unpredictable program is unreliable.
 
-The problem here is that a single simple result is *too* simple.
+The problem is that a single simple result is *too* simple.
 What we need is a complex result capable of holding all necessary information that comes out of a function call.
 
 To solve the problem we put all that extra result information, along with the original result, into a box.
 We return that box from the function.
 
 Now we've got boxes everywhere, and programming becomes quite messy and complicated.
-Every time you call a function, you must take the box that comes out as the result, unpack it, and analyze the contents.
+Every time you call a function, you must unpack and analyze the contents of the box that comes out as the result.
 People probably won't use our system unless we figure out a way to automate box manipulation.
 
 We'll develop a standard set of operations that work on all boxes, to automate the use of our system and eliminate all that duplicated code.
 
-This box---and the associated operations---is a monad.
+The box---and its associated operations---is a monad.
 
 ## The Error Monad
 
@@ -38,6 +36,6 @@ There are two goals for exceptions:
 
 1. Separate error-handling code from "success-path" code, so the success-path code is easier to understand and reason about.
 
-2. Put error-handling code in one place to reduce redundant error-handling code.
+2. Reduce redundant error-handling code by handling errors in a single place.
 
 The problem with exceptions is that they lose important context information when they are thrown.
