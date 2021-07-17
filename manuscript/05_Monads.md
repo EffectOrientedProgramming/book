@@ -15,7 +15,7 @@ To solve the problem we put all that extra result information, along with the or
 We return that box from the function.
 
 Now we've got boxes everywhere, and programming becomes quite messy and complicated.
-Every time you call a function, you must catch the box that comes out as the result, unpack it, and analyze the contents.
+Every time you call a function, you must take the box that comes out as the result, unpack it, and analyze the contents.
 People probably won't use our system unless we figure out a way to automate box manipulation.
 
 We'll develop a standard set of operations that work on all boxes, to automate the use of our system and eliminate all that duplicated code.
