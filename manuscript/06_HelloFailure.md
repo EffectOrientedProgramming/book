@@ -28,13 +28,17 @@ Local Temperature: 0 degrees
 Local Temperature: -1 degrees
 ```
 
-Clearly, this isn't acceptable, as both of these common sentinel values are valid temperatures. We can take a more honest and accurate approach in this situation.
+Clearly, this isn't acceptable, as both of these common sentinel values are valid temperatures.
+We can take a more honest and accurate approach in this situation.
 
 ```text
 Local Temperature: Unavailable
 ```
 
-We have improved the failure behavior significantly; is it sufficient for all cases? Imagine our network connection is stable, but we have a problem in our GPS hardware. In this situation, do we show the same message to the user? Ideally, we would show the user a distinct message for each scenario. The Network issue is transient, but the GPS problem is likely permanent.
+We have improved the failure behavior significantly; is it sufficient for all cases?
+Imagine our network connection is stable, but we have a problem in our GPS hardware.
+In this situation, do we show the same message to the user? Ideally, we would show the user a distinct message for each scenario.
+The Network issue is transient, but the GPS problem is likely permanent.
 
 ```text
 Local Temperature: Network Unavailable
