@@ -6,7 +6,6 @@
 06_HelloFailure.md
 07_WhatIsAnEffect.md
 08_HelloTest.md
-Book.txt
 adts.md
 autocompletion.md
 composability.md

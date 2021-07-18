@@ -17,7 +17,32 @@ object MdToSourcePlugin extends AutoPlugin {
 
   import autoImport._
 
+
+  def ammoniteBookBits = {
+    // TODO Consolidate with non-ammonite script pieces below
+    println("Generating a fresh Book.txt file")
+
+    /* What do we need for the full book process?
+      1. Get all .md files
+      2. concatenate them together
+     */
+    import ammonite.ops._
+    val eopDir = pwd
+    val markdownDir = eopDir / "manuscript"
+    val bookTxt = markdownDir / "Book.txt"
+    val markdownFiles = (ls! markdownDir).filter(_.last.endsWith(".md"))
+
+    rm! bookTxt
+    write(bookTxt, "")
+
+    markdownFiles.foreach {
+      mdFile =>
+        write.append(bookTxt, mdFile.last + "\n")
+    }
+  }
+
   lazy val generateSourcesTask = Def.task {
+    ammoniteBookBits
     (MdToSource / mdDirectory).value
       .listFiles(FileFilter.globFilter("*.md"))
       .flatMap { md =>
@@ -38,6 +63,7 @@ object MdToSourcePlugin extends AutoPlugin {
         }
       }
       .toSeq
+
   }
 
   def alterExamplesInPlace(md: File) = {
