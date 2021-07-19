@@ -3,67 +3,84 @@
 There are distinct levels of problems in any given program. They require different types of handling by the programmer. Imagine a program that displays the local temperature the user based on GPS position and a network call.
 
 ```text
-Temperature: 40 degrees
+Temperature: 30 degrees
 ```
 
 ```scala mdoc
-// helloFailure/noErrorHandling.scala
-def getTemperature(): Int =
-  30
+class GpsException() extends RuntimeException
+class NetworkException() extends RuntimeException
 
-def displayTemperature(): String =
-  "Temperature: " + getTemperature()
+def getTemperature(behavior: String): String =
+    if (behavior == "GPS Error")
+      throw new GpsException()
+    else if (behavior == "Network Error")
+      throw new NetworkException()
+    else
+      "30 degress"
+```
+
+```scala mdoc:nest
+def displayTemperature(behavior: String): String =
+  "Temperature: " + getTemperature(behavior)
   
-displayTemperature()
-
-println("second message")
-
-assert(1 == 1)
+displayTemperature("succeed")
 ```
 
-If the network is unavailable, what is the behavior? This can take many forms. If we don't make any attempt to handle our problem, the whole program could blow up and show the gory details to the user.
+On the happy path, everything looks as desired. If the network is unavailable, what is the behavior for the caller? This can take many forms. If we don't make any attempt to handle our problem, the whole program could blow up and show the gory details to the user.
 
-```scala mdoc:reset
-// helloFailure/noErrorHandling.scala
-def getTemperature(): Int =
-  throw new RuntimeException("Network unavailable!")
+```scala mdoc:nest:crash
+def displayTemperature(behavior: String): String =
+    "Temperature: " + getTemperature(behavior)
 
-def displayTemperature(): String =
-  "Temperature: " + getTemperature()
-```
-
-```scala mdoc:crash:width=47
-// helloFailure/noErrorHandling.scala
-
-displayTemperature()
-```
-
-
-```text
-RuntimeException in WeatherRetriever.scala
-... rest of stacktrace ...
+displayTemperature("Network Error")
 ```
 
 We could take the bare-minimum approach of catching the `Exception` and returning `null`:
 
-```text
-Temperature: null
+```scala mdoc:nest
+def displayTemperature(behavior: String): String =
+  val temperature =
+    try
+      getTemperature(behavior)
+    catch
+        case (ex: RuntimeException) => null
+    
+  "Temperature: " + temperature
+  
+displayTemperature("Network Error")
 ```
 
 This is *slightly* better, as the user can at least see the outer structure of our UI element, but it still leaks out code-specific details world.
 
 Maybe we could fallback to a `sentinel` value, such as `0` or `-1` to indicate a failure?
 
-```text
-Temperature: 0 degrees
-Temperature: -1 degrees
+```scala mdoc:nest
+def displayTemperature(behavior: String): String =
+  val temperature =
+    try
+      getTemperature(behavior)
+    catch
+      case (ex: RuntimeException) => "-1 degrees"
+    
+  "Temperature: " + temperature
+  
+displayTemperature("Network Error")
 ```
 
 Clearly, this isn't acceptable, as both of these common sentinel values are valid temperatures.
 We can take a more honest and accurate approach in this situation.
 
-```text
-Temperature: Unavailable
+```scala mdoc:nest
+def displayTemperature(behavior: String): String =
+  val temperature =
+    try
+      getTemperature(behavior)
+    catch
+      case (ex: RuntimeException) => "Unavailable"
+    
+  "Temperature: " + temperature
+  
+displayTemperature("Network Error")
 ```
 
 We have improved the failure behavior significantly; is it sufficient for all cases?
@@ -71,13 +88,26 @@ Imagine our network connection is stable, but we have a problem in our GPS hardw
 In this situation, do we show the same message to the user? Ideally, we would show the user a distinct message for each scenario.
 The Network issue is transient, but the GPS problem is likely permanent.
 
-```text
-Local Temperature: Network Unavailable
+```scala mdoc:nest
+def displayTemperature(behavior: String): String =
+  val temperature =
+    try
+      getTemperature(behavior)
+    catch
+      case (ex: NetworkException) => "Network Unavailable"
+      case (ex: GpsException) => "GPS problem"
+    
+  "Temperature: " + temperature
+  
+displayTemperature("Network Error")
+displayTemperature("GPS Error")
 ```
 
-```text
-Local Temperature: GPS Hardware Failure
-```
+Wonderful!
+We have specific messages for all relevant error cases. However, this still suffers from downsides that become more painful as the codebase grows.
+
+- The signature of `getTemperature` does not alert us that it might fail
+- If we realize it can fail, we must dig through the implementation to discover the multiple failure values
 
 ```scala
 // Value.scala
