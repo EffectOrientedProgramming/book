@@ -6,7 +6,7 @@ There are distinct levels of problems in any given program. They require differe
 Temperature: 40 degrees
 ```
 
-```scala
+```scala mdoc
 // helloFailure/noErrorHandling.scala
 def getTemperature(): Int =
   30
@@ -15,17 +15,15 @@ def displayTemperature(): String =
   "Temperature: " + getTemperature()
   
 displayTemperature()
-// res0: String = "Temperature: 30"
 
 println("second message")
-// second message
 
 assert(1 == 1)
 ```
 
 If the network is unavailable, what is the behavior? This can take many forms. If we don't make any attempt to handle our problem, the whole program could blow up and show the gory details to the user.
 
-```scala
+```scala mdoc:reset
 // helloFailure/noErrorHandling.scala
 def getTemperature(): Int =
   throw new RuntimeException("Network unavailable!")
@@ -34,14 +32,10 @@ def displayTemperature(): String =
   "Temperature: " + getTemperature()
 ```
 
-```scala
+```scala mdoc:crash:width=47
 // helloFailure/noErrorHandling.scala
 
 displayTemperature()
-// java.lang.RuntimeException: Network unavailable!
-// 	at repl.MdocSession$App3.getTemperature(06_HelloFailure.md:38)
-// 	at repl.MdocSession$App3.displayTemperature(06_HelloFailure.md:42)
-// 	at repl.MdocSession$App3.$init$$$anonfun$1(06_HelloFailure.md:48)
 ```
 
 
@@ -105,15 +99,12 @@ val basic = putStrLn("hello, world")
 @main def run = default.unsafeRunSync(basic)
 ```
 
-```scala
+```scala mdoc
 import zio.console.putStrLn
 import zio.ZIO
 
 val basic = putStrLn("hello, world")
-// basic: ZIO[Console, IOException, Unit] = zio.ZIO$Read@4d6d6d28
 
 zio.Runtime.default.unsafeRun(basic.catchAll(_ => ZIO.unit))
-// hello, world
 zio.Runtime.default.unsafeRun(basic)
-// hello, world
 ```

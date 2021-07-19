@@ -28,7 +28,7 @@ object MdToSourcePlugin extends AutoPlugin {
      */
     import ammonite.ops._
     val eopDir = pwd
-    val markdownDir = eopDir / "manuscript"
+    val markdownDir = eopDir / "Chapters"
     val bookTxt = markdownDir / "Book.txt"
     val markdownFiles = (ls! markdownDir).filter(_.last.endsWith(".md"))
 
@@ -43,6 +43,8 @@ object MdToSourcePlugin extends AutoPlugin {
 
   lazy val generateSourcesTask = Def.task {
     ammoniteBookBits
+    /*
+      TODO Decide when appropriate to remove completely
     (MdToSource / mdDirectory).value
       .listFiles(FileFilter.globFilter("*.md"))
       .flatMap { md =>
@@ -63,6 +65,8 @@ object MdToSourcePlugin extends AutoPlugin {
         }
       }
       .toSeq
+     */
+    Seq()
 
   }
 
@@ -79,9 +83,9 @@ object MdToSourcePlugin extends AutoPlugin {
 
   override lazy val projectSettings = Seq(
     Compile / sourceGenerators += generateSourcesTask.taskValue,
-    Compile / watchSources += file(
-      (MdToSource / mdDirectory).value.getAbsolutePath
-    )
+//    Compile / watchSources += file(
+//      (MdToSource / mdDirectory).value.getAbsolutePath
+//    )
   )
 
 }
