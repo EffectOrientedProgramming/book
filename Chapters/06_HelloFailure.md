@@ -152,7 +152,7 @@ unsafeRun(
 )
 ```
 
-```scala mdoc:nest:width=47
+```scala mdoc:fiddler:nest
 
 def getTemperatureZ(behavior: String) =
     if (behavior == "GPS Error")
@@ -171,15 +171,6 @@ getTemperatureZ("Succeed")
 
 Even though we did not provide an explicit result type for this function, ZIO & Scala are smart enough to construct it
 
-```scala mdoc
-import java.nio.file._
-import org.scalafmt.interfaces.Scalafmt
-val scalafmt = Scalafmt.create(this.getClass.getClassLoader)
-val config = Paths.get(".scalafmt.conf")
-import collection.JavaConverters._
-val read = Files.readAllLines(config).asScala.mkString("\n")
-println(read)
-val file = Paths.get("Main.scala")
-
-println(scalafmt.format(config, file, "object A  {  }"))
+```scala mdoc:fiddler
+if ( 1 == 2 && 2 == 2 && 3 == 3 && 4 == 4 && 5 == 5 && 6 == 6 ) "yay" else "damn"
 ```
