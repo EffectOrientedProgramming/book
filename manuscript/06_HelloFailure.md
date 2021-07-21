@@ -1,5 +1,10 @@
 # Hello Failures
 
+If you are not interested in the discouraged ways to handle errors, and just want to see the ZIO approach, jump down to 
+[ZIO Error Handling](#zio-error-handling)
+
+## Historic approaches to Error-handling
+
 There are distinct levels of problems in any given program. They require different types of handling by the programmer. Imagine a program that displays the local temperature the user based on GPS position and a network call.
 
 ```text
@@ -16,7 +21,7 @@ def getTemperature(behavior: String): String =
     else if (behavior == "Network Error")
       throw new NetworkException()
     else
-      "30 degress"
+      "35 degress"
 ```
 
 ```scala
@@ -24,10 +29,13 @@ def displayTemperature(behavior: String): String =
   "Temperature: " + getTemperature(behavior)
   
 displayTemperature("succeed")
-// res0: String = "Temperature: 30 degress"
+// res0: String = "Temperature: 35 degress"
 ```
 
-On the happy path, everything looks as desired. If the network is unavailable, what is the behavior for the caller? This can take many forms. If we don't make any attempt to handle our problem, the whole program could blow up and show the gory details to the user.
+On the happy path, everything looks as desired.
+If the network is unavailable, what is the behavior for the caller?
+This can take many forms.
+If we don't make any attempt to handle our problem, the whole program could blow up and show the gory details to the user.
 
 ```scala
 def displayTemperature(behavior: String): String =
@@ -48,12 +56,14 @@ def displayTemperature(behavior: String): String =
     try
       getTemperature(behavior)
     catch
-        case (ex: RuntimeException) => null
+      case (ex: RuntimeException) => null
     
   "Temperature: " + temperature
   
-displayTemperature("Network Error")
-// res1: String = "Temperature: null"
+assert( 
+  displayTemperature("Network Error") == 
+  "Temperature: null"
+)
 ```
 
 This is *slightly* better, as the user can at least see the outer structure of our UI element, but it still leaks out code-specific details world.
@@ -119,35 +129,56 @@ We have specific messages for all relevant error cases. However, this still suff
 - The signature of `getTemperature` does not alert us that it might fail
 - If we realize it can fail, we must dig through the implementation to discover the multiple failure values
 
+
+## ZIO Error Handling
+
+Now we will explore how ZIO enables more powerful, uniform error-handling.
+If we are unable to re-write the fallible function, we can still improve 
+
 ```scala
-// Value.scala
-
-import prep.putStrLn
-
-val basic = putStrLn("hello, world")
-
+import zio.Runtime.default.unsafeRun
+import zio.{Task, ZIO}
 ```
 
 ```scala
-// Program.scala
-// todo: should fail?
-import prep.putStrLn
-import zio.Runtime.default
-
-val basic = putStrLn("hello, world")
-
-@main def run = default.unsafeRunSync(basic)
+def getTemperatureZWrapped(behavior: String): Task[String] =
+    ZIO(getTemperature(behavior))
+        .catchAll{
+          case (ex: NetworkException) => ZIO.succeed("Network Unavailable")
+          case (ex: GpsException) => ZIO.succeed("GPS problem")
+        }
 ```
 
 ```scala
-import zio.console.putStrLn
-import zio.ZIO
-
-val basic = putStrLn("hello, world")
-// basic: ZIO[Console, IOException, Unit] = zio.ZIO$Read@52304cb9
-
-zio.Runtime.default.unsafeRun(basic.catchAll(_ => ZIO.unit))
-// hello, world
-zio.Runtime.default.unsafeRun(basic)
-// hello, world
+unsafeRun(
+  getTemperatureZWrapped("Succeed")
+)
+// res6: String = "35 degress"
 ```
+
+```scala
+unsafeRun(
+  getTemperatureZWrapped("Network Error")
+)
+// res7: String = "Network Unavailable"
+```
+
+```scala
+def getTemperatureZ(behavior: String) =
+    if (behavior == "GPS Error")
+      ZIO.fail(new GpsException())
+    else if (behavior == "Network Error")
+      ZIO.fail(new NetworkException())
+    else
+      ZIO.succeed("30 degrees")
+
+unsafeRun(
+  getTemperatureZ("Succeed")
+)
+// res8: String = "30 degrees"
+
+getTemperatureZ("Succeed")
+// res9: ZIO[Any, GpsException | NetworkException, String] = zio.ZIO$EffectTotal@129cf220
+```
+
+Even though we did not provide an explicit result type for this function, ZIO & Scala are smart enough to construct it

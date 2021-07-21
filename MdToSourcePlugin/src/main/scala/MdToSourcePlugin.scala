@@ -32,8 +32,7 @@ object MdToSourcePlugin extends AutoPlugin {
     val bookTxt = markdownDir / "Book.txt"
     val markdownFiles = (ls! markdownDir).filter(_.last.endsWith(".md"))
 
-    rm! bookTxt
-    write(bookTxt, "")
+    write.over(bookTxt, "")
 
     markdownFiles.foreach {
       mdFile =>
