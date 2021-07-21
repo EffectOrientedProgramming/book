@@ -1,12 +1,23 @@
 package typeclasses.game
 
-import typeclasses.game.GameTypeclasses.{Board, Cell}
+import typeclasses.game.GameTypeclasses.{
+  Board,
+  Cell
+}
 import typeclasses.game.interactions.Interactive
 import typeclasses.game.rendering.Drawable
-import typeclasses.game.{Hero, Monster, SupEnt, Tile}
+import typeclasses.game.{
+  Hero,
+  Monster,
+  SupEnt,
+  Tile
+}
 
 object GameTypeclasses:
-  case class Board(vector: Vector[Vector[Cell[_]]])
+
+  case class Board(
+      vector: Vector[Vector[Cell[_]]]
+  )
 
   def renderBoard(board: Board): String =
     board.vector
@@ -19,13 +30,17 @@ object GameTypeclasses:
       }
       .mkString("\n")
 
-  case class Cell[A](a: A)(using drawable: Drawable[A]):
+  case class Cell[A](a: A)(using
+      drawable: Drawable[A]
+  ):
     def draw() = drawable.symbol()
 
   trait Direction
 
   trait Moveable[A, B, Interactive[A, B]]:
-    extension(a: A) def move(direction: Direction): (A, B)
+
+    extension (a: A)
+      def move(direction: Direction): (A, B)
 
   def parseCharacter(
       input: Char,
@@ -91,10 +106,23 @@ object GameTypeclasses:
       renderBoard(
         Board(
           Vector(
-            Vector(Cell(Wall()), Cell(Wall()), Cell(Wall()), Cell(Wall())),
+            Vector(
+              Cell(Wall()),
+              Cell(Wall()),
+              Cell(Wall()),
+              Cell(Wall())
+            ),
             Vector(Cell(hero), Cell(Tile())),
-            Vector(Cell(Tile()), Cell(monster)),
-            Vector(Cell(Wall()), Cell(Wall()), Cell(Wall()), Cell(Wall()))
+            Vector(
+              Cell(Tile()),
+              Cell(monster)
+            ),
+            Vector(
+              Cell(Wall()),
+              Cell(Wall()),
+              Cell(Wall()),
+              Cell(Wall())
+            )
           )
         )
       )

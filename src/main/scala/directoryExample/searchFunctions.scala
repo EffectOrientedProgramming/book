@@ -13,9 +13,13 @@ object searchFunctions {
       ID: Int,
       emps: Vector[Employee]
   ): ZIO[Any, EmpNotFound, Employee] =
-    ZIO.fromOption(emps.find(_.ID == ID)).mapError { case _ =>
-      EmpNotFound(s"Employee with ID $ID does not exit in the firm directory.")
-    }
+    ZIO
+      .fromOption(emps.find(_.ID == ID))
+      .mapError { case _ =>
+        EmpNotFound(
+          s"Employee with ID $ID does not exit in the firm directory."
+        )
+      }
 
 //    def itterate(
 //        index: Int,
@@ -38,11 +42,13 @@ object searchFunctions {
       name: String,
       emps: Vector[Employee]
   ): ZIO[Any, EmpNotFound, Employee] =
-    ZIO.fromOption(emps.find(_.getName == name)).mapError { case _ =>
-      EmpNotFound(
-        s"Employee with ID $name does not exit in the firm directory."
-      )
-    }
+    ZIO
+      .fromOption(emps.find(_.getName == name))
+      .mapError { case _ =>
+        EmpNotFound(
+          s"Employee with ID $name does not exit in the firm directory."
+        )
+      }
 
 //    def iterate( //Example of tail recursion (linear) search
 //                 index: Int,

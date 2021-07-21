@@ -13,12 +13,17 @@ object BasicHub extends zio.App {
   //published string and print it.
   val logic1 =
     Hub.bounded[String](2).flatMap { Hub =>
-      Hub.subscribe.zip(Hub.subscribe).use { case (left, right) =>
-        for
-          _ <- Hub.publish("This is from Hub left!")
-          _ <- left.take.flatMap(console.putStrLn(_))
-          _ <- right.take.flatMap(console.putStrLn(_))
-        yield ()
+      Hub.subscribe.zip(Hub.subscribe).use {
+        case (left, right) =>
+          for
+            _ <- Hub.publish(
+              "This is from Hub left!"
+            )
+            _ <- left.take
+              .flatMap(console.putStrLn(_))
+            _ <- right.take
+              .flatMap(console.putStrLn(_))
+          yield ()
       }
     }
 

@@ -49,7 +49,7 @@ lazy val docs = project // new documentation project
     mdocIn := file("Chapters"),
     mdocOut := file("manuscript"),
     // TODO Watch for a Scala 3 release of this library, so we can start formatting our markdown snippets
-    //  libraryDependencies += "org.scalameta" %% "scalafmt-dynamic" % "3.0.0-RC5"
+    libraryDependencies += "org.scalameta" % "scalafmt-dynamic_2.13" % "3.0.0-RC6"
   )
   .in(file("myproject-docs")) // important: it must not be docs/
   .dependsOn(root)

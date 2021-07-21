@@ -8,4 +8,6 @@ import java.io.IOException
 import scala.concurrent.Future
 
 class FutureToZio:
-  lazy val sFuture = Future.successful("Success!")
+
+  lazy val sFuture =
+    Future.successful("Success!")

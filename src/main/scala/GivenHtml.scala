@@ -2,14 +2,23 @@ object GivenHtml {}
 
 case class Identifier(content: String)
 case class HtmlFrag(content: String)
-case class StringField(identifier: Identifier, content: String)
-case class StringChoices(identifier: Identifier, content: List[String])
+
+case class StringField(
+    identifier: Identifier,
+    content: String
+)
+
+case class StringChoices(
+    identifier: Identifier,
+    content: List[String]
+)
 
 trait HtmlRep[A]:
-  extension(a: A) def formField(): HtmlFrag
+  extension (a: A) def formField(): HtmlFrag
 
 given HtmlRep[StringField] with
-  extension(a: StringField)
+
+  extension (a: StringField)
 
     def formField(): HtmlFrag =
       HtmlFrag(
@@ -17,10 +26,11 @@ given HtmlRep[StringField] with
       )
 
 trait RadioOption[A]:
-  extension(a: A) def optField(): HtmlFrag
+  extension (a: A) def optField(): HtmlFrag
 
 given RadioOption[StringField] with
-  extension(a: StringField)
+
+  extension (a: StringField)
 
     def optField(): HtmlFrag =
       // TODO Name should not be identifier.
@@ -28,13 +38,17 @@ given RadioOption[StringField] with
         s"""<input type="radio" id="${a.identifier.content}" name="${a.identifier.content}" value=${a.content}>"""
       )
 
-given (using RadioOption[StringField]): RadioOption[List[StringField]] with
-  extension(a: List[StringField])
+given (using
+    RadioOption[StringField]
+): RadioOption[List[StringField]] with
+
+  extension (a: List[StringField])
 
     def optField(): HtmlFrag =
       HtmlFrag(
         "<form> " +
-          a.map(_.optField().content).mkString("\n") +
+          a.map(_.optField().content)
+            .mkString("\n") +
           "</form>"
       )
 

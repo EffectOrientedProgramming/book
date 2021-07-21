@@ -14,7 +14,9 @@ package monads
 
   // We need to provide an instance of a function that can
   // transform an Int to a IterableOnce[B]
-  implicit def intToIterable(i: Int): IterableOnce[Int] =
+  implicit def intToIterable(
+      i: Int
+  ): IterableOnce[Int] =
     List.fill(i)(i)
 
   val oneAndFiveFives = List(1, 5)

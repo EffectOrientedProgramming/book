@@ -178,7 +178,50 @@ unsafeRun(
 // res8: String = "30 degrees"
 
 getTemperatureZ("Succeed")
-// res9: ZIO[Any, GpsException | NetworkException, String] = zio.ZIO$EffectTotal@129cf220
+// res9: ZIO[Any, GpsException | NetworkException, String] = zio.ZIO$EffectTotal@4e280cd1
 ```
 
 Even though we did not provide an explicit result type for this function, ZIO & Scala are smart enough to construct it
+
+```scala
+import java.nio.file._
+import org.scalafmt.interfaces.Scalafmt
+val scalafmt = Scalafmt.create(this.getClass.getClassLoader)
+// scalafmt: Scalafmt = ScalafmtDynamic(
+//   org.scalafmt.dynamic.ConsoleScalafmtReporter$@a6daa4,
+//   List(),
+//   true,
+//   true,
+//   "3.0.0-RC6",
+//   org.scalafmt.dynamic.utils.ReentrantCache@6352bb50,
+//   true,
+//   org.scalafmt.dynamic.utils.ReentrantCache@50cd169
+// )
+val config = Paths.get(".scalafmt.conf")
+// config: Path = .scalafmt.conf
+import collection.JavaConverters._
+val read = Files.readAllLines(config).asScala.mkString("\n")
+// read: String = """version = 3.0.0-RC6
+// runner.dialect = scala3
+// 
+// newlines.topLevelStatements = [before]
+// newlines.topLevelStatementsMinBreaks = 1
+// 
+// maxColumn = 47
+// verticalMultiline.arityThreshold=0"""
+println(read)
+// version = 3.0.0-RC6
+// runner.dialect = scala3
+// 
+// newlines.topLevelStatements = [before]
+// newlines.topLevelStatementsMinBreaks = 1
+// 
+// maxColumn = 47
+// verticalMultiline.arityThreshold=0
+val file = Paths.get("Main.scala")
+// file: Path = Main.scala
+
+println(scalafmt.format(config, file, "object A  {  }"))
+// object A {}
+//
+```

@@ -3,17 +3,28 @@ package HelloZio
 import HelloZio.CalculatorExample.input
 
 import java.io.IOException
-import zio.console.{Console, getStrLn, putStrLn}
+import zio.console.{
+  Console,
+  getStrLn,
+  putStrLn
+}
 import fakeEnvironmentInstances.FakeConsole
 import zio.console.Console.Service
 import zio.{IO, Ref, Runtime, ZIO, ZLayer}
 
 enum ArithmaticOperation(a: Float, b: Float):
+
   case Add(first: Float, second: Float)
-      extends ArithmaticOperation(first, second)
+      extends ArithmaticOperation(
+        first,
+        second
+      )
 
   case Divide(first: Float, second: Float)
-      extends ArithmaticOperation(first, second)
+      extends ArithmaticOperation(
+        first,
+        second
+      )
 
 //  def calculateX(): ZIO[Any, Throwable | ArithmeticException, String]
 
@@ -39,15 +50,25 @@ enum ArithmaticOperation(a: Float, b: Float):
           ZIO {
             s"Dividing $first by $second: ${first / second}"
           }
-        else ZIO.fail(new ArithmeticException("divide by 0"))
+        else
+          ZIO.fail(
+            new ArithmeticException(
+              "divide by 0"
+            )
+          )
     }
 
 object ArithmaticOperation: //This in an object used in calculations implemented below.
-  def fromInt(index: Int): (Float, Float) => ArithmaticOperation = index match {
-    case 1 => Add.apply
-    case 2 => Divide.apply
-    case _ => throw new RuntimeException("boom")
-  }
+
+  def fromInt(
+      index: Int
+  ): (Float, Float) => ArithmaticOperation =
+    index match {
+      case 1 => Add.apply
+      case 2 => Divide.apply
+      case _ =>
+        throw new RuntimeException("boom")
+    }
 
 //extends zio.App
 object CalculatorExample extends zio.App {
@@ -65,10 +86,12 @@ object CalculatorExample extends zio.App {
           | 3) Multiply
           | 4) Devide
           |""")
-      in <- getStrLn //User inputs the operation index
+      in <-
+        getStrLn //User inputs the operation index
       _ <- putStrLn(s"input: ${in}")
       _ <- putStrLn("Enter first number: ")
-      firstNum <- getStrLn //User inputs first and second number
+      firstNum <-
+        getStrLn //User inputs first and second number
       _ <- putStrLn("Enter second number: ")
       secondNum <- getStrLn
     yield Vector(
@@ -82,7 +105,8 @@ object CalculatorExample extends zio.App {
       input: Vector[String]
   ): ZIO[
     Any,
-    String | NumberFormatException | ArithmeticException | Throwable,
+    String | NumberFormatException |
+      ArithmeticException | Throwable,
     String
   ] =
     for
@@ -91,7 +115,10 @@ object CalculatorExample extends zio.App {
       } //The inputs are cast as Floats, and passed into a ZIO object.
       result <-
         ArithmaticOperation //This object, defined above, processes the operation index, and passes the according calculation to the function calculate.
-          .fromInt(input(0).toInt)(number1, number2)
+          .fromInt(input(0).toInt)(
+            number1,
+            number2
+          )
           .calculate() //calculate takes the input numbers from ArithmaticOperation, and creates the return statement
 //      _ <- putStrLn("Typed, parse operation: " + operation)
 //      output <-
@@ -121,11 +148,15 @@ object CalculatorExample extends zio.App {
           "96",
           "8"
         ) //Run this program with the following inputs
-        i <- input.provideLayer(ZLayer.succeed(console))
+        i <- input.provideLayer(
+          ZLayer.succeed(console)
+        )
         output <- operate(i)
           .catchAll {
-            case x: String    => ZIO("Input failure: " + x)
-            case x: Throwable => ZIO("toFloat failure: " + x)
+            case x: String =>
+              ZIO("Input failure: " + x)
+            case x: Throwable =>
+              ZIO("toFloat failure: " + x)
           }
         _ <- putStrLn(output)
       yield ()

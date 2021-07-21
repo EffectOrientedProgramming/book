@@ -3,6 +3,7 @@ package scalaBasics
 //This example will go over how to use the @main notation
 
 object usingMains {
+
   //Within a package, the compiler will analyze all of the excecutable
   //functions, and select one of them as the 'main function'.
   //Something useful that scala 3 does is to give the programmer the

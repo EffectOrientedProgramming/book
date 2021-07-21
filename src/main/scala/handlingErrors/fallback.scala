@@ -26,7 +26,9 @@ object fallback extends zio.App {
   //effects that can fail.
 
   def run(args: List[String]) =
-    val loadedFile: UIO[file] = loadFile("TargetFile").orElse(loadBackupFile())
+    val loadedFile: UIO[file] = loadFile(
+      "TargetFile"
+    ).orElse(loadBackupFile())
     loadedFile.exitCode
 
 }

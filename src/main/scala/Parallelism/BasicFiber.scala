@@ -1,18 +1,32 @@
 package Parallelism
 
 import java.io.IOException
-import zio.console.{Console, getStrLn, putStrLn}
-import zio.{IO, Runtime, ZIO, ZLayer, UIO, Fiber}
+import zio.console.{
+  Console,
+  getStrLn,
+  putStrLn
+}
+import zio.{
+  IO,
+  Runtime,
+  ZIO,
+  ZLayer,
+  UIO,
+  Fiber
+}
 
 object BasicFibers {
+
   //Fibers model a running IO: Fiber[E,A]. They have an error type, and a success type.
   //They don't need an input environment type.
   //They are not techincally effects, but they can be converted to effects.
 
   object computation { //This object performs a computation that takes a long time. It is a recursive Fibonacci Sequence generator.
+
     def fib(n: Long): UIO[Long] = UIO {
       if (n <= 1) UIO.succeed(n)
-      else fib(n - 1).zipWith(fib(n - 2))(_ + _)
+      else
+        fib(n - 1).zipWith(fib(n - 2))(_ + _)
     }.flatten
   }
 
@@ -27,7 +41,8 @@ object BasicFibers {
   val n: Long = 50
   val m: Long = 100
 
-  val fibNandM: UIO[Vector[Fiber[Nothing, Long]]] =
+  val fibNandM
+      : UIO[Vector[Fiber[Nothing, Long]]] =
     for
       fiberN <- computation.fib(n).fork
       fiberM <- computation.fib(m).fork

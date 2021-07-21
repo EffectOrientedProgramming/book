@@ -22,7 +22,10 @@ object folding extends App {
     logic
       .foldM(
         _ => loadBackupFile(),
-        _ => putStrLn("The file opened on first attempt!")
+        _ =>
+          putStrLn(
+            "The file opened on first attempt!"
+          )
       ) //Effectful handling
       .exitCode
 

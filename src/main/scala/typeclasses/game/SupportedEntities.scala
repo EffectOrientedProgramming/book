@@ -3,13 +3,18 @@ package typeclasses.game
 import typeclasses.game.interactions.Interactive
 
 trait FullInteractions[A, B]:
-  extension(a: A) def interactWithAny(b: B): (A, B) | (B, A)
+
+  extension (a: A)
+    def interactWithAny(b: B): (A, B) | (B, A)
 
 //
 given FullInteractions[Hero, SupEnt] with
-  extension(a: Hero)
 
-    def interactWithAny(b: SupEnt): (Hero, SupEnt) | (SupEnt, Hero) =
+  extension (a: Hero)
+
+    def interactWithAny(
+        b: SupEnt
+    ): (Hero, SupEnt) | (SupEnt, Hero) =
       b match {
         case otherHero: Hero =>
           (a, otherHero)

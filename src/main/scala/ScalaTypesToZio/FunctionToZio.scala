@@ -7,6 +7,7 @@ import java.io
 import java.io.IOException
 
 class FunctionToZio:
+
   def sFunction(i: Int): Int =
     i * i
 

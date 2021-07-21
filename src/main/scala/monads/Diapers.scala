@@ -14,8 +14,9 @@ enum Diaper:
 
   def map(f: String => String): Diaper =
     this match
-      case _: Empty            => this
-      case Soiled(description) => Soiled(f(description))
+      case _: Empty => this
+      case Soiled(description) =>
+        Soiled(f(description))
 
   // optionally we can build this on top of flatMap
 

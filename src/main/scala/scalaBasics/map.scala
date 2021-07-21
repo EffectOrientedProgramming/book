@@ -6,11 +6,14 @@ object map {
   val letters = Vector('a', 'b', 'c', 'd', 'e')
 
   @main def mapEx =
-    val combined = nums.map(letters) //re-order letters
+    val combined =
+      nums.map(letters) //re-order letters
     println(combined)
 
     val comb2 =
-      nums.map(i => i -> letters(i)) //assign values of nums to letters
+      nums.map(i =>
+        i -> letters(i)
+      ) //assign values of nums to letters
     println(comb2)
 
 }

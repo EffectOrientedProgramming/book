@@ -1,17 +1,23 @@
 package zioBasics
 
 import java.io.IOException
-import zio.console.{Console, getStrLn, putStrLn}
+import zio.console.{
+  Console,
+  getStrLn,
+  putStrLn
+}
 import fakeEnvironmentInstances.FakeConsole
 import zio.console.Console.Service
 import zio.{IO, Runtime, ZIO, ZLayer}
 
 @main def hello =
   val a = println("1")
-  val s: ZIO[Any, Nothing, String] = ZIO.succeed { println("2"); "asdf"; }
-  val h: ZIO[Console, IOException, Unit] = s.flatMap { ss =>
-    println("3"); putStrLn(ss);
-  }
+  val s: ZIO[Any, Nothing, String] =
+    ZIO.succeed { println("2"); "asdf"; }
+  val h: ZIO[Console, IOException, Unit] =
+    s.flatMap { ss =>
+      println("3"); putStrLn(ss);
+    }
   println("4")
   Runtime.default.unsafeRunSync(h)
 
@@ -32,13 +38,23 @@ import zio.{IO, Runtime, ZIO, ZLayer}
 
   Runtime.default.unsafeRunSync(
     scheduledCode
-      .provideLayer(ZLayer.succeed(FakeConsole.word))
-      .repeat(Schedule.recurs(4) && Schedule.spaced(3.seconds))
+      .provideLayer(
+        ZLayer.succeed(FakeConsole.word)
+      )
+      .repeat(
+        Schedule.recurs(4) && Schedule.spaced(
+          3.seconds
+        )
+      )
   )
 
 @main def ValPassing(): Unit =
 
-  val input: ZIO[zio.console.Console, IOException, String] =
+  val input: ZIO[
+    zio.console.Console,
+    IOException,
+    String
+  ] =
     for
       _ <- putStrLn("What is your name?")
       name <- getStrLn
@@ -51,10 +67,13 @@ import zio.{IO, Runtime, ZIO, ZLayer}
     else
       false
 
-  val b: ZIO[Console, IOException, Boolean] = input.map(i => process(i))
+  val b: ZIO[Console, IOException, Boolean] =
+    input.map(i => process(i))
 
   println(
     Runtime.default.unsafeRunSync(
-      b.provideLayer(ZLayer.succeed(FakeConsole.name)).exitCode
+      b.provideLayer(
+        ZLayer.succeed(FakeConsole.name)
+      ).exitCode
     )
   )

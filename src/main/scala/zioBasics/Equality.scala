@@ -12,10 +12,14 @@ object Equality extends zio.App {
   //suc(1-5) are all equivalant. They all equal a success with a return of 1.
   //(Their types can be aliased to be more and more specific.)
   val suc1 = ZIO.succeed(1)
-  val suc2: ZIO[Any, Nothing, Int] = ZIO.succeed(1)
+
+  val suc2: ZIO[Any, Nothing, Int] =
+    ZIO.succeed(1)
   val suc3: IO[Nothing, Int] = ZIO.succeed(1)
   val suc4: UIO[Int] = ZIO.succeed(1)
-  val suc4d: UIO[Int] = ZIO.succeed(1) //(Duplicate of suc4)
+
+  val suc4d: UIO[Int] =
+    ZIO.succeed(1) //(Duplicate of suc4)
   val suc5: URIO[Any, Int] = ZIO.succeed(1)
 
   //Here, we test the equality values of all the ZIO:
@@ -25,7 +29,8 @@ object Equality extends zio.App {
     Unit
   ] =
     for {
-      res1: Int <- suc1 //Flat map all the ZIO into their integer values
+      res1: Int <-
+        suc1 //Flat map all the ZIO into their integer values
       res2: Int <- suc2
       res3: Int <- suc3
       res4: Int <- suc4

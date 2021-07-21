@@ -6,8 +6,14 @@ case object Box
 case object Dead
 case object Alive
 
-def observe(box: Box.type): Either[Dead.type, Alive.type] =
-  val r = Either.cond(Random.nextBoolean(), Alive, Dead)
+def observe(
+    box: Box.type
+): Either[Dead.type, Alive.type] =
+  val r = Either.cond(
+    Random.nextBoolean(),
+    Alive,
+    Dead
+  )
   println("observe" -> r)
   r
 
@@ -17,8 +23,14 @@ def observe(box: Box.type): Either[Dead.type, Alive.type] =
 
 case object Angry
 
-def kick(kat: Alive.type): Either[Dead.type, Angry.type] =
-  val r = Either.cond(Random.nextBoolean(), Angry, Dead)
+def kick(
+    kat: Alive.type
+): Either[Dead.type, Angry.type] =
+  val r = Either.cond(
+    Random.nextBoolean(),
+    Angry,
+    Dead
+  )
   println("kick" -> r)
   r
 

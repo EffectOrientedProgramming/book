@@ -11,7 +11,8 @@ case class Paper(weight: Int) extends Trash:
 
 case object PaperBin extends Bin
 
-case class Cardboard(weight: Int) extends Trash:
+case class Cardboard(weight: Int)
+    extends Trash:
   val value = 1
 
 case object CardboardBin extends Bin
@@ -23,7 +24,9 @@ case object NotTrashBin extends Bin
 trait TrashToBin[T <: Trash]:
   val bin: Bin
 
-def sortTrash1[T <: Trash](t: T)(using toBin: ToBin[T]): Bin =
+def sortTrash1[T <: Trash](t: T)(using
+    toBin: ToBin[T]
+): Bin =
   toBin.bin
 
 def sortTrash2[T <: Trash: ToBin](t: T): Bin =
@@ -32,7 +35,9 @@ def sortTrash2[T <: Trash: ToBin](t: T): Bin =
 trait ToBin[T]:
   val bin: Bin
 
-def sort1[T](t: T)(using toBin: ToBin[T]): Bin =
+def sort1[T](t: T)(using
+    toBin: ToBin[T]
+): Bin =
   toBin.bin
 
 def sort2[T: ToBin](t: T): Bin =

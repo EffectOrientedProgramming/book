@@ -11,10 +11,15 @@ def buildABridge() =
   trait ProjectBid
   trait InsufficientResources
 
-  def createProjectSpecifications()
-      : ZIO[Any, LegalRestriction, ProjectSpecifications] = ???
+  def createProjectSpecifications(): ZIO[
+    Any,
+    LegalRestriction,
+    ProjectSpecifications
+  ] = ???
 
-  case class AvailableCompanies[T](companies: Set[Company[T]])
+  case class AvailableCompanies[T](
+      companies: Set[Company[T]]
+  )
 
   trait Concrete
   trait Steel
@@ -23,7 +28,9 @@ def buildABridge() =
   trait ConstructionFirm:
     def produceBid(
         projectSpecifications: ProjectSpecifications
-    ): ZIO[Has[AvailableCompanies[Concrete]] with Has[
+    ): ZIO[Has[
+      AvailableCompanies[Concrete]
+    ] with Has[
       AvailableCompanies[Steel]
     ] with Has[
       AvailableCompanies[UnderWaterDrilling]
@@ -33,4 +40,5 @@ def buildABridge() =
 
   def chooseConstructionFirm(
       firms: Set[ConstructionFirm]
-  ): ZIO[Any, NoValidBids, ConstructionFirm] = ???
+  ): ZIO[Any, NoValidBids, ConstructionFirm] =
+    ???

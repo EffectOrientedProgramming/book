@@ -3,6 +3,7 @@ package effects
 import java.util.Calendar
 
 object temporalVars {
+
 //Time based functions will mainly be effectual, as they rely on a varaible that is constantly
   //changing.
 

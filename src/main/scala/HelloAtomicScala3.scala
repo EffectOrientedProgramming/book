@@ -31,22 +31,26 @@ def HelloAtomicScala3 =
 object Extensions:
 
   trait PrettyString[A]:
-    extension(a: A) def prettyString(): String
+    extension (a: A) def prettyString(): String
 
   given PrettyString[String] with
-    extension(a: String)
+
+    extension (a: String)
 
       def prettyString(): String =
         "\"" + a + "\""
 
   given PrettyString[Int] with
-    extension(a: Int)
+
+    extension (a: Int)
 
       def prettyString(): String =
         a.toString.prettyString()
 
-  given [A: PrettyString]: PrettyString[List[A]] with
-    extension(a: List[A])
+  given [A: PrettyString]
+      : PrettyString[List[A]] with
+
+    extension (a: List[A])
 
       def prettyString(): String =
         a.map(_.prettyString()).mkString(",")
@@ -73,7 +77,9 @@ class VisibilityClass(name: String)
 
   // Extension method on objects
   extension (o: Option.type)
-    def fromNullable[T](input: T | Null): Option[T] =
+    def fromNullable[T](
+        input: T | Null
+    ): Option[T] =
       if (input != null) Some(input) else None
 
   /*
@@ -83,7 +89,11 @@ class VisibilityClass(name: String)
       case s: T => Some(s)
    */
 
-  println("Nifty!: " + Option.fromNullable(maybeS).map(_.toUpperCase))
+  println(
+    "Nifty!: " + Option
+      .fromNullable(maybeS)
+      .map(_.toUpperCase)
+  )
 
   val o: Option[String] = maybeS match
     case s: String => Some(s)
@@ -101,4 +111,7 @@ class VisibilityClass(name: String)
   println(1.prettyString())
   println("asdf".prettyString())
   println(List("foo", "bar").prettyString())
-  println(List(List("foo", "bar"), List("asdf")).prettyString())
+  println(
+    List(List("foo", "bar"), List("asdf"))
+      .prettyString()
+  )

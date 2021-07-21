@@ -20,13 +20,17 @@ object userInputLookup extends zio.App {
       for
         emps <-
           compileEmps //Note: Excecutable logic is very concise. The behavior is predefined elsewhere, and only just excecuted in the main.
-        _ <- putStrLn("Input full employee name to retrieve from database:   ")
+        _ <- putStrLn(
+          "Input full employee name to retrieve from database:   "
+        )
         empName <- getStrLn
         searchedEmp <- findEmp(
           empName,
           emps
         ) //look for different employees based on Input Name
-        _ <- putStrLn(s"Looking for employee... \n" + searchedEmp.toString)
+        _ <- putStrLn(
+          s"Looking for employee... \n" + searchedEmp.toString
+        )
       yield ()
     (for
       console <- FakeConsole.withInput(
@@ -42,13 +46,20 @@ object userInputLookup extends zio.App {
         .catchSome(i =>
           i match
             case e: EmpNotFound =>
-              putStrLn("Target employee not in System...")
+              putStrLn(
+                "Target employee not in System..."
+              )
         )
         .catchSomeDefect(i =>
           i match
             case e: IOException =>
-              putStrLn("Unexpected IOExceptions are the worst...")
-            case e: Throwable => putStrLn(s"Huh, wasn't expecting $e")
+              putStrLn(
+                "Unexpected IOExceptions are the worst..."
+              )
+            case e: Throwable =>
+              putStrLn(
+                s"Huh, wasn't expecting $e"
+              )
         )
     yield ()).exitCode
 }

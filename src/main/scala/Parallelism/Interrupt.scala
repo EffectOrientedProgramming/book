@@ -10,7 +10,8 @@ class Interrupt {
 
   //This ZIO does nothing but count to n.
   //It is not productive, but it uses resources.
-  val countToN: ZIO[zio.clock.Clock, Nothing, Unit] =
+  val countToN
+      : ZIO[zio.clock.Clock, Nothing, Unit] =
     for _ <- ZIO.sleep(n.seconds)
     yield ()
 
@@ -18,7 +19,11 @@ class Interrupt {
   //It will then interrupt the fiber, which returns an exit object.
   //Note: Interrupting Fibers is completely safe.
   //Interrupt safely releases all resources, and runs the finalizers.
-  val noCounting: ZIO[zio.clock.Clock, Nothing, Exit[Nothing, Unit]] =
+  val noCounting: ZIO[
+    zio.clock.Clock,
+    Nothing,
+    Exit[Nothing, Unit]
+  ] =
     for
       fiber <- countToN.fork
       exit <- fiber.interrupt

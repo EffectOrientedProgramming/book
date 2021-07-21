@@ -7,19 +7,28 @@ enum Contents:
   case Continue()
 
 case class Box(contents: Contents):
-  def map(f: Contents.Continue => Contents): Box =
-    contents match
-      case stop: Contents.Stop         => this
-      case continue: Contents.Continue => Box(f(continue))
 
-  def flatMap(f: Contents.Continue => Box): Box =
+  def map(
+      f: Contents.Continue => Contents
+  ): Box =
     contents match
-      case stop: Contents.Stop         => this
-      case continue: Contents.Continue => f(continue)
+      case stop: Contents.Stop => this
+      case continue: Contents.Continue =>
+        Box(f(continue))
+
+  def flatMap(
+      f: Contents.Continue => Box
+  ): Box =
+    contents match
+      case stop: Contents.Stop => this
+      case continue: Contents.Continue =>
+        f(continue)
 
 object Box:
+
   def observe: Box =
-    if Random.nextBoolean() then Box(Contents.Stop())
+    if Random.nextBoolean() then
+      Box(Contents.Stop())
     else Box(Contents.Continue())
 
 def again(continue: Contents.Continue): Box =

@@ -1,14 +1,29 @@
 package crypto
 
-import zio.console.{Console, getStrLn, putStrLn}
+import zio.console.{
+  Console,
+  getStrLn,
+  putStrLn
+}
 import zio.clock.currentTime
-import zio.{Fiber, IO, Runtime, Schedule, UIO, ZIO, URIO, ZLayer, Ref}
+import zio.{
+  Fiber,
+  IO,
+  Runtime,
+  Schedule,
+  UIO,
+  ZIO,
+  URIO,
+  ZLayer,
+  Ref
+}
 import zio.duration._
 import zio.random._
 
 object Mining extends zio.App {
 
   class Miner(val name: String):
+
     val mine =
       for
         duration <- nextInt.map(_.abs % 7 + 1)
@@ -30,9 +45,14 @@ object Mining extends zio.App {
         findNextPrime(num + 1)
 
     //Takes a starting value, then calls itterates up through numbers until it finds a prime number.
-    def mine2(num: Long): ZIO[zio.random.Random & zio.Has[
-      zio.clock.Clock.Service
-    ], Nothing, Object] =
+    def mine2(num: Long): ZIO[
+      zio.random.Random &
+        zio.Has[
+          zio.clock.Clock.Service
+        ],
+      Nothing,
+      Object
+    ] =
       for
         duration <- nextInt.map(_.abs % 3 + 1)
         _ <- ZIO.sleep(duration.second)
@@ -44,20 +64,29 @@ object Mining extends zio.App {
     miners
       .map(_.mine)
 //      .reduce { case (minersSoFar, nextMiner) => minersSoFar.race(nextMiner) }
-      .reduce(_.race(_)) // Much terser. I think it's worth using this form
+      .reduce(
+        _.race(_)
+      ) // Much terser. I think it's worth using this form
 
-  def findNextBlock2(miners: Seq[Miner], startNum: Long) =
+  def findNextBlock2(
+      miners: Seq[Miner],
+      startNum: Long
+  ) =
     miners
       .map(_.mine2(startNum))
       .reduce(_.race(_))
 
-  def run(args: List[String]) = //Use App's run function
+  def run(
+      args: List[String]
+  ) = //Use App's run function
     val zeb = Miner("Zeb")
     val frop = Miner("Frop")
     val shtep = Miner("Shtep")
     val logic1 = //Uses mine1 function (Just sleeping)
       for
-        raceResult <- findNextBlock(Seq(zeb, frop, shtep))
+        raceResult <- findNextBlock(
+          Seq(zeb, frop, shtep)
+        )
         _ <- putStrLn("Winner: " + raceResult)
       yield ()
 
@@ -66,7 +95,10 @@ object Mining extends zio.App {
         startNum <- nextInt.map(
           _.abs % 1000000 + 1000000
         ) //This is the value that the prime number finder starts from
-        raceResult <- findNextBlock2(Seq(zeb, frop, shtep), startNum)
+        raceResult <- findNextBlock2(
+          Seq(zeb, frop, shtep),
+          startNum
+        )
         _ <- putStrLn("Winner: " + raceResult)
       yield ()
     /*

@@ -9,7 +9,8 @@ object Info:
   object Name:
     def apply(s: String): Name = s
 
-  extension (n: Name) def fancyRep() = n.toUpperCase
+  extension (n: Name)
+    def fancyRep() = n.toUpperCase
 
   opaque type Repo = URL
 

@@ -6,6 +6,7 @@ case class Employee(
     lastName: String,
     department: String
 ):
+
   def getName: String =
     val name = s"$firstName $lastName"
     name

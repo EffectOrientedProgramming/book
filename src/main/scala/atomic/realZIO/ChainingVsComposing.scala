@@ -6,12 +6,17 @@ class ChainingVsComposing {
   trait UserNotFound
   trait UserInfo
 
-  def getInfo(user: String): ZIO[Any, UserNotFound, UserInfo] = ???
+  def getInfo(
+      user: String
+  ): ZIO[Any, UserNotFound, UserInfo] = ???
 
   trait NetworkError
   trait HouseListings
 
-  def zillow(zipCode: String): ZIO[Any, NetworkError, HouseListings] = ???
+  def zillow(
+      zipCode: String
+  ): ZIO[Any, NetworkError, HouseListings] =
+    ???
 
   trait NoGoodHouseAvailable
   trait Home
@@ -36,13 +41,17 @@ class ChainingVsComposing {
 
   val exploreChaining: ZIO[
     Any,
-    UserNotFound | NetworkError | NoGoodHouseAvailable,
+    UserNotFound | NetworkError |
+      NoGoodHouseAvailable,
     Home
   ] =
     for {
       userInfo: UserInfo <- getInfo(userId)
       houseListings <- zillow(zipCode)
-      newHome <- buyBestHouse(userInfo, houseListings)
+      newHome <- buyBestHouse(
+        userInfo,
+        houseListings
+      )
     } yield newHome
 
   val combined = ZIO
@@ -58,27 +67,32 @@ class ChainingVsComposing {
 
   val exploreChainingPar: ZIO[
     Any,
-    UserNotFound | NetworkError | NoGoodHouseAvailable,
+    UserNotFound | NetworkError |
+      NoGoodHouseAvailable,
     Home
   ] =
-    combined.flatMap((userInfo, houseListings) =>
-      buyBestHouse(userInfo, houseListings)
+    combined.flatMap(
+      (userInfo, houseListings) =>
+        buyBestHouse(userInfo, houseListings)
     )
 
   val finalHouse: ZIO[
     Any,
-    UserNotFound | NetworkError | NoGoodHouseAvailable,
+    UserNotFound | NetworkError |
+      NoGoodHouseAvailable,
     Home
   ] =
     // This doesn't actually reduce the error type
-    exploreChaining.catchSome { case (_: NoGoodHouseAvailable) =>
-      yoloHouse()
+    exploreChaining.catchSome {
+      case (_: NoGoodHouseAvailable) =>
+        yoloHouse()
     }
 
-  val getUserAndZillowInfo: (String, String) => (
-      ZIO[Any, UserNotFound, UserInfo],
-      ZIO[Any, NetworkError, HouseListings]
-  ) = (x, y) => (getInfo(x), zillow(y))
+  val getUserAndZillowInfo
+      : (String, String) => (
+          ZIO[Any, UserNotFound, UserInfo],
+          ZIO[Any, NetworkError, HouseListings]
+      ) = (x, y) => (getInfo(x), zillow(y))
 
 //    val getUserAndZillowInfo: (String, String) => (UserInfo, HouseListings) =
 //      getInfo.combinify(zillow) // .andThen(buyBestHouse)
@@ -93,11 +107,19 @@ class NarrowError:
   sealed trait UserPrefs
   case object NoUserPrefs extends UserPrefs
 
-  def getInfo(user: String): ZIO[Any, UserNotFound, UserInfo] = ???
+  def getInfo(
+      user: String
+  ): ZIO[Any, UserNotFound, UserInfo] = ???
 
-  def userPrefs(userInfo: UserInfo): ZIO[Any, UserPrefError, UserPrefs] = ???
+  def userPrefs(
+      userInfo: UserInfo
+  ): ZIO[Any, UserPrefError, UserPrefs] = ???
 
-  val wide: ZIO[Any, UserNotFound | UserPrefError, UserPrefs] =
+  val wide: ZIO[
+    Any,
+    UserNotFound | UserPrefError,
+    UserPrefs
+  ] =
     for
       userInfo <- getInfo("asdf")
       prefs <- userPrefs(userInfo)
@@ -118,29 +140,47 @@ class MatchError:
   trait ProductNotFound
   trait Recommendations
 
-  def getInfo(user: String): ZIO[Any, UserNotFound, UserInfo] = ???
+  def getInfo(
+      user: String
+  ): ZIO[Any, UserNotFound, UserInfo] = ???
 
-  def getProduct(product: String): ZIO[Any, ProductNotFound, ProductInfo] = ???
+  def getProduct(
+      product: String
+  ): ZIO[Any, ProductNotFound, ProductInfo] =
+    ???
 
   def recommended(
       userInfo: UserInfo,
       productInfo: ProductInfo
-  ): ZIO[Any, UserNotFound | ProductNotFound, Recommendations] = ???
+  ): ZIO[
+    Any,
+    UserNotFound | ProductNotFound,
+    Recommendations
+  ] = ???
 
   // why do we have to add NoSuchElementException?
 
   val userAndProductInfo: ZIO[
     Any,
-    UserNotFound | ProductNotFound | NoSuchElementException,
+    UserNotFound | ProductNotFound |
+      NoSuchElementException,
     (UserInfo, ProductInfo)
-  ] = ZIO.tupledPar(getInfo("asdf"), getProduct("zxcv"))
+  ] = ZIO.tupledPar(
+    getInfo("asdf"),
+    getProduct("zxcv")
+  )
 
   val app: ZIO[
     Any,
-    UserNotFound | ProductNotFound | NoSuchElementException,
+    UserNotFound | ProductNotFound |
+      NoSuchElementException,
     Recommendations
   ] =
     for
-      (userInfo, productInfo) <- userAndProductInfo
-      recommendations <- recommended(userInfo, productInfo)
+      (userInfo, productInfo) <-
+        userAndProductInfo
+      recommendations <- recommended(
+        userInfo,
+        productInfo
+      )
     yield recommendations

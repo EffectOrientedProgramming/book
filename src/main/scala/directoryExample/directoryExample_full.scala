@@ -35,18 +35,28 @@ object directoryExample_full extends zio.App {
     def map =
       this
 
-  def finalizer(source: scala.io.Source) = //Define the finalizer behavior here
+  def finalizer(
+      source: scala.io.Source
+  ) = //Define the finalizer behavior here
     UIO.effectTotal {
-      println("Finalizing: Closing file reader")
+      println(
+        "Finalizing: Closing file reader"
+      )
       source.close //Close the input source
     }
 
   // TODO Wyett: With the current setup, this means that our Github Actions will fail 10% of the time. Consider a
   //  FakeRandom that behaves similarly to our FakeConsole. So we could do the 10% failure when running locally, but
   //  have a 100% success rate on Github
-  val readFileContents: ZIO[Any, Throwable | IOException, Vector[String]] =
+  val readFileContents: ZIO[
+    Any,
+    Throwable | IOException,
+    Vector[String]
+  ] =
     ZIO(
-      scala.io.Source.fromFile("src/main/scala/directoryExample/firmData.csv")
+      scala.io.Source.fromFile(
+        "src/main/scala/directoryExample/firmData.csv"
+      )
     ) //Open the file to read its contents
       .bracket(finalizer) {
         bufferedSource => //Use the bracket method with the finalizer defined above to define behavior on fail.
@@ -56,12 +66,16 @@ object directoryExample_full extends zio.App {
             yield line
           //This is where you can set the error likely hood
           //This models a fatal IOException
-          errorAtNPerc(100) //ie, 10 % chance to fail...
+          errorAtNPerc(
+            100
+          ) //ie, 10 % chance to fail...
           ZIO.succeed(Vector() ++ lines)
       }
 
   // Read a line, and return an employee object
-  def linesToEmps(lines: Vector[String]): Vector[Employee] =
+  def linesToEmps(
+      lines: Vector[String]
+  ): Vector[Employee] =
     val logic =
       for
         line <- lines
@@ -70,22 +84,30 @@ object directoryExample_full extends zio.App {
     logic
 
   def lineToEmp(line: String): Employee =
-    val parts: Array[String] = safeSplit(line, ",")
-    val emp = Employee(parts(0).toInt, parts(1), parts(2), parts(3))
+    val parts: Array[String] =
+      safeSplit(line, ",")
+    val emp = Employee(
+      parts(0).toInt,
+      parts(1),
+      parts(2),
+      parts(3)
+    )
     emp
 
   //This function deals with split() complications with the null safety element of the sbt.
   def safeSplit(line: String, key: String) =
     val nSplit = line.split(key)
     val arr = nSplit match
-      case x: Null                 => Array[String]("1", "2", "3")
+      case x: Null =>
+        Array[String]("1", "2", "3")
       case x: Array[String | Null] => x
     arr.collect { case s: String =>
       s
     }
 
   //Compile list of emp data
-  def compileEmps: ZIO[Any, Any, Vector[Employee]] =
+  def compileEmps
+      : ZIO[Any, Any, Vector[Employee]] =
     for
       lines <- readFileContents.retryN(
         5
@@ -151,7 +173,9 @@ object directoryExample_full extends zio.App {
           4,
           emps
         ) //look for different employees based on ID
-        _ <- putStrLn(s"Looking for employee... \n" + searchedEmp.toString)
+        _ <- putStrLn(
+          s"Looking for employee... \n" + searchedEmp.toString
+        )
       yield ()
 
     logic
@@ -159,12 +183,18 @@ object directoryExample_full extends zio.App {
       //catch error handling...
       .catchSome(i =>
         i match
-          case e: EmpNotFound => putStrLn("Target employee not in System...")
+          case e: EmpNotFound =>
+            putStrLn(
+              "Target employee not in System..."
+            )
       )
       .catchSomeDefect {
         case e: IOException =>
-          putStrLn("Unexpected IOExceptions are the worst...")
-        case e: Throwable => putStrLn(s"Huh, wasn't expecting $e")
+          putStrLn(
+            "Unexpected IOExceptions are the worst..."
+          )
+        case e: Throwable =>
+          putStrLn(s"Huh, wasn't expecting $e")
       }
       .exitCode
 ////////////////////////////////////

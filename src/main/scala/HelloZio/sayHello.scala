@@ -10,7 +10,11 @@ import java.io.IOException
 object HelloWorld:
 
   @main def hello() =
-    val sayHello: ZIO[zio.console.Console, IOException, Unit] =
+    val sayHello: ZIO[
+      zio.console.Console,
+      IOException,
+      Unit
+    ] =
       console.putStrLn("Hello, World!")
 
   //This is equivelant to the above, but the Zio definition is spaced across different lines.

@@ -1,6 +1,7 @@
 package antipatterns
 
 class SomeClass():
+
   def doSomething() =
     println("someClass.doSomething")
 

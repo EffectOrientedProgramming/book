@@ -32,13 +32,17 @@ given ToBin[Paper] with
 
 given ToBin[Cardboard] with
   val bin = CardboardBin
-  extension (cardboard: Cardboard) def sort = CardboardBin
+
+  extension (cardboard: Cardboard)
+    def sort = CardboardBin
 
 given ToBin[GoldWatch] with
   val bin = NotTrashBin
 
   extension (watch: GoldWatch)
-    def sort = if (watch.karets > 1) bin else PaperBin
+
+    def sort =
+      if (watch.karets > 1) bin else PaperBin
 
 /*
 
@@ -52,7 +56,9 @@ need to use the value of the type they are operating on, to do something useful.
 
  */
 
-given seqToBin[T](using t: ToBin[T]): ToBin[Seq[T]] with
+given seqToBin[T](using
+    t: ToBin[T]
+): ToBin[Seq[T]] with
   val bin = t.bin
 
   extension (s: Seq[T])

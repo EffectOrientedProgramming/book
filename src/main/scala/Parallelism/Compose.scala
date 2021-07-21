@@ -16,7 +16,9 @@ class Compose {
     for
       greeting <- IO.succeed("Hello!").fork
       fairwell <- IO.succeed("GoodBye!").fork
-      totalFiber = greeting.zip(fairwell) //Note the '=', not '<-'
+      totalFiber = greeting.zip(
+        fairwell
+      ) //Note the '=', not '<-'
       tuple <- totalFiber.join
     yield tuple
 
@@ -32,8 +34,10 @@ class Compose {
 
   val composeFruit: IO[String, String] =
     for
-      fFiber <- notPineapple.fork //notPineapple will fail
-      sFiber <- isPineapple.fork //isPineapple will succedd
+      fFiber <-
+        notPineapple.fork //notPineapple will fail
+      sFiber <-
+        isPineapple.fork //isPineapple will succedd
       totalFiber = fFiber.orElse(sFiber)
       output <-
         totalFiber.join //The output effect will end up using isPineapple.

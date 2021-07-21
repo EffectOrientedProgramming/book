@@ -170,3 +170,16 @@ getTemperatureZ("Succeed")
 ```
 
 Even though we did not provide an explicit result type for this function, ZIO & Scala are smart enough to construct it
+
+```scala mdoc
+import java.nio.file._
+import org.scalafmt.interfaces.Scalafmt
+val scalafmt = Scalafmt.create(this.getClass.getClassLoader)
+val config = Paths.get(".scalafmt.conf")
+import collection.JavaConverters._
+val read = Files.readAllLines(config).asScala.mkString("\n")
+println(read)
+val file = Paths.get("Main.scala")
+
+println(scalafmt.format(config, file, "object A  {  }"))
+```

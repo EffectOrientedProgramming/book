@@ -4,12 +4,20 @@ import zio.*
 
 object MatrixExample {
 
-  case class matrix2D(sizeX: Int, sizeY: Int, twoDList: List[List[Int]]):
+  case class matrix2D(
+      sizeX: Int,
+      sizeY: Int,
+      twoDList: List[List[Int]]
+  ):
+
     def mapInt(f: Int => Int): matrix2D =
-      val newData = this.twoDList.map(i => i.map(j => f(j)))
+      val newData = this.twoDList.map(i =>
+        i.map(j => f(j))
+      )
       matrix2D(this.sizeX, this.sizeY, newData)
 
-    def printMat(): Unit = //Uses the map function to itterate
+    def printMat()
+        : Unit = //Uses the map function to itterate
       this.mapInt(i =>
         println(i)
         i
@@ -24,20 +32,33 @@ object MatrixExample {
       println("\n")
     )
 
-  def makeMatrix2D(sizeX: Int, sizeY: Int): matrix2D =
+  def makeMatrix2D(
+      sizeX: Int,
+      sizeY: Int
+  ): matrix2D =
     val rows: List[Int] = List.range(0, sizeY)
     //println(rows)
-    val matr = rows.map(i => List.range(i * sizeX, i * sizeX + sizeX))
+    val matr = rows.map(i =>
+      List.range(i * sizeX, i * sizeX + sizeX)
+    )
     //println(matr)
     matrix2D(sizeX, sizeY, matr)
 
   def flipMatrix(matr: matrix2D): matrix2D =
     def flippedCol(col: List[Int]) =
-      col.foldLeft(List(col(0)))((a, i) => a.::(i))
-    val flippedMat = matr.twoDList.foldLeft(List(List.empty[Int]))((b, j) =>
+      col.foldLeft(List(col(0)))((a, i) =>
+        a.::(i)
+      )
+    val flippedMat = matr.twoDList.foldLeft(
+      List(List.empty[Int])
+    )((b, j) =>
       b.::(flippedCol(j).dropRight(1))
     )
-    matrix2D(matr.sizeX, matr.sizeY, flippedMat)
+    matrix2D(
+      matr.sizeX,
+      matr.sizeY,
+      flippedMat
+    )
 
 }
 

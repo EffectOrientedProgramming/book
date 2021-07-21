@@ -20,12 +20,15 @@ object HelloWorldTime:
   @main def helloTime() =
     val sayHelloTime: ZIO[
       zio.console.Console with zio.clock.Clock, //implement the new environment type like a trait
-      IOException |
-        NewError, //implement the new error type using a | . (A logical 'or')
+      IOException | NewError, //implement the new error type using a | . (A logical 'or')
       Unit
     ] =
       for {
-        currentTime <- currentTime(TimeUnit.MILLISECONDS)
-        _ <- console.putStrLn("Hello, World! Time: " + currentTime)
+        currentTime <- currentTime(
+          TimeUnit.MILLISECONDS
+        )
+        _ <- console.putStrLn(
+          "Hello, World! Time: " + currentTime
+        )
         _ <- ZIO.fail(NewError())
       } yield ()

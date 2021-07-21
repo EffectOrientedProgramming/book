@@ -7,14 +7,20 @@ enum Contents:
   case Continue()
 
 case class Box(contents: Contents):
-  def continue(f: Contents.Continue => Box): Box =
+
+  def continue(
+      f: Contents.Continue => Box
+  ): Box =
     contents match
-      case stop: Contents.Stop         => this
-      case continue: Contents.Continue => f(continue)
+      case stop: Contents.Stop => this
+      case continue: Contents.Continue =>
+        f(continue)
 
 object Box:
+
   def observe: Box =
-    if Random.nextBoolean() then Box(Contents.Stop())
+    if Random.nextBoolean() then
+      Box(Contents.Stop())
     else Box(Contents.Continue())
 
 def again(continue: Contents.Continue): Box =
@@ -25,7 +31,8 @@ def again(continue: Contents.Continue): Box =
   println(kat1)
   val kat2: Box = kat1.continue(again)
   println(kat2)
-  val kat3: Box = kat2.continue(again).continue(again)
+  val kat3: Box =
+    kat2.continue(again).continue(again)
   println(kat3)
 
 /*

@@ -25,7 +25,8 @@ def fun() =
 
   // if we don't specify the type it is ???
   //val t2_t2 = t2 ++ t2
-  val t2_t2: (String, Int, String, Int) = t2 ++ t2
+  val t2_t2: (String, Int, String, Int) =
+    t2 ++ t2
   assert(t2_t2._3 == "asdf")
 
   val t2_0 = t2.drop(1)
@@ -34,7 +35,12 @@ def fun() =
 
   assert(t2.head == "asdf")
 
-  assert(t2.toList.map(_.toString) == List("asdf", "1"))
+  assert(
+    t2.toList.map(_.toString) == List(
+      "asdf",
+      "1"
+    )
+  )
 
 // computer says no
 //val t2_m = t2.map(identity)

@@ -32,8 +32,10 @@ class Await {
         ZIO.fail("Not banana")
 
     for
-      fiber <- isBanana.fork //Make a fiber of isBanana
-      exit <- fiber.await //await fiber, get its exit object
+      fiber <-
+        isBanana.fork //Make a fiber of isBanana
+      exit <-
+        fiber.await //await fiber, get its exit object
     yield exit //return exit object
 
 }

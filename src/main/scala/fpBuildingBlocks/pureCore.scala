@@ -11,19 +11,27 @@ object pureCore {
 
   //Non-Pure
   //(The funciton models a transation with cash)
-  def transaction(cashPayment: Double, price: Double): Double =
+  def transaction(
+      cashPayment: Double,
+      price: Double
+  ): Double =
     errorAtNPerc(
       50
     ) //There will be a 50% chance of random failure to model an effect
     BigDecimal(cashPayment - price)
-      .setScale(2, BigDecimal.RoundingMode.HALF_UP)
+      .setScale(
+        2,
+        BigDecimal.RoundingMode.HALF_UP
+      )
       .toDouble
 
   def statement(valid: Boolean): Unit =
     if (valid)
       println("Have a wonderful Day!")
     else
-      println("I'm very sorry, there was an error with our system...")
+      println(
+        "I'm very sorry, there was an error with our system..."
+      )
 
   //This string of logic is considered impure.
   //The programmer is checking for issues throughout the logic.
@@ -34,8 +42,13 @@ object pureCore {
 
     val continue =
       change match {
-        case None => println("An Error occured in the Transaction"); false
-        case _    => println(s"Your change is $change"); true
+        case None =>
+          println(
+            "An Error occured in the Transaction"
+          ); false
+        case _ =>
+          println(s"Your change is $change");
+          true
       }
 
     statement(continue)

@@ -9,10 +9,14 @@ object exIOError {
   //This function will randomly throw an io error n % of the time.
   def errorAtNPerc(n: Int) =
     if (n < 0 | n > 100)
-      throw new Exception("Invalid Input. Percent Out of Bounds")
+      throw new Exception(
+        "Invalid Input. Percent Out of Bounds"
+      )
     else
       val rand = Random.nextInt(101)
       if ((0 to n).contains(rand))
-        throw new IOException("An unexpected IOException Occured!!!")
+        throw new IOException(
+          "An unexpected IOException Occured!!!"
+        )
 
 }
