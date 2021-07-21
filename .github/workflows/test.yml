@@ -12,10 +12,9 @@ jobs:
 
     - uses: actions/cache@v2
       with:
-        path: | 
+        path: |
           ~/.ivy2/cache
           ~/.sbt
         key: ${{ runner.os }}-sbt-${{ hashFiles('**/build.sbt') }}
 
-    - run: ../bin/sbt test
-      working-directory: ./MdToSourcePlugin
+    - run: ./bin/sbt test

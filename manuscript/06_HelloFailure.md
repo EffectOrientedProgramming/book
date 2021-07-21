@@ -183,7 +183,7 @@ object Fenced {
   getTemperatureZ("Succeed")
 // res9: ZIO[Any, GpsException |
   // NetworkException, String] =
-  // zio.ZIO$EffectTotal@3e50134c
+  // zio.ZIO$EffectTotal@aca4dd8
 }
 
 ```
@@ -194,10 +194,10 @@ Even though we did not provide an explicit result type for this function, ZIO & 
 ```scala
 object Fenced {
   if (
-    1 == 2 && 2 == 2 && 3 == 3 && 4 == 4 && 5 == 5 && 6 == 6
+    1 == 1 && 2 == 2 && 3 == 3 && 4 == 4 && 5 == 5 && 6 == 6
   ) "yay"
   else "damn"
-// res10: String = "damn"
+// res10: String = "yay"
 }
 
 ```
