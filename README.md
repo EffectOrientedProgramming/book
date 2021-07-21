@@ -1,5 +1,36 @@
-# AtomicScala3
-Atomic Scala rewritten for Scala 3
+Effect Oriented Programming
+---------------------------
+
+## Dev Info
+
+Compile the Chapters:
+```
+bin/sbt mdoc
+```
+
+Check out the generated manuscripts:
+1. Run mdoc in watch mode:
+  ```
+  bin/sbt "mdoc --watch"
+  ```
+1. Open: [http://localhost:4000](http://localhost:4000)
+
+The `src` dir is a playground and you can run and `main` like:
+```
+bin/sbt "runMain HelloZio.hello"
+```
+
+For continuous run, use the `~` like:
+```
+bin/sbt "~runMain HelloZio.hello"
+```
+
+To pick a main from all available options, run the `run` task:
+```
+bin/sbt run
+```
+
+---
 
 **Note:** *This was originally written in May and there may be some outdated topics. In
 addition, it might reflect frustrations I had at the time with the Kotlin book

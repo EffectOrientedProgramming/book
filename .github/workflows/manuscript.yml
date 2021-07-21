@@ -17,6 +17,4 @@ jobs:
           ~/.sbt
         key: ${{ runner.os }}-sbt-${{ hashFiles('**/build.sbt') }}
 
-    - run: ./bin/sbt runAll
-
-    - run: ./bin/sbt test
+    - run: ./bin/sbt mdoc

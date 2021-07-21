@@ -172,5 +172,5 @@ getTemperatureZ("Succeed")
 Even though we did not provide an explicit result type for this function, ZIO & Scala are smart enough to construct it
 
 ```scala mdoc:fiddler
-if ( 1 == 2 && 2 == 2 && 3 == 3 && 4 == 4 && 5 == 5 && 6 == 6 ) "yay" else "damn"
+if ( 1 == 1 && 2 == 2 && 3 == 3 && 4 == 4 && 5 == 5 && 6 == 6 ) "yay" else "damn"
 ```
