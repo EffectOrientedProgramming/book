@@ -120,11 +120,16 @@ We have specific messages for all relevant error cases. However, this still suff
 - The signature of `getTemperature` does not alert us that it might fail
 - If we realize it can fail, we must dig through the implementation to discover the multiple failure values
 
-
 ## ZIO Error Handling
 
 Now we will explore how ZIO enables more powerful, uniform error-handling.
-If we are unable to re-write the fallible function, we can still improve 
+
+TODO Which should we show first?
+- [Wrapping Legacy Code](#wrapping-legacy-code)
+- [ZIO-First Error Handling](#zio-first-error-handling)
+
+### Wrapping Legacy Code
+If we are unable to re-write the fallible function, we can still wrap the call
 
 ```scala mdoc
 import zio.Runtime.default.unsafeRun
@@ -152,9 +157,32 @@ unsafeRun(
 )
 ```
 
-```scala mdoc:fiddler:nest
+This is decent, but does not provide the maximum possible guarantees. Look at what happens if we forget to handle one of our errors.
 
-def getTemperatureZ(behavior: String) =
+```scala mdoc:fiddler
+def getTemperatureZGpsGap(
+    behavior: String
+): Task[String] =
+  ZIO(getTemperature(behavior)).catchAll {
+    case ex: NetworkException =>
+      ZIO.succeed("Network Unavailable")
+  }
+```
+
+```scala mdoc:crash
+unsafeRun(
+    getTemperatureZGpsGap("GPS Error")
+)
+```
+
+The compiler does not catch this bug, and instead fails at runtime. Can we do better?
+
+### ZIO-First Error Handling
+
+```scala mdoc:fiddler
+// TODO Consult about type param styling
+def getTemperatureZ(behavior: String)
+: ZIO[Any, GpsException | NetworkException, String] =
     if (behavior == "GPS Error")
       ZIO.fail(new GpsException())
     else if (behavior == "Network Error")
@@ -165,11 +193,18 @@ def getTemperatureZ(behavior: String) =
 unsafeRun(
   getTemperatureZ("Succeed")
 )
-
-getTemperatureZ("Succeed")
 ```
 
-Even though we did not provide an explicit result type for this function, ZIO & Scala are smart enough to construct it
+```scala mdoc:fail
+unsafeRun(
+  getTemperatureZ("Succeed")
+    .catchAll{
+      case ex: NetworkException => ZIO.succeed("Network Unavailable")
+    }
+)
+```
+
+TODO Demonstrate ZIO calculating the error types without an explicit annotation being provided
 
 ```scala mdoc:fiddler
 if ( 1 == 1 && 2 == 2 && 3 == 3 && 4 == 4 && 5 == 5 && 6 == 6 ) "yay" else "damn"

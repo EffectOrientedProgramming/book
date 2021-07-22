@@ -129,17 +129,21 @@ We have specific messages for all relevant error cases. However, this still suff
 - The signature of `getTemperature` does not alert us that it might fail
 - If we realize it can fail, we must dig through the implementation to discover the multiple failure values
 
-
 ## ZIO Error Handling
 
 Now we will explore how ZIO enables more powerful, uniform error-handling.
-If we are unable to re-write the fallible function, we can still improve 
+
+TODO Which should we show first?
+- [Wrapping Legacy Code](#wrapping-legacy-code)
+- [ZIO-First Error Handling](#zio-first-error-handling)
+
+### Wrapping Legacy Code
+If we are unable to re-write the fallible function, we can still wrap the call
 
 ```scala
 import zio.Runtime.default.unsafeRun
 import zio.{Task, ZIO}
 ```
-
 
 ```scala
 
@@ -168,10 +172,77 @@ unsafeRun(
 // res7: String = "Network Unavailable"
 ```
 
+This is decent, but does not provide the maximum possible guarantees. Look at what happens if we forget to handle one of our errors.
 
 ```scala
 
-def getTemperatureZ(behavior: String) =
+def getTemperatureZGpsGap(
+    behavior: String
+): Task[String] =
+  ZIO(getTemperature(behavior)).catchAll {
+    case ex: NetworkException =>
+      ZIO.succeed("Network Unavailable")
+```
+
+```scala
+unsafeRun(
+    getTemperatureZGpsGap("GPS Error")
+)
+// zio.FiberFailure: Fiber failed.
+// An unchecked error was produced.
+// scala.MatchError: repl.MdocSession$App$GpsException (of class repl.MdocSession$App$GpsException)
+// 	at repl.MdocSession$App.getTemperatureZGpsGap$3$$anonfun$3(06_HelloFailure.md:172)
+// 	at scala.util.Either.fold(Either.scala:190)
+// 	at zio.ZIO$FoldCauseMFailureFn.apply(ZIO.scala:4446)
+// 	at zio.ZIO$FoldCauseMFailureFn.apply(ZIO.scala:4445)
+// 	at zio.internal.FiberContext.nextInstr(FiberContext.scala:914)
+// 	at zio.internal.FiberContext.evaluateNow(FiberContext.scala:442)
+// 	at zio.Runtime.unsafeRunWith(Runtime.scala:207)
+// 	at zio.Runtime.unsafeRunSync(Runtime.scala:81)
+// 	at zio.Runtime.unsafeRunSync$(Runtime.scala:27)
+// 	at zio.Runtime$$anon$3.unsafeRunSync(Runtime.scala:273)
+// 	at zio.Runtime.unsafeRun(Runtime.scala:58)
+// 	at zio.Runtime.unsafeRun$(Runtime.scala:27)
+// 	at zio.Runtime$$anon$3.unsafeRun(Runtime.scala:273)
+// 	at repl.MdocSession$App.$init$$$anonfun$3(06_HelloFailure.md:180)
+// 	at mdoc.internal.document.DocumentBuilder$$doc$.crash(DocumentBuilder.scala:75)
+// 	at repl.MdocSession$App.<init>(06_HelloFailure.md:182)
+// 	at repl.MdocSession$.app(06_HelloFailure.md:3)
+// 	at mdoc.internal.document.DocumentBuilder$$doc$.build$$anonfun$2$$anonfun$1(DocumentBuilder.scala:89)
+// 	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.scala:18)
+// 	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:59)
+// 	at scala.Console$.withErr(Console.scala:193)
+// 	at mdoc.internal.document.DocumentBuilder$$doc$.build$$anonfun$1(DocumentBuilder.scala:90)
+// 	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.scala:18)
+// 	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:59)
+// 	at scala.Console$.withOut(Console.scala:164)
+// 	at mdoc.internal.document.DocumentBuilder$$doc$.build(DocumentBuilder.scala:91)
+// 	at mdoc.internal.markdown.MarkdownBuilder$.liftedTree1$1(MarkdownBuilder.scala:47)
+// 	at mdoc.internal.markdown.MarkdownBuilder$.$anonfun$1(MarkdownBuilder.scala:70)
+// 	at mdoc.internal.markdown.MarkdownBuilder$$anon$1.run(MarkdownBuilder.scala:103)
+// 
+// Fiber:Id(1626932567826,48) was supposed to continue to:
+//   a future continuation at zio.Runtime.unsafeRunWith$$anonfun$2(Runtime.scala:207)
+// 
+// Fiber:Id(1626932567826,48) execution trace:
+//   at repl.MdocSession$App.getTemperatureZGpsGap$3$$anonfun$3(06_HelloFailure.md:171)
+//   at zio.ZIO$.effect$$anonfun$1(ZIO.scala:2637)
+// 
+// Fiber:Id(1626932567826,48) was spawned by: <empty trace>
+```
+
+The compiler does not catch this bug, and instead fails at runtime. Can we do better?
+
+### ZIO-First Error Handling
+
+```scala
+
+// TODO Consult about type param styling
+def getTemperatureZ(behavior: String): ZIO[
+  Any,
+  GpsException | NetworkException,
+  String
+] =
   if (behavior == "GPS Error")
     ZIO.fail(new GpsException())
   else if (behavior == "Network Error")
@@ -181,14 +252,23 @@ def getTemperatureZ(behavior: String) =
 
 unsafeRun(getTemperatureZ("Succeed"))
 // res8: String = "30 degrees"
-
-getTemperatureZ("Succeed")
-// res9: ZIO[Any, GpsException |
-// NetworkException, String] =
-// zio.ZIO$EffectTotal@7fe44805
 ```
 
-Even though we did not provide an explicit result type for this function, ZIO & Scala are smart enough to construct it
+```scala
+unsafeRun(
+  getTemperatureZ("Succeed")
+    .catchAll{
+      case ex: NetworkException => ZIO.succeed("Network Unavailable")
+    }
+)
+// error: 
+// match may not be exhaustive.
+// 
+// It would fail on pattern case: _: GpsException
+//
+```
+
+TODO Demonstrate ZIO calculating the error types without an explicit annotation being provided
 
 
 ```scala
