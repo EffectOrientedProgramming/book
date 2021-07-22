@@ -131,12 +131,12 @@ import zio.Runtime.default.unsafeRun
 import zio.{Task, ZIO}
 ```
 
-```scala mdoc
+```scala mdoc:fiddler
 def getTemperatureZWrapped(behavior: String): Task[String] =
     ZIO(getTemperature(behavior))
         .catchAll{
-          case (ex: NetworkException) => ZIO.succeed("Network Unavailable")
-          case (ex: GpsException) => ZIO.succeed("GPS problem")
+          case ex: NetworkException => ZIO.succeed("Network Unavailable")
+          case ex: GpsException => ZIO.succeed("GPS problem")
         }
 ```
 

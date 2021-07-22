@@ -140,13 +140,18 @@ import zio.Runtime.default.unsafeRun
 import zio.{Task, ZIO}
 ```
 
+
 ```scala
-def getTemperatureZWrapped(behavior: String): Task[String] =
-    ZIO(getTemperature(behavior))
-        .catchAll{
-          case (ex: NetworkException) => ZIO.succeed("Network Unavailable")
-          case (ex: GpsException) => ZIO.succeed("GPS problem")
-        }
+
+def getTemperatureZWrapped(
+    behavior: String
+): Task[String] = ZIO(getTemperature(behavior))
+  .catchAll {
+    case ex: NetworkException =>
+      ZIO.succeed("Network Unavailable")
+    case ex: GpsException =>
+      ZIO.succeed("GPS problem")
+  }
 ```
 
 ```scala
@@ -165,39 +170,33 @@ unsafeRun(
 
 
 ```scala
-object Fenced {
 
-  def getTemperatureZ(behavior: String) =
-    if (behavior == "GPS Error")
-      ZIO.fail(new GpsException())
-    else if (behavior == "Network Error")
-      ZIO.fail(new NetworkException())
-    else
-      ZIO.succeed("30 degrees")
+def getTemperatureZ(behavior: String) =
+  if (behavior == "GPS Error")
+    ZIO.fail(new GpsException())
+  else if (behavior == "Network Error")
+    ZIO.fail(new NetworkException())
+  else
+    ZIO.succeed("30 degrees")
 
-  unsafeRun(
-    getTemperatureZ("Succeed")
-  )
+unsafeRun(getTemperatureZ("Succeed"))
 // res8: String = "30 degrees"
 
-  getTemperatureZ("Succeed")
+getTemperatureZ("Succeed")
 // res9: ZIO[Any, GpsException |
-  // NetworkException, String] =
-  // zio.ZIO$EffectTotal@aca4dd8
-}
-
+// NetworkException, String] =
+// zio.ZIO$EffectTotal@505f9daa
 ```
 
 Even though we did not provide an explicit result type for this function, ZIO & Scala are smart enough to construct it
 
 
 ```scala
-object Fenced {
-  if (
-    1 == 1 && 2 == 2 && 3 == 3 && 4 == 4 && 5 == 5 && 6 == 6
-  ) "yay"
-  else "damn"
-// res10: String = "yay"
-}
-
+if (
+  1 == 1 && 2 == 2 && 3 == 3 && 4 == 4 &&
+  5 == 5 && 6 == 6
+)
+  "yay"
+else
+  "damn"
 ```

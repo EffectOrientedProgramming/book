@@ -6,91 +6,69 @@ import java.nio.file.{Files, Path, Paths}
 import scala.meta.inputs.Position
 import scala.language.unsafeNulls
 
-class FenceFiddler extends PostModifier {
+// TODO Figure out how to support other premade
+// modifiers while using our custom modifier
+class FenceFiddler extends PostModifier:
   val name = "fiddler"
 
-  def process(
-      ctx: PostModifierContext
-  ): String = {
+  def process(ctx: PostModifierContext): String =
     val relpath: Path = Paths.get(ctx.info)
-    ctx.lastValue match {
-//      case d: Drawable =>
-// Files.createDirectories(out.getParent)
-// if (!Files.isRegularFile(out)) {
-//          d.write(out.toFile)
-//        }
-//        s"![](${ctx.info})"
-      case _ =>
-        val (pos, obtained) =
-          ctx.variables.lastOption match {
-            case Some(variable) =>
-              val prettyObtained =
-                s"${variable.staticType} = ${variable.runtimeValue}"
-              (variable.pos, prettyObtained)
-            case None =>
-              (
-                Position.Range(
-                  ctx.originalCode,
-                  0,
-                  0
-                ),
-                "nothing"
-              )
-          }
-        s"Pos: $pos"
-//        ctx.reporter.error(
-//          pos,
-//          s"""type mismatch:
-// expected:
-        // com.cibo.evilplot.geometry.Drawable
-//  obtained: $obtained"""
-//        )
-
-        import org.scalafmt.interfaces.Scalafmt
-
-        import java.nio.file._
-        val scalafmt = Scalafmt.create(
-          this.getClass.getClassLoader
-        )
-        val config =
-          Paths.get(".scalafmt.conf")
-        import collection.JavaConverters._
-        val read = Files
-          .readAllLines(config)
-          .asScala
-          .mkString("\n")
-        println(read)
-        val file = Paths.get("Main.scala")
-
-        val wrappedCode =
-          s"""
-             |object Fenced {
-             |${ctx.outputCode}
-             |}
-             |""".stripMargin
-
-        val formattedOutput =
-          scalafmt.format(
-            config,
-            file,
-            wrappedCode
+    val (pos, obtained) =
+      ctx.variables.lastOption match
+        case Some(variable) =>
+          val prettyObtained =
+            s"${variable.staticType} = ${variable.runtimeValue}"
+          (variable.pos, prettyObtained)
+        case None =>
+          (
+            Position
+              .Range(ctx.originalCode, 0, 0),
+            "nothing"
           )
+    s"Pos: $pos"
 
-        println(formattedOutput)
+    import org.scalafmt.interfaces.Scalafmt
 
-        val fencedAndFormatted =
-          s"""
-            |```scala
-            |$formattedOutput
-            |```
-            |""".stripMargin
+    import java.nio.file._
+    val scalafmt = Scalafmt
+      .create(this.getClass.getClassLoader)
+    val config = Paths.get(".scalafmt.conf")
+    import collection.JavaConverters._
+    val file = Paths.get("Main.scala")
 
-        import java.nio.file.Files
-//        Files.write(
-//          ctx.outputFile.toNIO,
-//          fencedAndFormatted.getBytes
-//        )
-        fencedAndFormatted
-    }
-  }
-}
+    val wrappedCode =
+      s"""object Fenced {
+         |${ctx.outputCode}
+         |}
+         |""".stripMargin
+
+    val formattedOutput: String = scalafmt
+      .format(config, file, wrappedCode)
+
+    def dropLeadingIndentionIfPresent(
+        input: String
+    ) =
+      if (input.take(2) == "  ")
+        input.drop(2)
+      else
+        input
+
+    val formattedWithoutObjectWrapper =
+      formattedOutput
+        .split("\n")
+        .toList
+        .drop(1)
+        .dropRight(1)
+        .map(dropLeadingIndentionIfPresent)
+        .mkString("\n")
+
+    val fencedAndFormatted =
+      s"""
+        |```scala
+        |$formattedWithoutObjectWrapper
+        |```
+        |""".stripMargin
+
+    fencedAndFormatted
+  end process
+end FenceFiddler
