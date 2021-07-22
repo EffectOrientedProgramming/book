@@ -145,8 +145,8 @@ import zio.{Task, ZIO}
 
 def getTemperatureZWrapped(
     behavior: String
-): Task[String] = ZIO(getTemperature(behavior))
-  .catchAll {
+): Task[String] =
+  ZIO(getTemperature(behavior)).catchAll {
     case ex: NetworkException =>
       ZIO.succeed("Network Unavailable")
     case ex: GpsException =>
@@ -185,7 +185,7 @@ unsafeRun(getTemperatureZ("Succeed"))
 getTemperatureZ("Succeed")
 // res9: ZIO[Any, GpsException |
 // NetworkException, String] =
-// zio.ZIO$EffectTotal@505f9daa
+// zio.ZIO$EffectTotal@7fe44805
 ```
 
 Even though we did not provide an explicit result type for this function, ZIO & Scala are smart enough to construct it
