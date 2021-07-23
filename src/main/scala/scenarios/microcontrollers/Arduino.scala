@@ -1,4 +1,4 @@
-package microcontrollers
+package scenarios.microcontrollers
 
 import zio.console.{
   Console,

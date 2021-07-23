@@ -110,8 +110,7 @@ case of fatal errors.
 
 
 ##Crypto
-This section describes a model of several crypto-currency miners. It shows how to conduct multiple fibers at once, and
-some key scheduler methods. 
+This section describes a model of several scenarios.crypto-currency miners. It shows how to conduct multiple fibers at once, and some key scheduler methods.
 
 >Mining<br/>
 

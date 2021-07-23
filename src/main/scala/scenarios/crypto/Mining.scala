@@ -1,4 +1,4 @@
-package crypto
+package scenarios.crypto
 
 import zio.console.{
   Console,
