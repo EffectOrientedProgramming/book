@@ -11,6 +11,12 @@ import zio.console.putStrLn
   *   - Loud Local Siren
   *   - Ping security company
   *   - Notify police
+  *
+  * TODO Investigate services that enable timed,
+  * chunked results. eg:
+  *   - 70 degrees for 5 seconds
+  *   - 71 degrees for 10 seconds
+  *   - 98 degrees for 3 seconds
   */
 object SecuritySystem:
 

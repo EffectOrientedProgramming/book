@@ -207,5 +207,5 @@ unsafeRun(
 TODO Demonstrate ZIO calculating the error types without an explicit annotation being provided
 
 ```scala mdoc:fiddler
-if ( 1 == 1 && 2 == 2 && 3 == 3 && 4 == 4 && 5 == 5 && 6 == 6 ) "yay" else "damn"
+if 1 == 1 && 2 == 2 && 3 == 3 && 4 == 4 && 5 == 5 && 6 == 6 then "yay" else "damn"
 ```

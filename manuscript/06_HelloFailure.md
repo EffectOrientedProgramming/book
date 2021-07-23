@@ -147,7 +147,6 @@ import zio.{Task, ZIO}
 
 
 ```scala
-
 def getTemperatureZWrapped(
     behavior: String
 ): Task[String] =
@@ -177,7 +176,6 @@ This is decent, but does not provide the maximum possible guarantees. Look at wh
 
 
 ```scala
-
 def getTemperatureZGpsGap(
     behavior: String
 ): Task[String] =
@@ -223,22 +221,22 @@ unsafeRun(
 // 	at mdoc.internal.markdown.MarkdownBuilder$.$anonfun$1(MarkdownBuilder.scala:70)
 // 	at mdoc.internal.markdown.MarkdownBuilder$$anon$1.run(MarkdownBuilder.scala:103)
 // 
-// Fiber:Id(1626990921691,68) was supposed to continue to:
+// Fiber:Id(1627081591956,9) was supposed to continue to:
 //   a future continuation at zio.Runtime.unsafeRunWith$$anonfun$2(Runtime.scala:207)
 // 
-// Fiber:Id(1626990921691,68) execution trace:
+// Fiber:Id(1627081591956,9) execution trace:
 //   at repl.MdocSession$App.getTemperatureZGpsGap$3$$anonfun$3(06_HelloFailure.md:171)
 //   at zio.ZIO$.effect$$anonfun$1(ZIO.scala:2637)
 // 
-// Fiber:Id(1626990921691,68) was spawned by: <empty trace>
+// Fiber:Id(1627081591956,9) was spawned by: <empty trace>
 ```
 
 The compiler does not catch this bug, and instead fails at runtime. Can we do better?
 
 ### ZIO-First Error Handling
 
-```scala
 
+```scala
 // TODO Consult about type param styling
 def getTemperatureZ(behavior: String): ZIO[
   Any,
@@ -274,10 +272,9 @@ TODO Demonstrate ZIO calculating the error types without an explicit annotation 
 
 
 ```scala
-if (
-  1 == 1 && 2 == 2 && 3 == 3 && 4 == 4 &&
+if 1 == 1 && 2 == 2 && 3 == 3 && 4 == 4 &&
   5 == 5 && 6 == 6
-)
+then
   "yay"
 else
   "damn"
