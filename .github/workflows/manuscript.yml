@@ -23,6 +23,6 @@ jobs:
       uses: jamesward/leanpub-actions/preview@main
       with:
         apikey: ${{ secrets.LEANPUB_APIKEY }}
-        slug: ${{ secrets.LEANPUB_SLUG }}
+        slug: effect-oriented-programming
 
     - run: echo ${{ steps.preview.outputs.pdf_url }}
