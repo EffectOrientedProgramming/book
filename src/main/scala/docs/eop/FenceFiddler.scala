@@ -54,12 +54,16 @@ class FenceFiddler extends PostModifier:
       else
         input
 
+    val outputtedLines =
+      formattedOutput.split("\n").toList
+
     val formattedWithoutObjectWrapper =
-      formattedOutput
-        .split("\n")
-        .toList
-        .drop(1)
-        .dropRight(1)
+      (
+        if (outputtedLines.length >= 10) then
+          outputtedLines.dropRight(1)
+        else
+          outputtedLines
+      ).drop(1)
         .map(dropLeadingIndentionIfPresent)
         .mkString("\n")
 
