@@ -7,9 +7,9 @@
 * [Basic Installation Instructions](https://github.com/EffectOrientedProgramming/Examples#effect-oriented-programming-book-examples)
 
 * Compile the Chapters:
-```
-bin/sbt mdoc
-```
+  ```
+  > bin/sbt mdoc
+  ```
 
 * Check out the generated manuscripts:
 1. Run `mdoc` in watch mode:
@@ -19,19 +19,19 @@ bin/sbt mdoc
 1. Open: [http://localhost:4000](http://localhost:4000)
 
 * The `src` directory is a playground and you can run a `main` this way:
-```
-> bin/sbt "runMain HelloZio.hello"
-```
+  ```
+  > bin/sbt "runMain HelloZio.hello"
+  ```
 
 * To run continuously, precede a command with a`~`:
-```
-> bin/sbt "~runMain HelloZio.hello"
-```
+  ```
+  > bin/sbt "~runMain HelloZio.hello"
+  ```
 
 * To pick a main from all available options, use the `run` task:
-```
-> bin/sbt run
-```
+  ```
+  > bin/sbt run
+  ```
 
 ## Miscellaneous Notes
 
