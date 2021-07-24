@@ -53,9 +53,10 @@ object searchFunctions:
           s"Employee with ID $name does not exit in the firm directory."
         )
       }
+end searchFunctions
 
 // def iterate( //Example of tail recursion
-  // (linear) search
+// (linear) search
 //                 index: Int,
 //                 emps: Vector[Employee],
 //                 targetName: String
@@ -66,11 +67,10 @@ object searchFunctions:
 //        ZIO.fail(
 //          new empNotFound(
 // s"Employee with name $targetName does not
-  // exit in the firm directory."
+// exit in the firm directory."
 //          )
 //        )
 //      else
 //        iterate(index, emps, targetName)
 //    iterate(emps.length - 1, emps, name)
 //
-end searchFunctions

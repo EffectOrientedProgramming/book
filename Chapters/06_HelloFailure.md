@@ -11,17 +11,17 @@ There are distinct levels of problems in any given program. They require differe
 Temperature: 30 degrees
 ```
 
-```scala mdoc
+```scala mdoc:fiddler
 class GpsException() extends RuntimeException
 class NetworkException() extends RuntimeException
 
 def getTemperature(behavior: String): String =
-    if (behavior == "GPS Error")
-      throw new GpsException()
-    else if (behavior == "Network Error")
-      throw new NetworkException()
-    else
-      "35 degress"
+  if (behavior == "GPS Error")
+    throw new GpsException()
+  else if (behavior == "Network Error")
+    throw new NetworkException()
+  else
+    "35 degress"
 ```
 
 ```scala mdoc:nest
@@ -181,8 +181,7 @@ The compiler does not catch this bug, and instead fails at runtime. Can we do be
 
 ```scala mdoc:fiddler
 // TODO Consult about type param styling
-def getTemperatureZ(behavior: String)
-: ZIO[Any, GpsException | NetworkException, String] =
+def getTemperatureZ(behavior: String): ZIO[Any, GpsException | NetworkException, String] =
     if (behavior == "GPS Error")
       ZIO.fail(new GpsException())
     else if (behavior == "Network Error")
@@ -198,7 +197,7 @@ unsafeRun(
 ```scala mdoc:fail
 unsafeRun(
   getTemperatureZ("Succeed")
-    .catchAll{
+    .catchAll {
       case ex: NetworkException => ZIO.succeed("Network Unavailable")
     }
 )

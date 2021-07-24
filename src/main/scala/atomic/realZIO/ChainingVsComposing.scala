@@ -88,12 +88,12 @@ class ChainingVsComposing:
       ZIO[Any, UserNotFound, UserInfo],
       ZIO[Any, NetworkError, HouseListings]
   ) = (x, y) => (getInfo(x), zillow(y))
+end ChainingVsComposing
 
 // val getUserAndZillowInfo: (String, String)
-  // => (UserInfo, HouseListings) =
+// => (UserInfo, HouseListings) =
 // getInfo.combinify(zillow) //
-  // .andThen(buyBestHouse)
-end ChainingVsComposing
+// .andThen(buyBestHouse)
 
 class NarrowError:
 

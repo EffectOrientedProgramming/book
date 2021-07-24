@@ -11,17 +11,19 @@ There are distinct levels of problems in any given program. They require differe
 Temperature: 30 degrees
 ```
 
+
 ```scala
 class GpsException() extends RuntimeException
-class NetworkException() extends RuntimeException
+class NetworkException()
+    extends RuntimeException
 
 def getTemperature(behavior: String): String =
-    if (behavior == "GPS Error")
-      throw new GpsException()
-    else if (behavior == "Network Error")
-      throw new NetworkException()
-    else
-      "35 degress"
+  if (behavior == "GPS Error")
+    throw new GpsException()
+  else if (behavior == "Network Error")
+    throw new NetworkException()
+  else
+    "35 degress"
 ```
 
 ```scala
@@ -221,14 +223,14 @@ unsafeRun(
 // 	at mdoc.internal.markdown.MarkdownBuilder$.$anonfun$1(MarkdownBuilder.scala:70)
 // 	at mdoc.internal.markdown.MarkdownBuilder$$anon$1.run(MarkdownBuilder.scala:103)
 // 
-// Fiber:Id(1627088769236,2) was supposed to continue to:
+// Fiber:Id(1627093803912,2) was supposed to continue to:
 //   a future continuation at zio.Runtime.unsafeRunWith$$anonfun$2(Runtime.scala:207)
 // 
-// Fiber:Id(1627088769236,2) execution trace:
+// Fiber:Id(1627093803912,2) execution trace:
 //   at repl.MdocSession$App.getTemperatureZGpsGap$3$$anonfun$3(06_HelloFailure.md:171)
 //   at zio.ZIO$.effect$$anonfun$1(ZIO.scala:2637)
 // 
-// Fiber:Id(1627088769236,2) was spawned by: <empty trace>
+// Fiber:Id(1627093803912,2) was spawned by: <empty trace>
 ```
 
 The compiler does not catch this bug, and instead fails at runtime. Can we do better?
@@ -257,7 +259,7 @@ unsafeRun(getTemperatureZ("Succeed"))
 ```scala
 unsafeRun(
   getTemperatureZ("Succeed")
-    .catchAll{
+    .catchAll {
       case ex: NetworkException => ZIO.succeed("Network Unavailable")
     }
 )

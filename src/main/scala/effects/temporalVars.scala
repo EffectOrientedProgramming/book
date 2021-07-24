@@ -31,8 +31,8 @@ object temporalVars:
     sayTime()
     Thread.sleep(3000)
     sayTime()
-
-  // The input for the variable is the same, yet
-  // there is a differnt output.
-  // The clock is thus considered an effect.
 end temporalVars
+
+// The input for the variable is the same, yet
+// there is a differnt output.
+// The clock is thus considered an effect.

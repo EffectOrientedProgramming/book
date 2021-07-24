@@ -54,9 +54,9 @@ object higherOrderFunctions:
     println("\n")
     val sub3n2 = higherOrder(sub, 3, 2)
   end higherOrders
-
-  // There are several higher order fucntions you
-  // probably already use!
-  // foreach(), map(), and flatMap() all take in
-  // functions as parameters.
 end higherOrderFunctions
+
+// There are several higher order fucntions you
+// probably already use!
+// foreach(), map(), and flatMap() all take in
+// functions as parameters.

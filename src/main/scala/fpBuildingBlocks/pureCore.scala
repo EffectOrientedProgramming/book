@@ -61,17 +61,17 @@ object pureCore:
 
     statement(continue)
   end NonPure
-
-  /* //Pure Form def
-   * transaction2(cashPayment:Double,
-   * price:Double):Option[Double] =
-   * errorAtNPerc(50)//There will be a 50% chance
-   * of random failure to model an effect
-   * BigDecimal(cashPayment - price).setScale(2,
-   * BigDecimal.RoundingMode.HALF_UP).toDouble
-   *
-   * def statement2(valid:Boolean):Unit =
-   * if (valid) println("Have a wonderful Day!")
-   * else println("I'm very sorry, there was an
-   * error with our system...") */
 end pureCore
+
+/* //Pure Form def
+ * transaction2(cashPayment:Double,
+ * price:Double):Option[Double] =
+ * errorAtNPerc(50)//There will be a 50% chance
+ * of random failure to model an effect
+ * BigDecimal(cashPayment - price).setScale(2,
+ * BigDecimal.RoundingMode.HALF_UP).toDouble
+ *
+ * def statement2(valid:Boolean):Unit =
+ * if (valid) println("Have a wonderful Day!")
+ * else println("I'm very sorry, there was an
+ * error with our system...") */

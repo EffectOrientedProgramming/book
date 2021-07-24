@@ -35,9 +35,9 @@ object value:
           Right(Math.sqrt(value))
       )
     )
-
-  // The Left-Right statements naturally from an
-  // 'either' of type either[String, Double].
-  // the ZIO.absolve changes the either into an
-  // ZIO of type IO[String, Double]
 end value
+
+// The Left-Right statements naturally from an
+// 'either' of type either[String, Double].
+// the ZIO.absolve changes the either into an
+// ZIO of type IO[String, Double]

@@ -145,17 +145,15 @@ object forComprehension:
         }
     println(colorChanges)
   end unraveled
-
-  /*
-   *
-   * kat2 <- again(kat1) kat3 <- again(kat2)
-   * yield kat3 // what we return here has to be
-   * a Contents because it must fit in the Box */
-
-  // println(colorChanges)
-
-  /* @main def unravelled =
-   * val kats = Box.observe.flatMap { kat1 =>
-   * again(kat1).flatMap { kat2 =>
-   * again(kat2).map { kat3 => kat3 } } } */
 end forComprehension
+
+/* kat2 <- again(kat1) kat3 <- again(kat2) yield
+ * kat3 // what we return here has to be a
+ * Contents because it must fit in the Box */
+
+// println(colorChanges)
+
+/* @main def unravelled =
+ * val kats = Box.observe.flatMap { kat1 =>
+ * again(kat1).flatMap { kat2 => again(kat2).map
+ * { kat3 => kat3 } } } */

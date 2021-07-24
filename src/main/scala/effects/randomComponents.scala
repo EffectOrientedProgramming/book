@@ -15,6 +15,6 @@ object randomComponents:
   def randNumEx =
     randNum
     randNum
-  // These have the same input, yet different
-  // outputs.
 end randomComponents
+// These have the same input, yet different
+// outputs.
