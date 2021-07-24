@@ -1,7 +1,7 @@
 on: [push, pull_request]
 
 jobs:
-  test:
+  gen-and-preview:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -18,3 +18,11 @@ jobs:
         key: ${{ runner.os }}-sbt-${{ hashFiles('**/build.sbt') }}
 
     - run: ./bin/sbt mdoc
+
+    - id: preview
+      uses: jamesward/leanpub-actions/preview@main
+      with:
+        apikey: ${{ secrets.LEANPUB_APIKEY }}
+        slug: ${{ secrets.LEANPUB_SLUG }}
+
+    - run: echo ${{ steps.preview.outputs.pdf_url }}
