@@ -5,6 +5,10 @@ import mdoc._
 import java.nio.file.{Files, Path, Paths}
 import scala.meta.inputs.Position
 import scala.language.unsafeNulls
+import org.scalafmt.interfaces.Scalafmt
+import java.nio.file._
+import collection.JavaConverters._
+import com.typesafe.config.ConfigFactory
 
 // TODO Figure out how to support other premade
 // modifiers while using our custom modifier
@@ -13,29 +17,21 @@ class FenceFiddler extends PostModifier:
 
   def process(ctx: PostModifierContext): String =
     val relpath: Path = Paths.get(ctx.info)
-    val (pos, obtained) =
-      ctx.variables.lastOption match
-        case Some(variable) =>
-          val prettyObtained =
-            s"${variable.staticType} = ${variable.runtimeValue}"
-          (variable.pos, prettyObtained)
-        case None =>
-          (
-            Position
-              .Range(ctx.originalCode, 0, 0),
-            "nothing"
-          )
-    s"Pos: $pos"
 
-    import org.scalafmt.interfaces.Scalafmt
-
-    import java.nio.file._
     val scalafmt =
       Scalafmt
         .create(this.getClass.getClassLoader)
     val config = Paths.get(".scalafmt.conf")
-    import collection.JavaConverters._
+
     val file = Paths.get("Main.scala")
+
+    val conf =
+      ConfigFactory.parseFile(config.toFile)
+
+    val numberOfLinesBeforeEndMarkerIsInserted =
+      conf.getInt(
+        "rewrite.scala3.insertEndMarkerMinLines"
+      )
 
     val wrappedCode =
       s"""object Fenced {
@@ -59,7 +55,10 @@ class FenceFiddler extends PostModifier:
 
     val formattedWithoutObjectWrapper =
       (
-        if (outputtedLines.length >= 10) then
+        if (
+          outputtedLines.length >=
+            numberOfLinesBeforeEndMarkerIsInserted
+        ) then
           outputtedLines.dropRight(1)
         else
           outputtedLines
@@ -69,10 +68,10 @@ class FenceFiddler extends PostModifier:
 
     val fencedAndFormatted =
       s"""
-        |```scala
-        |$formattedWithoutObjectWrapper
-        |```
-        |""".stripMargin
+         |```scala
+         |$formattedWithoutObjectWrapper
+         |```
+         |""".stripMargin
 
     fencedAndFormatted
   end process
