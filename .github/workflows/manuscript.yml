@@ -25,4 +25,5 @@ jobs:
         apikey: ${{ secrets.LEANPUB_APIKEY }}
         slug: effect-oriented-programming
 
-    - run: echo ${{ steps.preview.outputs.pdf_url }}
+    - run: |
+        curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"Book Preview: ${{ steps.preview.outputs.pdf_url }}\"}" ${{ secrets.SLACK_WEBHOOK }}
