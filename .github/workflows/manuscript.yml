@@ -26,4 +26,4 @@ jobs:
         slug: effect-oriented-programming
 
     - run: |
-        curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"Book Preview: ${{ steps.preview.outputs.pdf_url }}\"}" ${{ secrets.SLACK_WEBHOOK }}
+        curl -s -X POST -H 'Content-type: application/json' --data "{\"text\":\"Book Preview: ${{ steps.preview.outputs.pdf_url }}\"}" ${{ secrets.SLACK_WEBHOOK }}
