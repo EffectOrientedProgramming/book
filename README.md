@@ -11,12 +11,12 @@
   > bin/sbt mdoc
   ```
 
-* Check out the generated manuscripts:
-1. Run `mdoc` in watch mode:
-  ```
-  > bin/sbt "mdoc --watch"
-  ```
-1. Open: [http://localhost:4000](http://localhost:4000)
+* View the generated manuscripts:
+  1. Run `mdoc` in watch mode:
+    ```
+    > bin/sbt "mdoc --watch"
+    ```
+  2. Open: [http://localhost:4000](http://localhost:4000)
 
 * The `src` directory is a playground and you can run a `main` this way:
   ```
