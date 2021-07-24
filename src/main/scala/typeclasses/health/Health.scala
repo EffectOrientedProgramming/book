@@ -4,9 +4,8 @@ case class UUID(value: String)
 
 object UUID:
 
-  def randomUUID() = UUID(
-    System.nanoTime().toString
-  )
+  def randomUUID() =
+    UUID(System.nanoTime().toString)
 
 object Canonical:
   case class PatientId(raw: String)
@@ -29,23 +28,23 @@ object Canonical:
     def hasConsentedToShare()
         : Boolean = // Real impl would consult a Map, DB, etc
       if (
-        data
-          .categorizingInfo()
-          .providerId
-          .raw == "epic.provider_1" && data
-          .categorizingInfo()
-          .patientId
-          .raw ==
-          "epic.patient_1"
+        data.categorizingInfo().providerId.raw ==
+          "epic.provider_1" &&
+          data
+            .categorizingInfo()
+            .patientId
+            .raw == "epic.patient_1"
       )
         true
       else
         false
+  end CategorizedData
 
   def filterAll(
       data: List[CategorizedData[_]]
   ): List[_] =
     data.filter(_.hasConsentedToShare())
+end Canonical
 
 object Medicare: // Flat, stringly-typed data
 
@@ -73,76 +72,48 @@ object UpStartHealth:
       publicHealthProvider: PublicHealthProvider
   )
 
-object InterOp:
-  import Canonical.{
-    Categorizer,
-    CategorizingInfo,
-    HealthCareProviderId,
-    PatientId
-  }
-  import UpStartHealth.TestResults
-
-  given Categorizer[TestResults] with
-
-    extension (a: TestResults)
-
-      def categorizingInfo()
-          : CategorizingInfo =
-        CategorizingInfo(
-          PatientId(
-            a.medPatient.uuid.toString
-          ),
-          providerId = HealthCareProviderId(
-            a.publicHealthProvider.uuid.toString
-          )
-        )
-
-  import Epic.Visit
-
-  given Categorizer[Visit] with
-
-    extension (a: Visit)
-
-      def categorizingInfo()
-          : CategorizingInfo =
-        CategorizingInfo(
-          PatientId("epic." + a.patient.id),
-          HealthCareProviderId(
-            "epic." + a.healthCareProvider.id
-          )
-        )
-
-@main def healthStuff() =
-  import Canonical._
-  import InterOp.given
-
-  val firstPieceOfData =
-    CategorizedData(
-      Epic.Visit(
-        patient = Epic.Patient("patient_1"),
-        healthCareProvider =
-          Epic.HealthCareProvider("provider_1")
-      )
-    )
-
-  val secondPieceOfData =
-    CategorizedData(
-      data = UpStartHealth.TestResults(
-        medPatient = UpStartHealth.MedPatient(
-          UUID.randomUUID()
-        ),
-        publicHealthProvider = UpStartHealth
-          .PublicHealthProvider(uuid =
-            UUID.randomUUID()
-          )
-      )
-    )
-
-  println(
-    filterAll(
-      List(
-        firstPieceOfData,
-        secondPieceOfData
-      )
-    ) // == List(firstPieceOfData)
-  )
+/* object InterOp:
+ * import Canonical.{ Categorizer,
+ * CategorizingInfo, HealthCareProviderId,
+ * PatientId } import UpStartHealth.TestResults
+ *
+ * given Categorizer[TestResults] with
+ *
+ * extension (a: TestResults) def
+ * categorizingInfo(): CategorizingInfo =
+ * CategorizingInfo(
+ * PatientId(a.medPatient.uuid.toString),
+ * providerId =
+ * HealthCareProviderId( a.publicHealthProvider
+ * .uuid .toString ) ) end
+ *
+ * import Epic.Visit
+ *
+ * given Categorizer[Visit] with
+ *
+ * extension (a: Visit) def categorizingInfo():
+ * CategorizingInfo =
+ * CategorizingInfo( PatientId("epic." +
+ * a.patient.id), HealthCareProviderId( "epic." +
+ * a.healthCareProvider.id ) ) end end InterOp
+ *
+ * @main def healthStuff() =
+ * import Canonical._ import InterOp.given
+ *
+ * val firstPieceOfData =
+ * CategorizedData( Epic.Visit( patient =
+ * Epic.Patient("patient_1"), healthCareProvider
+ * =
+ * Epic.HealthCareProvider("provider_1") ) )
+ *
+ * val secondPieceOfData =
+ * CategorizedData(data =
+ * UpStartHealth.TestResults( medPatient =
+ * UpStartHealth .MedPatient(UUID.randomUUID()),
+ * publicHealthProvider =
+ * UpStartHealth .PublicHealthProvider(uuid =
+ * UUID.randomUUID() ) ) )
+ *
+ * println( filterAll( List(firstPieceOfData,
+ * secondPieceOfData) ) // ==
+ * List(firstPieceOfData) ) end healthStuff */

@@ -2,13 +2,16 @@ package directoryExample
 
 import zio.ZIO
 
-object searchFunctions {
+object searchFunctions:
 
   case class EmpNotFound(message: String)
 
-  //This function uses recursion to search the list of employees for the given ID.
-  // findEmp is a wrapper function for itterate, which is the actual recursive function
-  //itterate returns a monad. Either the ID was found, or it wasn't.
+  // This function uses recursion to search the
+  // list of employees for the given ID.
+  // findEmp is a wrapper function for itterate,
+  // which is the actual recursive function
+  // itterate returns a monad. Either the ID was
+  // found, or it wasn't.
   def findEmp(
       ID: Int,
       emps: Vector[Employee]
@@ -31,7 +34,8 @@ object searchFunctions {
 //      else if (index == 0)
 //        ZIO.fail(
 //          new empNotFound(
-//            s"Employee with ID $ID does not exit in the firm directory."
+// s"Employee with ID $ID does not exit in the
+  // firm directory."
 //          )
 //        )
 //      else
@@ -50,7 +54,8 @@ object searchFunctions {
         )
       }
 
-//    def iterate( //Example of tail recursion (linear) search
+// def iterate( //Example of tail recursion
+  // (linear) search
 //                 index: Int,
 //                 emps: Vector[Employee],
 //                 targetName: String
@@ -60,11 +65,12 @@ object searchFunctions {
 //      else if (index == 0)
 //        ZIO.fail(
 //          new empNotFound(
-//            s"Employee with name $targetName does not exit in the firm directory."
+// s"Employee with name $targetName does not
+  // exit in the firm directory."
 //          )
 //        )
 //      else
 //        iterate(index, emps, targetName)
 //    iterate(emps.length - 1, emps, name)
 //
-}
+end searchFunctions

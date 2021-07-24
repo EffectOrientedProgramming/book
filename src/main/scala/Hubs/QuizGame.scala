@@ -4,11 +4,11 @@ import fakeEnvironmentInstances.FakeConsole
 
 import java.io.IOException
 import zio.{Hub, Ref, Schedule, ZDequeue, ZIO}
-import zio.duration.{Duration, durationInt}
+import zio.duration.{durationInt, Duration}
 import zio.clock.Clock
-import zio.console.{Console, putStrLn}
+import zio.console.{putStrLn, Console}
 
-object QuizGame extends zio.App {
+object QuizGame extends zio.App:
   case class Player(name: String)
 
   case class Question(
@@ -31,11 +31,8 @@ object QuizGame extends zio.App {
       args: List[String]
   ) = //Use App's run function
 
-    /*
-      Teacher --> Questions --> Student1 --> Answers --> Teacher
-                                Student2
-                                Student3
-     */
+    /* Teacher --> Questions --> Student1 -->
+     * Answers --> Teacher Student2 Student3 */
 
     val frop = Player("Frop")
     val zeb = Player("Zeb")
@@ -43,12 +40,7 @@ object QuizGame extends zio.App {
     val cheep = Player("Cheep")
 
     val students: List[Player] =
-      List(
-        frop,
-        zeb,
-        shtep,
-        cheep
-      )
+      List(frop, zeb, shtep, cheep)
 
     def submitAnswersAfterDelay(
         answerHub: Hub[Answer],
@@ -67,11 +59,7 @@ object QuizGame extends zio.App {
 
     def recordCorrectAnswers(
         correctAnswer: String,
-        answers: ZDequeue[
-          Any,
-          Nothing,
-          Answer
-        ],
+        answers: ZDequeue[Any, Nothing, Answer],
         correctRespondants: Ref[List[Player]]
     ) =
       for // gather answers until there's a winner
@@ -81,14 +69,19 @@ object QuizGame extends zio.App {
             for
               currentCorrectRespondents <-
                 correctRespondants.get
-              _ <- correctRespondants
-                .set(
-                  currentCorrectRespondents :+ answer.player
+              _ <-
+                correctRespondants.set(
+                  currentCorrectRespondents :+
+                    answer.player
                 )
-            yield ("Correct response from: " + answer.player)
+            yield (
+              "Correct response from: " +
+                answer.player
+            )
           else
             ZIO.succeed(
-              "Incorrect response from: " + answer.player
+              "Incorrect response from: " +
+                answer.player
             )
         _ <- putStrLn(output)
       yield ()
@@ -96,12 +89,9 @@ object QuizGame extends zio.App {
     def untilWinnersAreFound(
         correctRespondants: Ref[List[Player]]
     ) =
-      Schedule
-        .recurUntilM(_ =>
-          correctRespondants.get.map(
-            _.size == 2
-          )
-        )
+      Schedule.recurUntilM(_ =>
+        correctRespondants.get.map(_.size == 2)
+      )
 
     def printRoundResults(
         winners: List[Player]
@@ -112,9 +102,10 @@ object QuizGame extends zio.App {
         else if (winners.size == 2)
           "Winners: " + winners.mkString(",")
         else
-          "Winners of incomplete round: " + winners
-            .mkString(",")
+          "Winners of incomplete round: " +
+            winners.mkString(",")
       putStrLn(finalOutput)
+    end printRoundResults
 
     val roundWithMultipleCorrectAnswers =
       RoundDescription(
@@ -162,86 +153,95 @@ object QuizGame extends zio.App {
         )
       )
 
-    val rounds = Seq(
-      roundWithMultipleCorrectAnswers,
-      roundWithOnly1CorrectAnswer,
-      roundWhereEverybodyIsWrong
-    )
+    val rounds =
+      Seq(
+        roundWithMultipleCorrectAnswers,
+        roundWithOnly1CorrectAnswer,
+        roundWhereEverybodyIsWrong
+      )
 
     val cahootSingleRound =
       for
         questionHub <- Hub.bounded[Question](1)
-        answerHub: Hub[Answer] <- Hub
-          .bounded[Answer](students.size)
-        correctRespondants: Ref[
-          List[Player]
-        ] <- Ref
-          .make[List[Player]](List.empty)
-        _ <- questionHub.subscribe
-          .zip(answerHub.subscribe)
-          .use {
-            case (
-                  questions,
-                  answers: ZDequeue[
-                    Any,
-                    Nothing,
-                    Answer
-                  ]
-                ) => {
+        answerHub: Hub[Answer] <-
+          Hub.bounded[Answer](students.size)
+        correctRespondants: Ref[List[Player]] <-
+          Ref.make[List[Player]](List.empty)
+        _ <-
+          questionHub
+            .subscribe
+            .zip(answerHub.subscribe)
+            .use {
+              case (
+                    questions,
+                    answers: ZDequeue[
+                      Any,
+                      Nothing,
+                      Answer
+                    ]
+                  ) => {
 
-              def playARound(
-                  roundDescription: RoundDescription
-              ) =
-                for
-                  _ <- putStrLn(
-                    "==============================="
-                  )
-                  _ <- putStrLn(
-                    "Question for round: " + roundDescription.question.text
-                  )
-                  _ <- correctRespondants.set(
-                    List.empty
-                  )
-                  _ <- questionHub.publish(
-                    roundDescription.question
-                  )
-                  question <- questions.take
-                  _ <- ZIO
-                    .collectAllPar(
-                      Seq(
-                        submitAnswersAfterDelay(
-                          answerHub,
-                          roundDescription.answers
-                        ),
-                        recordCorrectAnswers(
-                          roundDescription.question.correctResponse,
-                          answers,
-                          correctRespondants
-                        )
-                          .repeat(
-                            untilWinnersAreFound(
+                def playARound(
+                    roundDescription: RoundDescription
+                ) =
+                  for
+                    _ <-
+                      putStrLn(
+                        "==============================="
+                      )
+                    _ <-
+                      putStrLn(
+                        "Question for round: " +
+                          roundDescription
+                            .question
+                            .text
+                      )
+                    _ <-
+                      correctRespondants
+                        .set(List.empty)
+                    _ <-
+                      questionHub.publish(
+                        roundDescription.question
+                      )
+                    question <- questions.take
+                    _ <-
+                      ZIO
+                        .collectAllPar(
+                          Seq(
+                            submitAnswersAfterDelay(
+                              answerHub,
+                              roundDescription
+                                .answers
+                            ),
+                            recordCorrectAnswers(
+                              roundDescription
+                                .question
+                                .correctResponse,
+                              answers,
                               correctRespondants
+                            ).repeat(
+                              untilWinnersAreFound(
+                                correctRespondants
+                              )
                             )
                           )
+                        )
+                        .timeout(4.second)
+                    winners <-
+                      correctRespondants.get
+                    _ <-
+                      printRoundResults(winners)
+                    _ <-
+                      putStrLn(
+                        "==============================="
                       )
-                    )
-                    .timeout(
-                      4.second
-                    )
-                  winners <-
-                    correctRespondants.get
-                  _ <- printRoundResults(
-                    winners
-                  )
-                  _ <- putStrLn(
-                    "==============================="
-                  )
-                yield ()
+                  yield ()
 
-              ZIO.foreach(rounds)(playARound)
+                ZIO.foreach(rounds)(playARound)
+              }
             }
-          }
       yield ()
 
     cahootSingleRound.exitCode
-}
+  end run
+end QuizGame

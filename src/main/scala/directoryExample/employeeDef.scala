@@ -14,5 +14,5 @@ case class Employee(
   override def toString =
     s"Name: $firstName $lastName. Department: $department. ID: $ID \n"
 
-  def map =
-    this
+  def map = this
+end Employee

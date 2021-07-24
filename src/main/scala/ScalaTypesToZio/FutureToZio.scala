@@ -1,4 +1,4 @@
-//EitherToZio.scala
+// EitherToZio.scala
 package ScalaTypesToZio
 
 import zio._

@@ -11,8 +11,7 @@ def standin
 
 object catching extends zio.App:
 
-  val logic =
-    loadFile("TargetFile")
+  val logic = loadFile("TargetFile")
 
   def run(args: List[String]) =
     logic
@@ -21,5 +20,6 @@ object catching extends zio.App:
         loadBackupFile()
       )
       .exitCode
+end catching
 
 // standin.exitCode

@@ -1,9 +1,10 @@
 package fpBuildingBlocks
 
-//Higher Order functions are functions that accept other functions as
-//parameters.
+// Higher Order functions are functions that
+// accept other functions as
+// parameters.
 
-object higherOrderFunctions {
+object higherOrderFunctions:
 
   def foo1: Unit = //[f: Unit => Unit]
     println("I am function 1!!!")
@@ -27,7 +28,8 @@ object higherOrderFunctions {
     println(s"$x - $y = $subtracted!!!")
     subtracted
 
-  //The paramters of higherOrder are a function f, that takes 2 Int,
+  // The paramters of higherOrder are a function
+  // f, that takes 2 Int,
   // and returns an Int, Int x, and Int y
   def higherOrder(
       f: (Int, Int) => Int,
@@ -39,8 +41,10 @@ object higherOrderFunctions {
       s"I was given a function, Int $x and Int $y. \nThe output is $mathed"
     )
     mathed
+  end higherOrder
 
-  @main def higherOrders =
+  @main
+  def higherOrders =
     val add3n2 =
       higherOrder(
         add,
@@ -49,8 +53,10 @@ object higherOrderFunctions {
       ) //Here, we are passing in a function as a parameter
     println("\n")
     val sub3n2 = higherOrder(sub, 3, 2)
+  end higherOrders
 
-  //There are several higher order fucntions you probably already use!
-  //foreach(), map(), and flatMap() all take in functions as parameters.
-
-}
+  // There are several higher order fucntions you
+  // probably already use!
+  // foreach(), map(), and flatMap() all take in
+  // functions as parameters.
+end higherOrderFunctions

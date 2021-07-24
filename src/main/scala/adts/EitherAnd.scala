@@ -7,20 +7,26 @@ enum Info:
   case Repo(url: URL) extends Info
   case NameAndRepo(name: Name, repo: Repo)
 
-  // We only say "case" instead of "case class", because a case class is a separate thing,
-  // that isn't necessarily one of the enum values
+  // We only say "case" instead of "case class",
+  // because a case class is a separate thing,
+  // that isn't necessarily one of the enum
+  // values
 
   extension (n: Info.Name)
     def fancyRepS() = n.s.toUpperCase
 
-  def fancyRep() = this match {
-    case name: adts.eitherand.Info.Name =>
-      println(name.fancyRepS())
-//    case _: adts.eitherand.Info.Repo => println()
-    case _ => println("other")
-  }
+  def fancyRep() =
+    this match
+      case name: adts.eitherand.Info.Name =>
+        println(name.fancyRepS())
+// case _: adts.eitherand.Info.Repo =>
+      // println()
+      case _ =>
+        println("other")
+end Info
 
-@main def run =
+@main
+def run =
   import Info.*
   val name2: Info = Info.Name("asdf")
   name2.fancyRep()
@@ -46,3 +52,4 @@ enum Info:
   printNameRepo(name)
   printNameRepo(repo)
   printNameRepo(Info.NameAndRepo(name, repo))
+end run

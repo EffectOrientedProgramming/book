@@ -35,6 +35,7 @@ def buildABridge() =
     ] with Has[
       AvailableCompanies[UnderWaterDrilling]
     ], InsufficientResources, ProjectBid]
+  end ConstructionFirm
 
   trait NoValidBids
 
@@ -42,3 +43,4 @@ def buildABridge() =
       firms: Set[ConstructionFirm]
   ): ZIO[Any, NoValidBids, ConstructionFirm] =
     ???
+end buildABridge

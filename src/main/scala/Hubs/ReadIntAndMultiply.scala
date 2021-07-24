@@ -15,56 +15,66 @@ object ReadIntAndMultiply extends zio.App:
     val logic =
       for
         hub <- Hub.bounded[Int](2)
-        _ <- hub.subscribe.use {
-          case hubSubscription =>
-            val getAndStoreInput =
-              for
-                _ <- console.putStrLn(
-                  "Please provide an int"
-                )
-                input <- console.getStrLn
-                nextInt = input.toInt
-                _ <- hub.publish(nextInt)
-              yield ()
+        _ <-
+          hub
+            .subscribe
+            .use { case hubSubscription =>
+              val getAndStoreInput =
+                for
+                  _ <-
+                    console.putStrLn(
+                      "Please provide an int"
+                    )
+                  input <- console.getStrLn
+                  nextInt = input.toInt
+                  _ <- hub.publish(nextInt)
+                yield ()
 
-            val processNextIntAndPrint =
-              for
-                nextInt <- hubSubscription.take
-                _ <- console.putStrLn(
-                  "Multiplied Int: " + nextInt * 5
-                )
-              yield ()
+              val processNextIntAndPrint =
+                for
+                  nextInt <- hubSubscription.take
+                  _ <-
+                    console.putStrLn(
+                      "Multiplied Int: " +
+                        nextInt * 5
+                    )
+                yield ()
 
-            val reps = 5
-            for
-              _ <- ZIO
-                .collectAllPar(
-                  Set(
-                    getAndStoreInput.repeatN(
-                      reps
-                    ),
-                    processNextIntAndPrint.forever
-                  )
-                )
-                .timeout(5.seconds)
-            yield ()
-        }
+              val reps = 5
+              for
+                _ <-
+                  ZIO
+                    .collectAllPar(
+                      Set(
+                        getAndStoreInput
+                          .repeatN(reps),
+                        processNextIntAndPrint
+                          .forever
+                      )
+                    )
+                    .timeout(5.seconds)
+              yield ()
+              end for
+            }
       yield ()
 
-    (for
-      fakeConsole <- FakeConsole.withInput(
-        "3",
-        "5",
-        "7",
-        "9",
-        "11",
-        "13"
-      )
-      _ <-
-        logic
-          .provideCustomLayer(
-            Clock.live ++ ZLayer.succeed(
-              fakeConsole
-            )
+    (
+      for
+        fakeConsole <-
+          FakeConsole.withInput(
+            "3",
+            "5",
+            "7",
+            "9",
+            "11",
+            "13"
           )
-    yield ()).exitCode
+        _ <-
+          logic.provideCustomLayer(
+            Clock.live ++
+              ZLayer.succeed(fakeConsole)
+          )
+      yield ()
+    ).exitCode
+  end run
+end ReadIntAndMultiply

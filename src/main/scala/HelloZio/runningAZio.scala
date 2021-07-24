@@ -1,4 +1,4 @@
-//runningAZio.scala
+// runningAZio.scala
 
 package HelloZio
 
@@ -14,14 +14,16 @@ object HelloApp
     zio.console.Console,
     IOException,
     Unit
-  ] =
-    console.putStrLn("Hello, World!")
+  ] = console.putStrLn("Hello, World!")
 
   def run(
       args: List[String]
   ) = //Use App's run function
-    myAppLogic.exitCode //Call the Zio with exitCode.
+    myAppLogic
+      .exitCode //Call the Zio with exitCode.
 
-//Zio's run function which we inherit from zio.App needs a ZIO exitCode as a return type.
-//If you use the run function to excecute your ZIO program, then you need to structure your
-//code to end on an exitCode.
+// Zio's run function which we inherit from
+// zio.App needs a ZIO exitCode as a return type.
+// If you use the run function to excecute your
+// ZIO program, then you need to structure your
+// code to end on an exitCode.

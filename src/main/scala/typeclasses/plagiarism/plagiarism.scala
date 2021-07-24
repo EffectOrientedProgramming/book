@@ -12,8 +12,7 @@ trait Scannable[T]:
 
 def isLikelyPlagiarised[T: Scannable](
     t: T
-): Boolean =
-  t.literaryWork().citations.size == 0
+): Boolean = t.literaryWork().citations.size == 0
 
 case class TermPaper(content: String)
 
@@ -31,25 +30,23 @@ case class ResearchPaper(
 given Scannable[TermPaper] with
 
   extension (t: TermPaper)
-
     def literaryWork(): LiteraryWork =
       LiteraryWork(t.content, Set.empty)
 
 given Scannable[PhdThesis] with
 
   extension (t: PhdThesis)
-
     def literaryWork(): LiteraryWork =
       LiteraryWork(t.abstract_, t.citations)
 
 // TODO Scannable[ResearchPaper]
 
-@main def scanForPlagiarism() =
+@main
+def scanForPlagiarism() =
   assert(
     isLikelyPlagiarised(
       TermPaper("I am unique!")
-    )
-      == true
+    ) == true
   )
 
   assert(
@@ -59,6 +56,6 @@ given Scannable[PhdThesis] with
         advisor = "ProfessorX",
         citations = Set("Wikipedia")
       )
-    )
-      == false
+    ) == false
   )
+end scanForPlagiarism

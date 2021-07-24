@@ -5,7 +5,7 @@ import typeclasses.health.{
   UpStartHealth
 }
 
-object StateRepresentations {
+object StateRepresentations:
 
   object Canonical:
 
@@ -24,7 +24,7 @@ object StateRepresentations {
     def upstartStateToCanonical(
         input: UpStartHealth.State
     ): Canonical.State =
-      input match {
+      input match
         case UpStartHealth.State.TX =>
           Canonical.State.Texas
         case UpStartHealth.State.CO =>
@@ -33,6 +33,5 @@ object StateRepresentations {
           Canonical.State.NorthCarolina
         case UpStartHealth.State.NH =>
           Canonical.State.NewHampshire
-      }
-
-}
+  end InterOp
+end StateRepresentations

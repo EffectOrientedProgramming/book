@@ -1,4 +1,4 @@
-//OptionToZio.scala
+// OptionToZio.scala
 package ScalaTypesToZio
 
 import java.io
@@ -7,11 +7,11 @@ import java.io.IOException
 
 class OptionToZio:
 
-  val sOption1: Option[Int] = Some(
-    1
-  ) // sOption is either 1 or None
+  val sOption1: Option[Int] =
+    Some(1) // sOption is either 1 or None
 
-  //Here we convert the Scala Options to ZIOs using .fromOption()
+  // Here we convert the Scala Options to ZIOs
+  // using .fromOption()
   val zOption1: IO[Option[Nothing], Int] =
     ZIO.fromOption(sOption1)
 
@@ -21,3 +21,4 @@ class OptionToZio:
 
   val zOption2: IO[Option[Nothing], Person] =
     ZIO.fromOption(sOption2)
+end OptionToZio

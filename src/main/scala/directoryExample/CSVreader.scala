@@ -17,18 +17,23 @@ val readFileContents
       String
     ]] =
   ZIO(
-    scala.io.Source.fromFile(
-      "src/main/scala/directoryExample/firmData.csv"
-    )
+    scala
+      .io
+      .Source
+      .fromFile(
+        "src/main/scala/directoryExample/firmData.csv"
+      )
   ) //Open the file to read its contents
     .bracket(finalizer) {
       bufferedSource => //Use the bracket method with the finalizer defined above to define behavior on fail.
 
         val lines =
-          for line <- bufferedSource.getLines
+          for
+            line <- bufferedSource.getLines
           yield line
-        //This is where you can set the error likely hood
-        //This models a fatal IOException
+        // This is where you can set the error
+        // likely hood
+        // This models a fatal IOException
         errorAtNPerc(
           10
         ) //ie, 10 % chance to fail...

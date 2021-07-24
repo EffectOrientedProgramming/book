@@ -30,8 +30,9 @@ class FenceFiddler extends PostModifier:
     import org.scalafmt.interfaces.Scalafmt
 
     import java.nio.file._
-    val scalafmt = Scalafmt
-      .create(this.getClass.getClassLoader)
+    val scalafmt =
+      Scalafmt
+        .create(this.getClass.getClassLoader)
     val config = Paths.get(".scalafmt.conf")
     import collection.JavaConverters._
     val file = Paths.get("Main.scala")
@@ -42,8 +43,8 @@ class FenceFiddler extends PostModifier:
          |}
          |""".stripMargin
 
-    val formattedOutput: String = scalafmt
-      .format(config, file, wrappedCode)
+    val formattedOutput: String =
+      scalafmt.format(config, file, wrappedCode)
 
     def dropLeadingIndentionIfPresent(
         input: String

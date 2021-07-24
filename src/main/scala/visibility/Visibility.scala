@@ -2,9 +2,8 @@ package visibility
 
 private val packageOnly = 3
 
-def packageStuff() = println(
-  "doing package things!"
-)
+def packageStuff() =
+  println("doing package things!")
 
 // Package-private
 class Visibility:

@@ -15,6 +15,7 @@ class SomeNewClass() extends SomeClass:
     super.doSomething()
     println("someNewClass.doSomething")
 
-@main def inheritanceTest() =
+@main
+def inheritanceTest() =
   val x = SomeNewClass()
   x.doABaseThing()

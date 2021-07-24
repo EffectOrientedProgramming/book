@@ -1,27 +1,30 @@
 package zioBasics
 
 import java.io.IOException
-import zio.console.{
-  Console,
-  getStrLn,
-  putStrLn
-}
+import zio.console.{getStrLn, putStrLn, Console}
 import fakeEnvironmentInstances.FakeConsole
 import zio.console.Console.Service
 import zio.{IO, Runtime, ZIO, ZLayer}
 
-@main def hello =
+@main
+def hello =
   val a = println("1")
   val s: ZIO[Any, Nothing, String] =
-    ZIO.succeed { println("2"); "asdf"; }
+    ZIO.succeed {
+      println("2");
+      "asdf";
+    }
   val h: ZIO[Console, IOException, Unit] =
     s.flatMap { ss =>
-      println("3"); putStrLn(ss);
+      println("3");
+      putStrLn(ss);
     }
   println("4")
   Runtime.default.unsafeRunSync(h)
+end hello
 
-@main def scheduling =
+@main
+def scheduling =
   import zio.Schedule
   import zio.duration.*
 
@@ -36,19 +39,22 @@ import zio.{IO, Runtime, ZIO, ZLayer}
           ZIO.fail("errrgggg")
     yield ()
 
-  Runtime.default.unsafeRunSync(
-    scheduledCode
-      .provideLayer(
-        ZLayer.succeed(FakeConsole.word)
-      )
-      .repeat(
-        Schedule.recurs(4) && Schedule.spaced(
-          3.seconds
+  Runtime
+    .default
+    .unsafeRunSync(
+      scheduledCode
+        .provideLayer(
+          ZLayer.succeed(FakeConsole.word)
         )
-      )
-  )
+        .repeat(
+          Schedule.recurs(4) &&
+            Schedule.spaced(3.seconds)
+        )
+    )
+end scheduling
 
-@main def ValPassing(): Unit =
+@main
+def ValPassing(): Unit =
 
   val input: ZIO[
     zio.console.Console,
@@ -71,9 +77,13 @@ import zio.{IO, Runtime, ZIO, ZLayer}
     input.map(i => process(i))
 
   println(
-    Runtime.default.unsafeRunSync(
-      b.provideLayer(
-        ZLayer.succeed(FakeConsole.name)
-      ).exitCode
-    )
+    Runtime
+      .default
+      .unsafeRunSync(
+        b.provideLayer(
+            ZLayer.succeed(FakeConsole.name)
+          )
+          .exitCode
+      )
   )
+end ValPassing

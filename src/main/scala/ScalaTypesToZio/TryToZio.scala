@@ -1,4 +1,4 @@
-//TryToZio.scala
+// TryToZio.scala
 package ScalaTypesToZio
 
 import zio._
@@ -10,13 +10,7 @@ class TryToZio:
   val dividend = 42
   val divisor = 7
 
-  def sTry: Try[Int] =
-    Try(
-      dividend / divisor
-    )
+  def sTry: Try[Int] = Try(dividend / divisor)
 
-  val zTry: IO[
-    Throwable,
-    Int,
-  ] =
+  val zTry: IO[Throwable, Int] =
     ZIO.fromTry(sTry)

@@ -2,9 +2,10 @@ package tuples
 
 @main
 def easy() =
-  val six_1 = List(1, 2, 3).fold(0) {
-    (total, i) => total + i
-  }
+  val six_1 =
+    List(1, 2, 3).fold(0) { (total, i) =>
+      total + i
+    }
   assert(six_1 == 6)
 
   val six_2 = List(1, 2, 3).fold(0)(_ + _)
@@ -21,9 +22,10 @@ def easy() =
   assert(six_4 == 6)
 
   // does not work
-  //def addIt_3(t: (Int, Int)): Int = t._1 + t._2
-  //val six_5 = List(1, 2, 4).fold(0)(addIt_3)
-  //assert(six_5 == 6)
+  // def addIt_3(t: (Int, Int)): Int = t._1 +
+  // t._2
+  // val six_5 = List(1, 2, 4).fold(0)(addIt_3)
+  // assert(six_5 == 6)
 
   val t2: (String, Int) = "asdf" -> 1
 
@@ -35,10 +37,13 @@ def easy() =
 
   val m1: Map[String, Int] = Map("asdf" -> 1)
 
-  val m2 = m1.map { (s, i) => s.take(i) }
+  val m2 =
+    m1.map { (s, i) =>
+      s.take(i)
+    }
   assert(m2.head == "a")
 
-  val m3 = List(1, 2, 3)
-    .map(i => i.toString -> i)
-    .toMap
+  val m3 =
+    List(1, 2, 3).map(i => i.toString -> i).toMap
   assert(m3.head == "1" -> 1)
+end easy

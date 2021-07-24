@@ -12,21 +12,19 @@ def HelloAtomicScala3 =
     println("A".toString())
     println("adsf" + "bla")
 
-    List(1)
-      .map(i =>
-        i.toString()
-        "adsf" + "bla"
-      )
+    List(1).map(i =>
+      i.toString()
+      "adsf" + "bla"
+    )
 
   println("hello atomic scala")
   println("another one!")
   val output = """
     adsf asfd as d
    """
+end HelloAtomicScala3
 
-/*
-    blah
- */
+/* blah */
 
 object Extensions:
 
@@ -36,38 +34,41 @@ object Extensions:
   given PrettyString[String] with
 
     extension (a: String)
-
       def prettyString(): String =
         "\"" + a + "\""
 
   given PrettyString[Int] with
 
     extension (a: Int)
-
       def prettyString(): String =
         a.toString.prettyString()
 
-  given [A: PrettyString]
-      : PrettyString[List[A]] with
+  given [A: PrettyString]: PrettyString[List[A]]
+    with
 
     extension (a: List[A])
-
       def prettyString(): String =
         a.map(_.prettyString()).mkString(",")
+end Extensions
 
 class VisibilityClass(name: String)
 
-@main def testExtends() =
+@main
+def testExtends() =
   val instance = VisibilityClass("bill")
 
-  val s = "giraffe@56123".split("@") match {
-    case a: Array[String | Null] => a.apply(1)
-    case _: Null                 => "asdf"
-  }
+  val s =
+    "giraffe@56123".split("@") match
+      case a: Array[String | Null] =>
+        a.apply(1)
+      case _: Null =>
+        "asdf"
   println(s)
 
   NoNoNull.definitelyNotNull().toUpperCase()
-  //NoNoNull.maybeNotNull().toUpperCase() // does not work because maybeNotNull is String | Null
+  // NoNoNull.maybeNotNull().toUpperCase() //
+  // does not work because maybeNotNull is String
+  // | Null
   NoNoNull.maybeNotNull().nn.toUpperCase()
 
   val maybeS: String | Null = "asdf"
@@ -80,24 +81,28 @@ class VisibilityClass(name: String)
     def fromNullable[T](
         input: T | Null
     ): Option[T] =
-      if (input != null) Some(input) else None
+      if (input != null)
+        Some(input)
+      else
+        None
 
-  /*
-      input match
-      case null => None
-        //       case s: T => Some(s)    This does not work with an explicit T type
-      case s: T => Some(s)
-   */
+  /* input match case null => None // case s: T
+   * => Some(s) This does not work with an
+   * explicit T type case s: T => Some(s) */
 
   println(
-    "Nifty!: " + Option
-      .fromNullable(maybeS)
-      .map(_.toUpperCase)
+    "Nifty!: " +
+      Option
+        .fromNullable(maybeS)
+        .map(_.toUpperCase)
   )
 
-  val o: Option[String] = maybeS match
-    case s: String => Some(s)
-    case null      => None
+  val o: Option[String] =
+    maybeS match
+      case s: String =>
+        Some(s)
+      case null =>
+        None
 
   println(o)
 
@@ -115,3 +120,4 @@ class VisibilityClass(name: String)
     List(List("foo", "bar"), List("asdf"))
       .prettyString()
   )
+end testExtends

@@ -1,5 +1,4 @@
 package visibility
 
-class Sibling {
+class Sibling:
   val v: Visibility = Visibility()
-}

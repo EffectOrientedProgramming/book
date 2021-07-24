@@ -14,10 +14,12 @@ val a2: ZIO[Any, Nothing, Int] = a1
 val e1: IO[String, Nothing] = ZIO.fail("Error")
 val e2: ZIO[Any, String, Nothing] = e1
 
-val m: UIO[String] = a1.map { i =>
-  s"i = $i"
-}
+val m: UIO[String] =
+  a1.map { i =>
+    s"i = $i"
+  }
 
-val f: UIO[String] = a1.flatMap { i =>
-  ZIO.succeed(s"i = $i")
-}
+val f: UIO[String] =
+  a1.flatMap { i =>
+    ZIO.succeed(s"i = $i")
+  }

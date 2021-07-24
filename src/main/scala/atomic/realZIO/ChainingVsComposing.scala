@@ -2,7 +2,7 @@ package atomic.realZIO
 
 import zio.*
 
-class ChainingVsComposing {
+class ChainingVsComposing:
   trait UserNotFound
   trait UserInfo
 
@@ -15,8 +15,7 @@ class ChainingVsComposing {
 
   def zillow(
       zipCode: String
-  ): ZIO[Any, NetworkError, HouseListings] =
-    ???
+  ): ZIO[Any, NetworkError, HouseListings] = ???
 
   trait NoGoodHouseAvailable
   trait Home
@@ -33,71 +32,68 @@ class ChainingVsComposing {
       houseListings: HouseListings
   ): ZIO[Any, Nothing, Home] = ???
 
-  def yoloHouse(
-  ): ZIO[Any, Nothing, Home] = ???
+  def yoloHouse(): ZIO[Any, Nothing, Home] = ???
 
   val userId = "someUser"
   val zipCode = "81224"
 
   val exploreChaining: ZIO[
     Any,
-    UserNotFound | NetworkError |
+    UserNotFound |
+      NetworkError |
       NoGoodHouseAvailable,
     Home
   ] =
-    for {
+    for
       userInfo: UserInfo <- getInfo(userId)
       houseListings <- zillow(zipCode)
-      newHome <- buyBestHouse(
-        userInfo,
-        houseListings
-      )
-    } yield newHome
+      newHome <-
+        buyBestHouse(userInfo, houseListings)
+    yield newHome
 
-  val combined = ZIO
-    .tupledPar[
+  val combined =
+    ZIO.tupledPar[
       Any,
       UserNotFound | NetworkError,
       UserInfo,
       HouseListings
-    ](
-      getInfo(userId),
-      zillow(zipCode)
-    )
+    ](getInfo(userId), zillow(zipCode))
 
   val exploreChainingPar: ZIO[
     Any,
-    UserNotFound | NetworkError |
+    UserNotFound |
+      NetworkError |
       NoGoodHouseAvailable,
     Home
   ] =
-    combined.flatMap(
-      (userInfo, houseListings) =>
-        buyBestHouse(userInfo, houseListings)
+    combined.flatMap((userInfo, houseListings) =>
+      buyBestHouse(userInfo, houseListings)
     )
 
   val finalHouse: ZIO[
     Any,
-    UserNotFound | NetworkError |
+    UserNotFound |
+      NetworkError |
       NoGoodHouseAvailable,
     Home
   ] =
-    // This doesn't actually reduce the error type
+    // This doesn't actually reduce the error
+    // type
     exploreChaining.catchSome {
       case (_: NoGoodHouseAvailable) =>
         yoloHouse()
     }
 
-  val getUserAndZillowInfo
-      : (String, String) => (
-          ZIO[Any, UserNotFound, UserInfo],
-          ZIO[Any, NetworkError, HouseListings]
-      ) = (x, y) => (getInfo(x), zillow(y))
+  val getUserAndZillowInfo: (String, String) => (
+      ZIO[Any, UserNotFound, UserInfo],
+      ZIO[Any, NetworkError, HouseListings]
+  ) = (x, y) => (getInfo(x), zillow(y))
 
-//    val getUserAndZillowInfo: (String, String) => (UserInfo, HouseListings) =
-//      getInfo.combinify(zillow) // .andThen(buyBestHouse)
-
-}
+// val getUserAndZillowInfo: (String, String)
+  // => (UserInfo, HouseListings) =
+// getInfo.combinify(zillow) //
+  // .andThen(buyBestHouse)
+end ChainingVsComposing
 
 class NarrowError:
 
@@ -124,13 +120,12 @@ class NarrowError:
       userInfo <- getInfo("asdf")
       prefs <- userPrefs(userInfo)
     yield prefs
+end NarrowError
 
-/*
-  // catchSome can't narrow the errors
-  val narrow: ZIO[Any, UserNotFound, UserPrefs] = wide.catchSome {
-    case _: UserPrefError => ZIO.succeed(NoUserPrefs)
-  }
- */
+/* // catchSome can't narrow the errors val
+ * narrow: ZIO[Any, UserNotFound, UserPrefs] =
+ * wide.catchSome { case _: UserPrefError =>
+ * ZIO.succeed(NoUserPrefs) } */
 
 class MatchError:
 
@@ -146,8 +141,7 @@ class MatchError:
 
   def getProduct(
       product: String
-  ): ZIO[Any, ProductNotFound, ProductInfo] =
-    ???
+  ): ZIO[Any, ProductNotFound, ProductInfo] = ???
 
   def recommended(
       userInfo: UserInfo,
@@ -158,29 +152,32 @@ class MatchError:
     Recommendations
   ] = ???
 
-  // why do we have to add NoSuchElementException?
+  // why do we have to add
+  // NoSuchElementException?
 
   val userAndProductInfo: ZIO[
     Any,
-    UserNotFound | ProductNotFound |
+    UserNotFound |
+      ProductNotFound |
       NoSuchElementException,
     (UserInfo, ProductInfo)
-  ] = ZIO.tupledPar(
-    getInfo("asdf"),
-    getProduct("zxcv")
-  )
+  ] =
+    ZIO.tupledPar(
+      getInfo("asdf"),
+      getProduct("zxcv")
+    )
 
   val app: ZIO[
     Any,
-    UserNotFound | ProductNotFound |
+    UserNotFound |
+      ProductNotFound |
       NoSuchElementException,
     Recommendations
   ] =
     for
       (userInfo, productInfo) <-
         userAndProductInfo
-      recommendations <- recommended(
-        userInfo,
-        productInfo
-      )
+      recommendations <-
+        recommended(userInfo, productInfo)
     yield recommendations
+end MatchError

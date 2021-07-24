@@ -12,7 +12,7 @@ scalacOptions -= "-explain"
 
 libraryDependencies ++= Seq(
   "org.jetbrains" % "annotations-java5" % "15.0",
-  "org.scalameta" % "scalafmt-dynamic_2.13" % "3.0.0-RC6",
+  "org.scalameta" % "scalafmt-dynamic" % "3.0.0-RC6" cross CrossVersion.for3Use2_13,
   "dev.zio" %% "zio" % zioVersion,
   "dev.zio" %% "zio-test" % zioVersion % Test,
   "dev.zio" %% "zio-test-sbt" % zioVersion % Test,
@@ -27,4 +27,4 @@ mdocIn := file("Chapters")
 
 mdocOut := file("manuscript")
 
-//lazy val docs = project.in(file("myproject-docs")) // important: it must not be docs/
+scalafmtOnCompile := true
