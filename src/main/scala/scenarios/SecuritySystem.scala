@@ -1,7 +1,11 @@
 package scenarios
 
 import zio.{Has, ZIO, ZLayer}
+import zio.clock.Clock
+import zio.duration.Duration
 import zio.console.putStrLn
+import zio.duration.durationInt
+import scala.concurrent.TimeoutException
 
 /** Situations: Security System: Should monitor
   *   - Motion
@@ -24,11 +28,13 @@ object SecuritySystem:
     scenarios.MotionDetector.ServiceX
   ] & zio.Has[scenarios.ThermalDetector.Service] & Has[Siren.ServiceX]] =
     MotionDetector.live ++
-      ThermalDetector.live ++ Siren.live
+      ThermalDetector
+        .live((10.seconds, Degrees(71))) ++
+      Siren.live
 
   def shouldAlertServices(): ZIO[Has[
     MotionDetector.ServiceX
-  ] & Has[ThermalDetector.Service] & Has[Siren.ServiceX], scenarios.HardwareFailure, String] =
+  ] & Has[ThermalDetector.Service] & Has[Siren.ServiceX] & Clock, scenarios.HardwareFailure | TimeoutException, String] =
     ZIO
       .services[
         MotionDetector.ServiceX,
@@ -44,8 +50,10 @@ object SecuritySystem:
           for
             amountOfMotion <-
               motionDetector.amountOfMotion()
-            amountOfHeat <-
+            amountOfHeatGenerator <-
               thermalDetector.amountOfHeat()
+            amountOfHeat <- amountOfHeatGenerator
+
             _ <-
               zprintln(
                 s"Heat: $amountOfHeat  Motion: $amountOfMotion"
@@ -69,25 +77,6 @@ object SecuritySystem:
     amountOfMotion.value > 50 &&
       amountOfHeat.value > 95
 
-  def shouldAlert(): ZIO[Has[
-    MotionDetector.ServiceX
-  ] & Has[ThermalDetector.Service], scenarios.HardwareFailure, String] =
-    for
-      motionDetector <-
-        ZIO.service[MotionDetector.ServiceX]
-      amountOfMotion <-
-        motionDetector.amountOfMotion()
-      thermalDetector <-
-        ZIO.service[ThermalDetector.Service]
-      amountOfHeat <-
-        thermalDetector.amountOfHeat()
-      _ <-
-        ZIO.succeed(
-          println(
-            s"Heat: $amountOfHeat  Motion: $amountOfMotion"
-          )
-        )
-    yield "Fin"
 end SecuritySystem
 
 @main
@@ -99,7 +88,10 @@ def useSecuritySystem =
         SecuritySystem
           .shouldAlertServices()
           .repeatN(2)
-          .provideLayer(SecuritySystem.fullLayer)
+          .provideLayer(
+            SecuritySystem.fullLayer ++
+              Clock.live
+          )
       )
   )
 end useSecuritySystem
@@ -107,9 +99,7 @@ end useSecuritySystem
 trait HardwareFailure
 
 case class Decibels(value: Int)
-
 case class Degrees(value: Int)
-
 case class Pixels(value: Int)
 
 object MotionDetector:
@@ -132,10 +122,16 @@ end MotionDetector
 
 object ThermalDetector:
   trait Service:
-    def amountOfHeat()
-        : ZIO[Any, HardwareFailure, Degrees]
+    def amountOfHeat(): ZIO[
+      zio.clock.Clock,
+      HardwareFailure,
+      ZIO[Clock, TimeoutException, Degrees]
+    ]
 
-  val live: ZLayer[Any, Nothing, Has[
+  def live(
+      value: (Duration, Degrees),
+      values: (Duration, Degrees)*
+  ): ZLayer[Any, Nothing, Has[
     ThermalDetector.Service
   ]] =
     ZLayer.succeed(
@@ -144,14 +140,15 @@ object ThermalDetector:
         var temperatures = List(72, 73, 98)
 
         def amountOfHeat(): ZIO[
-          Any,
+          zio.clock.Clock,
           HardwareFailure,
-          Degrees
+          ZIO[Clock, TimeoutException, Degrees]
         ] =
           val (curTemp :: remainingTemps) =
             temperatures
           temperatures = remainingTemps
-          ZIO.succeed(Degrees(curTemp))
+          Scheduled2
+            .scheduledValues(value, values*)
         end amountOfHeat
     )
 end ThermalDetector
