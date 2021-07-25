@@ -224,14 +224,14 @@ unsafeRun(
 // 	at mdoc.internal.markdown.MarkdownBuilder$.$anonfun$1(MarkdownBuilder.scala:70)
 // 	at mdoc.internal.markdown.MarkdownBuilder$$anon$1.run(MarkdownBuilder.scala:103)
 // 
-// Fiber:Id(1627103662728,2) was supposed to continue to:
+// Fiber:Id(1627186129307,2) was supposed to continue to:
 //   a future continuation at zio.Runtime.unsafeRunWith$$anonfun$2(Runtime.scala:207)
 // 
-// Fiber:Id(1627103662728,2) execution trace:
+// Fiber:Id(1627186129307,2) execution trace:
 //   at repl.MdocSession$App.getTemperatureZGpsGap$3$$anonfun$3(06_HelloFailure.md:171)
 //   at zio.ZIO$.effect$$anonfun$1(ZIO.scala:2637)
 // 
-// Fiber:Id(1627103662728,2) was spawned by: <empty trace>
+// Fiber:Id(1627186129307,2) was spawned by: <empty trace>
 ```
 
 The compiler does not catch this bug, and instead fails at runtime. Can we do better?
@@ -280,6 +280,6 @@ if 1 == 1 && 2 == 2 && 3 == 3 && 4 == 4 &&
 then
   "yay"
 else
-"damn"
+  "damn"
 // res10: String = "yay"
 ```

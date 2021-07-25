@@ -12,8 +12,8 @@ import com.typesafe.config.ConfigFactory
 
 // TODO Figure out how to support other premade
 // modifiers while using our custom modifier
-class FenceFiddler extends PostModifier:
-  val name = "fiddler"
+class FenceFormatter extends PostModifier:
+  val name = "fmt"
 
   def process(ctx: PostModifierContext): String =
     val relpath: Path = Paths.get(ctx.info)
@@ -21,12 +21,14 @@ class FenceFiddler extends PostModifier:
     val scalafmt =
       Scalafmt
         .create(this.getClass.getClassLoader)
-    val config = Paths.get(".scalafmt.conf")
+    val scalaFmtConfigPath =
+      Paths.get(".scalafmt.conf")
 
     val file = Paths.get("Main.scala")
 
     val conf =
-      ConfigFactory.parseFile(config.toFile)
+      ConfigFactory
+        .parseFile(scalaFmtConfigPath.toFile)
 
     val numberOfLinesBeforeEndMarkerIsInserted =
       conf.getInt(
@@ -40,7 +42,11 @@ class FenceFiddler extends PostModifier:
          |""".stripMargin
 
     val formattedOutput: String =
-      scalafmt.format(config, file, wrappedCode)
+      scalafmt.format(
+        scalaFmtConfigPath,
+        file,
+        wrappedCode
+      )
 
     def dropLeadingIndentionIfPresent(
         input: String
@@ -53,17 +59,23 @@ class FenceFiddler extends PostModifier:
     val outputtedLines =
       formattedOutput.split("\n").toList
 
-    val formattedWithoutObjectWrapper =
+    def removeObjectWrapperFromSnippet(
+        wrappedSnippet: List[String]
+    ): List[String] =
       (
         if (
-          outputtedLines.length >=
+          wrappedSnippet.length >=
             numberOfLinesBeforeEndMarkerIsInserted
         ) then
-          outputtedLines.dropRight(1)
+          wrappedSnippet.dropRight(1)
         else
-          outputtedLines
+          wrappedSnippet
       ).drop(1)
-        .map(dropLeadingIndentionIfPresent)
+
+    val formattedWithoutObjectWrapper =
+      removeObjectWrapperFromSnippet(
+        outputtedLines
+      ).map(dropLeadingIndentionIfPresent)
         .mkString("\n")
 
     val fencedAndFormatted =
@@ -75,4 +87,4 @@ class FenceFiddler extends PostModifier:
 
     fencedAndFormatted
   end process
-end FenceFiddler
+end FenceFormatter
