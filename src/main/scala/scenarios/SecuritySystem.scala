@@ -5,6 +5,7 @@ import zio.clock.Clock
 import zio.duration.Duration
 import zio.console.putStrLn
 import zio.duration.durationInt
+import zio.Schedule
 import scala.concurrent.TimeoutException
 
 /** Situations: Security System: Should monitor
@@ -28,9 +29,21 @@ object SecuritySystem:
     scenarios.MotionDetector.ServiceX
   ] & zio.Has[scenarios.ThermalDetector.Service] & Has[Siren.ServiceX]] =
     MotionDetector.live ++
-      ThermalDetector
-        .live((10.seconds, Degrees(71))) ++
-      Siren.live
+      ThermalDetector.live(
+        (1.seconds, Degrees(71)),
+        (2.seconds, Degrees(70))
+      ) ++ Siren.live
+
+  val x: zio.ZIO[
+    scenarios.MotionDetector.ServiceX,
+    scenarios.HardwareFailure,
+    scenarios.Pixels
+  ] = ZIO.accessM(_.amountOfMotion())
+
+  val y: zio.ZIO[Has[
+    scenarios.MotionDetector.ServiceX
+  ], scenarios.HardwareFailure, scenarios.Pixels] =
+    ZIO.accessM(_.get.amountOfMotion())
 
   def shouldAlertServices(): ZIO[Has[
     MotionDetector.ServiceX
@@ -52,21 +65,35 @@ object SecuritySystem:
               motionDetector.amountOfMotion()
             amountOfHeatGenerator <-
               thermalDetector.amountOfHeat()
-            amountOfHeat <- amountOfHeatGenerator
-
             _ <-
-              zprintln(
-                s"Heat: $amountOfHeat  Motion: $amountOfMotion"
-              )
-            _ <-
-              if shouldTrigger(
-                  amountOfMotion,
-                  amountOfHeat
+              (
+                for
+                  amountOfHeat <-
+                    amountOfHeatGenerator
+                  _ <-
+                    zprintln(
+                      s"Heat: $amountOfHeat  Motion: $amountOfMotion"
+                    )
+                  _ <-
+                    if shouldTrigger(
+                        amountOfMotion,
+                        amountOfHeat
+                      )
+                    then
+                      siren.lowBeep()
+                    else
+                      zprintln(
+                        "No need to panic"
+                      )
+                yield ()
+              ).catchAll { case _ =>
+                  ZIO
+                    .fail(new HardwareFailure {})
+                }
+                .repeat(
+                  Schedule.recurs(3) &&
+                    Schedule.spaced(500.millis)
                 )
-              then
-                siren.lowBeep()
-              else
-                zprintln("No need to panic")
           yield "Fin"
       }
 
@@ -87,7 +114,6 @@ def useSecuritySystem =
       unsafeRun(
         SecuritySystem
           .shouldAlertServices()
-          .repeatN(2)
           .provideLayer(
             SecuritySystem.fullLayer ++
               Clock.live
@@ -137,16 +163,11 @@ object ThermalDetector:
     ZLayer.succeed(
       // that same service we wrote above
       new Service:
-        var temperatures = List(72, 73, 98)
-
         def amountOfHeat(): ZIO[
           zio.clock.Clock,
           HardwareFailure,
           ZIO[Clock, TimeoutException, Degrees]
         ] =
-          val (curTemp :: remainingTemps) =
-            temperatures
-          temperatures = remainingTemps
           Scheduled2
             .scheduledValues(value, values*)
         end amountOfHeat
