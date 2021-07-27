@@ -1,43 +1,40 @@
-import java.io
+import fakeEnvironmentInstances.FakeConsole
 
-import zio.console.Console.Service
-import zio.console
+import java.io
+import zio.Console
 import zio.test
 import zio.test.Assertion
 import zio.test.environment
-import zio._
-import zio.clock._
-import zio.test._
-import zio.test.Assertion._
-import zio.test.environment._
+import zio.*
+import zio.Clock.*
+import zio.test.*
+import zio.test.Assertion.*
+import zio.test.environment.*
+
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.TimeUnit
-
 import java.io.IOException
 
 object HelloWorld:
 
-  val sayHello: ZIO[
-    zio.console.Console,
-    IOException,
-    Unit
-  ] = console.putStrLn("Hello, World!")
+  val sayHello
+      : ZIO[Has[Console], IOException, Unit] =
+    Console.printLine("Hello, World!")
 
 // trait BigEnvironmentTrait extends
   // zio.console.Console with zio.clock.Clock
 
   case class NewError()
 
-  val sayHelloWithAtime: ZIO[
-    zio.console.Console with zio.clock.Clock,
-    IOException | NewError,
-    Unit
-  ] =
+  val sayHelloWithAtime
+      : ZIO[Has[Console] with Has[
+        Clock
+      ], IOException | NewError, Unit] =
     for
       currentTime <-
         currentTime(TimeUnit.MILLISECONDS)
       _ <-
-        console.putStrLn(
+        Console.printLine(
           "Hello, World! Time: " + currentTime
         )
       _ <- ZIO.fail(NewError())
@@ -46,70 +43,44 @@ object HelloWorld:
   // Equivalent to the above ^
   currentTime(TimeUnit.MILLISECONDS)
     .flatMap(currentTime =>
-      console.putStrLn(
+      Console.printLine(
         "Hello, World! Time: " + currentTime
       )
     )
     .flatMap(_ => ZIO.fail(NewError()))
     .map(_ => ())
 
-  def parameterizedHello(name: String): ZIO[
-    zio.console.Console with zio.clock.Clock,
-    IOException,
-    String
-  ] =
+  def parameterizedHello(name: String): ZIO[Has[
+    Console
+  ] with Has[Clock], IOException, String] =
     for
       currentTime <-
         currentTime(TimeUnit.MILLISECONDS)
       _ <-
-        console.putStrLn(
+        Console.printLine(
           s"Hello, $name! Time: " + currentTime
         )
     yield name
 end HelloWorld
 
-// val getName: ZIO[zio.console.Console,
+// val getName: ZIO[zio.Console.Console,
 // IOException, Unit] =
-//    console.getS("Hello, World!")
-
-object BadConsole:
-  val singleFailure =
-    new IOException("Bad stream")
-
-  val live: Service =
-    new Service:
-      def putStr(line: String): UIO[Unit] = ???
-      def putStrErr(line: String): UIO[Unit] =
-        ???
-      def putStrLnErr(line: String): UIO[Unit] =
-        ???
-
-      def putStrLn(
-          line: String
-      ): IO[IOException, Unit] =
-        ZIO.fail(singleFailure)
-      val getStrLn: IO[IOException, String] =
-        ZIO.succeed("hardcoded string")
-end BadConsole
+//    Console.getS("Hello, World!")
 
 object MyFirstSpec extends DefaultRunnableSpec:
   def spec =
     suite("HelloWorldSpec")(
-      testM(
+      test(
         "sayHello correctly displays output"
       ) {
         for
           result <-
-            HelloWorld
-              .sayHello
-              .provideLayer(
-                ZLayer.succeed(BadConsole.live)
-              )
-              .run
+            FakeConsole
+              .singleInputConsole("blah")
+              .readLine
+              .exit
         yield assert(result)(
-          fails(
-            equalTo(BadConsole.singleFailure)
-          )
+          succeeds(equalTo("blah"))
         )
       }
     )
