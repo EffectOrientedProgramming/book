@@ -25,9 +25,11 @@ def getTemperature(behavior: String): String =
 ```
 
 ```scala mdoc:nest
-def displayTemperature(behavior: String): String =
+def displayTemperature(
+    behavior: String
+): String =
   "Temperature: " + getTemperature(behavior)
-  
+
 displayTemperature("succeed")
 ```
 
@@ -37,8 +39,10 @@ This can take many forms.
 If we don't make any attempt to handle our problem, the whole program could blow up and show the gory details to the user.
 
 ```scala mdoc:nest:crash
-def displayTemperature(behavior: String): String =
-    "Temperature: " + getTemperature(behavior)
+def displayTemperature(
+    behavior: String
+): String =
+  "Temperature: " + getTemperature(behavior)
 
 displayTemperature("Network Error")
 ```
@@ -46,18 +50,22 @@ displayTemperature("Network Error")
 We could take the bare-minimum approach of catching the `Exception` and returning `null`:
 
 ```scala mdoc:nest
-def displayTemperature(behavior: String): String =
+def displayTemperature(
+    behavior: String
+): String =
   val temperature =
     try
       getTemperature(behavior)
     catch
-      case (ex: RuntimeException) => null
-    
+      case (ex: RuntimeException) =>
+        null
+
   "Temperature: " + temperature
-  
-assert( 
-  displayTemperature("Network Error") == 
-  "Temperature: null"
+end displayTemperature
+
+assert(
+  displayTemperature("Network Error") ==
+    "Temperature: null"
 )
 ```
 
@@ -66,15 +74,19 @@ This is *slightly* better, as the user can at least see the outer structure of o
 Maybe we could fallback to a `sentinel` value, such as `0` or `-1` to indicate a failure?
 
 ```scala mdoc:nest
-def displayTemperature(behavior: String): String =
+def displayTemperature(
+    behavior: String
+): String =
   val temperature =
     try
       getTemperature(behavior)
     catch
-      case (ex: RuntimeException) => "-1 degrees"
-    
+      case (ex: RuntimeException) =>
+        "-1 degrees"
+
   "Temperature: " + temperature
-  
+end displayTemperature
+
 displayTemperature("Network Error")
 ```
 
@@ -82,15 +94,19 @@ Clearly, this isn't acceptable, as both of these common sentinel values are vali
 We can take a more honest and accurate approach in this situation.
 
 ```scala mdoc:nest
-def displayTemperature(behavior: String): String =
+def displayTemperature(
+    behavior: String
+): String =
   val temperature =
     try
       getTemperature(behavior)
     catch
-      case (ex: RuntimeException) => "Unavailable"
-    
+      case (ex: RuntimeException) =>
+        "Unavailable"
+
   "Temperature: " + temperature
-  
+end displayTemperature
+
 displayTemperature("Network Error")
 ```
 
@@ -100,16 +116,21 @@ In this situation, do we show the same message to the user? Ideally, we would sh
 The Network issue is transient, but the GPS problem is likely permanent.
 
 ```scala mdoc:nest
-def displayTemperature(behavior: String): String =
+def displayTemperature(
+    behavior: String
+): String =
   val temperature =
     try
       getTemperature(behavior)
     catch
-      case (ex: NetworkException) => "Network Unavailable"
-      case (ex: GpsException) => "GPS problem"
-    
+      case (ex: NetworkException) =>
+        "Network Unavailable"
+      case (ex: GpsException) =>
+        "GPS problem"
+
   "Temperature: " + temperature
-  
+end displayTemperature
+
 displayTemperature("Network Error")
 displayTemperature("GPS Error")
 ```
@@ -137,18 +158,19 @@ import zio.{Task, ZIO}
 ```
 
 ```scala mdoc:fmt
-def getTemperatureZWrapped(behavior: String): Task[String] =
-    ZIO(getTemperature(behavior))
-        .catchAll{
-          case ex: NetworkException => ZIO.succeed("Network Unavailable")
-          case ex: GpsException => ZIO.succeed("GPS problem")
-        }
+def getTemperatureZWrapped(
+    behavior: String
+): Task[String] =
+  ZIO(getTemperature(behavior)).catchAll {
+    case ex: NetworkException =>
+      ZIO.succeed("Network Unavailable")
+    case ex: GpsException =>
+      ZIO.succeed("GPS problem")
+  }
 ```
 
 ```scala mdoc
-unsafeRun(
-  getTemperatureZWrapped("Succeed")
-)
+unsafeRun(getTemperatureZWrapped("Succeed"))
 ```
 
 ```scala mdoc
@@ -170,9 +192,7 @@ def getTemperatureZGpsGap(
 ```
 
 ```scala mdoc:crash
-unsafeRun(
-    getTemperatureZGpsGap("GPS Error")
-)
+unsafeRun(getTemperatureZGpsGap("GPS Error"))
 ```
 
 The compiler does not catch this bug, and instead fails at runtime. Can we do better?
@@ -181,30 +201,37 @@ The compiler does not catch this bug, and instead fails at runtime. Can we do be
 
 ```scala mdoc:fmt
 // TODO Consult about type param styling
-def getTemperatureZ(behavior: String): ZIO[Any, GpsException | NetworkException, String] =
-    if (behavior == "GPS Error")
-      ZIO.fail(new GpsException())
-    else if (behavior == "Network Error")
-      ZIO.fail(new NetworkException())
-    else
-      ZIO.succeed("30 degrees")
+def getTemperatureZ(behavior: String): ZIO[
+  Any,
+  GpsException | NetworkException,
+  String
+] =
+  if (behavior == "GPS Error")
+    ZIO.fail(new GpsException())
+  else if (behavior == "Network Error")
+    ZIO.fail(new NetworkException())
+  else
+    ZIO.succeed("30 degrees")
 
-unsafeRun(
-  getTemperatureZ("Succeed")
-)
+unsafeRun(getTemperatureZ("Succeed"))
 ```
 
 ```scala mdoc:fail
 unsafeRun(
-  getTemperatureZ("Succeed")
-    .catchAll {
-      case ex: NetworkException => ZIO.succeed("Network Unavailable")
-    }
+  getTemperatureZ("Succeed").catchAll {
+    case ex: NetworkException =>
+      ZIO.succeed("Network Unavailable")
+  }
 )
 ```
 
 TODO Demonstrate ZIO calculating the error types without an explicit annotation being provided
 
 ```scala mdoc:fmt
-if 1 == 1 && 2 == 2 && 3 == 3 && 4 == 4 && 5 == 5 && 6 == 6 then "yay" else "damn"
+if 1 == 1 && 2 == 2 && 3 == 3 && 4 == 4 &&
+  5 == 5 && 6 == 6
+then
+  "yay"
+else
+  "damn"
 ```
