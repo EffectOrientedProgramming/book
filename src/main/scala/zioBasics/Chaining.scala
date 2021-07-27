@@ -4,7 +4,7 @@ import fakeEnvironmentInstances.FakeConsole
 
 import java.io
 import zio._
-import zio.console._
+import zio.Console._
 
 import java.io.IOException
 
@@ -15,16 +15,17 @@ object Chaining extends zio.App:
   // This makes chaining multiple ZIOs within a
   // for-comprehension much easier
 
-  def chain: ZIO[Console, IOException, Unit] =
+  def chain
+      : ZIO[Has[Console], IOException, Unit] =
     for
       _ <-
-        putStrLn(
+        printLine(
           "Input a word: "
-        ) //flatMap putStrLn ZIO into the wildcard char
+        ) //flatMap println ZIO into the wildcard char
       word <-
-        getStrLn //flatmap getStrLn ZIO into word
+        readLine //flatmap readLine ZIO into word
       _ <-
-        putStrLn(
+        printLine(
           s"${word} is a nice word! Good choice!"
         )
     yield ()

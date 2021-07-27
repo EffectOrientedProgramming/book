@@ -2,7 +2,7 @@ package Parallelism
 
 import java.io.IOException
 import zio._
-import zio.console._
+import zio.Console._
 import zio.Fiber._
 
 class Compose:

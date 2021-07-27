@@ -1,19 +1,17 @@
 package scenarios
 
 import zio.{Has, ZIO, ZLayer}
-import zio.clock.Clock
-import zio.duration.Duration
-import zio.console.putStrLn
-import zio.duration.durationInt
+import zio.Clock
+import zio.Duration
+import zio.Console.printLine
+import zio.durationInt
 import zio.Schedule
 import scala.concurrent.TimeoutException
 
 case class TempSense(
-    z: ZIO[
-      zio.clock.Clock,
-      HardwareFailure,
-      ZIO[Clock, TimeoutException, Degrees]
-    ]
+    z: ZIO[Has[Clock], HardwareFailure, ZIO[Has[
+      Clock
+    ], TimeoutException, Degrees]]
 )
 
 /** Situations: Security System: Should monitor
@@ -51,41 +49,36 @@ object SecuritySystem:
     scenarios.MotionDetector.ServiceX,
     scenarios.HardwareFailure,
     scenarios.Pixels
-  ] = ZIO.accessM(_.amountOfMotion())
+  ] = ZIO.accessZIO(_.amountOfMotion())
 
-  val accessMotionDetector: zio.ZIO[Has[
+  val accessMotionDetector: ZIO[Has[
     scenarios.MotionDetector.ServiceX
   ], scenarios.HardwareFailure, scenarios.Pixels] =
-    ZIO.accessM(_.get.amountOfMotion())
+    ZIO.accessZIO(_.get.amountOfMotion())
 
-  val accessThermalDetectorX: zio.ZIO[zio.Has[
+  val accessThermalDetectorX: ZIO[Has[
     scenarios.ThermalDetector.Service
-  ] & zio.clock.Clock, scenarios.HardwareFailure, zio.ZIO[
-    zio.clock.Clock,
+  ] & Has[Clock], scenarios.HardwareFailure, ZIO[
+    Has[Clock],
     scala.concurrent.TimeoutException,
     scenarios.Degrees
   ]] =
-    ZIO.accessM[Has[
+    ZIO.accessZIO[Has[
       scenarios.ThermalDetector.Service
-    ] & Clock](
+    ] & Has[Clock]](
       _.get[scenarios.ThermalDetector.Service]
         .amountOfHeat()
     )
 
   def securityLoop(
-      amountOfHeatGenerator: zio.ZIO[
-        zio.clock.Clock,
-        scala.concurrent.TimeoutException,
-        scenarios.Degrees
-      ],
+      amountOfHeatGenerator: ZIO[Has[
+        Clock
+      ], scala.concurrent.TimeoutException, scenarios.Degrees],
       amountOfMotion: Pixels,
       siren: Siren.ServiceX
-  ): ZIO[
-    zio.clock.Clock,
-    scala.concurrent.TimeoutException |
-      HardwareFailure,
-    Unit
-  ] =
+  ): ZIO[Has[
+    Clock
+  ], scala.concurrent.TimeoutException | HardwareFailure, Unit] =
     for
       amountOfHeat <- amountOfHeatGenerator
       _ <-
@@ -105,7 +98,7 @@ object SecuritySystem:
 
   def shouldAlertServices(): ZIO[Has[
     MotionDetector.ServiceX
-  ] & Has[ThermalDetector.Service] & Has[Siren.ServiceX] & Clock, scenarios.HardwareFailure | TimeoutException, String] =
+  ] & Has[ThermalDetector.Service] & Has[Siren.ServiceX] & Has[Clock], scenarios.HardwareFailure | TimeoutException, String] =
     ZIO
       .service[Siren.ServiceX]
       .flatMap { siren =>
@@ -176,11 +169,12 @@ end MotionDetector
 
 object ThermalDetector:
   trait Service:
-    def amountOfHeat(): ZIO[
-      zio.clock.Clock,
-      HardwareFailure,
-      ZIO[Clock, TimeoutException, Degrees]
-    ]
+    def amountOfHeat()
+        : ZIO[Has[Clock], HardwareFailure, ZIO[
+          Has[Clock],
+          TimeoutException,
+          Degrees
+        ]]
 
   def live(
       value: (Duration, Degrees),
@@ -191,11 +185,11 @@ object ThermalDetector:
     ZLayer.succeed(
       // that same service we wrote above
       new Service:
-        def amountOfHeat(): ZIO[
-          zio.clock.Clock,
-          HardwareFailure,
-          ZIO[Clock, TimeoutException, Degrees]
-        ] =
+        def amountOfHeat(): ZIO[Has[
+          Clock
+        ], HardwareFailure, ZIO[Has[
+          Clock
+        ], TimeoutException, Degrees]] =
           Scheduled2
             .scheduledValues(value, values*)
         end amountOfHeat
@@ -234,9 +228,9 @@ def zprintln(
 object SensorData:
   def live[T, Y](
       c: ZIO[
-        zio.clock.Clock,
+        Has[Clock],
         HardwareFailure,
-        ZIO[Clock, TimeoutException, T]
+        ZIO[Has[Clock], TimeoutException, T]
       ] => Y,
       value: (Duration, T),
       values: (Duration, T)*

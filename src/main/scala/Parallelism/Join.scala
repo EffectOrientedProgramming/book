@@ -1,7 +1,7 @@
 package Parallelism
 
 import java.io.IOException
-import zio.console.{getStrLn, putStrLn, Console}
+import zio.Console.{getStrLn, putStrLn}
 import zio.{Fiber, IO, Runtime, UIO, ZIO, ZLayer}
 
 class Join:

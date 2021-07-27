@@ -1,23 +1,30 @@
 package zioBasics
 
 import java.io.IOException
-import zio.console.{getStrLn, putStrLn, Console}
+import zio.Console.{readLine, printLine}
 import fakeEnvironmentInstances.FakeConsole
-import zio.console.Console.Service
-import zio.{IO, Runtime, ZIO, ZLayer}
+import zio.Console
+import zio.{
+  Has,
+  IO,
+  Runtime,
+  ZIO,
+  ZLayer,
+  durationInt
+}
 
 @main
 def hello =
-  val a = println("1")
+  val a = printLine("1")
   val s: ZIO[Any, Nothing, String] =
     ZIO.succeed {
       println("2");
       "asdf";
     }
-  val h: ZIO[Console, IOException, Unit] =
+  val h: ZIO[Has[Console], IOException, Unit] =
     s.flatMap { ss =>
       println("3");
-      putStrLn(ss);
+      printLine(ss);
     }
   println("4")
   Runtime.default.unsafeRunSync(h)
@@ -26,15 +33,15 @@ end hello
 @main
 def scheduling =
   import zio.Schedule
-  import zio.duration.*
+  import zio.Duration.*
 
   val scheduledCode =
     for
-      _ <- putStrLn("Looping. Give me a word")
-      input <- getStrLn
+      _ <- printLine("Looping. Give me a word")
+      input <- readLine
       _ <-
         if (input != "boom")
-          putStrLn("Fine. Keep going.")
+          printLine("Fine. Keep going.")
         else
           ZIO.fail("errrgggg")
     yield ()
@@ -56,15 +63,12 @@ end scheduling
 @main
 def ValPassing(): Unit =
 
-  val input: ZIO[
-    zio.console.Console,
-    IOException,
-    String
-  ] =
+  val input
+      : ZIO[Has[Console], IOException, String] =
     for
-      _ <- putStrLn("What is your name?")
-      name <- getStrLn
-      _ <- putStrLn(s"Hello, ${name}")
+      _ <- printLine("What is your name?")
+      name <- readLine
+      _ <- printLine(s"Hello, ${name}")
     yield name
 
   def process(input: String): Boolean =
@@ -73,7 +77,8 @@ def ValPassing(): Unit =
     else
       false
 
-  val b: ZIO[Console, IOException, Boolean] =
+  val b
+      : ZIO[Has[Console], IOException, Boolean] =
     input.map(i => process(i))
 
   println(

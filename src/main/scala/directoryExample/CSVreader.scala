@@ -7,7 +7,7 @@ import java.io.IOException
 def finalizer(
     source: scala.io.Source
 ) = //Define the finalizer behavior here
-  UIO.effectTotal {
+  UIO.succeed {
     println("Finalizing: Closing file reader")
     source.close //Close the input source
   }
@@ -24,7 +24,7 @@ val readFileContents
         "src/main/scala/directoryExample/firmData.csv"
       )
   ) //Open the file to read its contents
-    .bracket(finalizer) {
+    .acquireReleaseWith(finalizer) {
       bufferedSource => //Use the bracket method with the finalizer defined above to define behavior on fail.
 
         val lines =

@@ -3,10 +3,11 @@ package HelloZio
 import HelloZio.CalculatorExample.input
 
 import java.io.IOException
-import zio.console.{getStrLn, putStrLn, Console}
+import zio.Console.{readLine, printLine}
+import zio.Console
 import fakeEnvironmentInstances.FakeConsole
-import zio.console.Console.Service
-import zio.{IO, Ref, Runtime, ZIO, ZLayer}
+import zio.Console
+import zio.{IO, Ref, Runtime, ZIO, ZLayer, Has}
 
 enum ArithmaticOperation(a: Float, b: Float):
 
@@ -74,13 +75,13 @@ end ArithmaticOperation
 object CalculatorExample extends zio.App:
 
   def input: ZIO[ //This function prompts and accepts the input from the user.
-    zio.console.Console,
+    Has[Console],
     IOException,
     Vector[String]
   ] =
     for
       _ <-
-        putStrLn(""" ~~~~~~~~~~~~~~~~
+        printLine(""" ~~~~~~~~~~~~~~~~
           | Input Option:
           | 1) Add
           | 2) Subtract
@@ -88,13 +89,13 @@ object CalculatorExample extends zio.App:
           | 4) Devide
           |""")
       in <-
-        getStrLn //User inputs the operation index
-      _ <- putStrLn(s"input: ${in}")
-      _ <- putStrLn("Enter first number: ")
+        readLine //User inputs the operation index
+      _ <- printLine(s"input: ${in}")
+      _ <- printLine("Enter first number: ")
       firstNum <-
-        getStrLn //User inputs first and second number
-      _ <- putStrLn("Enter second number: ")
-      secondNum <- getStrLn
+        readLine //User inputs first and second number
+      _ <- printLine("Enter second number: ")
+      secondNum <- readLine
     yield Vector(
       in,
       firstNum,
@@ -125,7 +126,8 @@ object CalculatorExample extends zio.App:
             number2
           )
           .calculate() //calculate takes the input numbers from ArithmaticOperation, and creates the return statement
-// _ <- putStrLn("Typed, parse operation: " +
+// _ <- printLine("Typed, parse operation: "
+    // +
     // operation)
 //      output <-
 //        input(0) match
@@ -172,7 +174,7 @@ object CalculatorExample extends zio.App:
             case x: Throwable =>
               ZIO("toFloat failure: " + x)
           }
-        _ <- putStrLn(output)
+        _ <- printLine(output)
       yield ()
 
     operated.exitCode

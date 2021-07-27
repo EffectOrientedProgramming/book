@@ -2,16 +2,15 @@ package Parallelism
 
 import java.io.IOException
 import zio._
-import zio.console._
-import zio.duration.durationInt
+import zio.Console._
+import zio.durationInt
 
 class Interrupt:
   val n = 100
 
   // This ZIO does nothing but count to n.
   // It is not productive, but it uses resources.
-  val countToN
-      : ZIO[zio.clock.Clock, Nothing, Unit] =
+  val countToN: ZIO[Has[Clock], Nothing, Unit] =
     for
       _ <- ZIO.sleep(n.seconds)
     yield ()
@@ -24,11 +23,10 @@ class Interrupt:
   // safe.
   // Interrupt safely releases all resources, and
   // runs the finalizers.
-  val noCounting: ZIO[
-    zio.clock.Clock,
+  val noCounting: ZIO[Has[Clock], Nothing, Exit[
     Nothing,
-    Exit[Nothing, Unit]
-  ] =
+    Unit
+  ]] =
     for
       fiber <- countToN.fork
       exit <- fiber.interrupt

@@ -1,9 +1,9 @@
 package Hubs
 
 import zio.*
-import zio.duration
-import zio.clock
-import zio.console
+import zio.Duration
+import zio.Clock
+import zio.Console
 
 // The purpose of this example to to create a
 // very basic hub that displays small
@@ -30,11 +30,11 @@ object BasicHub extends zio.App:
               _ <-
                 left
                   .take
-                  .flatMap(console.putStrLn(_))
+                  .flatMap(Console.printLine(_))
               _ <-
                 right
                   .take
-                  .flatMap(console.putStrLn(_))
+                  .flatMap(Console.printLine(_))
             yield ()
           }
       }

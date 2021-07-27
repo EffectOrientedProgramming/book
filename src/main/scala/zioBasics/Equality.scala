@@ -2,7 +2,7 @@ package zioBasics
 
 import java.io
 import zio._
-import zio.console._
+import zio.Console._
 
 import java.io.IOException
 
@@ -27,11 +27,8 @@ object Equality extends zio.App:
 
   // Here, we test the equality values of all the
   // ZIO:
-  val myAppLogic: ZIO[
-    zio.console.Console,
-    IOException,
-    Unit
-  ] =
+  val myAppLogic
+      : ZIO[Has[Console], IOException, Unit] =
     for
       res1: Int <-
         suc1 //Flat map all the ZIO into their integer values
@@ -40,7 +37,7 @@ object Equality extends zio.App:
       res4: Int <- suc4
       res5: Int <- suc5
       _ <-
-        putStrLn(s"""
+        printLine(s"""
                        | res1: ${res1}
                        | res2: ${res2}
                        | res3: ${res3}
@@ -50,7 +47,7 @@ object Equality extends zio.App:
       // Test if the flat mapped ZIO are
       // equivelant:
       _ <-
-        putStrLn(
+        printLine(
           (
             res1 == res2 && res2 == res3 &&
               res3 == res4 && res4 == res5
@@ -59,7 +56,7 @@ object Equality extends zio.App:
       // Test if the differently aliased ZIO are
       // considered equivelant:
       _ <-
-        putStrLn(
+        printLine(
           (
             suc1 == suc2 && suc2 == suc3 &&
               suc3 == suc4 && suc4 == suc5
@@ -67,7 +64,7 @@ object Equality extends zio.App:
         )
       // Test if identically defined ZIO are
       // considered equivelant:
-      _ <- putStrLn((suc4 == suc4d).toString)
+      _ <- printLine((suc4 == suc4d).toString)
     yield ()
 
   // Until the ZIO are run, they cannot be

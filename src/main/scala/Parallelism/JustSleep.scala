@@ -1,8 +1,8 @@
 package Parallelism
 
 import java.io.IOException
-import zio.console.{getStrLn, putStrLn, Console}
-import zio.duration.*
+import zio.Console.{getStrLn, putStrLn}
+import zio.durationInt
 import zio.{
   App,
   Fiber,

@@ -1,13 +1,13 @@
 package handlingErrors
 
 import zio.*
-import zio.console.*
+import zio.Console.*
 import handlingErrors.file
 import java.io.IOException
 
 def standin
-    : ZIO[console.Console, IOException, Unit] =
-  putStrLn("Im a standin")
+    : ZIO[Has[Console], IOException, Unit] =
+  printLine("Im a standin")
 
 object catching extends zio.App:
 
@@ -16,7 +16,7 @@ object catching extends zio.App:
   def run(args: List[String]) =
     logic
       .catchAll(_ =>
-        putStrLn("Error Cought")
+        println("Error Caught")
         loadBackupFile()
       )
       .exitCode

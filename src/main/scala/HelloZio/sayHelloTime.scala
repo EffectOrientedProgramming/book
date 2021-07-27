@@ -5,9 +5,8 @@
 package HelloZio
 
 import java.io
-import zio.console.Console.Service
-import zio.console
-import zio.clock._
+import zio.Console
+import zio.Clock._
 
 import java.util.concurrent.TimeUnit
 import zio._
@@ -23,7 +22,7 @@ object HelloWorldTime:
   @main
   def helloTime() =
     val sayHelloTime: ZIO[
-      zio.console.Console with zio.clock.Clock, //implement the new environment type like a trait
+      Has[Console] with Has[Clock], //implement the new environment type like a trait
       IOException | NewError, //implement the new error type using a | . (A logical 'or')
       Unit
     ] =
@@ -31,7 +30,7 @@ object HelloWorldTime:
         currentTime <-
           currentTime(TimeUnit.MILLISECONDS)
         _ <-
-          console.putStrLn(
+          Console.printLine(
             "Hello, World! Time: " + currentTime
           )
         _ <- ZIO.fail(NewError())

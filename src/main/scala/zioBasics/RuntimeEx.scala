@@ -2,10 +2,10 @@ package zioBasics
 
 import java.io
 import zio._
-import zio.console._
+import zio.Console._
+import zio.Console
 import java.io.IOException
 import fakeEnvironmentInstances.FakeConsole
-import zio.console.Console.Service
 
 object RuntimeEx:
 // This object's primary function is to
@@ -19,10 +19,11 @@ object RuntimeEx:
   val runtime = Runtime.default
   val exZio: UIO[Int] = ZIO.succeed(1)
 
-  val exZio2: ZIO[Console, IOException, String] =
+  val exZio2
+      : ZIO[Has[Console], IOException, String] =
     for
-      _ <- putStrLn("Input Word: ")
-      word <- getStrLn
+      _ <- printLine("Input Word: ")
+      word <- readLine
     yield word
 
   def displayWord(word: String) =

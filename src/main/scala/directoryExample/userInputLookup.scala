@@ -1,7 +1,7 @@
 package directoryExample
 
 import zio.{UIO, ZIO, ZLayer}
-import zio.console.{getStrLn, putStrLn}
+import zio.Console.{readLine, printLine}
 
 import java.io.IOException
 import Employee.*
@@ -24,17 +24,17 @@ object userInputLookup extends zio.App:
         emps <-
           compileEmps //Note: Excecutable logic is very concise. The behavior is predefined elsewhere, and only just excecuted in the main.
         _ <-
-          putStrLn(
+          printLine(
             "Input full employee name to retrieve from database:   "
           )
-        empName <- getStrLn
+        empName <- readLine
         searchedEmp <-
           findEmp(
             empName,
             emps
           ) //look for different employees based on Input Name
         _ <-
-          putStrLn(
+          printLine(
             s"Looking for employee... \n" +
               searchedEmp.toString
           )
@@ -60,18 +60,18 @@ object userInputLookup extends zio.App:
             .catchSome(i =>
               i match
                 case e: EmpNotFound =>
-                  putStrLn(
+                  printLine(
                     "Target employee not in System..."
                   )
             )
             .catchSomeDefect(i =>
               i match
                 case e: IOException =>
-                  putStrLn(
+                  printLine(
                     "Unexpected IOExceptions are the worst..."
                   )
                 case e: Throwable =>
-                  putStrLn(
+                  printLine(
                     s"Huh, wasn't expecting $e"
                   )
             )

@@ -1,7 +1,7 @@
 package handlingErrors
 
 import zio.*
-import zio.console.*
+import zio.Console
 import scala.util.Random
 // A useful way of dealing with errors is by
 // using the

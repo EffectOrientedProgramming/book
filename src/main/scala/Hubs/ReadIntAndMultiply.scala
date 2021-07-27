@@ -3,9 +3,9 @@ package Hubs
 import fakeEnvironmentInstances.FakeConsole
 import zio.ZIO
 import zio.*
-import zio.duration.*
-import zio.clock.*
-import zio.console.*
+import zio.Duration.*
+import zio.Clock.*
+import zio.Console.*
 
 object ReadIntAndMultiply extends zio.App:
 
@@ -22,10 +22,10 @@ object ReadIntAndMultiply extends zio.App:
               val getAndStoreInput =
                 for
                   _ <-
-                    console.putStrLn(
+                    Console.printLine(
                       "Please provide an int"
                     )
-                  input <- console.getStrLn
+                  input <- Console.readLine
                   nextInt = input.toInt
                   _ <- hub.publish(nextInt)
                 yield ()
@@ -34,7 +34,7 @@ object ReadIntAndMultiply extends zio.App:
                 for
                   nextInt <- hubSubscription.take
                   _ <-
-                    console.putStrLn(
+                    Console.printLine(
                       "Multiplied Int: " +
                         nextInt * 5
                     )

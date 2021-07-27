@@ -11,11 +11,9 @@ object HelloWorld:
 
   @main
   def hello() =
-    val sayHello: ZIO[
-      zio.console.Console,
-      IOException,
-      Unit
-    ] = console.putStrLn("Hello, World!")
+    val sayHello
+        : ZIO[Has[Console], IOException, Unit] =
+      Console.printLine("Hello, World!")
 
   // This is equivelant to the above, but the Zio
   // definition is spaced across different lines.
@@ -24,9 +22,7 @@ object HelloWorld:
   // the definition.
   @main
   def hello2() =
-    val sayHello2: ZIO[
-      zio.console.Console,
-      IOException,
-      Unit
-    ] = console.putStrLn("Hello, World!")
+    val sayHello2
+        : ZIO[Has[Console], IOException, Unit] =
+      Console.printLine("Hello, World!")
 end HelloWorld

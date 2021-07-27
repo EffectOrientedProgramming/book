@@ -2,7 +2,6 @@ package zioBasics
 
 import java.io
 import zio._
-import zio.console._
 import java.io.IOException
 
 object Alias:

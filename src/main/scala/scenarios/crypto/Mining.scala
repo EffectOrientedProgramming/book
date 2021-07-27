@@ -1,9 +1,12 @@
 package scenarios.crypto
 
-import zio.console.{getStrLn, putStrLn, Console}
-import zio.clock.currentTime
+import zio.Console.{readLine, printLine}
+import zio.Console
+import zio.Clock.currentTime
 import zio.{
+  Clock,
   Fiber,
+  Has,
   IO,
   Ref,
   Runtime,
@@ -11,10 +14,11 @@ import zio.{
   UIO,
   URIO,
   ZIO,
-  ZLayer
+  ZLayer,
+  durationInt
 }
-import zio.duration._
-import zio.random._
+import zio.Duration._
+import zio.Random._
 
 object Mining extends zio.App:
 
@@ -46,12 +50,9 @@ object Mining extends zio.App:
     // Takes a starting value, then calls
     // itterates up through numbers until it
     // finds a prime number.
-    def mine2(num: Long): ZIO[
-      zio.random.Random &
-        zio.Has[zio.clock.Clock.Service],
-      Nothing,
-      Object
-    ] =
+    def mine2(num: Long): ZIO[Has[
+      zio.Random
+    ] & Has[Clock], Nothing, Object] =
       for
         duration <- nextInt.map(_.abs % 3 + 1)
         _ <- ZIO.sleep(duration.second)
@@ -87,7 +88,7 @@ object Mining extends zio.App:
       for
         raceResult <-
           findNextBlock(Seq(zeb, frop, shtep))
-        _ <- putStrLn("Winner: " + raceResult)
+        _ <- printLine("Winner: " + raceResult)
       yield ()
 
     val logic2 = //Uses mine2 function (sleep and find prime numbers)
@@ -101,7 +102,7 @@ object Mining extends zio.App:
             Seq(zeb, frop, shtep),
             startNum
           )
-        _ <- putStrLn("Winner: " + raceResult)
+        _ <- printLine("Winner: " + raceResult)
       yield ()
     /* logic1 .repeatN(5) .exitCode */
 

@@ -4,9 +4,10 @@ import fakeEnvironmentInstances.FakeConsole
 
 import java.io.IOException
 import zio.{Hub, Ref, Schedule, ZDequeue, ZIO}
-import zio.duration.{durationInt, Duration}
-import zio.clock.Clock
-import zio.console.{putStrLn, Console}
+import zio.{durationInt, Duration}
+import zio.Clock
+import zio.Console.printLine
+import zio.Console
 
 object QuizGame extends zio.App:
   case class Player(name: String)
@@ -83,13 +84,13 @@ object QuizGame extends zio.App:
               "Incorrect response from: " +
                 answer.player
             )
-        _ <- putStrLn(output)
+        _ <- printLine(output)
       yield ()
 
     def untilWinnersAreFound(
         correctRespondants: Ref[List[Player]]
     ) =
-      Schedule.recurUntilM(_ =>
+      Schedule.recurUntilZIO(_ =>
         correctRespondants.get.map(_.size == 2)
       )
 
@@ -104,7 +105,7 @@ object QuizGame extends zio.App:
         else
           "Winners of incomplete round: " +
             winners.mkString(",")
-      putStrLn(finalOutput)
+      printLine(finalOutput)
     end printRoundResults
 
     val roundWithMultipleCorrectAnswers =
@@ -186,11 +187,11 @@ object QuizGame extends zio.App:
                 ) =
                   for
                     _ <-
-                      putStrLn(
+                      printLine(
                         "==============================="
                       )
                     _ <-
-                      putStrLn(
+                      printLine(
                         "Question for round: " +
                           roundDescription
                             .question
@@ -232,7 +233,7 @@ object QuizGame extends zio.App:
                     _ <-
                       printRoundResults(winners)
                     _ <-
-                      putStrLn(
+                      printLine(
                         "==============================="
                       )
                   yield ()

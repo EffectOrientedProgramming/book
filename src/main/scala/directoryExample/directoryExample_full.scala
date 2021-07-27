@@ -2,7 +2,7 @@ package directoryExample
 
 import exIOError.errorAtNPerc
 import zio.{UIO, ZIO}
-import zio.console.{getStrLn, putStrLn}
+import zio.Console.{getStrLn, printLine}
 import java.io.IOException
 
 object directoryExample_full extends zio.App:
@@ -49,7 +49,7 @@ object directoryExample_full extends zio.App:
   def finalizer(
       source: scala.io.Source
   ) = //Define the finalizer behavior here
-    UIO.effectTotal {
+    UIO.succeed {
       println("Finalizing: Closing file reader")
       source.close //Close the input source
     }
@@ -73,7 +73,7 @@ object directoryExample_full extends zio.App:
           "src/main/scala/directoryExample/firmData.csv"
         )
     ) //Open the file to read its contents
-      .bracket(finalizer) {
+      .acquireReleaseWith(finalizer) {
         bufferedSource => //Use the bracket method with the finalizer defined above to define behavior on fail.
 
           val lines =
@@ -198,14 +198,14 @@ object directoryExample_full extends zio.App:
       for
         emps <-
           compileEmps //Note: Excecutable logic is very concise. The behavior is predefined elsewhere, and only just excecuted in the main.
-        // _ <- putStrLn(emps.toString)
+        // _ <- println(emps.toString)
         searchedEmp <-
           findEmp(
             4,
             emps
           ) //look for different employees based on ID
         _ <-
-          putStrLn(
+          printLine(
             s"Looking for employee... \n" +
               searchedEmp.toString
           )
@@ -219,17 +219,17 @@ object directoryExample_full extends zio.App:
       .catchSome(i =>
         i match
           case e: EmpNotFound =>
-            putStrLn(
+            printLine(
               "Target employee not in System..."
             )
       )
       .catchSomeDefect {
         case e: IOException =>
-          putStrLn(
+          printLine(
             "Unexpected IOExceptions are the worst..."
           )
         case e: Throwable =>
-          putStrLn(s"Huh, wasn't expecting $e")
+          printLine(s"Huh, wasn't expecting $e")
       }
       .exitCode
   end run

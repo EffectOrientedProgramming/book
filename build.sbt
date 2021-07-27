@@ -1,5 +1,4 @@
-val zioVersion = "1.0.9"
-// val zioVersion = "2.0.0-M1"
+val zioVersion = "2.0.0-M1"
 
 enablePlugins(MdocPlugin)
 

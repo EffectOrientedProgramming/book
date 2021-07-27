@@ -1,7 +1,8 @@
 package scenarios.microcontrollers
 
-import zio.console.{getStrLn, putStrLn, Console}
-import zio.clock.currentTime
+import zio.Console.{readLine, printLine}
+import zio.Console
+import zio.Clock.currentTime
 import zio.{
   Fiber,
   IO,
@@ -11,9 +12,10 @@ import zio.{
   UIO,
   URIO,
   ZIO,
-  ZLayer
+  ZLayer,
+  durationInt
 }
-import zio.duration._
+import zio.Duration._
 import java.util.concurrent.TimeUnit
 
 case class DigitalPin(active: Boolean)
@@ -52,7 +54,7 @@ object MicroControllerExample extends zio.App:
           originalLightStatus !=
             updatedLightStatus
         )
-          putStrLn(updatedLightStatus)
+          printLine(updatedLightStatus)
         else
           ZIO.succeed(1)
     yield ()
@@ -68,7 +70,7 @@ object MicroControllerExample extends zio.App:
           )
         inSeconds <-
           currentTime(TimeUnit.SECONDS)
-        _ <- putStrLn("startTime: " + inSeconds)
+        _ <- printLine("startTime: " + inSeconds)
         _ <-
           loopLogic(inSeconds, arduino).repeat(
             Schedule.recurs(60) &&

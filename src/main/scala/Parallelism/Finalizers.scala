@@ -3,9 +3,11 @@ package Parallelism
 import antipatterns.SomeNewClass
 
 import java.io.IOException
-import zio.console.{getStrLn, putStrLn, Console}
+import zio.Console.{getStrLn, printLine}
+import zio.Console
 import zio.{
   Fiber,
+  Has,
   IO,
   Runtime,
   UIO,
@@ -28,7 +30,7 @@ object Finalizers extends zio.App:
   def finalizer(
       source: scala.io.Source
   ) = //Define the finalizer behavior here
-    UIO.effectTotal {
+    UIO.succeed {
       println("Finalizing: Closing file reader")
       source.close //Close the input source
     }
@@ -43,7 +45,7 @@ object Finalizers extends zio.App:
           "src/main/scala/Parallelism/csvFile.csv"
         )
     ) //Open the file to read its contents
-      .bracket(finalizer) {
+      .acquireReleaseWith(finalizer) {
         bufferedSource => //Use the bracket method with the finalizer defined above to define behavior on fail.
 
           val lines =
@@ -64,21 +66,18 @@ object Finalizers extends zio.App:
   ) = //Use App's run function
     println("In main")
 
-    val ioExample: ZIO[
-      Console,
-      Throwable,
-      Unit
-    ] = //Define the ZIO contexts
+    val ioExample
+        : ZIO[Has[Console], Throwable, Unit] = //Define the ZIO contexts
       for
         fileLines <- readFileContents
         _ <-
-          putStrLn(
+          printLine(
             fileLines.mkString("\n")
           ) //Combine the strings of the output vector into a single string, separated by \n
       yield ()
     ioExample
       .catchAllDefect(exception =>
-        putStrLn(
+        printLine(
           "Ultimate error message: " +
             exception.getMessage
         )

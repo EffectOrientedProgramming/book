@@ -11,10 +11,10 @@ object HelloApp
     extends zio.App: //Extend the Zio App
 
   val myAppLogic: ZIO[ //Define the Zio
-    zio.console.Console,
+    Has[Console],
     IOException,
     Unit
-  ] = console.putStrLn("Hello, World!")
+  ] = Console.printLine("Hello, World!")
 
   def run(
       args: List[String]

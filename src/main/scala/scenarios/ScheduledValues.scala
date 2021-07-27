@@ -1,12 +1,13 @@
 package scenarios
 
-import zio.duration.Duration
-import zio.clock.Clock
+import zio.Duration
+import zio.Clock
+import zio.Has
 import zio.ZIO
 import zio.URIO
 import zio.Schedule
 import zio.ExitCode
-import zio.duration.durationInt
+import zio.durationInt
 
 import java.util.concurrent.TimeUnit
 import scala.concurrent.TimeoutException
@@ -21,7 +22,7 @@ object ScheduledValues:
 
   def scheduledValues[T](
       list: List[(Duration, T)]
-  ): ZIO[Clock, TimeoutException, T] = ???
+  ): ZIO[Has[Clock], TimeoutException, T] = ???
 
   scheduledValues(
     List(
@@ -72,10 +73,10 @@ object Scheduled2 extends zio.App:
 
   def access[A](
       timeTable: Seq[(Long, A)]
-  ): ZIO[Clock, TimeoutException, A] =
+  ): ZIO[Has[Clock], TimeoutException, A] =
     for
-      clock <- ZIO.environment[Clock]
-      now <- clock.get.nanoTime
+      clock <- ZIO.environment[Has[Clock]]
+      now <- clock.get[Clock].nanoTime
       result <-
         ZIO.getOrFailWith(
           new TimeoutException("TOO LATE")
@@ -87,14 +88,12 @@ object Scheduled2 extends zio.App:
   def scheduledValues[A](
       value: (Duration, A),
       values: (Duration, A)*
-  ): ZIO[Clock, Nothing, ZIO[
-    Clock,
-    TimeoutException,
-    A
-  ]] =
+  ): ZIO[Has[Clock], Nothing, ZIO[Has[
+    Clock
+  ], TimeoutException, A]] =
     for
-      clock <- ZIO.environment[Clock]
-      startTime <- clock.get.nanoTime
+      clock <- ZIO.environment[Has[Clock]]
+      startTime <- clock.get[Clock].nanoTime
       timeTable =
         values.scanLeft(
           (
@@ -111,7 +110,7 @@ object Scheduled2 extends zio.App:
     yield access(timeTable.toList)
 
   val program
-      : ZIO[Clock, TimeoutException, Unit] =
+      : ZIO[Has[Clock], TimeoutException, Unit] =
     for
       scheduled <-
         scheduledValues(

@@ -1,7 +1,7 @@
 package handlingErrors
 
 import zio.*
-import zio.console.*
+import zio.Console.*
 import handlingErrors.file
 import handlingErrors.standin
 
@@ -24,10 +24,10 @@ object folding extends App:
       ) //Non-effectful handling
 
     logic
-      .foldM(
+      .foldZIO(
         _ => loadBackupFile(),
         _ =>
-          putStrLn(
+          printLine(
             "The file opened on first attempt!"
           )
       ) //Effectful handling
