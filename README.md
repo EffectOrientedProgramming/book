@@ -32,6 +32,8 @@
   ```
   > bin/sbt run
   ```
+  
+* To wipe out local changes: `git reset --hard HEAD`
 
 ## Miscellaneous Notes
 
