@@ -27,9 +27,11 @@ def getTemperature(behavior: String): String =
 ```
 
 ```scala
-def displayTemperature(behavior: String): String =
+def displayTemperature(
+    behavior: String
+): String =
   "Temperature: " + getTemperature(behavior)
-  
+
 displayTemperature("succeed")
 // res0: String = "Temperature: 35 degress"
 ```
@@ -40,31 +42,38 @@ This can take many forms.
 If we don't make any attempt to handle our problem, the whole program could blow up and show the gory details to the user.
 
 ```scala
-def displayTemperature(behavior: String): String =
-    "Temperature: " + getTemperature(behavior)
+def displayTemperatureUnsafe(
+    behavior: String
+): String =
+  "Temperature: " + getTemperature(behavior)
+```
 
-displayTemperature("Network Error")
+```scala
+displayTemperatureUnsafe("Network Error")
 // repl.MdocSession$App$NetworkException
 // 	at repl.MdocSession$App.getTemperature(06_HelloFailure.md:17)
-// 	at repl.MdocSession$App.displayTemperature$1(06_HelloFailure.md:26)
-// 	at repl.MdocSession$App.$init$$$anonfun$2(06_HelloFailure.md:44)
+// 	at repl.MdocSession$App.displayTemperatureUnsafe$1(06_HelloFailure.md:41)
+// 	at repl.MdocSession$App.$init$$$anonfun$1(06_HelloFailure.md:47)
 ```
 
 We could take the bare-minimum approach of catching the `Exception` and returning `null`:
 
 ```scala
-def displayTemperature(behavior: String): String =
+def displayTemperatureNull(
+    behavior: String
+): String =
   val temperature =
     try
       getTemperature(behavior)
     catch
-      case (ex: RuntimeException) => null
-    
+      case (ex: RuntimeException) =>
+        null
+
   "Temperature: " + temperature
-  
-assert( 
-  displayTemperature("Network Error") == 
-  "Temperature: null"
+
+assert(
+  displayTemperatureNull("Network Error") ==
+    "Temperature: null"
 )
 ```
 
@@ -73,15 +82,18 @@ This is *slightly* better, as the user can at least see the outer structure of o
 Maybe we could fallback to a `sentinel` value, such as `0` or `-1` to indicate a failure?
 
 ```scala
-def displayTemperature(behavior: String): String =
+def displayTemperature(
+    behavior: String
+): String =
   val temperature =
     try
       getTemperature(behavior)
     catch
-      case (ex: RuntimeException) => "-1 degrees"
-    
+      case (ex: RuntimeException) =>
+        "-1 degrees"
+
   "Temperature: " + temperature
-  
+
 displayTemperature("Network Error")
 // res2: String = "Temperature: -1 degrees"
 ```
@@ -90,15 +102,18 @@ Clearly, this isn't acceptable, as both of these common sentinel values are vali
 We can take a more honest and accurate approach in this situation.
 
 ```scala
-def displayTemperature(behavior: String): String =
+def displayTemperature(
+    behavior: String
+): String =
   val temperature =
     try
       getTemperature(behavior)
     catch
-      case (ex: RuntimeException) => "Unavailable"
-    
+      case (ex: RuntimeException) =>
+        "Unavailable"
+
   "Temperature: " + temperature
-  
+
 displayTemperature("Network Error")
 // res3: String = "Temperature: Unavailable"
 ```
@@ -109,16 +124,20 @@ In this situation, do we show the same message to the user? Ideally, we would sh
 The Network issue is transient, but the GPS problem is likely permanent.
 
 ```scala
-def displayTemperature(behavior: String): String =
+def displayTemperature(
+    behavior: String
+): String =
   val temperature =
     try
       getTemperature(behavior)
     catch
-      case (ex: NetworkException) => "Network Unavailable"
-      case (ex: GpsException) => "GPS problem"
-    
+      case (ex: NetworkException) =>
+        "Network Unavailable"
+      case (ex: GpsException) =>
+        "GPS problem"
+
   "Temperature: " + temperature
-  
+
 displayTemperature("Network Error")
 // res4: String = "Temperature: Network Unavailable"
 displayTemperature("GPS Error")
@@ -161,9 +180,7 @@ def getTemperatureZWrapped(
 ```
 
 ```scala
-unsafeRun(
-  getTemperatureZWrapped("Succeed")
-)
+unsafeRun(getTemperatureZWrapped("Succeed"))
 // res6: String = "35 degress"
 ```
 
@@ -188,13 +205,11 @@ def getTemperatureZGpsGap(
 ```
 
 ```scala
-unsafeRun(
-    getTemperatureZGpsGap("GPS Error")
-)
+unsafeRun(getTemperatureZGpsGap("GPS Error"))
 // zio.FiberFailure: Fiber failed.
 // An unchecked error was produced.
 // scala.MatchError: repl.MdocSession$App$GpsException (of class repl.MdocSession$App$GpsException)
-// 	at repl.MdocSession$App.getTemperatureZGpsGap$3$$anonfun$3(06_HelloFailure.md:172)
+// 	at repl.MdocSession$App.getTemperatureZGpsGap$3$$anonfun$3(06_HelloFailure.md:188)
 // 	at scala.util.Either.fold(Either.scala:190)
 // 	at zio.ZIO$FoldCauseMFailureFn.apply(ZIO.scala:4446)
 // 	at zio.ZIO$FoldCauseMFailureFn.apply(ZIO.scala:4445)
@@ -207,9 +222,9 @@ unsafeRun(
 // 	at zio.Runtime.unsafeRun(Runtime.scala:58)
 // 	at zio.Runtime.unsafeRun$(Runtime.scala:27)
 // 	at zio.Runtime$$anon$3.unsafeRun(Runtime.scala:273)
-// 	at repl.MdocSession$App.$init$$$anonfun$3(06_HelloFailure.md:180)
+// 	at repl.MdocSession$App.$init$$$anonfun$2(06_HelloFailure.md:195)
 // 	at mdoc.internal.document.DocumentBuilder$$doc$.crash(DocumentBuilder.scala:75)
-// 	at repl.MdocSession$App.<init>(06_HelloFailure.md:182)
+// 	at repl.MdocSession$App.<init>(06_HelloFailure.md:196)
 // 	at repl.MdocSession$.app(06_HelloFailure.md:3)
 // 	at mdoc.internal.document.DocumentBuilder$$doc$.build$$anonfun$2$$anonfun$1(DocumentBuilder.scala:89)
 // 	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.scala:18)
@@ -224,14 +239,14 @@ unsafeRun(
 // 	at mdoc.internal.markdown.MarkdownBuilder$.$anonfun$1(MarkdownBuilder.scala:70)
 // 	at mdoc.internal.markdown.MarkdownBuilder$$anon$1.run(MarkdownBuilder.scala:103)
 // 
-// Fiber:Id(1627186129307,2) was supposed to continue to:
+// Fiber:Id(1627414191056,2) was supposed to continue to:
 //   a future continuation at zio.Runtime.unsafeRunWith$$anonfun$2(Runtime.scala:207)
 // 
-// Fiber:Id(1627186129307,2) execution trace:
-//   at repl.MdocSession$App.getTemperatureZGpsGap$3$$anonfun$3(06_HelloFailure.md:171)
+// Fiber:Id(1627414191056,2) execution trace:
+//   at repl.MdocSession$App.getTemperatureZGpsGap$3$$anonfun$3(06_HelloFailure.md:187)
 //   at zio.ZIO$.effect$$anonfun$1(ZIO.scala:2637)
 // 
-// Fiber:Id(1627186129307,2) was spawned by: <empty trace>
+// Fiber:Id(1627414191056,2) was spawned by: <empty trace>
 ```
 
 The compiler does not catch this bug, and instead fails at runtime. Can we do better?
@@ -259,10 +274,10 @@ unsafeRun(getTemperatureZ("Succeed"))
 
 ```scala
 unsafeRun(
-  getTemperatureZ("Succeed")
-    .catchAll {
-      case ex: NetworkException => ZIO.succeed("Network Unavailable")
-    }
+  getTemperatureZ("Succeed").catchAll {
+    case ex: NetworkException =>
+      ZIO.succeed("Network Unavailable")
+  }
 )
 // error: 
 // match may not be exhaustive.

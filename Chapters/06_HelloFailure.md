@@ -38,19 +38,21 @@ If the network is unavailable, what is the behavior for the caller?
 This can take many forms.
 If we don't make any attempt to handle our problem, the whole program could blow up and show the gory details to the user.
 
-```scala mdoc:nest:crash
-def displayTemperature(
+```scala mdoc
+def displayTemperatureUnsafe(
     behavior: String
 ): String =
   "Temperature: " + getTemperature(behavior)
+```
 
-displayTemperature("Network Error")
+```scala mdoc:crash
+displayTemperatureUnsafe("Network Error")
 ```
 
 We could take the bare-minimum approach of catching the `Exception` and returning `null`:
 
-```scala mdoc:nest
-def displayTemperature(
+```scala mdoc
+def displayTemperatureNull(
     behavior: String
 ): String =
   val temperature =
@@ -61,10 +63,9 @@ def displayTemperature(
         null
 
   "Temperature: " + temperature
-end displayTemperature
 
 assert(
-  displayTemperature("Network Error") ==
+  displayTemperatureNull("Network Error") ==
     "Temperature: null"
 )
 ```
@@ -85,7 +86,6 @@ def displayTemperature(
         "-1 degrees"
 
   "Temperature: " + temperature
-end displayTemperature
 
 displayTemperature("Network Error")
 ```
@@ -105,7 +105,6 @@ def displayTemperature(
         "Unavailable"
 
   "Temperature: " + temperature
-end displayTemperature
 
 displayTemperature("Network Error")
 ```
@@ -129,7 +128,6 @@ def displayTemperature(
         "GPS problem"
 
   "Temperature: " + temperature
-end displayTemperature
 
 displayTemperature("Network Error")
 displayTemperature("GPS Error")
