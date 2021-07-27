@@ -1,4 +1,5 @@
 val zioVersion = "1.0.9"
+// val zioVersion = "2.0.0-M1"
 
 enablePlugins(MdocPlugin)
 
@@ -9,6 +10,7 @@ scalaVersion := "3.0.1" // 3.0.2-RC1
 scalacOptions += "-Yexplicit-nulls"
 scalacOptions -= "-explain-types"
 scalacOptions -= "-explain"
+scalacOptions -= "-encoding"
 
 libraryDependencies ++=
   Seq(
