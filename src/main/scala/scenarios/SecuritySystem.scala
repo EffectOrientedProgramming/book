@@ -42,7 +42,8 @@ object SecuritySystem:
     MotionDetector.live ++
       ThermalDetector.live(
         (1.seconds, Degrees(71)),
-        (2.seconds, Degrees(70))
+        (2.seconds, Degrees(70)),
+        (3.seconds, Degrees(98))
       ) ++ Siren.live // ++ s
   end fullLayer
 
@@ -118,8 +119,8 @@ object SecuritySystem:
               amountOfMotion,
               siren
             ).repeat(
-              Schedule.recurs(3) &&
-                Schedule.spaced(500.millis)
+              Schedule.recurs(5) &&
+                Schedule.spaced(1.seconds)
             )
         yield "Fin"
       }

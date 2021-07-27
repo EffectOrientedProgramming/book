@@ -1,2 +1,2 @@
-@main def start() =
-  println("Hello, World!")
+@main
+def start() = println("Hello, World!")

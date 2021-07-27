@@ -1,5 +1,4 @@
-object HelloWorldEx {
+object HelloWorldEx:
 
-  @main def helloWorld =
-    println("Hello, World!")
-}
+  @main
+  def helloWorld = println("Hello, World!")
