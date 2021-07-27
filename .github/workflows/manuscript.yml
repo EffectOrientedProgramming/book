@@ -20,10 +20,13 @@ jobs:
     - run: ./bin/sbt mdoc
 
     - id: preview
+      if: ${{ github.ref == 'refs/heads/main' }}
       uses: jamesward/leanpub-actions/preview@main
       with:
         apikey: ${{ secrets.LEANPUB_APIKEY }}
         slug: effect-oriented-programming
 
-    - run: |
+    - id: slack-notify
+      if: ${{ github.ref == 'refs/heads/main' }}
+      run: |
         curl -s -X POST -H 'Content-type: application/json' --data "{\"text\":\"Book Preview: ${{ steps.preview.outputs.pdf_url }}\"}" ${{ secrets.SLACK_WEBHOOK }}
