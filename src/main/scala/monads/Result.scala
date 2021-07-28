@@ -1,16 +1,20 @@
 package monads
-// Scratch/experimental example.
-// This doesn't work because the Either is contained in Result via composition.
-// You can't inherit from Either because it's sealed.
-// I think the solution is to make my own minimal Result only containing map and flatMap.
 
-object ScratchResult: // Keep from polluting the 'monads' namespace
-  class Result[F, S](val either: Either[F, S])
+sealed trait Result [+E, +A]:
+  self =>
+    def flatMap[E1, B](f: A => Result[E1, B]): Result[E | E1, B] =
+      self.match
+        case Success(a) => f(a)
+        case fail: Fail[E] => fail
 
-  case class Fail[F](fail: F) extends Result(Left(fail))
+    def map[B](f: A => B): Result[E, B] =
+      self.match
+        case Success(a) => Success(f(a))
+        case fail: Fail[E] => fail
 
-  case class Succeed[S](s: S) extends Result(Right(s))
+case class Fail[+E](fail: E) extends Result[E, Nothing]
+case class Success[+A](succeed: A) extends Result[Nothing, A]
 
 @main
-def essence =
-  println("The essence of a monad")
+def resultEssence =
+  println("The essence of an error monad")
