@@ -13,7 +13,7 @@ object temporalVars:
     val curTime = Calendar.getInstance()
     val curOption: Option[java.util.Calendar] =
       curTime match
-        case x: Null =>
+        case null =>
           None
         case x: java.util.Calendar =>
           Some(x)

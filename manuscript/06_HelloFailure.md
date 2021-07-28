@@ -211,17 +211,21 @@ unsafeRun(getTemperatureZGpsGap("GPS Error"))
 // scala.MatchError: repl.MdocSession$App$GpsException (of class repl.MdocSession$App$GpsException)
 // 	at repl.MdocSession$App.getTemperatureZGpsGap$3$$anonfun$3(06_HelloFailure.md:188)
 // 	at scala.util.Either.fold(Either.scala:190)
-// 	at zio.ZIO$FoldCauseMFailureFn.apply(ZIO.scala:4446)
-// 	at zio.ZIO$FoldCauseMFailureFn.apply(ZIO.scala:4445)
-// 	at zio.internal.FiberContext.nextInstr(FiberContext.scala:914)
-// 	at zio.internal.FiberContext.evaluateNow(FiberContext.scala:442)
-// 	at zio.Runtime.unsafeRunWith(Runtime.scala:207)
-// 	at zio.Runtime.unsafeRunSync(Runtime.scala:81)
+// 	at zio.ZIO$FoldCauseZIOFailureFn.apply(ZIO.scala:5366)
+// 	at zio.ZIO$FoldCauseZIOFailureFn.apply(ZIO.scala:5365)
+// 	at zio.internal.FiberContext.nextInstr(FiberContext.scala:1006)
+// 	at zio.internal.FiberContext.runUntil(FiberContext.scala:472)
+// 	at zio.internal.FiberContext.run(FiberContext.scala:305)
+// 	at zio.Runtime.unsafeRunWith(Runtime.scala:312)
+// 	at zio.Runtime.defaultUnsafeRunSync(Runtime.scala:89)
+// 	at zio.Runtime.defaultUnsafeRunSync$(Runtime.scala:27)
+// 	at zio.Runtime$$anon$3.defaultUnsafeRunSync(Runtime.scala:379)
+// 	at zio.Runtime.unsafeRunSync(Runtime.scala:84)
 // 	at zio.Runtime.unsafeRunSync$(Runtime.scala:27)
-// 	at zio.Runtime$$anon$3.unsafeRunSync(Runtime.scala:273)
-// 	at zio.Runtime.unsafeRun(Runtime.scala:58)
+// 	at zio.Runtime$$anon$3.unsafeRunSync(Runtime.scala:379)
+// 	at zio.Runtime.unsafeRun(Runtime.scala:66)
 // 	at zio.Runtime.unsafeRun$(Runtime.scala:27)
-// 	at zio.Runtime$$anon$3.unsafeRun(Runtime.scala:273)
+// 	at zio.Runtime$$anon$3.unsafeRun(Runtime.scala:379)
 // 	at repl.MdocSession$App.$init$$$anonfun$2(06_HelloFailure.md:195)
 // 	at mdoc.internal.document.DocumentBuilder$$doc$.crash(DocumentBuilder.scala:75)
 // 	at repl.MdocSession$App.<init>(06_HelloFailure.md:196)
@@ -239,14 +243,14 @@ unsafeRun(getTemperatureZGpsGap("GPS Error"))
 // 	at mdoc.internal.markdown.MarkdownBuilder$.$anonfun$1(MarkdownBuilder.scala:70)
 // 	at mdoc.internal.markdown.MarkdownBuilder$$anon$1.run(MarkdownBuilder.scala:103)
 // 
-// Fiber:Id(1627414191056,2) was supposed to continue to:
-//   a future continuation at zio.Runtime.unsafeRunWith$$anonfun$2(Runtime.scala:207)
+// Fiber:Id(1627436589244,2) was supposed to continue to:
+//   a future continuation at zio.Runtime.unsafeRunWith$$anonfun$2(Runtime.scala:311)
 // 
-// Fiber:Id(1627414191056,2) execution trace:
+// Fiber:Id(1627436589244,2) execution trace:
 //   at repl.MdocSession$App.getTemperatureZGpsGap$3$$anonfun$3(06_HelloFailure.md:187)
-//   at zio.ZIO$.effect$$anonfun$1(ZIO.scala:2637)
+//   at zio.ZIO$.attempt$$anonfun$1(ZIO.scala:2714)
 // 
-// Fiber:Id(1627414191056,2) was spawned by: <empty trace>
+// Fiber:Id(1627436589244,2) was spawned by: <empty trace>
 ```
 
 The compiler does not catch this bug, and instead fails at runtime. Can we do better?

@@ -61,7 +61,7 @@ def testExtends() =
     "giraffe@56123".split("@") match
       case a: Array[String | Null] =>
         a.apply(1)
-      case _: Null =>
+      case null =>
         "asdf"
   println(s)
 

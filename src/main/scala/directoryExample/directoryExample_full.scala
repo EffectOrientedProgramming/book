@@ -120,7 +120,7 @@ object directoryExample_full extends zio.App:
     val nSplit = line.split(key)
     val arr =
       nSplit match
-        case x: Null =>
+        case null =>
           Array[String]("1", "2", "3")
         case x: Array[String | Null] =>
           x

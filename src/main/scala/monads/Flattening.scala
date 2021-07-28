@@ -10,7 +10,7 @@ def hmmm() =
       s.toCharArray match
         case a: Array[Char] =>
           a.toList
-        case _: Null =>
+        case null =>
           List.empty
     }
   println(abbccc)
