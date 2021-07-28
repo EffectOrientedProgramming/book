@@ -63,10 +63,9 @@ class FenceFormatter extends PostModifier:
         wrappedSnippet: List[String]
     ): List[String] =
       (
-        if (
-          wrappedSnippet.length >=
+        if wrappedSnippet.length >=
             numberOfLinesBeforeEndMarkerIsInserted
-        ) then
+        then
           wrappedSnippet.dropRight(1)
         else
           wrappedSnippet

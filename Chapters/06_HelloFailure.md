@@ -63,6 +63,7 @@ def displayTemperatureNull(
         null
 
   "Temperature: " + temperature
+end displayTemperatureNull
 
 assert(
   displayTemperatureNull("Network Error") ==
@@ -86,6 +87,7 @@ def displayTemperature(
         "-1 degrees"
 
   "Temperature: " + temperature
+end displayTemperature
 
 displayTemperature("Network Error")
 ```
@@ -105,6 +107,7 @@ def displayTemperature(
         "Unavailable"
 
   "Temperature: " + temperature
+end displayTemperature
 
 displayTemperature("Network Error")
 ```
@@ -128,6 +131,7 @@ def displayTemperature(
         "GPS problem"
 
   "Temperature: " + temperature
+end displayTemperature
 
 displayTemperature("Network Error")
 displayTemperature("GPS Error")
