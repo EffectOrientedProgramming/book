@@ -14,7 +14,7 @@ scalacOptions -= "-encoding"
 libraryDependencies ++=
   Seq(
     "org.jetbrains" % "annotations-java5" %
-      "15.0",
+      "21.0.1",
     "org.scalameta" %
       "scalafmt-dynamic" % "3.0.0-RC6" cross
       CrossVersion.for3Use2_13,
