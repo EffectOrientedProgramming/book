@@ -247,14 +247,14 @@ unsafeRun(getTemperatureZGpsGap("GPS Error"))
 // 	at mdoc.internal.markdown.MarkdownBuilder$.$anonfun$1(MarkdownBuilder.scala:70)
 // 	at mdoc.internal.markdown.MarkdownBuilder$$anon$1.run(MarkdownBuilder.scala:103)
 // 
-// Fiber:Id(1627524307982,2) was supposed to continue to:
+// Fiber:Id(1627537145151,2) was supposed to continue to:
 //   a future continuation at zio.Runtime.unsafeRunWith$$anonfun$2(Runtime.scala:311)
 // 
-// Fiber:Id(1627524307982,2) execution trace:
+// Fiber:Id(1627537145151,2) execution trace:
 //   at repl.MdocSession$App.getTemperatureZGpsGap$3$$anonfun$3(06_HelloFailure.md:195)
 //   at zio.ZIO$.attempt$$anonfun$1(ZIO.scala:2714)
 // 
-// Fiber:Id(1627524307982,2) was spawned by: <empty trace>
+// Fiber:Id(1627537145151,2) was spawned by: <empty trace>
 ```
 
 The compiler does not catch this bug, and instead fails at runtime. Can we do better?

@@ -106,7 +106,9 @@ object FakeConsole:
 
       override def print(
           line: Any
-      ): zio.IO[java.io.IOException, Unit] = ???
+      ): zio.IO[java.io.IOException, Unit] =
+        IO.succeed(print(line))
+//        Console.ConsoleLive.print(line)
       override def printError(
           line: Any
       ): zio.IO[java.io.IOException, Unit] = ???

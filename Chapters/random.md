@@ -1,27 +1,69 @@
 # Random
 
+-- Subject Dependencies: Console
+
 TODO All the prose to justify these hoops
+
+```scala mdoc
+import zio.{Console, Has, UIO, ZIO, ZLayer}
+import zio.Runtime.default.unsafeRun
+```
+
+```scala mdoc
+import scala.util.Random
+import fakeEnvironmentInstances.FakeConsole
+
+val low = 1
+val high = 10
+
+val logic =
+  for
+    _ <-
+      Console.printLine(
+        s"I'm thinking of a number between $low and $high"
+      )
+    answer = Random.between(low, high)
+    _ <- Console.print("Guess: ")
+    guess <- Console.readLine
+  yield
+    if answer == guess.toInt then
+      "You got it!"
+    else
+      "BZZ Wrong!"
+
+val assembledProgram =
+  for
+    fakeConsole <-
+      FakeConsole.withInput(
+        "3",
+        "5",
+        "7",
+        "9",
+        "11",
+        "13"
+      )
+    result <-
+      logic.provideCustomLayer(
+        ZLayer.succeed(fakeConsole)
+      )
+  yield result
+```
+
+```scala mdoc
+unsafeRun(assembledProgram)
+```
 
 ```scala mdoc
 import fakeEnvironmentInstances.FakeConsole
 import fakeEnvironmentInstances.RandomInt
-import zio.Runtime.default.unsafeRun
 
 unsafeRun(RandomInt.RandomIntLive.nextInt)
 ```
 
 ```scala mdoc
-import zio.{
-  BuildFrom,
-  Chunk,
-  Console,
-  Has,
-  Random,
-  UIO,
-  ZIO,
-  ZLayer
-}
 import zio.Console.printLine
+
+import zio.{Random}
 
 trait RandomIntBounded:
   def nextIntBounded(n: Int): UIO[Int]

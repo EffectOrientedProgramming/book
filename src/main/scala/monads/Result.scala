@@ -44,7 +44,9 @@ trait Result[+E, +A]:
       case Success(a) => Success(f(a))
       case fail: Fail[E] => fail
 
-case class Fail[+E](fail: E) extends Result[E, Nothing]
-case class Success[+A](succeed: A) extends Result[Nothing, A]
+case class Fail[+E](fail: E)
+    extends Result[E, Nothing]
+case class Success[+A](succeed: A)
+    extends Result[Nothing, A]
 
 // TODO: Can the signature of Result be further simplified?

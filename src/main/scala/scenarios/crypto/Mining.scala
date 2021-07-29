@@ -54,7 +54,7 @@ object Mining extends zio.App:
       zio.Random
     ] & Has[Clock], Nothing, Object] =
       for
-        duration <- nextInt.map(_.abs % 3 + 1)
+        duration <- nextIntBetween(1, 4)
         _ <- ZIO.sleep(duration.second)
         prime = findNextPrime(num)
       yield s"$name mined the next coin at prime number: $prime"
@@ -94,9 +94,7 @@ object Mining extends zio.App:
     val logic2 = //Uses mine2 function (sleep and find prime numbers)
       for
         startNum <-
-          nextInt.map(
-            _.abs % 1000000 + 1000000
-          ) //This is the value that the prime number finder starts from
+          nextIntBetween(1000000, 2000000)
         raceResult <-
           findNextBlock2(
             Seq(zeb, frop, shtep),
