@@ -24,7 +24,7 @@ libraryDependencies ++=
     "dev.zio" %% "zio-test" % zioVersion % Test,
     "dev.zio" %% "zio-test-sbt" % zioVersion %
       Test,
-    "org.scalameta" %% "munit" % "0.7.26" % Test
+    "org.scalameta" %% "munit" % "0.7.27" % Test
   )
 
 testFrameworks +=
