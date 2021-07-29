@@ -6,3 +6,5 @@
 06_HelloFailure.md
 07_WhatIsAnEffect.md
 08_HelloTest.md
+random.md
+monads-wyett.md

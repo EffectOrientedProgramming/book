@@ -7,4 +7,3 @@ the onion development model:
 - fix unit tests.
 - fix integration tests.
 
-ZLayer dependency injection

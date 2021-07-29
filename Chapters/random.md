@@ -1,5 +1,16 @@
-package effects
+# Random
 
+TODO All the prose to justify these hoops
+
+```scala mdoc
+import fakeEnvironmentInstances.FakeConsole
+import fakeEnvironmentInstances.RandomInt
+import zio.Runtime.default.unsafeRun
+
+unsafeRun(RandomInt.RandomIntLive.nextInt)
+```
+
+```scala mdoc
 import zio.{
   BuildFrom,
   Chunk,
@@ -18,6 +29,7 @@ trait RandomIntBounded:
 object RandomIntBounded:
   object RandomIntBoundedLive
       extends RandomIntBounded:
+
     override def nextIntBounded(
         n: Int
     ): UIO[Int] =
@@ -25,6 +37,7 @@ object RandomIntBounded:
 
 class FakeRandomIntBounded(hardcodedValue: Int)
     extends RandomIntBounded:
+
   override def nextIntBounded(n: Int): UIO[Int] =
     UIO.succeed(hardcodedValue)
 
@@ -37,27 +50,27 @@ def luckyZ(
     )
     .map(_ == 0)
 
-object LuckyZ extends zio.App:
-  def run(args: List[String]) =
-    val myRandom: ZLayer[Any, Nothing, Has[
-      RandomIntBounded
-    ]] = ZLayer.succeed(FakeRandomIntBounded(0))
+val myAppLogic =
+  for
+    isLucky <- luckyZ(50)
+    result =
+      if isLucky then
+        "You are lucky!"
+      else
+        "Sorry"
+    // TODO Figure out why these don't play
+    // nicely with mdoc
+    _ <- printLine(result)
+    _ <- ZIO.debug(result)
+    _ <-
+      ZIO.succeed(println("Result: " + result))
+  yield ()
 
-    myAppLogic
-      .provideCustomLayer(myRandom)
-      // does not work for some reason
-      // .injectSome[Has[Console]](myRandom)
-      .exitCode
-  end run
-
-  val myAppLogic =
-    for
-      isLucky <- luckyZ(50)
-      result =
-        if isLucky then
-          "You are lucky!"
-        else
-          "Sorry"
-      _ <- printLine(result)
-    yield ()
-end LuckyZ
+unsafeRun(
+  myAppLogic.provideCustomLayer(
+    ZLayer.succeed[RandomIntBounded](
+      FakeRandomIntBounded(0)
+    )
+  )
+)
+```
