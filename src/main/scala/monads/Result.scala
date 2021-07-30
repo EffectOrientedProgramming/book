@@ -11,19 +11,19 @@ def test(n: Char) =
     result
 
   println(s">> test $n <<")
-  val testVal = for
-    i: String <- op('a')
-    j: String <- op('b')
-    k: String <- op('c')
+  val test = for
+    a: String <- op('a')
+    b: String <- op('b')
+    c: String <- op('c')
   yield {
-    val msg = s"$n|d, $i, $j, $k"
+    val msg = s"$n|d, $a, $b, $c"
     val result = if n == 'd'
       then Fail(msg)
       else Success(msg)
     println(s"yielding $result")
     result
   }
-  println(s"test($n): $testVal")
+  println(s"test($n): $test")
 
 @main
 def results =
