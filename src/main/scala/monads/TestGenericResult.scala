@@ -13,6 +13,7 @@ def test(n: Char) =
         Success(msg)
     println(s"op($id): $result")
     result
+  end op
 
   val test =
     for
