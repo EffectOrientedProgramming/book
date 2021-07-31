@@ -2,9 +2,9 @@
 package genericresult
 
 def show(n: Char) =
-  println(s">> test $n <<")
+  println(s">> show($n) <<")
 
-  def op(id: Char): Result[String, String] =
+  def op(id: Char) =
     val msg = s"$n|$id"
     val result =
       if n == id then
@@ -13,17 +13,27 @@ def show(n: Char) =
         Success(msg)
     println(s"op($id): $result")
     result
-  end op
+
+  def combine(msg: String) =
+    val result =
+      if n == 'd' then
+        Fail(msg)
+      else
+        Success(msg)
+    println(s"combine: $result")
+    result
 
   val comprehension =
     for
-      a: String <- op('a')
-      b: String <- op('b')
-      c: String <- op('c')
+      a <- op('a')
+      b <- op('b')
+      c <- op('c')
+      r <- combine(s"$n|d, a:$a, b:$b, c:$c")
     yield
-      s"Completed: $n|d, a:$a, b:$b, c:$c"
+      println(s"Completed: $r")
+      r
 
-  println(s"show($n): $comprehension")
+  println(s"result: $comprehension")
 end show
 
 @main

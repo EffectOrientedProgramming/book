@@ -2,7 +2,7 @@
 package monadresult
 
 def show(n: Char) =
-  println(s">> show $n <<")
+  println(s">> show($n) <<")
 
   def op(id: Char): Result =
     val msg = s"$n|$id"
@@ -14,16 +14,27 @@ def show(n: Char) =
     println(s"op($id): $result")
     result
 
+  def combine(msg: String): Result =
+    val result =
+      if n == 'd' then
+        Fail(msg)
+      else
+        Success(msg)
+    println(s"combine: $result")
+    result
+
   val comprehension: Result =
     for
       a: String <- op('a')
       b: String <- op('b')
       c: String <- op('c')
+      r <- combine(s"$n|d, a:$a, b:$b, c:$c")
     yield
-      s"Completed: $n|d, a:$a, b:$b, c:$c"
+      println(s"Completed: $r")
+      r
 
-  println(s"show($n): $comprehension")
+  println(s"result: $comprehension")
 end show
 
 @main
-def results = 'a' to 'd' map show
+def results = 'a' to 'e' map show
