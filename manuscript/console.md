@@ -27,5 +27,3 @@ def println(x: Any): Unit = Console.println(x)
 Now it is clear that we are printing to the `Console`.
 If we do not have access to the implementation source code, this is a surprise to us at runtime.
 
-*TODO This is a pretty large, general tangent about effects.
-It might belong in an earlier chapter.*
