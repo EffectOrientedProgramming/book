@@ -8,16 +8,12 @@ import java.io.IOException
 
 object FakeConsole:
 
-  val name: Console =
-    singleInputConsole("(default name)")
+  val name: Console = single("(default name)")
 
-  val word: Console =
-    singleInputConsole("Banana")
-  val number: Console = singleInputConsole("1")
+  val word: Console = single("Banana")
+  val number: Console = single("1")
 
-  def singleInputConsole(
-      hardcodedInput: String
-  ) =
+  def single(hardcodedInput: String) =
     new Console:
 
       override val getStrLn
@@ -45,7 +41,8 @@ object FakeConsole:
 
       override def print(
           line: Any
-      ): zio.IO[java.io.IOException, Unit] = ???
+      ): zio.IO[java.io.IOException, Unit] =
+        ZIO.succeed(print("Hard-coded: " + line))
       override def printError(
           line: Any
       ): zio.IO[java.io.IOException, Unit] = ???

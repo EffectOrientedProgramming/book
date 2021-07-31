@@ -76,7 +76,7 @@ object MyFirstSpec extends DefaultRunnableSpec:
         for
           result <-
             FakeConsole
-              .singleInputConsole("blah")
+              .single("blah")
               .readLine
               .exit
         yield assert(result)(
