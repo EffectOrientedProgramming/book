@@ -14,23 +14,22 @@ def test(n: Char) =
     println(s"op($id): $result")
     result
 
-// Produces a confusing compile error:
-//  val test: Result =
-//    for
-//      a: String <- op('a')
-//      b: String <- op('b')
-//      c: String <- op('c')
-//    yield
-//      val msg = s"$n|d, $a, $b, $c"
-//      val result: Result =
-//        if n == 'd' then
-//          Fail(msg)
-//        else
-//          Success(msg)
-//      println(s"yielding $result")
-//      result
-//
-//  println(s"test($n): $test")
+  val test: Result =
+    for
+      a: String <- op('a')
+      b: String <- op('b')
+      c: String <- op('c')
+    yield
+      val msg = s"$n|d, $a, $b, $c"
+      val result: Result =
+        if n == 'd' then
+          Fail(msg)
+        else
+          Success(msg)
+      println(s"yielding $result")
+      result.toString
+
+  println(s"test($n): $test")
 end test
 
 @main
