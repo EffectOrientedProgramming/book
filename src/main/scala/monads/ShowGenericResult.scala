@@ -1,7 +1,7 @@
-// Monads/TestGenericResult.scala
+// Monads/ShowGenericResult.scala
 package genericresult
 
-def test(n: Char) =
+def show(n: Char) =
   println(s">> test $n <<")
 
   def op(id: Char): Result[String, String] =
@@ -15,23 +15,16 @@ def test(n: Char) =
     result
   end op
 
-  val test =
+  val comprehension =
     for
       a: String <- op('a')
       b: String <- op('b')
       c: String <- op('c')
     yield
-      val msg = s"$n|d, $a, $b, $c"
-      val result =
-        if n == 'd' then
-          Fail(msg)
-        else
-          Success(msg)
-      println(s"yielding $result")
-      result
+      s"Completed: $n|d, a:$a, b:$b, c:$c"
 
-  println(s"test($n): $test")
-end test
+  println(s"show($n): $comprehension")
+end show
 
 @main
-def results = 'a' to 'e' map test
+def results = 'a' to 'e' map show
