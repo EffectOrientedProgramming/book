@@ -91,7 +91,7 @@ val effectfulGuessingGame =
     guess <- Console.readLine
     response =
       if answer == guess.toInt then
-        "You got it!"
+        "You got it!!"
       else
         s"BZZ Wrong!! Answer was $answer"
   yield prompt + guess + "\n" + response

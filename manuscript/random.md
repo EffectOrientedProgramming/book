@@ -35,7 +35,7 @@ val sideEffectingGuessingGame =
       else
         s"BZZ Wrong!! Answer was $answer"
   yield prompt + guess + "\n" + response
-// sideEffectingGuessingGame: ZIO[Has[Console], IOException, String] = zio.ZIO$FlatMap@6fe2df13
+// sideEffectingGuessingGame: ZIO[Has[Console], IOException, String] = zio.ZIO$FlatMap@3a2aa688
 ```
 
 ```scala
@@ -46,7 +46,7 @@ unsafeRun(
 )
 // res0: String = """I'm thinking of a number between 1 and 10.
 // Guess: 3
-// BZZ Wrong!! Answer was 2"""
+// BZZ Wrong!! Answer was 5"""
 ```
 
 ```scala
@@ -54,7 +54,7 @@ import fakeEnvironmentInstances.FakeConsole
 import fakeEnvironmentInstances.RandomInt
 
 unsafeRun(RandomInt.RandomIntLive.nextInt)
-// res1: Int = 1615370786
+// res1: Int = -1312201061
 ```
 
 To properly access a `Random` integer, we will construct a small class that implements this operation
@@ -99,11 +99,11 @@ val effectfulGuessingGame =
     guess <- Console.readLine
     response =
       if answer == guess.toInt then
-        "You got it!"
+        "You got it!!"
       else
         s"BZZ Wrong!! Answer was $answer"
   yield prompt + guess + "\n" + response
-// effectfulGuessingGame: ZIO[Has[RandomIntBetween] & Has[Console], IOException, String] = zio.ZIO$FlatMap@2ad27d7e
+// effectfulGuessingGame: ZIO[Has[RandomIntBetween] & Has[Console], IOException, String] = zio.ZIO$FlatMap@3ee690d3
 ```
 
 ```scala
@@ -116,5 +116,5 @@ unsafeRun(
 )
 // res2: String = """I'm thinking of a number between 1 and 10.
 // Guess: 3
-// You got it!"""
+// You got it!!"""
 ```
