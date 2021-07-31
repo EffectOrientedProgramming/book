@@ -61,20 +61,28 @@ object LuckyZ extends zio.App:
 end LuckyZ
 
 trait RandomIntBetween:
-  def nextIntBetween(n: Int): UIO[Int]
+  def intBetween(low: Int, high: Int): UIO[Int]
 
 object RandomIntBetween:
   object RandomIntBetween
       extends RandomIntBetween:
-    override def nextIntBetween(
-        n: Int
+    override def intBetween(
+        low: Int,
+        high: Int
     ): UIO[Int] =
       ZIO.succeed(
-        scala.util.Random.between(n, n + 1)
+        scala.util.Random.between(low, high)
       )
 end RandomIntBetween
 
 class FakeRandomIntBetween(hardcodedValue: Int)
     extends RandomIntBetween:
-  override def nextIntBetween(n: Int): UIO[Int] =
-    UIO.succeed(hardcodedValue)
+  override def intBetween(
+      low: Int,
+      high: Int
+  ): UIO[Int] = UIO.succeed(hardcodedValue)
+
+def effectfulIntBetween(low: Int, high: Int) =
+  ZIO.accessZIO[RandomIntBetween](
+    _.intBetween(high, low)
+  )

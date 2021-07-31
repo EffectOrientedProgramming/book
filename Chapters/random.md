@@ -1,35 +1,38 @@
 # Random
 
--- Subject Dependencies: Console
+-- Subject Dependencies: `Console`, `ZIO.serviceWith`
 
 TODO All the prose to justify these hoops
 
 ```scala mdoc
 import zio.{Console, Has, UIO, ZIO, ZLayer}
 import zio.Runtime.default.unsafeRun
+import fakeEnvironmentInstances.FakeConsole
 ```
 
-```scala mdoc
+```scala mdoc:silent
 import scala.util.Random
-import fakeEnvironmentInstances.FakeConsole
 
 val low = 1
 val high = 10
 
 val prompt =
-  s"I'm thinking of a number between $low and $high.\n" +
-    "Guess: "
+  s"Pick a number between $low and $high: "
+  
+
+// TODO Determine how to handle .toInt failure possibility
+def checkAnswer(answer: Int, guess: String): String =
+  if answer == guess.toInt then
+    "You got it!"
+  else
+    s"BZZ Wrong!! Answer was $answer"
 
 val sideEffectingGuessingGame =
   for
     _ <- Console.print(prompt)
     answer = Random.between(low, high)
     guess <- Console.readLine
-    response =
-      if answer == guess.toInt then
-        "You got it!"
-      else
-        s"BZZ Wrong!! Answer was $answer"
+    response = checkAnswer(answer, guess)
   yield prompt + guess + "\n" + response
 ```
 
@@ -41,13 +44,6 @@ unsafeRun(
 )
 ```
 
-```scala mdoc
-import fakeEnvironmentInstances.FakeConsole
-import fakeEnvironmentInstances.RandomInt
-
-unsafeRun(RandomInt.RandomIntLive.nextInt)
-```
-
 To properly access a `Random` integer, we will construct a small class that implements this operation
 in an proper effectful way.
 
@@ -56,53 +52,54 @@ import zio.Console.printLine
 
 import zio.{Random}
 
-trait RandomIntBetween:
-  def nextIntBetween(high: Int, low: Int): UIO[Int]
+trait RandomInt:
+  def between(high: Int, low: Int): UIO[Int]
 
-object RandomIntBetween:
-  object RandomIntBetween
-      extends RandomIntBetween:
+object RandomInt:
+  def between(low: Int, high: Int): ZIO[Has[RandomInt], Nothing, Int] =
+    // TODO Study and determine how/when to introduct `serviceWith`
+    ZIO.serviceWith(_.between(high, low))
+    
+  object LiveRandomIntBetween
+      extends RandomInt:
 
-    override def nextIntBetween(
-high: Int, low: Int
+    override def between(
+        high: Int,
+        low: Int
     ): UIO[Int] =
-      ZIO.succeed(scala.util.Random.between(low, high))
+      ZIO.succeed(
+        scala.util.Random.between(low, high)
+      )
+  end LiveRandomIntBetween
+end RandomInt
 
-class FakeRandomIntBetween(hardcodedValue: Int)
-    extends RandomIntBetween:
+class FakeRandomInt(hardcodedValue: Int)
+    extends RandomInt:
 
-  override def nextIntBetween(high: Int, low: Int): UIO[Int] =
-    UIO.succeed(hardcodedValue)
-
+  override def between(
+      high: Int,
+      low: Int
+  ): UIO[Int] = UIO.succeed(hardcodedValue)
 ```
 
 ```scala mdoc
-import scala.util.Random
-import fakeEnvironmentInstances.FakeConsole
 
 val effectfulGuessingGame =
   for
     _ <- Console.print(prompt)
-    answer <- 
-      ZIO
-        .accessZIO[Has[RandomIntBetween]](
-          _.get.nextIntBetween(high, low)
-        )
+    answer <- RandomInt.between(low, high)
     guess <- Console.readLine
-    response =
-      if answer == guess.toInt then
-        "You got it!!"
-      else
-        s"BZZ Wrong!! Answer was $answer"
+    response = checkAnswer(answer, guess)
   yield prompt + guess + "\n" + response
 ```
 
 ```scala mdoc
 unsafeRun(
   effectfulGuessingGame.provideLayer(
-    ZLayer.succeed(FakeConsole.single("3")) ++ ZLayer.succeed[RandomIntBetween](
-      FakeRandomIntBetween(3)
-    )
+    ZLayer.succeed(FakeConsole.single("3")) ++
+      ZLayer.succeed[RandomInt](
+        FakeRandomInt(3)
+      )
   )
 )
 ```
