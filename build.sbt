@@ -6,24 +6,10 @@ name := "EffectOrientedProgramming"
 
 scalaVersion := "3.0.2-RC1"
 
-import scala.sys.process._
-val fmtTask = taskKey[Unit]("fmt")
-
-fmtTask := {
-// println("Format task TODO Actual
-  // formatting")
-  "bin/scalafmt".!
-}
-
+scalacOptions += "-Yexplicit-nulls"
 scalacOptions -= "-explain-types"
 scalacOptions -= "-explain"
 scalacOptions -= "-encoding"
-scalacOptions += {
-  fmtTask.value
-  "-Yexplicit-nulls"
-}
-
-// compile.dependsOn(fmtTask.value)
 
 libraryDependencies ++=
   Seq(
@@ -53,4 +39,4 @@ mdocIn := file("Chapters")
 
 mdocOut := file("manuscript")
 
-// scalafmtOnCompile := true
+scalafmtOnCompile := true
