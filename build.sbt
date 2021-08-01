@@ -12,7 +12,7 @@ val fmtTask = taskKey[Unit]("fmt")
 fmtTask := {
 // println("Format task TODO Actual
   // formatting")
-  "bin/scalafmt".!
+  "./bin/scalafmt".!
 }
 
 scalacOptions -= "-explain-types"
