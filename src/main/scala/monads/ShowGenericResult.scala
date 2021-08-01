@@ -13,6 +13,7 @@ def show(n: Char) =
         Success(msg)
     println(s"op($id): $result")
     result
+  end op
 
   def combine(msg: String) =
     val result =

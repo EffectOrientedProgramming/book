@@ -2,9 +2,10 @@ addSbtPlugin(
   "io.github.davidgregory084" % "sbt-tpolecat" %
     "0.1.20"
 )
-addSbtPlugin(
-  "org.scalameta" % "sbt-scalafmt" % "2.4.3"
-)
+// Disabled while we use the local forks
+// addSbtPlugin(
+//  "org.scalameta" % "sbt-scalafmt" % "2.4.3"
+// )
 addSbtPlugin(
   "org.scalameta" % "sbt-mdoc" % "2.2.22"
 )

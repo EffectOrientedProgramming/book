@@ -57,6 +57,7 @@ object LuckyZ extends zio.App:
       if isLucky then
         "You are lucky!"
       else
+        println("ah")
         "Sorry"
 end LuckyZ
 
