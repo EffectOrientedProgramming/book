@@ -13,6 +13,7 @@ def show(n: Char) =
         Success(msg)
     println(s"op($id): $result")
     result
+  end op
 
   def combine(msg: String) =
     val result =
@@ -33,7 +34,11 @@ def show(n: Char) =
       println(s"Completed: $r")
       r
 
-  println(s"result: $comprehension")
+  comprehension match
+    case Fail(msg) =>
+      println(s"Failed: $msg")
+    case Success(content) =>
+      println(s"Succeeded: $content")
 end show
 
 @main
