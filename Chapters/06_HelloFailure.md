@@ -11,7 +11,7 @@ There are distinct levels of problems in any given program. They require differe
 Temperature: 30 degrees
 ```
 
-```scala mdoc
+```scala mdoc:fmt
 class GpsException() extends RuntimeException
 class NetworkException() extends RuntimeException
 
@@ -159,7 +159,7 @@ import zio.Runtime.default.unsafeRun
 import zio.{Task, ZIO}
 ```
 
-```scala mdoc
+```scala mdoc:fmt
 def getTemperatureZWrapped(
     behavior: String
 ): Task[String] =
@@ -183,7 +183,7 @@ unsafeRun(
 
 This is decent, but does not provide the maximum possible guarantees. Look at what happens if we forget to handle one of our errors.
 
-```scala mdoc
+```scala mdoc:fmt
 def getTemperatureZGpsGap(
     behavior: String
 ): Task[String] =
@@ -201,7 +201,7 @@ The compiler does not catch this bug, and instead fails at runtime. Can we do be
 
 ### ZIO-First Error Handling
 
-```scala mdoc
+```scala mdoc:fmt
 // TODO Consult about type param styling
 def getTemperatureZ(behavior: String): ZIO[
   Any,
@@ -229,7 +229,7 @@ unsafeRun(
 
 TODO Demonstrate ZIO calculating the error types without an explicit annotation being provided
 
-```scala mdoc
+```scala mdoc:fmt
 if 1 == 1 && 2 == 2 && 3 == 3 && 4 == 4 &&
   5 == 5 && 6 == 6
 then
