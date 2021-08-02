@@ -21,7 +21,7 @@ def getTemperature(behavior: String): String =
   else if (behavior == "Network Error")
     throw new NetworkException()
   else
-    "35 degress"
+    "35 degrees"
 ```
 
 ```scala mdoc:nest
