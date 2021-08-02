@@ -1,5 +1,5 @@
 // Monads/Result.scala
-package monadresult
+package resultmonad
 
 trait Result:
   def flatMap(f: String => Result): Result =

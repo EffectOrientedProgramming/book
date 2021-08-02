@@ -1,6 +1,5 @@
 // Monads/GenericResult.scala
-package genericresult
-// TODO: Simplify the signature of Result?
+package genericresultmonad
 
 trait Result[+W, +D]:
   def flatMap[W1, B](

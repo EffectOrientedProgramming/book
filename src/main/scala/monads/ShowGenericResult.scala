@@ -1,7 +1,7 @@
 // Monads/ShowGenericResult.scala
 // Exercise solution to "Verify
 // GenericResult.scala works"
-package genericresult
+package genericresultmonad
 
 def show(n: Char) =
   println(s">> show($n) <<")
@@ -27,7 +27,6 @@ def show(n: Char) =
 
   if compose.isInstanceOf[Fail[String]] then
     println(s"Error-handling for $compose")
-
 end show
 
 @main

@@ -1,5 +1,5 @@
 // Monads/ShowResult.scala
-package monadresult
+package resultmonad
 
 def show(n: Char) =
   println(s">> show($n) <<")
@@ -25,7 +25,6 @@ def show(n: Char) =
 
   if compose.isInstanceOf[Fail] then
     println(s"Error-handling for $compose")
-
 end show
 
 @main
