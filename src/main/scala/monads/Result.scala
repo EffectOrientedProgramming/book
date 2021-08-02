@@ -20,5 +20,4 @@ trait Result:
 end Result
 
 case class Fail(why: String) extends Result
-case class Success(content: String)
-    extends Result
+case class Success(data: String) extends Result

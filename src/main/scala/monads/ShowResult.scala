@@ -4,42 +4,29 @@ package monadresult
 def show(n: Char) =
   println(s">> show($n) <<")
 
-  def op(id: Char): Result =
-    val msg = s"$n|$id"
+  def op(id: Char, msg: String): Result =
     val result =
       if n == id then
-        Fail(msg)
+        Fail(msg + id.toString)
       else
-        Success(msg)
+        Success(msg + id.toString)
     println(s"op($id): $result")
     result
   end op
 
-  def combine(msg: String): Result =
-    val result =
-      if n == 'd' then
-        Fail(msg)
-      else
-        Success(msg)
-    println(s"combine: $result")
-    result
-
   val comprehension: Result =
     for
-      a: String <- op('a')
-      b: String <- op('b')
-      c: String <- op('c')
-      r <- combine(s"$n|d, a:$a, b:$b, c:$c")
+      a: String <- op('a', "")
+      b: String <- op('b', a)
+      c: String <- op('c', b)
     yield
-      println(s"Completed: $r")
-      r
+      println(s"Completed: $c")
+      c
 
-  comprehension match
-    case Fail(msg) =>
-      println(s"Failed: $msg")
-    case Success(content) =>
-      println(s"Succeeded: $content")
+  if comprehension.isInstanceOf[Fail] then
+    println(s"Error-handling for $comprehension")
+
 end show
 
 @main
-def results = 'a' to 'e' map show
+def results = 'a' to 'd' map show
