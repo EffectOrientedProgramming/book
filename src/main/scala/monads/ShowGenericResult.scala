@@ -16,7 +16,7 @@ def show(n: Char) =
     result
   end op
 
-  val comprehension =
+  val compose =
     for
       a: String <- op('a', "")
       b: String <- op('b', a)
@@ -25,10 +25,8 @@ def show(n: Char) =
       println(s"Completed: $c")
       c
 
-  if comprehension
-      .isInstanceOf[Fail[String]]
-  then
-    println(s"Error-handling for $comprehension")
+  if compose.isInstanceOf[Fail[String]] then
+    println(s"Error-handling for $compose")
 
 end show
 
