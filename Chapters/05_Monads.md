@@ -38,9 +38,9 @@ There are two goals for exceptions:
 
 2. Reduce redundant error-handling code by handling errors in a single place.
 
-{{ Need better insights on the problems with exceptions: }}
+TODO: Need better insights on the problems with exceptions
 The problem with exceptions is that they lose important context information when they are thrown.
-Also it separates "normal failure" from "exceptional failure" (Map get() example)
+Also it separates "normal failure" from "exceptional failure" (Map get() example).
 
 - Exercise: show that GenericResult.scala works with ShowResult.scala
 - Exercise: Modify Above solution to work with `Int` instead of `String`
