@@ -1,13 +1,13 @@
 package scenarios.crypto
 
-import zio.Console.{readLine, printLine}
-import zio.Console
-import zio.Clock.currentTime
+import zio.Console.{printLine, readLine}
 import zio.{
   Clock,
+  Console,
   Fiber,
   Has,
   IO,
+  Random,
   Ref,
   Runtime,
   Schedule,
@@ -17,8 +17,11 @@ import zio.{
   ZLayer,
   durationInt
 }
-import zio.Duration._
-import zio.Random._
+import zio.Clock.currentTime
+import zio.Duration.*
+import zio.Random.*
+
+import java.io.IOException
 
 object Mining extends zio.App:
 
@@ -64,8 +67,6 @@ object Mining extends zio.App:
   def findNextBlock(miners: Seq[Miner]) =
     miners
       .map(_.mine)
-// .reduce { case (minersSoFar, nextMiner)
-      // => minersSoFar.race(nextMiner) }
       .reduce(
         _.race(_)
       ) // Much terser. I think it's worth using this form
@@ -91,7 +92,11 @@ object Mining extends zio.App:
         _ <- printLine("Winner: " + raceResult)
       yield ()
 
-    val logic2 = //Uses mine2 function (sleep and find prime numbers)
+    val logic2: ZIO[Has[Console] with Has[
+      Random
+    ] with Has[Clock], IOException, Unit] = //Uses mine2 function (sleep
+      // and find
+      // prime numbers)
       for
         startNum <-
           nextIntBetween(1000000, 2000000)
@@ -102,7 +107,6 @@ object Mining extends zio.App:
           )
         _ <- printLine("Winner: " + raceResult)
       yield ()
-    /* logic1 .repeatN(5) .exitCode */
 
     logic2.repeatN(5).exitCode
   end run

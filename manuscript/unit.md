@@ -33,45 +33,46 @@ ClosedSourceWeatherService().forecast()
 // res0: String = "Sunny"
 ```
 
+It is possible that we are using entirely open-source or in-house code throughout our entire application.
+That means that we could theoretically dig into every function involved in a complex path and note every effect.
+
+In practice this quickly becomes impossible.
 
 ```scala
-trait LibraryCode:
-    def crunchNumbersAndPrintResult(
-        x: Int,
-        y: Int
-    ): Unit
-
-    def longRunningNetworkSubmission(
+object OpenSourceLibrary:
+    def submitDataToExternalService(
         payload: String
-    ): Unit
+    ): Unit =
+      println(s"NETWORK: Sending payload")
+      saveUserInfo(payload)
 
-    def saveUserInfoToDatabase(
+    private def saveUserInfo(
         userData: String
-    ): Unit
+    ): Unit =
+      DataAnalytics.recordKeyDemographics(userData)
+      println(s"DATABASE: Saving data")
+      
+object DataAnalytics:
+    def recordKeyDemographics(
+        userData: String
+    ): Unit =
+      println(s"LOGGER: Key demographic found")
 ```
-
-TODO Make this the open-source version instead
 
 
 ```scala
 def logic(): Unit =
-    val library: LibraryCode = ClosedSourceCodeImpl()
-    library.crunchNumbersAndPrintResult(3, 5)
-    library.longRunningNetworkSubmission("Network Payload")
-    library.saveUserInfoToDatabase("User Info")
+    // ...Other calls...
+    OpenSourceLibrary.submitDataToExternalService("Network Payload")
+    // ...Other calls...
     
 logic()
-// CONSOLE: Result of crunching 3 and 5
 // NETWORK: Sending payload
+// LOGGER: Key demographic found
 // DATABASE: Saving data
 ```
 
 Here our simple program performs 3 very different side-effects, but everything is boiled down to the same `Unit` type.
 If we extrapolate this is to a production application with hundreds and thousands of functions, it is overwhelming.
-
-It is possible that we are using entirely open-source or in-house code throughout our entire application.
-That means that we could theoretically dig into every function involved in a complex path and note every effect.
-
-In practice this quickly becomes impossible.
 
 Ideally, we could leverage the type system and the compiler to track the requirements for arbitrarily complex pieces of code.

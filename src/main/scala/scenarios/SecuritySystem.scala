@@ -82,7 +82,7 @@ object SecuritySystem:
     for
       amountOfHeat <- amountOfHeatGenerator
       _ <-
-        zprintln(
+        ZIO.debug(
           s"Heat: $amountOfHeat  Motion: $amountOfMotion"
         )
       _ <-
@@ -93,7 +93,7 @@ object SecuritySystem:
         then
           siren.lowBeep()
         else
-          zprintln("No need to panic")
+          ZIO.debug("No need to panic")
     yield ()
 
   def shouldAlertServices(): ZIO[Has[
@@ -215,14 +215,9 @@ object Siren:
           Any,
           scenarios.HardwareFailure,
           Unit
-        ] = zprintln("beeeeeeeeeep")
+        ] = ZIO.debug("beeeeeeeeeep")
     )
 end Siren
-
-def zprintln(
-    output: String
-): ZIO[Any, scenarios.HardwareFailure, Unit] =
-  ZIO.succeed(println(output))
 
 // TODO Figure out how to use this
 object SensorData:

@@ -37,60 +37,44 @@ class ClosedSourceWeatherService extends WeatherService:
 ClosedSourceWeatherService().forecast()
 ```
 
+It is possible that we are using entirely open-source or in-house code throughout our entire application.
+That means that we could theoretically dig into every function involved in a complex path and note every effect.
+
+In practice this quickly becomes impossible.
 
 ```scala mdoc
-trait LibraryCode:
-    def crunchNumbersAndPrintResult(
-        x: Int,
-        y: Int
-    ): Unit
-
-    def longRunningNetworkSubmission(
-        payload: String
-    ): Unit
-
-    def saveUserInfoToDatabase(
-        userData: String
-    ): Unit
-```
-
-TODO Make this the open-source version instead
-```scala mdoc:invisible
-class ClosedSourceCodeImpl() extends LibraryCode:
-    def crunchNumbersAndPrintResult(
-        x: Int,
-        y: Int
-    ): Unit =
-      println(s"CONSOLE: Result of crunching $x and $y")
-
-    def longRunningNetworkSubmission(
+object OpenSourceLibrary:
+    def submitDataToExternalService(
         payload: String
     ): Unit =
       println(s"NETWORK: Sending payload")
+      saveUserInfo(payload)
 
-    def saveUserInfoToDatabase(
+    private def saveUserInfo(
         userData: String
     ): Unit =
+      DataAnalytics.recordKeyDemographics(userData)
       println(s"DATABASE: Saving data")
+      
+object DataAnalytics:
+    def recordKeyDemographics(
+        userData: String
+    ): Unit =
+      println(s"LOGGER: Key demographic found")
+    
 ```
 
 
 ```scala mdoc
 def logic(): Unit =
-    val library: LibraryCode = ClosedSourceCodeImpl()
-    library.crunchNumbersAndPrintResult(3, 5)
-    library.longRunningNetworkSubmission("Network Payload")
-    library.saveUserInfoToDatabase("User Info")
+    // ...Other calls...
+    OpenSourceLibrary.submitDataToExternalService("Network Payload")
+    // ...Other calls...
     
 logic()
 ```
 
 Here our simple program performs 3 very different side-effects, but everything is boiled down to the same `Unit` type.
 If we extrapolate this is to a production application with hundreds and thousands of functions, it is overwhelming.
-
-It is possible that we are using entirely open-source or in-house code throughout our entire application.
-That means that we could theoretically dig into every function involved in a complex path and note every effect.
-
-In practice this quickly becomes impossible.
 
 Ideally, we could leverage the type system and the compiler to track the requirements for arbitrarily complex pieces of code.
