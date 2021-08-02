@@ -1,6 +1,6 @@
 package scenarios
 
-import zio.{Has, ZIO, ZLayer}
+import zio.{Has, ZIO, ZLayer, Layer}
 import zio.Clock
 import zio.Duration
 import zio.Console.printLine
@@ -35,7 +35,7 @@ object SecuritySystem:
     )
 
   val fullLayer: ZLayer[Any, Nothing, zio.Has[
-    scenarios.MotionDetector.ServiceX
+    scenarios.MotionDetector
   ] & zio.Has[scenarios.ThermalDetector.Service] & Has[Siren.ServiceX]] =
     MotionDetector.live ++
       ThermalDetector.live(
@@ -45,14 +45,8 @@ object SecuritySystem:
       ) ++ Siren.live // ++ s
   end fullLayer
 
-  val x: zio.ZIO[
-    scenarios.MotionDetector.ServiceX,
-    scenarios.HardwareFailure,
-    scenarios.Pixels
-  ] = ZIO.accessZIO(_.amountOfMotion())
-
   val accessMotionDetector: ZIO[Has[
-    scenarios.MotionDetector.ServiceX
+    scenarios.MotionDetector
   ], scenarios.HardwareFailure, scenarios.Pixels] =
     ZIO.accessZIO(_.get.amountOfMotion())
 
@@ -97,13 +91,14 @@ object SecuritySystem:
     yield ()
 
   def shouldAlertServices(): ZIO[Has[
-    MotionDetector.ServiceX
+    MotionDetector
   ] & Has[ThermalDetector.Service] & Has[Siren.ServiceX] & Has[Clock], scenarios.HardwareFailure | TimeoutException, String] =
     ZIO
       .service[Siren.ServiceX]
       .flatMap { siren =>
         for
-          amountOfMotion <- accessMotionDetector
+          amountOfMotion <-
+            MotionDetector.amountOfMotion()
           amountOfHeatGenerator <-
             accessThermalDetectorX
           _ <-
@@ -149,22 +144,28 @@ case class Decibels(value: Int)
 case class Degrees(value: Int)
 case class Pixels(value: Int)
 
+trait MotionDetector:
+  def amountOfMotion()
+      : ZIO[Any, HardwareFailure, Pixels]
+
 object MotionDetector:
-  trait ServiceX:
-    def amountOfMotion()
-        : ZIO[Any, HardwareFailure, Pixels]
 
-  val live: ZLayer[Any, Nothing, Has[
-    MotionDetector.ServiceX
-  ]] =
-    ZLayer.succeed(
-      // that same service we wrote above
-      new ServiceX:
+  object LiveMotionDetector
+      extends MotionDetector:
+    override def amountOfMotion()
+        : ZIO[Any, HardwareFailure, Pixels] =
+      ZIO.succeed(Pixels(100))
 
-        def amountOfMotion()
-            : ZIO[Any, HardwareFailure, Pixels] =
-          ZIO.succeed(Pixels(100))
-    )
+  end LiveMotionDetector
+
+  def amountOfMotion(): ZIO[Has[
+    MotionDetector
+  ], HardwareFailure, Pixels] =
+    ZIO.serviceWith(_.amountOfMotion())
+
+  val live: Layer[Nothing, Has[MotionDetector]] =
+    ZLayer.succeed(LiveMotionDetector)
+
 end MotionDetector
 
 object ThermalDetector:
