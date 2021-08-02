@@ -12,3 +12,4 @@ myproject-docs/
 project/.bloop/
 project/metals.sbt
 
+/manuscript/
