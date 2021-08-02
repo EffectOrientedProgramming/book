@@ -14,10 +14,11 @@ We return that box from the function.
 
 Now we've got boxes everywhere, and programming becomes quite messy and complicated.
 Every time you call a function, you must unpack and analyze the contents of the box that comes out as the result.
-People probably won't use our system unless we figure out a way to automate box manipulation.
+If there's a problem you'll need to handle it right after the function is called, which is awkward and often produces duplicate code.
+People probably won't use our system unless we figure out a way to simplify and automate box manipulation.
 
-We'll use a standard set of operations that work on all boxes, to automate the use of our system and eliminate all that duplicated code.
-The box---and its associated operations---is a monad.
+What if we had a standard set of operations that work on all boxes, to automate the use of our system and eliminate all that duplicated code?
+The box---and the associated operations---is a monad.
 
 ## The Error Monad
 
@@ -37,6 +38,7 @@ There are two goals for exceptions:
 
 2. Reduce redundant error-handling code by handling errors in a single place.
 
+{{ Need better insights on the problems with exceptions: }}
 The problem with exceptions is that they lose important context information when they are thrown.
 Also it separates "normal failure" from "exceptional failure" (Map get() example)
 
