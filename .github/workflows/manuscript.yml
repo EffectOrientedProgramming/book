@@ -19,6 +19,12 @@ jobs:
 
     - run: ./bin/sbt mdoc
 
+    - uses: test-room-7/action-update-file@v1
+      with:
+        file-path: manuscript/*
+        commit-msg: Update manuscript
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+
     - id: preview
       if: ${{ github.ref == 'refs/heads/main' }}
       uses: jamesward/leanpub-actions/preview@main
