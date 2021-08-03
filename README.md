@@ -37,7 +37,7 @@ sbt:EffectOrientedProgramming>
   sbt:EffectOrientedProgramming> runMain HelloZio.hello
   ```
 
-* To run continuously, precede a command with a`~`:
+* To run continuously, precede the command with `~`:
 
   ```text
   sbt:EffectOrientedProgramming> ~runMain HelloZio.hello
@@ -113,12 +113,9 @@ things that require maintenance, like an index and custom page layout).
 
 ## My Needs
 
-1. I have a need for enjoyment. This book needs to be a pleasant and fun
-experience. If it isn't, I'd rather be doing something else.
-
-2. I have a need for ease. I imagine my role primarily as editor and manager,
-and I'd also get it onto Leanpub and into print, get the cover designed, etc --
-all the surrounding tasks.
+> I have a needs for enjoyment and ease.
+> This book needs to be a pleasant and fun experience.
+> If it isn't, I'd rather be doing something else.
 
 I don't have a strong investment or impetus to finish this book if the project
 doesn't work out, so I think it would be easy to walk away from it if it fails.
