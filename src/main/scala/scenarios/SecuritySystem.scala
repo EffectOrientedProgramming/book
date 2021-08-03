@@ -36,16 +36,18 @@ object SecuritySystem:
 
   val fullLayer: ZLayer[Any, Nothing, zio.Has[
     scenarios.MotionDetector
-  ] & zio.Has[scenarios.ThermalDetectorX] & Has[Siren.ServiceX]] =
+  ] & zio.Has[scenarios.ThermalDetectorX] & Has[AcousticDetectorX] & Has[Siren.ServiceX]] =
     MotionDetector.live ++
-      ThermalDetectorX.live(
+      ThermalDetectorX(
         (1.seconds, Degrees(71)),
         (2.seconds, Degrees(70)),
-        (3.seconds, Degrees(98))
+        (2.seconds, Degrees(98))
       ) ++ Siren.live // ++ s
-//    ++
-//    SensorData
-// .liveS[Degrees]((1.seconds, Degrees(71)))
+    ++
+    AcousticDetectorX(
+      (4.seconds, Decibels(11)),
+      (1.seconds, Decibels(20))
+    )
   end fullLayer
 
   val accessMotionDetector: ZIO[Has[
@@ -58,17 +60,23 @@ object SecuritySystem:
         Clock
       ], scala.concurrent.TimeoutException | scenarios.HardwareFailure, scenarios.Degrees],
       amountOfMotion: Pixels,
+      acousticDetector: ZIO[Has[
+        Clock
+      ], scala.concurrent.TimeoutException | scenarios.HardwareFailure, scenarios.Decibels],
       siren: Siren.ServiceX
   ): ZIO[Has[
     Clock
   ], scala.concurrent.TimeoutException | HardwareFailure, Unit] =
     for
       amountOfHeat <- amountOfHeatGenerator
+      noise <- acousticDetector
       _ <-
         ZIO.debug(
-          s"Heat: $amountOfHeat  Motion: $amountOfMotion"
+          s"Heat: $amountOfHeat  Motion: $amountOfMotion  Noise: $noise"
         )
       _ <-
+        // TODO Expand shouldTrigger result type
+        // for more complex responses
         if shouldTrigger(
             amountOfMotion,
             amountOfHeat
@@ -81,7 +89,7 @@ object SecuritySystem:
 
   def shouldAlertServices(): ZIO[Has[
     MotionDetector
-  ] & Has[ThermalDetectorX] & Has[Siren.ServiceX] & Has[Clock], scenarios.HardwareFailure | TimeoutException, String] =
+  ] & Has[ThermalDetectorX] & Has[Siren.ServiceX] & Has[AcousticDetectorX] & Has[Clock], scenarios.HardwareFailure | TimeoutException, String] =
     ZIO
       .service[Siren.ServiceX]
       .flatMap { siren =>
@@ -92,10 +100,13 @@ object SecuritySystem:
           amountOfHeatGenerator <-
             ThermalDetectorX
               .acquireHeatMeasurementSource
+          acousticDetector <-
+            AcousticDetectorX.acquireDetector
           _ <-
             securityLoop(
               amountOfHeatGenerator,
               amountOfMotion,
+              acousticDetector,
               siren
             ).repeat(
               Schedule.recurs(5) &&
@@ -125,6 +136,12 @@ def useSecuritySystem =
             SecuritySystem.fullLayer ++
               Clock.live
           )
+          .catchSome {
+            case _: TimeoutException =>
+              printLine(
+                "Invalid Scenario. Ran out of sensor data."
+              )
+          }
       )
   )
 end useSecuritySystem
@@ -170,7 +187,7 @@ trait ThermalDetectorX:
 
 object ThermalDetectorX:
 
-  def live(
+  def apply(
       value: (Duration, Degrees),
       values: (Duration, Degrees)*
   ): ZLayer[Any, Nothing, Has[
@@ -208,6 +225,56 @@ object ThermalDetectorX:
     )
 
 end ThermalDetectorX
+
+trait AcousticDetectorX:
+  def acquireDetector()
+      : ZIO[Has[Clock], Nothing, ZIO[
+        Has[Clock],
+        TimeoutException |
+          scenarios.HardwareFailure,
+        Decibels
+      ]]
+
+object AcousticDetectorX:
+
+  def apply(
+      value: (Duration, Decibels),
+      values: (Duration, Decibels)*
+  ): ZLayer[Any, Nothing, Has[
+    AcousticDetectorX
+  ]] =
+    ZLayer.succeed(
+      // that same service we wrote above
+      new AcousticDetectorX:
+        override def acquireDetector()
+            : ZIO[Has[Clock], Nothing, ZIO[
+              Has[Clock],
+              TimeoutException |
+                scenarios.HardwareFailure,
+              Decibels
+            ]] =
+          Scheduled2
+            .scheduledValues(value, values*)
+    )
+
+  // This is preeeetty gnarly. How can we
+  // improve?
+  val acquireDetector: ZIO[Has[
+    scenarios.AcousticDetectorX
+  ] & Has[Clock], Nothing, ZIO[
+    Has[Clock],
+    scala.concurrent.TimeoutException |
+      scenarios.HardwareFailure,
+    scenarios.Decibels
+  ]] =
+    ZIO.accessZIO[Has[
+      scenarios.AcousticDetectorX
+    ] & Has[Clock]](
+      _.get[scenarios.AcousticDetectorX]
+        .acquireDetector()
+    )
+
+end AcousticDetectorX
 
 object Siren:
   trait ServiceX:
