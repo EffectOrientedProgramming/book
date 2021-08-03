@@ -6,33 +6,43 @@
 
 * [Basic Installation Instructions](https://github.com/EffectOrientedProgramming/Examples#effect-oriented-programming-book-examples)
 
+**NOTE:** For all the commands shown here, first start `sbt` ***In A Terminal Shell**.
+Do not use IntelliJ IDEA's "sbt shell" window, which doesn't work correctly and will cause problems.
+(It's OK to use the IntelliJ "Terminal" window).
+Start `sbt` without any arguments to enter `sbt` console mode.
+Once you start `sbt` you will see a prompt that looks like:
+
+```text
+sbt:EffectOrientedProgramming>
+```
+
 * Compile the Chapters:
   ```
-  > bin/sbt mdoc
+  sbt:EffectOrientedProgramming> mdoc
   ```
 
 * View the generated manuscripts:
   1. Run `mdoc` in watch mode:
     ```
-    > bin/sbt "mdoc --watch"
+    sbt:EffectOrientedProgramming> mdoc --watch
     ```
   2. Open: [http://localhost:4000](http://localhost:4000)
 
 * The `src` directory is a playground and you can run a `main` this way:
   ```
-  > bin/sbt "runMain HelloZio.hello"
+  sbt:EffectOrientedProgramming> runMain HelloZio.hello
   ```
 
 * To run continuously, precede a command with a`~`:
   ```
-  > bin/sbt "~runMain HelloZio.hello"
+  sbt:EffectOrientedProgramming> ~runMain HelloZio.hello
   ```
 
 * To pick a main from all available options, use the `run` task:
   ```
-  > bin/sbt run
+  sbt:EffectOrientedProgramming> run
   ```
-  
+
 * To wipe out local changes: `git reset --hard HEAD`
 
 ## Miscellaneous Notes
