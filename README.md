@@ -6,7 +6,7 @@
 
 * [Basic Installation Instructions](https://github.com/EffectOrientedProgramming/Examples#effect-oriented-programming-book-examples)
 
-**NOTE:** For all the commands shown here, first start `sbt` ***In A Terminal Shell**.
+**NOTE:** For all the commands shown here, first start `sbt` ***In A Terminal Shell***.
 Do not use IntelliJ IDEA's "sbt shell" window, which doesn't work correctly and will cause problems.
 (It's OK to use the IntelliJ "Terminal" window).
 Start `sbt` without any arguments to enter `sbt` console mode.
@@ -17,31 +17,43 @@ sbt:EffectOrientedProgramming>
 ```
 
 * Compile the Chapters:
-  ```
+
+  ```text
   sbt:EffectOrientedProgramming> mdoc
   ```
 
 * View the generated manuscripts:
   1. Run `mdoc` in watch mode:
-    ```
+
+    ```text
     sbt:EffectOrientedProgramming> mdoc --watch
     ```
-  2. Open: [http://localhost:4000](http://localhost:4000)
+
+  1. Open: [http://localhost:4000](http://localhost:4000)
 
 * The `src` directory is a playground and you can run a `main` this way:
-  ```
+
+  ```text
   sbt:EffectOrientedProgramming> runMain HelloZio.hello
   ```
 
 * To run continuously, precede a command with a`~`:
-  ```
+
+  ```text
   sbt:EffectOrientedProgramming> ~runMain HelloZio.hello
   ```
 
 * To pick a main from all available options, use the `run` task:
-  ```
+
+  ```text
   sbt:EffectOrientedProgramming> run
   ```
+
+---
+
+* Each chapter has a single namespace.
+  The package name is automatically created from the chapter name; e.g. `package monads` from `05_Monads.md`.
+  If you need a further namespaces, make an `object`.
 
 * To wipe out local changes: `git reset --hard HEAD`
 
