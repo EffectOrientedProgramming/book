@@ -27,6 +27,7 @@ Programmers have always had to deal with errors, so this makes a good initial us
 Encountering an error during a function call generally means two things:
 
 1. You can't continue executing the function in the normal fashion.
+
 2. You can't return a normal result.
 
 Many languages use *exceptions* for handling errors.
@@ -60,10 +61,9 @@ Let's see how it works:
 
 ```scala mdoc
 // Monads/ShowResult.scala
-//! package resultmonad
+//! package monads
 
 def show(n: Char) =
-  println(s">> show($n) <<")
 
   def op(id: Char, msg: String): Result =
     val result =
@@ -86,16 +86,18 @@ def show(n: Char) =
 
   if compose.isInstanceOf[Fail] then
     println(s"Error-handling for $compose")
+  else
+    println(compose)
+
 end show
 
 //! @main
 def results = 'a' to 'd' map show
 ```
 
-`show()` takes `n: Char` where `n` indicates how far we want to get through the execution of `compose` before it fails.
-Note that `n` is in scope within `op()`.
-`op()` compares `n` to its `id` argument and if they're equal it returns a `Fail` object.
-Otherwise it returns a `Success` object.
+`show()` takes `n: Char` indicating how far we want to get through the execution of `compose` before it fails.
+Note that `n` is in scope within the nested function `op()`.
+`op()` compares `n` to its `id` argument and if they're equal it returns a `Fail` object, otherwise it returns a `Success` object.
 
 The `for`-comprehension within `compose` attempts to execute three calls to `op()`, each of which has a successive `id`.
 Each expression uses the backwards-arrow `<-` to assign the result to a `String` value.
@@ -109,9 +111,50 @@ You can run the program to provide the full trace, but we'll call `show()` expli
 show('a')
 ```
 
+`op('a', "")` immediately fails when `n = 'a'` and the result returned from `op()` is `Fail(a)`.
+The `<-` calls `flatMap()` on that result, *but no more of `compose` is executed*.
+The execution stops and the resulting value of `compose` becomes `Fail(a)`.
+The last lines of `show()` check for failure and execute error-handling code if `Fail` is found.
+This is the equivalent of the `catch` clause in exception handling, so all the error-handling for `compose` is now in one place.
+
+```scala mdoc
+show('b')
+```
+
+With `n = 'b'`, the first expression in the `for` comprehension is now successful.
+The value of `a` is successfully assigned, then passed into `op('b', a)` in the second expression.
+Now the second expression fails and the resulting value of `compose` becomes `Fail(ab)`.
+Once again this ends up in the error-handling code.
+
+```scala mdoc
+show('c')
+```
+
+Now we get all the way to the third expression in the `for` comprehension before it fails.
+But notice that in this case `map()` is called rather than `flatMap()`.
+The last `<-` in a `for` comprehension calls `map()` instead of `flatMap()`, for reasons that will become clear.
+
+Finally, `n = 'd'` will successfully make it through the entire initialization for `compose`:
+
+```scala mdoc
+show('d')
+```
+
+When `map()` is called on the result of `op('c', b)`, it produces `c`.
+The `yield` expression produces the final result that is assigned to `compose`.
+You should find all potential problems by the time you reach `yield`, so the `yield` expression should not be able to fail.
+Note that `c` is of type `String` but `compose` is of type `Result`.
+The `yield` expression automatically wraps `c` in a `Success` object.
+{{ What mechanism wraps the `yield` expression? }}
+
+The identifier name for `val compose` is intentional.
+We are composing a result from multiple expressions and the whole `for` comprehension will either succeed or fail.
+
+Here's the full definition of `Result`:
+
 ```scala mdoc
 // Monads/Result.scala
-//! package resultmonad
+//! package monads
 
 trait Result:
   def flatMap(f: String => Result): Result =
