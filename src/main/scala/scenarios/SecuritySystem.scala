@@ -36,13 +36,16 @@ object SecuritySystem:
 
   val fullLayer: ZLayer[Any, Nothing, zio.Has[
     scenarios.MotionDetector
-  ] & zio.Has[scenarios.ThermalDetector.Service] & Has[Siren.ServiceX]] =
+  ] & zio.Has[scenarios.ThermalDetectorX] & Has[Siren.ServiceX]] =
     MotionDetector.live ++
-      ThermalDetector.live(
+      ThermalDetectorX.live(
         (1.seconds, Degrees(71)),
         (2.seconds, Degrees(70)),
         (3.seconds, Degrees(98))
       ) ++ Siren.live // ++ s
+//    ++
+//    SensorData
+// .liveS[Degrees]((1.seconds, Degrees(71)))
   end fullLayer
 
   val accessMotionDetector: ZIO[Has[
@@ -50,24 +53,10 @@ object SecuritySystem:
   ], scenarios.HardwareFailure, scenarios.Pixels] =
     ZIO.accessZIO(_.get.amountOfMotion())
 
-  val accessThermalDetectorX: ZIO[Has[
-    scenarios.ThermalDetector.Service
-  ] & Has[Clock], scenarios.HardwareFailure, ZIO[
-    Has[Clock],
-    scala.concurrent.TimeoutException,
-    scenarios.Degrees
-  ]] =
-    ZIO.accessZIO[Has[
-      scenarios.ThermalDetector.Service
-    ] & Has[Clock]](
-      _.get[scenarios.ThermalDetector.Service]
-        .amountOfHeat()
-    )
-
   def securityLoop(
       amountOfHeatGenerator: ZIO[Has[
         Clock
-      ], scala.concurrent.TimeoutException, scenarios.Degrees],
+      ], scala.concurrent.TimeoutException | scenarios.HardwareFailure, scenarios.Degrees],
       amountOfMotion: Pixels,
       siren: Siren.ServiceX
   ): ZIO[Has[
@@ -92,15 +81,17 @@ object SecuritySystem:
 
   def shouldAlertServices(): ZIO[Has[
     MotionDetector
-  ] & Has[ThermalDetector.Service] & Has[Siren.ServiceX] & Has[Clock], scenarios.HardwareFailure | TimeoutException, String] =
+  ] & Has[ThermalDetectorX] & Has[Siren.ServiceX] & Has[Clock], scenarios.HardwareFailure | TimeoutException, String] =
     ZIO
       .service[Siren.ServiceX]
       .flatMap { siren =>
         for
           amountOfMotion <-
-            MotionDetector.amountOfMotion()
+            MotionDetector
+              .acquireMotionMeasurementSource()
           amountOfHeatGenerator <-
-            accessThermalDetectorX
+            ThermalDetectorX
+              .acquireHeatMeasurementSource
           _ <-
             securityLoop(
               amountOfHeatGenerator,
@@ -158,7 +149,7 @@ object MotionDetector:
 
   end LiveMotionDetector
 
-  def amountOfMotion(): ZIO[Has[
+  def acquireMotionMeasurementSource(): ZIO[Has[
     MotionDetector
   ], HardwareFailure, Pixels] =
     ZIO.serviceWith(_.amountOfMotion())
@@ -168,34 +159,55 @@ object MotionDetector:
 
 end MotionDetector
 
-object ThermalDetector:
-  trait Service:
-    def amountOfHeat()
-        : ZIO[Has[Clock], HardwareFailure, ZIO[
-          Has[Clock],
-          TimeoutException,
-          Degrees
-        ]]
+trait ThermalDetectorX:
+  def heatMeasurementSource()
+      : ZIO[Has[Clock], Nothing, ZIO[
+        Has[Clock],
+        TimeoutException |
+          scenarios.HardwareFailure,
+        Degrees
+      ]]
+
+object ThermalDetectorX:
 
   def live(
       value: (Duration, Degrees),
       values: (Duration, Degrees)*
   ): ZLayer[Any, Nothing, Has[
-    ThermalDetector.Service
+    ThermalDetectorX
   ]] =
     ZLayer.succeed(
       // that same service we wrote above
-      new Service:
-        def amountOfHeat(): ZIO[Has[
-          Clock
-        ], HardwareFailure, ZIO[Has[
-          Clock
-        ], TimeoutException, Degrees]] =
+      new ThermalDetectorX:
+        override def heatMeasurementSource()
+            : ZIO[Has[Clock], Nothing, ZIO[
+              Has[Clock],
+              TimeoutException |
+                scenarios.HardwareFailure,
+              Degrees
+            ]] =
           Scheduled2
             .scheduledValues(value, values*)
-        end amountOfHeat
     )
-end ThermalDetector
+
+  // This is preeeetty gnarly. How can we
+  // improve?
+  val acquireHeatMeasurementSource: ZIO[Has[
+    scenarios.ThermalDetectorX
+  ] & Has[Clock], Nothing, ZIO[
+    Has[Clock],
+    scala.concurrent.TimeoutException |
+      scenarios.HardwareFailure,
+    scenarios.Degrees
+  ]] =
+    ZIO.accessZIO[Has[
+      scenarios.ThermalDetectorX
+    ] & Has[Clock]](
+      _.get[scenarios.ThermalDetectorX]
+        .heatMeasurementSource()
+    )
+
+end ThermalDetectorX
 
 object Siren:
   trait ServiceX:
@@ -220,6 +232,12 @@ object Siren:
     )
 end Siren
 
+class SensorD[T](
+    z: ZIO[Has[Clock], HardwareFailure, ZIO[Has[
+      Clock
+    ], TimeoutException, T]]
+)
+
 // TODO Figure out how to use this
 object SensorData:
   def live[T, Y](
@@ -234,6 +252,18 @@ object SensorData:
     ZLayer.succeed(
       // that same service we wrote above
       c(
+        Scheduled2
+          .scheduledValues[T](value, values*)
+      )
+    )
+
+  def liveS[T](
+      value: (Duration, T),
+      values: (Duration, T)*
+  ): ZLayer[Any, Nothing, Has[SensorD[T]]] =
+    ZLayer.succeed(
+      // that same service we wrote above
+      SensorD(
         Scheduled2
           .scheduledValues[T](value, values*)
       )
