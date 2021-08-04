@@ -61,10 +61,8 @@ Let's see how it works:
 
 ```scala mdoc
 // Monads/ShowResult.scala
-//! package monads
 
 def show(n: Char) =
-
   def op(id: Char, msg: String): Result =
     val result =
       if n == id then
@@ -84,15 +82,13 @@ def show(n: Char) =
       println(s"Completed: $c")
       c
 
-  if compose.isInstanceOf[Fail] then
-    println(s"Error-handling for $compose")
-  else
-    println(compose)
+  compose match
+    case _: Fail =>
+      println(s"Error-handling for $compose")
+    case _ =>
+      println(compose)
 
 end show
-
-//! @main
-def results = 'a' to 'd' map show
 ```
 
 `show()` takes `n: Char` indicating how far we want to get through the execution of `compose` before it fails.
@@ -102,19 +98,19 @@ Note that `n` is in scope within the nested function `op()`.
 The `for`-comprehension within `compose` attempts to execute three calls to `op()`, each of which has a successive `id`.
 Each expression uses the backwards-arrow `<-` to assign the result to a `String` value.
 That value is passed to `op()` in the subsequent expression in the comprehension.
-If all three expressions execute successfully, the `yield` expression produces the final `Result` (`c`).
+If all three expressions execute successfully, the `yield` expression uses `c` to produce the final `Result`.
 
-But what happens if any of the calls to `op()` fail?
-You can run the program to provide the full trace, but we'll call `show()` explicitly with successive values of `n`:
+But what happens if a call to `op()` fails?
+We'll call `show()` with successive values of `n` from `'a'` to `'d'`:
 
 ```scala mdoc
 show('a')
 ```
 
-`op('a', "")` immediately fails when `n = 'a'` and the result returned from `op()` is `Fail(a)`.
-The `<-` calls `flatMap()` on that result, *but no more of `compose` is executed*.
+`op('a', "")` immediately fails when `n = 'a'`, so the result returned from `op()` is `Fail(a)`.
+The `<-` calls `flatMap()` on that result, *but no further lines in `compose` are executed*.
 The execution stops and the resulting value of `compose` becomes `Fail(a)`.
-The last lines of `show()` check for failure and execute error-handling code if `Fail` is found.
+The last lines in `show()` check for failure and execute error-handling code if `Fail` is found.
 This is the equivalent of the `catch` clause in exception handling, so all the error-handling for `compose` is now in one place.
 
 ```scala mdoc
@@ -124,7 +120,7 @@ show('b')
 With `n = 'b'`, the first expression in the `for` comprehension is now successful.
 The value of `a` is successfully assigned, then passed into `op('b', a)` in the second expression.
 Now the second expression fails and the resulting value of `compose` becomes `Fail(ab)`.
-Once again this ends up in the error-handling code.
+Once again we end up in the error-handling code.
 
 ```scala mdoc
 show('c')
@@ -134,13 +130,13 @@ Now we get all the way to the third expression in the `for` comprehension before
 But notice that in this case `map()` is called rather than `flatMap()`.
 The last `<-` in a `for` comprehension calls `map()` instead of `flatMap()`, for reasons that will become clear.
 
-Finally, `n = 'd'` will successfully make it through the entire initialization for `compose`:
+Finally, `n = 'd'` successfully makes it through the entire initialization for `compose`:
 
 ```scala mdoc
 show('d')
 ```
 
-When `map()` is called on the result of `op('c', b)`, it produces `c`.
+When `map()` is called on the result of `op('c', b)`, the return value of `map()` is used to initialize `c`.
 The `yield` expression produces the final result that is assigned to `compose`.
 You should find all potential problems by the time you reach `yield`, so the `yield` expression should not be able to fail.
 Note that `c` is of type `String` but `compose` is of type `Result`.
@@ -154,7 +150,6 @@ Here's the full definition of `Result`:
 
 ```scala mdoc
 // Monads/Result.scala
-//! package monads
 
 trait Result:
   def flatMap(f: String => Result): Result =
@@ -172,6 +167,7 @@ trait Result:
         Success(f(c))
       case fail: Fail =>
         fail
+
 end Result
 
 case class Fail(why: String) extends Result

@@ -1,27 +1,26 @@
 // Monads/GenericResult.scala
-package genericresultmonad
+package monads
 
-trait Result[+W, +D]:
+trait GResult[+W, +D]:
   def flatMap[W1, B](
-      f: D => Result[W1, B]
-  ): Result[W | W1, B] =
+      f: D => GResult[W1, B]
+  ): GResult[W | W1, B] =
     println(s"flatMap() on $this")
     this.match
-      case Success(c) =>
+      case GSuccess(c) =>
         f(c)
-      case fail: Fail[W] =>
+      case fail: GFail[W] =>
         fail
 
-  def map[B](f: D => B): Result[W, B] =
+  def map[B](f: D => B): GResult[W, B] =
     println(s"map() on $this")
     this.match
-      case Success(c) =>
-        Success(f(c))
-      case fail: Fail[W] =>
+      case GSuccess(c) =>
+        GSuccess(f(c))
+      case fail: GFail[W] =>
         fail
-end Result
 
-case class Fail[+W](why: W)
-    extends Result[W, Nothing]
-case class Success[+D](data: D)
-    extends Result[Nothing, D]
+case class GFail[+W](why: W)
+    extends GResult[W, Nothing]
+case class GSuccess[+D](data: D)
+    extends GResult[Nothing, D]

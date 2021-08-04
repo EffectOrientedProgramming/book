@@ -1,5 +1,5 @@
 // Monads/Result.scala
-// ! package monads
+package monads
 
 trait Result:
   def flatMap(f: String => Result): Result =
@@ -17,6 +17,7 @@ trait Result:
         Success(f(c))
       case fail: Fail =>
         fail
+
 end Result
 
 case class Fail(why: String) extends Result

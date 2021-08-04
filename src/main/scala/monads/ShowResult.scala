@@ -1,8 +1,7 @@
 // Monads/ShowResult.scala
-// ! package monads
+package monads
 
 def show(n: Char) =
-
   def op(id: Char, msg: String): Result =
     val result =
       if n == id then
@@ -22,10 +21,11 @@ def show(n: Char) =
       println(s"Completed: $c")
       c
 
-  if compose.isInstanceOf[Fail] then
-    println(s"Error-handling for $compose")
-  else
-    println(compose)
+  compose match
+    case _: Fail =>
+      println(s"Error-handling for $compose")
+    case _ =>
+      println(compose)
 
 end show
 

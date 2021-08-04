@@ -1,17 +1,17 @@
 // Monads/ShowGenericResult.scala
 // Exercise solution to "Verify
 // GenericResult.scala works"
-package genericresultmonad
+package monads
 
-def show(n: Char) =
+def gshow(n: Char) =
   println(s">> show($n) <<")
 
   def op(id: Char, msg: String) =
     val result =
       if n == id then
-        Fail(msg + id.toString)
+        GFail(msg + id.toString)
       else
-        Success(msg + id.toString)
+        GSuccess(msg + id.toString)
     println(s"op($id): $result")
     result
   end op
@@ -25,9 +25,9 @@ def show(n: Char) =
       println(s"Completed: $c")
       c
 
-  if compose.isInstanceOf[Fail[String]] then
+  if compose.isInstanceOf[GFail[String]] then
     println(s"Error-handling for $compose")
-end show
+end gshow
 
 @main
-def results = 'a' to 'd' map show
+def gresults = 'a' to 'd' map gshow
