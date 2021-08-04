@@ -23,6 +23,6 @@ object Alias:
   val suc2: ZIO[Any, Nothing, Int] =
     ZIO.succeed(1)
   val suc3: IO[Nothing, Int] = ZIO.succeed(1)
-  val suc4: URIO[Any, Int] = ZIO.succeed(1)
-  val suc5: UIO[Int] = ZIO.succeed(1)
+  val suc4: URIO[Any, Int]   = ZIO.succeed(1)
+  val suc5: UIO[Int]         = ZIO.succeed(1)
 end Alias

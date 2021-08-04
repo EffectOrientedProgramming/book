@@ -13,7 +13,7 @@ class FooModifier extends StringModifier:
       reporter: Reporter
   ): String =
     val originalCodeFenceText = code.text
-    val isCrash = info == "crash"
+    val isCrash               = info == "crash"
     if (isCrash)
       "BOOM"
     else

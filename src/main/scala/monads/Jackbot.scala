@@ -2,8 +2,8 @@ package monads
 // Scratch/experimental example.
 
 object Jackbot: // Keep from polluting the 'monads' namespace
-  type Result[F, S] = Either[F, S]
-  type Fail[F, S] = Left[F, S]
+  type Result[F, S]  = Either[F, S]
+  type Fail[F, S]    = Left[F, S]
   type Succeed[F, S] = Right[F, S]
   object Fail:
     def apply[F](value: F) = Left.apply(value)

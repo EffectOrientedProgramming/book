@@ -2,7 +2,7 @@ package scalaBasics
 
 object map:
 
-  val nums = Vector(0, 2, 1, 4, 3)
+  val nums    = Vector(0, 2, 1, 4, 3)
   val letters = Vector('a', 'b', 'c', 'd', 'e')
 
   @main

@@ -12,7 +12,7 @@ Temperature: 30 degrees
 ```
 
 ```scala mdoc:fmt
-class GpsException() extends RuntimeException
+class GpsException()     extends RuntimeException
 class NetworkException() extends RuntimeException
 
 def getTemperature(behavior: String): String =

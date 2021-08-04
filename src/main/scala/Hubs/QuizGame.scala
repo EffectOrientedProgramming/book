@@ -35,8 +35,8 @@ object QuizGame extends zio.App:
     /* Teacher --> Questions --> Student1 -->
      * Answers --> Teacher Student2 Student3 */
 
-    val frop = Player("Frop")
-    val zeb = Player("Zeb")
+    val frop  = Player("Frop")
+    val zeb   = Player("Zeb")
     val shtep = Player("Shtep")
     val cheep = Player("Cheep")
 

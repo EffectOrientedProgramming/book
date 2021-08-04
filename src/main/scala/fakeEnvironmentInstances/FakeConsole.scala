@@ -10,7 +10,7 @@ object FakeConsole:
 
   val name: Console = single("(default name)")
 
-  val word: Console = single("Banana")
+  val word: Console   = single("Banana")
   val number: Console = single("1")
 
   def single(hardcodedInput: String) =

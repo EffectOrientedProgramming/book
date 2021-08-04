@@ -57,10 +57,10 @@ given ToBin[GoldWatch] with
 
 @main
 def run =
-  val paper1 = Paper(1)
-  val paper2 = Paper(2)
+  val paper1     = Paper(1)
+  val paper2     = Paper(2)
   val cardboard1 = Cardboard(1)
-  val goldWatch = GoldWatch(1)
+  val goldWatch  = GoldWatch(1)
   println(sort1(paper1))
   println(sort1(paper1))
   println(sort2(cardboard1))

@@ -32,8 +32,8 @@ end sort
 
 @main
 def trashy =
-  val paper1 = Paper(1)
-  val paper2 = Paper(2)
+  val paper1     = Paper(1)
+  val paper2     = Paper(2)
   val cardboard1 = Cardboard(1)
   println(
     sort(Iterable(paper1, paper2, cardboard1))

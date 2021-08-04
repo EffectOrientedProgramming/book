@@ -65,7 +65,7 @@ end MatrixExample
 
 @main
 def matricies =
-  val mEx = MatrixExample
+  val mEx    = MatrixExample
   val matrix = mEx.makeMatrix2D(4, 4)
   println("Normal Matrix:")
   mEx.printMat(matrix)

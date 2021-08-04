@@ -29,6 +29,6 @@ class Interrupt:
   ]] =
     for
       fiber <- countToN.fork
-      exit <- fiber.interrupt
+      exit  <- fiber.interrupt
     yield exit
 end Interrupt

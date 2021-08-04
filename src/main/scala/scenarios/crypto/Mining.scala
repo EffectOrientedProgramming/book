@@ -30,7 +30,7 @@ object Mining extends zio.App:
     val mine =
       for
         duration <- nextInt.map(_.abs % 7 + 1)
-        _ <- ZIO.sleep(duration.second)
+        _        <- ZIO.sleep(duration.second)
       yield s"$name mined the next coin in $duration seconds"
 
     // Inefficiently determines if the input
@@ -58,7 +58,7 @@ object Mining extends zio.App:
     ] & Has[Clock], Nothing, Object] =
       for
         duration <- nextIntBetween(1, 4)
-        _ <- ZIO.sleep(duration.second)
+        _        <- ZIO.sleep(duration.second)
         prime = findNextPrime(num)
       yield s"$name mined the next coin at prime number: $prime"
   end Miner
@@ -82,8 +82,8 @@ object Mining extends zio.App:
   def run(
       args: List[String]
   ) = //Use App's run function
-    val zeb = Miner("Zeb")
-    val frop = Miner("Frop")
+    val zeb   = Miner("Zeb")
+    val frop  = Miner("Frop")
     val shtep = Miner("Shtep")
     val logic1 = //Uses mine1 function (Just sleeping)
       for

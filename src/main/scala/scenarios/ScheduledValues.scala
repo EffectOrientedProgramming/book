@@ -49,7 +49,7 @@ object Scheduled2:
   ): ZIO[Has[Clock], TimeoutException, A] =
     for
       clock <- ZIO.environment[Has[Clock]]
-      now <- clock.get[Clock].nanoTime
+      now   <- clock.get[Clock].nanoTime
       result <-
         ZIO.getOrFailWith(
           new TimeoutException("TOO LATE")
@@ -65,7 +65,7 @@ object Scheduled2:
     Clock
   ], TimeoutException, A]] =
     for
-      clock <- ZIO.environment[Has[Clock]]
+      clock     <- ZIO.environment[Has[Clock]]
       startTime <- clock.get[Clock].nanoTime
       timeTable =
         values.scanLeft(

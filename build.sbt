@@ -15,10 +15,10 @@ libraryDependencies ++=
   Seq(
     "org.jetbrains" % "annotations-java5" %
       "21.0.1",
-    "org.scalameta" %
+    "org.scalameta"      %
       "scalafmt-dynamic" % "3.0.0-RC6" cross
       CrossVersion.for3Use2_13,
-    "dev.zio" %% "zio" % zioVersion,
+    "dev.zio"     %% "zio"    % zioVersion,
     "com.typesafe" % "config" % "1.4.1",
     //     cross CrossVersion.for3Use2_13,
     "dev.zio" %% "zio-test" % zioVersion % Test,

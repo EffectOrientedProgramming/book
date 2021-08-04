@@ -19,7 +19,7 @@ object Equality extends zio.App:
   val suc2: ZIO[Any, Nothing, Int] =
     ZIO.succeed(1)
   val suc3: IO[Nothing, Int] = ZIO.succeed(1)
-  val suc4: UIO[Int] = ZIO.succeed(1)
+  val suc4: UIO[Int]         = ZIO.succeed(1)
 
   val suc4d: UIO[Int] =
     ZIO.succeed(1) //(Duplicate of suc4)

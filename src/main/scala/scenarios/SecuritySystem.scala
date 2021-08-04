@@ -69,7 +69,7 @@ object SecuritySystem:
   ], scala.concurrent.TimeoutException | HardwareFailure, Unit] =
     for
       amountOfHeat <- amountOfHeatGenerator
-      noise <- acousticDetector
+      noise        <- acousticDetector
       _ <-
         ZIO.debug(
           s"Heat: $amountOfHeat  Motion: $amountOfMotion  Noise: $noise"

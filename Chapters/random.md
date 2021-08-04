@@ -13,7 +13,7 @@ import fakeEnvironmentInstances.FakeConsole
 ```scala mdoc:silent
 import scala.util.Random
 
-val low = 1
+val low  = 1
 val high = 10
 
 val prompt =
@@ -91,9 +91,9 @@ class FakeRandomInt(hardcodedValue: Int)
 ```scala mdoc
 val effectfulGuessingGame =
   for
-    _ <- Console.print(prompt)
+    _      <- Console.print(prompt)
     answer <- RandomInt.between(low, high)
-    guess <- Console.readLine
+    guess  <- Console.readLine
     response = checkAnswer(answer, guess)
   yield prompt + guess + "\n" + response
 ```

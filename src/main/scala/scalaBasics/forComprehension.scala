@@ -43,7 +43,7 @@ object forComprehension:
       if n % 2 == 0 //and n is divisible by 2
     } result =
       result :+ n //Then add n to the result list
-    result //return result
+    result        //return result
   end evenGT5v1
 
 // To remove the use of a var, and simplify the

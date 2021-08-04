@@ -66,9 +66,9 @@ def ValPassing(): Unit =
   val input
       : ZIO[Has[Console], IOException, String] =
     for
-      _ <- printLine("What is your name?")
+      _    <- printLine("What is your name?")
       name <- readLine
-      _ <- printLine(s"Hello, ${name}")
+      _    <- printLine(s"Hello, ${name}")
     yield name
 
   def process(input: String): Boolean =

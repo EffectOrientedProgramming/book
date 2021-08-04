@@ -16,13 +16,13 @@ object RuntimeEx:
 // Using a runtime object allows for ZIO to be
   // run when ever and where ever.
 
-  val runtime = Runtime.default
+  val runtime         = Runtime.default
   val exZio: UIO[Int] = ZIO.succeed(1)
 
   val exZio2
       : ZIO[Has[Console], IOException, String] =
     for
-      _ <- printLine("Input Word: ")
+      _    <- printLine("Input Word: ")
       word <- readLine
     yield word
 

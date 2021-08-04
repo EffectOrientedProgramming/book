@@ -16,7 +16,7 @@ class OptionToZio:
     ZIO.fromOption(sOption1)
 
   case class Person(name: String)
-  val person1 = Person("Bob")
+  val person1                  = Person("Bob")
   val sOption2: Option[Person] = Some(person1)
 
   val zOption2: IO[Option[Nothing], Person] =

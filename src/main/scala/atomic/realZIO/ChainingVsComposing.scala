@@ -34,7 +34,7 @@ class ChainingVsComposing:
 
   def yoloHouse(): ZIO[Any, Nothing, Home] = ???
 
-  val userId = "someUser"
+  val userId  = "someUser"
   val zipCode = "81224"
 
   val exploreChaining: ZIO[
@@ -46,7 +46,7 @@ class ChainingVsComposing:
   ] =
     for
       userInfo: UserInfo <- getInfo(userId)
-      houseListings <- zillow(zipCode)
+      houseListings      <- zillow(zipCode)
       newHome <-
         buyBestHouse(userInfo, houseListings)
     yield newHome
@@ -118,7 +118,7 @@ class NarrowError:
   ] =
     for
       userInfo <- getInfo("asdf")
-      prefs <- userPrefs(userInfo)
+      prefs    <- userPrefs(userInfo)
     yield prefs
 end NarrowError
 
