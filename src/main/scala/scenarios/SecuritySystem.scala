@@ -74,6 +74,12 @@ object SecuritySystem:
         ZIO.debug(
           s"Heat: $amountOfHeat  Motion: $amountOfMotion  Noise: $noise"
         )
+      securityResponse =
+        determineResponse(
+          amountOfMotion,
+          amountOfHeat,
+          noise
+        )
       _ <-
         // TODO Expand shouldTrigger result type
         // for more complex responses
@@ -119,10 +125,34 @@ object SecuritySystem:
       amountOfMotion: Pixels,
       amountOfHeat: Degrees
   ): Boolean =
-    amountOfMotion.value > 50 &&
+    amountOfMotion.value > 10 &&
       amountOfHeat.value > 95
 
+  def determineResponse(
+      amountOfMotion: Pixels,
+      amountOfHeat: Degrees,
+      noise: Decibels
+  ): SecurityResponse =
+    val numberOfAlerts =
+      List(
+        amountOfMotion.value > 50,
+        amountOfHeat.value > 95,
+        noise.value > 15
+      ).filter(_ == true).length
+
+    if (numberOfAlerts == 0)
+      Relax
+    else if (numberOfAlerts == 1)
+      LowBeep
+    else
+      LoudSiren
+
 end SecuritySystem
+
+trait SecurityResponse
+object Relax     extends SecurityResponse
+object LowBeep   extends SecurityResponse
+object LoudSiren extends SecurityResponse
 
 @main
 def useSecuritySystem =
@@ -162,7 +192,7 @@ object MotionDetector:
       extends MotionDetector:
     override def amountOfMotion()
         : ZIO[Any, HardwareFailure, Pixels] =
-      ZIO.succeed(Pixels(100))
+      ZIO.succeed(Pixels(30))
 
   end LiveMotionDetector
 
