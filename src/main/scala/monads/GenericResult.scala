@@ -19,6 +19,7 @@ trait GResult[+W, +D]:
         GSuccess(f(c))
       case fail: GFail[W] =>
         fail
+end GResult
 
 case class GFail[+W](why: W)
     extends GResult[W, Nothing]

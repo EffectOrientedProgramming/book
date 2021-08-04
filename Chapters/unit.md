@@ -19,18 +19,19 @@ Consider a simple `WeatherService` API:
 
 ```scala mdoc
 trait WeatherService:
-    def forecast(): String
+  def forecast(): String
 ```
 
 If we do not have access to the implementation source code, there is no way to discern what effects are needed at compile time.
 The only way to figure it out is to run the code and see what happens.
 
 ```scala mdoc:invisible
-class ClosedSourceWeatherService extends WeatherService:
-    def forecast(): String =
-        println("READ GPS SIGNAL")
-        println("NETWORK CALL")
-        "Sunny"
+class ClosedSourceWeatherService
+    extends WeatherService:
+  def forecast(): String =
+    println("READ GPS SIGNAL")
+    println("NETWORK CALL")
+    "Sunny"
 ```
 
 ```scala mdoc
@@ -44,33 +45,35 @@ In practice this quickly becomes impossible.
 
 ```scala mdoc
 object OpenSourceLibrary:
-    def submitDataToExternalService(
-        payload: String
-    ): Unit =
-      println(s"NETWORK: Sending payload")
-      saveUserInfo(payload)
+  def submitDataToExternalService(
+      payload: String
+  ): Unit =
+    println(s"NETWORK: Sending payload")
+    saveUserInfo(payload)
 
-    private def saveUserInfo(
-        userData: String
-    ): Unit =
-      DataAnalytics.recordKeyDemographics(userData)
-      println(s"DATABASE: Saving data")
-      
+  private def saveUserInfo(
+      userData: String
+  ): Unit =
+    DataAnalytics.recordKeyDemographics(userData)
+    println(s"DATABASE: Saving data")
+end OpenSourceLibrary
+
 object DataAnalytics:
-    def recordKeyDemographics(
-        userData: String
-    ): Unit =
-      println(s"LOGGER: Key demographic found")
-    
+  def recordKeyDemographics(
+      userData: String
+  ): Unit =
+    println(s"LOGGER: Key demographic found")
 ```
 
 
 ```scala mdoc
 def logic(): Unit =
-    // ...Other calls...
-    OpenSourceLibrary.submitDataToExternalService("Network Payload")
-    // ...Other calls...
-    
+  // ...Other calls...
+  OpenSourceLibrary.submitDataToExternalService(
+    "Network Payload"
+  )
+// ...Other calls...
+
 logic()
 ```
 

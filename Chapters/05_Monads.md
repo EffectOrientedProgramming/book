@@ -45,8 +45,7 @@ Also it separates "normal failure" from "exceptional failure" (Map get() example
 What if we make a box called `Result` containing *both* the success-path result together with error information if it fails?
 For simplicity, both the error information and the success data are `String`s:
 
-```scala
-trait Result
+```scala mdoc
 case class Fail(why: String) extends Result
 case class Success(data: String) extends Result
 ```
@@ -80,13 +79,17 @@ def show(n: Char) =
       c: String <- op('c', b)
     yield
       println(s"Completed: $c")
-      c
+      c.toUpperCase.nn
 
+  println(compose)
   compose match
-    case _: Fail =>
-      println(s"Error-handling for $compose")
-    case _ =>
-      println(compose)
+    case Fail(why) =>
+      println(s"Error-handling for $why")
+    case Success(data) =>
+      println("Success: " + data)
+end show
+
+// TODO Decide if fold is a bette approach here
 
 end show
 ```
@@ -169,9 +172,6 @@ trait Result:
         fail
 
 end Result
-
-case class Fail(why: String) extends Result
-case class Success(data: String) extends Result
 ```
 
 
