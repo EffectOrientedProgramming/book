@@ -36,18 +36,18 @@ object SecuritySystem:
 
   val fullLayer: ZLayer[Any, Nothing, zio.Has[
     scenarios.MotionDetector
-  ] & zio.Has[scenarios.ThermalDetectorX] & Has[AcousticDetectorX] & Has[Siren.ServiceX]] =
+  ] & zio.Has[scenarios.ThermalDetectorX] & Has[AcousticDetectorX] & Has[SirenX]] =
     MotionDetector.live ++
       ThermalDetectorX(
         (1.seconds, Degrees(71)),
-        (2.seconds, Degrees(70)),
-        (2.seconds, Degrees(98))
-      ) ++ Siren.live // ++ s
+        (1.seconds, Degrees(70)),
+        (3.seconds, Degrees(98))
+      ) // ++ s
     ++
     AcousticDetectorX(
       (4.seconds, Decibels(11)),
       (1.seconds, Decibels(20))
-    )
+    ) ++ SirenX.live
   end fullLayer
 
   val accessMotionDetector: ZIO[Has[
@@ -62,11 +62,10 @@ object SecuritySystem:
       amountOfMotion: Pixels,
       acousticDetector: ZIO[Has[
         Clock
-      ], scala.concurrent.TimeoutException | scenarios.HardwareFailure, scenarios.Decibels],
-      siren: Siren.ServiceX
+      ], scala.concurrent.TimeoutException | scenarios.HardwareFailure, scenarios.Decibels]
   ): ZIO[Has[
     Clock
-  ], scala.concurrent.TimeoutException | HardwareFailure, Unit] =
+  ] & Has[SirenX], scala.concurrent.TimeoutException | HardwareFailure, Unit] =
     for
       amountOfHeat <- amountOfHeatGenerator
       noise        <- acousticDetector
@@ -81,45 +80,37 @@ object SecuritySystem:
           noise
         )
       _ <-
-        // TODO Expand shouldTrigger result type
-        // for more complex responses
-        if shouldTrigger(
-            amountOfMotion,
-            amountOfHeat
-          )
-        then
-          siren.lowBeep()
-        else
-          ZIO.debug("No need to panic")
+        securityResponse match
+          case Relax =>
+            ZIO.debug("No need to panic")
+          case LowBeep =>
+            SirenX.lowBeep
+          case LoudSiren =>
+            SirenX.loudSiren
     yield ()
 
   def shouldAlertServices(): ZIO[Has[
     MotionDetector
-  ] & Has[ThermalDetectorX] & Has[Siren.ServiceX] & Has[AcousticDetectorX] & Has[Clock], scenarios.HardwareFailure | TimeoutException, String] =
-    ZIO
-      .service[Siren.ServiceX]
-      .flatMap { siren =>
-        for
-          amountOfMotion <-
-            MotionDetector
-              .acquireMotionMeasurementSource()
-          amountOfHeatGenerator <-
-            ThermalDetectorX
-              .acquireHeatMeasurementSource
-          acousticDetector <-
-            AcousticDetectorX.acquireDetector
-          _ <-
-            securityLoop(
-              amountOfHeatGenerator,
-              amountOfMotion,
-              acousticDetector,
-              siren
-            ).repeat(
-              Schedule.recurs(5) &&
-                Schedule.spaced(1.seconds)
-            )
-        yield "Fin"
-      }
+  ] & Has[ThermalDetectorX] & Has[SirenX] & Has[AcousticDetectorX] & Has[Clock], scenarios.HardwareFailure | TimeoutException, String] =
+    for
+      amountOfMotion <-
+        MotionDetector
+          .acquireMotionMeasurementSource()
+      amountOfHeatGenerator <-
+        ThermalDetectorX
+          .acquireHeatMeasurementSource
+      acousticDetector <-
+        AcousticDetectorX.acquireDetector
+      _ <-
+        securityLoop(
+          amountOfHeatGenerator,
+          amountOfMotion,
+          acousticDetector
+        ).repeat(
+          Schedule.recurs(5) &&
+            Schedule.spaced(1.seconds)
+        )
+    yield "Fin"
 
   def shouldTrigger(
       amountOfMotion: Pixels,
@@ -146,8 +137,33 @@ object SecuritySystem:
       LowBeep
     else
       LoudSiren
+  end determineResponse
+
+  def determineBreaches(
+      amountOfMotion: Pixels,
+      amountOfHeat: Degrees,
+      noise: Decibels
+  ): Set[SecurityBreach] =
+    List(
+      Option.when(amountOfMotion.value > 50)(
+        SignificantMotion
+      ),
+      Option.when(
+        amountOfHeat.value > 95 &&
+          amountOfHeat.value < 200
+      )(BodyHeat),
+      Option
+        .when(amountOfHeat.value >= 200)(Fire),
+      Option.when(noise.value > 15)(LoudNoise)
+    ).flatten.toSet
 
 end SecuritySystem
+
+trait SecurityBreach
+object BodyHeat          extends SecurityBreach
+object Fire              extends SecurityBreach
+object LoudNoise         extends SecurityBreach
+object SignificantMotion extends SecurityBreach
 
 trait SecurityResponse
 object Relax     extends SecurityResponse
@@ -324,6 +340,43 @@ object Siren:
         ] = ZIO.debug("beeeeeeeeeep")
     )
 end Siren
+
+trait SirenX:
+  def lowBeep()
+      : ZIO[Any, scenarios.HardwareFailure, Unit]
+
+  def loudSiren()
+      : ZIO[Any, scenarios.HardwareFailure, Unit]
+
+object SirenX:
+  object SirenXLive extends SirenX:
+    def lowBeep(): ZIO[
+      Any,
+      scenarios.HardwareFailure,
+      Unit
+    ] = ZIO.debug("beeeeeeeeeep")
+
+    def loudSiren(): ZIO[
+      Any,
+      scenarios.HardwareFailure,
+      Unit
+    ] = ZIO.debug("WOOOO EEEE WOOOOO EEEE")
+  end SirenXLive
+
+  val live: ZLayer[Any, Nothing, Has[SirenX]] =
+    ZLayer.succeed(SirenXLive)
+
+  val lowBeep: ZIO[Has[
+    SirenX
+  ], scenarios.HardwareFailure, Unit] =
+    ZIO.serviceWith(_.lowBeep())
+
+  val loudSiren: ZIO[Has[
+    SirenX
+  ], scenarios.HardwareFailure, Unit] =
+    ZIO.serviceWith(_.loudSiren())
+
+end SirenX
 
 class SensorD[T](
     z: ZIO[Has[Clock], HardwareFailure, ZIO[Has[
