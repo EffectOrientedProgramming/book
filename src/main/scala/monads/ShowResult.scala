@@ -19,15 +19,16 @@ def show(n: Char) =
       c: String <- op('c', b)
     yield
       println(s"Completed: $c")
-      c
+      c.toUpperCase.nn
 
+  println(compose)
   compose match
-    case _: Fail =>
-      println(s"Error-handling for $compose")
-    case _ =>
-      println(compose)
+    case Fail(why) =>
+      println(s"Error-handling for $why")
+    case Success(data) =>
+      println("Success: " + data)
 
 end show
 
 @main
-def results = 'a' to 'd' map show
+def results = 'a' to 'd' foreach show

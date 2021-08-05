@@ -88,8 +88,6 @@ def show(n: Char) =
     case Success(data) =>
       println("Success: " + data)
 end show
-
-// TODO Decide if fold is a better approach here
 ```
 
 `show()` takes `n: Char` indicating how far we want to get through the execution of `compose` before it fails.
@@ -213,6 +211,7 @@ def eshow(n: Char) =
       c
 
   println(compose)
+  // Using Either's left-projection:
   for (failure <- compose.left)
     println(s"Error-handling for $failure")
 
@@ -220,7 +219,7 @@ end eshow
 ```
 
 ```scala mdoc
-'a' to 'd' map eshow
+'a' to 'd' foreach eshow
 ```
 
 - Exercise: modify ShowResult.scala to work with `Option`

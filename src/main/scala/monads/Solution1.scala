@@ -30,4 +30,4 @@ def eshow(n: Char) =
 end eshow
 
 @main
-def eresults = 'a' to 'd' map eshow
+def eresults = 'a' to 'd' foreach eshow
