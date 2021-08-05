@@ -89,9 +89,7 @@ def show(n: Char) =
       println("Success: " + data)
 end show
 
-// TODO Decide if fold is a bette approach here
-
-end show
+// TODO Decide if fold is a better approach here
 ```
 
 `show()` takes `n: Char` indicating how far we want to get through the execution of `compose` before it fails.
@@ -149,6 +147,7 @@ The `yield` expression automatically wraps `c` in a `Success` object.
 The identifier name for `val compose` is intentional.
 We are composing a result from multiple expressions and the whole `for` comprehension will either succeed or fail.
 
+We now know that, for our type to be automatically unpacked by the `<-` within a `for` comprehension, it must have a `map()` and a `flatMap()`.
 Here's the full definition of `Result`:
 
 ```scala mdoc
@@ -174,11 +173,57 @@ trait Result:
 end Result
 ```
 
+{{ Explanation }}
 
+## Predefined Monads
 
+Because the `for` comprehension provides direct support for monads, you might not be surprised to discover that Scala comes with some predefined monads.
+The two most common of these are `Either` and `Option`.
 
+`Either` looks just like our `Result` monad; it just uses different names.
+People commonly use `Either` to produce the same effect.
+
+X> Modify `ShowResult.scala` to use `Either` instead of `Result`.
+X> Your output should look like this:
+
+```scala mdoc:invisible
+// Monads/Solution1.scala
+// package monads
+
+def eshow(n: Char) =
+  println(s">> show($n) <<")
+
+  def op(id: Char, msg: String) =
+    val result =
+      if n == id then
+        Left(msg + id.toString)
+      else
+        Right(msg + id.toString)
+    println(s"op($id): $result")
+    result
+  end op
+
+  val compose =
+    for
+      a: String <- op('a', "")
+      b: String <- op('b', a)
+      c: String <- op('c', b)
+    yield
+      println(s"Completed: $c")
+      c
+
+  println(compose)
+  for (failure <- compose.left)
+    println(s"Error-handling for $failure")
+
+end eshow
+```
+
+```scala mdoc
+'a' to 'd' map eshow
+```
+
+- Exercise: modify ShowResult.scala to work with `Option`
 - Exercise: show that GenericResult.scala works with ShowResult.scala
 - Exercise: Modify Above solution to work with `Int` instead of `String`
-- Exercise: Show that `Either` works with ShowResult.scala
-- Exercise: modify ShowResult.scala to work with `Option`
-- Exercise: Modify GenericResult.scala to create GenericOption.scala, implementing your on version of `Option`
+- Exercise: Modify GenericResult.scala to create GenericOption.scala, implementing your own version of `Option`
