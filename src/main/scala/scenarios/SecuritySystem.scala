@@ -232,9 +232,7 @@ object ThermalDetectorX:
               TimeoutException |
                 scenarios.HardwareFailure,
               Degrees
-            ]] =
-          Scheduled2
-            .scheduledValues(value, values*)
+            ]] = scheduledValues(value, values*)
     )
 
   // This is preeeetty gnarly. How can we
@@ -282,9 +280,7 @@ object AcousticDetectorX:
               TimeoutException |
                 scenarios.HardwareFailure,
               Decibels
-            ]] =
-          Scheduled2
-            .scheduledValues(value, values*)
+            ]] = scheduledValues(value, values*)
     )
 
   // This is preeeetty gnarly. How can we
@@ -348,10 +344,7 @@ object SensorData:
   ): ZLayer[Any, Nothing, Has[Y]] =
     ZLayer.succeed(
       // that same service we wrote above
-      c(
-        Scheduled2
-          .scheduledValues[T](value, values*)
-      )
+      c(scheduledValues[T](value, values*))
     )
 
   def liveS[T](
@@ -360,9 +353,6 @@ object SensorData:
   ): ZLayer[Any, Nothing, Has[SensorD[T]]] =
     ZLayer.succeed(
       // that same service we wrote above
-      SensorD(
-        Scheduled2
-          .scheduledValues[T](value, values*)
-      )
+      SensorD(scheduledValues[T](value, values*))
     )
 end SensorData

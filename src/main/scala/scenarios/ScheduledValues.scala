@@ -22,73 +22,79 @@ import javawrappers.InstantOps.plusZ
  * seconds, it would fail */
 
 // TODO Consider TimeSequence as a name
-object Scheduled2:
+def scheduledValues[A](
+    value: (Duration, A),
+    values: (Duration, A)*
+): ZIO[
+  Has[Clock], // construction time
+  Nothing,
+  ZIO[
+    Has[Clock], // access time
+    TimeoutException,
+    A
+  ]
+] =
+  for
+    startTime <- Clock.instant
+    timeTable =
+      createTimeTableX(
+        startTime,
+        value,
+        values* // Yay Scala3 :)
+      )
+  yield accessX(timeTable)
 
-  def scheduledValues[A](
-      value: (Duration, A),
-      values: (Duration, A)*
-  ): ZIO[
-    Has[Clock], // construction time
-    Nothing,
-    ZIO[
-      Has[Clock], // access time
-      TimeoutException,
-      A
-    ]
-  ] =
-    for
-      startTime <- Clock.instant
-      timeTable =
-        createTimeTableX(
-          startTime,
-          value,
-          values* // Yay Scala3 :)
-        )
-    yield accessX(timeTable)
+// TODO Some comments, tests, examples, etc to
+// make this function more obvious
+private def createTimeTableX[A](
+    startTime: Instant,
+    value: (Duration, A),
+    values: (Duration, A)*
+): Seq[ExpiringValue[A]] =
+  values.scanLeft(
+    ExpiringValue(
+      startTime.plusZ(value._1),
+      value._2
+    )
+  ) {
+    case (
+          ExpiringValue(elapsed, _),
+          (duration, value)
+        ) =>
+      ExpiringValue(
+        elapsed.plusZ(duration),
+        value
+      )
+  }
 
-  // TODO Some comments, tests, examples, etc to
-  // make this function more obvious
-  private def createTimeTableX[A](
-      startTime: Instant,
-      value: (Duration, A),
-      values: (Duration, A)*
-  ): Seq[(Instant, A)] =
-    values.scanLeft(
-      (startTime.plusZ(value._1), value._2)
-    ) { case ((elapsed, _), (duration, value)) =>
-      (elapsed.plusZ(duration), value)
-    }
+/** Input: (1 minute, "value1") (2 minute,
+  * "value2")
+  *
+  * Runtime: Zero value: (8:00 + 1 minute,
+  * "value1")
+  *
+  * case ((8:01, _) , (2.minutes, "value2")) =>
+  * (8:01 + 2.minutes, "value2")
+  *
+  * Output: ( ("8:01", "value1"), ("8:03",
+  * "value2") )
+  */
+private def accessX[A](
+    timeTable: Seq[ExpiringValue[A]]
+): ZIO[Has[Clock], TimeoutException, A] =
+  for
+    now <- Clock.instant
+    result <-
+      ZIO.getOrFailWith(
+        new TimeoutException("TOO LATE")
+      ) {
+        timeTable
+          .find(_.expirationTime.isAfter(now))
+          .map(_.value)
+      }
+  yield result
 
-  case class TimeTable(
-                      valuesAndExperiations:  Seq[(Instant, A)]
-                      ):
-
-
-  /** Input: (1 minute, "value1") (2 minute,
-    * "value2")
-    *
-    * Runtime: Zero value: (8:00 + 1 minute,
-    * "value1")
-    *
-    * case ((8:01, _) , (2.minutes, "value2")) =>
-    * (8:01 + 2.minutes, "value2")
-    *
-    * Output: ( ("8:01", "value1"), ("8:03",
-    * "value2") )
-    */
-  private def accessX[A](
-      timeTable: Seq[(Instant, A)]
-  ): ZIO[Has[Clock], TimeoutException, A] =
-    for
-      now <- Clock.instant
-      result <-
-        ZIO.getOrFailWith(
-          new TimeoutException("TOO LATE")
-        ) {
-          timeTable
-            .find(_._1.isAfter(now))
-            .map(_._2)
-        }
-    yield result
-
-end Scheduled2
+private case class ExpiringValue[A](
+    expirationTime: Instant,
+    value: A
+)
