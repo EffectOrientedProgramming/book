@@ -181,7 +181,7 @@ The two most common of these are `Either` and `Option`.
 `Either` looks just like our `Result` monad; it just uses different names.
 People commonly use `Either` to produce the same effect.
 
-X> Modify `ShowResult.scala` to use `Either` instead of `Result`.
+X> **Exercise 1:** Modify `ShowResult.scala` to use `Either` instead of `Result`.
 X> Your output should look like this:
 
 ```scala mdoc:invisible
@@ -222,7 +222,53 @@ end eshow
 'a' to 'd' foreach eshow
 ```
 
-- Exercise: modify ShowResult.scala to work with `Option`
+Notice that `Either` has numerous other methods beyond `map()` and `flatMap()`, so it is much more full-featured.
+
+`Option` is like `Either` except that the `Right`-side (success) case becomes `Some` (that is, it has a value) and the `Left`-side (failure) case becomes `None`.
+`None` simply means that there is no value, which isn't necessarily an error.
+For example, if you look something up in a `Map`, there might not be a value for your key, so returning an `Option` of `None` is a common and reasonable result.
+
+X> **Exercise 2:** Modify ShowResult.scala to work with `Option` instead of `Result`.
+X> Your output should look like this:
+
+```scala mdoc:invisible
+// Monads/Solution2.scala
+// package monads
+
+def oshow(n: Char) =
+  println(s">> show($n) <<")
+
+  def op(id: Char, msg: String) =
+    val result =
+      if n == id then
+        None
+      else
+        Some(msg + id.toString)
+    println(s"op($id): $result")
+    result
+  end op
+
+  val compose =
+    for
+      a: String <- op('a', "")
+      b: String <- op('b', a)
+      c: String <- op('c', b)
+    yield
+      println(s"Completed: $c")
+      c
+
+  println(compose);
+  if compose == None then
+    println(s"Error-handling for None")
+
+end oshow
+```
+
+```scala mdoc
+'a' to 'd' foreach oshow
+```
+
+
 - Exercise: show that GenericResult.scala works with ShowResult.scala
 - Exercise: Modify Above solution to work with `Int` instead of `String`
 - Exercise: Modify GenericResult.scala to create GenericOption.scala, implementing your own version of `Option`
