@@ -268,7 +268,7 @@ end ishow
 `None` simply means that there is no value, which isn't necessarily an error.
 For example, if you look something up in a `Map`, there might not be a value for your key, so returning an `Option` of `None` is a common and reasonable result.
 
-X> **Exercise 3:** Modify ShowResult.scala to work with `Option` instead of `Result`.
+X> **Exercise 3:** Modify `ShowResult.scala` to work with `Option` instead of `Result`.
 X> Your output should look like this:
 
 ```scala mdoc:invisible
@@ -307,3 +307,72 @@ end oshow
 'a' to 'd' foreach oshow
 ```
 
+X> **Exercise 4:** Modify `Result.scala` so `Result` is an `enum` instead of a `trait`.
+X> Demonstrate that the `enum Result` works by modifying `ShowResult.scala`.
+X> Your output should look like this:
+
+```scala mdoc:invisible
+// Monads/Solution4a.scala
+// package monads
+
+enum ResultEnum:
+  def flatMap(f: String => ResultEnum): ResultEnum =
+    println(s"flatMap() on $this")
+    this.match
+      case SuccessRE(c) =>
+        f(c)
+      case fail: FailRE =>
+        fail
+
+  def map(f: String => String): ResultEnum =
+    println(s"map() on $this")
+    this.match
+      case SuccessRE(c) =>
+        SuccessRE(f(c))
+      case fail: FailRE =>
+        fail
+
+  case FailRE(why: String)
+  case SuccessRE(data: String)
+
+end ResultEnum
+```
+
+```scala mdoc:invisible
+// Monads/Solution4b.scala
+// package monads
+import ResultEnum.*
+
+def showRE(n: Char) =
+  def op(id: Char, msg: String): ResultEnum =
+    val result =
+      if n == id then
+        FailRE(msg + id.toString)
+      else
+        SuccessRE(msg + id.toString)
+    println(s"op($id): $result")
+    result
+  end op
+
+  val compose: ResultEnum =
+    for
+      a: String <- op('a', "")
+      b: String <- op('b', a)
+      c: String <- op('c', b)
+    yield
+      println(s"Completed: $c")
+      c.toUpperCase.nn
+
+  println(compose)
+  compose match
+    case FailRE(why) =>
+      println(s"Error-handling for $why")
+    case SuccessRE(data) =>
+      println("Success: " + data)
+
+end showRE
+```
+
+```scala mdoc
+'a' to 'd' foreach showRE
+```
