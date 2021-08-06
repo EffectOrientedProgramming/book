@@ -177,16 +177,18 @@ end Result
 
 Because the `for` comprehension provides direct support for monads, you might not be surprised to discover that Scala comes with some predefined monads.
 The two most common of these are `Either` and `Option`.
+These are generic so they work with any type.
 
-`Either` looks just like our `Result` monad; it just uses different names.
-People commonly use `Either` to produce the same effect.
+`Either` looks just like our `Result` monad but with different names.
+People commonly use `Either` to produce the same effect as `Result`.
+Our `Fail` becomes `Left` in `Either`, and our `Success` becomes `Right`.
+`Either` has numerous additional methods beyond `map()` and `flatMap()`, so it is much more full-featured.
 
 X> **Exercise 1:** Modify `ShowResult.scala` to use `Either` instead of `Result`.
 X> Your output should look like this:
 
 ```scala mdoc:invisible
 // Monads/Solution1.scala
-// package monads
 
 def eshow(n: Char) =
   println(s">> show($n) <<")
@@ -222,18 +224,55 @@ end eshow
 'a' to 'd' foreach eshow
 ```
 
-Notice that `Either` has numerous other methods beyond `map()` and `flatMap()`, so it is much more full-featured.
+X> **Exercise 2:** Modify the solution to Exercise 1 to work with `Int` instead of `String`.
+X> Change `msg` in the `op()` argument list to `i`, an `Int`.
+X> Your output should look like this:
+
+```scala mdoc:invisible
+// Monads/Solution2.scala
+
+def ishow(n: Char) =
+  println(s">> show($n) <<")
+
+  def op(id: Char, i: Int) =
+    val result =
+      if n == id then
+        Left(i + id)
+      else
+        Right(i + id)
+    println(s"op($id): $result")
+    result
+  end op
+
+  val compose =
+    for
+      a: Int <- op('a', 0)
+      b: Int <- op('b', a)
+      c: Int <- op('c', b)
+    yield
+      println(s"Completed: $c")
+      c
+
+  println(compose);
+  for (failure <- compose.left)
+    println(s"Error-handling for $failure")
+
+end ishow
+```
+
+```scala mdoc
+'a' to 'd' foreach ishow
+```
 
 `Option` is like `Either` except that the `Right`-side (success) case becomes `Some` (that is, it has a value) and the `Left`-side (failure) case becomes `None`.
 `None` simply means that there is no value, which isn't necessarily an error.
 For example, if you look something up in a `Map`, there might not be a value for your key, so returning an `Option` of `None` is a common and reasonable result.
 
-X> **Exercise 2:** Modify ShowResult.scala to work with `Option` instead of `Result`.
+X> **Exercise 3:** Modify ShowResult.scala to work with `Option` instead of `Result`.
 X> Your output should look like this:
 
 ```scala mdoc:invisible
-// Monads/Solution2.scala
-// package monads
+// Monads/Solution3.scala
 
 def oshow(n: Char) =
   println(s">> show($n) <<")
@@ -268,7 +307,3 @@ end oshow
 'a' to 'd' foreach oshow
 ```
 
-
-- Exercise: show that GenericResult.scala works with ShowResult.scala
-- Exercise: Modify Above solution to work with `Int` instead of `String`
-- Exercise: Modify GenericResult.scala to create GenericOption.scala, implementing your own version of `Option`

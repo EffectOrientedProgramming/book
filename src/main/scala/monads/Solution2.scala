@@ -1,33 +1,33 @@
 // Monads/Solution2.scala
 package monads
 
-def oshow(n: Char) =
+def ishow(n: Char) =
   println(s">> show($n) <<")
 
-  def op(id: Char, msg: String) =
+  def op(id: Char, i: Int) =
     val result =
       if n == id then
-        None
+        Left(i + id)
       else
-        Some(msg + id.toString)
+        Right(i + id)
     println(s"op($id): $result")
     result
   end op
 
   val compose =
     for
-      a: String <- op('a', "")
-      b: String <- op('b', a)
-      c: String <- op('c', b)
+      a: Int <- op('a', 0)
+      b: Int <- op('b', a)
+      c: Int <- op('c', b)
     yield
       println(s"Completed: $c")
       c
 
   println(compose);
-  if compose == None then
-    println(s"Error-handling for None")
+  for (failure <- compose.left)
+    println(s"Error-handling for $failure")
 
-end oshow
+end ishow
 
 @main
-def oresults = 'a' to 'd' foreach oshow
+def iresults = 'a' to 'd' foreach ishow
