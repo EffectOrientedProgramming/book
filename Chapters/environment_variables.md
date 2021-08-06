@@ -43,9 +43,7 @@ def findPerfectAnniversaryLodging() =
     sys
       .env
       .get("API_KEY")
-      .getOrElse(
-        throw new RuntimeException("boom")
-      )
+      .get // Unsafe, but useful for demo
   TravelServiceApi
     .findCheapestHotel("90210", apiKey)
 
