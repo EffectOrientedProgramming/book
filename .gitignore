@@ -13,3 +13,4 @@ project/.bloop/
 project/metals.sbt
 
 /manuscript/
+.env
