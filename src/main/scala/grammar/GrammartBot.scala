@@ -52,6 +52,9 @@ object GrammarInteractions extends zio.App:
 
         }
     yield ()
-    // TODO Revive pieces of code from this commit: 150090f43f2a788ed50232f4a1cf07db31bb2527
-    //  Now, instead of the fenced content, we _only_ want prose
 end GrammarInteractions
+
+// TODO Revive pieces of code from this commit:
+// 150090f43f2a788ed50232f4a1cf07db31bb2527
+// Now, instead of the fenced content, we _only_
+// want prose

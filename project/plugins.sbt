@@ -9,4 +9,6 @@ addSbtPlugin(
   "org.scalameta" % "sbt-mdoc" % "2.2.22"
 )
 
-addSbtPlugin("au.com.onegeek" % "sbt-dotenv" % "2.1.204")
+addSbtPlugin(
+  "au.com.onegeek" % "sbt-dotenv" % "2.1.204"
+)
