@@ -401,8 +401,7 @@ val fc1 =
     a <- Right("A")
     b <- Right("B")
     c <- Right("C")
-  yield
-    s"Result: $a $b $c"
+  yield s"Result: $a $b $c"
 ```
 
 IntelliJ IDEA provides a nice tool that expands this comprehension to show the calls to `flatMap()` and `map()`.
