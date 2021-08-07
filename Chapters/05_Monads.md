@@ -401,8 +401,7 @@ val fc1 =
     a <- Right("A")
     b <- Right("B")
     c <- Right("C")
-  yield
-    s"Result: $a $b $c"
+  yield s"Result: $a $b $c"
 ```
 
 Because we never created a `Left`, Scala decided that the `Left` type should be `Nothing`.

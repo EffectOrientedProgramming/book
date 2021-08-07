@@ -41,7 +41,7 @@ The pattern used here is fundamental to designing composable, ergonomic ZIO `Ser
 1. Create a `trait` with the needed functions.
 2. Create an implementation of the `trait`.
 3. (Optional) Put "accessor" methods in `trait` companion object.
-4. (Optional) Wrap an instance the implementation class in a `Layer` and provide as a field - `live` in the companion `object`.
+4. (Optional) Provide implementation instance in a `Layer` as a `object` field - `live`.
 
 We will go through each of these steps in detail in this chapter, and more concisely in the rest.
 Steps 1 and 2 steps will be familiar to many programmers.
@@ -73,9 +73,87 @@ object ConsoleLive extends Console:
       output: String
   ): ZIO[Any, Nothing, Unit] =
     // TODO Get this working without Predef
-    ZIO.succeed(Predef.println(output))
+    ZIO.succeed(
+      Predef.println("Effect: " + output)
+    )
 ```
 
+TODO{Determine how to best split the 2 pieces we need to add to the same `object` for these steps}
+
 ### Three: Create Accessor Methods in Companion
+The first two steps are enough for us to track Effects in our system, but the ergonomics are not great.
+
+```scala mdoc:nest
+val logicClunky: ZIO[Console, Nothing, Unit] =
+  for
+    _ <-
+      ZIO
+        .accessZIO[Console](_.printLine("Hello"))
+    _ <-
+      ZIO
+        .accessZIO[Console](_.printLine("World"))
+  yield ()
+
+import zio.Runtime.default.unsafeRun
+unsafeRun(logicClunky.provide(ConsoleLive))
+```
+
+The caller has to handle the ZIO environment access, which is a distraction from the logic they want to implement.
+Further, in the example above, by making `Console` a direct environment dependency, our composability is harmed. 
+TODO{Consider example with another Environment trait dependency, to show  direct inheritance downsides. This probably requires a 2nd dependency to be compelling.}
+We want to leverage the `Has` type so that our code can use an arbitrary number of Environmental dependencies and be executed with `Layers`, rather than a massive super-object that inherits all these traits directly.
+
+```scala mdoc
+import zio.Has
+
+object ConsoleWithAccessor:
+  def printLine(
+      variable: => String
+  ): ZIO[Has[Console], Nothing, Unit] =
+    ZIO.serviceWith(_.printLine(variable))
+```
+
+With this function, our callers have a much nicer experience.
+
+```scala mdoc
+val logic: ZIO[Has[Console], Nothing, Unit] =
+  for
+    _ <- ConsoleWithAccessor.printLine("Hello")
+    _ <- ConsoleWithAccessor.printLine("World")
+  yield ()
+```
+
+However, providing dependencies to the logic is still tedious.
+
+```scala mdoc
+import zio.ZLayer
+unsafeRun(
+  logic.provideLayer(
+    ZLayer.succeed[Console](ConsoleLive)
+  )
+)
+```
+
+### Four: Create `object Effect.live` field
+
+Rather than making each caller wrap our instance in a `Layer`, we can do that a single time in our companion.
+
+```scala mdoc
+import zio.Layer
+
+object ConsoleWithLayer:
+  val live: Layer[Nothing, Has[Console]] =
+    ZLayer.succeed(ConsoleLive)
+```
+
+Now executing our code is as simple as describing it.
+
+
+
+```scala mdoc
+unsafeRun(
+  logic.provideLayer(ConsoleWithLayer.live)
+)
+```
 
 ## Official ZIO Approach
