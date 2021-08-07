@@ -444,3 +444,5 @@ There's another benefit of this cascade of function calls: `a`, `b` and `c` are 
 X> **Exercise 5:** Modify `fc1` to use `Some` instead of `Either`.
 X> Verify it works, then produce the "desugared" version as you see with `fc2`.
 X> Your output should look like this:
+
+...
