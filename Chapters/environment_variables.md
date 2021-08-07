@@ -58,9 +58,9 @@ perfectAnniversaryLodging()
 
 When you look up an Environment Variable, you are accessing information that was _not_ passed in to your function as an explicit argument.
 
-
 ## Building a Better Way
-Before looking at the official ZIO implementation, we will create a stripped down versions.
+
+Before looking at the official ZIO implementation, we will create a simpler version.
 We need a `trait` that will indicate what is needed from the environment.
 
 ```scala mdoc
@@ -96,7 +96,7 @@ object System:
 Now if we use this code, our caller's type signature is forced to tell us that it requires a `System` to execute.
 
 ```scala mdoc
-def perfectAnniversaryLodgingZ(): ZIO[Has[
+def perfectAnniversaryLodgingSafe(): ZIO[Has[
   System
 ], Nothing, Either[String, String]] =
   for
@@ -114,7 +114,7 @@ import zio.Runtime.default.unsafeRun
 import zio.ZLayer
 
 unsafeRun(
-  perfectAnniversaryLodgingZ().provideLayer(
+  perfectAnniversaryLodgingSafe().provideLayer(
     ZLayer.succeed[System](SystemLive())
   )
 )
@@ -137,7 +137,7 @@ We can now provide this to our logic, for testing both the happy path and failur
 
 ```scala mdoc
 unsafeRun(
-  perfectAnniversaryLodgingZ().provideLayer(
+  perfectAnniversaryLodgingSafe().provideLayer(
     ZLayer.succeed[System](
       SystemHardcoded(
         Map("API_KEY" -> "Invalid Key")
@@ -151,3 +151,17 @@ unsafeRun(
 ## Official ZIO Approach
 
 TODO
+
+```scala mdoc
+import zio.System
+
+def perfectAnniversaryLodgingZ(): ZIO[Has[
+  System
+], Nothing, Either[String, String]] =
+  for
+    apiKey <- System.env("API_KEY")
+  yield TravelServiceApi.findCheapestHotel(
+    "90210",
+    apiKey.get // unsafe!
+  )
+```
