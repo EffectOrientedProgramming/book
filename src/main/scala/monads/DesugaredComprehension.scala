@@ -16,8 +16,9 @@ val fc2 =
           Right("C")
             .map(c => s"Result: $a $b $c")
         )
+    )
 
 @main
 def expanded =
-  println(compose1)
-  println(compose2)
+  println(fc1)
+  println(fc2)
