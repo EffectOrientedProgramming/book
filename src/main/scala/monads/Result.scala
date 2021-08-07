@@ -12,11 +12,14 @@ trait Result:
 
   def map(f: String => String): Result =
     println(s"map() on $this")
-    this.match
-      case Success(c) =>
-        Success(f(c))
-      case fail: Fail =>
-        fail
+    val r =
+      this.match
+        case Success(c) =>
+          Success(f(c))
+        case fail: Fail =>
+          fail
+    println(s"map() returns $r")
+    r
 
 end Result
 

@@ -8,7 +8,7 @@ def show(n: Char) =
         Fail(msg + id.toString)
       else
         Success(msg + id.toString)
-    println(s"op($id): $result")
+    println(s"$n => op($id): $result")
     result
   end op
 
@@ -18,15 +18,15 @@ def show(n: Char) =
       b: String <- op('b', a)
       c: String <- op('c', b)
     yield
-      println(s"Completed: $c")
-      c.toUpperCase.nn
+      println(s"Yielding: $c + 'd'")
+      c + 'd'
 
-  println(compose)
+  println(s"compose: $compose")
   compose match
     case Fail(why) =>
       println(s"Error-handling for $why")
     case Success(data) =>
-      println("Success: " + data)
+      println("Successful case: " + data)
 
 end show
 
