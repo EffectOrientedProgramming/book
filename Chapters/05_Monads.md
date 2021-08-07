@@ -316,7 +316,9 @@ X> Your output should look like this:
 // package monads
 
 enum ResultEnum:
-  def flatMap(f: String => ResultEnum): ResultEnum =
+  def flatMap(
+      f: String => ResultEnum
+  ): ResultEnum =
     println(s"flatMap() on $this")
     this.match
       case SuccessRE(c) =>

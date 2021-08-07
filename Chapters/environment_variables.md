@@ -58,9 +58,9 @@ perfectAnniversaryLodging()
 
 When you look up an Environment Variable, you are accessing information that was _not_ passed in to your function as an explicit argument.
 
-
 ## Building a Better Way
-Before looking at the official ZIO implementation, we will create a stripped down versions.
+
+Before looking at the official ZIO implementation, we will create a simpler version.
 We need a `trait` that will indicate what is needed from the environment.
 
 ```scala mdoc
