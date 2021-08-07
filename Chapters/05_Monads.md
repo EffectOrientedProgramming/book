@@ -142,14 +142,14 @@ The return value of `op('c', b)` is `Success(abc)` and this is used to initializ
 The `yield` expression produces the final result that is assigned to `compose`.
 You should find all potential problems by the time you reach `yield`, so the `yield` expression should not be able to fail.
 Note that `c` is of type `String` but `compose` is of type `Result`.
-The `yield` expression automatically wraps `c` in a `Success` object.
-{{ What mechanism wraps the `yield` expression? }}
+The `yield` expression is automatically wrapped in a `Success` object.
 
 The identifier name for `val compose` is intentional.
 We are composing a result from multiple expressions and the whole `for` comprehension will either succeed or fail.
 
-We now know that, for our type to be automatically unpacked by the `<-` within a `for` comprehension, it must have a `map()` and a `flatMap()`.
-Here's the full definition of `Result`:
+From the above output, the compiler responds to a `<-` within a `for` comprehension by calling `flatMap()` or `map()`.
+Thus, it looks like our `Result` must have `flatMap()` and `map()` methods in order to allow these calls.
+Here's the definition of `Result`:
 
 ```scala mdoc
 // Monads/Result.scala
@@ -158,26 +158,29 @@ trait Result:
   def flatMap(f: String => Result): Result =
     println(s"flatMap() on $this")
     this.match
-      case Success(c) =>
-        f(c)
       case fail: Fail =>
         fail
+      case Success(c) =>
+        f(c)
 
   def map(f: String => String): Result =
     println(s"map() on $this")
-    val r =
-      this.match
-        case Success(c) =>
-          Success(f(c))
-        case fail: Fail =>
-          fail
-    println(s"map() returns $r")
-    r
+    this.match
+      case fail: Fail =>
+        fail
+      case Success(c) =>
+        Success(f(c))
 
 end Result
 ```
 
-{{ Explanation }}
+The code in the two methods is almost identical. Each receives a function `f` as an argument.
+Each checks the type of the current object, which is a `Result`.
+If the type is a `Fail`, it just returns that `Fail` object, and never calls `f`.
+Only if the type is a `Success` is `f` evaluated.
+In `flatMap()`, `f` is called on the contents of the `Success`.
+In `map()`, `f` is also called on the contents of the `Success`, and then the result of that call is wrapped in another `Success` object.
+
 
 ## Predefined Monads
 
@@ -384,3 +387,7 @@ end showRE
 ```scala mdoc
 'a' to 'd' foreach showRE
 ```
+
+## Understanding the `for` Comprehension
+
+Using the {{Either or Option}} predefined monad, we can produce a clearer understanding of what the `for` comprehension is doing.

@@ -5,21 +5,18 @@ trait Result:
   def flatMap(f: String => Result): Result =
     println(s"flatMap() on $this")
     this.match
-      case Success(c) =>
-        f(c)
       case fail: Fail =>
         fail
+      case Success(c) =>
+        f(c)
 
   def map(f: String => String): Result =
     println(s"map() on $this")
-    val r =
-      this.match
-        case Success(c) =>
-          Success(f(c))
-        case fail: Fail =>
-          fail
-    println(s"map() returns $r")
-    r
+    this.match
+      case fail: Fail =>
+        fail
+      case Success(c) =>
+        Success(f(c))
 
 end Result
 
