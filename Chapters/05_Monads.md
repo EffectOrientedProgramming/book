@@ -405,7 +405,43 @@ val fc1 =
     s"Result: $a $b $c"
 ```
 
+Because we never created a `Left`, Scala decided that the `Left` type should be `Nothing`.
+
 IntelliJ IDEA provides a nice tool that expands this comprehension to show the calls to `flatMap()` and `map()`.
 If you select the `for`, you'll see a little light bulb appear.
-Click on that and select
+Click on that and select "Desugar for comprehension."
+The result looks like this:
 
+```scala mdoc
+val fc2 =
+  Right("A")
+    .flatMap(a =>
+      Right("B")
+        .flatMap(b =>
+          Right("C")
+            .map(c => s"Result: $a $b $c")
+        )
+    )
+```
+
+The `for` comprehension left-arrow `<-` generates a call to `flatMap()`.
+Notice that the argument to `flatMap()` is a function.
+Look back at `flatMap()` in `Result.scala`.
+In the `Fail` case (which is `Left` for `Either`), `flatMap` just returns the `Fail` object and *doesn't call that function.*
+Here, in the `Right` case (which is like `Success` for `Result`), the function is called and produces `Right("B")` ... with another call to `flatMap()`.
+Now the argument is another function, which is again not called in the `Left` case.
+In the `Right` case, it returns `Right("C")` ... with another call, but this time to `map()`.
+The argument to `map()` is another function, again not called in the `Left` case.
+In the `Right` case, it returns something different: the `yield` expression.
+Also, `map()` wraps the `yield` expression in a `Right`, unlike `flatMap()`.
+
+Because of this cascade of functions inside function calls, any `flatMap()` or `map()` called on a `Left` result *will not evaluate the rest of the cascade.*
+It stops the evaluation and returns `Left` at that point, and the `Left` becomes the result of the expression.
+This cascaded expression is thus only evaluated up to the point where a `Left` first appears.
+The rest of the expression can be thought of as being short-circuited at that point.
+
+There's another benefit of this cascade of function calls: `a`, `b` and `c` are all in scope by the time you reach the `yield` expression that is the `map()` argument.
+
+X> **Exercise 5:** Modify `fc1` to use `Some` instead of `Either`.
+X> Verify it works, then produce the "desugared" version as you see with `fc2`.
+X> Your output should look like this:

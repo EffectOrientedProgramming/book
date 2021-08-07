@@ -1,19 +1,19 @@
 package monads
 
-val compose1 =
+val fc1 =
   for
-    a <- Right("First")
-    b <- Right("Second")
-    c <- Right("Third")
+    a <- Right("A")
+    b <- Right("B")
+    c <- Right("C")
   yield
     s"Result: $a $b $c"
 
-val compose2 =
-  Right("First")
+val fc2 =
+  Right("A")
     .flatMap(a =>
-      Right("Second")
+      Right("B")
         .flatMap(b =>
-          Right("Third")
+          Right("C")
             .map(c => s"Result: $a $b $c")
         )
     )
