@@ -8,7 +8,6 @@ If you are not interested in the discouraged ways to handle errors, and just wan
 There are distinct levels of problems in any given program. They require different types of handling by the programmer. Imagine a program that displays the local temperature the user based on GPS position and a network call.
 
 TODO Show success/failure for all versions
-TODO stop using result var with try/catch
 
 ```text
 Temperature: 30 degrees
@@ -27,26 +26,19 @@ def getTemperature(behavior: String): String =
     "35 degrees"
 ```
 
-```scala mdoc:nest
-def displayTemperature(
+```scala mdoc
+def displayTemperatureUnsafe(
     behavior: String
 ): String =
   "Temperature: " + getTemperature(behavior)
 
-displayTemperature("succeed")
+displayTemperatureUnsafe("succeed")
 ```
 
 On the happy path, everything looks as desired.
 If the network is unavailable, what is the behavior for the caller?
 This can take many forms.
 If we don't make any attempt to handle our problem, the whole program could blow up and show the gory details to the user.
-
-```scala mdoc
-def displayTemperatureUnsafe(
-    behavior: String
-): String =
-  "Temperature: " + getTemperature(behavior)
-```
 
 ```scala mdoc:crash
 displayTemperatureUnsafe("Network Error")
@@ -58,15 +50,11 @@ We could take the bare-minimum approach of catching the `Exception` and returnin
 def displayTemperatureNull(
     behavior: String
 ): String =
-  val temperature =
     try
-      getTemperature(behavior)
+      "Temperature: " + getTemperature(behavior)
     catch
       case (ex: RuntimeException) =>
-        null
-
-  "Temperature: " + temperature
-end displayTemperatureNull
+        "Temperature: " + null
 
 displayTemperatureNull("Network Error")
 ```
@@ -79,15 +67,11 @@ Maybe we could fallback to a `sentinel` value, such as `0` or `-1` to indicate a
 def displayTemperature(
     behavior: String
 ): String =
-  val temperature =
     try
-      getTemperature(behavior)
+      "Temperature: " + getTemperature(behavior)
     catch
       case (ex: RuntimeException) =>
-        "-1 degrees"
-
-  "Temperature: " + temperature
-end displayTemperature
+        "Temperature: -1 degrees"
 
 displayTemperature("Network Error")
 ```
@@ -99,15 +83,11 @@ We can take a more honest and accurate approach in this situation.
 def displayTemperature(
     behavior: String
 ): String =
-  val temperature =
     try
-      getTemperature(behavior)
+      "Temperature: " + getTemperature(behavior)
     catch
       case (ex: RuntimeException) =>
-        "Unavailable"
-
-  "Temperature: " + temperature
-end displayTemperature
+        "Temperature Unavailable"
 
 displayTemperature("Network Error")
 ```
@@ -121,17 +101,13 @@ The Network issue is transient, but the GPS problem is likely permanent.
 def displayTemperature(
     behavior: String
 ): String =
-  val temperature =
     try
-      getTemperature(behavior)
+      "Temperature: " + getTemperature(behavior)
     catch
       case (ex: NetworkException) =>
         "Network Unavailable"
       case (ex: GpsException) =>
         "GPS problem"
-
-  "Temperature: " + temperature
-end displayTemperature
 
 displayTemperature("Network Error")
 displayTemperature("GPS Error")
@@ -192,10 +168,11 @@ def getTemperatureZGpsGap(
         case ex: NetworkException =>
           ZIO.succeed("Network Unavailable")
       }
+import mdoc.unsafeRunTruncate
 ```
 
-```scala mdoc:crash
-unsafeRun(getTemperatureZGpsGap("GPS Error"))
+```scala mdoc
+unsafeRunTruncate(getTemperatureZGpsGap("GPS Error"))
 ```
 
 The compiler does not catch this bug, and instead fails at runtime. Can we do better?
