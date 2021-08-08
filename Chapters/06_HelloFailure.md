@@ -50,11 +50,11 @@ We could take the bare-minimum approach of catching the `Exception` and returnin
 def displayTemperatureNull(
     behavior: String
 ): String =
-    try
-      "Temperature: " + getTemperature(behavior)
-    catch
-      case (ex: RuntimeException) =>
-        "Temperature: " + null
+  try
+    "Temperature: " + getTemperature(behavior)
+  catch
+    case (ex: RuntimeException) =>
+      "Temperature: " + null
 
 displayTemperatureNull("Network Error")
 ```
@@ -67,11 +67,11 @@ Maybe we could fallback to a `sentinel` value, such as `0` or `-1` to indicate a
 def displayTemperature(
     behavior: String
 ): String =
-    try
-      "Temperature: " + getTemperature(behavior)
-    catch
-      case (ex: RuntimeException) =>
-        "Temperature: -1 degrees"
+  try
+    "Temperature: " + getTemperature(behavior)
+  catch
+    case (ex: RuntimeException) =>
+      "Temperature: -1 degrees"
 
 displayTemperature("Network Error")
 ```
@@ -83,11 +83,11 @@ We can take a more honest and accurate approach in this situation.
 def displayTemperature(
     behavior: String
 ): String =
-    try
-      "Temperature: " + getTemperature(behavior)
-    catch
-      case (ex: RuntimeException) =>
-        "Temperature Unavailable"
+  try
+    "Temperature: " + getTemperature(behavior)
+  catch
+    case (ex: RuntimeException) =>
+      "Temperature Unavailable"
 
 displayTemperature("Network Error")
 ```
@@ -101,13 +101,13 @@ The Network issue is transient, but the GPS problem is likely permanent.
 def displayTemperature(
     behavior: String
 ): String =
-    try
-      "Temperature: " + getTemperature(behavior)
-    catch
-      case (ex: NetworkException) =>
-        "Network Unavailable"
-      case (ex: GpsException) =>
-        "GPS problem"
+  try
+    "Temperature: " + getTemperature(behavior)
+  catch
+    case (ex: NetworkException) =>
+      "Network Unavailable"
+    case (ex: GpsException) =>
+      "GPS problem"
 
 displayTemperature("Network Error")
 displayTemperature("GPS Error")
@@ -163,16 +163,17 @@ This is decent, but does not provide the maximum possible guarantees. Look at wh
 def getTemperatureZGpsGap(
     behavior: String
 ): ZIO[Any, Exception, String] =
-  ZIO(getTemperature(behavior))
-      .catchAll{
-        case ex: NetworkException =>
-          ZIO.succeed("Network Unavailable")
-      }
+  ZIO(getTemperature(behavior)).catchAll {
+    case ex: NetworkException =>
+      ZIO.succeed("Network Unavailable")
+  }
 import mdoc.unsafeRunTruncate
 ```
 
 ```scala mdoc
-unsafeRunTruncate(getTemperatureZGpsGap("GPS Error"))
+unsafeRunTruncate(
+  getTemperatureZGpsGap("GPS Error")
+)
 ```
 
 The compiler does not catch this bug, and instead fails at runtime. Can we do better?

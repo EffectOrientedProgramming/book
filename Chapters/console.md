@@ -106,7 +106,8 @@ We want to leverage the `Has` type so that our code can use an arbitrary number 
 ```scala mdoc
 import zio.Has
 
-// TODO remove alt companions and make top-level functions
+// TODO remove alt companions and make top-level
+// functions
 object ConsoleWithAccessor:
   def printLine(
       variable: => String

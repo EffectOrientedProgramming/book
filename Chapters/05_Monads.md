@@ -413,14 +413,11 @@ The result looks like this:
 
 ```scala mdoc
 val fc2 =
-  Right("A")
-    .flatMap(a =>
-      Right("B")
-        .flatMap(b =>
-          Right("C")
-            .map(c => s"Result: $a $b $c")
-        )
+  Right("A").flatMap(a =>
+    Right("B").flatMap(b =>
+      Right("C").map(c => s"Result: $a $b $c")
     )
+  )
 ```
 
 The `for` comprehension left-arrow `<-` generates a call to `flatMap()`.
@@ -456,14 +453,11 @@ val sol5a =
   yield s"Result: $a $b $c"
 
 val sol5b =
-  Some("A")
-    .flatMap(a =>
-      Some("B")
-        .flatMap(b =>
-          Some("C")
-            .map(c => s"Result: $a $b $c")
-        )
+  Some("A").flatMap(a =>
+    Some("B").flatMap(b =>
+      Some("C").map(c => s"Result: $a $b $c")
     )
+  )
 ```
 
 ```scala mdoc

@@ -9,12 +9,9 @@ def unsafeRunTruncate[E, A](
   val res: ZIO[zio.ZEnv, E, A | Unit] =
     z.catchAllDefect { case defect: Any =>
       ZIO.debug(
-        s"Unhandled defect: $defect".take(47)
+        s"Unhandled defect: $defect".take(
+          44
+        ) // Less, because we have to account for the comment prefix "// "
       )
     }
   unsafeRun(res)
-
-/** final def unsafeRun[E, A]( zio: => ZIO[R, E,
-  * A] ): A = unsafeRunSync(zio) .getOrElse(c =>
-  * throw FiberFailure(c))
-  */
