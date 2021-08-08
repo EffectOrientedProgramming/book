@@ -35,7 +35,7 @@ object Mining extends zio.App:
 
     // Inefficiently determines if the input
     // number is prime.
-    def isPrime(num: Long): Boolean =
+    def isPrime(num: Int): Boolean =
       for (i <- 2 to num.toInt - 1)
         if (num % i == 0)
           return false
@@ -44,7 +44,7 @@ object Mining extends zio.App:
     // Recursivley itterates up from starting
     // value, num, until it finds a prime number,
     // which it returns
-    def findNextPrime(num: Long): Long =
+    def findNextPrime(num: Int): Int =
       if (isPrime(num))
         num
       else
@@ -53,14 +53,14 @@ object Mining extends zio.App:
     // Takes a starting value, then calls
     // itterates up through numbers until it
     // finds a prime number.
-    def mine2(num: Long): ZIO[Has[
+    def mine2(num: Int): ZIO[Has[
       zio.Random
-    ] & Has[Clock], Nothing, Object] =
+    ] & Has[Clock], Nothing, (String, Int)] =
       for
         duration <- nextIntBetween(1, 4)
         _        <- ZIO.sleep(duration.second)
         prime = findNextPrime(num)
-      yield s"$name mined the next coin at prime number: $prime"
+      yield (name, prime)
   end Miner
 
   // Nonempty list TODO embed in the type
@@ -73,8 +73,10 @@ object Mining extends zio.App:
 
   def findNextBlock2(
       miners: Seq[Miner],
-      startNum: Long
-  ) =
+      startNum: Int
+  ): ZIO[zio.Has[
+    zio.Random
+  ] & zio.Has[zio.Clock], Nothing, (String, Int)] =
     miners
       .map(_.mine2(startNum))
       .reduce(_.race(_))
@@ -85,14 +87,10 @@ object Mining extends zio.App:
     val zeb   = Miner("Zeb")
     val frop  = Miner("Frop")
     val shtep = Miner("Shtep")
-    val logic1 = //Uses mine1 function (Just sleeping)
-      for
-        raceResult <-
-          findNextBlock(Seq(zeb, frop, shtep))
-        _ <- printLine("Winner: " + raceResult)
-      yield ()
 
-    val logic2: ZIO[Has[Console] with Has[
+    def loopLogic(
+        chain: Ref[List[Int]]
+    ): ZIO[Has[Console] with Has[
       Random
     ] with Has[Clock], IOException, Unit] = //Uses mine2 function (sleep
       // and find
@@ -105,9 +103,23 @@ object Mining extends zio.App:
             Seq(zeb, frop, shtep),
             startNum
           )
-        _ <- printLine("Winner: " + raceResult)
+        (winner, winningPrime) = raceResult
+        _ <- chain.update(_ :+ winningPrime)
+        _ <-
+          printLine(
+            s"$winner mined the next coin at prime number: $winningPrime"
+          )
       yield ()
 
-    logic2.repeatN(5).exitCode
+    val fullLogic =
+      for
+        chain <- Ref.make[List[Int]](List.empty)
+        _     <- loopLogic(chain).repeatN(5)
+        finalChain <- chain.get
+        _ <-
+          printLine("Final Chain: " + finalChain)
+      yield ()
+
+    fullLogic.exitCode
   end run
 end Mining
