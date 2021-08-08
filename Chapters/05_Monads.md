@@ -9,20 +9,20 @@ Side effects produce unpredictable results and an unpredictable program is unrel
 The problem is that a single simple result is *too* simple.
 What we need is a complex result capable of holding all necessary information that comes out of a function call.
 
-To solve the problem we put all that extra result information, along with the original result, into a box.
+To solve the problem we put all that information into a box: the original result together with any extra information (such as error conditions).
 We return that box from the function.
 
 Now we've got boxes everywhere, and programming becomes quite messy and complicated.
 Every time you call a function, you must unpack and analyze the contents of the box that comes out as the result.
 If there's a problem, you must handle it right after the function is called, which is awkward and often produces duplicate code.
-People probably won't use our system unless we figure out a way to simplify and automate the manipulation of these boxes.
+People probably won't use our system unless we figure out a way to simplify and automate the use of these boxes.
 
-What if we had a standard set of operations that work on all boxes, to automate the use of our system and eliminate all that duplicated code?
-The box---and the associated operations---is a monad.
+What if we had a standard set of operations that work on all boxes, to make our system easy to use by eliminating all that duplicated code?
+The box---and these associated operations---is a monad.
 
 ## The Error Monad
 
-Programmers have always had to deal with errors, so this makes a good initial use-case for monads.
+Initially, the most compelling reason to use monads is error handling.
 
 Encountering an error during a function call generally means two things:
 
@@ -38,7 +38,7 @@ There are two goals for exceptions:
 
 2. Reduce redundant error-handling code by handling associated errors in a single place.
 
-What if we make a box called `Result` containing *both* the success-path result together with error information if it fails?
+What if we make a box called `Result` containing *both* the success-path value together with error information if it fails?
 For simplicity, both the error information and the success data are `String`s:
 
 ```scala mdoc
@@ -52,7 +52,7 @@ If you get all the way through the function without any failures, you return a `
 The Scala `for` comprehension is designed to work with monads.
 The `<-` in a `for` comprehension *automatically checks and unpacks a monad!*
 The monad does not have to be a standard or built-in type; you can write one yourself as we've done with `Result`.
-Let's see how it works:
+Let's see how `Result` works:
 
 ```scala mdoc
 // Monads/ShowResult.scala
@@ -106,13 +106,15 @@ show('a')
 
 `op('a', "")` immediately fails when `n = 'a'`, so the result returned from `op()` is `Fail(a)`.
 
-Here's where things get especially interesting, because in a `for` comprehension, Scala automatically calls `flatMap()` for a `<-`.
-So `flatMap()` is called on the result of of `op('a', "")` and *no further lines in `compose` are executed*.
+Here's where things get especially interesting.
+When Scala sees `<-` in a `for` comprehension, it automatically calls `flatMap()`.
+So `flatMap()` is called on the result of of `op('a', "")`.
+That result is `Fail` and *no further lines in `compose` are executed*.
 The `a` to the left of the `<-` is never initialized, nor are `b` or `c`.
 The resulting value of `compose` becomes the value returned by `flatMap()`, which is `Fail(a)`.
 
 The last lines in `show()` check for failure and execute error-handling code if `Fail` is found.
-All the error-handling for `compose` is now in one place, in the same way that a `catch` clause combines error-handling code.
+All the error-handling for `compose` is in one place, in the same way that a `catch` clause combines error-handling code.
 
 ```scala mdoc
 show('b')
@@ -145,7 +147,7 @@ Note that `c` is of type `String` but `compose` is of type `Result`.
 The `yield` expression is automatically wrapped in a `Success` object.
 
 The identifier name for `val compose` is intentional.
-We are composing a result from multiple expressions and the whole `for` comprehension will either succeed or fail.
+We are composing a result from multiple expressions and the whole `for` comprehension will either succeed or fail, and have its own error handling.
 
 From the above output, the compiler responds to a `<-` within a `for` comprehension by calling `flatMap()` or `map()`.
 Thus, it looks like our `Result` must have `flatMap()` and `map()` methods in order to allow these calls.
@@ -174,13 +176,13 @@ trait Result:
 end Result
 ```
 
-The code in the two methods is almost identical. Each receives a function `f` as an argument.
-Each checks the type of the current object, which is a `Result`.
-If the type is a `Fail`, it just returns that `Fail` object, and never calls `f`.
-Only if the type is a `Success` is `f` evaluated.
+The code in the two methods is almost identical.
+Each receives a function `f` as an argument.
+Each checks the subtype of the current (`Result`) object.
+A `Fail` just returns that `Fail` object, and never calls `f`.
+Only a `Success` causes `f` to be evaluated.
 In `flatMap()`, `f` is called on the contents of the `Success`.
 In `map()`, `f` is also called on the contents of the `Success`, and then the result of that call is wrapped in another `Success` object.
-
 
 ## Predefined Monads
 
@@ -322,7 +324,6 @@ X> Your output should look like this:
 
 ```scala mdoc:invisible
 // Monads/Solution4a.scala
-// package monads
 
 enum ResultEnum:
   def flatMap(
@@ -351,7 +352,6 @@ end ResultEnum
 
 ```scala mdoc:invisible
 // Monads/Solution4b.scala
-// package monads
 import ResultEnum.*
 
 def showRE(n: Char) =
@@ -445,4 +445,30 @@ X> **Exercise 5:** Modify `fc1` to use `Some` instead of `Either`.
 X> Verify it works, then produce the "desugared" version as you see with `fc2`.
 X> Your output should look like this:
 
-...
+```scala mdoc:invisible
+// Monads/Solution5.scala
+
+val sol5a =
+  for
+    a <- Some("A")
+    b <- Some("B")
+    c <- Some("C")
+  yield s"Result: $a $b $c"
+
+val sol5b =
+  Some("A")
+    .flatMap(a =>
+      Some("B")
+        .flatMap(b =>
+          Some("C")
+            .map(c => s"Result: $a $b $c")
+        )
+    )
+```
+
+```scala mdoc
+sol5a
+sol5b
+```
+
+## Summary
