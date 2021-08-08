@@ -63,14 +63,6 @@ object Mining extends zio.App:
       yield (name, prime)
   end Miner
 
-  // Nonempty list TODO embed in the type
-  def findNextBlock(miners: Seq[Miner]) =
-    miners
-      .map(_.mine)
-      .reduce(
-        _.race(_)
-      ) // Much terser. I think it's worth using this form
-
   def findNextBlock2(
       miners: Seq[Miner],
       startNum: Int
