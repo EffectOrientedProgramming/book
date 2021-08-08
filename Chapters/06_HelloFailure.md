@@ -188,9 +188,10 @@ def getTemperatureZGpsGap(
     behavior: String
 ): ZIO[Any, Exception, String] =
   ZIO(getTemperature(behavior))
-      .catchAll:
+      .catchAll{
         case ex: NetworkException =>
           ZIO.succeed("Network Unavailable")
+      }
 ```
 
 ```scala mdoc:crash
