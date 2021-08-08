@@ -57,6 +57,9 @@ sbt:EffectOrientedProgramming>
 
 * To wipe out local changes: `git reset --hard HEAD`
 
+* Make pull commands rebase instead of merge: `git config --global pull.rebase true`.
+  Explanation and [suggested default configurations](https://spin.atomicobject.com/2020/05/05/git-configurations-default/).
+
 ## Miscellaneous Notes
 
 * Separate the exercises from the book. The end of each atom simply references
