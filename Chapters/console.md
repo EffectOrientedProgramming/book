@@ -149,7 +149,6 @@ object ConsoleWithLayer:
 Now executing our code is as simple as describing it.
 
 
-
 ```scala mdoc
 unsafeRun(
   logic.provideLayer(ConsoleWithLayer.live)
