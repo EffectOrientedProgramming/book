@@ -7,6 +7,9 @@ If you are not interested in the discouraged ways to handle errors, and just wan
 
 There are distinct levels of problems in any given program. They require different types of handling by the programmer. Imagine a program that displays the local temperature the user based on GPS position and a network call.
 
+TODO Show success/failure for all versions
+TODO stop using result var with try/catch
+
 ```text
 Temperature: 30 degrees
 ```
@@ -65,10 +68,7 @@ def displayTemperatureNull(
   "Temperature: " + temperature
 end displayTemperatureNull
 
-assert(
-  displayTemperatureNull("Network Error") ==
-    "Temperature: null"
-)
+displayTemperatureNull("Network Error")
 ```
 
 This is *slightly* better, as the user can at least see the outer structure of our UI element, but it still leaks out code-specific details world.
@@ -149,7 +149,7 @@ Now we will explore how ZIO enables more powerful, uniform error-handling.
 
 TODO Which should we show first?
 - [Wrapping Legacy Code](#wrapping-legacy-code)
-- [ZIO-First Error Handling](#zio-first-error-handling)
+- [ZIO Error Handling](#zio-error-handling)
 
 ### Wrapping Legacy Code
 If we are unable to re-write the fallible function, we can still wrap the call
@@ -186,11 +186,11 @@ This is decent, but does not provide the maximum possible guarantees. Look at wh
 ```scala mdoc:fmt
 def getTemperatureZGpsGap(
     behavior: String
-): Task[String] =
-  ZIO(getTemperature(behavior)).catchAll {
-    case ex: NetworkException =>
-      ZIO.succeed("Network Unavailable")
-  }
+): ZIO[Any, Exception, String] =
+  ZIO(getTemperature(behavior))
+      .catchAll:
+        case ex: NetworkException =>
+          ZIO.succeed("Network Unavailable")
 ```
 
 ```scala mdoc:crash
@@ -211,6 +211,7 @@ def getTemperatureZ(behavior: String): ZIO[
   if (behavior == "GPS Error")
     ZIO.fail(new GpsException())
   else if (behavior == "Network Error")
+    // TODO Use a non-exceptional error
     ZIO.fail(new NetworkException())
   else
     ZIO.succeed("30 degrees")
