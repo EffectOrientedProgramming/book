@@ -86,3 +86,27 @@ def effectfulIntBetween(low: Int, high: Int) =
   ZIO.accessZIO[RandomIntBetween](
     _.intBetween(high, low)
   )
+
+@main
+def demostuff(): Unit =
+
+  def foo(arg: => Int): Int =
+    val x = arg
+    println("In foo")
+    x
+
+  foo {
+    println("hi first")
+    10
+  }
+
+  def foo2(arg: () => Int): Int =
+    arg()
+    println("In foo2")
+    arg()
+
+  foo2 { () =>
+    println("hi")
+    10
+  }
+end demostuff

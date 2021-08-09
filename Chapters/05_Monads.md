@@ -42,6 +42,7 @@ What if we make a box called `Result` containing *both* the success-path value t
 For simplicity, both the error information and the success data are `String`s:
 
 ```scala mdoc
+// Monads/result.scala
 case class Fail(why: String)     extends Result
 case class Success(data: String) extends Result
 ```
