@@ -7,7 +7,7 @@ val url2 = new URL("https://www.google.com")
 assert(url1.equals(url2))
 ```
 
-If we check the docs for this function, we fine:
+If we check the docs for this function, we find:
 ```java
 /*
  * Two hosts are considered equivalent if both host names can be resolved
