@@ -1,58 +1,67 @@
 # Bruce's Miscellaneous Notes
 
-Different types of polymorphism have different ways of expressing the commonality between the types that they work on. Inheritance polymorphism sets this commonality as all inherited from the same subtype. Parametric polymorphism allows the types to be disjoint and the commonality is expressed via the operations that are performed within the polymorphic function.
+> Notes that I capture on my phone when they occur to me.
+> Just thoughts and ideas; I don't expect all or any of them to end up in the book.
 
-- If everyone follows some basic rules when creating their monad, we can automate a bunch of things for anything which is a monad. But what are those rules? In this case the rules are that you need a map and a flat map and these have to behave within certain constraints
+* Red book: Bottom of page 290 might make a good introductory example to compel the monadic lifestyle.
 
-Functional programming allows you to focus on the hard parts of the problem you're trying to solve, by automating everything else
+* Each `case` in a `match` is a function that takes a single argument.
 
-Is a curly brace  enclosed block body the same as a lambda without arguments?
+* When multiple lines are similar to each other but formatted differently it requires the reader to parse each one. e.g. multiple arguments formatted on separate lines.
 
-What if forward references are allowed within the context of a single chapter but they must be resolved by the end of that chapter? This still allows chapters to be easily moved around.
+* Example: a function that emits other functions to be used in some kind of strategy. Perhaps the object containing that function would have constructor that figures out which function is appropriate for the current needs.
 
+* Different types of polymorphism have different ways of expressing the commonality between the types that they work on. Inheritance polymorphism sets this commonality as all inherited from the same subtype. Parametric polymorphism allows the types to be disjoint and the commonality is expressed via the operations that are performed within the polymorphic function.
 
-Abstraction delays implementation. This creates more choice.
+* If everyone follows some basic rules when creating their monad, we can automate a bunch of things for anything which is a monad. But what are those rules? In this case the rules are that you need a `map()` and a `flatMap()` and these have to behave within certain constraints.
 
-A for comprehension creates a unit of work and the expressions within can be executed concurrently
+* Functional programming allows you to focus on the hard parts of the problem you're trying to solve, by automating everything else.
 
-Recursion is a tautology
+* Is a curly brace enclosed block body the same as a lambda without arguments?
 
-Scala supports pure functional programming but it also allows other kinds of programming
+* What if forward references are allowed within the context of a single chapter but they must be resolved by the end of that chapter? This still allows chapters to be easily moved around.
 
-Every program has an analysis phase and an interpretation phase. The interpreter decides if and when side effects occur, independent of the program definition. We choose The interpreter independently.
+* Everything has to work for the general case of a container that contains a container. Is this true only when both container types are the same?
 
-A value can hold a function and a function can hold a value so what's the real difference between Val and def? Val forces the evaluation of an expression, while def delays it
+* Abstraction delays implementation. This creates more choice.
 
-Code that runs quickly we do right now. If we don't know how long something will take or it takes too long we suspend it. Difference between blocking and non blocking.
+* A `for` comprehension creates a unit of work and the expressions within can be executed concurrently. Expressions that depend on each other form a concurrent group.
 
-Normal versus abnormal computations, everything is one of these and we either just execute it or do something special.
+* Recursion is a tautology.
 
-A four comprehension is kind of like an atomic operation
+* Scala supports pure functional programming but it also allows other kinds of programming.
 
-A type class is a default argument that can vary. It can change from configurations away from that function. Is it an inversion of control mechanism?
+* Every program has an analysis phase and an interpretation phase. The interpreter decides if and when side effects occur, independent of the program definition. We choose the interpreter independently.
 
-Transient versus permanent error
+* A value can hold a function and a function can hold a value so what's the real difference between `val` and `def`? `val` forces the evaluation of an expression, while `def` delays it.
 
-What are the benefits of error monads over exceptions?
-With exceptions you always get a stack trace and its associated overhead. There may be additional context information that you need to save. With a monad you include as much or as little information as you need.
+* Code that runs quickly we do right now. If we don't know how long something will take or it takes too long we suspend it. Difference between blocking and non blocking.
 
-- Failing paths multiply when you compose them. Don't create failing paths in the first place and prevent any new failures from propagating.
+* Normal versus abnormal computations, everything is one of these and we either just execute it or do something special.
 
-- What is the problem that default arguments do not solve?
+* A `for` comprehension is kind of like an atomic operation.
 
-- Is the four comprehension the only mechanism in Scala that automatically unpacks a monad?
+* A type class is a default argument that can vary. It can change configurations away from that function. Is it an inversion of control mechanism? What is the problem that default arguments do not solve?
 
-- ZIO creates reliability by solving the problems of failure and concurrency
+* Transient versus permanent error.
 
-- A system is statistically correct if it can be successful despite its failures. Statistical correctness supports rapid development languages over reliability oriented languages.
+* What are the benefits of error monads over exceptions? With exceptions you always get a stack trace and its associated overhead. There may be additional context information that you need to save. With a monad you include as much or as little information as you need.
 
-- Functional programming libraries do not narrow their usage arbitrarily. Each function is designed to be used in the broadest set of applications possible, without anticipating specific usage and thus prematurely constraining itself.
+* Failing paths multiply when you compose them. Don't create failing paths in the first place and prevent any new failures from propagating.
 
-- The speed comes only after you've carefully crafted your set of primitives and then you can begin assembling your system without agonizing over failure at every step.
+* Is the `for` comprehension the only mechanism in Scala that automatically unpacks a monad?
 
-- The surprise of lack of thread safety in java. You can design a nice library without thinking about whether it is thread safe and then have to redesign it for thread safety.
+* ZIO creates reliability by solving the problems of failure and concurrency.
 
-- A case class with a single function argument becomes a reference to that function.
+* A system is "statistically correct" if it can be successful despite its failures. Statistical correctness supports rapid development languages over reliability oriented languages.
+
+* Functional programming libraries do not narrow their usage arbitrarily. Each function is designed to be used in the broadest set of applications possible, without anticipating specific usage and thus prematurely constraining itself.
+
+* The speed comes only after you've carefully crafted your set of primitives and then you can begin assembling your system without agonizing over failure at every step.
+
+* The surprising lack of thread safety in java. You can create a solution without thinking about whether it is thread safe. You won't later have to redesign it for thread safety.
+
+* A case class with a single function argument becomes a reference to that function.
 
   ```scala
   case class f[A, B](g: A => B)
