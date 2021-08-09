@@ -10,4 +10,3 @@ unit.md
 console.md
 environment_variables.md
 random.md
-monads-wyett.md
