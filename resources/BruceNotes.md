@@ -11,7 +11,7 @@
 
 * Example: a function that emits other functions to be used in some kind of strategy. Perhaps the object containing that function would have constructor that figures out which function is appropriate for the current needs.
 
-* Different types of polymorphism have different ways of expressing the commonality between the types that they work on. Inheritance polymorphism sets this commonality as all inherited from the same subtype. Parametric polymorphism allows the types to be disjoint and the commonality is expressed via the operations that are performed within the polymorphic function.
+* Different types of polymorphism have different ways of expressing the commonality between the types that they work on. Inheritance polymorphism sets this commonality as all inherited from the same base type. Parametric polymorphism allows the types to be disjoint and the commonality is expressed via the operations that are performed within the polymorphic function.
 
 * If everyone follows some basic rules when creating their monad, we can automate a bunch of things for anything which is a monad. But what are those rules? In this case the rules are that you need a `map()` and a `flatMap()` and these have to behave within certain constraints.
 
