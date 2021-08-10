@@ -5,14 +5,59 @@ import zio.Runtime.default.unsafeRun
 import zio.Console.printLine
 
 case class Cash(value: Int)
+    extends Resource[Cash]
+
 case class Lumber(value: Int)
+    extends Resource[Lumber]
+
 case class Grain(value: Int)
+    extends Resource[Grain]
+
+sealed trait Resource[A]:
+  val value: Int
+  def <=(other: Resource[A]): Boolean =
+    value <= other.value
 
 case class TownResources(
     cash: Cash,
     lumber: Lumber,
     grain: Grain
-)
+):
+  def +[A](resource: Resource[A]) =
+    resource match
+      case c: Cash =>
+        copy(cash = Cash(cash.value + c.value))
+      case g: Grain =>
+        copy(grain =
+          Grain(grain.value + g.value)
+        )
+      case l: Lumber =>
+        copy(lumber =
+          Lumber(lumber.value + l.value)
+        )
+
+  def -[A](resource: Resource[A]) =
+    resource match
+      case c: Cash =>
+        copy(cash = Cash(cash.value - c.value))
+      case g: Grain =>
+        copy(grain =
+          Grain(grain.value - g.value)
+        )
+      case l: Lumber =>
+        copy(lumber =
+          Lumber(lumber.value - l.value)
+        )
+
+  def canSend[A](resource: Resource[A]) =
+    resource match
+      case c: Cash =>
+        c <= cash
+      case l: Lumber =>
+        l <= lumber
+      case g: Grain =>
+        g <= grain
+end TownResources
 
 @main
 def resourcesDemo() =
@@ -47,16 +92,18 @@ def resourcesDemo() =
         ).commit
       finalTreeTownResources <-
         treeTown.get.commit
+      finalGrainVilleResources <-
+        grainVille.get.commit
       _ <- printLine(finalTreeTownResources)
+      _ <- printLine(finalGrainVilleResources)
     yield ()
 
   unsafeRun(logic)
 end resourcesDemo
 
-def transferResources[
-    A <: Cash | Lumber | Grain,
-    B <: Cash | Lumber | Grain
-](
+def transferResources[A <: Resource[
+  A
+], B <: Cash | Lumber | Grain](
     from: TRef[TownResources],
     to: TRef[TownResources],
     fromAmount: A,
@@ -64,34 +111,26 @@ def transferResources[
 ): STM[Throwable, Unit] =
   for
     senderBalance <- from.get
+    canSend = senderBalance.canSend(fromAmount)
     _ <-
-      fromAmount match
-        case c: Cash =>
-          if (c.value < senderBalance.cash.value)
-            println("Valid cash transaction")
-            from.update(fResources =>
-              fResources.copy(cash =
-                Cash(
-                  fResources.cash.value - c.value
-                )
-              )
-            )
-//            STM.succeed(())
-          else
-            STM.fail(
-              new Throwable("Not enough cash")
-            )
-        case l: Lumber =>
-//          senderBalance.lumber
-          ???
-//    _ <-
-//      if (amount > senderBalance.cash)
-//        STM.fail(
-//          new Throwable("insufficient funds")
-//        )
-//      else
-//        from.update(_ - amount) *>
-//          to.update(_ + amount)
+      if (canSend)
+        from.update(_ - fromAmount) *>
+          to.update(_ + fromAmount)
+      else
+        STM.fail(
+          new Throwable(
+            "Not enough resources to send: " +
+              fromAmount
+          )
+        )
+    extraTransaction =
+      from.update(fResources =>
+        fResources.copy(cash =
+          Cash(fResources.cash.value + 1)
+        )
+      )
+// _ <- extraTransaction *> extraTransaction
+    x = 100
   yield ()
 
 def transfer(
