@@ -18,6 +18,10 @@ sealed trait Resource[A]:
   def <=(other: Resource[A]): Boolean =
     value <= other.value
 
+//  def -(other: Resource[A]): Resource[A] =
+// copy(value = value - other.value) // Not
+// possible from within the trait
+
 case class TownResources(
     cash: Cash,
     lumber: Lumber,
@@ -84,11 +88,11 @@ def resourcesDemo() =
           )
           .commit
       _ <-
-        transferResources(
+        tradeResources(
           treeTown,
           grainVille,
           Cash(3),
-          Grain(1)
+          Grain(30)
         ).commit
       finalTreeTownResources <-
         treeTown.get.commit
@@ -101,9 +105,9 @@ def resourcesDemo() =
   unsafeRun(logic)
 end resourcesDemo
 
-def transferResources[A <: Resource[
+def tradeResources[A <: Resource[
   A
-], B <: Cash | Lumber | Grain](
+], B <: Resource[B]](
     from: TRef[TownResources],
     to: TRef[TownResources],
     fromAmount: A,
@@ -121,6 +125,25 @@ def transferResources[A <: Resource[
           new Throwable(
             "Not enough resources to send: " +
               fromAmount
+          )
+        )
+    extraTransaction =
+      from.update(fResources =>
+        fResources.copy(cash =
+          Cash(fResources.cash.value + 1)
+        )
+      )
+    party2Balance <- to.get
+    canSend2 = party2Balance.canSend(toAmount)
+    _ <-
+      if (canSend2)
+        to.update(_ - toAmount) *>
+          from.update(_ + toAmount)
+      else
+        STM.fail(
+          new Throwable(
+            "Not enough resources to send: " +
+              toAmount
           )
         )
     extraTransaction =
