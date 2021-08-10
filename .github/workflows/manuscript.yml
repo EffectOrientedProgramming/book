@@ -36,4 +36,4 @@ jobs:
     - id: slack-notify
       if: ${{ github.ref == 'refs/heads/main' }}
       run: |
-        curl -s -X POST -H 'Content-type: application/json' --data "{\"text\":\"Book Preview: ${{ steps.preview.outputs.pdf_url }}\"}" ${{ secrets.SLACK_WEBHOOK }}
+        curl -s -X POST -H 'Content-type: application/json' --data "{\"text\":\"Book Preview: ${{ steps.preview.outputs.pdf_url }} ${{ steps.preview.outputs.epub_url }}\"}" ${{ secrets.SLACK_WEBHOOK }}
