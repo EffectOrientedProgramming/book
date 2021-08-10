@@ -6,6 +6,24 @@
 * Consider creating a style guide for optional syntax.
   Example: If a function doesn't take arguments, should we always use `()` when calling it?
   I like the idea of having completely consistent style so the reader doesn't have to decipher differences in style.
+  Don't invent overloaded operators.
+
+trait Foo
+  val x = this match
+    case TypeA => f(q)
+    case TypeB => h(w)
+
+case class TypeA extend Foo
+case class TypeB extend Foo
+
+def g(i: Int) =
+  i match
+    1 => TypeA()
+    _ => TypeB()
+
+g(1).x
+g(10).x
+
 
 * Red book: Bottom of page 290 might make a good introductory example to compel the monadic lifestyle.
 
@@ -37,7 +55,12 @@
 
 * Scala supports pure functional programming but it also allows other kinds of programming.
 
-* Every program has an analysis phase and an interpretation phase. The interpreter decides if and when side effects occur, independent of the program definition. We choose the interpreter independently.
+* Every program has an analysis phase and an interpretation phase.
+  The interpreter decides if and when side effects occur, independent of the program definition.
+  We choose the interpreter independently.
+  Example: Preventing the printing of sensitive information.
+
+* Earlier attempt: crosscutting in Java which required a tool that would modify all the code at the crosscutting points. The intent was good but the implementation wasn't the right one.
 
 * A value can hold a function and a function can hold a value so what's the real difference between `val` and `def`? `val` forces the evaluation of an expression, while `def` delays it.
 
@@ -53,15 +76,31 @@
 
 * What are the benefits of error monads over exceptions? With exceptions you always get a stack trace and its associated overhead. There may be additional context information that you need to save. With a monad you include as much or as little information as you need.
 
+* We don't use exceptions for flow control.
+
+* Possible example: show how you can end up in different catch clauses based on how functions are called. Show how it's hard to reason.
+
 * Failing paths multiply when you compose them. Don't create failing paths in the first place and prevent any new failures from propagating.
 
-* Is the `for` comprehension the only mechanism in Scala that automatically unpacks a monad?
+* Is the `for` comprehension the only mechanism in Scala that automatically unpacks a monad? (basically no).
+  Maybe a list of low-level functions that also work with monads.
 
-* ZIO creates reliability by solving the problems of failure and concurrency.
+* ZIO creates reliability by solving the problems of failure, concurrency, resource management, impacts from variations in the environment.
+  The ability to change configuration without changing the program (instead of dependency injection).
+  The things that might vary are determined by the interpreter rather than injected from the environment.
 
-* A system is "statistically correct" if it can be successful despite its failures. Statistical correctness supports rapid development languages over reliability oriented languages.
+* Possible example: Map as test db vs SQLite as "live" database.
 
-* Functional programming libraries do not narrow their usage arbitrarily. Each function is designed to be used in the broadest set of applications possible, without anticipating specific usage and thus prematurely constraining itself.
+* A system is "statistically correct" if it can be successful despite its failures.
+  Statistical correctness supports rapid development languages over reliability oriented languages.
+  "Perfect is the enemy of good enough."
+
+* Example: Application heartbeat. Something where we add "repeat every n seconds." (compare to procedural way).
+
+* Example: Insert parallelism into an existing example.
+
+* Functional programming libraries do not narrow their usage arbitrarily.
+  Each function is designed to be used in the broadest set of applications possible, without anticipating specific usage and thus prematurely constraining itself.
 
 * The speed comes only after you've carefully crafted your set of primitives and then you can begin assembling your system without agonizing over failure at every step.
 
