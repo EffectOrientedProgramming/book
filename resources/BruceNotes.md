@@ -3,6 +3,10 @@
 > Notes that I capture on my phone when they occur to me.
 > Just thoughts and ideas; I don't expect all or any of them to end up in the book.
 
+* Consider creating a style guide for optional syntax.
+  Example: If a function doesn't take arguments, should we always use `()` when calling it?
+  I like the idea of having completely consistent style so the reader doesn't have to decipher differences in style.
+
 * Red book: Bottom of page 290 might make a good introductory example to compel the monadic lifestyle.
 
 * Each `case` in a `match` is a function that takes a single argument.
@@ -13,7 +17,7 @@
 
 * Different types of polymorphism have different ways of expressing the commonality between the types that they work on. Inheritance polymorphism sets this commonality as all inherited from the same base type. Parametric polymorphism allows the types to be disjoint and the commonality is expressed via the operations that are performed within the polymorphic function.
 
-* If everyone follows some basic rules when creating their data type, then they have created a monad. we can automate a bunch of things for anything which is a monad. 
+* If everyone follows some basic rules when creating their data type, then they have created a monad. we can automate a bunch of things for anything which is a monad.
 * But what are those rules? In this case the rules are that you need a `map()` and a `flatMap()` and these have to behave within certain constraints.
 
 * Functional programming allows you to focus on the hard parts of the problem you're trying to solve, by automating everything else.
