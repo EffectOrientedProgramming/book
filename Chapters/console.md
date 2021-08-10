@@ -157,4 +157,54 @@ unsafeRun(
 )
 ```
 
+In real application, both of these will go in the companion object directly.
+
+```scala mdoc
+import zio.Layer
+object Console:
+  def printLine(
+      variable: => String
+  ): ZIO[Has[Console], Nothing, Unit] =
+    ZIO.serviceWith(_.printLine(variable))
+
+  val live: Layer[Nothing, Has[Console]] =
+    ZLayer.succeed(ConsoleLive)
+```
+
 ## Official ZIO Approach
+
+TODO
+
+## ZIO Super-Powers
+
+```scala mdoc
+object ConsoleSanitized extends Console:
+  def printLine(
+      output: String
+  ): ZIO[Any, Nothing, Unit] =
+    // TODO Get this working without Predef
+    ZIO.succeed(
+      Predef.println(
+        "Sanitized: " +
+          output.replaceAll(
+            "\\d{3}-\\d{2}-\\d{4}",
+            "***-**-****"
+          )
+      )
+    )
+```
+
+```scala mdoc:silent
+val leakSensitiveInfo
+    : ZIO[Has[Console], Nothing, Unit] =
+  Console
+    .printLine("Customer SSN is 000-00-0000")
+```
+
+```scala mdoc
+unsafeRun(
+  leakSensitiveInfo.provideLayer(
+    ZLayer.succeed[Console](ConsoleSanitized)
+  )
+)
+```
