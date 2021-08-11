@@ -3,20 +3,33 @@
 ## Historic Approach
 
 ```scala mdoc:invisible
+enum Environment:
+  case OriginalDeveloper
+  case NewDeveloper
+  case CIServer
+  
+import Environment.*
+  
 // TODO Keep an eye out for a _real_ way to
 // provide environment variables to this, while
 // keeping my .env separate
 
 // This is a _very_ rough way of imitating a real
 // ENV access via `sys.env.get`
-case class Env():
+class Env(var environment: Environment):
   def get(key: String): Option[String] =
-    Option
-      .when(key == "API_KEY")("SECRET_API_KEY")
+    if key == "API_KEY"
+    then
+      environment match
+        case OriginalDeveloper => Some("SECRET_API_KEY")
+        case NewDeveloper => Some("WRONG_API_KEY")
+        case CIServer => None
+    else None
+      
 
 case class Sys(env: Env)
 
-val sys = Sys(Env())
+val sys = Sys(Env(environment = OriginalDeveloper))
 ```
 
 Environment Variables are a common way of providing dynamic and/or sensitive data to your running application.
@@ -27,11 +40,20 @@ val apiKey = sys.env.get("API_KEY")
 ```
 
 This seems rather innocuous; however, it can be an annoying source of problems as your project is built and deployed across different environments.
+Given this API:
+
+```scala mdoc
+trait TravelApi:
+  def findCheapestHotel(
+      zipCode: String,
+      apiKey: String
+  ): Either[String, String]
+```
 
 ```scala mdoc:invisible
 import scala.util.{Either, Left, Right}
 
-object TravelServiceApi:
+object TravelApiImpl extends TravelApi:
   def findCheapestHotel(
       zipCode: String,
       apiKey: String
@@ -42,25 +64,54 @@ object TravelServiceApi:
       Left("Invalid API Key")
 ```
 
+Our code could look like this:
+
 ```scala mdoc
-def perfectAnniversaryLodging()
-    : Either[String, String] =
+def perfectAnniversaryLodgingUnsafe(
+    travelApi: TravelApi
+): Either[String, String] =
   val apiKey =
     sys
       .env
       .get("API_KEY")
-      .get // Unsafe, but useful for demo
-  TravelServiceApi
-    .findCheapestHotel("90210", apiKey)
+      .getOrElse(throw new RuntimeException("Unconfigured Environment"))
+  travelApi.findCheapestHotel("90210", apiKey)
 
-perfectAnniversaryLodging()
 ```
 
 When you look up an Environment Variable, you are accessing information that was _not_ passed in to your function as an explicit argument.
+On your own machine, this might work as expected.
+
+```scala mdoc
+perfectAnniversaryLodgingUnsafe(TravelApiImpl)
+```
+
+However, when your collaborator executes this code on their machine, they might have a different value stored in this variable.
+
+```scala mdoc:invisible
+sys.env.environment = NewDeveloper
+```
+
+```scala mdoc
+perfectAnniversaryLodgingUnsafe(TravelApiImpl)
+```
+
+```scala mdoc:invisible
+sys.env.environment = CIServer
+```
+
+```scala mdoc:crash
+// On a Continuous Integration Server
+perfectAnniversaryLodgingUnsafe(TravelApiImpl)
+```
 
 ## Building a Better Way
 
-Before looking at the official ZIO implementation, we will create a simpler version.
+```scala mdoc:invisible
+sys.env.environment = OriginalDeveloper
+```
+
+Before looking at the official ZIO implementation of `System`, we will create a simpler version.
 We need a `trait` that will indicate what is needed from the environment.
 
 ```scala mdoc
@@ -101,9 +152,9 @@ def perfectAnniversaryLodgingSafe(): ZIO[Has[
 ], Nothing, Either[String, String]] =
   for
     apiKey <- System.env("API_KEY")
-  yield TravelServiceApi.findCheapestHotel(
+  yield TravelApiImpl.findCheapestHotel(
     "90210",
-    apiKey.get // unsafe!
+    apiKey.getOrElse(throw new RuntimeException("Unconfigured Environment"))
   )
 ```
 
@@ -150,6 +201,8 @@ unsafeRun(
 
 ## Official ZIO Approach
 
+ZIO provides a more complete `System` API in the `zio.System`
+
 TODO
 
 ```scala mdoc
@@ -160,7 +213,7 @@ def perfectAnniversaryLodgingZ(): ZIO[Has[
 ], Nothing, Either[String, String]] =
   for
     apiKey <- System.env("API_KEY")
-  yield TravelServiceApi.findCheapestHotel(
+  yield TravelApiImpl.findCheapestHotel(
     "90210",
     apiKey.get // unsafe!
   )
