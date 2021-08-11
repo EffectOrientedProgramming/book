@@ -73,9 +73,7 @@ object ConsoleLive extends Console:
       output: String
   ): ZIO[Any, Nothing, Unit] =
     // TODO Get this working without Predef
-    ZIO.succeed(
-      Predef.println("Effect: " + output)
-    )
+    ZIO.succeed(Predef.println(output))
 ```
 
 TODO{Determine how to best split the 2 pieces we need to add to the same `object` for these steps}
@@ -179,18 +177,22 @@ TODO
 
 ```scala mdoc
 object ConsoleSanitized extends Console:
+  private val socialSecurity =
+    "\\d{3}-\\d{2}-\\d{4}"
+
   def printLine(
       output: String
   ): ZIO[Any, Nothing, Unit] =
-    // TODO Get this working without Predef
     val sanitized =
-      output.replaceAll(
-        "\\d{3}-\\d{2}-\\d{4}", // SSN regex
-        "***-**-****"
-      )
-    ZIO.succeed(
-      Predef.println(s"Sanitized: $sanitized")
-    )
+      output
+        .replaceAll(
+          socialSecurity,
+          "***-**-****"
+        )
+        .nn
+    // TODO ugh. String methods with explicit
+    // nulls *suck*
+    ConsoleLive.printLine(sanitized)
 ```
 
 ```scala mdoc:silent

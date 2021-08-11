@@ -18,10 +18,6 @@ sealed trait Resource[A]:
   def <=(other: Resource[A]): Boolean =
     value <= other.value
 
-//  def -(other: Resource[A]): Resource[A] =
-// copy(value = value - other.value) // Not
-// possible from within the trait
-
 case class TownResources(
     cash: Cash,
     lumber: Lumber,
@@ -63,6 +59,8 @@ case class TownResources(
         g <= grain
 end TownResources
 
+/** Goal: Demonstrate a useful 3 party trade.
+  */
 @main
 def resourcesDemo() =
   val logic =
@@ -90,8 +88,8 @@ def resourcesDemo() =
       _ <-
         tradeResources(
           treeTown,
-          grainVille,
           Cash(3),
+          grainVille,
           Grain(30)
         ).commit
       finalTreeTownResources <-
@@ -108,23 +106,37 @@ end resourcesDemo
 def tradeResources[A <: Resource[
   A
 ], B <: Resource[B]](
+    town1: TRef[TownResources],
+    town1Offering: A,
+    town2: TRef[TownResources],
+    town2Offering: B
+): STM[Throwable, Unit] =
+  for
+    _ <-
+      sendResources(town1, town2, town1Offering)
+    _ <-
+      sendResources(town2, town1, town2Offering)
+  yield ()
+
+def sendResources[A <: Resource[
+  A
+], B <: Resource[B]](
     from: TRef[TownResources],
     to: TRef[TownResources],
-    fromAmount: A,
-    toAmount: B
+    resource: A
 ): STM[Throwable, Unit] =
   for
     senderBalance <- from.get
-    canSend = senderBalance.canSend(fromAmount)
+    canSend = senderBalance.canSend(resource)
     _ <-
       if (canSend)
-        from.update(_ - fromAmount) *>
-          to.update(_ + fromAmount)
+        from.update(_ - resource) *>
+          to.update(_ + resource)
       else
         STM.fail(
           new Throwable(
             "Not enough resources to send: " +
-              fromAmount
+              resource
           )
         )
     extraTransaction =
@@ -134,26 +146,6 @@ def tradeResources[A <: Resource[
         )
       )
     party2Balance <- to.get
-    canSend2 = party2Balance.canSend(toAmount)
-    _ <-
-      if (canSend2)
-        to.update(_ - toAmount) *>
-          from.update(_ + toAmount)
-      else
-        STM.fail(
-          new Throwable(
-            "Not enough resources to send: " +
-              toAmount
-          )
-        )
-    extraTransaction =
-      from.update(fResources =>
-        fResources.copy(cash =
-          Cash(fResources.cash.value + 1)
-        )
-      )
-// _ <- extraTransaction *> extraTransaction
-    x = 100
   yield ()
 
 def transfer(

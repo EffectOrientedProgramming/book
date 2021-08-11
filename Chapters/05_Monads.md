@@ -22,26 +22,27 @@ What if we had a standard set of operations that work on all boxes, to make our 
 The box---and these associated operations---is a monad.
 
 ## Required Concepts
-- case classes
+### General Programming
 - Sub-typing
+- If/else
+- String interpolation
+- List
+  - Applying functions to elements of a list via `foreach`
+
+### Scala Specific
+
+- case classes
 - Type comes after `identifier:`
 - Functions
   - Last line is the result
-- Nesting
 - Vals
-- If/else
 - Everything is an expression
-- String interpolation
 - Significant Indention / End Marker
 - Match / cases
 - Destructuring through unapply
-- How our examples work
+- How our examples work (MDoc)
   - Result shows on next line
   - Console output shows as following comments
-- Range
-- List
-  - Applying functions to elements of a list via `foreach`
-- 
 
 ## The Error Monad
 
@@ -348,7 +349,7 @@ end oshow
 ```
 
 ```scala mdoc
-Range(1, 4).foreach(oshow)
+List(1, 2, 3, 4).foreach(oshow)
 ```
 
 X> **Exercise 4:** Modify `Result.scala` so `Result` is an `enum` instead of a `trait`.
@@ -388,10 +389,7 @@ end ResultEnum
 import ResultEnum.*
 
 def showRE(end: Int) =
-  def check(
-      id: Int,
-      msg: String
-  ): ResultEnum =
+  def check(id: Int, msg: String): ResultEnum =
     val result =
       if end == id then
         FailRE(msg + id)
@@ -413,7 +411,7 @@ end showRE
 ```
 
 ```scala mdoc
-Range(1,4).foreach(showRE)
+Range(1, 2, 3, 4).foreach(showRE)
 ```
 
 ## Understanding the `for` Comprehension
