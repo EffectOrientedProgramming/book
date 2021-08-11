@@ -183,14 +183,13 @@ object ConsoleSanitized extends Console:
       output: String
   ): ZIO[Any, Nothing, Unit] =
     // TODO Get this working without Predef
-    ZIO.succeed(
-      Predef.println(
-        "Sanitized: " +
-          output.replaceAll(
-            "\\d{3}-\\d{2}-\\d{4}",
-            "***-**-****"
-          )
+    val sanitized =
+      output.replaceAll(
+        "\\d{3}-\\d{2}-\\d{4}", // SSN regex
+        "***-**-****"
       )
+    ZIO.succeed(
+      Predef.println(s"Sanitized: $sanitized")
     )
 ```
 
