@@ -411,7 +411,7 @@ end showRE
 ```
 
 ```scala mdoc
-Range(1, 2, 3, 4).foreach(showRE)
+List(1, 2, 3, 4).foreach(showRE)
 ```
 
 ## Understanding the `for` Comprehension
