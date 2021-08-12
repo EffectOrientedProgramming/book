@@ -84,19 +84,27 @@ TODO[[ Use Strings everywhere instead of Char]]
 // Monads/ShowResult.scala
 
 def check(
+    // This isn't really an id. Better name?
     id: String,
     end: String,
-    msg: String
+    history: String
 ): Result =
   val result =
     if end == id then
-      Fail(msg + id)
+      Fail(history + id)
     else
-      Success(msg + id)
-  println(s"$end => check($id): $result")
+      Success(history + id)
+  println(s"check($id, $end): $result")
   result
+```
 
-def show(end: String) =
+`check` compares `end` to its `id` argument.
+If they're equal, it returns a `Fail` object, otherwise it returns a `Success` object.
+
+```scala mdoc
+// This function does much more than show
+// More accurate name?
+def show(end: String): Result =
   for
     a: String <- check("a", end, "")
     b: String <- check("b", end, a)
@@ -109,13 +117,11 @@ end show
 ```
 
 `show` takes `end: String` indicating how far we want to get through the execution of `compose` before it fails.
-Note that `end` is in scope within the nested function `check`, which compares `end` to its `id` argument.
-If they're equal, it returns a `Fail` object, otherwise it returns a `Success` object.
 
-The `for` comprehension within `compose` attempts to execute three calls to `check`, each of which takes the next value of `id` in alphabetic succession.
+The `for` comprehension attempts to execute three calls to `check`, each of which takes the next value of `id` in alphabetic succession.
 Each expression uses the backwards-arrow `<-` to assign the result to a `String` value.
 That value is passed to `check` in the subsequent expression in the comprehension.
-If all three expressions execute successfully, the `yield` expression uses `c` to produce the final `Result` value which is assigned to `compose`.
+If all three expressions execute successfully, the `yield` expression uses `c` to produce the final `Result` value which is returned from the function.
 
 What happens if a call to `check` fails?
 We'll call `show` with successive values of `end` from `"a"` to `"d"`:
