@@ -7,9 +7,9 @@ enum Environment:
   case OriginalDeveloper
   case NewDeveloper
   case CIServer
-  
+
 import Environment.*
-  
+
 // TODO Keep an eye out for a _real_ way to
 // provide environment variables to this, while
 // keeping my .env separate
@@ -18,18 +18,21 @@ import Environment.*
 // ENV access via `sys.env.get`
 class Env(var environment: Environment):
   def get(key: String): Option[String] =
-    if key == "API_KEY"
-    then
+    if key == "API_KEY" then
       environment match
-        case OriginalDeveloper => Some("SECRET_API_KEY")
-        case NewDeveloper => Some("WRONG_API_KEY")
-        case CIServer => None
-    else None
-      
+        case OriginalDeveloper =>
+          Some("SECRET_API_KEY")
+        case NewDeveloper =>
+          Some("WRONG_API_KEY")
+        case CIServer =>
+          None
+    else
+      None
 
 case class Sys(env: Env)
 
-val sys = Sys(Env(environment = OriginalDeveloper))
+val sys =
+  Sys(Env(environment = OriginalDeveloper))
 ```
 
 Environment Variables are a common way of providing dynamic and/or sensitive data to your running application.
@@ -74,9 +77,12 @@ def perfectAnniversaryLodgingUnsafe(
     sys
       .env
       .get("API_KEY")
-      .getOrElse(throw new RuntimeException("Unconfigured Environment"))
+      .getOrElse(
+        throw new RuntimeException(
+          "Unconfigured Environment"
+        )
+      )
   travelApi.findCheapestHotel("90210", apiKey)
-
 ```
 
 When you look up an Environment Variable, you are accessing information that was _not_ passed in to your function as an explicit argument.
@@ -154,7 +160,11 @@ def perfectAnniversaryLodgingSafe(): ZIO[Has[
     apiKey <- System.env("API_KEY")
   yield TravelApiImpl.findCheapestHotel(
     "90210",
-    apiKey.getOrElse(throw new RuntimeException("Unconfigured Environment"))
+    apiKey.getOrElse(
+      throw new RuntimeException(
+        "Unconfigured Environment"
+      )
+    )
   )
 ```
 

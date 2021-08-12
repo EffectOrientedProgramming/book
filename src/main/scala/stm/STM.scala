@@ -103,9 +103,10 @@ def resourcesDemo() =
   unsafeRun(logic)
 end resourcesDemo
 
-def tradeResources[A <: Resource[
-  A
-], B <: Resource[B]](
+def tradeResources[
+    A <: Resource[A],
+    B <: Resource[B]
+](
     town1: TRef[TownResources],
     town1Offering: A,
     town2: TRef[TownResources],
@@ -118,9 +119,10 @@ def tradeResources[A <: Resource[
       sendResources(town2, town1, town2Offering)
   yield ()
 
-def sendResources[A <: Resource[
-  A
-], B <: Resource[B]](
+def sendResources[
+    A <: Resource[A],
+    B <: Resource[B]
+](
     from: TRef[TownResources],
     to: TRef[TownResources],
     resource: A

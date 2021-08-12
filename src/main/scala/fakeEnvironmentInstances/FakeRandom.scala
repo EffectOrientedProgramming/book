@@ -97,9 +97,8 @@ class FakeRandom(i: Int) extends Random:
   ): UIO[String] = ???
   override def setSeed(seed: Long): UIO[Unit] =
     ???
-  def shuffle[A, Collection[
-      +Element
-  ] <: Iterable[Element]](
+  def shuffle[A, Collection[+Element]
+    <: Iterable[Element]](
       collection: Collection[A]
   )(implicit
       bf: BuildFrom[Collection[A], A, Collection[
