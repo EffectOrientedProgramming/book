@@ -85,35 +85,35 @@ Let's see how `Result` works:
 
 def check(
     step: String,
-    end: String,
+    stop: String,
     history: String
 ): Result =
   val result =
-    if step == end then
+    if step == stop then
       Fail(history + step)
     else
       Success(history + step)
-  println(s"check($step, $end): $result")
+  println(s"check($step, $stop): $result")
   result
 ```
 
-`check` compares `end` to its `step` argument.
+`check` compares `stop` to its `step` argument.
 If they're equal, it returns a `Fail` object, otherwise it returns a `Success` object.
 
 ```scala mdoc
 // This function does much more than show
 // More accurate name?
-def show(end: String): Result =
+def show(stop: String): Result =
   for
-    a: String <- check("a", end, "")
-    b: String <- check("b", end, a)
-    c: String <- check("c", end, b)
+    a: String <- check("a", stop, "")
+    b: String <- check("b", stop, a)
+    c: String <- check("c", stop, b)
   yield
     println(s"Yielding: $c + d")
     c + "d"
 ```
 
-`show` takes `end: String` indicating how far we want to get through the execution of `compose` before it fails.
+`show` takes `stop: String` indicating how far we want to get through the execution of `compose` before it fails.
 
 The `for` comprehension attempts to execute three calls to `check`, each of which takes the next value of `step` in alphabetic succession.
 Each expression uses the backwards-arrow `<-` to assign the result to a `String` value.
@@ -121,17 +121,17 @@ That value is passed to `check` in the subsequent expression in the comprehensio
 If all three expressions execute successfully, the `yield` expression uses `c` to produce the final `Result` value which is returned from the function.
 
 What happens if a call to `check` fails?
-We'll call `show` with successive values of `end` from `"a"` to `"d"`:
+We'll call `show` with successive values of `stop` from `"a"` to `"d"`:
 
 ```scala mdoc
 show("a")
 ```
 
-`check("a", end, "")` immediately fails when `end = "a"`, so the result returned from `check` is `Fail(a)`.
+`check("a", stop, "")` immediately fails when `stop = "a"`, so the result returned from `check` is `Fail(a)`.
 
 Here's where things get especially interesting.
 When Scala sees `<-` in a `for` comprehension, it automatically calls `flatMap`.
-So `flatMap` is called on the result of of `check("a", end, "")`.
+So `flatMap` is called on the result of of `check("a", stop, "")`.
 That result is `Fail` and *no further lines in `compose` are executed*.
 The `a` to the left of the `<-` is never initialized, nor are `b` or `c`.
 The resulting value of `compose` becomes the value returned by `flatMap`, which is `Fail(a)`.
@@ -143,8 +143,8 @@ All the error-handling for `compose` is in one place, in the same way that a `ca
 show("b")
 ```
 
-With `end = "b"`, the first expression in the `for` comprehension is now successful.
-The value of `a` is successfully assigned, then passed into `check("b", end, a)` in the second expression.
+With `stop = "b"`, the first expression in the `for` comprehension is now successful.
+The value of `a` is successfully assigned, then passed into `check("b", stop, a)` in the second expression.
 Now the second expression fails and the resulting value of `compose` becomes `Fail(ab)`.
 Once again we end up in the error-handling code.
 
@@ -156,13 +156,13 @@ Now we get all the way to the third expression in the `for` comprehension before
 But notice that in this case `map` is called rather than `flatMap`.
 The last `<-` in a `for` comprehension calls `map` instead of `flatMap`, for reasons that will become clear.
 
-Finally, `end = "d"` successfully makes it through the entire initialization for `compose`:
+Finally, `stop = "d"` successfully makes it through the entire initialization for `compose`:
 
 ```scala mdoc
 show("d")
 ```
 
-The return value of `check("c", end, b)` is `Success(abc)` and this is used to initialize `c`.
+The return value of `check("c", stop, b)` is `Success(abc)` and this is used to initialize `c`.
 
 The `yield` expression produces the final result that is assigned to `compose`.
 You should find all potential problems by the time you reach `yield`, so the `yield` expression should not be able to fail.
@@ -233,23 +233,23 @@ X> Your output should look like this:
 ```scala mdoc:invisible
 // Monads/Solution1.scala
 
-def echeck(step: String, end: String, msg: String) =
+def echeck(step: String, stop: String, msg: String) =
   val result =
-    if step == end then
+    if step == stop then
       Left(msg + step)
     else
       Right(msg + step)
   println(s"check($step): $result")
   result
 
-def eshow(end: String) =
-  println(s">> show($end) <<")
+def eshow(stop: String) =
+  println(s">> show($stop) <<")
 
   val compose =
     for
-      a: String <- echeck("a", end, "")
-      b: String <- echeck("b", end, a)
-      c: String <- echeck("c", end, b)
+      a: String <- echeck("a", stop, "")
+      b: String <- echeck("b", stop, a)
+      c: String <- echeck("c", stop, b)
     yield
       println(s"Completed: $c")
       c
@@ -273,9 +273,9 @@ X> Your output should look like this:
 ```scala mdoc:invisible
 // Monads/Solution2.scala
 
-def icheck(step: String, end: String, i: String) =
+def icheck(step: String, stop: String, i: String) =
   val result =
-    if step == end then
+    if step == stop then
       Left(i + step)
     else
       Right(i + step)
@@ -283,14 +283,14 @@ def icheck(step: String, end: String, i: String) =
   result
 end check
 
-def ishow(end: String) =
-  println(s">> show($end) <<")
+def ishow(stop: String) =
+  println(s">> show($stop) <<")
 
   val compose =
     for
-      a: String <- icheck("a", end, "")
-      b: String <- icheck("b", end, a)
-      c: String <- icheck("c", end, b)
+      a: String <- icheck("a", stop, "")
+      b: String <- icheck("b", stop, a)
+      c: String <- icheck("c", stop, b)
     yield
       println(s"Completed: $c")
       c
@@ -316,9 +316,9 @@ X> Your output should look like this:
 ```scala mdoc:invisible
 // Monads/Solution3.scala
 
-def ocheck(step: Int, end: Int, msg: String) =
+def ocheck(step: Int, stop: Int, msg: String) =
   val result =
-    if step == end then
+    if step == stop then
       None
     else
       Some(msg + step)
@@ -326,14 +326,14 @@ def ocheck(step: Int, end: Int, msg: String) =
   result
 end check
 
-def oshow(end: Int) =
-  println(s">> show($end) <<")
+def oshow(stop: Int) =
+  println(s">> show($stop) <<")
 
   val compose =
     for
-      a: String <- ocheck(1, end, "")
-      b: String <- ocheck(2, end, a)
-      c: String <- ocheck(3, end, b)
+      a: String <- ocheck(1, stop, "")
+      b: String <- ocheck(2, stop, a)
+      c: String <- ocheck(3, stop, b)
     yield
       println(s"Completed: $c")
       c
@@ -387,9 +387,9 @@ end ResultEnum
 // Monads/Solution4b.scala
 import ResultEnum.*
 
-def checkRE(step: Int, end: Int, msg: String): ResultEnum =
+def checkRE(step: Int, stop: Int, msg: String): ResultEnum =
   val result =
-    if step == end then
+    if step == stop then
       FailRE(msg + step)
     else
       SuccessRE(msg + step)
@@ -397,11 +397,11 @@ def checkRE(step: Int, end: Int, msg: String): ResultEnum =
   result
 end check
 
-def showRE(end: Int) =
+def showRE(stop: Int) =
   for
-    a: String <- checkRE(1, end, "")
-    b: String <- checkRE(2, end, a)
-    c: String <- checkRE(3, end, b)
+    a: String <- checkRE(1, stop, "")
+    b: String <- checkRE(2, stop, a)
+    c: String <- checkRE(3, stop, b)
   yield
     println(s"Completed: $c")
     c.toUpperCase.nn
