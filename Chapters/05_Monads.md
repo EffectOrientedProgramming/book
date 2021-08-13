@@ -488,24 +488,6 @@ sol5a
 sol5b
 ```
 
-{{ Complete this, which is still quite mysterious }}
-
-X> **Exercise 6:** Exercise to explore behavior of `=` in `for` comprehension, in contrast with `<-`.
-
-```scala mdoc:invisible
-def showEQ(stop: String) =
-  for
-    x <- "x"
-    _ = println("2nd line")
-    a = check("a", stop, "")
-    b = check("b", stop, "") // Can't use <- here
-    c = check("c", stop, "")
-  yield("yielded")
-```
-
-```scala mdoc
-showEQ("d")
-```
 ## Summary
 
 Think back to the first time you grasped the way dynamic binding produces virtual function behavior.
