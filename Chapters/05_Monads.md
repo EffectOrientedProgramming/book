@@ -233,7 +233,11 @@ X> Your output should look like this:
 ```scala mdoc:invisible
 // Monads/Solution1.scala
 
-def echeck(step: String, stop: String, msg: String) =
+def echeck(
+    step: String,
+    stop: String,
+    msg: String
+) =
   val result =
     if step == stop then
       Left(msg + step)
@@ -273,7 +277,11 @@ X> Your output should look like this:
 ```scala mdoc:invisible
 // Monads/Solution2.scala
 
-def icheck(step: String, stop: String, i: String) =
+def icheck(
+    step: String,
+    stop: String,
+    i: String
+) =
   val result =
     if step == stop then
       Left(i + step)
@@ -387,7 +395,11 @@ end ResultEnum
 // Monads/Solution4b.scala
 import ResultEnum.*
 
-def checkRE(step: Int, stop: Int, msg: String): ResultEnum =
+def checkRE(
+    step: Int,
+    stop: Int,
+    msg: String
+): ResultEnum =
   val result =
     if step == stop then
       FailRE(msg + step)

@@ -21,7 +21,7 @@ libraryDependencies ++=
     "dev.zio"     %% "zio"    % zioVersion,
     "com.typesafe" % "config" % "1.4.1",
     //     cross CrossVersion.for3Use2_13,
-    "dev.zio" %% "zio-test" % zioVersion % Test,
+    "dev.zio" %% "zio-test"     % zioVersion,
     "dev.zio" %% "zio-test-sbt" % zioVersion %
       Test,
     "org.scalameta" %% "munit" % "0.7.27" % Test,
