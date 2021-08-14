@@ -35,22 +35,23 @@ val sys =
   Sys(Env(environment = OriginalDeveloper))
 ```
 
-Environment Variables are a common way of providing dynamic and/or sensitive data to your running application.
-A basic use-case looks like this:
+Environment Variables are a common way of providing dynamic and/or sensitive data to your running application. A basic use-case looks like this:
 
 ```scala mdoc
 val apiKey = sys.env.get("API_KEY")
 ```
 
-This seems rather innocuous; however, it can be an annoying source of problems as your project is built and deployed across different environments.
-Given this API:
+This seems rather innocuous; however, it can be an annoying source of problems as your project is built and deployed across different environments. Given this API:
 
 ```scala mdoc
 trait TravelApi:
   def cheapestHotel(
       zipCode: String,
       apiKey: String
-  ): Either[String, String]
+  ): Either[Error, Hotel]
+
+case class Hotel(name: String)
+case class Error(msg: String)
 ```
 
 ```scala mdoc:invisible
@@ -60,11 +61,11 @@ object TravelApiImpl extends TravelApi:
   def cheapestHotel(
       zipCode: String,
       apiKey: String
-  ): Either[String, String] =
+  ): Either[Error, Hotel] =
     if (apiKey == "SECRET_API_KEY")
-      Right("Eddy's Roach Motel")
+      Right(Hotel("Eddy's Roach Motel"))
     else
-      Left("Invalid API Key")
+      Left(Error("Invalid API Key"))
 ```
 
 Our code could look like this:
@@ -72,48 +73,51 @@ Our code could look like this:
 ```scala mdoc
 def findPerfectLodgingUnsafe(
     travelApi: TravelApi
-): Either[String, String] =
-  val apiKey =
-    sys
-      .env
-      .get("API_KEY")
-      .getOrElse(
-        throw new RuntimeException(
-          "Unconfigured Environment"
+): Either[Error, Hotel] =
+  // TODO How many Option/Either tricks are
+  // appropriate?
+  for
+    apiKey <-
+      sys
+        .env
+        .get("API_KEY")
+        .toRight(
+          Error("Unconfigured Environment")
         )
-      )
-  travelApi.cheapestHotel("90210", apiKey)
+    res <-
+      travelApi.cheapestHotel("90210", apiKey)
+  yield res
 ```
 
-When you look up an Environment Variable, you are accessing information that was _not_ passed in to your function as an explicit argument.
-Now we will simulate running the exact same function with the same arguments in 3 different environments.
+When you look up an Environment Variable, you are accessing information that was _not_ passed in to your function as an explicit argument. Now we will simulate running the exact same function with the same arguments in 3 different environments.
 
 **Your Machine**
-```scala mdoc
+
+```scala mdoc:width=47
 findPerfectLodgingUnsafe(TravelApiImpl)
 ```
 
 **Collaborator's Machine**
+
 ```scala mdoc:invisible
 sys.env.environment = NewDeveloper
 ```
 
-```scala mdoc
+```scala mdoc:width=47
 findPerfectLodgingUnsafe(TravelApiImpl)
 ```
 
 **Continuous Integration Server**
+
 ```scala mdoc:invisible
 sys.env.environment = CIServer
 ```
 
-```scala mdoc:crash
+```scala mdoc:width=47
 findPerfectLodgingUnsafe(TravelApiImpl)
 ```
 
-On your own machine, everything works as expected.
-However, your collaborator has a different value stored in this variable, and gets a failure when they execute this code.
-Finally, the CI server has set _any_ value, and completely blows up at runtime.
+On your own machine, everything works as expected. However, your collaborator has a different value stored in this variable, and gets a failure when they execute this code. Finally, the CI server has set _any_ value, and completely blows up at runtime.
 
 ## Building a Better Way
 
@@ -121,8 +125,7 @@ Finally, the CI server has set _any_ value, and completely blows up at runtime.
 sys.env.environment = OriginalDeveloper
 ```
 
-Before looking at the official ZIO implementation of `System`, we will create a simpler version.
-We need a `trait` that will indicate what is needed from the environment.
+Before looking at the official ZIO implementation of `System`, we will create a simpler version. We need a `trait` that will indicate what is needed from the environment.
 
 ```scala mdoc
 import zio.ZIO
@@ -159,7 +162,7 @@ Now if we use this code, our caller's type signature is forced to tell us that i
 ```scala mdoc
 def perfectAnniversaryLodgingSafe(): ZIO[Has[
   System
-], Nothing, Either[String, String]] =
+], Nothing, Either[Error, Hotel]] =
   for
     apiKey <- System.env("API_KEY")
   yield TravelApiImpl.cheapestHotel(
@@ -185,8 +188,7 @@ unsafeRun(
 )
 ```
 
-When constructed this way, it becomes very easy to test.
-We create a second implementation that accepts test values and serves them to the caller.
+When constructed this way, it becomes very easy to test. We create a second implementation that accepts test values and serves them to the caller.
 
 ```scala mdoc
 case class SystemHardcoded(
@@ -212,7 +214,6 @@ unsafeRun(
 )
 ```
 
-
 ## Official ZIO Approach
 
 ZIO provides a more complete `System` API in the `zio.System`
@@ -224,7 +225,7 @@ import zio.System
 
 def perfectAnniversaryLodgingZ(): ZIO[Has[
   System
-], Nothing, Either[String, String]] =
+], Nothing, Either[Error, Hotel]] =
   for
     apiKey <- System.env("API_KEY")
   yield TravelApiImpl.cheapestHotel(
@@ -233,8 +234,8 @@ def perfectAnniversaryLodgingZ(): ZIO[Has[
   )
 ```
 
-
 ## Exercises
+
 ```scala mdoc
 import zio.test.environment.TestSystem
 import zio.test.environment.TestSystem.Data
@@ -243,6 +244,7 @@ import zio.test.environment.TestSystem.Data
 ```
 
 X> **Exercise 1:** Create a function will report missing Environment Variables as `NoSuchElementException` failures, instead of an `Option` success case.
+
 ```scala mdoc
 trait Exercise1:
   def envOrFail(variable: String): ZIO[Has[
@@ -279,7 +281,6 @@ val exercise1case1 =
 assert(exercise1case1 == "value")
 ```
 
-
 ```scala mdoc
 val exercise1case2 =
   unsafeRun(
@@ -298,6 +299,7 @@ assert(exercise1case2 == "Expected Error")
 ```
 
 X> **Exercise 2:** Create a function will attempt to parse a value as an Integer and report errors as a `NumberFormatException`.
+
 ```scala mdoc
 trait Exercise2:
   def envInt(variable: String): ZIO[
