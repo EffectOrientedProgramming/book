@@ -225,17 +225,7 @@ X> **Exercise 1:** Modify `ShowResult` to use `Either` instead of `Result`.
 X> Your output should look like this:
 
 ```scala mdoc:invisible
-<<<<<<< Updated upstream
-// Monads/Solution1.scala
-
-def echeck(
-    step: String,
-    stop: String,
-    msg: String
-) =
-=======
 def echeck(step: String, stop: String, msg: String) =
->>>>>>> Stashed changes
   val result =
     if step == stop then
       Left(msg + step)
@@ -273,17 +263,7 @@ X> Change `msg` in the `check` argument list to `i`, an `Int`.
 X> Your output should look like this:
 
 ```scala mdoc:invisible
-<<<<<<< Updated upstream
-// Monads/Solution2.scala
-
-def icheck(
-    step: String,
-    stop: String,
-    i: String
-) =
-=======
 def icheck(step: String, stop: String, i: String) =
->>>>>>> Stashed changes
   val result =
     if step == stop then
       Left(i + step)
@@ -392,11 +372,7 @@ end ResultEnum
 ```scala mdoc:invisible
 import ResultEnum.*
 
-def checkRE(
-    step: Int,
-    stop: Int,
-    msg: String
-): ResultEnum =
+def checkRE(step: Int, stop: Int, msg: String): ResultEnum =
   val result =
     if step == stop then
       FailRE(msg + step)
