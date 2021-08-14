@@ -68,7 +68,17 @@ object TravelApiImpl extends TravelApi:
       Left(Error("Invalid API Key"))
 ```
 
-Our code could look like this:
+To augment the built-in environment function, we will create a wrapper.
+
+```scala mdoc
+def envRequiredUnsafe(variable: String) =
+  sys
+    .env
+    .get(variable)
+    .toRight(Error("Unconfigured Environment"))
+```
+
+Our business logic now looks like this:
 
 ```scala mdoc
 def findPerfectLodgingUnsafe(
@@ -77,13 +87,7 @@ def findPerfectLodgingUnsafe(
   // TODO How many Option/Either tricks are
   // appropriate?
   for
-    apiKey <-
-      sys
-        .env
-        .get("API_KEY")
-        .toRight(
-          Error("Unconfigured Environment")
-        )
+    apiKey <- envRequiredUnsafe("API_KEY")
     res <-
       travelApi.cheapestHotel("90210", apiKey)
   yield res
@@ -138,7 +142,7 @@ trait System:
 Now, our live implementation will simply wrap our original, unsafe function call.
 
 ```scala mdoc
-class SystemLive() extends System:
+object SystemLive extends System:
   def env(
       variable: String
   ): ZIO[Any, Nothing, Option[String]] =
@@ -203,9 +207,9 @@ def anniversaryLodgingFocused(): ZIO[Has[
   yield TravelApiImpl
     .cheapestHotel("90210", apiKey)
 ```
-We can take things one step further, and flatten our two `Error` possibilities into the one failure channel.
+Next, we flatten our two `Error` possibilities into the one failure channel.
 ```scala mdoc
-def anniversaryLodgingFinal()
+def anniversaryLodgingSingleError()
     : ZIO[Has[System], Error, Hotel] =
   for
     apiKey <- envRequired("API_KEY")
@@ -217,6 +221,35 @@ def anniversaryLodgingFinal()
   yield hotel
 ```
 
+Finally, we move our API ZIO-wrapping to a small function.
+
+```scala mdoc
+def cheapestHotelZ(
+    zipCode: String,
+    apiKey: String
+) =
+  ZIO.fromEither(
+    TravelApiImpl.cheapestHotel("90210", apiKey)
+  )
+```
+This was quite a process; where did it get us?
+Our fully ZIO-centric, side-effect-free logic looks like this:
+
+```scala mdoc
+def anniversaryLodgingSingleFinal()
+    : ZIO[Has[System], Error, Hotel] =
+  for
+    apiKey <- envRequired("API_KEY")
+    hotel  <- cheapestHotelZ("90210", apiKey)
+  yield hotel
+```
+
+The logic is _identical_ to our original implementation!
+The only difference is the type signature, which now honestly reports the `System` dependency of our function.
+
+
+
+
 This is what it looks like in action:
 
 ```scala mdoc
@@ -225,7 +258,7 @@ import zio.ZLayer
 
 unsafeRun(
   anniversaryLodgingSafe().provideLayer(
-    ZLayer.succeed[System](SystemLive())
+    ZLayer.succeed[System](SystemLive)
   )
 )
 ```
