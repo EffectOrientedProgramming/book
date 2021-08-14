@@ -60,3 +60,34 @@ end wrapUnsafeZIO
 def unsafeRunTruncate[E, A](
     z: => ZIO[zio.ZEnv, E, A]
 ): A | Unit = unsafeRun(wrapUnsafeZIO(z))
+
+// TODO Print successful result also
+def wrapUnsafeZIOReportError[E, A](
+    z: => ZIO[zio.ZEnv, E, A]
+): ZIO[zio.ZEnv, java.io.IOException, A | Unit] =
+  val commentPrefix = "// "
+  val columnWidth =
+    49 -
+      commentPrefix
+        .length // TODO Pull from scalafmt config file
+  val defectPrefix = "Error: "
+  val topLineLength =
+    columnWidth - defectPrefix.length
+  z.catchAll { case error: E =>
+    val extractedMessage = error.toString
+    val formattedMsg =
+      if (
+        extractedMessage.length > topLineLength
+      )
+        extractedMessage.take(topLineLength)
+      else
+        extractedMessage
+
+    Console.printLine(formattedMsg)
+  }
+end wrapUnsafeZIOReportError
+
+def unsafeRunPrettyPrint[E, A](
+    z: => ZIO[zio.ZEnv, E, A]
+): A | Unit =
+  unsafeRun(wrapUnsafeZIOReportError(z))

@@ -71,34 +71,34 @@ object TravelApiImpl extends TravelApi:
 To augment the built-in environment function, we will create a wrapper.
 
 ```scala mdoc
-def envRequiredUnsafe(variable: String) =
+def envRequiredUnsafe(variable: String): Either[Error, String] =
   sys
     .env
     .get(variable)
     .toRight(Error("Unconfigured Environment"))
 ```
 
+`toRight` is an `Option` method that turns the `Option` into an `Either`.
+
 Our business logic now looks like this:
 
 ```scala mdoc
-def findPerfectLodgingUnsafe(
+def fancyLodgingUnsafe(
     travelApi: TravelApi
 ): Either[Error, Hotel] =
-  // TODO How many Option/Either tricks are
-  // appropriate?
   for
     apiKey <- envRequiredUnsafe("API_KEY")
-    res <-
+    hotel <-
       travelApi.cheapestHotel("90210", apiKey)
-  yield res
+  yield hotel
 ```
 
-When you look up an Environment Variable, you are accessing information that was _not_ passed in to your function as an explicit argument. Now we will simulate running the exact same function with the same arguments in 3 different environments.
+When you look up an Environment Variable, you are accessing information that was _not_ passed into your function as an explicit argument. Now we will simulate running the function with the same arguments in 3 different environments.
 
 **Your Machine**
 
 ```scala mdoc:width=47
-findPerfectLodgingUnsafe(TravelApiImpl)
+fancyLodgingUnsafe(TravelApiImpl)
 ```
 
 **Collaborator's Machine**
@@ -108,7 +108,7 @@ sys.env.environment = NewDeveloper
 ```
 
 ```scala mdoc:width=47
-findPerfectLodgingUnsafe(TravelApiImpl)
+fancyLodgingUnsafe(TravelApiImpl)
 ```
 
 **Continuous Integration Server**
@@ -118,10 +118,12 @@ sys.env.environment = CIServer
 ```
 
 ```scala mdoc:width=47
-findPerfectLodgingUnsafe(TravelApiImpl)
+fancyLodgingUnsafe(TravelApiImpl)
 ```
 
-On your own machine, everything works as expected. However, your collaborator has a different value stored in this variable, and gets a failure when they execute this code. Finally, the CI server has set _any_ value, and completely blows up at runtime.
+On your own machine, everything works as expected. 
+However, your collaborator has a different value stored in this variable, and gets a failure when they execute this code. 
+Finally, the CI server has not set _any_ value, and fails at runtime.
 
 ## Building a Better Way
 
@@ -129,17 +131,19 @@ On your own machine, everything works as expected. However, your collaborator ha
 sys.env.environment = OriginalDeveloper
 ```
 
-Before looking at the official ZIO implementation of `System`, we will create a simpler version. We need a `trait` that will indicate what is needed from the environment.
+Before looking at the official ZIO implementation of `System`, we will create a less-capable version. We need a `trait` that will indicate what is needed from the environment.
+The real implementation is a bit more complex, to handle corner cases.
 
 ```scala mdoc
 import zio.ZIO
+
 trait System:
   def env(
       variable: String
   ): ZIO[Any, Nothing, Option[String]]
 ```
 
-Now, our live implementation will simply wrap our original, unsafe function call.
+Now, our live implementation will wrap our original, unsafe function call.
 
 ```scala mdoc
 object SystemLive extends System:
@@ -154,20 +158,21 @@ Finally, for easier usage by the caller, we create an accessor.
 ```scala mdoc
 import zio.Has
 
-def env(
-    variable: => String
-): ZIO[Has[System], Nothing, Option[String]] =
-  ZIO.accessZIO(_.get.env(variable))
+object System:
+  def env(
+      variable: => String
+  ): ZIO[Has[System], Nothing, Option[String]] =
+    ZIO.accessZIO[Has[System]](_.get.env(variable))
 ```
 
-Now if we use this code, our caller's type signature is forced to tell us that it requires a `System` to execute.
+Now if we use this code, our caller's type tells us that it requires a `System` to execute.
 
 ```scala mdoc
-def anniversaryLodgingSafe(): ZIO[Has[
+def fancyLodgingSafe(): ZIO[Has[
   System
 ], Error, Either[Error, Hotel]] =
   for
-    apiKeyAttempt <- env("API_KEY")
+    apiKeyAttempt <- System.env("API_KEY")
     apiKey <-
       ZIO
         .fromOption(apiKeyAttempt)
@@ -184,10 +189,10 @@ We can improve the situation by composing our first accessor with some additiona
 
 ```scala mdoc
 def envRequired(
-    variable: => String
+    variable: String
 ): ZIO[Has[System], Error, String] =
   for
-    variableAttempt <- env(variable)
+    variableAttempt <- System.env(variable)
     res <-
       ZIO
         .fromOption(variableAttempt)
@@ -199,7 +204,7 @@ def envRequired(
 
 Using this function, our code becomes more linear and focused.
 ```scala mdoc
-def anniversaryLodgingFocused(): ZIO[Has[
+def fancyLodgingFocused(): ZIO[Has[
   System
 ], Error, Either[Error, Hotel]] =
   for
@@ -209,7 +214,7 @@ def anniversaryLodgingFocused(): ZIO[Has[
 ```
 Next, we flatten our two `Error` possibilities into the one failure channel.
 ```scala mdoc
-def anniversaryLodgingSingleError()
+def fancyLodgingSingleError()
     : ZIO[Has[System], Error, Hotel] =
   for
     apiKey <- envRequired("API_KEY")
@@ -236,11 +241,23 @@ This was quite a process; where did it get us?
 Our fully ZIO-centric, side-effect-free logic looks like this:
 
 ```scala mdoc
-def anniversaryLodgingSingleFinal()
+def fancyLodgingFinal()
     : ZIO[Has[System], Error, Hotel] =
   for
     apiKey <- envRequired("API_KEY")
     hotel  <- cheapestHotelZ("90210", apiKey)
+  yield hotel
+```
+
+Original, unsafe:
+```scala mdoc:nest
+def fancyLodgingUnsafe(
+    travelApi: TravelApi
+): Either[Error, Hotel] =
+  for
+    apiKey <- envRequiredUnsafe("API_KEY")
+    hotel <-
+      travelApi.cheapestHotel("90210", apiKey)
   yield hotel
 ```
 
@@ -255,13 +272,48 @@ This is what it looks like in action:
 ```scala mdoc
 import zio.Runtime.default.unsafeRun
 import zio.ZLayer
+import mdoc.unsafeRunPrettyPrint
+```
 
-unsafeRun(
-  anniversaryLodgingSafe().provideLayer(
+**Your Machine**
+```scala mdoc:invisible
+sys.env.environment = OriginalDeveloper
+```
+
+```scala mdoc
+unsafeRunPrettyPrint(
+  fancyLodgingFinal().provideLayer(
     ZLayer.succeed[System](SystemLive)
   )
 )
 ```
+
+**Collaborator's Machine**
+```scala mdoc:invisible
+sys.env.environment = NewDeveloper
+```
+
+```scala mdoc
+unsafeRunPrettyPrint(
+  fancyLodgingFinal().provideLayer(
+    ZLayer.succeed[System](SystemLive)
+  )
+)
+```
+
+**Continuous Integration Server**
+```scala mdoc:invisible
+sys.env.environment = CIServer
+```
+
+```scala mdoc
+unsafeRunPrettyPrint(
+  fancyLodgingFinal().provideLayer(
+    ZLayer.succeed[System](SystemLive)
+  )
+)
+```
+TODO{{The actual line looks the same, which I highlighted as a problem before. How should we indicate that the Environment is different?}}
 
 When constructed this way, it becomes very easy to test. We create a second implementation that accepts test values and serves them to the caller.
 
@@ -275,11 +327,11 @@ case class SystemHardcoded(
     ZIO.succeed(environmentVars.get(variable))
 ```
 
-We can now provide this to our logic, for testing both the happy path and failure cases.
+We can now provide this to our logic, for testing both the success and failure cases.
 
 ```scala mdoc
 unsafeRun(
-  anniversaryLodgingSafe().provideLayer(
+  fancyLodgingSafe().provideLayer(
     ZLayer.succeed[System](
       SystemHardcoded(
         Map("API_KEY" -> "Invalid Key")
@@ -298,14 +350,14 @@ TODO
 ```scala mdoc
 import zio.System
 
-def anniversaryLodgingZ(): ZIO[Has[
+def fancyLodgingZ(): ZIO[Has[
   zio.System
 ], SecurityException, Either[Error, Hotel]] =
   for
     apiKey <- zio.System.env("API_KEY")
   yield TravelApiImpl.cheapestHotel(
     "90210",
-    apiKey.get // unsafe!
+    apiKey.get // unsafe! TODO Use either
   )
 ```
 
