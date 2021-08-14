@@ -145,34 +145,76 @@ class SystemLive() extends System:
     ZIO.succeed(sys.env.get("API_KEY"))
 ```
 
-Finally, for easier usage by the caller, we create an accessor in the companion object.
+Finally, for easier usage by the caller, we create an accessor.
 
 ```scala mdoc
 import zio.Has
 
-object System:
-  def env(
-      variable: => String
-  ): ZIO[Has[System], Nothing, Option[String]] =
-    ZIO.accessZIO(_.get.env(variable))
+def env(
+    variable: => String
+): ZIO[Has[System], Nothing, Option[String]] =
+  ZIO.accessZIO(_.get.env(variable))
 ```
 
 Now if we use this code, our caller's type signature is forced to tell us that it requires a `System` to execute.
 
 ```scala mdoc
-def perfectAnniversaryLodgingSafe(): ZIO[Has[
+def anniversaryLodgingSafe(): ZIO[Has[
   System
-], Nothing, Either[Error, Hotel]] =
+], Error, Either[Error, Hotel]] =
   for
-    apiKey <- System.env("API_KEY")
-  yield TravelApiImpl.cheapestHotel(
-    "90210",
-    apiKey.getOrElse(
-      throw new RuntimeException(
-        "Unconfigured Environment"
+    apiKeyAttempt <- env("API_KEY")
+    apiKey <-
+      ZIO
+        .fromOption(apiKeyAttempt)
+        .mapError(_ =>
+          Error("Unconfigured Environment")
+        )
+  yield TravelApiImpl
+    .cheapestHotel("90210", apiKey)
+```
+
+This is safe, but it is not the easiest code to read.
+TODO {{Consider doing this from the start. Not sure how many different phases to subject the reader to.}}
+We can improve the situation by composing our first accessor with some additional transformations.
+
+```scala mdoc
+def envRequired(
+    variable: => String
+): ZIO[Has[System], Error, String] =
+  for
+    variableAttempt <- env(variable)
+    res <-
+      ZIO
+        .fromOption(variableAttempt)
+        .mapError(_ =>
+          Error("Unconfigured Environment")
+        )
+  yield res
+```
+
+Using this function, our code becomes more linear and focused.
+```scala mdoc
+def anniversaryLodgingFocused(): ZIO[Has[
+  System
+], Error, Either[Error, Hotel]] =
+  for
+    apiKey <- envRequired("API_KEY")
+  yield TravelApiImpl
+    .cheapestHotel("90210", apiKey)
+```
+We can take things one step further, and flatten our two `Error` possibilities into the one failure channel.
+```scala mdoc
+def anniversaryLodgingFinal()
+    : ZIO[Has[System], Error, Hotel] =
+  for
+    apiKey <- envRequired("API_KEY")
+    hotel <-
+      ZIO.fromEither(
+        TravelApiImpl
+          .cheapestHotel("90210", apiKey)
       )
-    )
-  )
+  yield hotel
 ```
 
 This is what it looks like in action:
@@ -182,7 +224,7 @@ import zio.Runtime.default.unsafeRun
 import zio.ZLayer
 
 unsafeRun(
-  perfectAnniversaryLodgingSafe().provideLayer(
+  anniversaryLodgingSafe().provideLayer(
     ZLayer.succeed[System](SystemLive())
   )
 )
@@ -204,7 +246,7 @@ We can now provide this to our logic, for testing both the happy path and failur
 
 ```scala mdoc
 unsafeRun(
-  perfectAnniversaryLodgingSafe().provideLayer(
+  anniversaryLodgingSafe().provideLayer(
     ZLayer.succeed[System](
       SystemHardcoded(
         Map("API_KEY" -> "Invalid Key")
@@ -223,11 +265,11 @@ TODO
 ```scala mdoc
 import zio.System
 
-def perfectAnniversaryLodgingZ(): ZIO[Has[
-  System
-], Nothing, Either[Error, Hotel]] =
+def anniversaryLodgingZ(): ZIO[Has[
+  zio.System
+], SecurityException, Either[Error, Hotel]] =
   for
-    apiKey <- System.env("API_KEY")
+    apiKey <- zio.System.env("API_KEY")
   yield TravelApiImpl.cheapestHotel(
     "90210",
     apiKey.get // unsafe!
