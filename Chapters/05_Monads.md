@@ -108,7 +108,7 @@ def compose(stop: String): Result =
     c + "d"
 ```
 
-`compose` takes `stop: String` indicating how far we want to get through the execution of `compose` before it fails.
+`compose` takes `stop` indicating how far we want to get through the execution of `compose` before it fails.
 
 The `for` comprehension attempts to execute three calls to `check`, each of which takes the next value of `step` in alphabetic succession.
 Each expression uses the backwards-arrow `<-` to assign the result to a `String` value.
@@ -177,7 +177,7 @@ compose("a") match
 
 `case Fail` becomes the equivalent of the `catch` clause in exception handling, so all the error handling for `compose` is now isolated in one place, just as in a `catch` clause.
 
-You can see from the output from the various calls to `compose` that the compiler responds to a `<-` within a `for` comprehension by calling `flatMap` or `map`.
+You can see in the output from the various calls to `compose` that the compiler responds to a `<-` within a `for` comprehension by calling `flatMap` or `map`.
 Thus, it looks like our `Result` must have `flatMap` and `map` methods in order to allow these calls.
 Here's the definition of `Result`:
 
