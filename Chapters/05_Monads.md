@@ -67,7 +67,6 @@ What if we make a box called `Result` containing *both* the success-path value t
 For simplicity, both the error information and the success data are `String`s:
 
 ```scala mdoc
-// Monads/result.scala
 case class Fail(why: String)     extends Result
 case class Success(data: String) extends Result
 ```
@@ -77,12 +76,10 @@ If you get all the way through the function without any failures, you return a `
 
 The Scala `for` comprehension is designed to work with monads.
 The `<-` in a `for` comprehension *automatically checks and unpacks a monad!*
-The monad does not have to be a standard or built-in type; you can write one yourself as we've done with `Result`.
+The monad does not have to be a standard or built-in type; you can write one yourself as we've done with `Result` (whose definition is shown later in this chapter, after you understand what it needs to do).
 Let's see how `Result` works:
 
 ```scala mdoc
-// Monads/ShowResult.scala
-
 def check(
     step: String,
     stop: String,
@@ -97,13 +94,11 @@ def check(
   result
 ```
 
-`check` compares `stop` to its `step` argument.
+`check` compares `step` to `stop`.
 If they're equal, it returns a `Fail` object, otherwise it returns a `Success` object.
 
 ```scala mdoc
-// This function does much more than show
-// More accurate name?
-def show(stop: String): Result =
+def compose(stop: String): Result =
   for
     a: String <- check("a", stop, "")
     b: String <- check("b", stop, a)
@@ -113,7 +108,7 @@ def show(stop: String): Result =
     c + "d"
 ```
 
-`show` takes `stop: String` indicating how far we want to get through the execution of `compose` before it fails.
+`compose` takes `stop: String` indicating how far we want to get through the execution of `compose` before it fails.
 
 The `for` comprehension attempts to execute three calls to `check`, each of which takes the next value of `step` in alphabetic succession.
 Each expression uses the backwards-arrow `<-` to assign the result to a `String` value.
@@ -121,10 +116,10 @@ That value is passed to `check` in the subsequent expression in the comprehensio
 If all three expressions execute successfully, the `yield` expression uses `c` to produce the final `Result` value which is returned from the function.
 
 What happens if a call to `check` fails?
-We'll call `show` with successive values of `stop` from `"a"` to `"d"`:
+We'll call `compose` with successive values of `stop` from `"a"` to `"d"`:
 
 ```scala mdoc
-show("a")
+compose("a")
 ```
 
 `check("a", stop, "")` immediately fails when `stop = "a"`, so the result returned from `check` is `Fail(a)`.
@@ -136,20 +131,19 @@ That result is `Fail` and *no further lines in `compose` are executed*.
 The `a` to the left of the `<-` is never initialized, nor are `b` or `c`.
 The resulting value of `compose` becomes the value returned by `flatMap`, which is `Fail(a)`.
 
-The last lines in `show` check for failure and execute error-handling code if `Fail` is found.
-All the error-handling for `compose` is in one place, in the same way that a `catch` clause combines error-handling code.
+The `Result` returned by `compose` can be checked for failure, and error-handling can be executed if `Fail` is found.
+All the error-handling for `compose` can be in one place, in the same way that a `catch` clause combines error-handling code.
 
 ```scala mdoc
-show("b")
+compose("b")
 ```
 
 With `stop = "b"`, the first expression in the `for` comprehension is now successful.
 The value of `a` is successfully assigned, then passed into `check("b", stop, a)` in the second expression.
 Now the second expression fails and the resulting value of `compose` becomes `Fail(ab)`.
-Once again we end up in the error-handling code.
 
 ```scala mdoc
-show("c")
+compose("c")
 ```
 
 Now we get all the way to the third expression in the `for` comprehension before it fails.
@@ -159,35 +153,35 @@ The last `<-` in a `for` comprehension calls `map` instead of `flatMap`, for rea
 Finally, `stop = "d"` successfully makes it through the entire initialization for `compose`:
 
 ```scala mdoc
-show("d")
+compose("d")
 ```
 
 The return value of `check("c", stop, b)` is `Success(abc)` and this is used to initialize `c`.
 
-The `yield` expression produces the final result that is assigned to `compose`.
+The `yield` expression produces the final result returned by `compose`.
 You should find all potential problems by the time you reach `yield`, so the `yield` expression should not be able to fail.
 Note that `c` is of type `String` but `compose` is of type `Result`.
 The `yield` expression is automatically wrapped in a `Success` object.
 
-We are composing a result from multiple expressions and the whole `for` comprehension will either succeed or fail, and have its own error handling.
+We `compose` a result from multiple expressions and the whole `for` comprehension will either succeed or fail.
 
-TODO{{Explanation of pattern matching in isolation}}
+One way to discover the `Fail` case is to use a pattern match. Here, we extract the `why` in `Fail` and the `data` in success to use in the corresponding `println` statements:
 
 ```scala mdoc
-show("a") match
+compose("a") match
   case Fail(why) =>
     println(s"Error-handling for $why")
   case Success(data) =>
     println(s"Handling success value: $data")
 ```
 
-From the above output, the compiler responds to a `<-` within a `for` comprehension by calling `flatMap` or `map`.
+`case Fail` becomes the equivalent of the `catch` clause in exception handling, so all the error handling for `compose` is now isolated in one place, just as in a `catch` clause.
+
+You can see from the output from the various calls to `compose` that the compiler responds to a `<-` within a `for` comprehension by calling `flatMap` or `map`.
 Thus, it looks like our `Result` must have `flatMap` and `map` methods in order to allow these calls.
 Here's the definition of `Result`:
 
 ```scala mdoc
-// Monads/Result.scala
-
 trait Result:
   def flatMap(f: String => Result): Result =
     println(s"flatMap on $this")
@@ -227,10 +221,11 @@ People commonly use `Either` to produce the same effect as `Result`.
 Our `Fail` becomes `Left` in `Either`, and our `Success` becomes `Right`.
 `Either` has numerous additional methods beyond `map` and `flatMap`, so it is much more full-featured.
 
-X> **Exercise 1:** Modify `ShowResult.scala` to use `Either` instead of `Result`.
+X> **Exercise 1:** Modify `ShowResult` to use `Either` instead of `Result`.
 X> Your output should look like this:
 
 ```scala mdoc:invisible
+<<<<<<< Updated upstream
 // Monads/Solution1.scala
 
 def echeck(
@@ -238,6 +233,9 @@ def echeck(
     stop: String,
     msg: String
 ) =
+=======
+def echeck(step: String, stop: String, msg: String) =
+>>>>>>> Stashed changes
   val result =
     if step == stop then
       Left(msg + step)
@@ -246,8 +244,8 @@ def echeck(
   println(s"check($step): $result")
   result
 
-def eshow(stop: String) =
-  println(s">> show($stop) <<")
+def solution1(stop: String) =
+  println(s">> compose($stop) <<")
 
   val compose =
     for
@@ -263,11 +261,11 @@ def eshow(stop: String) =
   for (failure <- compose.left)
     println(s"Error-handling for $failure")
 
-end eshow
+end solution1
 ```
 
 ```scala mdoc
-List("a", "b", "c", "d").foreach(eshow)
+List("a", "b", "c", "d").foreach(solution1)
 ```
 
 X> **Exercise 2:** Modify the solution to Exercise 1 to work with `Int` instead of `String`.
@@ -275,6 +273,7 @@ X> Change `msg` in the `check` argument list to `i`, an `Int`.
 X> Your output should look like this:
 
 ```scala mdoc:invisible
+<<<<<<< Updated upstream
 // Monads/Solution2.scala
 
 def icheck(
@@ -282,6 +281,9 @@ def icheck(
     stop: String,
     i: String
 ) =
+=======
+def icheck(step: String, stop: String, i: String) =
+>>>>>>> Stashed changes
   val result =
     if step == stop then
       Left(i + step)
@@ -291,8 +293,8 @@ def icheck(
   result
 end check
 
-def ishow(stop: String) =
-  println(s">> show($stop) <<")
+def solution2(stop: String) =
+  println(s">> compose($stop) <<")
 
   val compose =
     for
@@ -307,23 +309,21 @@ def ishow(stop: String) =
   for (failure <- compose.left)
     println(s"Error-handling for $failure")
 
-end ishow
+end solution2
 ```
 
 ```scala mdoc
-List("a", "b", "c", "d").foreach(ishow)
+List("a", "b", "c", "d").foreach(solution2)
 ```
 
 `Option` is like `Either` except that the `Right`-side (success) case becomes `Some` (that is, it has a value) and the `Left`-side (failure) case becomes `None`.
 `None` simply means that there is no value, which isn't necessarily an error.
 For example, if you look something up in a `Map`, there might not be a value for your key, so returning an `Option` of `None` is a common and reasonable result.
 
-X> **Exercise 3:** Modify `ShowResult.scala` to work with `Option` instead of `Result`.
+X> **Exercise 3:** Modify `ShowResult` to work with `Option` instead of `Result`.
 X> Your output should look like this:
 
 ```scala mdoc:invisible
-// Monads/Solution3.scala
-
 def ocheck(step: Int, stop: Int, msg: String) =
   val result =
     if step == stop then
@@ -334,8 +334,8 @@ def ocheck(step: Int, stop: Int, msg: String) =
   result
 end check
 
-def oshow(stop: Int) =
-  println(s">> show($stop) <<")
+def solution3(stop: Int) =
+  println(s">> compose($stop) <<")
 
   val compose =
     for
@@ -352,20 +352,18 @@ def oshow(stop: Int) =
   if compose == None then
     println(s"Error-handling for None")
 
-end oshow
+end solution3
 ```
 
 ```scala mdoc
-List(1, 2, 3, 4).foreach(oshow)
+List(1, 2, 3, 4).foreach(solution3)
 ```
 
-X> **Exercise 4:** Modify `Result.scala` so `Result` is an `enum` instead of a `trait`.
-X> Demonstrate that the `enum Result` works by modifying `ShowResult.scala`.
+X> **Exercise 4:** Modify `Result` so it is an `enum` instead of a `trait`.
+X> Modify `ShowResult` to demonstrate this new `enum ResultEnum`.
 X> Your output should look like this:
 
 ```scala mdoc:invisible
-// Monads/Solution4a.scala
-
 enum ResultEnum:
   def flatMap(
       f: String => ResultEnum
@@ -392,7 +390,6 @@ end ResultEnum
 ```
 
 ```scala mdoc:invisible
-// Monads/Solution4b.scala
 import ResultEnum.*
 
 def checkRE(
@@ -407,9 +404,8 @@ def checkRE(
       SuccessRE(msg + step)
   println(s"check($step): $result")
   result
-end check
 
-def showRE(stop: Int) =
+def solution4(stop: Int) =
   for
     a: String <- checkRE(1, stop, "")
     b: String <- checkRE(2, stop, a)
@@ -420,14 +416,14 @@ def showRE(stop: Int) =
 ```
 
 ```scala mdoc
-List(1, 2, 3, 4).foreach(showRE)
+List(1, 2, 3, 4).foreach(solution4)
 ```
 
 ## Understanding the `for` Comprehension
 
 At this point you should have a sense of what a `for` comprehension is doing, but *how* it does it is still a bit mysterious.
-Using the `Either` predefined monad, we can produce a clearer understanding.
-Here, each expression in `compose1` uses `Right`, so each one can never fail.
+We can use the `Either` predefined monad to understand it better.
+Here, each expression in `fc1` uses `Right`, so each one can never fail.
 This doesn't matter because we just want to look at the structure of the code:
 
 ```scala mdoc
@@ -457,10 +453,11 @@ val fc2 =
 
 The `for` comprehension left-arrow `<-` generates a call to `flatMap`.
 Notice that the argument to `flatMap` is a function.
-Look back at `flatMap` in `Result.scala`.
+
+Now look back at `flatMap` in `Result`.
 In the `Fail` case (which is `Left` for `Either`), `flatMap` just returns the `Fail` object and *doesn't call that function.*
 Here, in the `Right` case (which is like `Success` for `Result`), the function is called and produces `Right("B")` ... with another call to `flatMap`.
-Now the argument is another function, which is again not called in the `Left` case.
+This `flatMap` argument is another function, which is again not called in the `Left` case.
 In the `Right` case, it returns `Right("C")` ... with another call, but this time to `map`.
 The argument to `map` is another function, again not called in the `Left` case.
 In the `Right` case, it returns something different: the `yield` expression.
@@ -478,16 +475,14 @@ X> Verify it works, then produce the "desugared" version as you see with `fc2`.
 X> Your output should look like this:
 
 ```scala mdoc:invisible
-// Monads/Solution5.scala
-
-val sol5a =
+val solution5a =
   for
     a <- Some("A")
     b <- Some("B")
     c <- Some("C")
   yield s"Result: $a $b $c"
 
-val sol5b =
+val solution5b =
   Some("A").flatMap(a =>
     Some("B").flatMap(b =>
       Some("C").map(c => s"Result: $a $b $c")
@@ -496,8 +491,8 @@ val sol5b =
 ```
 
 ```scala mdoc
-sol5a
-sol5b
+solution5a
+solution5b
 ```
 
 ## Summary
@@ -508,3 +503,5 @@ You probably had an insight that the pattern of inheritance polymorphism is fund
 
 In this chapter you've experienced a similar realization, but for functional programming.
 Producing result information in a monad is so fundamental to functional programming that the Scala compiler provides direct support for this pattern in the form of the `for` comprehension.
+
+Although `for` has multiple forms in Scala, we will primarily use the form shown in this chapter throughout the book.
