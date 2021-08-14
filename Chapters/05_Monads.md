@@ -165,7 +165,7 @@ The `yield` expression is automatically wrapped in a `Success` object.
 
 We `compose` a result from multiple expressions and the whole `for` comprehension will either succeed or fail.
 
-One way to discover the `Fail` case is to use a pattern match. Here, we extract the `why` in `Fail` and the `data` in success to use in the corresponding `println` statements:
+One way to discover the `Fail` case is to use a pattern match. Here, we extract the `why` in `Fail` and the `data` in `Success` to use in the corresponding `println` statements:
 
 ```scala mdoc
 compose("a") match
