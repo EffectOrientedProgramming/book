@@ -1,5 +1,3 @@
-val zioVersion = "2.0.0-M1"
-
 enablePlugins(MdocPlugin)
 
 name := "EffectOrientedProgramming"
@@ -10,6 +8,8 @@ scalacOptions += "-Yexplicit-nulls"
 scalacOptions -= "-explain-types"
 scalacOptions -= "-explain"
 scalacOptions -= "-encoding"
+
+val zioVersion = "2.0.0-M1"
 
 libraryDependencies ++=
   Seq(
