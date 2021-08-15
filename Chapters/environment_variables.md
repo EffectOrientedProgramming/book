@@ -71,7 +71,9 @@ object TravelApiImpl extends TravelApi:
 To augment the built-in environment function, we will create a wrapper.
 
 ```scala mdoc
-def envRequiredUnsafe(variable: String): Either[Error, String] =
+def envRequiredUnsafe(
+    variable: String
+): Either[Error, String] =
   sys
     .env
     .get(variable)
@@ -162,7 +164,9 @@ object System:
   def env(
       variable: => String
   ): ZIO[Has[System], Nothing, Option[String]] =
-    ZIO.accessZIO[Has[System]](_.get.env(variable))
+    ZIO.accessZIO[Has[System]](
+      _.get.env(variable)
+    )
 ```
 
 Now if we use this code, our caller's type tells us that it requires a `System` to execute.

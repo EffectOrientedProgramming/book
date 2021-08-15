@@ -4,6 +4,7 @@ WhatIsAnEffect.md
 03_Reliability.md
 04_Immutability.md
 05_Monads.md
+TheZioType.md
 06_HelloFailure.md
 08_HelloTest.md
 unit.md
