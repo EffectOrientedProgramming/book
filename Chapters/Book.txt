@@ -1,10 +1,10 @@
 01_Frontmatter.md
 02_Introduction.md
+WhatIsAnEffect.md
 03_Reliability.md
 04_Immutability.md
 05_Monads.md
 06_HelloFailure.md
-07_WhatIsAnEffect.md
 08_HelloTest.md
 unit.md
 console.md
