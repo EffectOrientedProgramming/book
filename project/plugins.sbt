@@ -10,5 +10,5 @@ addSbtPlugin(
 )
 
 addSbtPlugin(
-  "au.com.onegeek" % "sbt-dotenv" % "2.1.204"
+  "au.com.onegeek" % "sbt-dotenv" % "2.1.233"
 )
