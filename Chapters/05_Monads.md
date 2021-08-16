@@ -216,6 +216,8 @@ Because the `for` comprehension provides direct support for monads, you might no
 The two most common of these are `Either` and `Option`.
 These are generic so they work with any type.
 
+TODO {{This explanation is confusing}}
+TODO {{Convey that it holds generic types}}
 `Either` looks just like our `Result` monad but with different names.
 People commonly use `Either` to produce the same effect as `Result`.
 Our `Fail` becomes `Left` in `Either`, and our `Success` becomes `Right`.
@@ -428,6 +430,7 @@ Because we never created a `Left`, Scala decided that the `Left` type should be 
 IntelliJ IDEA provides a nice tool that expands this comprehension to show the calls to `flatMap` and `map`.
 If you select the `for`, you'll see a little light bulb appear.
 Click on that and select "Desugar for comprehension."
+TODO {{Put desugaring sooner}}
 The result looks like this:
 
 ```scala mdoc
@@ -482,6 +485,9 @@ val solution5b =
 solution5a
 solution5b
 ```
+
+### Future
+TODO{{Demonstrate Futures using a for comprehension}}
 
 ## Summary
 

@@ -10,6 +10,8 @@ Unauthoritatively, the authors of this book consider them in these categories.
 - Changing the World
 - Failures
 
+TODO {{Explain these Effects: Optionality, Failure, Asynchronicity, Blocking}}
+
 ### Observing the World
 
 Observation can be very basic:
@@ -43,6 +45,9 @@ They can be advanced:
 - Triggering an alarm
 - Stabilizing an airplane
 - Detonating explosives
+
+One important aspect these things actions is that, generally, they cannot be undone.
+It is possible to undo special cases, eg. provide Database deletion behavior
 
 ## Effects VS Side-Effects
 `Effects` and `Side-Effects` are not slight verbiage preferences.

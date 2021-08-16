@@ -123,11 +123,49 @@ We have specific messages for all relevant error cases. However, this still suff
 
 Now we will explore how ZIO enables more powerful, uniform error-handling.
 
-TODO Which should we show first?
-- [Wrapping Legacy Code](#wrapping-legacy-code)
-- [ZIO Error Handling](#zio-error-handling)
+TODO {{Update verbiage now that ZIO section is first}}
 
+- [ZIO Error Handling](#zio-error-handling)
+- [Wrapping Legacy Code](#wrapping-legacy-code)
+
+### ZIO-First Error Handling
+
+```scala mdoc:fmt
+// TODO Consult about type param styling
+def getTemperatureZ(behavior: String): ZIO[
+  Any,
+  GpsException | NetworkException,
+  String
+] =
+  if (behavior == "GPS Error")
+    ZIO.fail(new GpsException())
+  else if (behavior == "Network Error")
+    // TODO Use a non-exceptional error
+    ZIO.fail(new NetworkException())
+  else
+    ZIO.succeed("30 degrees")
+
+unsafeRun(getTemperatureZ("Succeed"))
+```
+
+```scala mdoc:fail
+unsafeRun(
+  getTemperatureZ("Succeed").catchAll {
+    case ex: NetworkException =>
+      ZIO.succeed("Network Unavailable")
+  }
+)
+```
+
+TODO Demonstrate ZIO calculating the error types without an explicit annotation being provided
+
+```scala mdoc:crash
+unsafeRun(
+  getTemperatureZ("GPS Error").orDie
+)
+```
 ### Wrapping Legacy Code
+
 If we are unable to re-write the fallible function, we can still wrap the call
 
 ```scala mdoc
@@ -178,42 +216,3 @@ unsafeRunTruncate(
 
 The compiler does not catch this bug, and instead fails at runtime. Can we do better?
 
-### ZIO-First Error Handling
-
-```scala mdoc:fmt
-// TODO Consult about type param styling
-def getTemperatureZ(behavior: String): ZIO[
-  Any,
-  GpsException | NetworkException,
-  String
-] =
-  if (behavior == "GPS Error")
-    ZIO.fail(new GpsException())
-  else if (behavior == "Network Error")
-    // TODO Use a non-exceptional error
-    ZIO.fail(new NetworkException())
-  else
-    ZIO.succeed("30 degrees")
-
-unsafeRun(getTemperatureZ("Succeed"))
-```
-
-```scala mdoc:fail
-unsafeRun(
-  getTemperatureZ("Succeed").catchAll {
-    case ex: NetworkException =>
-      ZIO.succeed("Network Unavailable")
-  }
-)
-```
-
-TODO Demonstrate ZIO calculating the error types without an explicit annotation being provided
-
-```scala mdoc:fmt
-if 1 == 1 && 2 == 2 && 3 == 3 && 4 == 4 &&
-  5 == 5 && 6 == 6
-then
-  "yay"
-else
-  "damn"
-```
