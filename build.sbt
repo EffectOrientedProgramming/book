@@ -14,7 +14,7 @@ val zioVersion = "2.0.0-M1"
 libraryDependencies ++=
   Seq(
     "org.jetbrains" % "annotations-java5" %
-      "21.0.1",
+      "22.0.0",
     "org.scalameta"      %
       "scalafmt-dynamic" % "3.0.0-RC7" cross
       CrossVersion.for3Use2_13,
