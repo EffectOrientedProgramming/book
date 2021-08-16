@@ -24,7 +24,7 @@ libraryDependencies ++=
     "dev.zio" %% "zio-test"     % zioVersion,
     "dev.zio" %% "zio-test-sbt" % zioVersion %
       Test,
-    "org.scalameta" %% "munit" % "0.7.27" % Test,
+    "org.scalameta" %% "munit" % "0.7.28" % Test,
     "io.circe"  % "circe-core_3"  % "0.15.0-M1",
     "io.circe" %% "circe-generic" % "0.15.0-M1",
     "com.softwaremill.sttp.client3" %% "circe" %
