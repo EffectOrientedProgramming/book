@@ -2,6 +2,13 @@
 
 ***Creating Reliable Systems with Scala 3 and ZIO 2***
 
+## Latest Preview Builds:
+
+[Effect Oriented Programming PDF](https://leanpub.com/s/fDHMG3a91OtuihppckOyMA.pdf)
+
+[Effect Oriented Programming EPUB](https://leanpub.com/s/fDHMG3a91OtuihppckOyMA.epub)
+
+
 ## Developer Notes
 
 * [Basic Installation Instructions](https://github.com/EffectOrientedProgramming/Examples#effect-oriented-programming-book-examples)
