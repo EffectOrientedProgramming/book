@@ -24,8 +24,8 @@ def validateDir(
       )
     )
 
-def filesInDir(dir: File): Set[File] =
-  dir.listFiles().nn.toSet.map(_.nn)
+def filesInDir(dir: File): Seq[File] =
+  dir.listFiles().nn.map(_.nn).toSeq
 
 def parseChapter(f: File): Option[(Int, File)] =
   def intPrefix(s: String): Option[(Int, File)] =
@@ -41,39 +41,30 @@ def parseChapter(f: File): Option[(Int, File)] =
   else
     None
 
-def chapterFiles(dir: File): Set[(Int, File)] =
+def chapterFiles(dir: File): Seq[(Int, File)] =
   val files = filesInDir(dir)
   files.flatMap(parseChapter)
 
-def duplicates(
-    files: Set[(Int, File)]
-): Set[(Int, File)] =
-  val justNums = files.toSeq.map(_._1)
-  val dups =
-    justNums.diff(justNums.distinct).distinct
-  files.filter { f =>
-    dups.contains(f._1)
-  }
+// def duplicates(
+//    files: Seq[(Int, File)]
+// ): Seq[(Int, File)] =
+//  val justNums = files.toSeq.map(_._1)
+//  val dups =
+//    justNums.diff(justNums.distinct).distinct
+//  files.filter { f =>
+//    dups.contains(f._1)
+//  }
 
-def resolveDups(dups: Set[(Int, File)]): ZIO[Has[
-  Console
-], Throwable, Seq[(Int, File)]] =
-  // todo: better way to get indexes?
-  val dupsWithIndex =
-    dups
-      .toIndexedSeq
-      .zipWithIndex
-      .map { f =>
-        f._1 -> (f._2 + 1)
-      }
-
+def resolveDups(
+    dups: Seq[File]
+): ZIO[Has[Console], Throwable, Seq[File]] =
   val something =
     for
       _ <- printLine("Conflict detected:")
       _ <-
-        ZIO.foreach(dupsWithIndex) {
+        ZIO.foreach(dups.zipWithIndex) {
           case (f, i) =>
-            printLine(s"$i) ${f._2.getName}")
+            printLine(s"$i) ${f.getName}")
         }
       _ <-
         printLine("\nWhich one should be first:")
@@ -82,8 +73,10 @@ def resolveDups(dups: Set[(Int, File)]): ZIO[Has[
         ZIO.fromTry(
           Try(Integer.parseInt(numString))
         ) // todo: retry if unparsable
-      (firstSeq, rest) =
-        dupsWithIndex.partition(_._2 == num)
+      (firstIndex, restIndex) =
+        dups.zipWithIndex.partition(_._2 == num)
+      firstSeq = firstIndex.map(_._1)
+      rest     = restIndex.map(_._1)
       first <-
         if firstSeq.size == 1 then
           ZIO.succeed(firstSeq.head)
@@ -93,30 +86,94 @@ def resolveDups(dups: Set[(Int, File)]): ZIO[Has[
           ) // todo: retry
       resolution <-
         if rest.size > 1 then
-          resolveDups(rest.map(_._1).toSet)
+          resolveDups(rest)
         else
-          ZIO.succeed(rest.map(_._1))
-    yield resolution
+          ZIO.succeed(rest)
+    yield first +: resolution
 
   something
 end resolveDups
+
+/* File:
+ * 01-a 02-foo 02-bar 03-fiz
+ *
+ * GroupedFiles:
+ * Seq(01-a), Seq(02-foo, 02-bar), Seq(03-fiz)
+ * Seq(04-foo, 04-bar),
+ *
+ * Dups:
+ * 02-foo 02-bar
+ *
+ * Resolutions:
+ * 02-foo 03-bar */
 
 def program(dir: File) =
   for
     _ <- validateDir(dir)
     _ <- printLine(s"Reordering $dir")
     files = chapterFiles(dir)
-    dups  = duplicates(files)
-    resolutions <- resolveDups(dups)
-    // _ <- reorderFiles(resolutions, files)
+    grouped: Seq[(Int, Seq[File])] =
+      files
+        .groupBy(_._1)
+        .view
+        .mapValues(_.map(_._2))
+        .toSeq
+        .sortBy(_._1)
+    results: Seq[Seq[File]] <-
+      ZIO.foreach(grouped)(dups =>
+        if (dups._2.length > 1)
+          resolveDups(dups._2)
+        else
+          ZIO.succeed(dups._2)
+      )
+    flatResults = results.flatten
+    // Now, strip out numbers and rename
+    // according to place in this sequence
+    _ <-
+      ZIO {
+        flatResults
+          .zipWithIndex
+          .map((file, index) =>
+            rename(file, index)
+          )
+      }
     _ <-
       printLine(
         s"Completed with ${files.size} files"
+      )
+    _ <-
+      printLine(
+        s"Potential Re-ordering: \n" +
+          flatResults.mkString("\n")
       )
   yield ()
 
 @main
 def run(args: String*) =
   val f: File =
-    File(args.headOption.getOrElse(""))
+//    File(args.headOption.getOrElse(""))
+    File("Chapters")
   unsafeRun(program(f.getAbsoluteFile.nn))
+
+def rename(original: File, index: Int) =
+
+  val stripped =
+    original
+      .getName()
+      .nn
+      .dropWhile(_ != '_')
+      .drop(1)
+
+  val withLeadingZero =
+    if (index > 9)
+      index.toString
+    else
+      s"0$index"
+
+  original.renameTo(
+    File(
+      original.getParent.nn + "/" +
+        withLeadingZero + "_" + stripped
+    )
+  )
+end rename

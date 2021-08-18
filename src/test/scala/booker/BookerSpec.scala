@@ -31,28 +31,28 @@ object BookerSpec extends DefaultRunnableSpec:
           yuup("1_fooo.md", 1)
         }
       ),
-      suite("duplicates")(
-        test("must work") {
-          val in =
-            Set(
-              1 -> File("1_foo.md"),
-              1 -> File("1_bar.md"),
-              2 -> File("2_baz.md")
-            )
-          val out =
-            Set(
-              1 -> File("1_foo.md"),
-              1 -> File("1_bar.md")
-            )
-          assert(duplicates(in))(equalTo(out))
-        }
-      ),
+//      suite("duplicates")(
+//        test("must work") {
+//          val in =
+//            Seq(
+//              File("1_foo.md"),
+//              File("1_bar.md"),
+//              File("2_baz.md")
+//            )
+//          val out =
+//            Seq(
+//              File("1_foo.md"),
+//              File("1_bar.md")
+//            )
+// assert(duplicates(in))(equalTo(out))
+//        }
+//      ),
       suite("resolveDups")(
         test("must work") {
           val dups =
-            Set(
-              1 -> File("1_foo.md"),
-              1 -> File("1_bar.md")
+            Seq(
+              File("1_foo.md"),
+              File("1_bar.md")
             )
           for
             _      <- resolveDups(dups)
@@ -60,6 +60,31 @@ object BookerSpec extends DefaultRunnableSpec:
           yield assert(output.last.trim)(
             equalTo("2) 1_bar.md")
           )
+        },
+        test("Renaming") {
+          for
+            newName <-
+              ZIO {
+                val original =
+                  File(
+                    "/home/bfrasure/Repositories/EffectOrientedProgramming/Chapters/08_HelloTest.md"
+                  )
+
+                val stripped =
+                  original
+                    .getName()
+                    .nn
+                    .dropWhile(_ != '_')
+                    .drop(1)
+
+                original.renameTo(
+                  File(
+                    original.getParent.nn + "/" +
+                      stripped
+                  )
+                )
+              }
+          yield assert(1)(equalTo(1))
         }
       )
     )
