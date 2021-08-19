@@ -14,3 +14,4 @@ project/metals.sbt
 
 /manuscript/
 .env
+cs.exe
