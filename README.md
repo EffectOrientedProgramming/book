@@ -2,7 +2,7 @@
 
 ***Creating Reliable Systems with Scala 3 and ZIO 2***
 
-## Latest Preview Builds:
+## Latest Preview Builds
 
 * [PDF](https://leanpub.com/s/fDHMG3a91OtuihppckOyMA.pdf)
 
@@ -14,19 +14,21 @@ Steps for configuring your environment to run the book examples and build the bo
 
 ### First, perform the [Basic Installation Instructions](https://github.com/EffectOrientedProgramming/Examples#effect-oriented-programming-book-examples)
 
+This will install Java, Scala, SBT (Scala Build Tool) and several other necessary tools.
+
 ### Commands for Building & Running the Book Code
 
 * Clone this repository onto your machine.
 
-**NOTE:** For all the commands shown here, first start `sbt` ***In A Terminal Shell***.
-Do not use IntelliJ IDEA's "sbt shell" window, which doesn't work correctly and will cause problems.
-(It's OK to use the IntelliJ "Terminal" window).
-Run `sbt` without any arguments to enter `sbt` console mode.
-Once you start `sbt` you will see a prompt that looks like:
+* For all the commands shown here, first start `sbt` ***In A Terminal Shell***.
+  Do not use IntelliJ IDEA's "sbt shell" window, which doesn't work correctly and will cause problems.
+  (It's OK to use the IntelliJ "Terminal" window).
+  Run `sbt` without any arguments to enter `sbt` console mode.
+  Once you start `sbt` you will see a prompt that looks like:
 
-```text
-sbt:EffectOrientedProgramming>
-```
+  ```text
+  sbt:EffectOrientedProgramming>
+  ```
 
 * Contributors, to ensure you don't break the build and/or inconvenience your collaborators,
   execute this script in the project root to set up our hooks:
@@ -48,7 +50,7 @@ sbt:EffectOrientedProgramming>
     sbt:EffectOrientedProgramming> mdoc --watch
     ```
 
-  1. Open: [http://localhost:4000](http://localhost:4000)
+  2. Open: [http://localhost:4000](http://localhost:4000)
 
 * The `src` directory is a playground and you can run a `main` this way:
 

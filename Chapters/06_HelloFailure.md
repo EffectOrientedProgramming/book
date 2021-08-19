@@ -132,6 +132,9 @@ TODO {{Update verbiage now that ZIO section is first}}
 
 ```scala mdoc:fmt
 // TODO Consult about type param styling
+import zio.ZIO
+import zio.Runtime.default.unsafeRun
+
 def getTemperatureZ(behavior: String): ZIO[
   Any,
   GpsException | NetworkException,
