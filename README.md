@@ -11,7 +11,9 @@
 
 ## Developer Notes
 
-* [Basic Installation Instructions](https://github.com/EffectOrientedProgramming/Examples#effect-oriented-programming-book-examples)
+### First, perform the [Basic Installation Instructions](https://github.com/EffectOrientedProgramming/Examples#effect-oriented-programming-book-examples)
+
+### Commands for Building & Running the Book Code
 
 **NOTE:** For all the commands shown here, first start `sbt` ***In A Terminal Shell***.
 Do not use IntelliJ IDEA's "sbt shell" window, which doesn't work correctly and will cause problems.
@@ -22,6 +24,13 @@ Once you start `sbt` you will see a prompt that looks like:
 ```text
 sbt:EffectOrientedProgramming>
 ```
+
+* Contributors, to ensure you don't break the build and/or inconvenience your collaborators, execute this script in the project
+root to set up our hooks:
+
+  ```text
+  ./bin/setupGitHooks.sh
+  ```
 
 * Compile the Chapters:
 
