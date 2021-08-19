@@ -4,29 +4,32 @@
 
 ## Latest Preview Builds:
 
-[Effect Oriented Programming PDF](https://leanpub.com/s/fDHMG3a91OtuihppckOyMA.pdf)
+* [PDF](https://leanpub.com/s/fDHMG3a91OtuihppckOyMA.pdf)
 
-[Effect Oriented Programming EPUB](https://leanpub.com/s/fDHMG3a91OtuihppckOyMA.epub)
-
+* [EPUB](https://leanpub.com/s/fDHMG3a91OtuihppckOyMA.epub)
 
 ## Developer Notes
+
+Steps for configuring your environment to run the book examples and build the book.
 
 ### First, perform the [Basic Installation Instructions](https://github.com/EffectOrientedProgramming/Examples#effect-oriented-programming-book-examples)
 
 ### Commands for Building & Running the Book Code
 
+* Clone this repository onto your machine.
+
 **NOTE:** For all the commands shown here, first start `sbt` ***In A Terminal Shell***.
 Do not use IntelliJ IDEA's "sbt shell" window, which doesn't work correctly and will cause problems.
 (It's OK to use the IntelliJ "Terminal" window).
-Start `sbt` without any arguments to enter `sbt` console mode.
+Run `sbt` without any arguments to enter `sbt` console mode.
 Once you start `sbt` you will see a prompt that looks like:
 
 ```text
 sbt:EffectOrientedProgramming>
 ```
 
-* Contributors, to ensure you don't break the build and/or inconvenience your collaborators, execute this script in the project
-root to set up our hooks:
+* Contributors, to ensure you don't break the build and/or inconvenience your collaborators,
+  execute this script in the project root to set up our hooks:
 
   ```text
   ./bin/setupGitHooks.sh
@@ -65,7 +68,7 @@ root to set up our hooks:
   sbt:EffectOrientedProgramming> run
   ```
 
----
+## Miscellaneous Notes
 
 * Each chapter has a single namespace.
   The package name is automatically created from the chapter name; e.g. `package monads` from `05_Monads.md`.
@@ -75,8 +78,6 @@ root to set up our hooks:
 
 * Make pull commands rebase instead of merge: `git config --global pull.rebase true`.
   Explanation and [suggested default configurations](https://spin.atomicobject.com/2020/05/05/git-configurations-default/).
-
-## Miscellaneous Notes
 
 * Separate the exercises from the book. The end of each atom simply references
   the website for exercises. This way the exercises can be changed without
