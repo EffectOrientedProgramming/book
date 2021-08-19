@@ -130,7 +130,7 @@ TODO {{Update verbiage now that ZIO section is first}}
 
 ### ZIO-First Error Handling
 
-```scala mdoc:fmt
+scala mdoc:fmt
 // TODO Consult about type param styling
 import zio.ZIO
 import zio.Runtime.default.unsafeRun
@@ -149,24 +149,23 @@ def getTemperatureZ(behavior: String): ZIO[
     ZIO.succeed("30 degrees")
 
 unsafeRun(getTemperatureZ("Succeed"))
-```
 
-```scala mdoc:fail
+scala mdoc:fail
 unsafeRun(
   getTemperatureZ("Succeed").catchAll {
     case ex: NetworkException =>
       ZIO.succeed("Network Unavailable")
   }
 )
-```
+
 
 TODO Demonstrate ZIO calculating the error types without an explicit annotation being provided
 
-```scala mdoc:crash
+scala mdoc:crash
 unsafeRun(
   getTemperatureZ("GPS Error").orDie
 )
-```
+
 ### Wrapping Legacy Code
 
 If we are unable to re-write the fallible function, we can still wrap the call
