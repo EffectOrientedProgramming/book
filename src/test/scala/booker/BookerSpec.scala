@@ -1,3 +1,5 @@
+package booker
+
 import zio.*
 import zio.test.*
 import zio.test.Assertion.*
@@ -48,19 +50,13 @@ object BookerSpec extends DefaultRunnableSpec:
 //        }
 //      ),
       suite("resolveDups")(
-        test("must work") {
-          val dups =
-            Seq(
-              File("1_foo.md"),
-              File("1_bar.md")
-            )
-          for
-            _      <- resolveDups(dups)
-            output <- TestConsole.output
-          yield assert(output.last.trim)(
-            equalTo("2) 1_bar.md")
-          )
-        },
+        /* test("must work") { val dups =
+         * Seq( File("1_foo.md"),
+         * File("1_bar.md") ) for _ <-
+         * resolveDups(dups) output <-
+         * TestConsole.output yield
+         * assert(output.last.trim)( equalTo("2)
+         * 1_bar.md") ) }, */
         test("Renaming") {
           for
             newName <-
