@@ -64,9 +64,15 @@ Compile / doc / sources := Seq.empty
 
 GraalVMNativeImage / mainClass := Some("booker.run")
 
+graalVMNativeImageOptions ++= (
+  if (!System.getProperty("os.name").toLowerCase.contains("mac"))
+    { Seq("--static") }
+  else
+    { Seq.empty }
+)
+
 graalVMNativeImageOptions ++= Seq(
   "--verbose",
-  "--static",
   "--no-fallback",
   "--install-exit-handlers",
   "-H:+ReportExceptionStackTraces",
