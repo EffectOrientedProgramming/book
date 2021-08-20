@@ -1,3 +1,5 @@
+package booker
+
 import zio.{Console, Has, ZIO}
 import zio.Console.*
 import zio.Runtime.default.unsafeRun

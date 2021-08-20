@@ -1,0 +1,11 @@
+{
+  "resources":{
+  "includes":[
+    {"pattern":"\\Qbooker/Booker$package$.class\\E"}, 
+    {"pattern":"\\Qzio/Runtime.class\\E"}, 
+    {"pattern":"\\Qzio/ZIO$.class\\E"}, 
+    {"pattern":"\\Qzio/ZIO$ServiceWithPartiallyApplied$.class\\E"}, 
+    {"pattern":"\\Qzio/ZIO.class\\E"}
+  ]},
+  "bundles":[]
+}

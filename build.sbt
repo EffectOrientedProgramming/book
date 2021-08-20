@@ -1,4 +1,5 @@
 enablePlugins(MdocPlugin)
+enablePlugins(GraalVMNativeImagePlugin)
 
 name := "EffectOrientedProgramming"
 
@@ -52,3 +53,29 @@ mdocIn := file("Chapters")
 mdocOut := file("manuscript")
 
 scalafmtOnCompile := true
+
+Compile / packageDoc / publishArtifact := false
+
+Compile / doc / sources := Seq.empty
+
+
+// for building in a docker container
+//graalVMNativeImageGraalVersion := Some("21.2.0")
+
+GraalVMNativeImage / mainClass := Some("booker.run")
+
+graalVMNativeImageOptions ++= Seq(
+  "--verbose",
+  "--static",
+  "--no-fallback",
+  "--install-exit-handlers",
+  "-H:+ReportExceptionStackTraces",
+  "-H:Name=booker",
+)
+
+/*
+// for generating graalvm configs
+run / fork := true
+
+run / javaOptions += s"-agentlib:native-image-agent=config-output-dir=src/main/resources/META-INF/native-image"
+ */

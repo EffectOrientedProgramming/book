@@ -1,0 +1,66 @@
+[
+{
+  "name":"izumi.reflect.macrortti.LightTypeTag",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"izumi.reflect.macrortti.LightTypeTag$ParsedLightTypeTag110",
+  "fields":[{"name":"0bitmap$4"}]
+},
+{
+  "name":"izumi.reflect.thirdparty.internal.boopickle.NoMacro$",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"java.lang.invoke.VarHandle",
+  "methods":[{"name":"releaseFence","parameterTypes":[] }]
+},
+{
+  "name":"sun.misc.Unsafe",
+  "allDeclaredFields":true
+},
+{
+  "name":"zio.PlatformSpecific$ZEnv$",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"zio.Runtime$",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"zio.ZIO$",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"zio.ZLayer",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"zio.ZManaged",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"zio.ZManaged$",
+  "fields":[{"name":"0bitmap$2"}]
+},
+{
+  "name":"zio.internal.Executor",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"zio.internal.FiberContext",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"zio.internal.Platform$",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"zio.internal.stacktracer.Tracer$",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"zio.package$",
+  "fields":[{"name":"0bitmap$1"}]
+}
+]
