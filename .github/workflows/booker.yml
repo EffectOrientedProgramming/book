@@ -67,12 +67,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: booker-${{ matrix.os }}
-          path: cli/build/native-image/${{ matrix.artifact-name }}
-
-      - name: release binaries
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: cli/build/native-image/${{ matrix.artifact-name }}
-          asset_name: ${{ matrix.asset-name }}
-          tag: ${{ github.ref }}
+          path: target/graalvm-native-image/booker
