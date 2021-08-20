@@ -56,10 +56,11 @@ jobs:
         if: matrix.os != 'windows'
         run: |
           ./bin/sbt graalvm-native-image:packageBin
+
       - name: run upx on ${{ matrix.os }}
         uses: svenstaro/upx-action@v2
         with:
-          file: cli/build/native-image/${{ matrix.artifact-name }}
+          file: target/graalvm-native-image/booker
           args: --best --lzma
 
       - name: upload ${{ matrix.os }}
