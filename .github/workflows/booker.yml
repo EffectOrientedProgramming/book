@@ -51,7 +51,9 @@ jobs:
         run: |
           choco install visualstudio2017-workload-vctools
           call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
-          ./bin/sbt graalvm-native-image:packageBin
+          bitsadmin /transfer cs-cli https://git.io/coursier-cli-windows-exe "%cd%\cs.exe"
+          cs setup
+          sbt graalvm-native-image:packageBin
       - name: build for ${{ matrix.os }}
         if: matrix.os != 'windows'
         run: |

@@ -17,14 +17,13 @@ import scala.util.Try
 def validateDir(
     dir: File
 ): ZIO[Any, FileNotFoundException, Unit] =
-  if dir.exists() && dir.isDirectory() then
-    ZIO.unit
-  else
-    ZIO.fail(
+  ZIO
+    .fail(
       FileNotFoundException(
         s"$dir was not found or was not a directory"
       )
     )
+    .unless(dir.exists() && dir.isDirectory)
 
 def filesInDir(dir: File): Seq[File] =
   dir.listFiles().nn.map(_.nn).toSeq
