@@ -47,27 +47,13 @@ jobs:
       - name: install native-image
         run: ${{ matrix.gu-binary }} install native-image
 
-      - name: cache chocolatey dependencies
+      - name: Install msvc-dev
         if: matrix.os == 'windows'
-        uses: actions/cache@v2
-        with:
-          path: C:\ProgramData\chocolatey\lib
+        uses: ilammy/msvc-dev-cmd@v1.5.0
 
-      - name: install visualstudio
+      - name: Install msbuild
         if: matrix.os == 'windows'
-        shell: cmd
-        run: |
-          choco install -y visualstudio2017community --no-progress --package-parameters "--add Microsoft.VisualStudio.Component.VC.Tools.ARM64 --add Microsoft.VisualStudio.Component.VC.CMake.Project"
-          choco install -y windows-sdk-7.1 kb2519277 --no-progress
-
-      #          choco install visualstudio2017-workload-vctools
-
-      - name: Check Compiler
-        if: matrix.os == 'windows'
-        shell: cmd
-        run: |
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
-          cl.exe
+        uses: microsoft/setup-msbuild@v1
 
       - name: Cache Coursier
         uses: actions/cache@v2
@@ -86,9 +72,9 @@ jobs:
         if: matrix.os == 'windows'
         shell: cmd
         run: |
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
-          call "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd"
           sbt graalvm-native-image:packageBin
+        #call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
+        #call "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd"
 
       - name: build for linux or mac
         if: matrix.os != 'windows'
