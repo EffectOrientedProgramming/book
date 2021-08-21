@@ -28,7 +28,9 @@ object MdToSourcePlugin extends AutoPlugin {
 
   val generateExamplesTask = Def.task {
 
-    Files.walk(examplesDir.value.toPath).iterator().asScala.toSeq.reverse.foreach(_.toFile.delete())
+    if (examplesDir.value.exists()) {
+      Files.walk(examplesDir.value.toPath).iterator().asScala.toSeq.reverse.foreach(_.toFile.delete())
+    }
     examplesDir.value.mkdirs()
 
     mdDir.value.listFiles().filter(_.ext == "md").foreach { file =>
