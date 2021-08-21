@@ -49,11 +49,11 @@ jobs:
 
       - name: Install msvc-dev
         if: matrix.os == 'windows'
-        uses: ilammy/msvc-dev-cmd@v1.5.0
+        uses: ilammy/msvc-dev-cmd@v1.9.0
 
       - name: Install msbuild
         if: matrix.os == 'windows'
-        uses: microsoft/setup-msbuild@v1
+        uses: microsoft/setup-msbuild@v1.0.2
 
       - name: Cache Coursier
         uses: actions/cache@v2
@@ -73,7 +73,7 @@ jobs:
         if: matrix.os == 'windows'
         shell: cmd
         run: |
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
           sbt graalvm-native-image:packageBin
 
       - name: build for linux or mac
