@@ -55,7 +55,8 @@ mdocIn := file("Chapters")
 
 mdocOut := file("manuscript")
 
-scalafmtOnCompile := true
+// windows sometimes produces OverlappingFileLockException
+scalafmtOnCompile := (!System.getProperty("os.name").toLowerCase.contains("win"))
 
 Compile / packageDoc / publishArtifact := false
 
