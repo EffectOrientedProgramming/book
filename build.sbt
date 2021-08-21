@@ -4,6 +4,7 @@ import java.nio.file.{Files, Path}
 
 enablePlugins(MdocPlugin)
 enablePlugins(GraalVMNativeImagePlugin)
+enablePlugins(MdToSourcePlugin)
 
 name := "EffectOrientedProgramming"
 
@@ -53,6 +54,10 @@ testFrameworks +=
   new TestFramework("munit.Framework")
 
 mdocIn := file("Chapters")
+
+mdDir := file("Chapters")
+
+examplesDir := file("Examples")
 
 mdocOut := file("manuscript")
 
