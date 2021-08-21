@@ -6,17 +6,16 @@ jobs:
     name: build and upload
     strategy:
       matrix:
-#        os: [macos, ubuntu, windows]
-        os: [windows]
+        os: [macos, ubuntu]
         include:
-#          - os: ubuntu
-#            gu-binary: gu
-#            artifact-name: booker
-#            asset-name: booker-linux-amd64
-#          - os: macos
-#            gu-binary: gu
-#            artifact-name: booker
-#            asset-name: booker-macos-amd64
+          - os: ubuntu
+            gu-binary: gu
+            artifact-name: booker
+            asset-name: booker-linux-amd64
+          - os: macos
+            gu-binary: gu
+            artifact-name: booker
+            asset-name: booker-macos-amd64
           - os: windows
             runs-on: windows-latest
             gu-binary: gu.cmd
