@@ -54,7 +54,6 @@ jobs:
           call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
           bitsadmin /transfer cs-cli https://git.io/coursier-cli-windows-exe "%cd%\cs.exe"
           cs setup --yes --quiet
-          gu install native-image
           sbt graalvm-native-image:packageBin
       - name: build for ${{ matrix.os }}
         if: matrix.os != 'windows'
@@ -72,3 +71,11 @@ jobs:
         with:
           name: booker-${{ matrix.os }}
           path: target/graalvm-native-image/${{matrix.artifact-name}}
+
+      - name: release binaries
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: target/graalvm-native-image/${{matrix.artifact-name}}
+          asset_name: ${{ matrix.asset-name }}
+          tag: ${{ github.ref }}
