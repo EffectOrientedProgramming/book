@@ -6,16 +6,17 @@ jobs:
     name: build and upload
     strategy:
       matrix:
-        os: [macos, ubuntu, windows]
+#        os: [macos, ubuntu, windows]
+        os: [windows]
         include:
-          - os: ubuntu
-            gu-binary: gu
-            artifact-name: booker
-            asset-name: booker-linux-amd64
-          - os: macos
-            gu-binary: gu
-            artifact-name: booker
-            asset-name: booker-macos-amd64
+#          - os: ubuntu
+#            gu-binary: gu
+#            artifact-name: booker
+#            asset-name: booker-linux-amd64
+#          - os: macos
+#            gu-binary: gu
+#            artifact-name: booker
+#            asset-name: booker-macos-amd64
           - os: windows
             gu-binary: gu.cmd
             artifact-name: booker.exe
@@ -53,6 +54,8 @@ jobs:
           call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
           bitsadmin /transfer cs-cli https://git.io/coursier-cli-windows-exe "%cd%\cs.exe"
           cs setup --yes --quiet --progress false
+          echo %JAVA_HOME%
+          dir %JAVA_HOME%\lib\svm\bin
           setx /M PATH "%JAVA_HOME%\lib\svm\bin;%PATH%"
           sbt graalvm-native-image:packageBin
       - name: build for linux or mac
