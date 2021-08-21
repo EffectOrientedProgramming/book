@@ -53,9 +53,10 @@ jobs:
           choco install visualstudio2017-workload-vctools
           call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
           bitsadmin /transfer cs-cli https://git.io/coursier-cli-windows-exe "%cd%\cs.exe"
-          cs setup --yes --quiet
+          cs setup --yes --quiet --progress false
+          setx /M PATH "%JAVA_HOME%\lib\svm\bin;%PATH%"
           sbt graalvm-native-image:packageBin
-      - name: build for ${{ matrix.os }}
+      - name: build for linux or mac
         if: matrix.os != 'windows'
         run: |
           ./bin/sbt graalvm-native-image:packageBin
@@ -65,6 +66,10 @@ jobs:
         with:
           file: target/graalvm-native-image/${{matrix.artifact-name}}
           args: --best --lzma
+
+      - name: verify booker by running it
+        run: |
+          target/graalvm-native-image/${{matrix.artifact-name}}
 
       - name: upload ${{ matrix.os }}
         uses: actions/upload-artifact@v2
