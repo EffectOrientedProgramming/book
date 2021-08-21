@@ -64,7 +64,6 @@ jobs:
           cs setup --yes --progress false
           echo %JAVA_HOME%
           dir %JAVA_HOME%\lib\svm\bin
-          setx /M PATH "%JAVA_HOME%\lib\svm\bin;%PATH%"
           sbt graalvm-native-image:packageBin
       - name: build for linux or mac
         if: matrix.os != 'windows'
