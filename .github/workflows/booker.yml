@@ -59,9 +59,10 @@ jobs:
         if: matrix.os == 'windows'
         shell: cmd
         run: |
-#          choco install visualstudio2017-workload-vctools
           choco install -y visualstudio2017community --no-progress --package-parameters "--add Microsoft.VisualStudio.Component.VC.Tools.ARM64 --add Microsoft.VisualStudio.Component.VC.CMake.Project"
           choco install -y windows-sdk-7.1 kb2519277
+
+      #          choco install visualstudio2017-workload-vctools
 
       - name: Check Compiler
         if: matrix.os == 'windows'
