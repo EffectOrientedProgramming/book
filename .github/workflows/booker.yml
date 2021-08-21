@@ -83,3 +83,4 @@ jobs:
           file: target/graalvm-native-image/${{matrix.artifact-name}}
           asset_name: ${{ matrix.asset-name }}
           tag: ${{ github.ref }}
+          overwrite: true
