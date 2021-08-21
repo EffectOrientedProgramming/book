@@ -49,6 +49,8 @@ object MdToSourcePlugin extends AutoPlugin {
       val codeBlocks = md.parts.collect {
         case codeFence: CodeFence =>
           codeFence.body.value
+      }.flatMap { block =>
+        Seq(block, "")
       }
 
       examplesDir.value.delete()
