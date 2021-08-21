@@ -28,15 +28,6 @@ jobs:
       - name: checkout
         uses: actions/checkout@v2
 
-      # todo: cache GraalVM, etc
-      - name: cache
-        uses: actions/cache@v1
-        with:
-          path: ~/.sbt
-          key: sbt-${{ matrix.os }}-${{ hashFiles('build.sbt') }}
-          restore-keys: sbt-${{ matrix.os }}-
-
-      # todo: static image?
       - name: setup GraalVM
         uses: DeLaGuardo/setup-graalvm@4.0
         with:
@@ -56,18 +47,14 @@ jobs:
         uses: microsoft/setup-msbuild@v1.0.2
 
       - name: Cache Coursier
-        uses: actions/cache@v2
         if: matrix.os == 'windows'
-        with:
-          key: coursier-cache
-          path: ~\AppData\Local\Coursier\Cache\v1
+        uses: coursier/cache-action@v6
 
-      - name: Install Coursier
+      - name: Setup Coursier
         if: matrix.os == 'windows'
-        shell: cmd
-        run: |
-          bitsadmin /transfer cs-cli https://git.io/coursier-cli-windows-exe "%cd%\cs.exe"
-          cs setup --yes
+        uses: coursier/setup-action@v1
+        with:
+          apps: sbt
 
       - name: build for windows
         if: matrix.os == 'windows'
