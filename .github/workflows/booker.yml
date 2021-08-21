@@ -18,10 +18,11 @@ jobs:
 #            artifact-name: booker
 #            asset-name: booker-macos-amd64
           - os: windows
+            runs-on: windows-2016
             gu-binary: gu.cmd
             artifact-name: booker.exe
             asset-name: booker-windows-amd64.exe
-    runs-on: ${{ matrix.os }}-latest
+    runs-on: ${{ matrix.runs-on }}
 
     steps:
       - name: checkout
@@ -59,7 +60,7 @@ jobs:
         if: matrix.os == 'windows'
         shell: cmd
         run: |
-          choco install visualstudio2019-workload-vctools
+          choco install visualstudio2017-workload-vctools
           call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
           bitsadmin /transfer cs-cli https://git.io/coursier-cli-windows-exe "%cd%\cs.exe"
           cs setup --yes
