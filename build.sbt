@@ -1,3 +1,4 @@
+import scala.util.Try
 import java.io.File
 import java.nio.file.{Files, Path}
 
@@ -69,10 +70,13 @@ Compile / doc / sources := Seq.empty
 GraalVMNativeImage / mainClass := Some("booker.run")
 
 graalVMNativeImageCommand := (
-  if (System.getProperty("os.name").toLowerCase.contains("win"))
-    (file(System.getenv("JAVA_HOME")) / "lib" / "svm" / "bin" / "native-image.exe").absolutePath
-  else
-    (file(System.getenv("JAVA_HOME")) / "lib" / "svm" / "bin" / "native-image").absolutePath
+  if (System.getProperty("os.name").toLowerCase.contains("win")) {
+    val f = Try(file(System.getenv("JAVA_HOME")) / "lib" / "svm" / "bin" / "native-image.exe")
+    f.filter(_.exists()).fold(_ => "native-image.exe", _.absolutePath)
+  } else {
+    val f = Try(file(System.getenv("JAVA_HOME")) / "lib" / "svm" / "bin" / "native-image")
+    f.filter(_.exists()).fold(_ => "native-image", _.absolutePath)
+  }
 )
 
 graalVMNativeImageOptions ++= (

@@ -49,18 +49,16 @@ jobs:
 
       - name: cache chocolatey dependencies
         if: matrix.os == 'windows'
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         with:
           path: C:\ProgramData\chocolatey\lib
-          key: choco-cache-TODO
-          restore-keys: choco-cache-
 
       - name: install visualstudio
         if: matrix.os == 'windows'
         shell: cmd
         run: |
           choco install -y visualstudio2017community --no-progress --package-parameters "--add Microsoft.VisualStudio.Component.VC.Tools.ARM64 --add Microsoft.VisualStudio.Component.VC.CMake.Project"
-          choco install -y windows-sdk-7.1 kb2519277
+          choco install -y windows-sdk-7.1 kb2519277 --no-progress
 
       #          choco install visualstudio2017-workload-vctools
 
@@ -71,20 +69,18 @@ jobs:
           call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
           cl.exe
 
+      - name: Cache Coursier
+        uses: actions/cache@v2
+        if: matrix.os == 'windows'
+        with:
+          path: ~\AppData\Local\Coursier\Cache\v1
+
       - name: Install Coursier
         if: matrix.os == 'windows'
         shell: cmd
         run: |
           bitsadmin /transfer cs-cli https://git.io/coursier-cli-windows-exe "%cd%\cs.exe"
           cs setup --yes
-
-      - name: Cache Coursier
-        uses: actions/cache@v1
-        if: matrix.os == 'windows'
-        with:
-          path: C:\Users\runneradmin\AppData\Local\Coursier\Cache\v1
-          key: coursier-cache-TODO
-          restore-keys: coursier-cache-
 
       - name: build for windows
         if: matrix.os == 'windows'
