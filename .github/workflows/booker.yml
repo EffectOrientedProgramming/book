@@ -18,11 +18,11 @@ jobs:
             gu-binary: gu
             artifact-name: booker
             asset-name: booker-macos-amd64
-          - os: windows
-            runs-on: windows-latest
-            gu-binary: gu.cmd
-            artifact-name: booker.exe
-            asset-name: booker-windows-amd64.exe
+#          - os: windows
+#            runs-on: windows-latest
+#            gu-binary: gu.cmd
+#            artifact-name: booker.exe
+#            asset-name: booker-windows-amd64.exe
     runs-on: ${{ matrix.runs-on }}
 
     steps:
