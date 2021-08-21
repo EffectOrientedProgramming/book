@@ -61,9 +61,7 @@ jobs:
           choco install visualstudio2017-workload-vctools
           call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
           bitsadmin /transfer cs-cli https://git.io/coursier-cli-windows-exe "%cd%\cs.exe"
-          cs setup --yes --progress false
-          echo %JAVA_HOME%
-          dir %JAVA_HOME%\lib\svm\bin
+          cs setup --yes
           sbt graalvm-native-image:packageBin
       - name: build for linux or mac
         if: matrix.os != 'windows'
