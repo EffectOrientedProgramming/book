@@ -18,7 +18,7 @@ jobs:
 #            artifact-name: booker
 #            asset-name: booker-macos-amd64
           - os: windows
-            runs-on: windows-2016
+            runs-on: windows-latest
             gu-binary: gu.cmd
             artifact-name: booker.exe
             asset-name: booker-windows-amd64.exe
@@ -40,7 +40,7 @@ jobs:
       - name: setup GraalVM
         uses: DeLaGuardo/setup-graalvm@4.0
         with:
-          graalvm: 21.1.0
+          graalvm: 21.2.0
           java: java11
           arch: amd64
 
