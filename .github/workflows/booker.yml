@@ -6,7 +6,8 @@ jobs:
     name: build and upload
     strategy:
       matrix:
-        os: [macos, ubuntu, windows]
+#        os: [macos, ubuntu, windows]
+        os: [windows]
         include:
 #          - os: ubuntu
 #            gu-binary: gu
