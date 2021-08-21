@@ -8,14 +8,14 @@ jobs:
       matrix:
         os: [macos, ubuntu, windows]
         include:
-          - os: ubuntu
-            gu-binary: gu
-            artifact-name: booker
-            asset-name: booker-linux-amd64
-          - os: macos
-            gu-binary: gu
-            artifact-name: booker
-            asset-name: booker-macos-amd64
+#          - os: ubuntu
+#            gu-binary: gu
+#            artifact-name: booker
+#            asset-name: booker-linux-amd64
+#          - os: macos
+#            gu-binary: gu
+#            artifact-name: booker
+#            asset-name: booker-macos-amd64
           - os: windows
             gu-binary: gu.cmd
             artifact-name: booker.exe
@@ -52,15 +52,13 @@ jobs:
           choco install visualstudio2017-workload-vctools
           call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
           bitsadmin /transfer cs-cli https://git.io/coursier-cli-windows-exe "%cd%\cs.exe"
-          cs setup --yes
+          cs setup --yes --quiet
           gu install native-image
           sbt graalvm-native-image:packageBin
       - name: build for ${{ matrix.os }}
         if: matrix.os != 'windows'
         run: |
-          mkdir target/graalvm-native-image
-          touch target/graalvm-native-image/booker
-          #./bin/sbt graalvm-native-image:packageBin
+          ./bin/sbt graalvm-native-image:packageBin
 
       - name: run upx on ${{ matrix.os }}
         uses: svenstaro/upx-action@v2
