@@ -22,6 +22,15 @@ jobs:
 
     - run: ./bin/sbt mdoc
 
+    - name: generate and test examples
+      run: |
+        bin/sbt generateExamples
+      # todo: get examples compiling
+      #  cd Examples
+      #  ../bin/sbt test
+
+    # todo: publish examples
+
     - uses: test-room-7/action-update-file@v1
       with:
         file-path: manuscript/*

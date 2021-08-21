@@ -7,7 +7,6 @@ import sbt._
 import java.io.File
 import java.nio.charset.Charset
 import java.nio.file.{Files, StandardOpenOption}
-import java.util.Comparator
 import scala.collection.JavaConverters._
 import scala.meta.inputs.Input
 import scala.meta.internal.io.FileIO
@@ -42,12 +41,6 @@ object MdToSourcePlugin extends AutoPlugin {
       val input = Input.VirtualFile(file.absolutePath, source)
 
       val reporter = ConsoleReporter.default
-      /*
-      val markdownSettings = new MutableDataSet()
-
-      val settings = Settings.default(AbsolutePath(file))
-      val md = Markdown.toMarkdown(input, markdownSettings, reporter, settings)
-      */
       val md = MarkdownFile.parse(input, inputFile, reporter)
       val codeBlocks = md.parts.collect {
         case codeFence: CodeFence =>
