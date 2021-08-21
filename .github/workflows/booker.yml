@@ -64,11 +64,11 @@ jobs:
       - name: run upx on ${{ matrix.os }}
         uses: svenstaro/upx-action@v2
         with:
-          file: target/graalvm-native-image/booker
+          file: target/graalvm-native-image/${{matrix.artifact-name}}
           args: --best --lzma
 
       - name: upload ${{ matrix.os }}
         uses: actions/upload-artifact@v2
         with:
           name: booker-${{ matrix.os }}
-          path: target/graalvm-native-image/booker
+          path: target/graalvm-native-image/${{matrix.artifact-name}}
