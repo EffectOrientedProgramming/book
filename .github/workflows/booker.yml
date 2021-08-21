@@ -57,23 +57,33 @@ jobs:
 
       - name: install visualstudio
         if: matrix.os == 'windows'
+        shell: cmd
         run: |
           choco install visualstudio2017-workload-vctools
 
       - name: Check Compiler
         if: matrix.os == 'windows'
+        shell: cmd
         run: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
           ls "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Tools\MSVC\14.16.27023\bin\Hostx64\x64"
           (Get-Item -Path Env:Path).Value.Split(";")
           cl.exe
 
-      # todo: cache coursier stuff
       - name: Install Coursier
         if: matrix.os == 'windows'
+        shell: cmd
         run: |
           bitsadmin /transfer cs-cli https://git.io/coursier-cli-windows-exe "%cd%\cs.exe"
           cs setup --yes
+
+      - name: Cache Coursier
+        uses: actions/cache@v1
+        if: matrix.os == 'windows'
+        with:
+          path: C:\Users\runneradmin\AppData\Local\Coursier\Cache\v1
+          key: coursier-cache-TODO
+          restore-keys: coursier-cache-
 
 #      - name: build for windows
 #        if: matrix.os == 'windows'
