@@ -1,8 +1,0 @@
-00_Frontmatter.md
-01_Introduction.md
-02_Immutability.md
-03_Reliability.md
-04_Monads.md
-05_console.md
-06_HelloFailure.md
-07_HelloTest.md

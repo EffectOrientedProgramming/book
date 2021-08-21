@@ -1,3 +1,6 @@
+import java.io.File
+import java.nio.file.{Files, Path}
+
 enablePlugins(MdocPlugin)
 enablePlugins(GraalVMNativeImagePlugin)
 
@@ -85,3 +88,36 @@ run / fork := true
 
 run / javaOptions += s"-agentlib:native-image-agent=config-output-dir=src/main/resources/META-INF/native-image"
  */
+
+lazy val bookTxt = taskKey[Unit]("Create the Book.txt")
+
+bookTxt := {
+
+  import scala.util.Try
+  import scala.collection.JavaConverters._
+
+  val files = Files.list(mdocIn.value.toPath).iterator().asScala
+
+  def chapterNum(path: Path): Option[Int] = {
+    val justFile = path.toFile.getName.split(File.pathSeparator).last
+    justFile.split('_').headOption.flatMap { firstPart =>
+      Try(firstPart.toInt).toOption
+    }
+  }
+
+  val chapters = files.flatMap { f =>
+    if (f.toFile.ext == "md") {
+      chapterNum(f).map(_ -> f)
+    }
+    else
+    {
+      None
+    }
+  }.toSeq.sortBy(_._1).map(_._2.toFile.getName.stripPrefix(mdocIn.value.getName).stripPrefix(File.pathSeparator))
+
+  val bookTxtPath = mdocOut.value / "Book.txt"
+  mdocOut.value.mkdir()
+  Files.write(bookTxtPath.toPath, chapters.asJava)
+}
+
+mdoc := mdoc.dependsOn(bookTxt).evaluated
