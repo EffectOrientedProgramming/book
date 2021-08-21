@@ -59,6 +59,7 @@ jobs:
         uses: actions/cache@v2
         if: matrix.os == 'windows'
         with:
+          key: coursier-cache
           path: ~\AppData\Local\Coursier\Cache\v1
 
       - name: Install Coursier
