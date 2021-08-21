@@ -1,4 +1,5 @@
-# Building Reliable Systems: Functional Software Construction with Scala 3 and ZIO2
+# Introduction
+> Building Reliable Systems: Functional Software Construction with Scala 3 and ZIO2
 
 Thesis Statement:
 

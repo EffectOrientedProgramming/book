@@ -1,7 +1,6 @@
 {frontmatter}
 
-
-# Acknowledgements
+## Acknowledgements
 
 Wyett Considine, for being an enthusiastic intern, math consultant, and initial audience.
 

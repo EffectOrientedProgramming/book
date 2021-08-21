@@ -9,6 +9,7 @@ import java.io.{
   FileNotFoundException,
   IOException
 }
+import scala.io.Source
 import scala.util.CommandLineParser.FromString
 import scala.util.Try
 
@@ -160,10 +161,25 @@ def rename(original: File, index: Int) =
 
   val stripped =
     original
-      .getName()
+      .getName
       .nn
       .dropWhile(_ != '_')
       .drop(1)
+
+  def cleanupName(s: String): String =
+    s.stripPrefix("# ")
+      .replace(' ', '_')
+      .nn
+      .replaceAll("[^0-9a-zA-Z_]", "")
+      .nn + ".md"
+
+  val fromMarkdown =
+    Source
+      .fromFile(original)
+      .getLines()
+      .nextOption()
+      .map(cleanupName)
+      .getOrElse(stripped)
 
   val withLeadingZero =
     if (index > 9)
@@ -171,10 +187,14 @@ def rename(original: File, index: Int) =
     else
       s"0$index"
 
-  original.renameTo(
-    File(
-      original.getParent.nn + "/" +
-        withLeadingZero + "_" + stripped
-    )
-  )
+  val name = withLeadingZero + "_" + fromMarkdown
+
+  original
+    .renameTo(File(original.getParentFile, name))
 end rename
+
+def withMarkdownNames(
+    files: Seq[File]
+): ZIO[Any, FileNotFoundException, Seq[File]] =
+  println(files)
+  ZIO.succeed(files)
