@@ -9,10 +9,12 @@ jobs:
         os: [macos, ubuntu]
         include:
           - os: ubuntu
+            runs-on: ubuntu-latest
             gu-binary: gu
             artifact-name: booker
             asset-name: booker-linux-amd64
           - os: macos
+            runs-on: macos-latest
             gu-binary: gu
             artifact-name: booker
             asset-name: booker-macos-amd64
