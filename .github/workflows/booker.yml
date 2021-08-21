@@ -59,7 +59,9 @@ jobs:
         if: matrix.os == 'windows'
         shell: cmd
         run: |
-          choco install visualstudio2017-workload-vctools
+#          choco install visualstudio2017-workload-vctools
+          choco install -y visualstudio2017community --no-progress --package-parameters "--add Microsoft.VisualStudio.Component.VC.Tools.ARM64 --add Microsoft.VisualStudio.Component.VC.CMake.Project"
+          choco install -y windows-sdk-7.1 kb2519277
 
       - name: Check Compiler
         if: matrix.os == 'windows'
@@ -88,6 +90,7 @@ jobs:
         shell: cmd
         run: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
+          call "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd"
           sbt graalvm-native-image:packageBin
 
       - name: build for linux or mac
