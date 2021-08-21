@@ -54,57 +54,59 @@ jobs:
           path: C:\ProgramData\chocolatey\lib
           key: choco-cache-TODO
           restore-keys: choco-cache-
-          # todo: also cache coursier stuff
 
       - name: install visualstudio
         if: matrix.os == 'windows'
         run: |
           choco install visualstudio2017-workload-vctools
 
-      - name: Put Compiler onto Path
-        run: echo "::add-path::C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Tools\MSVC\14.16.27023\bin\Hostx64\x64"
-
-      - name: Check Compiler State
+      - name: Check Compiler
+        if: matrix.os == 'windows'
         run: |
           ls "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Tools\MSVC\14.16.27023\bin\Hostx64\x64"
           (Get-Item -Path Env:Path).Value.Split(";")
           cl.exe
 
-      - name: build for windows
+      # todo: cache coursier stuff
+      - name: Install Coursier
         if: matrix.os == 'windows'
-        shell: cmd
         run: |
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
           bitsadmin /transfer cs-cli https://git.io/coursier-cli-windows-exe "%cd%\cs.exe"
           cs setup --yes
-          sbt graalvm-native-image:packageBin
 
-      - name: build for linux or mac
-        if: matrix.os != 'windows'
-        run: |
-          ./bin/sbt graalvm-native-image:packageBin
-
-      - name: run upx on ${{ matrix.os }}
-        uses: svenstaro/upx-action@v2
-        with:
-          file: target/graalvm-native-image/${{matrix.artifact-name}}
-          args: --best --lzma
-
-      - name: verify booker by running it
-        run: |
-          target/graalvm-native-image/${{matrix.artifact-name}}
-
-      - name: upload ${{ matrix.os }}
-        uses: actions/upload-artifact@v2
-        with:
-          name: booker-${{ matrix.os }}
-          path: target/graalvm-native-image/${{matrix.artifact-name}}
-
-      - name: release binaries
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: target/graalvm-native-image/${{matrix.artifact-name}}
-          asset_name: ${{ matrix.asset-name }}
-          tag: ${{ github.ref }}
-          overwrite: true
+#      - name: build for windows
+#        if: matrix.os == 'windows'
+#        shell: cmd
+#        run: |
+#          call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
+#          sbt graalvm-native-image:packageBin
+#
+#      - name: build for linux or mac
+#        if: matrix.os != 'windows'
+#        run: |
+#          ./bin/sbt graalvm-native-image:packageBin
+#
+#      - name: run upx on ${{ matrix.os }}
+#        uses: svenstaro/upx-action@v2
+#        with:
+#          file: target/graalvm-native-image/${{matrix.artifact-name}}
+#          args: --best --lzma
+#
+#      - name: verify booker by running it
+#        run: |
+#          target/graalvm-native-image/${{matrix.artifact-name}}
+#
+#      - name: upload ${{ matrix.os }}
+#        uses: actions/upload-artifact@v2
+#        with:
+#          name: booker-${{ matrix.os }}
+#          path: target/graalvm-native-image/${{matrix.artifact-name}}
+#
+#      - name: release binaries
+#        uses: svenstaro/upload-release-action@v2
+#        with:
+#          repo_token: ${{ secrets.GITHUB_TOKEN }}
+#          file: target/graalvm-native-image/${{matrix.artifact-name}}
+#          asset_name: ${{ matrix.asset-name }}
+#          tag: ${{ github.ref }}
+#          overwrite: true
