@@ -57,7 +57,7 @@ mdocIn := file("Chapters")
 
 mdDir := file("Chapters")
 
-examplesDir := file("Examples")
+examplesDir := file("Examples/src/main/scala")
 
 mdocOut := file("manuscript")
 

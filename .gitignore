@@ -15,4 +15,4 @@ project/metals.sbt
 /manuscript/
 .env
 cs.exe
-/Examples/
+/Examples/src/
