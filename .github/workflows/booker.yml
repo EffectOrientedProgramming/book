@@ -53,11 +53,14 @@ jobs:
           call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
           bitsadmin /transfer cs-cli https://git.io/coursier-cli-windows-exe "%cd%\cs.exe"
           cs setup --yes
+          gu install native-image
           sbt graalvm-native-image:packageBin
       - name: build for ${{ matrix.os }}
         if: matrix.os != 'windows'
         run: |
-          ./bin/sbt graalvm-native-image:packageBin
+          mkdir target/graalvm-native-image
+          touch target/graalvm-native-image/booker
+          #./bin/sbt graalvm-native-image:packageBin
 
       - name: run upx on ${{ matrix.os }}
         uses: svenstaro/upx-action@v2
