@@ -46,6 +46,14 @@ jobs:
       - name: install native-image
         run: ${{ matrix.gu-binary }} install native-image
 
+      - name: cache chocolatey dependencies
+        if: matrix.os == 'windows'
+        uses: actions/cache@v1
+        with:
+          path: C:\ProgramData\chocolatey\lib
+          key: choco-cache-TODO
+          restore-keys: choco-cache-
+
       - name: build for windows
         if: matrix.os == 'windows'
         shell: cmd
@@ -53,7 +61,7 @@ jobs:
           choco install visualstudio2017-workload-vctools
           call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
           bitsadmin /transfer cs-cli https://git.io/coursier-cli-windows-exe "%cd%\cs.exe"
-          cs setup --yes --quiet --progress false
+          cs setup --yes --progress false
           echo %JAVA_HOME%
           dir %JAVA_HOME%\lib\svm\bin
           setx /M PATH "%JAVA_HOME%\lib\svm\bin;%PATH%"
