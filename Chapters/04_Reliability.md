@@ -37,8 +37,6 @@ It can seem like a painfully long process before you can begin writing working p
 immediate feedback and satisfaction of getting something working, so this can be challenging. But would you rather
 create an unreliable system quickly? Presumably you do not, otherwise you wouldn't be reading this book.
 
-Recursion, for example
-
 
 ---
 

@@ -1,6 +1,6 @@
 # Random
 
--- Subject Dependencies: `Console`, `ZIO.serviceWith`
+{{Subject Dependencies: `Console`, `ZIO.serviceWith`}}
 
 TODO All the prose to justify these hoops
 

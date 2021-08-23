@@ -1,1 +1,1 @@
-TODO Come up with a few fun examples that differentient from Zionomicon
+TODO Come up with a few fun examples that differentiate our explanation from other books

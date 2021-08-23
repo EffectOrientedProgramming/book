@@ -13,7 +13,7 @@ TODO Show success/failure for all versions
 Temperature: 30 degrees
 ```
 
-```scala mdoc:fmt
+```scala mdoc
 class GpsException()     extends RuntimeException
 class NetworkException() extends RuntimeException
 
@@ -130,7 +130,7 @@ TODO {{Update verbiage now that ZIO section is first}}
 
 ### ZIO-First Error Handling
 
-scala mdoc:fmt
+```scala mdoc
 // TODO Consult about type param styling
 import zio.ZIO
 import zio.Runtime.default.unsafeRun
@@ -149,22 +149,23 @@ def getTemperatureZ(behavior: String): ZIO[
     ZIO.succeed("30 degrees")
 
 unsafeRun(getTemperatureZ("Succeed"))
+```
 
-scala mdoc:fail
+```scala mdoc:fail
 unsafeRun(
   getTemperatureZ("Succeed").catchAll {
     case ex: NetworkException =>
       ZIO.succeed("Network Unavailable")
   }
 )
+```
 
 
 TODO Demonstrate ZIO calculating the error types without an explicit annotation being provided
 
-scala mdoc:crash
-unsafeRun(
-  getTemperatureZ("GPS Error").orDie
-)
+```scala mdoc:crash
+unsafeRun(getTemperatureZ("GPS Error").orDie)
+```
 
 ### Wrapping Legacy Code
 
@@ -178,7 +179,7 @@ import zio.{Task, ZIO}
 ```scala mdoc:fmt
 def getTemperatureZWrapped(
     behavior: String
-): Task[String] =
+): ZIO[Any, Throwable, String] =
   ZIO(getTemperature(behavior)).catchAll {
     case ex: NetworkException =>
       ZIO.succeed("Network Unavailable")

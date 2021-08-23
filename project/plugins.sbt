@@ -13,8 +13,13 @@ addSbtPlugin(
   "au.com.onegeek" % "sbt-dotenv" % "2.1.233"
 )
 
-addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.9.4")
+addSbtPlugin(
+  "com.github.sbt" % "sbt-native-packager" %
+    "1.9.4"
+)
 
-lazy val MdToSourcePlugin = RootProject(file("../MdToSourcePlugin"))
+lazy val MdToSourcePlugin =
+  RootProject(file("../MdToSourcePlugin"))
 
-lazy val root = (project in file(".")).dependsOn(MdToSourcePlugin)
+lazy val root = (project in file("."))
+  .dependsOn(MdToSourcePlugin)

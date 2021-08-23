@@ -29,7 +29,7 @@ bugs or errors.
 3) Nested Functions become much more clear, and the flow of information between 
 functions is easier to follow.
    
-4)FP supports lazy evaluation such as Lazy Lists and Lazy Maps. 
+4)FP supports lazy evaluation, which can avoid unnecessary work.
 
 
 
