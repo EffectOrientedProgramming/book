@@ -91,5 +91,5 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: target/graalvm-native-image/${{matrix.artifact-name}}
           asset_name: ${{ matrix.asset-name }}
-          tag: ${{ github.ref }}
+          tag: release-${{ github.ref }}
           overwrite: true
