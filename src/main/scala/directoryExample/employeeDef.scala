@@ -15,4 +15,3 @@ case class Employee(
     s"Name: $firstName $lastName. Department: $department. ID: $ID \n"
 
   def map = this
-end Employee

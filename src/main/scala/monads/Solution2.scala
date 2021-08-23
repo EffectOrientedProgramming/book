@@ -12,7 +12,6 @@ def ishow(n: Char) =
         Right(i + id)
     println(s"op($id): $result")
     result
-  end op
 
   val compose =
     for

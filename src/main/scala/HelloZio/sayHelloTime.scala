@@ -35,5 +35,4 @@ object HelloWorldTime:
           )
         _ <- ZIO.fail(NewError())
       yield ()
-  end helloTime
 end HelloWorldTime

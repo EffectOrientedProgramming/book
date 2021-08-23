@@ -16,5 +16,3 @@ object map:
         i -> letters(i)
       ) //assign values of nums to letters
     println(comb2)
-  end mapEx
-end map

@@ -24,7 +24,6 @@ object JustSleep extends App:
           .map(_ => ZIO.sleep(1.seconds))
       )
       .exitCode
-end JustSleep
 
 @main
 def ToFuture() =

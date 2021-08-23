@@ -17,7 +17,6 @@ object tailEndRecursion:
       else
         fib(n - 1, b, a + b)
     fib(num, 0, 1)
-  end tailEndEx
 
   @main
   def fib6 =

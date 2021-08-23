@@ -26,7 +26,6 @@ object processingFunctions:
         parts(3)
       )
     emp
-  end lineToEmp
 
   // This function deals with split()
   // complications with the null safety element
@@ -42,7 +41,6 @@ object processingFunctions:
     arr.collect { case s: String =>
       s
     }
-  end safeSplit
 
   // Compile list of emp data
   def compileEmps

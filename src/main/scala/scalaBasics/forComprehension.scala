@@ -44,7 +44,6 @@ object forComprehension:
     } result =
       result :+ n //Then add n to the result list
     result        //return result
-  end evenGT5v1
 
 // To remove the use of a var, and simplify the
   // code, you can use the yield keyword.
@@ -63,7 +62,6 @@ object forComprehension:
       if n > 5 //If n is greater than 5
       if n % 2 == 0 //and n is divisible by 2
     yield n //create a list of the values of n.
-  end evenGT5v2
 
   @main
   def run() =
@@ -74,7 +72,6 @@ object forComprehension:
       Vector(1, 2, 3, 5, 6, 7, 8, 10, 13, 14, 17)
     println(evenGT5v1(v))
     println(evenGT5v2(v))
-  end run
 
   // For comprehensions can also be used to
   // string together multiple events.
@@ -112,7 +109,6 @@ object forComprehension:
 
     def changeColor2(name2: String): color =
       new color(name2)
-  end color
 
 // //////////////////////////////////////////////////////
   @main

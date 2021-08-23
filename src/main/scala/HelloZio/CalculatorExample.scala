@@ -69,7 +69,6 @@ object ArithmaticOperation: //This in an object used in calculations implemented
         Divide.apply
       case _ =>
         throw new RuntimeException("boom")
-end ArithmaticOperation
 
 // extends zio.App
 object CalculatorExample extends zio.App:

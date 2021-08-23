@@ -41,7 +41,6 @@ object higherOrderFunctions:
       s"I was given a function, Int $x and Int $y. \nThe output is $mathed"
     )
     mathed
-  end higherOrder
 
   @main
   def higherOrders =
@@ -53,7 +52,6 @@ object higherOrderFunctions:
       ) //Here, we are passing in a function as a parameter
     println("\n")
     val sub3n2 = higherOrder(sub, 3, 2)
-  end higherOrders
 end higherOrderFunctions
 
 // There are several higher order fucntions you

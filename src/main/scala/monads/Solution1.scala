@@ -12,7 +12,6 @@ def eshow(n: Char) =
         Right(msg + id.toString)
     println(s"op($id): $result")
     result
-  end op
 
   val compose =
     for

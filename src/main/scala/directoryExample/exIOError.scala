@@ -20,4 +20,3 @@ object exIOError:
         throw new IOException(
           "An unexpected IOException Occured!!!"
         )
-end exIOError

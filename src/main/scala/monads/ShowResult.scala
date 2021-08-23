@@ -10,7 +10,6 @@ def show(n: Char) =
         Success(msg + id.toString)
     println(s"$n => op($id): $result")
     result
-  end op
 
   val compose: Result =
     for

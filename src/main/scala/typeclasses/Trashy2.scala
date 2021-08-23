@@ -66,7 +66,6 @@ def run =
   println(sort2(cardboard1))
   println(sort2(cardboard1))
   println(sort2(goldWatch))
-end run
 
 // println(sort("asdf")) // does not compile due
 // to lack of type class

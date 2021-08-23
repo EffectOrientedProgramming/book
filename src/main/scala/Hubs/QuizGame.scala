@@ -106,7 +106,6 @@ object QuizGame extends zio.App:
           "Winners of incomplete round: " +
             winners.mkString(",")
       printLine(finalOutput)
-    end printRoundResults
 
     val roundWithMultipleCorrectAnswers =
       RoundDescription(

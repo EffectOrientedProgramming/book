@@ -54,7 +54,6 @@ object ReadIntAndMultiply extends zio.App:
                     )
                     .timeout(5.seconds)
               yield ()
-              end for
             }
       yield ()
 

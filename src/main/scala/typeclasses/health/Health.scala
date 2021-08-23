@@ -38,7 +38,6 @@ object Canonical:
         true
       else
         false
-  end CategorizedData
 
   def filterAll(
       data: List[CategorizedData[_]]

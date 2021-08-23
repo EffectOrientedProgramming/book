@@ -28,7 +28,6 @@ def sort(
           CardboardBin
 
   sortables.groupBy(mapper)
-end sort
 
 @main
 def trashy =

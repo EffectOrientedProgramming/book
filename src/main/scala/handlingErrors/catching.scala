@@ -20,6 +20,5 @@ object catching extends zio.App:
         loadBackupFile()
       )
       .exitCode
-end catching
 
 // standin.exitCode

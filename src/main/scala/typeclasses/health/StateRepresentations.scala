@@ -33,5 +33,4 @@ object StateRepresentations:
           Canonical.State.NorthCarolina
         case UpStartHealth.State.NH =>
           Canonical.State.NewHampshire
-  end InterOp
 end StateRepresentations

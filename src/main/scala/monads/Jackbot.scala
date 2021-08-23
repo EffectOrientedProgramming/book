@@ -14,7 +14,6 @@ object Jackbot: // Keep from polluting the 'monads' namespace
     def unapply[Any, S](
         succeed: Succeed[Any, S]
     ) = Right.unapply(succeed)
-end Jackbot
 
 @main
 def jackbotWroteThis =

@@ -44,5 +44,4 @@ object RuntimeEx:
         )
       )
     )
-  end runZIO
 end RuntimeEx

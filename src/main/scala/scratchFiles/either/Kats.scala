@@ -44,7 +44,6 @@ def kickKat =
     yield angry
 
   println(kat)
-end kickKat
 
 case object Fed
 

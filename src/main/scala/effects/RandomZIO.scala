@@ -48,7 +48,6 @@ object LuckyZ extends zio.App:
       // does not work for some reason
       // .injectSome[Has[Console]](myRandom)
       .exitCode
-  end run
 
   val myAppLogic =
     for
@@ -73,7 +72,6 @@ object RandomIntBetween:
       ZIO.succeed(
         scala.util.Random.between(low, high)
       )
-end RandomIntBetween
 
 class FakeRandomIntBetween(hardcodedValue: Int)
     extends RandomIntBetween:

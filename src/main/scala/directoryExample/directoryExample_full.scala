@@ -44,7 +44,6 @@ object directoryExample_full extends zio.App:
       s"Name: $firstName $lastName. Department: $department. ID: $ID \n"
 
     def map = this
-  end Employee
 
   def finalizer(
       source: scala.io.Source
@@ -111,7 +110,6 @@ object directoryExample_full extends zio.App:
         parts(3)
       )
     emp
-  end lineToEmp
 
   // This function deals with split()
   // complications with the null safety element
@@ -127,7 +125,6 @@ object directoryExample_full extends zio.App:
     arr.collect { case s: String =>
       s
     }
-  end safeSplit
 
   // Compile list of emp data
   def compileEmps

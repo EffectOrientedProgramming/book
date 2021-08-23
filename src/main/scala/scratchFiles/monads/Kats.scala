@@ -12,7 +12,6 @@ case class Box[A, V <: Dead.type | A](v: V):
         this.asInstanceOf[Box[B, Dead.type | B]]
       case a =>
         f(v.asInstanceOf[A])
-end Box
 
 object Box:
 

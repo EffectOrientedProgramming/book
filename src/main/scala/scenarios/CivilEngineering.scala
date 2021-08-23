@@ -35,7 +35,6 @@ def buildABridge() =
     ] with Has[
       AvailableCompanies[UnderWaterDrilling]
     ], InsufficientResources, ProjectBid]
-  end ConstructionFirm
 
   trait NoValidBids
 

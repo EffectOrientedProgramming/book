@@ -28,7 +28,6 @@ def hello =
     }
   println("4")
   Runtime.default.unsafeRunSync(h)
-end hello
 
 @main
 def scheduling =
@@ -58,7 +57,6 @@ def scheduling =
             Schedule.spaced(3.seconds)
         )
     )
-end scheduling
 
 @main
 def ValPassing(): Unit =
@@ -91,4 +89,3 @@ def ValPassing(): Unit =
           .exitCode
       )
   )
-end ValPassing

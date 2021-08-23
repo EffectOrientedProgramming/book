@@ -45,7 +45,6 @@ object MatrixExample:
       )
     // println(matr)
     matrix2D(sizeX, sizeY, matr)
-  end makeMatrix2D
 
   def flipMatrix(matr: matrix2D): matrix2D =
     def flippedCol(col: List[Int]) =
@@ -60,7 +59,6 @@ object MatrixExample:
             b.::(flippedCol(j).dropRight(1))
         )
     matrix2D(matr.sizeX, matr.sizeY, flippedMat)
-  end flipMatrix
 end MatrixExample
 
 @main
@@ -73,7 +71,6 @@ def matricies =
   println("\n \n Flipped Matrix:")
   val flippedMat = mEx.flipMatrix(matrix)
   mEx.printMat(flippedMat)
-end matricies
 // flippedMat.printMat()
 
 /* Disabled to stop breaking build in Github

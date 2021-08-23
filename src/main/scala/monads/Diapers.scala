@@ -42,7 +42,6 @@ def look: Diaper =
   println(diaper)
 
   diaper
-end look
 
 def change(description: String): Diaper =
   println("changing diaper")
@@ -63,4 +62,3 @@ def baby =
     ) // TODO Alter example so we don't have a pointless yield
 
   println(diaper)
-end baby

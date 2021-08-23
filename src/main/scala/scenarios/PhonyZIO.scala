@@ -15,7 +15,6 @@ trait ZIO[R, E, A]:
   def catchAll(
       handler: (E => A)
   ): ZIO[R, Nothing, A] = ???
-end ZIO
 
 case class UIO[A]() extends ZIO[Any, Nothing, A]
 

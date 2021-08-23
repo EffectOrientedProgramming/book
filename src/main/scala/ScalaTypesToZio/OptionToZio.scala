@@ -21,4 +21,3 @@ class OptionToZio:
 
   val zOption2: IO[Option[Nothing], Person] =
     ZIO.fromOption(sOption2)
-end OptionToZio

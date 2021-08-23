@@ -16,7 +16,6 @@ case class Box(contents: Contents):
         this
       case continue: Contents.Continue =>
         f(continue)
-end Box
 
 object Box:
 
@@ -38,7 +37,6 @@ def ok =
   val kat3: Box =
     kat2.continue(again).continue(again)
   println(kat3)
-end ok
 
 /* for kat1 <- Box.observe kat2 <- again(kat1)
  * kat3 <- again(kat2) yield kat3 */

@@ -26,7 +26,6 @@ object pureCore:
         BigDecimal.RoundingMode.HALF_UP
       )
       .toDouble
-  end transaction
 
   def statement(valid: Boolean): Unit =
     if (valid)

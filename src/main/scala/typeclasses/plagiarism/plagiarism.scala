@@ -58,4 +58,3 @@ def scanForPlagiarism() =
       )
     ) == false
   )
-end scanForPlagiarism

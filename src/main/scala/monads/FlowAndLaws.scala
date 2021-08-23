@@ -20,7 +20,6 @@ case class Flow(
 
   def map(f: String => Status): Flow =
     flatMap(f.andThen(Flow(_)))
-end Flow
 
 object Flow:
 
@@ -47,7 +46,6 @@ def imperative =
       b
   else
     a
-end imperative
 
 @main
 def monadic =

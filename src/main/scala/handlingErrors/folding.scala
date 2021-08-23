@@ -32,5 +32,4 @@ object folding extends App:
           )
       ) //Effectful handling
       .exitCode
-  end run
 end folding

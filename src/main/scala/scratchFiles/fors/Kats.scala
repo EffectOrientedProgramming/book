@@ -23,7 +23,6 @@ case class Box(contents: Contents):
         this
       case continue: Contents.Continue =>
         f(continue)
-end Box
 
 object Box:
 
@@ -46,7 +45,6 @@ def thefor =
     yield kat3 // what we return here has to be a Contents because it must fit in the Box
 
   println(kats)
-end thefor
 
 @main
 def unravelled =
@@ -62,4 +60,3 @@ def unravelled =
       }
 
   println(kats)
-end unravelled

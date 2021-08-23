@@ -11,7 +11,6 @@ def showRE(n: Char) =
         SuccessRE(msg + id.toString)
     println(s"op($id): $result")
     result
-  end op
 
   val compose: ResultEnum =
     for

@@ -22,4 +22,3 @@ def amilucky =
     yield o2
 
   println(o)
-end amilucky

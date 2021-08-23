@@ -15,4 +15,3 @@ def par1 =
     )
 
   Runtime.default.unsafeRunSync(five)
-end par1

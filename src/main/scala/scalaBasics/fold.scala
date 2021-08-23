@@ -119,7 +119,6 @@ def foldEx4 =
     )
 
   println(strVersion)
-end foldEx4
 
 @main
 def foldEx5 =
@@ -135,4 +134,3 @@ def foldEx5 =
     )
 
   println(strList)
-end foldEx5

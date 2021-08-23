@@ -22,7 +22,6 @@ object BasicFibers:
         else
           fib(n - 1).zipWith(fib(n - 2))(_ + _)
       }.flatten
-  end computation
 
   // Fork will take an effect, and split off a
   // Fiber version of it.

@@ -14,7 +14,6 @@ def gshow(n: Char) =
         GSuccess(msg + id.toString)
     println(s"op($id): $result")
     result
-  end op
 
   val compose =
     for

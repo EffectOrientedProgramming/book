@@ -18,7 +18,5 @@ trait Result:
       case Success(c) =>
         Success(f(c))
 
-end Result
-
 case class Fail(why: String)     extends Result
 case class Success(data: String) extends Result

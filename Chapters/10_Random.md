@@ -76,7 +76,6 @@ object RandomInt:
       ZIO.succeed(
         scala.util.Random.between(low, high)
       )
-  end LiveRandomIntBetween
 end RandomInt
 
 class FakeRandomInt(hardcodedValue: Int)

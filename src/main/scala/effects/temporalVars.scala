@@ -24,7 +24,6 @@ object temporalVars:
         case Some(s) =>
           s.get(Calendar.SECOND)
     println(curMin)
-  end sayTime
 
   @main
   def temporalVarsEx =

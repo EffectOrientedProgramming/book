@@ -48,7 +48,6 @@ object SecuritySystem:
       (4.seconds, Decibels(11)),
       (1.seconds, Decibels(20))
     ) ++ SirenX.live
-  end fullLayer
 
   val accessMotionDetector: ZIO[Has[
     scenarios.MotionDetector
@@ -210,8 +209,6 @@ object MotionDetector:
         : ZIO[Any, HardwareFailure, Pixels] =
       ZIO.succeed(Pixels(30))
 
-  end LiveMotionDetector
-
   def acquireMotionMeasurementSource(): ZIO[Has[
     MotionDetector
   ], HardwareFailure, Pixels] =
@@ -219,8 +216,6 @@ object MotionDetector:
 
   val live: Layer[Nothing, Has[MotionDetector]] =
     ZLayer.succeed(LiveMotionDetector)
-
-end MotionDetector
 
 trait ThermalDetectorX:
   def heatMeasurementSource()
@@ -361,7 +356,6 @@ object SirenX:
       scenarios.HardwareFailure,
       Unit
     ] = ZIO.debug("WOOOO EEEE WOOOOO EEEE")
-  end SirenXLive
 
   val live: ZLayer[Any, Nothing, Has[SirenX]] =
     ZLayer.succeed(SirenXLive)

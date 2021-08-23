@@ -198,8 +198,6 @@ trait Result:
         fail
       case Success(c) =>
         Success(f(c))
-
-end Result
 ```
 
 The code in the two methods is almost identical.
@@ -256,8 +254,6 @@ def solution1(stop: String) =
   // Using Either's left-projection:
   for (failure <- compose.left)
     println(s"Error-handling for $failure")
-
-end solution1
 ```
 
 ```scala mdoc
@@ -281,7 +277,6 @@ def icheck(
       Right(i + step)
   println(s"check($step): $result")
   result
-end check
 
 def solution2(stop: String) =
   println(s">> compose($stop) <<")
@@ -298,8 +293,6 @@ def solution2(stop: String) =
   println(compose);
   for (failure <- compose.left)
     println(s"Error-handling for $failure")
-
-end solution2
 ```
 
 ```scala mdoc
@@ -322,7 +315,6 @@ def ocheck(step: Int, stop: Int, msg: String) =
       Some(msg + step)
   println(s"check($step): $result")
   result
-end check
 
 def solution3(stop: Int) =
   println(s">> compose($stop) <<")
@@ -341,8 +333,6 @@ def solution3(stop: Int) =
   //   Just return the for-comp result directly
   if compose == None then
     println(s"Error-handling for None")
-
-end solution3
 ```
 
 ```scala mdoc

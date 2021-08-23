@@ -32,4 +32,3 @@ object fallback extends zio.App:
       loadFile("TargetFile")
         .orElse(loadBackupFile())
     loadedFile.exitCode
-end fallback

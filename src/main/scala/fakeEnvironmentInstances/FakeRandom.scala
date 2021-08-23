@@ -32,7 +32,6 @@ class FakeRandomInt(hardcodedValue: Int)
       minInclusive: Int,
       maxExclusive: Int
   ): UIO[Int] = UIO.succeed(hardcodedValue)
-end FakeRandomInt
 
 object RandomInt:
   object RandomIntLive extends RandomInt:
@@ -53,11 +52,9 @@ object RandomInt:
           minInclusive,
           maxExclusive
         )
-  end RandomIntLive
 
   val live: Layer[Nothing, Has[RandomInt]] =
     ZLayer.succeed(RandomIntLive)
-
 end RandomInt
 
 class FakeRandom(i: Int) extends Random:
