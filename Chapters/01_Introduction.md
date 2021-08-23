@@ -46,3 +46,7 @@ lessons/chapters/lectures, each with a set of exercises.
   book. If tools change, etc., then it's decoupled.
 
 ## Acknowledgements
+
+Wyett Considine, for being an enthusiastic intern, math consultant, and initial audience.
+
+Kit Langton, for being a kindred spirit in software interests and inspiring contributor to the open source world.
