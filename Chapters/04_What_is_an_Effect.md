@@ -36,12 +36,14 @@ We will explore situations like this
 ### Changing the World
 
 Mirroring observations, changes can be basic:
+
 - Printing to the `Console`
 - Writing to a file
 - Mutating a variable
 - Saving to a `Database`
 
 They can be advanced:
+
 - Triggering an alarm
 - Stabilizing an airplane
 - Detonating explosives
