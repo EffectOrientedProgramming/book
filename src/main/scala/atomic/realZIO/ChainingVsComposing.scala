@@ -52,23 +52,19 @@ class ChainingVsComposing:
     yield newHome
 
   val combined =
-    ZIO.tupledPar[
-      Any,
-      UserNotFound | NetworkError,
-      UserInfo,
-      HouseListings
-    ](getInfo(userId), zillow(zipCode))
+    getInfo(userId).zipPar(zillow(zipCode))
 
-  val exploreChainingPar: ZIO[
-    Any,
-    UserNotFound |
-      NetworkError |
-      NoGoodHouseAvailable,
-    Home
-  ] =
-    combined.flatMap((userInfo, houseListings) =>
-      buyBestHouse(userInfo, houseListings)
-    )
+//  val exploreChainingPar: ZIO[
+//    Any,
+//    UserNotFound |
+//      NetworkError |
+//      NoGoodHouseAvailable,
+//    Home
+//  ] =
+// combined.flatMap((userInfo, houseListings)
+  // =>
+//      buyBestHouse(userInfo, houseListings)
+//    )
 
   val finalHouse: ZIO[
     Any,
@@ -161,11 +157,7 @@ class MatchError:
       ProductNotFound |
       NoSuchElementException,
     (UserInfo, ProductInfo)
-  ] =
-    ZIO.tupledPar(
-      getInfo("asdf"),
-      getProduct("zxcv")
-    )
+  ] = getInfo("asdf").zipPar(getProduct("zxcv"))
 
   val app: ZIO[
     Any,

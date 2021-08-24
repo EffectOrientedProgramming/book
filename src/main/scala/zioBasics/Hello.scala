@@ -57,6 +57,7 @@ def scheduling =
             Schedule.spaced(3.seconds)
         )
     )
+end scheduling
 
 @main
 def ValPassing(): Unit =
@@ -89,3 +90,4 @@ def ValPassing(): Unit =
           .exitCode
       )
   )
+end ValPassing

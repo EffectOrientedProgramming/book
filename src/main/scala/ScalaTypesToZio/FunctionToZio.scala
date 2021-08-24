@@ -11,4 +11,4 @@ class FunctionToZio:
   def sFunction(i: Int): Int = i * i
 
   val zFunction: URIO[Int, Int] =
-    ZIO.fromFunction(sFunction)
+    ZIO.access(sFunction)
