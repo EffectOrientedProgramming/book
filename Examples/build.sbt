@@ -1,6 +1,6 @@
 scalaVersion := "3.0.2-RC2"
 
-val zioVersion = "2.0.0-M1"
+val zioVersion = "2.0.0-M2"
 
 libraryDependencies ++=
   Seq(
