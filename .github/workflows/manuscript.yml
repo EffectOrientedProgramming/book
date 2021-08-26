@@ -25,9 +25,8 @@ jobs:
     - name: generate and test examples
       run: |
         bin/sbt generateExamples
-      # todo: get examples compiling
-      #  cd Examples
-      #  ../bin/sbt test
+        cd Examples
+        ../bin/sbt test
 
     # todo: publish examples
 
