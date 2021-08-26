@@ -127,6 +127,7 @@ However, providing dependencies to the logic is still tedious.
 
 ```scala mdoc
 import zio.ZLayer
+import zio.Runtime.default.unsafeRun
 unsafeRun(
   logic.provideLayer(
     ZLayer.succeed[Console](ConsoleLive)

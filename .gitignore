@@ -15,4 +15,4 @@ project/metals.sbt
 /manuscript/
 .env
 cs.exe
-/Examples/src/
+/Examples/src/main/scala/*.scala

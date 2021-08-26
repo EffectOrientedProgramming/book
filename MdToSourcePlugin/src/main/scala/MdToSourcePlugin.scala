@@ -4,7 +4,7 @@ import mdoc.internal.markdown.{CodeFence, MarkdownFile}
 import sbt.plugins.JvmPlugin
 import sbt._
 
-import java.io.File
+import java.io.{File, FilenameFilter}
 import java.nio.charset.Charset
 import java.nio.file.{Files, StandardOpenOption}
 import scala.collection.JavaConverters._
@@ -28,12 +28,20 @@ object MdToSourcePlugin extends AutoPlugin {
   val generateExamplesTask = Def.task {
 
     if (examplesDir.value.exists()) {
-      Files.walk(examplesDir.value.toPath).iterator().asScala.toSeq.reverse.foreach(_.toFile.delete())
+      //Files.walk(examplesDir.value.toPath).iterator().asScala.toSeq.reverse.foreach(_.toFile.delete())
+
+      // only delete scala files in root example dir
+      val onlyScala: FilenameFilter = (_: File, name: String) => name.endsWith(".scala")
+      examplesDir.value.listFiles(onlyScala).toSeq.foreach(_.delete())
     }
     examplesDir.value.mkdirs()
 
-    mdDir.value.listFiles().filter(_.ext == "md").foreach { file =>
-      val chapterName = file.getName.replaceFirst("^\\d\\d_", "").stripSuffix(".md")
+    def isChapter(f: File): Boolean = {
+      f.name.matches("^\\d\\d_.*")
+    }
+
+    mdDir.value.listFiles().filter(_.ext == "md").filter(isChapter).foreach { file =>
+      val chapterName = file.getName.stripSuffix(".md") //replaceFirst("^\\d\\d_", "")
       val outFile = examplesDir.value / (chapterName + ".scala")
       val inputFile = InputFile(RelativePath(file), AbsolutePath(file), AbsolutePath(outFile), AbsolutePath(mdDir.value), AbsolutePath(examplesDir.value))
 
@@ -43,14 +51,18 @@ object MdToSourcePlugin extends AutoPlugin {
       val reporter = ConsoleReporter.default
       val md = MarkdownFile.parse(input, inputFile, reporter)
       val codeBlocks = md.parts.collect {
-        case codeFence: CodeFence =>
+        case codeFence: CodeFence if codeFence.info.value.startsWith("scala mdoc") && !codeFence.info.value.startsWith("scala mdoc:nest") =>
           codeFence.body.value
       }
 
       if (codeBlocks.nonEmpty) {
-        val contents = Seq(s"package $chapterName", "") ++ codeBlocks.flatMap { block =>
-          Seq(block, "")
+        val header = Seq(s"package `$chapterName`", "", "@main def run() = ")
+
+        val indentedBlocks = codeBlocks.flatMap { block =>
+          block.linesIterator.map("  " + _).toList :+ ""
         }
+
+        val contents = header ++ indentedBlocks
 
         Files.write(outFile.toPath, contents.asJava, StandardOpenOption.CREATE)
       }
