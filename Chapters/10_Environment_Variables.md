@@ -207,6 +207,7 @@ def envRequired(
 ```
 
 Using this function, our code becomes more linear and focused.
+
 ```scala mdoc
 def fancyLodgingFocused(): ZIO[Has[
   System
@@ -216,7 +217,9 @@ def fancyLodgingFocused(): ZIO[Has[
   yield TravelApiImpl
     .cheapestHotel("90210", apiKey)
 ```
+
 Next, we flatten our two `Error` possibilities into the one failure channel.
+
 ```scala mdoc
 def fancyLodgingSingleError()
     : ZIO[Has[System], Error, Hotel] =
@@ -254,6 +257,7 @@ def fancyLodgingFinal()
 ```
 
 Original, unsafe:
+
 ```scala mdoc:nest
 def fancyLodgingUnsafe(
     travelApi: TravelApi
@@ -280,6 +284,7 @@ import mdoc.unsafeRunPrettyPrint
 ```
 
 **Your Machine**
+
 ```scala mdoc:invisible
 sys.env.environment = OriginalDeveloper
 ```
@@ -317,6 +322,7 @@ unsafeRunPrettyPrint(
   )
 )
 ```
+
 TODO{{The actual line looks the same, which I highlighted as a problem before. How should we indicate that the Environment is different?}}
 
 When constructed this way, it becomes very easy to test. We create a second implementation that accepts test values and serves them to the caller.

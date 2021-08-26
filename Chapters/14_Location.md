@@ -23,6 +23,12 @@ trait Location:
   def gpsCoords
       : ZIO[Any, HardwareFailure, GpsCoordinates]
   def timezone: ZIO[Any, Nothing, TimeZone]
+  
+object Location:
+  def gpsCoords
+      : ZIO[Has[Location], HardwareFailure, GpsCoordinates] =
+    ZIO.serviceWith(_.gpsCoords)
+  
 ```
 
 Now that we have basic `Location`-awareness, we can build more domain-specific logic on top of it.
@@ -59,7 +65,15 @@ case class Country(name: String)
 
 trait CountryService:
   def currentCountry
-      : ZIO[Has[Location], Nothing, Country]
+      : ZIO[Has[Location], HardwareFailure, Country]
+      
+object CountryService:
+  def currentCountry
+      : ZIO[Has[Location], HardwareFailure, Country] =
+    for 
+      gpsCords <- Location.gpsCoords
+    yield
+      Country("USA")
 ```
 
 ```scala mdoc
