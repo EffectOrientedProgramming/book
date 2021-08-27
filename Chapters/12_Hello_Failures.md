@@ -131,7 +131,6 @@ TODO {{Update verbiage now that ZIO section is first}}
 ### ZIO-First Error Handling
 
 ```scala mdoc
-// TODO Consult about type param styling
 import zio.ZIO
 import zio.Runtime.default.unsafeRun
 
@@ -163,8 +162,9 @@ unsafeRun(
 
 TODO Demonstrate ZIO calculating the error types without an explicit annotation being provided
 
-```scala mdoc:crash
-unsafeRun(getTemperatureZ("GPS Error").orDie)
+```scala
+// TODO: Restore mdoc:crash when mdoc is fixed
+unsafeRun( getTemperatureZ("GPS Error") )
 ```
 
 ### Wrapping Legacy Code
@@ -176,7 +176,7 @@ import zio.Runtime.default.unsafeRun
 import zio.{Task, ZIO}
 ```
 
-```scala mdoc:fmt
+```scala mdoc
 def getTemperatureZWrapped(
     behavior: String
 ): ZIO[Any, Throwable, String] =
@@ -200,7 +200,7 @@ unsafeRun(
 
 This is decent, but does not provide the maximum possible guarantees. Look at what happens if we forget to handle one of our errors.
 
-```scala mdoc:fmt
+```scala mdoc
 def getTemperatureZGpsGap(
     behavior: String
 ): ZIO[Any, Exception, String] =
