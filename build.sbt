@@ -34,9 +34,9 @@ libraryDependencies ++=
     "io.circe"  % "circe-core_3"  % "0.15.0-M1",
     "io.circe" %% "circe-generic" % "0.15.0-M1",
     "com.softwaremill.sttp.client3" %% "circe" %
-      "3.3.13",
+      "3.3.14",
     "com.softwaremill.sttp.client3" %% "core" %
-      "3.3.13"
+      "3.3.14"
 // "io.d11" %% "zhttp" % "1.0.0.0-RC17", //
     // TODO Check for updates supporting ZIO2
     // milestones
