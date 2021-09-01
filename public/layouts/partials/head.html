@@ -1,0 +1,31 @@
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="description" content="{{ with .Description }}{{ . }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}">
+{{ with .Site.Params.author }} <meta name="author" content="{{ . }}">{{ end }}
+{{ hugo.Generator }}
+
+<title>{{ .Title }}</title>
+
+{{ "<!-- Mobile Specific Meta -->" | safeHTML }}
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+{{ "<!-- Favicon -->" | safeHTML }}
+<link rel="shortcut icon" type="image/x-icon" href="{{ `images/favicon.ico` | absURL }}" />
+
+{{"<!-- Stylesheets -->" | safeHTML}}
+{{ "<!-- Themefisher Icon font -->" | safeHTML }}
+<link rel="stylesheet" href="{{ `plugins/themefisher-font/style.css` | absURL }}">
+{{ "<!-- bootstrap.min css -->" | safeHTML}}
+<link rel="stylesheet" href="{{ `plugins/bootstrap/dist/css/bootstrap.min.css` | absURL }}">
+{{ "<!-- Lightbox.min css -->" | safeHTML }}
+<link rel="stylesheet" href="{{ `plugins/lightbox2/dist/css/lightbox.min.css` | absURL }}">
+{{ "<!-- Slick Carousel -->" | safeHTML }}
+<link rel="stylesheet" href="{{ `plugins/slick-carousel/slick/slick.css` | absURL }}">
+<link rel="stylesheet" href="{{ `plugins/slick-carousel/slick/slick-theme.css` | absURL }}">
+
+{{ $styles := resources.Get "css/style.css" | minify}}
+
+<link rel="stylesheet" href="{{ $styles.Permalink }}" media="screen">
+
+</head>

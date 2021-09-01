@@ -1,0 +1,28 @@
+enable  : true
+topTitle: FRANCAIS HOW WE WORKS
+title   : FRANCAIS Our Work Process
+subtitle: FRANCAIS Lorem ipsum dolor sit amet, consectetur adipisicing elit. Illum reiciendis quasi itaque, obcaecati atque sit!
+item    :
+  - number  : 1
+    icon    : tf-ion-ios-briefcase-outline
+    title   : Project Analysis
+    description : >
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vitae risus nec dui venenatis.
+
+  - number  : 2
+    icon    : tf-ion-ios-alarm-outline
+    title   : Time Management
+    description : >
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vitae risus nec dui venenatis.
+
+  - number  : 3
+    icon    : tf-ion-ios-email-outline
+    title   : Mail Support
+    description : >
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vitae risus nec dui venenatis.
+
+  - number  : 4
+    icon    : tf-ion-ios-locked-outline
+    title   : Secure System
+    description : >
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vitae risus nec dui venenatis.

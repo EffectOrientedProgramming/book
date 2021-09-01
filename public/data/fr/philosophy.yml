@@ -1,0 +1,25 @@
+enable    : true
+topTitle  : FRANCAIS LITTLE MORE BRIEF
+title     : FRANCAIS About Us.
+subtitle  : FRANCAIS Lorem ipsum dolor sit amet, consectetur adipisicing elit. Illum reiciendis quasi itaque, obcaecati atque sit!
+tabItem   :
+  - id        : philosophy
+    title     : FRANCAIS Our Philosophy
+    heading   : FRANCAIS We Create Designs and technology
+    content   : >
+      Lorem ipsum dolor sit amet, consectetur adipisicing elit. Repellat voluptate molestias, quaerat quo natus dolor harum voluptatibus modi dicta ducimus. <br> <br> Lorem ipsum dolor sit amet, consectetur adipisicing elit. Harum quae officia earum dolore est quaerat cupiditate voluptatibus id, magni alias veniam voluptate, libero explicabo, distinctio atque!
+    image     : images/company/company-image.jpg
+
+  - id        : mission
+    title     : FRANCAIS Mission
+    heading   : FRANCAIS Our Mission
+    content   : >
+      Lorem ipsum dolor sit amet, consectetur adipisicing elit. Repellat voluptate molestias, quaerat quo natus dolor harum voluptatibus modi dicta ducimus. <br> <br> Lorem ipsum dolor sit amet, consectetur adipisicing elit. Harum quae officia earum dolore est quaerat cupiditate voluptatibus id, magni alias veniam voluptate, libero explicabo, distinctio atque!
+    image     : images/company/company-image-2.jpg
+
+  - id        : vision
+    title     : FRANCAIS Vision
+    heading   : FRANCAIS Our Vision
+    content   : >
+      Lorem ipsum dolor sit amet, consectetur adipisicing elit. Repellat voluptate molestias, quaerat quo natus dolor harum voluptatibus modi dicta ducimus. <br> <br> Lorem ipsum dolor sit amet, consectetur adipisicing elit. Harum quae officia earum dolore est quaerat cupiditate voluptatibus id, magni alias veniam voluptate, libero explicabo, distinctio atque!
+    image     : images/company/company-image-3.jpg
