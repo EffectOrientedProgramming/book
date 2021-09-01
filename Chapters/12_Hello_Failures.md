@@ -162,8 +162,7 @@ unsafeRun(
 
 TODO Demonstrate ZIO calculating the error types without an explicit annotation being provided
 
-```scala
-// TODO: Restore mdoc:crash when mdoc is fixed
+```scala mdoc:crash
 unsafeRun( getTemperatureZ("GPS Error") )
 ```
 
@@ -212,6 +211,7 @@ import mdoc.unsafeRunTruncate
 ```
 
 ```scala mdoc
+import mdoc.unsafeRunTruncate
 unsafeRunTruncate(
   getTemperatureZGpsGap("GPS Error")
 )
