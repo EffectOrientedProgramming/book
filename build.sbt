@@ -8,7 +8,7 @@ enablePlugins(MdToSourcePlugin)
 
 name := "EffectOrientedProgramming"
 
-scalaVersion := "3.0.1"
+scalaVersion := "3.0.2"
 
 scalacOptions += "-Yexplicit-nulls"
 scalacOptions -= "-explain-types"
