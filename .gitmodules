@@ -1,0 +1,6 @@
+[submodule "public/navigator-hugo"]
+	path = public/navigator-hugo
+	url = https://github.com/themefisher/navigator-hugo.git
+[submodule "public/themes/navigator-hugo"]
+	path = public/themes/navigator-hugo
+	url = https://github.com/themefisher/navigator-hugo.git
