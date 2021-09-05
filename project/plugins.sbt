@@ -1,3 +1,4 @@
+resolvers += Resolver.sonatypeRepo("snapshots")
 addSbtPlugin(
   "io.github.davidgregory084" % "sbt-tpolecat" %
     "0.1.20"
@@ -6,7 +7,8 @@ addSbtPlugin(
   "org.scalameta" % "sbt-scalafmt" % "2.4.3"
 )
 addSbtPlugin(
-  "org.scalameta" % "sbt-mdoc" % "2.2.23"
+  "org.scalameta" % "sbt-mdoc" %
+    "2.2.23+1-452f1c4b-SNAPSHOT"
 )
 
 addSbtPlugin(

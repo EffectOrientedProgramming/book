@@ -2,6 +2,8 @@ import scala.util.Try
 import java.io.File
 import java.nio.file.{Files, Path}
 
+resolvers += Resolver.sonatypeRepo("snapshots")
+
 enablePlugins(MdocPlugin)
 enablePlugins(GraalVMNativeImagePlugin)
 enablePlugins(MdToSourcePlugin)

@@ -159,7 +159,6 @@ unsafeRun(
 )
 ```
 
-
 TODO Demonstrate ZIO calculating the error types without an explicit annotation being provided
 
 ```scala mdoc:crash
