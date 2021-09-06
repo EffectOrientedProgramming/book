@@ -1,6 +1,8 @@
 # What is an Effect?
 
-08:07 AM January 13, 2018: Televisions, Radios, and Cell Phones across Hawaii suddenly flash an alert.
+08:07 AM January 13, 2018
+
+Televisions, Radios, and Cell Phones across Hawaii suddenly flash an alert:
 
 C> "BALLISTIC MISSILE INBOUND THREAT TO HAWAII. SEEK IMMEDIATE SHELTER. THIS IS NOT A DRILL"
 
@@ -16,6 +18,10 @@ Parents say goodbye to their children.
 Thankfully, no missiles had been launched that day.
 An employee at the Hawaii Emergency Management Agency had accidentally sent this warning, during what should have been a quiet system test.
 
+This is the actual screen that the employee used that day:
+
+![](images/HawaiiAlertSystem.jpg)
+
 TODO {{ Properly cite this: https://www.washingtonpost.com/news/post-nation/wp/2018/01/14/hawaii-missile-alert-how-one-employee-pushed-the-wrong-button-and-caused-a-wave-of-panic/}}
 
 From the Washington Post
@@ -23,14 +29,10 @@ From the Washington Post
 C> "He clicked the button to send out an actual notification on Hawaii's emergency alert interface during what was intended to be a test of the state's ballistic missile preparations computer program."
 C> The employee was prompted to choose between the options "test missile alert" and "missile alert", had selected the latter, initiating the alert sent out across the state.
 
-This is the actual screen that the employee was interacting with that day:
+The fatal flaw was that both the Live and Test `Effects` were available side-by-side in the running application.
 
-![](images/HawaiiAlertSystem.jpg)
+The Effects of this system were:
 
-Ignore the disastrous user-interface; it would take a separate book to fully deconstruct that.
-The relevant flaw here is that both the Live and Test effects were available side-by-side in the running application.
-
-The effects of this system were:
   - Sending alert messages to Cell Phones
   - Playing alert messages on Radio frequencies
   - Displaying alert messages on Television stations
