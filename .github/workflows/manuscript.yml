@@ -34,7 +34,7 @@ jobs:
       with:
         file-path: |
           manuscript/*
-          manuscript/images
+          manuscript/images/*
         branch: publish
         commit-msg: Update manuscript
         github-token: ${{ secrets.GITHUB_TOKEN }}
