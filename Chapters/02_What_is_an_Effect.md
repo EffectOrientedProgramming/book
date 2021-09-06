@@ -8,7 +8,7 @@ C> "BALLISTIC MISSILE INBOUND THREAT TO HAWAII. SEEK IMMEDIATE SHELTER. THIS IS 
 
 Local communities sound alarms.
 
-Calls to 911 jam the phone lines. 
+Calls to 911 jam the phone lines.
 
 Panicked internet searches overwhelm data networks.
 
@@ -30,6 +30,7 @@ This is the actual control screen in the system:
 ![](images/HawaiiAlertSystem.jpg)
 
 TODO {{ How much to berate the UI? Too much distracts from the ultimate point }}
+{{ Perhaps just mention the numerous other issues including the UI but don't spend much time. Most readers will be familiar with UI failings }}
 This cluster of inconsistently named links made mistakes likely.
 Basic changes would have drastically simplified correct use of the alerts.
 Imagine what earlier mishaps moved "False Alarm" to the top of the list.
@@ -37,6 +38,7 @@ Imagine what earlier mishaps moved "False Alarm" to the top of the list.
 However, we believe that the system was doomed long before the interface was created.
 The fatal flaw was that both the Live and Test alerts were available in the running application.
 We want to write systems in which these behaviors are mutually exclusive.
+{{ This suggests that "systems in which these behaviors are mutually exclusive" is the essence. If not, we might say "one of the things we want to do" or something}}
 
 
 TODO {{ "Tease" the Effects here, or only discuss them in the following sections?}}
@@ -51,6 +53,7 @@ The Effects of this system were:
 An `Effect` is the term for any computational interaction with the world outside your CPU.
 There are an infinite number of `Effects` that might need to be modeled in an application.
 Unauthoritatively, the authors of this book consider them in these categories.
+{{ Tough phrase, because authoritative technically means "from an author" }}
 
 - Observing the World
 - Changing the World
@@ -96,6 +99,7 @@ They can be advanced:
 
 ## No take-backs
 TODO {{ Less idiom-y title }}
+{{ Possibly but it's also very evocative }}
 
 One important aspect of effects is that, generally, they cannot be undone.
 If you 3D-printed a figurine, you cannot reclaim that material.
@@ -110,6 +114,6 @@ They are a fundamentally different way of modeling our programs.
 
 `Side-effecting` code observes or changes the world in some way that is not apparent in the type signature.
 `Effectful` code will signal this in the type signature.
-If your 
+If your
 
 ## The Advent of ZIO
