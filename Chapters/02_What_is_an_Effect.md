@@ -8,7 +8,9 @@ C> "BALLISTIC MISSILE INBOUND THREAT TO HAWAII. SEEK IMMEDIATE SHELTER. THIS IS 
 
 Local communities sound alarms.
 
-Calls to 911 jam the phone lines; panicked internet searches overwhelm data networks.
+Calls to 911 jam the phone lines. 
+
+Panicked internet searches overwhelm data networks.
 
 Hundreds of students sprint from their classrooms to fallout shelters.
 
