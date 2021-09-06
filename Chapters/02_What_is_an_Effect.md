@@ -16,28 +16,35 @@ Hundreds of students sprint from their classrooms to fallout shelters.
 
 Parents say goodbye to their children.
 
-### Unwinding the Chaos
+### Untangling the Chaos
 Thankfully, no missiles had been launched that day.
 An employee at the Hawaii Emergency Management Agency had accidentally sent this warning, during what should have been a quiet system test.
 
-This is the actual screen that the employee used that day:
-
-![](images/HawaiiAlertSystem.jpg)
-
-TODO {{ Properly cite this: https://www.washingtonpost.com/news/post-nation/wp/2018/01/14/hawaii-missile-alert-how-one-employee-pushed-the-wrong-button-and-caused-a-wave-of-panic/}}
-
-From the Washington Post
+From the Washington Post: [Citation](15_citations.md#hawaii-alert)
 
 C> "He clicked the button to send out an actual notification on Hawaii's emergency alert interface during what was intended to be a test of the state's ballistic missile preparations computer program."
 C> The employee was prompted to choose between the options "test missile alert" and "missile alert", had selected the latter, initiating the alert sent out across the state.
 
-The fatal flaw was that both the Live and Test `Effects` were available side-by-side in the running application.
+This is the actual control screen in the system:
 
+![](images/HawaiiAlertSystem.jpg)
+
+TODO {{ How much to berate the UI? Too much distracts from the ultimate point }}
+This cluster of inconsistently named links made mistakes likely.
+Basic changes would have drastically simplified correct use of the alerts.
+Imagine what earlier mishaps moved "False Alarm" to the top of the list.
+
+However, we believe that the system was doomed long before the interface was created.
+The fatal flaw was that both the Live and Test alerts were available in the running application.
+We want to write systems in which these behaviors are mutually exclusive.
+
+
+TODO {{ "Tease" the Effects here, or only discuss them in the following sections?}}
 The Effects of this system were:
 
-  - Sending alert messages to Cell Phones
-  - Playing alert messages on Radio frequencies
-  - Displaying alert messages on Television stations
+  - Sending messages to Cell Phones
+  - Playing warnings on Radio frequencies
+  - Displaying banners on Television stations
 
 ## Effects - Definition
 
@@ -76,13 +83,13 @@ We will explore situations like this in our chapter of more complex scenarios
 Mirroring observations, changes can be basic:
 
 - Printing to the `Console`
-- 3D printing a model
 - Writing to a file
 - Mutating a variable
 - Saving to a `Database`
 
 They can be advanced:
 
+- 3D printing a model
 - Triggering an alarm
 - Stabilizing an airplane
 - Detonating explosives
