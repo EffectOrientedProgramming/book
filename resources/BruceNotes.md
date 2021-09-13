@@ -3,6 +3,15 @@
 > Notes that I capture on my phone when they occur to me.
 > Just thoughts and ideas; I don't expect all or any of them to end up in the book.
 
+* Functional principle: "Do the hard work once."
+
+* From the Rural Developer Retreat:
+  * Acko.net
+  * Books on failures that might make good stories in Chapter 1
+  * Book: "Normal Accidents"
+  * Book: "Meltdown"
+  * Book: "Thinking in Systems"
+
 * Consider creating a style guide for optional syntax.
   Example: If a function doesn't take arguments, should we always use `()` when calling it?
   I like the idea of having completely consistent style so the reader doesn't have to decipher differences in style.
