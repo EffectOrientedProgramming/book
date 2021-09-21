@@ -8,7 +8,7 @@ addSbtPlugin(
 )
 addSbtPlugin(
   "org.scalameta" % "sbt-mdoc" %
-    "2.2.23+3-ffb5d73a-SNAPSHOT"
+    "2.2.23+11-e1a5c53f-SNAPSHOT"
 )
 
 addSbtPlugin(
