@@ -21,39 +21,39 @@ object FakeConsole:
         ZIO.succeed(hardcodedInput)
 
       override def putStr(
-          line: String
+          line: => String
       ): zio.IO[java.io.IOException, Unit] = ???
 
       override def putStrErr(
-          line: String
+          line: => String
       ): zio.IO[java.io.IOException, Unit] = ???
 
       override def putStrLnErr(
-          line: String
+          line: => String
       ): zio.IO[java.io.IOException, Unit] = ???
 
       override def putStrLn(
-          line: String
+          line: => String
       ): IO[IOException, Unit] =
         ZIO.succeed(
           println("Hard-coded: " + line)
         )
 
       override def print(
-          line: Any
+          line: => Any
       ): zio.IO[java.io.IOException, Unit] =
         ZIO.succeed(print("Hard-coded: " + line))
       override def printError(
-          line: Any
+          line: => Any
       ): zio.IO[java.io.IOException, Unit] = ???
       override def printLine(
-          line: Any
+          line: => Any
       ): zio.IO[java.io.IOException, Unit] =
         ZIO.succeed(
           println("Hard-coded: " + line)
         )
       override def printLineError(
-          line: Any
+          line: => Any
       ): zio.IO[java.io.IOException, Unit] = ???
       override def readLine
           : zio.IO[java.io.IOException, String] =
@@ -84,38 +84,38 @@ object FakeConsole:
         yield curInput.head
 
       override def putStr(
-          line: String
+          line: => String
       ): zio.IO[java.io.IOException, Unit] = ???
 
       override def putStrErr(
-          line: String
+          line: => String
       ): zio.IO[java.io.IOException, Unit] = ???
 
       override def putStrLnErr(
-          line: String
+          line: => String
       ): zio.IO[java.io.IOException, Unit] = ???
 
       override def putStrLn(
-          line: String
+          line: => String
       ): IO[IOException, Unit] =
         ZIO
           .succeed(println("Automated: " + line))
 
       override def print(
-          line: Any
+          line: => Any
       ): zio.IO[java.io.IOException, Unit] =
         IO.succeed(print(line))
 //        Console.ConsoleLive.print(line)
       override def printError(
-          line: Any
+          line: => Any
       ): zio.IO[java.io.IOException, Unit] = ???
       override def printLine(
-          line: Any
+          line: => Any
       ): zio.IO[java.io.IOException, Unit] =
         ZIO
           .succeed(println("Automated: " + line))
       override def printLineError(
-          line: Any
+          line: => Any
       ): zio.IO[java.io.IOException, Unit] = ???
       override def readLine
           : zio.IO[java.io.IOException, String] =

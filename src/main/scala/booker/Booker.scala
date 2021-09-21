@@ -25,6 +25,7 @@ def validateDir(
       )
     )
     .unless(dir.exists() && dir.isDirectory)
+    .map(_ => ())
 
 def filesInDir(dir: File): Seq[File] =
   dir.listFiles().nn.map(_.nn).toSeq
