@@ -69,9 +69,10 @@ object Mining extends zio.App:
   ): ZIO[zio.Has[
     zio.Random
   ] & zio.Has[zio.Clock], Nothing, (String, Int)] =
-    miners
-      .map(_.mine2(startNum))
-      .reduce(_.race(_))
+    ZIO.raceAll(
+      miners.head.mine2(startNum),
+    miners.tail.map(_.mine2(startNum))
+    )
 
   def run(
       args: List[String]
@@ -79,6 +80,8 @@ object Mining extends zio.App:
     val zeb   = Miner("Zeb")
     val frop  = Miner("Frop")
     val shtep = Miner("Shtep")
+
+    val miners = Seq(zeb, frop, shtep).flatMap( miner => Range(1, 50).map(i => new Miner(miner.name + i)))
 
     def loopLogic(
         chain: Ref[List[Int]]
@@ -89,10 +92,10 @@ object Mining extends zio.App:
       // prime numbers)
       for
         startNum <-
-          nextIntBetween(1000000, 2000000)
+          nextIntBetween(20000000, 40000000)
         raceResult <-
           findNextBlock2(
-            Seq(zeb, frop, shtep),
+            miners,
             startNum
           )
         (winner, winningPrime) = raceResult
@@ -106,7 +109,7 @@ object Mining extends zio.App:
     val fullLogic =
       for
         chain <- Ref.make[List[Int]](List.empty)
-        _     <- loopLogic(chain).repeatN(5)
+        _     <- loopLogic(chain).repeatN(20)
         finalChain <- chain.get
         _ <-
           printLine("Final Chain: " + finalChain)
