@@ -32,7 +32,7 @@ libraryDependencies ++=
     //     cross CrossVersion.for3Use2_13,
     "dev.zio" %% "zio-test"     % zioVersion,
     "dev.zio" %% "zio-test-sbt" % zioVersion %
-      Test,
+      "it,test",
     "org.scalameta" %% "munit" % "0.7.29" % Test,
     "io.circe"  % "circe-core_3"  % "0.15.0-M1",
     "io.circe" %% "circe-generic" % "0.15.0-M1",
@@ -41,8 +41,8 @@ libraryDependencies ++=
     "com.softwaremill.sttp.client3" %% "core" %
       "3.3.14",
 
-    "org.testcontainers"    % "testcontainers"            % "1.16.0" % Test,
-    "org.testcontainers"    % "postgresql"            % "1.16.0" % Test,
+    "org.testcontainers"    % "testcontainers"            % "1.16.0" % "it,test",
+    "org.testcontainers"    % "postgresql"            % "1.16.0" % "it,test",
     "org.postgresql" % "postgresql" % "42.2.24"
     
 //  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.10.5"
@@ -54,6 +54,13 @@ libraryDependencies ++=
     // % Test,
 //    "dev.zio" %% "zio-json" % "0.2.0-M1"
   )
+
+configs(IntegrationTest)
+
+Defaults.itSettings
+
+
+
 
 testFrameworks +=
   new TestFramework(

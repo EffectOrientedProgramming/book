@@ -8,7 +8,16 @@ import zio.test.environment.*
 
 import java.io.IOException
 
-object MdocHelperSpec
+import org.testcontainers.containers.wait.strategy.Wait
+import org.testcontainers.containers.{
+  GenericContainer,
+  Network,
+}
+
+object ManagedTestInstances:
+  val network = ZManaged.acquireReleaseWith(ZIO.succeed(Network.newNetwork().nn))(n => ZIO.succeed(n.close)).useNow
+
+object TestContainersSpec
     extends DefaultRunnableSpec:
 
   def spec =
@@ -17,6 +26,10 @@ object MdocHelperSpec
         "Intercept and format MatchError from unhandled RuntimeException"
       ) {
         for
+          network <- ManagedTestInstances.network
+          safePostgres <- PostgresContainer.construct("init.sql")
+            .provideSomeLayer(ZLayer.succeed(network))
+          _ <- ZIO.succeed(safePostgres.start)
           _ <-
             mdoc.wrapUnsafeZIO(
               ZIO.succeed(
@@ -26,6 +39,9 @@ object MdocHelperSpec
               )
             )
           output <- TestConsole.output
+          _ <- printLine("With managed Network 1")
+          _ <- ZIO.succeed(safePostgres.close)
+          _ <- ZIO.succeed(network.close)
         yield assert(output)(
           equalTo(
             Vector(
@@ -36,7 +52,7 @@ object MdocHelperSpec
         )
       }
     )
-end MdocHelperSpec
+end TestContainersSpec
 
 object MdocSession:
   object App:
