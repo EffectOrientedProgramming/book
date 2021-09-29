@@ -39,7 +39,13 @@ libraryDependencies ++=
     "com.softwaremill.sttp.client3" %% "circe" %
       "3.3.14",
     "com.softwaremill.sttp.client3" %% "core" %
-      "3.3.14"
+      "3.3.14",
+
+    "org.testcontainers"    % "testcontainers"            % "1.16.0" % Test,
+    "org.testcontainers"    % "postgresql"            % "1.16.0" % Test,
+    
+//  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.10.5"
+
 // "io.d11" %% "zhttp" % "1.0.0.0-RC17", //
     // TODO Check for updates supporting ZIO2
     // milestones

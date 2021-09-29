@@ -110,7 +110,7 @@ object Mining extends zio.App:
     val fullLogic =
       for
         chain <- Ref.make[List[Int]](List.empty)
-        _     <- loopLogic(chain).repeatN(20)
+        _     <- loopLogic(chain).repeatN(5)
         finalChain <- chain.get
         _ <-
           printLine("Final Chain: " + finalChain)
