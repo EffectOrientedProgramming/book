@@ -35,7 +35,7 @@ object MdocHelperSpec
       .withNetworkAliases("postgres")
       .nn
 
-  // postgresContainer.start()
+  postgresContainer.start()
 
   def spec =
     suite("mdoc.MdocHelperSpec")(

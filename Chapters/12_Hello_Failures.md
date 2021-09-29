@@ -116,7 +116,7 @@ displayTemperature("GPS Error")
 Wonderful!
 We have specific messages for all relevant error cases. However, this still suffers from downsides that become more painful as the codebase grows.
 
-- The signature of `getTemperature` does not alert us that it might fail
+- The signature of `displayTemperature` does not alert us that it might fail
 - If we realize it can fail, we must dig through the implementation to discover the multiple failure values
 
 ## ZIO Error Handling
