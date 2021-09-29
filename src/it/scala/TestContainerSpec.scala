@@ -11,11 +11,16 @@ import java.io.IOException
 import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.containers.{
   GenericContainer,
-  Network,
+  Network
 }
 
 object ManagedTestInstances:
-  val network = ZManaged.acquireReleaseWith(ZIO.succeed(Network.newNetwork().nn))(n => ZIO.succeed(n.close)).useNow
+  val network =
+    ZManaged
+      .acquireReleaseWith(
+        ZIO.succeed(Network.newNetwork().nn)
+      )(n => ZIO.succeed(n.close))
+      .useNow
 
 object TestContainersSpec
     extends DefaultRunnableSpec:
@@ -27,8 +32,12 @@ object TestContainersSpec
       ) {
         for
           network <- ManagedTestInstances.network
-          safePostgres <- PostgresContainer.construct("init.sql")
-            .provideSomeLayer(ZLayer.succeed(network))
+          safePostgres <-
+            PostgresContainer
+              .construct("init.sql")
+              .provideSomeLayer(
+                ZLayer.succeed(network)
+              )
           _ <- ZIO.succeed(safePostgres.start)
           _ <-
             mdoc.wrapUnsafeZIO(
@@ -39,7 +48,8 @@ object TestContainersSpec
               )
             )
           output <- TestConsole.output
-          _ <- printLine("With managed Network 1")
+          _ <-
+            printLine("With managed Network 1")
           _ <- ZIO.succeed(safePostgres.close)
           _ <- ZIO.succeed(network.close)
         yield assert(output)(

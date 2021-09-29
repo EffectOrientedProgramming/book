@@ -19,7 +19,10 @@ class PostgresContainer()
     ]("postgres:13.1")
 
 object PostgresContainer:
-  def apply(initScript: String, network: Network): PostgresContainer =
+  def apply(
+      initScript: String,
+      network: Network
+  ): PostgresContainer =
     new PostgresContainer()
       .nn
       .withInitScript(initScript)
@@ -29,9 +32,10 @@ object PostgresContainer:
       .withNetworkAliases("postgres")
       .nn
 
-  def construct(
-  initScipt: String
-  ): ZIO[Has[Network], Nothing, PostgresContainer] =
-    for {
+  def construct(initScipt: String): ZIO[Has[
+    Network
+  ], Nothing, PostgresContainer] =
+    for
       network <- ZIO.service[Network]
-    } yield  apply(initScipt, network)
+    yield apply(initScipt, network)
+end PostgresContainer
