@@ -15,7 +15,8 @@ scalaVersion := "3.0.2"
 scalacOptions += "-Yexplicit-nulls"
 scalacOptions -= "-explain-types"
 scalacOptions -= "-explain"
-scalacOptions -= "-encoding"
+// TODO Make sure this only happens in Intellij. It breaks VSCode
+// scalacOptions -= "-encoding"
 
 val zioVersion = "2.0.0-M3"
 

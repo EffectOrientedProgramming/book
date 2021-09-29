@@ -71,7 +71,7 @@ object Mining extends zio.App:
   ] & zio.Has[zio.Clock], Nothing, (String, Int)] =
     ZIO.raceAll(
       miners.head.mine2(startNum),
-    miners.tail.map(_.mine2(startNum))
+      miners.tail.map(_.mine2(startNum))
     )
 
   def run(
@@ -81,7 +81,11 @@ object Mining extends zio.App:
     val frop  = Miner("Frop")
     val shtep = Miner("Shtep")
 
-    val miners = Seq(zeb, frop, shtep).flatMap( miner => Range(1, 50).map(i => new Miner(miner.name + i)))
+    val miners =
+      Seq(zeb, frop, shtep).flatMap(miner =>
+        Range(1, 50)
+          .map(i => new Miner(miner.name + i))
+      )
 
     def loopLogic(
         chain: Ref[List[Int]]
@@ -94,10 +98,7 @@ object Mining extends zio.App:
         startNum <-
           nextIntBetween(20000000, 40000000)
         raceResult <-
-          findNextBlock2(
-            miners,
-            startNum
-          )
+          findNextBlock2(miners, startNum)
         (winner, winningPrime) = raceResult
         _ <- chain.update(_ :+ winningPrime)
         _ <-
