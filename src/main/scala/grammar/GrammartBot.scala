@@ -17,42 +17,28 @@ object GrammarInteractions extends zio.App:
       _      <- printLine(s"API KEY $apiKey")
       _ <-
         ZIO {
-          /*
-          import sttp.client3._
-          import sttp.client3.circe._
-          import io.circe.generic.auto._
-          import io.circe.syntax._
-          import zio.IsSubtypeOfOutput.impl
-
-          case class GrammarBotSubmission(
-              text: String
-          )
-
-          val backend =
-            HttpURLConnectionBackend()
-
-          val response =
-            basicRequest
-              .body(
-                Map(
-                  "text" ->
-                    "I can has something."
-                )
-              )
-              .header("x-rapidapi-key", apiKey)
-              .header(
-                "x-rapidapi-host",
-                "grammarbot.p.rapidapi.com"
-              )
-              .post(
-                uri"https://grammarbot.p.rapidapi.com/check"
-              )
-              .send(backend)
-
-          println(response.body)
-
-
-           */
+          /* import sttp.client3._ import
+           * sttp.client3.circe._ import
+           * io.circe.generic.auto._ import
+           * io.circe.syntax._ import
+           * zio.IsSubtypeOfOutput.impl
+           *
+           * case class GrammarBotSubmission(
+           * text: String )
+           *
+           * val backend =
+           * HttpURLConnectionBackend()
+           *
+           * val response =
+           * basicRequest .body( Map( "text" ->
+           * "I can has something." ) )
+           * .header("x-rapidapi-key", apiKey)
+           * .header( "x-rapidapi-host",
+           * "grammarbot.p.rapidapi.com" ) .post(
+           * uri"https://grammarbot.p.rapidapi.com/check"
+           * ) .send(backend)
+           *
+           * println(response.body) */
         }
     yield ()
 end GrammarInteractions
