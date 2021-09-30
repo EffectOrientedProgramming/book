@@ -17,6 +17,7 @@ object GrammarInteractions extends zio.App:
       _      <- printLine(s"API KEY $apiKey")
       _ <-
         ZIO {
+          /*
           import sttp.client3._
           import sttp.client3.circe._
           import io.circe.generic.auto._
@@ -50,6 +51,8 @@ object GrammarInteractions extends zio.App:
 
           println(response.body)
 
+
+           */
         }
     yield ()
 end GrammarInteractions

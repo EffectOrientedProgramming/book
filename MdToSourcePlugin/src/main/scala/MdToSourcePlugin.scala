@@ -6,7 +6,8 @@ import sbt._
 
 import java.io.{File, FilenameFilter}
 import java.nio.charset.Charset
-import java.nio.file.{Files, StandardOpenOption}
+import java.nio.file.{Files, Path, Paths, StandardOpenOption}
+import java.util.stream.Collectors
 import scala.collection.JavaConverters._
 import scala.meta.inputs.Input
 import scala.meta.internal.io.FileIO
@@ -25,16 +26,49 @@ object MdToSourcePlugin extends AutoPlugin {
 
   import autoImport._
 
+  def deleteAllScalaFilesRecursively(file: File): Unit = {
+    val onlyScala: FilenameFilter = (_: File, name: String) => name.endsWith(".scala")
+    file.listFiles(onlyScala).toSeq.foreach(_.delete())
+    file.listFiles().foreach( file => if(file.isDirectory) deleteAllScalaFilesRecursively(file) )
+    if  (file.isDirectory && file.listFiles().isEmpty) file.delete()
+  }
+
   val generateExamplesTask = Def.task {
 
     if (examplesDir.value.exists()) {
-      //Files.walk(examplesDir.value.toPath).iterator().asScala.toSeq.reverse.foreach(_.toFile.delete())
-
-      // only delete scala files in root example dir
-      val onlyScala: FilenameFilter = (_: File, name: String) => name.endsWith(".scala")
-      examplesDir.value.listFiles(onlyScala).toSeq.foreach(_.delete())
+      deleteAllScalaFilesRecursively(examplesDir.value)
     }
+
+    import java.nio.file.StandardCopyOption._
+
+    def copy(source: Path , dest: Path ): Unit = {
+      println("Source: " + source)
+      println("dest: " + dest)
+      Files.copy(source, dest, REPLACE_EXISTING)
+    }
+
+    import scala.jdk.CollectionConverters._
+    def copyFolder(src: Path , dest: Path ): Unit = {
+      import java.nio.file.{Files, Paths}
+      import scala.collection.JavaConverters._
+
+      scalaFileWalk(src).foreach(
+        source => copy(source, dest.resolve(src.relativize(source)))
+      )
+    }
+
+    def scalaFileWalk(src: Path): List[Path] = {
+      val currentLevelFiles = Files.list(src).iterator().asScala.toList
+      currentLevelFiles ++ currentLevelFiles.flatMap(file =>
+        if (file.toFile.isDirectory)
+          scalaFileWalk(file)
+        else List.empty
+      )
+    }
+
     examplesDir.value.mkdirs()
+    copyFolder(Paths.get(".").resolve("src").resolve("main").resolve("scala"), examplesDir.value.toPath)
+
 
     def isChapter(f: File): Boolean = {
       f.name.matches("^\\d\\d_.*")
