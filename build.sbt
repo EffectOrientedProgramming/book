@@ -24,7 +24,7 @@ libraryDependencies ++=
   Seq(
     // Syncronous JDBC Modules
   "io.getquill" %% "quill-jdbc" % "3.7.2.Beta1.4",
-  "ch.qos.logback" % "logback-classic"                  % "1.2.3",
+  "ch.qos.logback" % "logback-classic"                  % "1.2.6",
   // Or ZIO Modules
   "io.getquill" %% "quill-jdbc-zio" % "3.7.2.Beta1.4",
   // Postgres Async
