@@ -65,11 +65,20 @@ object MyApp:
 end MyApp
 
 object ManagedTestInstances:
-    
+  lazy val networkLayer: ZLayer[Any, Nothing, Has[Network]] =
+    ZManaged.acquireReleaseWith(
+      ZIO.debug("Creating network") *> ZIO.succeed(Network.newNetwork().nn)
+    )((n: Network) =>
+      ZIO.attempt(n.close()).orDie *>
+        ZIO.debug("Closing network")
+    ).toLayer
 
-end ManagedTestInstances
 
-// TODO Figure out if TESTCONTAINERS_RYUK_DISABLED=true is a band-aid that's avoiding the real problem with test cleanup
+
+// TODO Figure out fi
+// TESTCONTAINERS_RYUK_DISABLED=true is a
+// band-aid that's avoiding the real problem with
+// test cleanup
 
 object TestContainersSpec
     extends DefaultRunnableSpec:
@@ -77,61 +86,53 @@ object TestContainersSpec
   def spec =
     suite("mdoc.MdocHelperSpec")(
       test(
-        "Intercept and format MatchError from unhandled RuntimeException"
+        "With managed layer"
       ) {
-        for
-          _ <- 
-            ZIO
-              .acquireReleaseWith(
-                ZIO.succeed(Network.newNetwork().nn), (n: Network) =>  ZIO.debug("Trying to close network..."), {
-
-                  (network: Network) => 
-                    for {
-                      safePostgres <-
-                        PostgresContainer
-                          .construct("init.sql")
-                          .provideSomeLayer(
-                            ZLayer.succeed(network)
-                          )
-                      _ <- ZIO.succeed(safePostgres.start)
-                      _ <-
-                        mdoc.wrapUnsafeZIO(
-                          ZIO.succeed(
-                            throw new MatchError(
-                              MdocSession.App.GpsException()
-                            )
-                          )
-                        )
-                      _ <-
-                        ZIO.attempt {
-                          println(
-                            "Bound port numbers: " +
-                              safePostgres
-                                .getMappedPort(5432)
-                          )
-                          println(
-                            "Exposed ports: " +
-                              safePostgres.getExposedPorts
-                          )
-                          MyApp.quillStuff(
-                            safePostgres
-                              .getMappedPort(5432)
-                              .nn,
-                            safePostgres.getUsername.nn,
-                            safePostgres.getPassword.nn
-                          )
-                        }
-                      _ <- ZIO.succeed(safePostgres.close)
-                    } yield ()
-                })
-          output <- TestConsole.output
-        yield assert(output)(
-          equalTo(
-            Vector(
-              "Defect: class scala.MatchError\n",
-              "        GpsException\n"
+        // TODO 
+        val logic = 
+          for
+            _ <-
+              mdoc.wrapUnsafeZIO(
+                ZIO.succeed(
+                  throw new MatchError(
+                    MdocSession
+                      .App
+                      .GpsException()
+                  )
+                )
+              )
+            safePostgres <- ZIO.service[PostgresContainer]
+            _ <-
+              ZIO.attempt {
+                MyApp.quillStuff(
+                  safePostgres
+                    .getMappedPort(5432)
+                    .nn,
+                  safePostgres
+                    .getUsername
+                    .nn,
+                  safePostgres
+                    .getPassword
+                    .nn
+                )
+              }
+            _ <-
+              ZIO.succeed(
+                safePostgres.close
+              )
+            output <- TestConsole.output
+          yield assert(output)(
+            equalTo(
+              Vector(
+                "Defect: class scala.MatchError\n",
+                "        GpsException\n"
+              )
             )
           )
+
+        logic.injectSome[ZTestEnv & ZEnv](ManagedTestInstances.networkLayer,
+              PostgresContainer
+                .construct("init.sql")
         )
       }
     )

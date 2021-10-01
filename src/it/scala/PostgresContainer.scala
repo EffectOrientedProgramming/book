@@ -32,10 +32,18 @@ object PostgresContainer:
       .withNetworkAliases("postgres")
       .nn
 
-  def construct(initScipt: String): ZIO[Has[
+  def construct(initScipt: String): ZLayer[Has[
     Network
-  ], Nothing, PostgresContainer] =
+  ], Nothing, Has[PostgresContainer]] =
     for
-      network <- ZIO.service[Network]
-    yield apply(initScipt, network)
+      network <- ZLayer.service[Network]
+      safePostgres = apply(initScipt, network.get[Network])
+      res <- ZManaged.acquireReleaseWith(
+        ZIO.debug("Creating network") *> ZIO.succeed(safePostgres.start) *> ZIO.succeed(safePostgres)
+      )((n: PostgresContainer) =>
+        ZIO.attempt(n.close()).orDie *>
+          ZIO.debug("Closing postgres")
+      ).toLayer
+    yield 
+      res
 end PostgresContainer
