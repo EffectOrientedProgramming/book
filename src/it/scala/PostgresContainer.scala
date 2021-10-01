@@ -12,6 +12,8 @@ import org.testcontainers.containers.{
   Network,
   PostgreSQLContainer
 }
+import org.testcontainers.containers.KafkaContainer
+import org.testcontainers.utility.DockerImageName
 
 class PostgresContainer()
     extends PostgreSQLContainer[
@@ -36,14 +38,54 @@ object PostgresContainer:
     Network
   ], Nothing, Has[PostgresContainer]] =
     for
-      network <- ZLayer.service[Network]
-      safePostgres = apply(initScipt, network.get[Network])
-      res <- ZManaged.acquireReleaseWith(
-        ZIO.debug("Creating postgres") *> ZIO.succeed(safePostgres.start) *> ZIO.succeed(safePostgres)
-      )((n: PostgresContainer) =>
-        ZIO.attempt(n.close()).orDie *>
-          ZIO.debug("Closing postgres")
-      ).toLayer
-    yield 
-      res
+      network <-
+        ZLayer.service[Network].map(_.get)
+      safePostgres = apply(initScipt, network)
+      res <-
+        ZManaged
+          .acquireReleaseWith(
+            ZIO.debug("Creating postgres") *>
+              ZIO.succeed(safePostgres.start) *>
+              ZIO.succeed(safePostgres)
+          )((n: PostgresContainer) =>
+            ZIO.attempt(n.close()).orDie *>
+              ZIO.debug("Closing postgres")
+          )
+          .toLayer
+    yield res
 end PostgresContainer
+
+object KafkaStuff:
+  import org.testcontainers.containers.KafkaContainer
+
+
+object KafkaContainerLocal:
+  def apply(
+      network: Network
+  ): KafkaContainer =
+    new KafkaContainer(
+      DockerImageName
+        .parse("confluentinc/cp-kafka:5.4.3")
+        .nn
+    ).nn
+
+  def construct(): ZLayer[Has[
+    Network
+  ], Nothing, Has[KafkaContainer]] =
+    for
+      network <-
+        ZLayer.service[Network].map(_.get)
+      safePostgres = apply(network)
+      res <-
+        ZManaged
+          .acquireReleaseWith(
+            ZIO.debug("Creating kafka") *>
+              ZIO.succeed(safePostgres.start) *>
+              ZIO.succeed(safePostgres)
+          )((n: KafkaContainer) =>
+            ZIO.attempt(n.close()).orDie *>
+              ZIO.debug("Closing kafka")
+          )
+          .toLayer
+    yield res
+end KafkaContainerLocal

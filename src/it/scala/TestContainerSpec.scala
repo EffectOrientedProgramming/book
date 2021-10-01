@@ -15,6 +15,7 @@ import org.testcontainers.containers.{
 }
 
 import io.getquill._
+import mdoc.QuillLocal.AppPostgresContext
 
 case class Person(
     firstName: String,
@@ -22,59 +23,82 @@ case class Person(
     age: Int
 )
 
-object MyApp:
-  def quillStuff(
-      exposedPort: Int,
-      username: String,
-      password: String
-  ): List[Person] =
-    import com.zaxxer.hikari.{
-      HikariConfig,
-      HikariDataSource
-    }
+object QuillLocal:
+  type AppPostgresContext =
+    PostgresJdbcContext[
+      io.getquill.LowerCase.type
+    ]
+  def configFromContainer(
+      container: PostgresContainer
+  ) =
     val pgDataSource =
       new org.postgresql.ds.PGSimpleDataSource()
+
+    val exposedPort =
+      container.getMappedPort(5432).nn
+    val username = container.getUsername.nn
+    val password = container.getPassword.nn
     pgDataSource.setUser(username)
     pgDataSource
       .setPortNumbers(Array(exposedPort))
     pgDataSource.setPassword(password)
+    import com.zaxxer.hikari.HikariConfig
     val config = new HikariConfig()
     config.setDataSource(pgDataSource)
-    // TODO Should this PostgresJdbcContext be another Resource type?
-    val ctx =
-      new PostgresJdbcContext(
-        LowerCase,
-        new HikariDataSource(config)
-      )
+    config
 
-    // SnakeCase turns firstName -> first_name
-    // val ctx = new
-    // PostgresJdbcContext(SnakeCase, "")
-    import ctx._
+  val quillPostgresContext: ZLayer[Has[
+    PostgresContainer
+  ], Nothing, Has[AppPostgresContext]] =
+    ZLayer
+      .service[PostgresContainer]
+      .map(_.get)
+      .flatMap {
+        (safePostgres: PostgresContainer) =>
+          import com.zaxxer.hikari.HikariDataSource
 
-    val named = "Joe"
-    inline def somePeople =
-      quote {
-        query[Person].filter(p =>
-          p.firstName == lift(named)
-        )
+          val config =
+            configFromContainer(safePostgres)
+          ZLayer.succeed(
+            new PostgresJdbcContext(
+              LowerCase,
+              new HikariDataSource(config)
+            )
+          )
       }
-    val people: List[Person] = run(somePeople)
-    // TODO Get SQL
-    people
-  end quillStuff
-end MyApp
+
+  val quillQuery: ZIO[Has[
+    AppPostgresContext
+  ], Nothing, List[Person]] =
+    for
+      ctx <- ZIO.service[AppPostgresContext]
+    yield
+      import ctx._
+
+      val named = "Joe"
+      inline def somePeople =
+        quote {
+          query[Person].filter(p =>
+            p.firstName == lift(named)
+          )
+        }
+      val people: List[Person] = run(somePeople)
+      // TODO Get SQL
+      people
+end QuillLocal
 
 object ManagedTestInstances:
-  lazy val networkLayer: ZLayer[Any, Nothing, Has[Network]] =
-    ZManaged.acquireReleaseWith(
-      ZIO.debug("Creating network") *> ZIO.succeed(Network.newNetwork().nn)
-    )((n: Network) =>
-      ZIO.attempt(n.close()).orDie *>
-        ZIO.debug("Closing network")
-    ).toLayer
-
-
+  lazy val networkLayer
+      : ZLayer[Any, Nothing, Has[Network]] =
+    ZManaged
+      .acquireReleaseWith(
+        ZIO.debug("Creating network") *>
+          ZIO.succeed(Network.newNetwork().nn)
+      )((n: Network) =>
+        ZIO.attempt(n.close()).orDie *>
+          ZIO.debug("Closing network")
+      )
+      .toLayer
 
 // TODO Figure out fi
 // TESTCONTAINERS_RYUK_DISABLED=true is a
@@ -84,42 +108,30 @@ object ManagedTestInstances:
 object TestContainersSpec
     extends DefaultRunnableSpec:
 
+  import zio.durationInt
+
   def spec =
     suite("mdoc.MdocHelperSpec")(
-      test(
-        "With managed layer"
-      ) {
-        // TODO 
-        val logic: ZIO[Has[PostgresContainer] & Has[TestConsole], Throwable, BoolAlgebra[AssertionResult]] = 
+      test("With managed layer") {
+        // TODO
+        val logic =
           for
-            safePostgres <- ZIO.service[PostgresContainer]
-
-            people <-
-              ZIO.attempt {
-                MyApp.quillStuff(
-                  safePostgres
-                    .getMappedPort(5432)
-                    .nn,
-                  safePostgres
-                    .getUsername
-                    .nn,
-                  safePostgres
-                    .getPassword
-                    .nn
-                )
-              }
+            people <- QuillLocal.quillQuery
+            _ <- ZIO.debug(".").repeatN(1000)
           yield assert(people)(
             equalTo(
-              List(
-                Person("Joe","Dimagio",143)
-              )
+              List(Person("Joe", "Dimagio", 143))
             )
           )
 
-        logic.provideSomeLayer[ZTestEnv](
-  ManagedTestInstances.networkLayer >>>
-              PostgresContainer
-                .construct("init.sql")
+        logic.provideSomeLayer[ZTestEnv & ZEnv](
+          ManagedTestInstances.networkLayer >>>
+            (PostgresContainer
+              .construct("init.sql") >>>
+            QuillLocal.quillPostgresContext) ++
+
+              KafkaContainerLocal
+                .construct()
         )
       }
     )
