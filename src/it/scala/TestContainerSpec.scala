@@ -33,15 +33,13 @@ object MyApp {
     // val ctx = new PostgresJdbcContext(SnakeCase, "")
     import ctx._
 
-    def main(args: Array[String]): Unit = {
-      val named = "Joe"
-      inline def somePeople = quote {
-        query[Person].filter(p => p.firstName == lift(named))
-      }
-      val people: List[Person] = run(somePeople)
-      // TODO Get SQL
-      println(people)
+    val named = "Joe"
+    inline def somePeople = quote {
+      query[Person].filter(p => p.firstName == lift(named))
     }
+    val people: List[Person] = run(somePeople)
+    // TODO Get SQL
+    println(people)
 }
 
 
