@@ -14,6 +14,37 @@ import org.testcontainers.containers.{
   Network
 }
 
+import io.getquill._
+
+object MyApp {
+  def quillStuff(exposedPort: Int, username: String, password: String) =
+    case class Person(firstName: String, lastName: String, age: Int)
+
+    import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
+    val pgDataSource = new org.postgresql.ds.PGSimpleDataSource()
+    pgDataSource.setUser(username)
+    pgDataSource.setPortNumbers(Array(exposedPort))
+    pgDataSource.setPassword(password)
+    val config = new HikariConfig()
+    config.setDataSource(pgDataSource)
+    val ctx = new PostgresJdbcContext(LowerCase, new HikariDataSource(config))
+
+    // SnakeCase turns firstName -> first_name
+    // val ctx = new PostgresJdbcContext(SnakeCase, "")
+    import ctx._
+
+    def main(args: Array[String]): Unit = {
+      val named = "Joe"
+      inline def somePeople = quote {
+        query[Person].filter(p => p.firstName == lift(named))
+      }
+      val people: List[Person] = run(somePeople)
+      // TODO Get SQL
+      println(people)
+    }
+}
+
+
 object ManagedTestInstances:
   val network =
     ZManaged
@@ -48,6 +79,11 @@ object TestContainersSpec
               )
             )
           output <- TestConsole.output
+          _ <- ZIO.attempt {
+            println("Bound port numbers: " + safePostgres.getMappedPort(5432))
+            println("Exposed ports: " + safePostgres.getExposedPorts)
+            MyApp.quillStuff(safePostgres.getMappedPort(5432).nn, safePostgres.getUsername.nn, safePostgres.getPassword.nn)
+          }
           _ <-
             printLine("With managed Network 1")
           _ <- ZIO.succeed(safePostgres.close)

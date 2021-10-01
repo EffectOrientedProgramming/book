@@ -22,6 +22,12 @@ val zioVersion = "2.0.0-M3"
 
 libraryDependencies ++=
   Seq(
+    // Syncronous JDBC Modules
+  "io.getquill" %% "quill-jdbc" % "3.7.2.Beta1.4",
+  // Or ZIO Modules
+  "io.getquill" %% "quill-jdbc-zio" % "3.7.2.Beta1.4",
+  // Postgres Async
+  "io.getquill" %% "quill-jasync-postgres" % "3.7.2.Beta1.4",
     "org.jetbrains" % "annotations-java5" %
       "22.0.0",
     "org.scalameta"      %
