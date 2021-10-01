@@ -39,7 +39,7 @@ object PostgresContainer:
       network <- ZLayer.service[Network]
       safePostgres = apply(initScipt, network.get[Network])
       res <- ZManaged.acquireReleaseWith(
-        ZIO.debug("Creating network") *> ZIO.succeed(safePostgres.start) *> ZIO.succeed(safePostgres)
+        ZIO.debug("Creating postgres") *> ZIO.succeed(safePostgres.start) *> ZIO.succeed(safePostgres)
       )((n: PostgresContainer) =>
         ZIO.attempt(n.close()).orDie *>
           ZIO.debug("Closing postgres")

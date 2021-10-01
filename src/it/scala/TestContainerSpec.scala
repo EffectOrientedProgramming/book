@@ -16,18 +16,18 @@ import org.testcontainers.containers.{
 
 import io.getquill._
 
+case class Person(
+    firstName: String,
+    lastName: String,
+    age: Int
+)
+
 object MyApp:
   def quillStuff(
       exposedPort: Int,
       username: String,
       password: String
-  ) =
-    case class Person(
-        firstName: String,
-        lastName: String,
-        age: Int
-    )
-
+  ): List[Person] =
     import com.zaxxer.hikari.{
       HikariConfig,
       HikariDataSource
@@ -40,6 +40,7 @@ object MyApp:
     pgDataSource.setPassword(password)
     val config = new HikariConfig()
     config.setDataSource(pgDataSource)
+    // TODO Should this PostgresJdbcContext be another Resource type?
     val ctx =
       new PostgresJdbcContext(
         LowerCase,
@@ -60,7 +61,7 @@ object MyApp:
       }
     val people: List[Person] = run(somePeople)
     // TODO Get SQL
-    println(people)
+    people
   end quillStuff
 end MyApp
 
@@ -89,20 +90,11 @@ object TestContainersSpec
         "With managed layer"
       ) {
         // TODO 
-        val logic = 
+        val logic: ZIO[Has[PostgresContainer] & Has[TestConsole], Throwable, BoolAlgebra[AssertionResult]] = 
           for
-            _ <-
-              mdoc.wrapUnsafeZIO(
-                ZIO.succeed(
-                  throw new MatchError(
-                    MdocSession
-                      .App
-                      .GpsException()
-                  )
-                )
-              )
             safePostgres <- ZIO.service[PostgresContainer]
-            _ <-
+
+            people <-
               ZIO.attempt {
                 MyApp.quillStuff(
                   safePostgres
@@ -116,21 +108,16 @@ object TestContainersSpec
                     .nn
                 )
               }
-            _ <-
-              ZIO.succeed(
-                safePostgres.close
-              )
-            output <- TestConsole.output
-          yield assert(output)(
+          yield assert(people)(
             equalTo(
-              Vector(
-                "Defect: class scala.MatchError\n",
-                "        GpsException\n"
+              List(
+                Person("Joe","Dimagio",143)
               )
             )
           )
 
-        logic.injectSome[ZTestEnv & ZEnv](ManagedTestInstances.networkLayer,
+        logic.provideSomeLayer[ZTestEnv](
+  ManagedTestInstances.networkLayer >>>
               PostgresContainer
                 .construct("init.sql")
         )
