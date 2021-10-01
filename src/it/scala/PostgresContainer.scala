@@ -55,9 +55,7 @@ object PostgresContainer:
     yield res
 end PostgresContainer
 
-object KafkaStuff:
-  import org.testcontainers.containers.KafkaContainer
-
+import org.testcontainers.containers.KafkaContainer
 
 object KafkaContainerLocal:
   def apply(
@@ -88,4 +86,4 @@ object KafkaContainerLocal:
           )
           .toLayer
     yield res
-end KafkaContainerLocal
+end KafkaContainerLocal 
