@@ -64,23 +64,23 @@ class FakeRandom(i: Int) extends Random:
   override def nextBoolean: UIO[Boolean] = ???
   override def nextBytes(
       length: => Int
-  ): UIO[Chunk[Byte]]                  = ???
+  ): UIO[Chunk[Byte]] = ???
   override def nextDouble: UIO[Double] = ???
   override def nextDoubleBetween(
       minInclusive: => Double,
       maxExclusive: => Double
-  ): UIO[Double]                     = ???
+  ): UIO[Double] = ???
   override def nextFloat: UIO[Float] = ???
   override def nextFloatBetween(
       minInclusive: => Float,
       maxExclusive: => Float
-  ): UIO[Float]                          = ???
+  ): UIO[Float] = ???
   override def nextGaussian: UIO[Double] = ???
   override def nextInt: UIO[Int]         = ???
   override def nextIntBetween(
       minInclusive: => Int,
       maxExclusive: => Int
-  ): UIO[Int]                      = ???
+  ): UIO[Int] = ???
   override def nextLong: UIO[Long] = ???
   override def nextLongBetween(
       minInclusive: => Long,
@@ -88,7 +88,7 @@ class FakeRandom(i: Int) extends Random:
   ): UIO[Long] = ???
   override def nextLongBounded(
       n: => Long
-  ): UIO[Long]                              = ???
+  ): UIO[Long] = ???
   override def nextPrintableChar: UIO[Char] = ???
   override def nextString(
       length: => Int

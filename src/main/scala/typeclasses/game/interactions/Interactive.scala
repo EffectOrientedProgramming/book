@@ -4,7 +4,8 @@ import typeclasses.game.{Hero, Monster}
 
 trait Interactive[A, B]:
 
-  extension (a: A) def interactWith(b: B): (A, B)
+  extension (a: A)
+    def interactWith(b: B): (A, B)
 
 given Interactive[Hero, Monster] with
 
