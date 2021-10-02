@@ -40,7 +40,8 @@ object PostgresContainer:
         ZLayer.service[Network].map(_.get)
       safePostgres = apply(initScipt, network)
       res <-
-        GenericInteractions.manage(safePostgres, "postgres")
+        GenericInteractions
+          .manage(safePostgres, "postgres")
           .toLayer
     yield res
 end PostgresContainer

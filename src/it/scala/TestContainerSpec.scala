@@ -23,7 +23,6 @@ case class Person(
     age: Int
 )
 
-
 object ManagedTestInstances:
   lazy val networkLayer
       : ZLayer[Any, Nothing, Has[Network]] =
@@ -63,7 +62,8 @@ object TestContainersSpec
         logic.provideSomeLayer[ZTestEnv & ZEnv](
           (ManagedTestInstances.networkLayer >>>
             (PostgresContainer
-              .construct("init.sql") ++ KafkaContainerZ.construct()) )>>>
+              .construct("init.sql") ++
+              KafkaContainerZ.construct())) >>>
             (QuillLocal.quillPostgresContext)
         )
       }
