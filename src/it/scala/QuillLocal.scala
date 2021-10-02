@@ -88,11 +88,6 @@ object MockServerClient:
       mockServerContainer <-
         ZIO.service[MockServerContainer]
       _ <-
-        ZIO.debug(
-          "MockserverHost: " +
-            mockServerContainer.getHost
-        )
-      _ <-
         ZIO.attempt {
           import sttp.client3._
           val backend =
@@ -105,7 +100,8 @@ object MockServerClient:
               )
               .send(backend)
 
-          println(response.body)
+          response.body.foreach(personData => println("Data from mockWebServer: " + personData))
+          
         }
     yield ()
 end MockServerClient

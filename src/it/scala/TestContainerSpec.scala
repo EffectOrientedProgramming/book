@@ -53,9 +53,11 @@ object TestContainersSpec
         val logic =
           for
             people <- QuillLocal.quillQuery
+            person = people.head
+            _ <- printLine("Person retrieved from Postgres: " + person)
             _ <-
               MockServerClient
-                .citizenInfo(people.head)
+                .citizenInfo(person)
           yield assert(people)(
             equalTo(
               List(Person("Joe", "Dimagio", 143))

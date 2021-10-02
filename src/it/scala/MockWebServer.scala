@@ -40,7 +40,7 @@ object MockServerContainerZ:
             response()
               .nn
               .withBody(
-                "Joe the baseball player!"
+                "Joe is a baseball player!"
               )
               .nn
           );
