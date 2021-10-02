@@ -78,3 +78,34 @@ object QuillLocal:
       people
 
 end QuillLocal
+
+import org.testcontainers.containers.MockServerContainer
+object MockServerClient:
+  def citizenInfo(person: Person): ZIO[Has[
+    MockServerContainer
+  ], Throwable, Unit] =
+    for
+      mockServerContainer <-
+        ZIO.service[MockServerContainer]
+      _ <-
+        ZIO.debug(
+          "MockserverHost: " +
+            mockServerContainer.getHost
+        )
+      _ <-
+        ZIO.attempt {
+          import sttp.client3._
+          val backend =
+            HttpURLConnectionBackend()
+          val response =
+            basicRequest
+              .body("Hello, world!")
+              .get(
+                uri"http://${mockServerContainer.getHost()}:${mockServerContainer.getServerPort().nn}/person?name=${person.firstName}"
+              )
+              .send(backend)
+
+          println(response.body)
+        }
+    yield ()
+end MockServerClient

@@ -30,6 +30,22 @@ object GenericInteractions:
       ZIO.attempt(n.close()).orDie *>
         ZIO.debug(s"Closing $containerType")
     )
+
+  def manageWithInitialization[
+      T <: GenericContainer[T]
+  ](
+      c: T,
+      containerType: String,
+      initialize: T => ZIO[Any, Throwable, Unit]
+  ) =
+    ZManaged.acquireReleaseWith(
+      ZIO.debug(s"Creating $containerType") *>
+        interactWith(c, containerType) *>
+        initialize(c) *> ZIO.succeed(c)
+    )((n: T) =>
+      ZIO.attempt(n.close()).orDie *>
+        ZIO.debug(s"Closing $containerType")
+    )
 end GenericInteractions
 
 object KafkaContainerZ:

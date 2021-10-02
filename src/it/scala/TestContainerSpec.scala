@@ -53,18 +53,27 @@ object TestContainersSpec
         val logic =
           for
             people <- QuillLocal.quillQuery
+            _ <-
+              MockServerClient
+                .citizenInfo(people.head)
           yield assert(people)(
             equalTo(
               List(Person("Joe", "Dimagio", 143))
             )
           )
-
-        logic.provideSomeLayer[ZTestEnv & ZEnv](
+        import org.testcontainers.containers.MockServerContainer
+        val layer =
           (ManagedTestInstances.networkLayer >>>
             (PostgresContainer
               .construct("init.sql") ++
               KafkaContainerZ.construct())) >>>
-            (QuillLocal.quillPostgresContext)
+            (QuillLocal.quillPostgresContext) ++
+            (ManagedTestInstances
+              .networkLayer >>>
+              MockServerContainerZ.construct())
+
+        logic.provideSomeLayer[ZTestEnv & ZEnv](
+          layer
         )
       }
     )
