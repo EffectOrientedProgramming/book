@@ -61,13 +61,10 @@ object TestContainersSpec
           )
 
         logic.provideSomeLayer[ZTestEnv & ZEnv](
-          ManagedTestInstances.networkLayer >>>
+          (ManagedTestInstances.networkLayer >>>
             (PostgresContainer
-              .construct("init.sql") >>>
-            QuillLocal.quillPostgresContext) ++
-
-              KafkaContainerZ
-                .construct()
+              .construct("init.sql") ++ KafkaContainerZ.construct()) )>>>
+            (QuillLocal.quillPostgresContext)
         )
       }
     )
