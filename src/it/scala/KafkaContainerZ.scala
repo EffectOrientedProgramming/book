@@ -12,43 +12,39 @@ import org.testcontainers.containers.{
   Network,
   PostgreSQLContainer
 }
+import org.testcontainers.containers.KafkaContainer
+import org.testcontainers.utility.DockerImageName
 
-class PostgresContainer()
-    extends PostgreSQLContainer[
-      PostgresContainer
-    ]("postgres:13.1")
 
-object PostgresContainer:
+import org.testcontainers.containers.KafkaContainer
+
+object KafkaContainerZ:
   def apply(
-      initScript: String,
       network: Network
-  ): PostgresContainer =
-    new PostgresContainer()
-      .nn
-      .withInitScript(initScript)
-      .nn
-      .withNetwork(network)
-      .nn
-      .withNetworkAliases("postgres")
-      .nn
+  ): KafkaContainer =
+    new KafkaContainer(
+      DockerImageName
+        .parse("confluentinc/cp-kafka:5.4.3")
+        .nn
+    ).nn
 
-  def construct(initScipt: String): ZLayer[Has[
+  def construct(): ZLayer[Has[
     Network
-  ], Nothing, Has[PostgresContainer]] =
+  ], Nothing, Has[KafkaContainer]] =
     for
       network <-
         ZLayer.service[Network].map(_.get)
-      safePostgres = apply(initScipt, network)
+      safePostgres = apply(network)
       res <-
         ZManaged
           .acquireReleaseWith(
-            ZIO.debug("Creating postgres") *>
+            ZIO.debug("Creating kafka") *>
               ZIO.succeed(safePostgres.start) *>
               ZIO.succeed(safePostgres)
-          )((n: PostgresContainer) =>
+          )((n: KafkaContainer) =>
             ZIO.attempt(n.close()).orDie *>
-              ZIO.debug("Closing postgres")
+              ZIO.debug("Closing kafka")
           )
           .toLayer
     yield res
-end PostgresContainer
+end KafkaContainerZ 

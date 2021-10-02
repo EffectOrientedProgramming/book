@@ -66,7 +66,7 @@ object TestContainersSpec
               .construct("init.sql") >>>
             QuillLocal.quillPostgresContext) ++
 
-              KafkaContainerLocal
+              KafkaContainerZ
                 .construct()
         )
       }
