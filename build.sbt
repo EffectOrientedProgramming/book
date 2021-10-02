@@ -44,9 +44,9 @@ libraryDependencies ++=
     "io.circe"  % "circe-core_3"  % "0.15.0-M1",
     "io.circe" %% "circe-generic" % "0.15.0-M1",
     "com.softwaremill.sttp.client3" %% "circe" %
-      "3.3.14",
+      "3.3.15",
     "com.softwaremill.sttp.client3" %% "core" %
-      "3.3.14",
+      "3.3.15",
 
     "org.testcontainers"    % "testcontainers"            % "1.16.0" % "it,test",
     "org.testcontainers"    % "postgresql"            % "1.16.0" % "it,test",
