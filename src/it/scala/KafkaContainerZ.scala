@@ -8,6 +8,21 @@ import org.testcontainers.containers.{
 import org.testcontainers.containers.KafkaContainer
 import org.testcontainers.utility.DockerImageName
 
+object GenericInteractions:
+  def interactWith[T <: GenericContainer[T]](c: T, containerType: String) =
+    ZIO.blocking(ZIO.succeed(c.start)) *> ZIO.debug(s"Finished blocking during $containerType container creation")
+
+  def manage[T <: GenericContainer[T]](c: T, containerType: String) =
+    ZManaged
+      .acquireReleaseWith(
+        ZIO.debug(s"Creating $containerType") *>
+          interactWith(c, containerType) *>
+          ZIO.succeed(c)
+      )((n: T) =>
+        ZIO.attempt(n.close()).orDie *>
+          ZIO.debug(s"Closing $containerType")
+      )
+
 object KafkaContainerZ:
   def apply(
       network: Network
@@ -24,17 +39,9 @@ object KafkaContainerZ:
     for
       network <-
         ZLayer.service[Network].map(_.get)
-      safePostgres = apply(network)
+      container = apply(network)
       res <-
-        ZManaged
-          .acquireReleaseWith(
-            ZIO.debug("Creating kafka!") *>
-              ZIO.succeed(safePostgres.start) *>
-              ZIO.succeed(safePostgres)
-          )((n: KafkaContainer) =>
-            ZIO.attempt(n.close()).orDie *>
-              ZIO.debug("Closing kafka")
-          )
+          GenericInteractions.manage(container, "kafka")
           .toLayer
     yield res
 end KafkaContainerZ 
