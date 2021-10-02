@@ -32,7 +32,7 @@ libraryDependencies ++=
     "org.jetbrains" % "annotations-java5" %
       "22.0.0",
     "org.scalameta"      %
-      "scalafmt-dynamic" % "3.0.5" cross
+      "scalafmt-dynamic" % "3.0.6" cross
       CrossVersion.for3Use2_13,
     "dev.zio"     %% "zio"    % zioVersion,
     "com.typesafe" % "config" % "1.4.1",
