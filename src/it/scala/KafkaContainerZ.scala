@@ -16,24 +16,17 @@ import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import java.time.Instant
 import org.apache.kafka.common.TopicPartition
+import org.apache.kafka.clients.producer.RecordMetadata
+import scala.concurrent.java8.FuturesConvertersImpl.P
 
 object GenericInteractions:
-  def interactWith[T <: GenericContainer[T]](
-      c: T,
-      containerType: String
-  ) =
-    ZIO.blocking(ZIO.succeed(c.start)) *>
-      ZIO.debug(
-        s"Finished blocking during $containerType container creation"
-      )
-
   def manage[T <: GenericContainer[T]](
       c: T,
       containerType: String
   ) =
     ZManaged.acquireReleaseWith(
       ZIO.debug(s"Creating $containerType") *>
-        interactWith(c, containerType) *>
+        start(c, containerType) *>
         ZIO.succeed(c)
     )((n: T) =>
       ZIO.attempt(n.close()).orDie *>
@@ -45,16 +38,26 @@ object GenericInteractions:
   ](
       c: T,
       containerType: String,
-      initialize: T => ZIO[Any, Throwable, Unit]
+      initialize: T => ZIO[Any, Throwable, Unit] = (_: T) => ZIO.unit
   ) =
     ZManaged.acquireReleaseWith(
       ZIO.debug(s"Creating $containerType") *>
-        interactWith(c, containerType) *>
+        start(c, containerType) *>
         initialize(c) *> ZIO.succeed(c)
     )((n: T) =>
       ZIO.attempt(n.close()).orDie *>
         ZIO.debug(s"Closing $containerType")
     )
+
+  private def start[T <: GenericContainer[T]](
+      c: T,
+      containerType: String
+  ) =
+    ZIO.blocking(ZIO.succeed(c.start)) *>
+      ZIO.debug(
+        s"Finished blocking for $containerType container creation"
+      )
+
 end GenericInteractions
 
 object KafkaContainerZ:
@@ -67,15 +70,16 @@ object KafkaContainerZ:
 
   def construct(): ZLayer[Has[
     Network
-  ], Throwable, Has[KafkaContainer]] =
+  ] & Has[NetworkAwareness], Throwable, Has[KafkaContainer]] =
     for
       network <-
         ZLayer.service[Network].map(_.get)
+      localHostName <- NetworkAwareness.localHostName.toLayer.map(_.get)
       container = apply(network)
       // _ <- container.getBootstrapServers
       res <-
         GenericInteractions
-          .manageWithInitialization(container, "kafka", KafkaInitialization.initialize)
+          .manageWithInitialization(container, "kafka", KafkaInitialization.initialize(_, localHostName))
           .toLayer
     yield res
 end KafkaContainerZ
@@ -83,10 +87,9 @@ end KafkaContainerZ
 object KafkaInitialization:
   import zio.durationInt
   val topicName = "person_events"
-  def initialize(kafkaContainer: KafkaContainer): ZIO[Any, Throwable, Unit] = for {
+  def initialize(kafkaContainer: KafkaContainer, localHostname: String): ZIO[Any, Throwable, Unit] = for {
     container <-
       ZIO.attempt {
-      println("Initializing kafka...")
       val properties = new java.util.Properties()
 
       import org.apache.kafka.clients.admin.AdminClientConfig
@@ -94,6 +97,7 @@ object KafkaInitialization:
       properties.put(
         AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaContainer.getBootstrapServers()
       );
+      properties.put("client.id", localHostname)
       val partitions = 1
       val replicationFactor: Short = 1
       val newTopic = new NewTopic(topicName, partitions, replicationFactor);
@@ -102,53 +106,105 @@ object KafkaInitialization:
       import scala.jdk.CollectionConverters._
       admin.createTopics(List(newTopic).asJava).nn
     }
-    submittedMsgMetaData <- UseKafka.submitMessage("Content!", topicName, kafkaContainer)
-    fiber <- UseKafka.consumeMessage(topicName, kafkaContainer).fork
-    _ <- ZIO.debug("submittedMsgMetaData: " + submittedMsgMetaData)
-    _ <- fiber.join
-    // _ <- ZIO.sleep(2.seconds)
-    _ <- UseKafka.consumeMessage(topicName, kafkaContainer)
   } yield ()
-object UseKafka:
+
+class KafkaProducerZ(rawProducer: KafkaProducer[String, String]):
   import scala.jdk.CollectionConverters._
-  def submitMessage(content: String, topicName: String, kafkaContainer: KafkaContainer) = {
-    val config = new java.util.Properties().nn
-    config.put("client.id", InetAddress.getLocalHost().nn.getHostName().nn)
-    config.put("bootstrap.servers", kafkaContainer.getBootstrapServers.nn)
-    config.put("acks", "all")
-    config.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer")
-    config.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer")
-    val producer = new KafkaProducer[String, String](config)
+  def submit(key: String, value: String, topicName: String): Task[RecordMetadata] = {
     val partition = 0 
     val timestamp = Instant.now().nn.toEpochMilli
-    val key = "keyX"
-    val value = content
     import org.apache.kafka.common.header.Header
     val  headers: List[Header] = List.empty
-
     
     ZIO.fromFutureJava(
-      producer.send(new ProducerRecord(topicName, partition, timestamp, key, value, headers.asJava)).nn
+      rawProducer.send(new ProducerRecord(topicName, partition, timestamp, key, value, headers.asJava)).nn
     )
   }
 
-  def consumeMessage(topicName: String, kafkaContainer: KafkaContainer) = ZIO.blocking{
+  private var numberOfSubmissions = 0
+  private val maxSubmissions = 10
 
-    ZIO.debug("About to consume") *>
-    ZIO.attempt {
+  def submitForever(key: String, value: String, topicName: String): Task[Unit] = {
+    val partition = 0 
+    val timestamp = Instant.now().nn.toEpochMilli
+    import org.apache.kafka.common.header.Header
+    val  headers: List[Header] = List.empty
+    
+    ZIO.fromFutureJava(
+      rawProducer.send(new ProducerRecord(topicName, partition, timestamp, key + numberOfSubmissions, value + numberOfSubmissions, headers.asJava)).nn
+    )
+  } *> 
+  ( if numberOfSubmissions < maxSubmissions then
+      numberOfSubmissions = numberOfSubmissions + 1
+      ZIO.blocking { ZIO.attempt{ Thread.sleep(1000)} } *> submitForever(key, value, topicName)
+    else 
+      ZIO.unit)
+
+class KafkaConsumerZ(rawConsumer: KafkaConsumer[String, String]):
+  // TODO Handle closing underlying consumer
+  def poll() =  ZIO.attempt{
+      import java.time.Duration
+      // consumer.seek(new TopicPartition(topicName, 0).nn)
+      for (i <- Range(1, 5)) {
+        println("Consuming loop: " + i)
+        val records: ConsumerRecords[String, String]  = rawConsumer.poll(Duration.ofSeconds(1).nn).nn
+        records.forEach { record => println("Consumed record: " + record.nn.value)}
+      }
+  }
+
+  private var numberOfPolls = 0
+  private val maxPolls = 10
+  def pollForever(): ZIO[Any, Throwable, Unit] =  ZIO.attempt{
+      import java.time.Duration
+      // consumer.seek(new TopicPartition(topicName, 0).nn)
+      println("Polling forever")
+      val records: ConsumerRecords[String, String]  = rawConsumer.poll(Duration.ofSeconds(1).nn).nn
+      records.forEach { record => println("Consumed record: " + record.nn.value)}
+  } *> 
+    (if numberOfPolls < maxPolls then
+      numberOfPolls = numberOfPolls + 1
+      pollForever()
+    else
+      ZIO.unit)
+end KafkaConsumerZ
+
+object UseKafka:
+  import scala.jdk.CollectionConverters._
+
+  def createProducer(): ZIO[Has[KafkaContainer], Nothing, KafkaProducerZ] = 
+    for {
+      kafkaContainer <- ZIO.service[KafkaContainer]
+    } yield {
+        val config = new java.util.Properties().nn
+        config.put("client.id", InetAddress.getLocalHost().nn.getHostName().nn)
+        config.put("bootstrap.servers", kafkaContainer.getBootstrapServers.nn)
+        config.put("acks", "all")
+        config.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer")
+        config.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer")
+        KafkaProducerZ(new KafkaProducer[String, String](config))
+    }
+
+  def createConsumer(topicName: String) = 
+    for {
+      kafkaContainer <- ZIO.service[KafkaContainer]
+    } yield
+    {
       val config = new java.util.Properties().nn
       config.put("client.id", InetAddress.getLocalHost().nn.getHostName().nn);
       config.put("group.id", "foo");
       config.put("bootstrap.servers", kafkaContainer.getBootstrapServers.nn)
+      println("BootstopServers: " + kafkaContainer.getBootstrapServers.nn)
+      config.put("max.poll.records", "1")
+      config.put("auto_offset_rest","earliest")
+      
+      config.put("enable.auto.commit", "true");
+      config.put("auto.commit.interval.ms", "500");
+      config.put("session.timeout.ms", "30000");
+      config.put("enable.partition.eof", "false");
       config.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer")
       config.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer")
       val consumer = new KafkaConsumer[String, String](config)
       consumer.subscribe(List(topicName).asJava)
-      consumer.seekToBeginning(List(new TopicPartition(topicName, 1).nn).asJava)
-      import java.time.Duration
-      // consumer.seek(new TopicPartition(topicName, 0).nn)
-      val records: ConsumerRecords[String, String]  = consumer.poll(Duration.ofSeconds(15).nn).nn
-      records.forEach { record => println("Consumed record: " + record.nn.value)}
-      consumer.close
-    }
+      // consumer.seekToBeginning(List(new TopicPartition(topicName, 1).nn).asJava)
+      KafkaConsumerZ(consumer)
   }

@@ -16,6 +16,7 @@ import org.testcontainers.containers.{
 
 import io.getquill._
 import mdoc.QuillLocal.AppPostgresContext
+import org.testcontainers.containers.KafkaContainer
 
 case class Person(
     firstName: String,
@@ -35,6 +36,25 @@ object ManagedTestInstances:
           ZIO.debug("Closing network")
       )
       .toLayer
+
+  // lazy val networkAwareness = ???
+
+trait NetworkAwareness:
+  val localHostName: Task[String]
+
+object NetworkAwareness:
+  val localHostName: ZIO[Has[NetworkAwareness], Throwable, String] =
+    ZIO.serviceWith(_.localHostName)
+
+  val live: Layer[Nothing, Has[NetworkAwareness]] =
+    ZLayer.succeed(NetworkAwarenessLive)
+
+
+object NetworkAwarenessLive extends NetworkAwareness:
+  import java.net.InetAddress
+  val localHostName = ZIO.attempt {
+    InetAddress.getLocalHost().nn.getHostName().nn
+  }
 
 // TODO Figure out fi
 // TESTCONTAINERS_RYUK_DISABLED=true is a
@@ -58,21 +78,25 @@ object TestContainersSpec
             _ <-
               MockServerClient
                 .citizenInfo(person)
+            personEventConsumer <- UseKafka.createConsumer( "person_event")
+            consumingPoller <- personEventConsumer.pollForever().fork
+            personEventProducer <- UseKafka.createProducer()
+            _ <- personEventProducer.submitForever("keyX", "valueX", "person_event")
+            _ <- consumingPoller.join
           yield assert(people)(
             equalTo(
               List(Person("Joe", "Dimagio", 143))
             )
           )
         import org.testcontainers.containers.MockServerContainer
+
         val layer =
-          (ManagedTestInstances.networkLayer >>>
+          ((ManagedTestInstances.networkLayer ++ NetworkAwareness.live) >+>
             (PostgresContainer
               .construct("init.sql") ++
-              KafkaContainerZ.construct())) >>>
+              KafkaContainerZ.construct())) >+>
             (QuillLocal.quillPostgresContext) ++
-            (ManagedTestInstances
-              .networkLayer >>>
-              MockServerContainerZ.construct())
+            (MockServerContainerZ.construct())
 
         logic.provideSomeLayer[ZTestEnv & ZEnv](
           layer
