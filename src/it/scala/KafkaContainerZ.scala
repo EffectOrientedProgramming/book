@@ -15,6 +15,7 @@ import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import java.time.Instant
+import org.apache.kafka.common.TopicPartition
 
 object GenericInteractions:
   def interactWith[T <: GenericContainer[T]](
@@ -80,6 +81,7 @@ object KafkaContainerZ:
 end KafkaContainerZ
 
 object KafkaInitialization:
+  import zio.durationInt
   val topicName = "person_events"
   def initialize(kafkaContainer: KafkaContainer): ZIO[Any, Throwable, Unit] = for {
     container <-
@@ -98,12 +100,14 @@ object KafkaInitialization:
 
       val admin = Admin.create(properties).nn
       import scala.jdk.CollectionConverters._
-      admin.createTopics(List(newTopic).asJava)
+      admin.createTopics(List(newTopic).asJava).nn
     }
     submittedMsgMetaData <- UseKafka.submitMessage("Content!", topicName, kafkaContainer)
     fiber <- UseKafka.consumeMessage(topicName, kafkaContainer).fork
     _ <- ZIO.debug("submittedMsgMetaData: " + submittedMsgMetaData)
     _ <- fiber.join
+    // _ <- ZIO.sleep(2.seconds)
+    _ <- UseKafka.consumeMessage(topicName, kafkaContainer)
   } yield ()
 object UseKafka:
   import scala.jdk.CollectionConverters._
@@ -140,8 +144,10 @@ object UseKafka:
       config.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer")
       val consumer = new KafkaConsumer[String, String](config)
       consumer.subscribe(List(topicName).asJava)
+      consumer.seekToBeginning(List(new TopicPartition(topicName, 1).nn).asJava)
       import java.time.Duration
-      val records: ConsumerRecords[String, String]  = consumer.poll(Duration.ofSeconds(5).nn).nn
+      // consumer.seek(new TopicPartition(topicName, 0).nn)
+      val records: ConsumerRecords[String, String]  = consumer.poll(Duration.ofSeconds(15).nn).nn
       records.forEach { record => println("Consumed record: " + record.nn.value)}
       consumer.close
     }
