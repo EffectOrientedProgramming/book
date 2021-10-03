@@ -96,7 +96,7 @@ object TestContainersSpec
               .construct("init.sql") ++
               KafkaContainerZ.construct())) >+>
             (QuillLocal.quillPostgresContext) ++
-            (MockServerContainerZ.construct())
+            (MockServerContainerZ.construct(List(RequestResponsePair("Joe", "Joe is a dynamic baseball player!"))))
 
         logic.provideSomeLayer[ZTestEnv & ZEnv](
           layer

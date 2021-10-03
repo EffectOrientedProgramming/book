@@ -79,6 +79,7 @@ object QuillLocal:
 
 end QuillLocal
 
+// TODO Move to appropriate file
 import org.testcontainers.containers.MockServerContainer
 object MockServerClient:
   def citizenInfo(person: Person): ZIO[Has[
@@ -96,7 +97,7 @@ object MockServerClient:
             basicRequest
               .body("Hello, world!")
               .get(
-                uri"http://${mockServerContainer.getHost()}:${mockServerContainer.getServerPort().nn}/person?name=${person.firstName}"
+                uri"http://${mockServerContainer.getHost()}:${mockServerContainer.getServerPort().nn}/person/${person.firstName}"
               )
               .send(backend)
 

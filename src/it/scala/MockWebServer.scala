@@ -11,40 +11,40 @@ import org.mockserver.client.MockServerClient
 import org.mockserver.model.HttpRequest.request;
 import org.mockserver.model.HttpResponse.response;
 
+case class RequestResponsePair(
+    userRequest: String,
+    response: String
+)
 object MockServerContainerZ:
-  val mockSetup: (
-      MockServerContainer => ZIO[
+  val mockSetup: 
+      (MockServerContainer, List[RequestResponsePair]) => ZIO[
         Any,
         Throwable,
         Unit
       ]
-  ) =
-    mockServer =>
+   =
+    (mockServer, requestResponsePairs) =>
       ZIO.attempt {
+        requestResponsePairs.foreach { case RequestResponsePair(userName, userResponse) =>
         new MockServerClient(
           mockServer.getHost(),
           mockServer.getServerPort().nn
         ).when(
             request()
               .nn
-              .withPath("/person")
-              .nn
-              .withQueryStringParameter(
-                "name",
-                "Joe"
-              )
+              .withPath(s"/person/$userName")
               .nn
           )
           .nn
           .respond(
             response()
               .nn
-              .withBody(
-                "Joe is a baseball player!"
-              )
+              .withBody(userResponse)
               .nn
           );
       }
+    }
+
   def apply(
       network: Network,
       version: String = "latest"
@@ -59,7 +59,7 @@ object MockServerContainerZ:
       ).nn
     container
 
-  def construct(): ZLayer[Has[
+  def construct(pairs: List[RequestResponsePair]): ZLayer[Has[
     Network
   ], Throwable, Has[MockServerContainer]] =
     for
@@ -71,7 +71,7 @@ object MockServerContainerZ:
           .manageWithInitialization(
             container,
             "mockserver",
-            mockSetup
+            mockSetup(_, pairs)
           )
           .toLayer
     yield res
