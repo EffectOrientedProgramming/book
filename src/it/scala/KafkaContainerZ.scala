@@ -7,6 +7,12 @@ import org.testcontainers.containers.{
 }
 import org.testcontainers.containers.KafkaContainer
 import org.testcontainers.utility.DockerImageName
+import org.apache.kafka.clients.admin.NewTopic
+import fansi.Str
+import java.net.InetAddress
+import org.apache.kafka.clients.producer.KafkaProducer
+import org.apache.kafka.clients.producer.ProducerRecord
+import java.time.Instant
 
 object GenericInteractions:
   def interactWith[T <: GenericContainer[T]](
@@ -58,14 +64,56 @@ object KafkaContainerZ:
 
   def construct(): ZLayer[Has[
     Network
-  ], Nothing, Has[KafkaContainer]] =
+  ], Throwable, Has[KafkaContainer]] =
     for
       network <-
         ZLayer.service[Network].map(_.get)
       container = apply(network)
+      // _ <- container.getBootstrapServers
       res <-
         GenericInteractions
-          .manage(container, "kafka")
+          .manageWithInitialization(container, "kafka", KafkaInitialization.initialize)
           .toLayer
     yield res
 end KafkaContainerZ
+
+object KafkaInitialization:
+  def initialize(kafkaContainer: KafkaContainer): ZIO[Any, Throwable, Unit] = ZIO.attempt {
+    val properties = new java.util.Properties()
+
+    import org.apache.kafka.clients.admin.AdminClientConfig
+    import org.apache.kafka.clients.admin.Admin
+    properties.put(
+      AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaContainer.getBootstrapServers()
+    );
+    val partitions = 3
+    val replicationFactor: Short = 1
+    val newTopic = new NewTopic("person_events", partitions, replicationFactor);
+
+    val admin = Admin.create(properties).nn
+    import scala.jdk.CollectionConverters._
+    admin.createTopics(List(newTopic).asJava)
+    UseKafka.submitMessage("Content!", kafkaContainer)
+  }
+
+object UseKafka:
+  def submitMessage(content: String, kafkaContainer: KafkaContainer) = {
+    import scala.jdk.CollectionConverters._
+    val config = new java.util.Properties().nn
+    config.put("client.id", InetAddress.getLocalHost().nn.getHostName().nn)
+    config.put("bootstrap.servers", kafkaContainer.getBootstrapServers.nn)
+    config.put("acks", "all")
+    config.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer")
+    config.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer")
+    val producer = new KafkaProducer[String, String](config)
+    val topic = "person_events" 
+    val partition = 0 
+    val timestamp = Instant.now().nn.toEpochMilli
+    val key = "keyX"
+    val value = content
+    import org.apache.kafka.common.header.Header
+    val  headers: List[Header] = List.empty
+
+    
+    producer.send(new ProducerRecord(topic, partition, timestamp, key, value, headers.asJava))
+  }
