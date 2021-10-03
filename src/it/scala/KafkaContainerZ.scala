@@ -12,6 +12,8 @@ import fansi.Str
 import java.net.InetAddress
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord
+import org.apache.kafka.clients.consumer.KafkaConsumer
+import org.apache.kafka.clients.consumer.ConsumerRecords
 import java.time.Instant
 
 object GenericInteractions:
@@ -78,27 +80,34 @@ object KafkaContainerZ:
 end KafkaContainerZ
 
 object KafkaInitialization:
-  def initialize(kafkaContainer: KafkaContainer): ZIO[Any, Throwable, Unit] = ZIO.attempt {
-    val properties = new java.util.Properties()
+  val topicName = "person_events"
+  def initialize(kafkaContainer: KafkaContainer): ZIO[Any, Throwable, Unit] = for {
+    container <-
+      ZIO.attempt {
+      println("Initializing kafka...")
+      val properties = new java.util.Properties()
 
-    import org.apache.kafka.clients.admin.AdminClientConfig
-    import org.apache.kafka.clients.admin.Admin
-    properties.put(
-      AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaContainer.getBootstrapServers()
-    );
-    val partitions = 3
-    val replicationFactor: Short = 1
-    val newTopic = new NewTopic("person_events", partitions, replicationFactor);
+      import org.apache.kafka.clients.admin.AdminClientConfig
+      import org.apache.kafka.clients.admin.Admin
+      properties.put(
+        AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaContainer.getBootstrapServers()
+      );
+      val partitions = 1
+      val replicationFactor: Short = 1
+      val newTopic = new NewTopic(topicName, partitions, replicationFactor);
 
-    val admin = Admin.create(properties).nn
-    import scala.jdk.CollectionConverters._
-    admin.createTopics(List(newTopic).asJava)
-    UseKafka.submitMessage("Content!", kafkaContainer)
-  }
-
+      val admin = Admin.create(properties).nn
+      import scala.jdk.CollectionConverters._
+      admin.createTopics(List(newTopic).asJava)
+    }
+    submittedMsgMetaData <- UseKafka.submitMessage("Content!", topicName, kafkaContainer)
+    fiber <- UseKafka.consumeMessage(topicName, kafkaContainer).fork
+    _ <- ZIO.debug("submittedMsgMetaData: " + submittedMsgMetaData)
+    _ <- fiber.join
+  } yield ()
 object UseKafka:
-  def submitMessage(content: String, kafkaContainer: KafkaContainer) = {
-    import scala.jdk.CollectionConverters._
+  import scala.jdk.CollectionConverters._
+  def submitMessage(content: String, topicName: String, kafkaContainer: KafkaContainer) = {
     val config = new java.util.Properties().nn
     config.put("client.id", InetAddress.getLocalHost().nn.getHostName().nn)
     config.put("bootstrap.servers", kafkaContainer.getBootstrapServers.nn)
@@ -106,7 +115,6 @@ object UseKafka:
     config.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer")
     config.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer")
     val producer = new KafkaProducer[String, String](config)
-    val topic = "person_events" 
     val partition = 0 
     val timestamp = Instant.now().nn.toEpochMilli
     val key = "keyX"
@@ -115,5 +123,26 @@ object UseKafka:
     val  headers: List[Header] = List.empty
 
     
-    producer.send(new ProducerRecord(topic, partition, timestamp, key, value, headers.asJava))
+    ZIO.fromFutureJava(
+      producer.send(new ProducerRecord(topicName, partition, timestamp, key, value, headers.asJava)).nn
+    )
+  }
+
+  def consumeMessage(topicName: String, kafkaContainer: KafkaContainer) = ZIO.blocking{
+
+    ZIO.debug("About to consume") *>
+    ZIO.attempt {
+      val config = new java.util.Properties().nn
+      config.put("client.id", InetAddress.getLocalHost().nn.getHostName().nn);
+      config.put("group.id", "foo");
+      config.put("bootstrap.servers", kafkaContainer.getBootstrapServers.nn)
+      config.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer")
+      config.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer")
+      val consumer = new KafkaConsumer[String, String](config)
+      consumer.subscribe(List(topicName).asJava)
+      import java.time.Duration
+      val records: ConsumerRecords[String, String]  = consumer.poll(Duration.ofSeconds(5).nn).nn
+      records.forEach { record => println("Consumed record: " + record.nn.value)}
+      consumer.close
+    }
   }
