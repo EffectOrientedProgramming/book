@@ -18,50 +18,11 @@ import java.time.Instant
 import org.apache.kafka.common.TopicPartition
 import org.apache.kafka.clients.producer.RecordMetadata
 import scala.concurrent.java8.FuturesConvertersImpl.P
+import zio.stream.ZStream
+import org.apache.kafka.clients.consumer.ConsumerRecord
 
-object GenericInteractions:
-  def manage[T <: GenericContainer[T]](
-      c: T,
-      containerType: String
-  ) =
-    ZManaged.acquireReleaseWith(
-      ZIO.debug(s"Creating $containerType") *>
-        start(c, containerType) *> ZIO.succeed(c)
-    )((n: T) =>
-      ZIO.attempt(n.close()).orDie *>
-        ZIO.debug(s"Closing $containerType")
-    )
+import scala.jdk.CollectionConverters._
 
-  def manageWithInitialization[
-      T <: GenericContainer[T]
-  ](
-      c: T,
-      containerType: String,
-      initialize: T => ZIO[
-        Any,
-        Throwable,
-        Unit
-      ] = (_: T) => ZIO.unit
-  ) =
-    ZManaged.acquireReleaseWith(
-      ZIO.debug(s"Creating $containerType") *>
-        start(c, containerType) *>
-        initialize(c) *> ZIO.succeed(c)
-    )((n: T) =>
-      ZIO.attempt(n.close()).orDie *>
-        ZIO.debug(s"Closing $containerType")
-    )
-
-  private def start[T <: GenericContainer[T]](
-      c: T,
-      containerType: String
-  ) =
-    ZIO.blocking(ZIO.succeed(c.start)) *>
-      ZIO.debug(
-        s"Finished blocking for $containerType container creation"
-      )
-
-end GenericInteractions
 
 object KafkaContainerZ:
   def apply(network: Network): KafkaContainer =
@@ -214,13 +175,11 @@ class KafkaConsumerZ(
     rawConsumer: KafkaConsumer[String, String]
 ):
   // TODO Handle closing underlying consumer
-  def poll() =
+  import java.time.Duration
+
+  def poll(): Task[List[ConsumerRecord[String, String]]] =
     ZIO.attempt {
-      import java.time.Duration
-      // consumer.seek(new
-      // TopicPartition(topicName, 0).nn)
-      for (i <- Range(1, 5)) {
-        println("Consuming loop: " + i)
+      println("polling in a stream")
         val records
             : ConsumerRecords[String, String] =
           rawConsumer
@@ -231,14 +190,15 @@ class KafkaConsumerZ(
             "Consumed record: " + record.nn.value
           )
         }
-      }
+        rawConsumer.commitSync
+        records.records("person_event").nn.asScala.toList // TODO Parameterize/access topicName more cleanly
     }
+
 
   private var numberOfPolls = 0
   private val maxPolls      = 10
   def pollForever(): ZIO[Any, Throwable, Unit] =
     ZIO.attempt {
-      import java.time.Duration
       // consumer.seek(new
       // TopicPartition(topicName, 0).nn)
       println("Polling forever")
@@ -251,8 +211,8 @@ class KafkaConsumerZ(
         println(
           "Consumed record: " + record.nn.value
         )
-        rawConsumer.commitSync
       }
+        rawConsumer.commitSync
     } *>
       (if numberOfPolls < maxPolls then
          numberOfPolls = numberOfPolls + 1
@@ -260,10 +220,13 @@ class KafkaConsumerZ(
        else
          ZIO.unit
       )
+
+  val pollStream: ZStream[Any, Throwable, List[ConsumerRecord[String, String]]] = 
+    ZStream.repeatZIO(poll())
+
 end KafkaConsumerZ
 
 object UseKafka:
-  import scala.jdk.CollectionConverters._
 
   def createProducer(): ZIO[Has[
     KafkaContainer

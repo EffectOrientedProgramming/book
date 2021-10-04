@@ -93,10 +93,7 @@ object TestContainersSpec
             personEventConsumer <-
               UseKafka
                 .createConsumer("person_event")
-            consumingPoller <-
-              personEventConsumer
-                .pollForever()
-                .fork
+            consumingPoller <- personEventConsumer.pollStream.foldWhile(0)(_<people.length * 5)( (x, _) => x +1).fork
             personEventProducer <-
               UseKafka.createProducer()
             _ <-
@@ -142,7 +139,11 @@ object TestContainersSpec
         logic.provideSomeLayer[ZTestEnv & ZEnv](
           layer
         )
-      }
+      },
+      // test("stream approach") {
+      //   val logic = ???
+      //   ???
+      // }
     )
 end TestContainersSpec
 
