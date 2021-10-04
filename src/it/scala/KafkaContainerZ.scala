@@ -135,7 +135,8 @@ class KafkaProducerZ(
   def submitForever(
       key: String,
       value: String,
-      topicName: String
+      topicName: String,
+      messagesProduced: Ref[Int]
   ): Task[Unit] = {
     val partition = 0
     val timestamp = Instant.now().nn.toEpochMilli
@@ -156,7 +157,7 @@ class KafkaProducerZ(
           )
         )
         .nn
-    )
+    ) *> messagesProduced.update(_+1)
   } *>
     (if numberOfSubmissions < maxSubmissions then
        numberOfSubmissions =
@@ -165,7 +166,7 @@ class KafkaProducerZ(
          ZIO.attempt {
            Thread.sleep(1000)
          }
-       } *> submitForever(key, value, topicName)
+       } *> submitForever(key, value, topicName, messagesProduced)
      else
        ZIO.unit
     )
