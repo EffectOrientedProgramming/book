@@ -81,11 +81,10 @@ object TestContainersSpec
         val logic =
           for
             people <- QuillLocal.quillQuery
-            person = people.head
             allCitizenInfo <-
               ZIO.foreach(people)(x =>
               MockServerClient
-                .citizenInfo(x)
+                .citizenInfo(x).map( (x, _))
               )
             _ <-
               ZIO.foreach(allCitizenInfo)(citizenInfo =>
@@ -101,13 +100,15 @@ object TestContainersSpec
             personEventProducer <-
               UseKafka.createProducer()
             _ <-
-              personEventProducer.submitForever(
-                "keyX",
-                "valueX",
-                "person_event"
+              ZIO.foreachParN(12)(allCitizenInfo)( (citizen, citizenInfo) =>
+                personEventProducer.submitForever(
+                  citizen.firstName,
+                  citizenInfo,
+                  "person_event"
+                )
               )
             _ <- consumingPoller.join
-          yield assert(person)(
+          yield assert(people.head)(
             equalTo(
               Person("Joe", "Dimagio", 143)
             )

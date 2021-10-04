@@ -181,6 +181,7 @@ class KafkaProducerZ(
     import org.apache.kafka.common.header.Header
     val headers: List[Header] = List.empty
 
+    ZIO.debug("submitting record for: " + key) *>
     ZIO.fromFutureJava(
       rawProducer
         .send(
@@ -250,6 +251,7 @@ class KafkaConsumerZ(
         println(
           "Consumed record: " + record.nn.value
         )
+        rawConsumer.commitSync
       }
     } *>
       (if numberOfPolls < maxPolls then
@@ -319,7 +321,7 @@ object UseKafka:
         "BootstopServers: " +
           kafkaContainer.getBootstrapServers.nn
       )
-      config.put("max.poll.records", "1")
+      // config.put("max.poll.records", "1")
       config.put("auto_offset_rest", "earliest")
 
       config.put("enable.auto.commit", "true");
