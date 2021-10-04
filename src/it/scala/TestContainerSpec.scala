@@ -37,24 +37,32 @@ object ManagedTestInstances:
       )
       .toLayer
 
-  // lazy val networkAwareness = ???
+// lazy val networkAwareness = ???
 
 trait NetworkAwareness:
   val localHostName: Task[String]
 
 object NetworkAwareness:
-  val localHostName: ZIO[Has[NetworkAwareness], Throwable, String] =
+  val localHostName: ZIO[Has[
+    NetworkAwareness
+  ], Throwable, String] =
     ZIO.serviceWith(_.localHostName)
 
-  val live: Layer[Nothing, Has[NetworkAwareness]] =
+  val live
+      : Layer[Nothing, Has[NetworkAwareness]] =
     ZLayer.succeed(NetworkAwarenessLive)
 
-
-object NetworkAwarenessLive extends NetworkAwareness:
+object NetworkAwarenessLive
+    extends NetworkAwareness:
   import java.net.InetAddress
-  val localHostName = ZIO.attempt {
-    InetAddress.getLocalHost().nn.getHostName().nn
-  }
+  val localHostName =
+    ZIO.attempt {
+      InetAddress
+        .getLocalHost()
+        .nn
+        .getHostName()
+        .nn
+    }
 
 // TODO Figure out fi
 // TESTCONTAINERS_RYUK_DISABLED=true is a
@@ -74,29 +82,61 @@ object TestContainersSpec
           for
             people <- QuillLocal.quillQuery
             person = people.head
-            _ <- printLine("Person retrieved from Postgres: " + person)
-            _ <-
+            allCitizenInfo <-
+              ZIO.foreach(people)(x =>
               MockServerClient
-                .citizenInfo(person)
-            personEventConsumer <- UseKafka.createConsumer( "person_event")
-            consumingPoller <- personEventConsumer.pollForever().fork
-            personEventProducer <- UseKafka.createProducer()
-            _ <- personEventProducer.submitForever("keyX", "valueX", "person_event")
+                .citizenInfo(x)
+              )
+            _ <-
+              ZIO.foreach(allCitizenInfo)(citizenInfo =>
+                printLine("Citizen info from webserver: " + citizenInfo)
+              )
+            personEventConsumer <-
+              UseKafka
+                .createConsumer("person_event")
+            consumingPoller <-
+              personEventConsumer
+                .pollForever()
+                .fork
+            personEventProducer <-
+              UseKafka.createProducer()
+            _ <-
+              personEventProducer.submitForever(
+                "keyX",
+                "valueX",
+                "person_event"
+              )
             _ <- consumingPoller.join
-          yield assert(people)(
+          yield assert(person)(
             equalTo(
-              List(Person("Joe", "Dimagio", 143))
+              Person("Joe", "Dimagio", 143)
             )
           )
         import org.testcontainers.containers.MockServerContainer
 
         val layer =
-          ((ManagedTestInstances.networkLayer ++ NetworkAwareness.live) >+>
+          ((ManagedTestInstances.networkLayer ++
+            NetworkAwareness.live) >+>
             (PostgresContainer
               .construct("init.sql") ++
               KafkaContainerZ.construct())) >+>
             (QuillLocal.quillPostgresContext) ++
-            (MockServerContainerZ.construct(List(RequestResponsePair("Joe", "Joe is a dynamic baseball player!"))))
+            (MockServerContainerZ.construct(
+              List(
+                RequestResponsePair(
+                  "Joe",
+                  "Joe is a dynamic baseball player!"
+                ),
+                RequestResponsePair(
+                  "Shtep",
+                  "Shtep has sold fizzy drinks for many years."
+                ),
+                RequestResponsePair(
+                  "Zeb",
+                  "Zeb worked at a machine shop."
+                )
+              )
+            ))
 
         logic.provideSomeLayer[ZTestEnv & ZEnv](
           layer

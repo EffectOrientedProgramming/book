@@ -16,34 +16,35 @@ case class RequestResponsePair(
     response: String
 )
 object MockServerContainerZ:
-  val mockSetup: 
-      (MockServerContainer, List[RequestResponsePair]) => ZIO[
-        Any,
-        Throwable,
-        Unit
-      ]
-   =
+  val mockSetup: (
+      MockServerContainer,
+      List[RequestResponsePair]
+  ) => ZIO[Any, Throwable, Unit] =
     (mockServer, requestResponsePairs) =>
       ZIO.attempt {
-        requestResponsePairs.foreach { case RequestResponsePair(userName, userResponse) =>
-        new MockServerClient(
-          mockServer.getHost(),
-          mockServer.getServerPort().nn
-        ).when(
-            request()
+        requestResponsePairs.foreach {
+          case RequestResponsePair(
+                userName,
+                userResponse
+              ) =>
+            new MockServerClient(
+              mockServer.getHost(),
+              mockServer.getServerPort().nn
+            ).when(
+                request()
+                  .nn
+                  .withPath(s"/person/$userName")
+                  .nn
+              )
               .nn
-              .withPath(s"/person/$userName")
-              .nn
-          )
-          .nn
-          .respond(
-            response()
-              .nn
-              .withBody(userResponse)
-              .nn
-          );
+              .respond(
+                response()
+                  .nn
+                  .withBody(userResponse)
+                  .nn
+              );
+        }
       }
-    }
 
   def apply(
       network: Network,
@@ -59,9 +60,11 @@ object MockServerContainerZ:
       ).nn
     container
 
-  def construct(pairs: List[RequestResponsePair]): ZLayer[Has[
-    Network
-  ], Throwable, Has[MockServerContainer]] =
+  def construct(
+      pairs: List[RequestResponsePair]
+  ): ZLayer[Has[Network], Throwable, Has[
+    MockServerContainer
+  ]] =
     for
       network <-
         ZLayer.service[Network].map(_.get)

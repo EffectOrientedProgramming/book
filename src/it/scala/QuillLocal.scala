@@ -66,12 +66,11 @@ object QuillLocal:
     yield
       import ctx._
 
-      val named = "Joe"
+      val age = 18
       inline def somePeople =
         quote {
-          query[Person].filter(p =>
-            p.firstName == lift(named)
-          )
+          query[Person]
+            .filter(p => p.age > lift(age))
         }
       val people: List[Person] = run(somePeople)
       // TODO Get SQL
@@ -82,13 +81,11 @@ end QuillLocal
 // TODO Move to appropriate file
 import org.testcontainers.containers.MockServerContainer
 object MockServerClient:
-  def citizenInfo(person: Person): ZIO[Has[
-    MockServerContainer
-  ], Throwable, Unit] =
+  def citizenInfo(person: Person): ZIO[Has[MockServerContainer], Throwable | String, String] =
     for
       mockServerContainer <-
         ZIO.service[MockServerContainer]
-      _ <-
+      responseBody <-
         ZIO.attempt {
           import sttp.client3._
           val backend =
@@ -101,8 +98,9 @@ object MockServerClient:
               )
               .send(backend)
 
-          response.body.foreach(personData => println("Data from mockWebServer: " + personData))
-          
+          response
+            .body
         }
-    yield ()
+      responseBodyZ <- ZIO.fromEither(responseBody)
+    yield (responseBodyZ)
 end MockServerClient
