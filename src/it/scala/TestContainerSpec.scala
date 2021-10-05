@@ -83,35 +83,78 @@ object TestContainersSpec
             people <- QuillLocal.quillQuery
             allCitizenInfo <-
               ZIO.foreach(people)(x =>
-              MockServerClient
-                .citizenInfo(x).map( (x, _))
+                MockServerClient
+                  .citizenInfo(x)
+                  .map((x, _))
               )
             _ <-
-              ZIO.foreach(allCitizenInfo)(citizenInfo =>
-                printLine("Citizen info from webserver: " + citizenInfo)
+              ZIO.foreach(allCitizenInfo)(
+                citizenInfo =>
+                  printLine(
+                    "Citizen info from webserver: " +
+                      citizenInfo
+                  )
               )
             personEventConsumer <-
               UseKafka
                 .createConsumer("person_event")
             messagesConsumed <- Ref.make(0)
-            consumingPoller <- personEventConsumer.pollStream.foldWhileZIO(0)(_<people.length * 5)( (x, recordsConsumed) => messagesConsumed.update(_+recordsConsumed.length) *> ZIO.succeed(x +1)).fork
+            consumingPoller <-
+              personEventConsumer
+                .pollStream
+                .foldWhileZIO(0)(
+                  _ < people.length * 9
+                )((x, recordsConsumed) =>
+                  messagesConsumed.update(
+                    _ + recordsConsumed.length
+                  ) *>
+                    ZIO.debug(
+                      "Consumed record: " +
+                        recordsConsumed
+                          .map { record =>
+                            record
+                              .nn
+                              .value
+                              .toString
+                          }
+                          .mkString(":")
+                    ) *>
+                    ZIO.succeed(
+                      x + recordsConsumed.length
+                    )
+                )
+                .fork
             personEventProducer <-
               UseKafka.createProducer()
             messagesProduced <- Ref.make(0)
             _ <-
-              ZIO.foreachParN(12)(allCitizenInfo)( (citizen, citizenInfo) =>
-                personEventProducer.submitForever(
-                  citizen.firstName,
-                  citizenInfo,
-                  "person_event",
-                  messagesProduced
+              ZIO
+                .foreachParN(12)(allCitizenInfo)(
+                  (citizen, citizenInfo) =>
+                    personEventProducer
+                      .submitForever(
+                        9,
+                        citizen.firstName,
+                        citizenInfo,
+                        "person_event",
+                        messagesProduced
+                      )
                 )
-              )
             _ <- consumingPoller.join
-            finalMessagesProduced <- messagesProduced.get
-            finalMessagesConsumed <- messagesConsumed.get
-            _ <- printLine("Number of messages produced: " + finalMessagesProduced)
-            _ <- printLine("Number of messages consumed: " + finalMessagesConsumed)
+            finalMessagesProduced <-
+              messagesProduced.get
+            finalMessagesConsumed <-
+              messagesConsumed.get
+            _ <-
+              printLine(
+                "Number of messages produced: " +
+                  finalMessagesProduced
+              )
+            _ <-
+              printLine(
+                "Number of messages consumed: " +
+                  finalMessagesConsumed
+              )
           yield assert(people.head)(
             equalTo(
               Person("Joe", "Dimagio", 143)
@@ -146,7 +189,7 @@ object TestContainersSpec
         logic.provideSomeLayer[ZTestEnv & ZEnv](
           layer
         )
-      },
+      }
       // test("stream approach") {
       //   val logic = ???
       //   ???

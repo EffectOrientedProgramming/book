@@ -23,7 +23,6 @@ import org.apache.kafka.clients.consumer.ConsumerRecord
 
 import scala.jdk.CollectionConverters._
 
-
 object KafkaContainerZ:
   def apply(network: Network): KafkaContainer =
     new KafkaContainer(
@@ -129,47 +128,60 @@ class KafkaProducerZ(
     )
   end submit
 
-  private var numberOfSubmissions = 0
-  private val maxSubmissions      = 10
-
   def submitForever(
+      repetitions: Int,
       key: String,
       value: String,
       topicName: String,
       messagesProduced: Ref[Int]
-  ): Task[Unit] = {
+  ): Task[Unit] =
     val partition = 0
     val timestamp = Instant.now().nn.toEpochMilli
     import org.apache.kafka.common.header.Header
     val headers: List[Header] = List.empty
 
-    ZIO.debug("submitting record for: " + key) *>
-    ZIO.fromFutureJava(
-      rawProducer
-        .send(
-          new ProducerRecord(
-            topicName,
-            partition,
-            timestamp,
-            key + numberOfSubmissions,
-            value + numberOfSubmissions,
-            headers.asJava
-          )
+    for
+      curMessagesProduced <- messagesProduced.get
+      _ <-
+        ZIO
+          .debug("submitting record for: " + key)
+      _ <-
+        ZIO.fromFutureJava(
+          rawProducer
+            .send(
+              new ProducerRecord(
+                topicName,
+                partition,
+                timestamp,
+                key + curMessagesProduced,
+                value + curMessagesProduced,
+                headers.asJava
+              )
+            )
+            .nn
         )
-        .nn
-    ) *> messagesProduced.update(_+1)
-  } *>
-    (if numberOfSubmissions < maxSubmissions then
-       numberOfSubmissions =
-         numberOfSubmissions + 1
-       ZIO.blocking {
-         ZIO.attempt {
-           Thread.sleep(1000)
-         }
-       } *> submitForever(key, value, topicName, messagesProduced)
-     else
-       ZIO.unit
-    )
+      _ <- messagesProduced.update(_ + 1)
+      _ <-
+        (
+          if repetitions > 0 then
+            ZIO.blocking {
+              ZIO.attempt {
+                Thread.sleep(1000)
+              }
+            } *>
+              submitForever(
+                repetitions - 1,
+                key,
+                value,
+                topicName,
+                messagesProduced
+              )
+          else
+            ZIO.unit
+        )
+    yield ()
+    end for
+  end submitForever
 end KafkaProducerZ
 
 class KafkaConsumerZ(
@@ -178,52 +190,27 @@ class KafkaConsumerZ(
   // TODO Handle closing underlying consumer
   import java.time.Duration
 
-  def poll(): Task[List[ConsumerRecord[String, String]]] =
+  def poll(): Task[
+    List[ConsumerRecord[String, String]]
+  ] =
     ZIO.attempt {
       println("polling in a stream")
-        val records
-            : ConsumerRecords[String, String] =
-          rawConsumer
-            .poll(Duration.ofSeconds(1).nn)
-            .nn
-        records.forEach { record =>
-          println(
-            "Consumed record: " + record.nn.value
-          )
-        }
-        rawConsumer.commitSync
-        records.records("person_event").nn.asScala.toList // TODO Parameterize/access topicName more cleanly
-    }
-
-
-  private var numberOfPolls = 0
-  private val maxPolls      = 10
-  def pollForever(): ZIO[Any, Throwable, Unit] =
-    ZIO.attempt {
-      // consumer.seek(new
-      // TopicPartition(topicName, 0).nn)
-      println("Polling forever")
       val records
           : ConsumerRecords[String, String] =
         rawConsumer
           .poll(Duration.ofSeconds(1).nn)
           .nn
-      records.forEach { record =>
-        println(
-          "Consumed record: " + record.nn.value
-        )
-      }
-        rawConsumer.commitSync
-    } *>
-      (if numberOfPolls < maxPolls then
-         numberOfPolls = numberOfPolls + 1
-         pollForever()
-       else
-         ZIO.unit
-      )
+      rawConsumer.commitSync
+      records
+        .records("person_event")
+        .nn
+        .asScala
+        .toList // TODO Parameterize/access topicName more cleanly
+    }
 
-  val pollStream: ZStream[Any, Throwable, List[ConsumerRecord[String, String]]] = 
-    ZStream.repeatZIO(poll())
+  val pollStream: ZStream[Any, Throwable, List[
+    ConsumerRecord[String, String]
+  ]] = ZStream.repeatZIO(poll())
 
 end KafkaConsumerZ
 

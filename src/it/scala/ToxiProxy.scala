@@ -9,12 +9,19 @@ import org.testcontainers.containers.{
 
 object ToxyProxyContainerZ:
   val TOXIPROXY_NETWORK_ALIAS = "toxiproxy"
-  def apply(network: Network): ToxiproxyContainer =
-      val TOXIPROXY_IMAGE = DockerImageName.parse("shopify/toxiproxy:2.1.0");
-        // Toxiproxy container, which will be used as a TCP proxy
-        new ToxiproxyContainer(TOXIPROXY_IMAGE)
-            .nn
-            .withNetwork(network)
-            .nn
-            .withNetworkAliases(TOXIPROXY_NETWORK_ALIAS)
-            .nn
+  def apply(
+      network: Network
+  ): ToxiproxyContainer =
+    val TOXIPROXY_IMAGE =
+      DockerImageName
+        .parse("shopify/toxiproxy:2.1.0");
+    // Toxiproxy container, which will be used as
+    // a TCP proxy
+    new ToxiproxyContainer(TOXIPROXY_IMAGE)
+      .nn
+      .withNetwork(network)
+      .nn
+      .withNetworkAliases(
+        TOXIPROXY_NETWORK_ALIAS
+      )
+      .nn

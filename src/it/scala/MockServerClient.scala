@@ -16,7 +16,9 @@ import mdoc.QuillLocal.AppPostgresContext
 import org.testcontainers.containers.MockServerContainer
 
 object MockServerClient:
-  def citizenInfo(person: Person): ZIO[Has[MockServerContainer], Throwable | String, String] =
+  def citizenInfo(person: Person): ZIO[Has[
+    MockServerContainer
+  ], Throwable | String, String] =
     for
       mockServerContainer <-
         ZIO.service[MockServerContainer]
@@ -33,11 +35,10 @@ object MockServerClient:
               )
               .send(backend)
 
-          response
-            .body
+          response.body
         }
-      responseBodyZ <- ZIO.fromEither(responseBody)
-    yield (responseBodyZ)
-
+      responseBodyZ <-
+        ZIO.fromEither(responseBody)
+    yield responseBodyZ
 
 end MockServerClient
