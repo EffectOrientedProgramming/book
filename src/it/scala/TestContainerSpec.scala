@@ -166,15 +166,15 @@ object TestContainersSpec
           CareerHistoryService.construct(
                         List(
                           RequestResponsePair(
-                            "Joe",
+                            "/person/Joe",
                             "Joe is a dynamic baseball player!"
                           ),
                           RequestResponsePair(
-                            "Shtep",
+                            "/person/Shtep",
                             "Shtep has sold fizzy drinks for many years."
                           ),
                           RequestResponsePair(
-                            "Zeb",
+                            "/person/Zeb",
                             "Zeb worked at a machine shop."
                           )
                         ),

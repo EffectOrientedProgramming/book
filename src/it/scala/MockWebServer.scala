@@ -27,36 +27,14 @@ object MockServerContainerZ:
           )
           .nn
       ).nn
-end MockServerContainerZ
 
-class CareerHistoryService(mockServerContainer: MockServerContainer):
-    def citizenInfo(person: Person): ZIO[Any, Throwable | String, String] =
-      for
-        responseBody <-
-          ZIO.attempt {
-            import sttp.client3._
-            val backend =
-              HttpURLConnectionBackend()
-            val response =
-              basicRequest
-                .body("Hello, world!")
-                .get(
-                  uri"http://${mockServerContainer.getHost()}:${mockServerContainer.getServerPort().nn}/person/${person.firstName}"
-                )
-                .send(backend)
-
-            response.body
-          }
-        responseBodyZ <-
-          ZIO.fromEither(responseBody)
-      yield responseBodyZ
-
-object CareerHistoryService:
-  def citizenInfo(person: Person): ZIO[Has[CareerHistoryService], Throwable | String, String] =
-    for {
-      careerHistoryService <- ZIO.service[CareerHistoryService]
-      info <- careerHistoryService.citizenInfo(person)
-    } yield  info
+  def constructUrl(
+    mockServerContainer: MockServerContainer,
+    path1: String,
+    path2: String,
+  ) = 
+    import sttp.client3._
+    uri"http://${mockServerContainer.getHost()}:${mockServerContainer.getServerPort().nn}/$path1/$path2"
 
   val mockSetup: (
       MockServerContainer,
@@ -66,7 +44,7 @@ object CareerHistoryService:
       ZIO.attempt {
         requestResponsePairs.foreach {
           case RequestResponsePair(
-                userName,
+                userRequest,
                 userResponse
               ) =>
             new MockServerClient(
@@ -75,7 +53,7 @@ object CareerHistoryService:
             ).when(
                 request()
                   .nn
-                  .withPath(s"/person/$userName")
+                  .withPath(userRequest)
                   .nn
               )
               .nn
@@ -87,6 +65,43 @@ object CareerHistoryService:
               );
         }
       }
+
+end MockServerContainerZ
+
+class MockServerContainerZ(mockServerContainer: MockServerContainer):
+
+  // TODO Include Network dependency of some kind
+  def get(path1: String, path2: String): ZIO[Any, Throwable | String, String] =
+      for
+        responseBody <-
+          ZIO.attempt {
+            import sttp.client3._
+              
+            basicRequest
+              .get(
+                MockServerContainerZ.constructUrl(mockServerContainer, path1, path2)
+              )
+              .send(HttpURLConnectionBackend())
+              .body
+          }
+        responseBodyZ <-
+          ZIO.fromEither(responseBody)
+      yield responseBodyZ
+
+end MockServerContainerZ
+
+
+class CareerHistoryService(mockServerContainerZ: MockServerContainerZ):
+
+    def citizenInfo(person: Person): ZIO[Any, Throwable | String, String] =
+      mockServerContainerZ.get("person",person.firstName)
+
+object CareerHistoryService:
+  def citizenInfo(person: Person): ZIO[Has[CareerHistoryService], Throwable | String, String] =
+    for {
+      careerHistoryService <- ZIO.service[CareerHistoryService]
+      info <- careerHistoryService.citizenInfo(person)
+    } yield  info
 
   def construct[T](
       pairs: List[RequestResponsePair],
@@ -102,8 +117,9 @@ object CareerHistoryService:
           .manageWithInitialization(
             container,
             "mockserver",
-            mockSetup(_, pairs)
+            MockServerContainerZ.mockSetup(_, pairs)
           )
+          .map(new MockServerContainerZ(_))
           .map(new CareerHistoryService(_))
                         
           .toLayer
