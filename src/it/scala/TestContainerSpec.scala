@@ -83,7 +83,7 @@ object TestContainersSpec
             people <- QuillLocal.quillQuery
             allCitizenInfo <-
               ZIO.foreach(people)(x =>
-                MockServerClient
+                CareerHistoryService
                   .citizenInfo(x)
                   .map((x, _))
               )
@@ -162,29 +162,32 @@ object TestContainersSpec
           )
         import org.testcontainers.containers.MockServerContainer
 
-        val layer =
+        val careerServer: ZLayer[Has[Network], Throwable, Has[CareerHistoryService]] =
+          CareerHistoryService.construct(
+                        List(
+                          RequestResponsePair(
+                            "Joe",
+                            "Joe is a dynamic baseball player!"
+                          ),
+                          RequestResponsePair(
+                            "Shtep",
+                            "Shtep has sold fizzy drinks for many years."
+                          ),
+                          RequestResponsePair(
+                            "Zeb",
+                            "Zeb worked at a machine shop."
+                          )
+                        ),
+                      )
+
+        val layer: ZLayer[Any, Throwable, Has[Network] & Has[NetworkAwareness] & (Has[PostgresContainer] & Has[KafkaContainer]) & Has[AppPostgresContext] & Has[CareerHistoryService]] =
           ((ManagedTestInstances.networkLayer ++
             NetworkAwareness.live) >+>
             (PostgresContainer
               .construct("init.sql") ++
               KafkaContainerZ.construct())) >+>
             (QuillLocal.quillPostgresContext) ++
-            (MockServerContainerZ.construct(
-              List(
-                RequestResponsePair(
-                  "Joe",
-                  "Joe is a dynamic baseball player!"
-                ),
-                RequestResponsePair(
-                  "Shtep",
-                  "Shtep has sold fizzy drinks for many years."
-                ),
-                RequestResponsePair(
-                  "Zeb",
-                  "Zeb worked at a machine shop."
-                )
-              )
-            ))
+            (careerServer)
 
         logic.provideSomeLayer[ZTestEnv & ZEnv](
           layer

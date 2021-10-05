@@ -16,6 +16,48 @@ case class RequestResponsePair(
     response: String
 )
 object MockServerContainerZ:
+  def apply(
+      network: Network,
+      version: String = "latest"
+  ): MockServerContainer =
+      new MockServerContainer(
+        DockerImageName
+          .parse(
+            s"mockserver/mockserver:$version"
+          )
+          .nn
+      ).nn
+end MockServerContainerZ
+
+class CareerHistoryService(mockServerContainer: MockServerContainer):
+    def citizenInfo(person: Person): ZIO[Any, Throwable | String, String] =
+      for
+        responseBody <-
+          ZIO.attempt {
+            import sttp.client3._
+            val backend =
+              HttpURLConnectionBackend()
+            val response =
+              basicRequest
+                .body("Hello, world!")
+                .get(
+                  uri"http://${mockServerContainer.getHost()}:${mockServerContainer.getServerPort().nn}/person/${person.firstName}"
+                )
+                .send(backend)
+
+            response.body
+          }
+        responseBodyZ <-
+          ZIO.fromEither(responseBody)
+      yield responseBodyZ
+
+object CareerHistoryService:
+  def citizenInfo(person: Person): ZIO[Has[CareerHistoryService], Throwable | String, String] =
+    for {
+      careerHistoryService <- ZIO.service[CareerHistoryService]
+      info <- careerHistoryService.citizenInfo(person)
+    } yield  info
+
   val mockSetup: (
       MockServerContainer,
       List[RequestResponsePair]
@@ -46,29 +88,15 @@ object MockServerContainerZ:
         }
       }
 
-  def apply(
-      network: Network,
-      version: String = "latest"
-  ): MockServerContainer =
-    val container =
-      new MockServerContainer(
-        DockerImageName
-          .parse(
-            s"mockserver/mockserver:$version"
-          )
-          .nn
-      ).nn
-    container
-
-  def construct(
-      pairs: List[RequestResponsePair]
+  def construct[T](
+      pairs: List[RequestResponsePair],
   ): ZLayer[Has[Network], Throwable, Has[
-    MockServerContainer
+    CareerHistoryService
   ]] =
     for
       network <-
         ZLayer.service[Network].map(_.get)
-      container = apply(network, "latest")
+      container = MockServerContainerZ.apply(network, "latest")
       res <-
         GenericInteractions
           .manageWithInitialization(
@@ -76,6 +104,7 @@ object MockServerContainerZ:
             "mockserver",
             mockSetup(_, pairs)
           )
+          .map(new CareerHistoryService(_))
+                        
           .toLayer
     yield res
-end MockServerContainerZ
