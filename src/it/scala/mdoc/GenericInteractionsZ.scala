@@ -5,7 +5,7 @@ import org.testcontainers.containers.{
   GenericContainer,
 }
 
-object GenericInteractions:
+object GenericInteractionsZ:
   def manage[T <: GenericContainer[T]](
       c: T,
       containerType: String
@@ -47,12 +47,4 @@ object GenericInteractions:
         s"Finished blocking for $containerType container creation"
       )
 
-end GenericInteractions
-
-import zio.*
-import org.testcontainers.containers.{
-  GenericContainer,
-}
-
-
-
+end GenericInteractionsZ

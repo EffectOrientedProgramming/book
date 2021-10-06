@@ -25,7 +25,7 @@ object MockServerContainerZ:
         ZLayer.service[Network].map(_.get)
       container = MockServerContainerZ.apply(network, "latest")
       res <-
-        GenericInteractions
+        GenericInteractionsZ
           .manageWithInitialization(
             container,
             "mockserver",

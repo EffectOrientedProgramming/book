@@ -47,7 +47,7 @@ object KafkaContainerZ:
       container = apply(network)
       // _ <- container.getBootstrapServers
       res <-
-        GenericInteractions
+        GenericInteractionsZ
           .manageWithInitialization(
             container,
             "kafka",
