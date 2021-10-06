@@ -1,4 +1,4 @@
-package testcontainers
+package mdoc
 
 import org.testcontainers.containers.ToxiproxyContainer
 import org.testcontainers.utility.DockerImageName
@@ -6,6 +6,7 @@ import org.testcontainers.containers.{
   GenericContainer,
   Network
 }
+
 object ToxyProxyContainerZ:
   val TOXIPROXY_NETWORK_ALIAS = "toxiproxy"
   def apply(

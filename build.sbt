@@ -50,11 +50,11 @@ libraryDependencies ++=
 
     "org.apache.kafka" % "kafka-clients" % "3.0.0",
 
-    "org.testcontainers"    % "testcontainers"            % "1.16.0",
-    "org.testcontainers"    % "postgresql"            % "1.16.0",
-    "org.testcontainers"    % "kafka"            % "1.16.0",
-    "org.testcontainers"    % "mockserver"            % "1.16.0",
-    "org.testcontainers"    % "toxiproxy"            % "1.16.0",
+    "org.testcontainers"    % "testcontainers"            % "1.16.0" % "it,test",
+    "org.testcontainers"    % "postgresql"            % "1.16.0" % "it,test",
+    "org.testcontainers"    % "kafka"            % "1.16.0" % "it,test",
+    "org.testcontainers"    % "mockserver"            % "1.16.0" % "it,test",
+    "org.testcontainers"    % "toxiproxy"            % "1.16.0" % "it,test",
     "io.github.arkinator" % "mockserver-client-java" % "5.11.6",
     "org.postgresql" % "postgresql" % "42.2.24"
     

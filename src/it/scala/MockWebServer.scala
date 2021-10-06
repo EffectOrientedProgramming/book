@@ -1,4 +1,4 @@
-package testcontainers
+package mdoc
 
 import zio.*
 import org.testcontainers.containers.{
@@ -18,23 +18,21 @@ case class RequestResponsePair(
 object MockServerContainerZ:
 
   def construct[T](
-      pairs: List[RequestResponsePair]
+      pairs: List[RequestResponsePair],
   ) =
     for
       network <-
         ZLayer.service[Network].map(_.get)
-      container =
-        MockServerContainerZ
-          .apply(network, "latest")
+      container = MockServerContainerZ.apply(network, "latest")
       res <-
         GenericInteractions
           .manageWithInitialization(
             container,
             "mockserver",
-            MockServerContainerZ
-              .mockSetup(_, pairs)
+            MockServerContainerZ.mockSetup(_, pairs)
           )
           .map(new MockServerContainerZ(_))
+                        
           .toLayer
     yield res
 
@@ -42,19 +40,20 @@ object MockServerContainerZ:
       network: Network,
       version: String = "latest"
   ): MockServerContainer =
-    new MockServerContainer(
-      DockerImageName
-        .parse(s"mockserver/mockserver:$version")
-        .nn
-    ).nn
+      new MockServerContainer(
+        DockerImageName
+          .parse(
+            s"mockserver/mockserver:$version"
+          )
+          .nn
+      ).nn
 
   private def constructUrl(
-      mockServerContainer: MockServerContainer,
-      path: String
-  ) =
+    mockServerContainer: MockServerContainer,
+    path: String,
+  ) = 
     import sttp.client3._
-    val uriString =
-      s"http://${mockServerContainer.getHost()}:${mockServerContainer.getServerPort().nn}$path"
+    val uriString = s"http://${mockServerContainer.getHost()}:${mockServerContainer.getServerPort().nn}$path"
     uri"$uriString"
 
   private val mockSetup: (
@@ -89,34 +88,28 @@ object MockServerContainerZ:
 
 end MockServerContainerZ
 
-class MockServerContainerZ(
-    mockServerContainer: MockServerContainer
-):
+class MockServerContainerZ(mockServerContainer: MockServerContainer):
 
   // TODO Include Network dependency of some kind
-  def get(
-      path: String
-  ): ZIO[Any, Throwable | String, String] =
-    for
-      responseBody <-
-        ZIO.attempt {
-          import sttp.client3.{
-            HttpURLConnectionBackend,
+  def get(path: String): ZIO[Any, Throwable | String, String] =
+      for
+        responseBody <-
+          ZIO.attempt {
+            import sttp.client3.{HttpURLConnectionBackend, basicRequest}
+              
             basicRequest
-          }
-
-          basicRequest
-            .get(
-              MockServerContainerZ.constructUrl(
-                mockServerContainer,
-                path
+              .get(
+                MockServerContainerZ.constructUrl(mockServerContainer, path)
               )
-            )
-            .send(HttpURLConnectionBackend())
-            .body
-        }
-      responseBodyZ <-
-        ZIO.fromEither(responseBody)
-    yield responseBodyZ
+              .send(HttpURLConnectionBackend())
+              .body
+          }
+        responseBodyZ <-
+          ZIO.fromEither(responseBody)
+      yield responseBodyZ
 
 end MockServerContainerZ
+
+
+
+
