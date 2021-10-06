@@ -30,23 +30,3 @@ object CareerHistoryService:
   ]] =
 
     MockServerContainerZ.construct(pairs).flatMap(x => ZLayer.succeed(CareerHistoryService(x.get)))
-
-class LocationService(mockServerContainerZ: MockServerContainerZ):
-
-    def locationOf(person: Person): ZIO[Any, Throwable | String, String] =
-      mockServerContainerZ.get(s"/location/${person.firstName}")
-
-object LocationService:
-  def locationOf(person: Person): ZIO[Has[LocationService], Throwable | String, String] =
-    for {
-      locationService <- ZIO.service[LocationService]
-      info <- locationService.locationOf(person)
-    } yield  info
-
-  def construct[T](
-      pairs: List[RequestResponsePair],
-  ): ZLayer[Has[Network], Throwable, Has[
-    LocationService
-  ]] =
-
-    MockServerContainerZ.construct(pairs).flatMap(x => ZLayer.succeed(LocationService(x.get)))

@@ -180,24 +180,6 @@ object TestContainersSpec
                         ),
                       )
 
-        val locationServer: ZLayer[Has[Network], Throwable, Has[LocationService]] =
-          LocationService.construct(
-                        List(
-                          RequestResponsePair(
-                            "/location/Joe",
-                            "USA"
-                          ),
-                          RequestResponsePair(
-                            "/location/Shtep",
-                            "Jordan"
-                          ),
-                          RequestResponsePair(
-                            "/location/Zeb",
-                            "Taiwan"
-                          )
-                        ),
-                      )
-
         val layer: ZLayer[Any, Throwable, Has[Network] & Has[NetworkAwareness] & (Has[PostgresContainer] & Has[KafkaContainer]) & Has[AppPostgresContext] & Has[CareerHistoryService]] =
           ((ManagedTestInstances.networkLayer ++
             NetworkAwareness.live) >+>
