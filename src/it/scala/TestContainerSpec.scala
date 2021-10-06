@@ -1,5 +1,3 @@
-package mdoc
-
 import zio.*
 import zio.Console.*
 import zio.test.*
@@ -18,11 +16,9 @@ import io.getquill._
 import mdoc.QuillLocal.AppPostgresContext
 import org.testcontainers.containers.KafkaContainer
 
-case class Person(
-    firstName: String,
-    lastName: String,
-    age: Int
-)
+import mdoc._
+
+
 
 object ManagedTestInstances:
   lazy val networkLayer
@@ -39,30 +35,8 @@ object ManagedTestInstances:
 
 // lazy val networkAwareness = ???
 
-trait NetworkAwareness:
-  val localHostName: Task[String]
 
-object NetworkAwareness:
-  val localHostName: ZIO[Has[
-    NetworkAwareness
-  ], Throwable, String] =
-    ZIO.serviceWith(_.localHostName)
 
-  val live
-      : Layer[Nothing, Has[NetworkAwareness]] =
-    ZLayer.succeed(NetworkAwarenessLive)
-
-object NetworkAwarenessLive
-    extends NetworkAwareness:
-  import java.net.InetAddress
-  val localHostName =
-    ZIO.attempt {
-      InetAddress
-        .getLocalHost()
-        .nn
-        .getHostName()
-        .nn
-    }
 
 // TODO Figure out fi
 // TESTCONTAINERS_RYUK_DISABLED=true is a
