@@ -16,7 +16,27 @@ case class RequestResponsePair(
     response: String
 )
 object MockServerContainerZ:
-  def apply(
+
+  def construct[T](
+      pairs: List[RequestResponsePair],
+  ) =
+    for
+      network <-
+        ZLayer.service[Network].map(_.get)
+      container = MockServerContainerZ.apply(network, "latest")
+      res <-
+        GenericInteractions
+          .manageWithInitialization(
+            container,
+            "mockserver",
+            MockServerContainerZ.mockSetup(_, pairs)
+          )
+          .map(new MockServerContainerZ(_))
+                        
+          .toLayer
+    yield res
+
+  private def apply(
       network: Network,
       version: String = "latest"
   ): MockServerContainer =
@@ -28,15 +48,15 @@ object MockServerContainerZ:
           .nn
       ).nn
 
-  def constructUrl(
+  private def constructUrl(
     mockServerContainer: MockServerContainer,
-    path1: String,
-    path2: String,
+    path: String,
   ) = 
     import sttp.client3._
-    uri"http://${mockServerContainer.getHost()}:${mockServerContainer.getServerPort().nn}/$path1/$path2"
+    val uriString = s"http://${mockServerContainer.getHost()}:${mockServerContainer.getServerPort().nn}$path"
+    uri"$uriString"
 
-  val mockSetup: (
+  private val mockSetup: (
       MockServerContainer,
       List[RequestResponsePair]
   ) => ZIO[Any, Throwable, Unit] =
@@ -71,15 +91,15 @@ end MockServerContainerZ
 class MockServerContainerZ(mockServerContainer: MockServerContainer):
 
   // TODO Include Network dependency of some kind
-  def get(path1: String, path2: String): ZIO[Any, Throwable | String, String] =
+  def get(path: String): ZIO[Any, Throwable | String, String] =
       for
         responseBody <-
           ZIO.attempt {
-            import sttp.client3._
+            import sttp.client3.{HttpURLConnectionBackend, basicRequest}
               
             basicRequest
               .get(
-                MockServerContainerZ.constructUrl(mockServerContainer, path1, path2)
+                MockServerContainerZ.constructUrl(mockServerContainer, path)
               )
               .send(HttpURLConnectionBackend())
               .body
@@ -91,36 +111,5 @@ class MockServerContainerZ(mockServerContainer: MockServerContainer):
 end MockServerContainerZ
 
 
-class CareerHistoryService(mockServerContainerZ: MockServerContainerZ):
 
-    def citizenInfo(person: Person): ZIO[Any, Throwable | String, String] =
-      mockServerContainerZ.get("person",person.firstName)
 
-object CareerHistoryService:
-  def citizenInfo(person: Person): ZIO[Has[CareerHistoryService], Throwable | String, String] =
-    for {
-      careerHistoryService <- ZIO.service[CareerHistoryService]
-      info <- careerHistoryService.citizenInfo(person)
-    } yield  info
-
-  def construct[T](
-      pairs: List[RequestResponsePair],
-  ): ZLayer[Has[Network], Throwable, Has[
-    CareerHistoryService
-  ]] =
-    for
-      network <-
-        ZLayer.service[Network].map(_.get)
-      container = MockServerContainerZ.apply(network, "latest")
-      res <-
-        GenericInteractions
-          .manageWithInitialization(
-            container,
-            "mockserver",
-            MockServerContainerZ.mockSetup(_, pairs)
-          )
-          .map(new MockServerContainerZ(_))
-          .map(new CareerHistoryService(_))
-                        
-          .toLayer
-    yield res
