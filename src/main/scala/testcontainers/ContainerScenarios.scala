@@ -24,44 +24,72 @@ object ContainerScenarios:
           )
       personEventConsumer <-
         UseKafka.createConsumer("person_event")
-      messagesConsumed <- Ref.make(0)
-      consumingPoller <-
-        personEventConsumer
-          .pollStream
-          .foldWhileZIO(0)(
-            _ < people.length * 9
-          )((x, recordsConsumed) =>
-            messagesConsumed.update(
-              _ + recordsConsumed.length
-            ) *>
-              ZIO.debug(
-                "Consumed record: " +
-                  recordsConsumed
-                    .map { record =>
-                      record.nn.value.toString
-                    }
-                    .mkString(":")
-              ) *>
-              ZIO.succeed(
-                x + recordsConsumed.length
-              )
-          )
-          .fork
+
+      housingHistoryConsumer <-
+        UseKafka
+          .createConsumer("housing_history")
+
       personEventProducer <-
         UseKafka.createProducer()
+
+      messagesConsumed <- Ref.make(0)
+
+      consumingPoller <-
+        personEventConsumer
+          .pollStream(messagesConsumed)
+          .foldZIO(0)((x, recordsConsumed) =>
+            ZIO.debug(
+              "Consumed record: " +
+                recordsConsumed
+                  .map { record =>
+                    record.nn.value.toString
+                  }
+                  .mkString(":")
+            ) *>
+              ZIO.foreach(recordsConsumed)(
+                record =>
+                  personEventProducer.submit(
+                    record.key.nn,
+                    "HousingHistory: " +
+                      record.value.nn,
+                    "housing_history"
+                  )
+              ) *> ZIO.succeed(0)
+          )
+          .timeout(5.seconds)
+          .fork
+
+      consumingPoller2 <-
+        housingHistoryConsumer
+          .pollStream(messagesConsumed)
+          .foldZIO(0)((x, recordsConsumed) =>
+            ZIO.debug(
+              "Consumed record: " +
+                recordsConsumed
+                  .map { record =>
+                    record.nn.value.toString
+                  }
+                  .mkString(":")
+            ) *> ZIO.succeed(0)
+          )
+          .timeout(5.seconds)
+          .fork
+
       messagesProduced <- Ref.make(0)
       _ <-
-        ZIO.foreachParN(12)(allCitizenInfo)(
-          (citizen, citizenInfo) =>
-            personEventProducer.submitForever(
-              9,
-              citizen.firstName,
-              citizenInfo,
-              "person_event",
-              messagesProduced
-            )
-        )
+        ZIO
+          .foreachParN(12)(allCitizenInfo)(
+            (citizen, citizenInfo) =>
+              personEventProducer.submitForever(
+                citizen.firstName,
+                citizenInfo,
+                "person_event",
+                messagesProduced
+              )
+          )
+          .timeout(4.seconds)
       _ <- consumingPoller.join
+      _ <- consumingPoller2.join
       finalMessagesProduced <-
         messagesProduced.get
       finalMessagesConsumed <-

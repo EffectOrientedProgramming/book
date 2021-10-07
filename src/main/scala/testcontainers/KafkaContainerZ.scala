@@ -59,7 +59,8 @@ end KafkaContainerZ
 
 object KafkaInitialization:
   import zio.durationInt
-  val topicName = "person_events"
+  val topicNames =
+    List("person_event", "housing_history")
   def initialize(
       kafkaContainer: KafkaContainer,
       localHostname: String
@@ -81,18 +82,18 @@ object KafkaInitialization:
             .put("client.id", localHostname)
           val partitions               = 1
           val replicationFactor: Short = 1
-          val newTopic =
-            new NewTopic(
-              topicName,
-              partitions,
-              replicationFactor
-            );
+          val newTopics =
+            topicNames.map(topicName =>
+              new NewTopic(
+                topicName,
+                partitions,
+                replicationFactor
+              )
+            )
 
           val admin = Admin.create(properties).nn
           import scala.jdk.CollectionConverters._
-          admin
-            .createTopics(List(newTopic).asJava)
-            .nn
+          admin.createTopics(newTopics.asJava).nn
         }
     yield ()
 end KafkaInitialization
@@ -128,55 +129,34 @@ class KafkaProducerZ(
   end submit
 
   def submitForever(
-      repetitions: Int,
       key: String,
       value: String,
       topicName: String,
       messagesProduced: Ref[Int]
   ): Task[Unit] =
-    val partition = 0
-    val timestamp = Instant.now().nn.toEpochMilli
-    import org.apache.kafka.common.header.Header
-    val headers: List[Header] = List.empty
-
     for
       curMessagesProduced <- messagesProduced.get
       _ <-
         ZIO
           .debug("submitting record for: " + key)
       _ <-
-        ZIO.fromFutureJava(
-          rawProducer
-            .send(
-              new ProducerRecord(
-                topicName,
-                partition,
-                timestamp,
-                key + curMessagesProduced,
-                value + curMessagesProduced,
-                headers.asJava
-              )
-            )
-            .nn
+        submit(
+          key + curMessagesProduced,
+          value + curMessagesProduced,
+          topicName
         )
       _ <- messagesProduced.update(_ + 1)
       _ <-
-        (
-          if repetitions > 0 then
-            ZIO.blocking {
-              ZIO.attempt {
-                Thread.sleep(1000)
-              }
-            } *>
-              submitForever(
-                repetitions - 1,
-                key,
-                value,
-                topicName,
-                messagesProduced
-              )
-          else
-            ZIO.unit
+      ZIO.blocking {
+        ZIO.attempt {
+          Thread.sleep(1000)
+        }
+      } *>
+        submitForever(
+          key,
+          value,
+          topicName,
+          messagesProduced
         )
     yield ()
     end for
@@ -184,32 +164,41 @@ class KafkaProducerZ(
 end KafkaProducerZ
 
 class KafkaConsumerZ(
-    rawConsumer: KafkaConsumer[String, String]
+    rawConsumer: KafkaConsumer[String, String],
+    topicName: String
 ):
   // TODO Handle closing underlying consumer
   import java.time.Duration
 
-  def poll(): Task[
-    List[ConsumerRecord[String, String]]
-  ] =
-    ZIO.attempt {
-      println("polling in a stream")
-      val records
-          : ConsumerRecords[String, String] =
-        rawConsumer
-          .poll(Duration.ofSeconds(1).nn)
-          .nn
-      rawConsumer.commitSync
-      records
-        .records("person_event")
-        .nn
-        .asScala
-        .toList // TODO Parameterize/access topicName more cleanly
-    }
+  def poll(
+      messagesConsumed: Ref[Int]
+  ): Task[List[ConsumerRecord[String, String]]] =
+    for
+      newRecords <-
+        ZIO.attempt {
+          println("polling in a stream")
+          val records
+              : ConsumerRecords[String, String] =
+            rawConsumer
+              .poll(Duration.ofSeconds(1).nn)
+              .nn
+          rawConsumer.commitSync
+          records
+            .records(topicName)
+            .nn
+            .asScala
+            .toList // TODO Parameterize/access topicName more cleanly
+        }
+      _ <-
+        messagesConsumed
+          .update(_ + newRecords.length)
+    yield newRecords
 
-  val pollStream: ZStream[Any, Throwable, List[
+  def pollStream(
+      messagesConsumed: Ref[Int]
+  ): ZStream[Any, Throwable, List[
     ConsumerRecord[String, String]
-  ]] = ZStream.repeatZIO(poll())
+  ]] = ZStream.repeatZIO(poll(messagesConsumed))
 
 end KafkaConsumerZ
 
@@ -293,5 +282,5 @@ object UseKafka:
       consumer.subscribe(List(topicName).asJava)
       // consumer.seekToBeginning(List(new
       // TopicPartition(topicName, 1).nn).asJava)
-      KafkaConsumerZ(consumer)
+      KafkaConsumerZ(consumer, topicName)
 end UseKafka
