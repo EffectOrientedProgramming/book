@@ -25,16 +25,15 @@ object ContainerScenarios:
             .map((x, _))
         )
       _ <-
-        ZIO.foreach(allCitizenInfo)(
-          citizenInfo =>
+        ZIO
+          .foreach(allCitizenInfo)(citizenInfo =>
             printLine(
               "Citizen info from webserver: " +
                 citizenInfo
             )
-        )
+          )
       personEventConsumer <-
-        UseKafka
-          .createConsumer("person_event")
+        UseKafka.createConsumer("person_event")
       messagesConsumed <- Ref.make(0)
       consumingPoller <-
         personEventConsumer
@@ -49,10 +48,7 @@ object ContainerScenarios:
                 "Consumed record: " +
                   recordsConsumed
                     .map { record =>
-                      record
-                        .nn
-                        .value
-                        .toString
+                      record.nn.value.toString
                     }
                     .mkString(":")
               ) *>
@@ -65,18 +61,16 @@ object ContainerScenarios:
         UseKafka.createProducer()
       messagesProduced <- Ref.make(0)
       _ <-
-        ZIO
-          .foreachParN(12)(allCitizenInfo)(
-            (citizen, citizenInfo) =>
-              personEventProducer
-                .submitForever(
-                  9,
-                  citizen.firstName,
-                  citizenInfo,
-                  "person_event",
-                  messagesProduced
-                )
-          )
+        ZIO.foreachParN(12)(allCitizenInfo)(
+          (citizen, citizenInfo) =>
+            personEventProducer.submitForever(
+              9,
+              citizen.firstName,
+              citizenInfo,
+              "person_event",
+              messagesProduced
+            )
+        )
       _ <- consumingPoller.join
       finalMessagesProduced <-
         messagesProduced.get
@@ -93,3 +87,4 @@ object ContainerScenarios:
             finalMessagesConsumed
         )
     yield people
+end ContainerScenarios

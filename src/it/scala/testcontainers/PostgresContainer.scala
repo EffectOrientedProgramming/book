@@ -13,7 +13,6 @@ import org.testcontainers.containers.{
   PostgreSQLContainer
 }
 
-
 class PostgresContainer()
     extends PostgreSQLContainer[
       PostgresContainer

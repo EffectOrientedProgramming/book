@@ -28,7 +28,6 @@ object NetworkAwareness:
 trait NetworkAwareness:
   val localHostName: Task[String]
 
-
 object NetworkAwarenessLive
     extends NetworkAwareness:
   import java.net.InetAddress
