@@ -27,7 +27,7 @@ class Shit()
  * "postgres") .toLayer yield res end
  * PostgresContainerZ */
 
-case class PostgresContainerNew()
+case class PostgresContainerNew() extends Shit
 // extends PostgreSQLContainer[
 //   PostgresContainerNew
 // ]("postgres:13.1")

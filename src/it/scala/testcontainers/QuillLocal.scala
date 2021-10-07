@@ -5,6 +5,9 @@ import io.getquill._
 import com.zaxxer.hikari.HikariDataSource
 import com.zaxxer.hikari.HikariConfig
 
+object DummyQuill
+
+/*
 object QuillLocal:
   type AppPostgresContext =
     PostgresJdbcContext[
@@ -64,3 +67,5 @@ object QuillLocal:
       run(somePeople)
 
 end QuillLocal
+
+*/

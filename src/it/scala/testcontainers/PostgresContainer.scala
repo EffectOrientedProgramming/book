@@ -6,32 +6,16 @@ import org.testcontainers.containers.{
   PostgreSQLContainer
 }
 
-class PostgresContainer()
-    extends PostgreSQLContainer[
-      PostgresContainer
-    ]("postgres:13.1")
+object PostgresDummy
 
 object PostgresContainer:
-  def apply(
-      initScript: String,
-      network: Network
-  ): PostgresContainer =
-    new PostgresContainer()
-      .nn
-      .withInitScript(initScript)
-      .nn
-      .withNetwork(network)
-      .nn
-      .withNetworkAliases("postgres")
-      .nn
-
   def construct(initScipt: String): ZLayer[Has[
     Network
-  ], Nothing, Has[PostgresContainer]] =
+  ], Nothing, Has[PostgresContainerJ]] =
     for
       network <-
         ZLayer.service[Network].map(_.get)
-      safePostgres = apply(initScipt, network)
+      safePostgres =  PostgresContainerJ.apply(initScipt, network).nn
       res <-
         GenericInteractionsZ
           .manage(safePostgres, "postgres")

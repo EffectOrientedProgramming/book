@@ -4,6 +4,7 @@ import zio.*
 import zio.Console.*
 
 object ContainerScenarios:
+  /*
   val logic =
     for
       people <- QuillLocal.quillQuery
@@ -76,4 +77,5 @@ object ContainerScenarios:
             finalMessagesConsumed
         )
     yield people
+  */
 end ContainerScenarios
