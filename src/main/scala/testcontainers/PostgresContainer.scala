@@ -15,10 +15,12 @@ object PostgresContainer:
     for
       network <-
         ZLayer.service[Network].map(_.get)
-      safePostgres =  PostgresContainerJ.apply(initScipt, network).nn
+      safePostgres =
+        PostgresContainerJ
+          .apply(initScipt, network)
+          .nn
       res <-
         GenericInteractionsZ
           .manage(safePostgres, "postgres")
           .toLayer
     yield res
-end PostgresContainer

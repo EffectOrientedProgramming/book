@@ -2,9 +2,9 @@ package testcontainers
 
 import zio.*
 import zio.Console.*
+import org.testcontainers.containers.Network
 
 object ContainerScenarios:
-  /*
   val logic =
     for
       people <- QuillLocal.quillQuery
@@ -77,5 +77,79 @@ object ContainerScenarios:
             finalMessagesConsumed
         )
     yield people
-  */
+
+  import org.testcontainers.containers.MockServerContainer
+
+  lazy val networkLayer
+      : ZLayer[Any, Nothing, Has[Network]] =
+    ZManaged
+      .acquireReleaseWith(
+        ZIO.debug("Creating network") *>
+          ZIO.succeed(Network.newNetwork().nn)
+      )((n: Network) =>
+        ZIO.attempt(n.close()).orDie *>
+          ZIO.debug("Closing network")
+      )
+      .toLayer
+
+  val careerServer: ZLayer[Has[
+    Network
+  ], Throwable, Has[CareerHistoryService]] =
+    CareerHistoryService.construct(
+      List(
+        RequestResponsePair(
+          "/person/Joe",
+          "Joe is a dynamic baseball player!"
+        ),
+        RequestResponsePair(
+          "/person/Shtep",
+          "Shtep has sold fizzy drinks for many years."
+        ),
+        RequestResponsePair(
+          "/person/Zeb",
+          "Zeb worked at a machine shop."
+        )
+      )
+    )
+
+  val locationServer: ZLayer[Has[
+    Network
+  ], Throwable, Has[LocationService]] =
+    LocationService.construct(
+      List(
+        RequestResponsePair(
+          "/location/Joe",
+          "USA"
+        ),
+        RequestResponsePair(
+          "/location/Shtep",
+          "Jordan"
+        ),
+        RequestResponsePair(
+          "/location/Zeb",
+          "Taiwan"
+        )
+      )
+    )
+
+  import testcontainers.QuillLocal.AppPostgresContext
+
+  import org.testcontainers.containers.KafkaContainer
+  val layer: ZLayer[Any, Throwable, Has[
+    Network
+  ] & Has[NetworkAwareness] & (Has[PostgresContainerJ] & Has[KafkaContainer]) & Has[AppPostgresContext] & Has[CareerHistoryService]] =
+    ((networkLayer ++ NetworkAwareness.live) >+>
+      (PostgresContainer.construct("init.sql") ++
+        KafkaContainerZ.construct())) >+>
+      (QuillLocal
+        .quillPostgresContext) ++ careerServer
+
 end ContainerScenarios
+
+object RunScenarios extends zio.ZIOAppDefault:
+  def run =
+    ContainerScenarios
+      .logic
+      .provideSomeLayer[ZEnv](
+        ContainerScenarios.layer
+      )

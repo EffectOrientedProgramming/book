@@ -7,14 +7,13 @@ import com.zaxxer.hikari.HikariConfig
 
 object DummyQuill
 
-/*
 object QuillLocal:
   type AppPostgresContext =
     PostgresJdbcContext[
       io.getquill.LowerCase.type
     ]
   def configFromContainer(
-      container: PostgresContainer
+      container: PostgresContainerJ
   ) =
     val pgDataSource =
       new org.postgresql.ds.PGSimpleDataSource()
@@ -32,13 +31,13 @@ object QuillLocal:
     config
 
   val quillPostgresContext: ZLayer[Has[
-    PostgresContainer
+    PostgresContainerJ
   ], Nothing, Has[AppPostgresContext]] =
     ZLayer
-      .service[PostgresContainer]
+      .service[PostgresContainerJ]
       .map(_.get)
       .flatMap {
-        (safePostgres: PostgresContainer) =>
+        (safePostgres: PostgresContainerJ) =>
 
           val config =
             configFromContainer(safePostgres)
@@ -67,5 +66,3 @@ object QuillLocal:
       run(somePeople)
 
 end QuillLocal
-
-*/
