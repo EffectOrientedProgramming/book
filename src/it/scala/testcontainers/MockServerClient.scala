@@ -1,4 +1,4 @@
-package mdoc
+package testcontainers
 
 import zio.*
 import zio.Console.*
@@ -12,7 +12,6 @@ import org.testcontainers.containers.{
   Network
 }
 import io.getquill._
-import mdoc.QuillLocal.AppPostgresContext
 import org.testcontainers.containers.MockServerContainer
 
 object MockServerClient:

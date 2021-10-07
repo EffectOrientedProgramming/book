@@ -1,4 +1,4 @@
-package mdoc
+package testcontainers
 
 case class Person(
     firstName: String,

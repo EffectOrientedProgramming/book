@@ -1,4 +1,4 @@
-package mdoc
+package testcontainers
 
 import org.testcontainers.containers.ToxiproxyContainer
 import org.testcontainers.utility.DockerImageName

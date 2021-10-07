@@ -1,3 +1,5 @@
+package testcontainers
+
 import zio.*
 import zio.Console.*
 import zio.test.*
@@ -13,7 +15,7 @@ import org.testcontainers.containers.{
 }
 
 import io.getquill._
-import mdoc.QuillLocal.AppPostgresContext
+import testcontainers.QuillLocal.AppPostgresContext
 import org.testcontainers.containers.KafkaContainer
 
 import mdoc._

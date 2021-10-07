@@ -1,3 +1,5 @@
+package testcontainers
+
 import zio.*
 import zio.Console.*
 import zio.test.*
@@ -10,9 +12,7 @@ import org.testcontainers.containers.{
   Network
 }
 import io.getquill._
-import mdoc.QuillLocal.AppPostgresContext
 import org.testcontainers.containers.KafkaContainer
-import mdoc._
 
 object ContainerScenarios:
   val logic =

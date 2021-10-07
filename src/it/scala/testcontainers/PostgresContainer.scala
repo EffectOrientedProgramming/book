@@ -1,4 +1,4 @@
-package mdoc
+package testcontainers
 
 import zio.*
 import zio.Console.*
