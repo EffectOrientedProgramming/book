@@ -33,10 +33,6 @@ object ManagedTestInstances:
       )
       .toLayer
 
-// lazy val networkAwareness = ???
-
-
-
 
 // TODO Figure out fi
 // TESTCONTAINERS_RYUK_DISABLED=true is a
@@ -52,83 +48,10 @@ object TestContainersSpec
     suite("mdoc.MdocHelperSpec")(
       test("With managed layer") {
         // TODO
-        val logic =
-          for
-            people <- QuillLocal.quillQuery
-            allCitizenInfo <-
-              ZIO.foreach(people)(x =>
-                CareerHistoryService
-                  .citizenInfo(x)
-                  .map((x, _))
-              )
-            _ <-
-              ZIO.foreach(allCitizenInfo)(
-                citizenInfo =>
-                  printLine(
-                    "Citizen info from webserver: " +
-                      citizenInfo
-                  )
-              )
-            personEventConsumer <-
-              UseKafka
-                .createConsumer("person_event")
-            messagesConsumed <- Ref.make(0)
-            consumingPoller <-
-              personEventConsumer
-                .pollStream
-                .foldWhileZIO(0)(
-                  _ < people.length * 9
-                )((x, recordsConsumed) =>
-                  messagesConsumed.update(
-                    _ + recordsConsumed.length
-                  ) *>
-                    ZIO.debug(
-                      "Consumed record: " +
-                        recordsConsumed
-                          .map { record =>
-                            record
-                              .nn
-                              .value
-                              .toString
-                          }
-                          .mkString(":")
-                    ) *>
-                    ZIO.succeed(
-                      x + recordsConsumed.length
-                    )
-                )
-                .fork
-            personEventProducer <-
-              UseKafka.createProducer()
-            messagesProduced <- Ref.make(0)
-            _ <-
-              ZIO
-                .foreachParN(12)(allCitizenInfo)(
-                  (citizen, citizenInfo) =>
-                    personEventProducer
-                      .submitForever(
-                        9,
-                        citizen.firstName,
-                        citizenInfo,
-                        "person_event",
-                        messagesProduced
-                      )
-                )
-            _ <- consumingPoller.join
-            finalMessagesProduced <-
-              messagesProduced.get
-            finalMessagesConsumed <-
-              messagesConsumed.get
-            _ <-
-              printLine(
-                "Number of messages produced: " +
-                  finalMessagesProduced
-              )
-            _ <-
-              printLine(
-                "Number of messages consumed: " +
-                  finalMessagesConsumed
-              )
+        val logicWithAssertions =
+          for {
+            people <- ContainerScenarios.logic
+          }
           yield assert(people.head)(
             equalTo(
               Person("Joe", "Dimagio", 143)
@@ -181,7 +104,7 @@ object TestContainersSpec
             (QuillLocal.quillPostgresContext) ++
             (careerServer)
 
-        logic.provideSomeLayer[ZTestEnv & ZEnv](
+        logicWithAssertions.provideSomeLayer[ZTestEnv & ZEnv](
           layer
         )
       }
