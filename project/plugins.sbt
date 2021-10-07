@@ -17,7 +17,7 @@ addSbtPlugin(
 
 addSbtPlugin(
   "com.github.sbt" % "sbt-native-packager" %
-    "1.9.4"
+    "1.9.5"
 )
 
 addSbtPlugin(
