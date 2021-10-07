@@ -17,7 +17,6 @@ import org.apache.kafka.clients.consumer.ConsumerRecords
 import java.time.Instant
 import org.apache.kafka.common.TopicPartition
 import org.apache.kafka.clients.producer.RecordMetadata
-import scala.concurrent.java8.FuturesConvertersImpl.P
 import zio.stream.ZStream
 import org.apache.kafka.clients.consumer.ConsumerRecord
 
