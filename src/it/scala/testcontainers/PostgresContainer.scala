@@ -1,11 +1,7 @@
 package testcontainers
 
-import zio.*
-import zio.Console.*
-import java.io.IOException
-import org.testcontainers.containers.wait.strategy.Wait
+import zio.{Has, ZLayer}
 import org.testcontainers.containers.{
-  GenericContainer,
   Network,
   PostgreSQLContainer
 }

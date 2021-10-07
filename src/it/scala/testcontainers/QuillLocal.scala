@@ -1,14 +1,9 @@
 package testcontainers
 
 import zio.*
-import zio.Console.*
-import java.io.IOException
-import org.testcontainers.containers.wait.strategy.Wait
-import org.testcontainers.containers.{
-  GenericContainer,
-  Network
-}
 import io.getquill._
+import com.zaxxer.hikari.HikariDataSource
+import com.zaxxer.hikari.HikariConfig
 
 object QuillLocal:
   type AppPostgresContext =
@@ -29,7 +24,6 @@ object QuillLocal:
     pgDataSource
       .setPortNumbers(Array(exposedPort))
     pgDataSource.setPassword(password)
-    import com.zaxxer.hikari.HikariConfig
     val config = new HikariConfig()
     config.setDataSource(pgDataSource)
     config
@@ -42,7 +36,6 @@ object QuillLocal:
       .map(_.get)
       .flatMap {
         (safePostgres: PostgresContainer) =>
-          import com.zaxxer.hikari.HikariDataSource
 
           val config =
             configFromContainer(safePostgres)
@@ -68,8 +61,6 @@ object QuillLocal:
           query[Person]
             .filter(p => p.age > lift(age))
         }
-      val people: List[Person] = run(somePeople)
-      // TODO Get SQL
-      people
+      run(somePeople)
 
 end QuillLocal

@@ -2,14 +2,6 @@ package testcontainers
 
 import zio.*
 import zio.Console.*
-import java.io.IOException
-import org.testcontainers.containers.wait.strategy.Wait
-import org.testcontainers.containers.{
-  GenericContainer,
-  Network
-}
-import io.getquill._
-import org.testcontainers.containers.KafkaContainer
 
 object ContainerScenarios:
   val logic =
