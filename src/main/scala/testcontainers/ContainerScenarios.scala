@@ -29,27 +29,25 @@ object ContainerScenarios:
         UseKafka
           .createConsumer("housing_history")
 
-      messagesProduced <- Ref.make(0)
       personEventProducer <-
-        UseKafka.createProducer(messagesProduced)
+        UseKafka.createProducer("person_event")
+
+      housingHistoryProducer <-
+        UseKafka
+          .createProducer("housing_history")
 
       messagesConsumed <- Ref.make(0)
 
       consumingPoller <-
       ZIO.sleep(1.second) *>
         personEventConsumer
-          .pollStream(messagesConsumed)
+          .pollStream()
           .foreach(recordsConsumed =>
             ZIO
               .foreach(recordsConsumed)(record =>
-                // ZIO.debug(
-                // s"Submitting: ${record.key}
-                // Value: ${record.value} "
-                // ) *>
-                personEventProducer.submit(
+                housingHistoryProducer.submit(
                   record.key.nn,
-                  record.value.nn,
-                  "housing_history"
+                  record.value.nn
                 )
               )
           )
@@ -59,18 +57,18 @@ object ContainerScenarios:
       consumingPoller2 <-
       ZIO.sleep(1.second) *>
         housingHistoryConsumer
-          .pollStream(messagesConsumed)
+          .pollStream()
           .foreach(recordsConsumed =>
             ZIO
               .foreach(recordsConsumed)(record =>
-                val person =
-                  people
-                    .find(
-                      _.firstName ==
-                        record.key.nn
-                    )
-                    .get // TODO Unsafe!
                 for
+                  person <-
+                    ZIO.fromOption(
+                      people.find(
+                        _.firstName ==
+                          record.key.nn
+                      )
+                    )
                   location <-
                     LocationService
                       .locationOf(person)
@@ -90,17 +88,35 @@ object ContainerScenarios:
             (citizen, citizenInfo) =>
               personEventProducer.submitForever(
                 citizen.firstName,
-                s"${citizen.firstName},${citizenInfo}",
-                "person_event"
+                s"${citizen.firstName},${citizenInfo}"
               )
           )
           .timeout(4.seconds)
       _ <- consumingPoller.join
       _ <- consumingPoller2.join
       finalMessagesProduced <-
-        messagesProduced.get
+        ZIO.reduceAll(
+          personEventProducer
+            .messagesProduced
+            .get,
+          List(
+            housingHistoryProducer
+              .messagesProduced
+              .get
+          )
+        )(_ + _)
+
       finalMessagesConsumed <-
-        messagesConsumed.get
+        ZIO.reduceAll(
+          personEventConsumer
+            .messagesConsumed
+            .get,
+          List(
+            housingHistoryConsumer
+              .messagesConsumed
+              .get
+          )
+        )(_ + _)
       _ <-
         printLine(
           "Number of messages produced: " +

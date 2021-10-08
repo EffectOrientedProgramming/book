@@ -1,6 +1,7 @@
 package testcontainers
 
 import zio.*
+import zio.Console.printLine
 import org.testcontainers.containers.{
   GenericContainer,
   Network
@@ -98,15 +99,15 @@ object KafkaInitialization:
     yield ()
 end KafkaInitialization
 
-class KafkaProducerZ(
+case class KafkaProducerZ(
     rawProducer: KafkaProducer[String, String],
+    topicName: String,
     messagesProduced: Ref[Int]
 ):
   import scala.jdk.CollectionConverters._
   def submit(
       key: String,
-      value: String,
-      topicName: String
+      value: String
   ): Task[RecordMetadata] =
     val partition = 0
     val timestamp = Instant.now().nn.toEpochMilli
@@ -132,42 +133,38 @@ class KafkaProducerZ(
 
   def submitForever(
       key: String,
-      value: String,
-      topicName: String
-  ): Task[Unit] =
+      value: String
+  ): ZIO[Has[
+    Clock
+  ] & Has[Console], Throwable, Unit] =
     for
       curMessagesProduced <- messagesProduced.get
       _ <-
-        ZIO
-          .debug("submitting record for: " + key)
-      _ <-
-        submit(
-          key,
-          value + curMessagesProduced,
-          topicName
+        printLine(
+          "submitting record for: " + key
         )
+      _ <-
+        submit(key, value + curMessagesProduced)
       _ <- messagesProduced.update(_ + 1)
       _ <-
-      ZIO.blocking {
-        ZIO.attempt {
-          Thread.sleep(1000)
-        }
-      } *> submitForever(key, value, topicName)
+      ZIO.sleep(1.second) *>
+        submitForever(key, value)
     yield ()
     end for
   end submitForever
 end KafkaProducerZ
 
-class KafkaConsumerZ(
+case class KafkaConsumerZ(
     rawConsumer: KafkaConsumer[String, String],
-    topicName: String
+    topicName: String,
+    messagesConsumed: Ref[Int]
 ):
   // TODO Handle closing underlying consumer
   import java.time.Duration
 
-  def poll(
-      messagesConsumed: Ref[Int]
-  ): Task[List[ConsumerRecord[String, String]]] =
+  def poll(): Task[
+    List[ConsumerRecord[String, String]]
+  ] =
     for
       newRecords <-
         ZIO.attempt {
@@ -188,13 +185,11 @@ class KafkaConsumerZ(
           .update(_ + newRecords.length)
     yield newRecords
 
-  def pollStream(
-      messagesConsumed: Ref[Int]
-  ): ZStream[Any, Throwable, List[
+  def pollStream(): ZStream[Any, Throwable, List[
     ConsumerRecord[String, String]
   ]] =
     ZStream
-      .repeatZIO(poll(messagesConsumed))
+      .repeatZIO(poll())
       .tap(recordsConsumed =>
         // Should this stay as debug?
         ZIO.foreach(
@@ -212,14 +207,13 @@ end KafkaConsumerZ
 
 object UseKafka:
 
-  def createProducer(
-      messagesProduced: Ref[Int]
-  ): ZIO[Has[
+  def createProducer(topicName: String): ZIO[Has[
     KafkaContainer
   ], Nothing, KafkaProducerZ] =
     for
       kafkaContainer <-
         ZIO.service[KafkaContainer]
+      messagesProduced <- Ref.make(1)
     yield
       val config = new java.util.Properties().nn
       config.put(
@@ -247,6 +241,7 @@ object UseKafka:
         new KafkaProducer[String, String](
           config
         ),
+        topicName,
         messagesProduced
       )
 
@@ -254,6 +249,7 @@ object UseKafka:
     for
       kafkaContainer <-
         ZIO.service[KafkaContainer]
+      messagesConsumed <- Ref.make(0)
     yield
       val config = new java.util.Properties().nn
       config.put(
@@ -295,5 +291,9 @@ object UseKafka:
       consumer.subscribe(List(topicName).asJava)
       // consumer.seekToBeginning(List(new
       // TopicPartition(topicName, 1).nn).asJava)
-      KafkaConsumerZ(consumer, topicName)
+      KafkaConsumerZ(
+        consumer,
+        topicName,
+        messagesConsumed
+      )
 end UseKafka
