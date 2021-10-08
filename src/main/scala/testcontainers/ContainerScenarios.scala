@@ -29,62 +29,69 @@ object ContainerScenarios:
         UseKafka
           .createConsumer("housing_history")
 
+      messagesProduced <- Ref.make(0)
       personEventProducer <-
-        UseKafka.createProducer()
+        UseKafka.createProducer(messagesProduced)
 
       messagesConsumed <- Ref.make(0)
 
       consumingPoller <-
+      ZIO.sleep(1.second) *>
         personEventConsumer
           .pollStream(messagesConsumed)
-          .foldZIO(0)((x, recordsConsumed) =>
-            ZIO.debug(
-              "Consumed record: " +
-                recordsConsumed
-                  .map { record =>
-                    record.nn.value.toString
-                  }
-                  .mkString(":")
-            ) *>
-              ZIO.foreach(recordsConsumed)(
-                record =>
-                  personEventProducer.submit(
-                    record.key.nn,
-                    "HousingHistory: " +
-                      record.value.nn,
-                    "housing_history"
-                  )
-              ) *> ZIO.succeed(0)
+          .foreach(recordsConsumed =>
+            ZIO
+              .foreach(recordsConsumed)(record =>
+                // ZIO.debug(
+                // s"Submitting: ${record.key}
+                // Value: ${record.value} "
+                // ) *>
+                personEventProducer.submit(
+                  record.key.nn,
+                  record.value.nn,
+                  "housing_history"
+                )
+              )
           )
           .timeout(5.seconds)
           .fork
 
       consumingPoller2 <-
+      ZIO.sleep(1.second) *>
         housingHistoryConsumer
           .pollStream(messagesConsumed)
-          .foldZIO(0)((x, recordsConsumed) =>
-            ZIO.debug(
-              "Consumed record: " +
-                recordsConsumed
-                  .map { record =>
-                    record.nn.value.toString
-                  }
-                  .mkString(":")
-            ) *> ZIO.succeed(0)
+          .foreach(recordsConsumed =>
+            ZIO
+              .foreach(recordsConsumed)(record =>
+                val person =
+                  people
+                    .find(
+                      _.firstName ==
+                        record.key.nn
+                    )
+                    .get // TODO Unsafe!
+                for
+                  location <-
+                    LocationService
+                      .locationOf(person)
+                  _ <-
+                    printLine(
+                      s"Location of $person: $location"
+                    )
+                yield ()
+              )
           )
           .timeout(5.seconds)
           .fork
 
-      messagesProduced <- Ref.make(0)
       _ <-
         ZIO
           .foreachParN(12)(allCitizenInfo)(
             (citizen, citizenInfo) =>
               personEventProducer.submitForever(
                 citizen.firstName,
-                citizenInfo,
-                "person_event",
-                messagesProduced
+                s"${citizen.firstName},${citizenInfo}",
+                "person_event"
               )
           )
           .timeout(4.seconds)
@@ -127,15 +134,15 @@ object ContainerScenarios:
       List(
         RequestResponsePair(
           "/person/Joe",
-          "Joe is a dynamic baseball player!"
+          "Job:Athlete"
         ),
         RequestResponsePair(
           "/person/Shtep",
-          "Shtep has sold fizzy drinks for many years."
+          "Job:Salesman"
         ),
         RequestResponsePair(
           "/person/Zeb",
-          "Zeb worked at a machine shop."
+          "Job:Mechanic"
         )
       )
     )
@@ -165,12 +172,12 @@ object ContainerScenarios:
   import org.testcontainers.containers.KafkaContainer
   val layer: ZLayer[Any, Throwable, Has[
     Network
-  ] & Has[NetworkAwareness] & (Has[PostgresContainerJ] & Has[KafkaContainer]) & Has[AppPostgresContext] & Has[CareerHistoryService]] =
+  ] & Has[NetworkAwareness] & (Has[PostgresContainerJ] & Has[KafkaContainer]) & Has[AppPostgresContext] & Has[CareerHistoryService] & Has[LocationService]] =
     ((networkLayer ++ NetworkAwareness.live) >+>
       (PostgresContainer.construct("init.sql") ++
         KafkaContainerZ.construct())) >+>
-      (QuillLocal
-        .quillPostgresContext) ++ careerServer
+      (QuillLocal.quillPostgresContext) ++
+      careerServer ++ locationServer
 
 end ContainerScenarios
 

@@ -99,7 +99,8 @@ object KafkaInitialization:
 end KafkaInitialization
 
 class KafkaProducerZ(
-    rawProducer: KafkaProducer[String, String]
+    rawProducer: KafkaProducer[String, String],
+    messagesProduced: Ref[Int]
 ):
   import scala.jdk.CollectionConverters._
   def submit(
@@ -112,27 +113,27 @@ class KafkaProducerZ(
     import org.apache.kafka.common.header.Header
     val headers: List[Header] = List.empty
 
-    ZIO.fromFutureJava(
-      rawProducer
-        .send(
-          new ProducerRecord(
-            topicName,
-            partition,
-            timestamp,
-            key,
-            value,
-            headers.asJava
+    messagesProduced.update(_ + 1) *>
+      ZIO.fromFutureJava(
+        rawProducer
+          .send(
+            new ProducerRecord(
+              topicName,
+              partition,
+              timestamp,
+              key,
+              value,
+              headers.asJava
+            )
           )
-        )
-        .nn
-    )
+          .nn
+      )
   end submit
 
   def submitForever(
       key: String,
       value: String,
-      topicName: String,
-      messagesProduced: Ref[Int]
+      topicName: String
   ): Task[Unit] =
     for
       curMessagesProduced <- messagesProduced.get
@@ -141,7 +142,7 @@ class KafkaProducerZ(
           .debug("submitting record for: " + key)
       _ <-
         submit(
-          key + curMessagesProduced,
+          key,
           value + curMessagesProduced,
           topicName
         )
@@ -151,13 +152,7 @@ class KafkaProducerZ(
         ZIO.attempt {
           Thread.sleep(1000)
         }
-      } *>
-        submitForever(
-          key,
-          value,
-          topicName,
-          messagesProduced
-        )
+      } *> submitForever(key, value, topicName)
     yield ()
     end for
   end submitForever
@@ -176,7 +171,6 @@ class KafkaConsumerZ(
     for
       newRecords <-
         ZIO.attempt {
-          println("polling in a stream")
           val records
               : ConsumerRecords[String, String] =
             rawConsumer
@@ -198,13 +192,29 @@ class KafkaConsumerZ(
       messagesConsumed: Ref[Int]
   ): ZStream[Any, Throwable, List[
     ConsumerRecord[String, String]
-  ]] = ZStream.repeatZIO(poll(messagesConsumed))
+  ]] =
+    ZStream
+      .repeatZIO(poll(messagesConsumed))
+      .tap(recordsConsumed =>
+        // Should this stay as debug?
+        ZIO.foreach(
+          recordsConsumed.map { record =>
+            record.nn.value.toString
+          }
+        )(record =>
+          ZIO.debug(
+            s"Consumed $topicName record: $record"
+          )
+        )
+      )
 
 end KafkaConsumerZ
 
 object UseKafka:
 
-  def createProducer(): ZIO[Has[
+  def createProducer(
+      messagesProduced: Ref[Int]
+  ): ZIO[Has[
     KafkaContainer
   ], Nothing, KafkaProducerZ] =
     for
@@ -234,7 +244,10 @@ object UseKafka:
         "org.apache.kafka.common.serialization.StringSerializer"
       )
       KafkaProducerZ(
-        new KafkaProducer[String, String](config)
+        new KafkaProducer[String, String](
+          config
+        ),
+        messagesProduced
       )
 
   def createConsumer(topicName: String) =
