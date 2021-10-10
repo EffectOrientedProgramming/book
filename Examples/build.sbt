@@ -22,4 +22,7 @@ libraryDependencies ++=
     "io.getquill" %% "quill-jdbc-zio" % "3.7.2.Beta1.4",
     // Postgres Async
     "io.getquill" %% "quill-jasync-postgres" % "3.7.2.Beta1.4",
+    "io.github.arkinator" % "mockserver-client-java" % "5.11.6",
+    "org.apache.kafka" % "kafka-clients" % "3.0.0",
+    "org.postgresql" % "postgresql" % "42.2.24"
   )
