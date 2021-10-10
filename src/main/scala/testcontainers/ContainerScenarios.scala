@@ -1,6 +1,8 @@
 package testcontainers
 
 import zio.*
+
+import scala.jdk.CollectionConverters.*
 import zio.Console.*
 import org.testcontainers.containers.Network
 
@@ -22,7 +24,7 @@ object ContainerScenarios:
                 citizenInfo
             )
           )
-      personEventConsumer <-
+      personEventConsumer: KafkaConsumerZ <-
         UseKafka.createConsumer("person_event")
 
       housingHistoryConsumer <-
@@ -32,57 +34,56 @@ object ContainerScenarios:
       personEventProducer <-
         UseKafka.createProducer("person_event")
 
-      housingHistoryProducer <-
+      personEventToLocationStream <-
         UseKafka
-          .createProducer("housing_history")
+          .createForwardedStreamZ(
+            topicName = "person_event",
+            op = record =>
+              for
+              // TODO Get rid of person lookup
+              // and pass plain String name to
+              // LocationService
+                person <-
+                  ZIO.fromOption(
+                    people.find(
+                      _.firstName ==
+                        record.key.nn
+                    )
+                  )
+                location <-
+                  LocationService
+                    .locationOf(person)
+              yield record.value.nn +
+                s",Location:$location",
+            outputTopicName = "housing_history"
+          )
+          // I had to increase the timeout since
+          // I'm creating the output producer
+          // internally now.
+          // TODO Consider the ramifications of
+          // this...
+          .timeout(10.seconds).fork
 
-      messagesConsumed <- Ref.make(0)
-
-      consumingPoller <-
-      ZIO.sleep(1.second) *>
-        personEventConsumer
+      consumingPoller2 <-
+        housingHistoryConsumer
           .pollStream()
           .foreach(recordsConsumed =>
             ZIO
               .foreach(recordsConsumed)(record =>
-                housingHistoryProducer.submit(
-                  record.key.nn,
-                  record.value.nn
+                val location: String =
+                  RecordManipulation
+                    .getField("Location", record)
+                printLine(
+                  s"Location of ${record.key}: $location"
                 )
               )
           )
           .timeout(5.seconds)
           .fork
 
-      consumingPoller2 <-
-      ZIO.sleep(1.second) *>
-        housingHistoryConsumer
-          .pollStream()
-          .foreach(recordsConsumed =>
-            ZIO
-              .foreach(recordsConsumed)(record =>
-                for
-                  person <-
-                    ZIO.fromOption(
-                      people.find(
-                        _.firstName ==
-                          record.key.nn
-                      )
-                    )
-                  location <-
-                    LocationService
-                      .locationOf(person)
-                  _ <-
-                    printLine(
-                      s"Location of $person: $location"
-                    )
-                yield ()
-              )
-          )
-          .timeout(5.seconds)
-          .fork
+      _ <- ZIO.sleep(1.second)
 
-      _ <-
+      producer <-
         ZIO
           .foreachParN(12)(allCitizenInfo)(
             (citizen, citizenInfo) =>
@@ -92,15 +93,17 @@ object ContainerScenarios:
               )
           )
           .timeout(4.seconds)
-      _ <- consumingPoller.join
+          .fork
+
+      _ <- producer.join
+//      _ <- consumingPoller.join
+      _ <- personEventToLocationStream.join
       _ <- consumingPoller2.join
       finalMessagesProduced <-
         ZIO.reduceAll(
-          personEventProducer
-            .messagesProduced
-            .get,
+          ZIO.succeed(1),
           List(
-            housingHistoryProducer
+            personEventProducer
               .messagesProduced
               .get
           )
@@ -196,6 +199,38 @@ object ContainerScenarios:
       careerServer ++ locationServer
 
 end ContainerScenarios
+
+object RecordManipulation:
+  import org.apache.kafka.clients.consumer.ConsumerRecord
+  def getField(
+      fieldName: String,
+      record: ConsumerRecord[String, String]
+  ) =
+    val fields: List[String] =
+      java
+        .util
+        .Arrays
+        .asList(
+          record.value.nn.split(",").nn.map(_.nn)
+        )
+        .nn
+        .asScala
+        .last
+        .toList
+
+    val field: String =
+      fields
+        .find(_.startsWith(fieldName))
+        .getOrElse(
+          throw new IllegalArgumentException(
+            s"Bad fieldName : $fieldName"
+          )
+        )
+
+    field.dropWhile(_ != ':').drop(1)
+
+  end getField
+end RecordManipulation
 
 object RunScenarios extends zio.ZIOAppDefault:
   def run =

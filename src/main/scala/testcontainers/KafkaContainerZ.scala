@@ -171,7 +171,7 @@ case class KafkaConsumerZ(
           val records
               : ConsumerRecords[String, String] =
             rawConsumer
-              .poll(Duration.ofSeconds(1).nn)
+              .poll(Duration.ofMillis(100).nn)
               .nn
           rawConsumer.commitSync
           records
@@ -188,20 +188,25 @@ case class KafkaConsumerZ(
   def pollStream(): ZStream[Any, Throwable, List[
     ConsumerRecord[String, String]
   ]] =
+    val debug = false
     ZStream
       .repeatZIO(poll())
       .tap(recordsConsumed =>
         // Should this stay as debug?
-        ZIO.foreach(
-          recordsConsumed.map { record =>
-            record.nn.value.toString
-          }
-        )(record =>
-          ZIO.debug(
-            s"Consumed $topicName record: $record"
+        if debug then
+          ZIO.foreach(
+            recordsConsumed.map { record =>
+              record.nn.value.toString
+            }
+          )(record =>
+            ZIO.debug(
+              s"Consumed $topicName record: $record"
+            )
           )
-        )
+        else
+          ZIO.unit
       )
+  end pollStream
 
 end KafkaConsumerZ
 
@@ -209,7 +214,7 @@ object UseKafka:
 
   def createProducer(topicName: String): ZIO[Has[
     KafkaContainer
-  ], Nothing, KafkaProducerZ] =
+  ], Throwable, KafkaProducerZ] =
     for
       kafkaContainer <-
         ZIO.service[KafkaContainer]
@@ -245,7 +250,9 @@ object UseKafka:
         messagesProduced
       )
 
-  def createConsumer(topicName: String) =
+  def createConsumer(topicName: String): ZIO[Has[
+    KafkaContainer
+  ], Throwable, KafkaConsumerZ] =
     for
       kafkaContainer <-
         ZIO.service[KafkaContainer]
@@ -296,4 +303,81 @@ object UseKafka:
         topicName,
         messagesConsumed
       )
+
+  // TODO Decide whether to delete this
+  def createForwardedStream[R, E](
+      topicName: String,
+      op: ConsumerRecord[String, String] => ZIO[
+        R,
+        E,
+        String
+      ],
+      // TODO Can we create the Producer inside
+      // here?
+      output: KafkaProducerZ
+  ): ZIO[Has[Console] with R with Has[
+    KafkaContainer
+  ], Throwable | E, Unit] =
+    createConsumer(topicName).flatMap(consumer =>
+      consumer
+        .pollStream()
+        .foreach(recordsConsumed =>
+          ZIO.foreach(recordsConsumed)(record =>
+            for
+              newValue <- op(record)
+              _ <-
+                printLine(
+                  s"${consumer.topicName} --> ${record
+                    .value} => $newValue--> ${output.topicName}"
+                )
+              _ <-
+                output.submit(
+                  record.key.nn,
+                  newValue
+                )
+            yield ()
+          )
+        )
+    )
+
+  def createForwardedStreamZ[R, E](
+      topicName: String,
+      op: ConsumerRecord[String, String] => ZIO[
+        R,
+        E,
+        String
+      ],
+      // TODO Can we create the Producer inside
+      // here?
+      outputTopicName: String
+  ): ZIO[Has[Console] with R with Has[
+    KafkaContainer
+  ], Any, Unit] = // TODO Narrow error type
+    for
+      producer <-
+        UseKafka.createProducer(outputTopicName)
+      _ <-
+        createConsumer(topicName)
+          .flatMap(consumer =>
+            consumer
+              .pollStream()
+              .foreach(recordsConsumed =>
+                ZIO.foreach(recordsConsumed)(
+                  record =>
+                    for
+                      newValue <- op(record)
+                      _ <-
+                        printLine(
+                          s"${consumer.topicName} --> ${record.value} => $newValue--> ${outputTopicName}"
+                        )
+                      _ <-
+                        producer.submit(
+                          record.key.nn,
+                          newValue
+                        )
+                    yield ()
+                )
+              )
+          )
+    yield ()
 end UseKafka
