@@ -24,12 +24,18 @@ object ContainerScenarios:
                 citizenInfo
             )
           )
-      personEventConsumer: KafkaConsumerZ <-
-        UseKafka.createConsumer("person_event")
 
       housingHistoryConsumer <-
-        UseKafka
-          .createConsumer("housing_history")
+        UseKafka.createConsumer(
+          "housing_history",
+          "housing"
+        )
+
+      criminalHistoryConsumer <-
+        UseKafka.createConsumer(
+          "criminal_history",
+          "criminal"
+        )
 
       personEventProducer <-
         UseKafka.createProducer("person_event")
@@ -38,31 +44,61 @@ object ContainerScenarios:
         UseKafka
           .createForwardedStreamZ(
             topicName = "person_event",
-            op = record =>
-              for
-              // TODO Get rid of person lookup
-              // and pass plain String name to
-              // LocationService
-                person <-
-                  ZIO.fromOption(
-                    people.find(
-                      _.firstName ==
-                        record.key.nn
+            op =
+              record =>
+                for
+                  // TODO Get rid of person
+                  // lookup
+                  // and pass plain String name
+                  // to
+                  // LocationService
+                  person <-
+                    ZIO.fromOption(
+                      people.find(
+                        _.firstName ==
+                          record.key.nn
+                      )
                     )
-                  )
-                location <-
-                  LocationService
-                    .locationOf(person)
-              yield record.value.nn +
-                s",Location:$location",
-            outputTopicName = "housing_history"
+                  location <-
+                    LocationService
+                      .locationOf(person)
+                yield record.value.nn +
+                  s",Location:$location",
+            outputTopicName = "housing_history",
+            groupId = "housing"
           )
-          // I had to increase the timeout since
-          // I'm creating the output producer
-          // internally now.
-          // TODO Consider the ramifications of
-          // this...
-          .timeout(10.seconds).fork
+          .timeout(10.seconds)
+          .fork
+
+      criminalHistoryStream <-
+        UseKafka
+          .createForwardedStreamZ(
+            topicName = "person_event",
+            op =
+              record =>
+                for
+                  // TODO Get rid of person
+                  // lookup
+                  // and pass plain String name
+                  // to
+                  // LocationService
+                  person <-
+                    ZIO.fromOption(
+                      people.find(
+                        _.firstName ==
+                          record.key.nn
+                      )
+                    )
+                  criminalHistory <-
+                    BackgroundCheckService
+                      .criminalHistoryOf(person)
+                yield record.value.nn +
+                  s",Criminal:$criminalHistory",
+            outputTopicName = "criminal_history",
+            groupId = "criminal"
+          )
+          .timeout(10.seconds)
+          .fork
 
       consumingPoller2 <-
         housingHistoryConsumer
@@ -78,7 +114,31 @@ object ContainerScenarios:
                 )
               )
           )
-          .timeout(5.seconds)
+          .timeout(10.seconds)
+          .fork
+
+      criminalPoller <-
+        criminalHistoryConsumer
+          .pollStream()
+          .foreach(recordsConsumed =>
+            ZIO
+              .foreach(recordsConsumed)(record =>
+                ZIO.debug(
+                  "Criminal History record:" +
+                    record.value.nn
+                ) *> {
+                  val location: String =
+                    RecordManipulation.getField(
+                      "Criminal",
+                      record
+                    )
+                  printLine(
+                    s"History of ${record.key}: $location"
+                  )
+                }
+              )
+          )
+          .timeout(10.seconds)
           .fork
 
       _ <- ZIO.sleep(1.second)
@@ -96,8 +156,10 @@ object ContainerScenarios:
           .fork
 
       _ <- producer.join
+      _ <- criminalHistoryStream.join
 //      _ <- consumingPoller.join
       _ <- personEventToLocationStream.join
+      _ <- criminalPoller.join
       _ <- consumingPoller2.join
       finalMessagesProduced <-
         ZIO.reduceAll(
@@ -111,9 +173,7 @@ object ContainerScenarios:
 
       finalMessagesConsumed <-
         ZIO.reduceAll(
-          personEventConsumer
-            .messagesConsumed
-            .get,
+          ZIO.succeed(0),
           List(
             housingHistoryConsumer
               .messagesConsumed
@@ -186,17 +246,45 @@ object ContainerScenarios:
       )
     )
 
+  val backgroundCheckServer: ZLayer[Has[
+    Network
+  ], Throwable, Has[BackgroundCheckService]] =
+    BackgroundCheckService.construct(
+      List(
+        RequestResponsePair(
+          "/background/Joe",
+          "GoodCitizen"
+        ),
+        RequestResponsePair(
+          "/background/Shtep",
+          "Arson,DomesticViolence"
+        ),
+        RequestResponsePair(
+          "/background/Zeb",
+          "SpeedingTicket"
+        )
+      )
+    )
+
   import testcontainers.QuillLocal.AppPostgresContext
+  val topicNames =
+    List(
+      "person_event",
+      "housing_history",
+      "criminal_history"
+    )
 
   import org.testcontainers.containers.KafkaContainer
   val layer: ZLayer[Any, Throwable, Has[
     Network
-  ] & Has[NetworkAwareness] & (Has[PostgresContainerJ] & Has[KafkaContainer]) & Has[AppPostgresContext] & Has[CareerHistoryService] & Has[LocationService]] =
+  ] & Has[NetworkAwareness] & (Has[PostgresContainerJ] & Has[KafkaContainer]) & Has[AppPostgresContext] & Has[CareerHistoryService] & Has[LocationService] & Has[BackgroundCheckService]] =
     ((networkLayer ++ NetworkAwareness.live) >+>
       (PostgresContainer.construct("init.sql") ++
-        KafkaContainerZ.construct())) >+>
+        KafkaContainerZ
+          .construct(topicNames))) >+>
       (QuillLocal.quillPostgresContext) ++
-      careerServer ++ locationServer
+      careerServer ++
+      locationServer ++ backgroundCheckServer
 
 end ContainerScenarios
 

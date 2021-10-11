@@ -31,7 +31,9 @@ object KafkaContainerZ:
         .nn
     ).nn
 
-  def construct(): ZLayer[Has[
+  def construct(
+      topicNames: List[String]
+  ): ZLayer[Has[
     Network
   ] & Has[NetworkAwareness], Throwable, Has[
     KafkaContainer
@@ -51,8 +53,11 @@ object KafkaContainerZ:
           .manageWithInitialization(
             container,
             "kafka",
-            KafkaInitialization
-              .initialize(_, localHostName)
+            KafkaInitialization.initialize(
+              _,
+              localHostName,
+              topicNames
+            )
           )
           .toLayer
     yield res
@@ -60,11 +65,10 @@ end KafkaContainerZ
 
 object KafkaInitialization:
   import zio.durationInt
-  val topicNames =
-    List("person_event", "housing_history")
   def initialize(
       kafkaContainer: KafkaContainer,
-      localHostname: String
+      localHostname: String,
+      topicNames: List[String]
   ): ZIO[Any, Throwable, Unit] =
     for
       container <-
@@ -250,7 +254,10 @@ object UseKafka:
         messagesProduced
       )
 
-  def createConsumer(topicName: String): ZIO[Has[
+  def createConsumer(
+      topicName: String,
+      groupId: String
+  ): ZIO[Has[
     KafkaContainer
   ], Throwable, KafkaConsumerZ] =
     for
@@ -267,7 +274,7 @@ object UseKafka:
           .getHostName()
           .nn
       );
-      config.put("group.id", "foo");
+      config.put("group.id", groupId);
       config.put(
         "bootstrap.servers",
         kafkaContainer.getBootstrapServers.nn
@@ -314,11 +321,12 @@ object UseKafka:
       ],
       // TODO Can we create the Producer inside
       // here?
-      output: KafkaProducerZ
+      output: KafkaProducerZ,
+      groupId: String
   ): ZIO[Has[Console] with R with Has[
     KafkaContainer
   ], Throwable | E, Unit] =
-    createConsumer(topicName).flatMap(consumer =>
+    createConsumer(topicName, groupId).flatMap(consumer =>
       consumer
         .pollStream()
         .foreach(recordsConsumed =>
@@ -349,7 +357,8 @@ object UseKafka:
       ],
       // TODO Can we create the Producer inside
       // here?
-      outputTopicName: String
+      outputTopicName: String,
+      groupId: String
   ): ZIO[Has[Console] with R with Has[
     KafkaContainer
   ], Any, Unit] = // TODO Narrow error type
@@ -357,7 +366,7 @@ object UseKafka:
       producer <-
         UseKafka.createProducer(outputTopicName)
       _ <-
-        createConsumer(topicName)
+        createConsumer(topicName, groupId)
           .flatMap(consumer =>
             consumer
               .pollStream()

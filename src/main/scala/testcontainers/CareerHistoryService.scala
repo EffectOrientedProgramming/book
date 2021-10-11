@@ -76,3 +76,37 @@ object LocationService:
         ZLayer.succeed(LocationService(x.get))
       )
 end LocationService
+
+class BackgroundCheckService(
+    mockServerContainerZ: MockServerContainerZ
+):
+
+  def criminalHistoryOf(
+      person: Person
+  ): ZIO[Any, Throwable | String, String] =
+    mockServerContainerZ
+      .get(s"/background/${person.firstName}")
+
+object BackgroundCheckService:
+  def criminalHistoryOf(person: Person): ZIO[Has[
+    BackgroundCheckService
+  ], Throwable | String, String] =
+    for
+      locationService <-
+        ZIO.service[BackgroundCheckService]
+      info <-
+        locationService.criminalHistoryOf(person)
+    yield info
+
+  def construct[T](
+      pairs: List[RequestResponsePair]
+  ): ZLayer[Has[Network], Throwable, Has[
+    BackgroundCheckService
+  ]] =
+    MockServerContainerZ
+      .construct(pairs)
+      .flatMap(x =>
+        ZLayer
+          .succeed(BackgroundCheckService(x.get))
+      )
+end BackgroundCheckService
