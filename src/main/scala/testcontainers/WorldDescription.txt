@@ -1,0 +1,19 @@
+Alex
+    - Dead
+    Jobs:
+        McDonalds,HomeDepot
+
+
+Joe
+
+Shtep
+    Crimes:
+        - Arson,DomesticViolence
+
+Zeb
+    Friends:
+        - Fritz,
+
+Fritz
+    Jobs:
+        -HomeDepot,AcmeInsurance

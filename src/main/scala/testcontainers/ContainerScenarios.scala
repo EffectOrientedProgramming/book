@@ -6,6 +6,11 @@ import scala.jdk.CollectionConverters.*
 import zio.Console.*
 import org.testcontainers.containers.Network
 
+case class SuspectProfile(
+    name: String,
+    criminalHistory: Option[String]
+)
+
 object ContainerScenarios:
   val logic =
     for
@@ -93,8 +98,7 @@ object ContainerScenarios:
                   criminalHistory <-
                     BackgroundCheckService
                       .criminalHistoryOf(person)
-                yield record.value.nn +
-                  s",Criminal:$criminalHistory",
+                yield s"${record.value.nn},$criminalHistory",
             outputTopicName = "criminal_history",
             groupId = "criminal"
           )
@@ -214,15 +218,15 @@ object ContainerScenarios:
     CareerHistoryService.construct(
       List(
         RequestResponsePair(
-          "/person/Joe",
+          "/Joe",
           "Job:Athlete"
         ),
         RequestResponsePair(
-          "/person/Shtep",
+          "/Shtep",
           "Job:Salesman"
         ),
         RequestResponsePair(
-          "/person/Zeb",
+          "/Zeb",
           "Job:Mechanic"
         )
       )
@@ -233,18 +237,9 @@ object ContainerScenarios:
   ], Throwable, Has[LocationService]] =
     LocationService.construct(
       List(
-        RequestResponsePair(
-          "/location/Joe",
-          "USA"
-        ),
-        RequestResponsePair(
-          "/location/Shtep",
-          "Jordan"
-        ),
-        RequestResponsePair(
-          "/location/Zeb",
-          "Taiwan"
-        )
+        RequestResponsePair("/Joe", "USA"),
+        RequestResponsePair("/Shtep", "Jordan"),
+        RequestResponsePair("/Zeb", "Taiwan")
       )
     )
 
@@ -254,15 +249,15 @@ object ContainerScenarios:
     BackgroundCheckService.construct(
       List(
         RequestResponsePair(
-          "/background/Joe",
+          "/Joe",
           "GoodCitizen"
         ),
         RequestResponsePair(
-          "/background/Shtep",
+          "/Shtep",
           "Arson,DomesticViolence"
         ),
         RequestResponsePair(
-          "/background/Zeb",
+          "/Zeb",
           "SpeedingTicket"
         )
       )

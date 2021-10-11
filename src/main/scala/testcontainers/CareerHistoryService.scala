@@ -19,7 +19,7 @@ class CareerHistoryService(
       person: Person
   ): ZIO[Any, Throwable | String, String] =
     mockServerContainerZ
-      .get(s"/person/${person.firstName}")
+      .get(s"/${person.firstName}")
 
 object CareerHistoryService:
   def citizenInfo(person: Person): ZIO[Has[
@@ -53,7 +53,7 @@ class LocationService(
       person: Person
   ): ZIO[Any, Throwable | String, String] =
     mockServerContainerZ
-      .get(s"/location/${person.firstName}")
+      .get(s"/${person.firstName}")
 
 object LocationService:
   def locationOf(person: Person): ZIO[Has[
@@ -85,7 +85,7 @@ class BackgroundCheckService(
       person: Person
   ): ZIO[Any, Throwable | String, String] =
     mockServerContainerZ
-      .get(s"/background/${person.firstName}")
+      .get(s"/${person.firstName}")
 
 object BackgroundCheckService:
   def criminalHistoryOf(person: Person): ZIO[Has[
@@ -96,7 +96,7 @@ object BackgroundCheckService:
         ZIO.service[BackgroundCheckService]
       info <-
         locationService.criminalHistoryOf(person)
-    yield info
+    yield s"Criminal:$info"
 
   def construct[T](
       pairs: List[RequestResponsePair]
