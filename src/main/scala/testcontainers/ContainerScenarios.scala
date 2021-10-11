@@ -40,6 +40,7 @@ object ContainerScenarios:
       personEventProducer <-
         UseKafka.createProducer("person_event")
 
+//      _ <- ZIO.forkAll(???)
       personEventToLocationStream <-
         UseKafka
           .createForwardedStreamZ(
@@ -147,7 +148,8 @@ object ContainerScenarios:
         ZIO
           .foreachParN(12)(allCitizenInfo)(
             (citizen, citizenInfo) =>
-              personEventProducer.submitForever(
+              personEventProducer.submit(
+// personEventProducer.submitForever(
                 citizen.firstName,
                 s"${citizen.firstName},${citizenInfo}"
               )

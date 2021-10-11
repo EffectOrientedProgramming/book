@@ -279,10 +279,6 @@ object UseKafka:
         "bootstrap.servers",
         kafkaContainer.getBootstrapServers.nn
       )
-      println(
-        "BootstopServers: " +
-          kafkaContainer.getBootstrapServers.nn
-      )
       // config.put("max.poll.records", "1")
       config.put("auto_offset_rest", "earliest")
 

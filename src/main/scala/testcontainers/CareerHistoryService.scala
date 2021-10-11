@@ -38,7 +38,7 @@ object CareerHistoryService:
     CareerHistoryService
   ]] =
     MockServerContainerZ
-      .construct(pairs)
+      .construct("Career History", pairs)
       .flatMap(x =>
         ZLayer
           .succeed(CareerHistoryService(x.get))
@@ -71,7 +71,7 @@ object LocationService:
     LocationService
   ]] =
     MockServerContainerZ
-      .construct(pairs)
+      .construct("Location Service", pairs)
       .flatMap(x =>
         ZLayer.succeed(LocationService(x.get))
       )
@@ -104,7 +104,10 @@ object BackgroundCheckService:
     BackgroundCheckService
   ]] =
     MockServerContainerZ
-      .construct(pairs)
+      .construct(
+        "BackgroundCheck Service",
+        pairs
+      )
       .flatMap(x =>
         ZLayer
           .succeed(BackgroundCheckService(x.get))

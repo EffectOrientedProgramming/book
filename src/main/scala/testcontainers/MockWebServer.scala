@@ -18,6 +18,7 @@ case class RequestResponsePair(
 object MockServerContainerZ:
 
   def construct[T](
+      serviceName: String,
       pairs: List[RequestResponsePair]
   ) =
     for
@@ -30,7 +31,7 @@ object MockServerContainerZ:
         GenericInteractionsZ
           .manageWithInitialization(
             container,
-            "mockserver",
+            s"$serviceName mockserver",
             MockServerContainerZ
               .mockSetup(_, pairs)
           )
