@@ -35,8 +35,9 @@ val makeAProxiedRequest =
 object ProxiedRequestScenario
     extends zio.ZIOAppDefault:
   def run =
-    makeAProxiedRequest
-      .provideSomeLayer[ZEnv](liveLayer)
+    makeAProxiedRequest.provideSomeLayer[ZEnv](
+      liveLayer(proxied = true)
+    )
 
   lazy val networkLayer
       : ZLayer[Any, Nothing, Has[Network]] =
@@ -72,15 +73,42 @@ object ProxiedRequestScenario
       )
     )
 
+  val careerServerProxied: ZLayer[Has[
+    Network
+  ] & Has[ToxiproxyContainer] & Has[Clock], Throwable, Has[
+    CareerHistoryService
+  ]] =
+    CareerHistoryService.constructProxied(
+      List(
+        RequestResponsePair(
+          "/Joe",
+          "Job:Athlete"
+        ),
+        RequestResponsePair(
+          "/Shtep",
+          "Job:Salesman"
+        ),
+        RequestResponsePair(
+          "/Zeb",
+          "Job:Mechanic"
+        )
+      )
+    )
+
   import testcontainers.QuillLocal.AppPostgresContext
   import org.testcontainers.containers.KafkaContainer
-  val liveLayer: ZLayer[Any, Throwable, Has[
+  def liveLayer(
+      proxied: Boolean
+  ): ZLayer[Any, Throwable, Has[
     Network
   ] & Has[NetworkAwareness] & Has[CareerHistoryService] & Has[ToxiproxyContainer]] =
     (Clock.live ++ networkLayer ++
       NetworkAwareness.live) >+>
       ToxyProxyContainerZ.construct() >+>
-      careerServer
+      (if (proxied)
+         careerServerProxied
+       else
+         careerServer)
 end ProxiedRequestScenario
 
 object ContainerScenarios:

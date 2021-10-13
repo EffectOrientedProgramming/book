@@ -19,6 +19,11 @@ import sttp.client3.SttpClientException.{
 
 import java.net.SocketException;
 
+case class RequestResponsePair(
+    userRequest: String,
+    response: String
+)
+
 object MockServerContainerZBasic:
 
   // TODO Debug this in particular
@@ -78,6 +83,35 @@ object MockServerContainerZBasic:
     end for
   end constructProxied
 
+  def construct[T](
+      serviceName: String,
+      pairs: List[RequestResponsePair]
+  ) =
+    for
+      network <-
+        ZLayer.service[Network].map(_.get)
+      container =
+        MockServerContainerZBasic
+          .apply(network, "latest")
+      res <-
+        GenericInteractionsZ
+          .manageWithInitialization(
+            container,
+            s"$serviceName mockserver",
+            MockServerContainerZBasic
+              .mockSetup(_, pairs)
+          )
+          .map(mockServerContainer =>
+            new MockServerContainerZBasic(
+              mockServerContainer.getHost.nn,
+              mockServerContainer
+                .getServerPort
+                .nn
+            )
+          )
+          .toLayer
+    yield res
+
   private def apply(
       network: Network,
       version: String = "latest"
@@ -88,7 +122,7 @@ object MockServerContainerZBasic:
         .nn
     ).nn
 
-  private def constructUrl(
+  def constructUrl(
       host: String,
       serverPort: Int,
       path: String

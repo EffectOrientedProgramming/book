@@ -41,15 +41,30 @@ object CareerHistoryService:
     CareerHistoryService
   ]] =
     MockServerContainerZBasic
+      .construct("Career History", pairs)
+      .flatMap(x =>
+        ZLayer
+          .succeed(CareerHistoryService(x.get))
+      )
+
+  def constructProxied[T](
+      pairs: List[RequestResponsePair]
+  ): ZLayer[Has[
+    Network
+  ] & Has[ToxiproxyContainer] & Has[Clock], Throwable, Has[
+    CareerHistoryService
+  ]] =
+    MockServerContainerZBasic
       .constructProxied("Career History", pairs)
       .flatMap(x =>
         ZLayer
           .succeed(CareerHistoryService(x.get))
       )
+
 end CareerHistoryService
 
 class LocationService(
-    mockServerContainerZ: MockServerContainerZ
+    mockServerContainerZ: MockServerContainerZBasic
 ):
 
   def locationOf(
@@ -73,7 +88,7 @@ object LocationService:
   ): ZLayer[Has[Network], Throwable, Has[
     LocationService
   ]] =
-    MockServerContainerZ
+    MockServerContainerZBasic
       .construct("Location Service", pairs)
       .flatMap(x =>
         ZLayer.succeed(LocationService(x.get))
@@ -81,7 +96,7 @@ object LocationService:
 end LocationService
 
 class BackgroundCheckService(
-    mockServerContainerZ: MockServerContainerZ
+    mockServerContainerZ: MockServerContainerZBasic
 ):
 
   def criminalHistoryOf(
@@ -106,7 +121,7 @@ object BackgroundCheckService:
   ): ZLayer[Has[Network], Throwable, Has[
     BackgroundCheckService
   ]] =
-    MockServerContainerZ
+    MockServerContainerZBasic
       .construct(
         "BackgroundCheck Service",
         pairs
