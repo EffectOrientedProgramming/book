@@ -4,21 +4,108 @@ import zio.*
 
 import scala.jdk.CollectionConverters.*
 import zio.Console.*
-import org.testcontainers.containers.Network
+import org.testcontainers.containers.{
+  Network,
+  ToxiproxyContainer
+}
 
 case class SuspectProfile(
     name: String,
     criminalHistory: Option[String]
 )
 
+val makeAProxiedRequest =
+  for
+    result <-
+      CareerHistoryService
+        .citizenInfo(Person("Zeb", "Zestie", 27))
+        .tapError { failure =>
+          val errorMsg =
+            failure match
+              case t: Throwable =>
+                t.getCause.nn.getMessage
+              case s: String =>
+                s
+          printLine("Failure: " + failure) *>
+            printLine(errorMsg) *>
+            ZIO.sleep(30.seconds)
+        }
+  yield ()
+
+object ProxiedRequestScenario
+    extends zio.ZIOAppDefault:
+  def run =
+    makeAProxiedRequest
+      .provideSomeLayer[ZEnv](liveLayer)
+
+  lazy val networkLayer
+      : ZLayer[Any, Nothing, Has[Network]] =
+    ZManaged
+      .acquireReleaseWith(
+        ZIO.debug("Creating network") *>
+          ZIO.succeed(Network.newNetwork().nn)
+      )((n: Network) =>
+        ZIO.attempt(n.close()).orDie *>
+          ZIO.debug("Closing network")
+      )
+      .toLayer
+
+  val careerServer: ZLayer[Has[
+    Network
+  ] & Has[ToxiproxyContainer] & Has[Clock], Throwable, Has[
+    CareerHistoryService
+  ]] =
+    CareerHistoryService.construct(
+      List(
+        RequestResponsePair(
+          "/Joe",
+          "Job:Athlete"
+        ),
+        RequestResponsePair(
+          "/Shtep",
+          "Job:Salesman"
+        ),
+        RequestResponsePair(
+          "/Zeb",
+          "Job:Mechanic"
+        )
+      )
+    )
+
+  import testcontainers.QuillLocal.AppPostgresContext
+  import org.testcontainers.containers.KafkaContainer
+  val liveLayer: ZLayer[Any, Throwable, Has[
+    Network
+  ] & Has[NetworkAwareness] & Has[CareerHistoryService] & Has[ToxiproxyContainer]] =
+    (Clock.live ++ networkLayer ++
+      NetworkAwareness.live) >+>
+      ToxyProxyContainerZ.construct() >+>
+      careerServer
+end ProxiedRequestScenario
+
 object ContainerScenarios:
   val logic =
     for
+      // careerService <-
+      // ZIO.service[CareerHistoryService]
+      // _ <- careerService.mockServerContainerZ
+      _ <- printLine("Doing any logic at all...")
       people <- QuillLocal.quillQuery
       allCitizenInfo <-
         ZIO.foreach(people)(x =>
           CareerHistoryService
             .citizenInfo(x)
+            .tapError { failure =>
+              val errorMsg =
+                failure match
+                  case t: Throwable =>
+                    t.getCause.nn.getMessage
+                  case s: String =>
+                    s
+              printLine("Failure: " + failure) *>
+                printLine(errorMsg) *>
+                ZIO.sleep(30.seconds)
+            }
             .map((x, _))
         )
       _ <-
@@ -214,7 +301,9 @@ object ContainerScenarios:
 
   val careerServer: ZLayer[Has[
     Network
-  ], Throwable, Has[CareerHistoryService]] =
+  ] & Has[ToxiproxyContainer] & Has[Clock], Throwable, Has[
+    CareerHistoryService
+  ]] =
     CareerHistoryService.construct(
       List(
         RequestResponsePair(
@@ -274,11 +363,12 @@ object ContainerScenarios:
   import org.testcontainers.containers.KafkaContainer
   val layer: ZLayer[Any, Throwable, Has[
     Network
-  ] & Has[NetworkAwareness] & (Has[PostgresContainerJ] & Has[KafkaContainer]) & Has[AppPostgresContext] & Has[CareerHistoryService] & Has[LocationService] & Has[BackgroundCheckService]] =
-    ((networkLayer ++ NetworkAwareness.live) >+>
+  ] & Has[NetworkAwareness] & (Has[PostgresContainerJ] & Has[KafkaContainer]) & Has[AppPostgresContext] & Has[CareerHistoryService] & Has[LocationService] & Has[BackgroundCheckService] & Has[ToxiproxyContainer]] =
+    ((Clock.live ++ networkLayer ++
+      NetworkAwareness.live) >+>
       (PostgresContainer.construct("init.sql") ++
-        KafkaContainerZ
-          .construct(topicNames))) >+>
+        KafkaContainerZ.construct(topicNames)) ++
+      ToxyProxyContainerZ.construct()) >+>
       (QuillLocal.quillPostgresContext) ++
       careerServer ++
       locationServer ++ backgroundCheckServer

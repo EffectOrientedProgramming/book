@@ -28,7 +28,7 @@ object GenericInteractionsZ:
         Throwable,
         Unit
       ] = (_: T) => ZIO.unit
-  ) =
+  ): ZManaged[Any, Throwable, T] =
     ZManaged.acquireReleaseWith(
       ZIO.debug(s"Creating $containerType") *>
         start(c, containerType) *>

@@ -3,16 +3,17 @@ package testcontainers
 import zio.*
 import org.testcontainers.containers.{
   GenericContainer,
-  Network
+  MockServerContainer,
+  Network,
+  ToxiproxyContainer
 }
-import org.testcontainers.containers.MockServerContainer
 import org.testcontainers.utility.DockerImageName
 import org.mockserver.client.MockServerClient
 import org.mockserver.model.HttpRequest.request
 import org.mockserver.model.HttpResponse.response
 
-class CareerHistoryService(
-    mockServerContainerZ: MockServerContainerZ
+case class CareerHistoryService(
+    mockServerContainerZ: MockServerContainerZBasic
 ):
 
   def citizenInfo(
@@ -34,11 +35,16 @@ object CareerHistoryService:
 
   def construct[T](
       pairs: List[RequestResponsePair]
-  ): ZLayer[Has[Network], Throwable, Has[
+  ): ZLayer[Has[
+    Network
+  ] & Has[ToxiproxyContainer] & Has[Clock], Throwable, Has[
     CareerHistoryService
   ]] =
-    MockServerContainerZ
-      .construct("Career History", pairs)
+    println(
+      "Constructing proxied MockWebServer for Career History"
+    )
+    MockServerContainerZBasic
+      .constructProxied("Career History", pairs)
       .flatMap(x =>
         ZLayer
           .succeed(CareerHistoryService(x.get))
