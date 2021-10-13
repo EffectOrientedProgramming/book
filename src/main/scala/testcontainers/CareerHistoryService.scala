@@ -40,9 +40,6 @@ object CareerHistoryService:
   ] & Has[ToxiproxyContainer] & Has[Clock], Throwable, Has[
     CareerHistoryService
   ]] =
-    println(
-      "Constructing proxied MockWebServer for Career History"
-    )
     MockServerContainerZBasic
       .constructProxied("Career History", pairs)
       .flatMap(x =>

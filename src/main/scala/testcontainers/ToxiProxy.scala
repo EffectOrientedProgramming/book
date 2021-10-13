@@ -50,36 +50,46 @@ object ToxyProxyContainerZ:
           .toLayer
     yield res
 
-  def use(
+  def createProxiedLink(
       toxiproxyContainer: ToxiproxyContainer,
       mockServerContainer: MockServerContainer
   ) =
 
     println("Using")
+
+    /* toxiproxyContainer .getBoundPortNumbers
+     * .nn .forEach(x => println(x.nn)) while
+     * (!toxiproxyContainer.isHealthy) {
+     * println("Waiting for health check") } */
+
     val proxy
         : ToxiproxyContainer.ContainerProxy =
       toxiproxyContainer
         .getProxy(
           mockServerContainer,
           mockServerContainer.getServerPort.nn
-//          mockServerContainer
-//            .getExposedPorts
-//            .nn
-//            .asScala
-//            .head
         )
         .nn
 
-    proxy
-      .toxics()
-      .nn
-      .latency(
-        "latency",
-        ToxicDirection.DOWNSTREAM,
-        1_100
-      )
+//    proxy
+//      .toxics()
+//      .nn
+//      .latency(
+//        "latency",
+//        ToxicDirection.DOWNSTREAM,
+//        1_100
+//      )
 
-    println("Used")
+    println(
+      "Hopefully setup Proxy target: " +
+        mockServerContainer.getServerPort.nn
+    )
+
+    println(
+      "Proxy target on underlying service: " +
+        proxy.getOriginalProxyPort.nn
+    )
     proxy.getProxyPort.nn
-  end use
+//    proxy.getOriginalProxyPort.nn
+  end createProxiedLink
 end ToxyProxyContainerZ

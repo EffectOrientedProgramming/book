@@ -1,6 +1,7 @@
 package testcontainers
 
 import zio.*
+import zio.Console.printLine
 import org.testcontainers.containers.{
   GenericContainer,
   Network
@@ -99,25 +100,29 @@ class MockServerContainerZ(
       path: String
   ): ZIO[Any, Throwable | String, String] =
     for
-      responseBody <-
-        ZIO.attempt {
-          import sttp.client3.{
-            HttpURLConnectionBackend,
+      response <-
+        try
+          ZIO.attempt {
+            import sttp.client3.{
+              HttpURLConnectionBackend,
+              basicRequest
+            }
             basicRequest
-          }
-
-          basicRequest
-            .get(
-              MockServerContainerZ.constructUrl(
-                mockServerContainer,
-                path
+              .get(
+                MockServerContainerZ
+                  .constructUrl(
+                    mockServerContainer,
+                    path
+                  )
               )
-            )
-            .send(HttpURLConnectionBackend())
-            .body
-        }
+              .send(HttpURLConnectionBackend())
+          }
+        catch
+          case defect =>
+            ZIO.debug(defect) *> ZIO.fail(defect)
+      _ <- ZIO.debug(response.code)
       responseBodyZ <-
-        ZIO.fromEither(responseBody)
+        ZIO.fromEither(response.body)
     yield responseBodyZ
 
 end MockServerContainerZ

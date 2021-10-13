@@ -1,6 +1,7 @@
 package testcontainers
 
 import zio.*
+import zio.Console.printLine
 import org.testcontainers.containers.{
   GenericContainer,
   MockServerContainer,
@@ -10,10 +11,17 @@ import org.testcontainers.containers.{
 import org.testcontainers.utility.DockerImageName
 import org.mockserver.client.MockServerClient
 import org.mockserver.model.HttpRequest.request
-import org.mockserver.model.HttpResponse.response;
+import org.mockserver.model.HttpResponse.response
+import sttp.client3.SttpClientException.{
+  ConnectException,
+  ReadException
+}
+
+import java.net.SocketException;
 
 object MockServerContainerZBasic:
 
+  // TODO Debug this in particular
   def constructProxied[T](
       serviceName: String,
       pairs: List[RequestResponsePair]
@@ -30,8 +38,6 @@ object MockServerContainerZBasic:
         ZLayer
           .service[ToxiproxyContainer]
           .map(_.get)
-      _ <- ZIO.sleep(2.seconds).toLayer
-//      _ <- ZIO.debug("YYY").toLayer
       container =
         MockServerContainerZBasic
           .apply(network, "latest")
@@ -50,7 +56,10 @@ object MockServerContainerZBasic:
           .map { mockContainer =>
             val proxy: Int =
               ToxyProxyContainerZ
-                .use(toxi, container)
+                .createProxiedLink(
+                  toxi,
+                  container
+                )
             println("Proxy port: " + proxy)
 
             new MockServerContainerZBasic(
@@ -60,6 +69,10 @@ object MockServerContainerZBasic:
               proxy
             )
           }
+          .tap(container =>
+            ZManaged.succeed(println("hm"))
+// printLine(container).toLayer
+          )
           .toLayer
     yield res
     end for
@@ -124,32 +137,59 @@ class MockServerContainerZBasic(
 ):
   println("Host for mock server: " + host)
 
-  // TODO Include Network dependency of some kind
   def get(
       path: String
   ): ZIO[Any, Throwable | String, String] =
     for
-      responseBody <-
-        ZIO.attempt {
-          import sttp.client3.{
-            HttpURLConnectionBackend,
-            basicRequest
-          }
-
-          basicRequest
-            .get(
-              MockServerContainerZBasic
-                .constructUrl(
-                  host,
-                  serverPort,
-                  path
+      response <-
+        try
+          ZIO.debug("Hi") *>
+            ZIO
+              .attempt {
+                import sttp.client3.{
+                  HttpURLConnectionBackend,
+                  basicRequest
+                }
+                val r =
+                  basicRequest
+                    .get(
+                      MockServerContainerZBasic
+                        .constructUrl(
+                          host,
+                          serverPort,
+                          path
+                        )
+                    )
+                    .send(
+                      HttpURLConnectionBackend()
+                    )
+                println("Damnit")
+                r
+              }
+              .tapError { x =>
+                import sttp.client3.SttpClientException
+                (
+                  x match
+                    case err: ConnectException =>
+                      ZIO.debug(
+                        "ConnectException: " +
+                          err
+                      )
+                    case err: ReadException =>
+                      ZIO.debug(
+                        "ReadException: " + err
+                      )
+                    case _ =>
+                      ZIO.unit
                 )
-            )
-            .send(HttpURLConnectionBackend())
-            .body
-        }
+              }
+        catch
+          case defect =>
+            ZIO.debug("Defect: " + defect) *>
+              ZIO.fail(defect)
+      _ <- ZIO.debug(response.code)
       responseBodyZ <-
-        ZIO.fromEither(responseBody)
+        ZIO.fromEither(response.body)
     yield responseBodyZ
 
 end MockServerContainerZBasic
