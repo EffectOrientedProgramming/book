@@ -18,7 +18,7 @@ scalacOptions -= "-explain"
 // TODO Make sure this only happens in Intellij. It breaks VSCode
 // scalacOptions -= "-encoding"
 
-val zioVersion = "2.0.0-M3"
+val zioVersion = "2.0.0-M4"
 
 libraryDependencies ++=
   Seq(
