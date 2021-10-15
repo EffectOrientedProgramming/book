@@ -59,25 +59,22 @@ object MockServerContainerZBasic:
                 .mockSetup(c, pairs)
           )
           .map { mockContainer =>
-            val proxy: Int =
+            val proxyPort: Int =
               ToxyProxyContainerZ
                 .createProxiedLink(
                   toxi,
                   container
                 )
-            println("Proxy port: " + proxy)
+            println("Proxy port: " + proxyPort)
 
             new MockServerContainerZBasic(
               container
                 .getHost
                 .nn, // TODO Assumes proxy and server are on same host
-              proxy
+              proxyPort,
+              ZIO.unit
             )
           }
-          .tap(container =>
-            ZManaged.succeed(println("hm"))
-// printLine(container).toLayer
-          )
           .toLayer
     yield res
     end for
@@ -85,8 +82,15 @@ object MockServerContainerZBasic:
 
   def construct[T](
       serviceName: String,
-      pairs: List[RequestResponsePair]
-  ) =
+      pairs: List[RequestResponsePair],
+      proxyZ: ZIO[
+        Any,
+        Throwable | String,
+        Unit
+      ] = ZIO.unit
+  ): ZLayer[Has[Network], Throwable, Has[
+    MockServerContainerZBasic
+  ]] =
     for
       network <-
         ZLayer.service[Network].map(_.get)
@@ -106,7 +110,8 @@ object MockServerContainerZBasic:
               mockServerContainer.getHost.nn,
               mockServerContainer
                 .getServerPort
-                .nn
+                .nn,
+              proxyZ
             )
           )
           .toLayer
@@ -165,58 +170,61 @@ object MockServerContainerZBasic:
 
 end MockServerContainerZBasic
 
+trait MockServer:
+  def get(
+      path: String
+  ): ZIO[Any, Throwable | String, String]
+
 class MockServerContainerZBasic(
     host: String,
-    serverPort: Int
-):
-  println("Host for mock server: " + host)
+    serverPort: Int,
+    proxyZ: ZIO[Any, Throwable | String, Unit]
+) extends MockServer:
 
-  def get(
+  override def get(
       path: String
   ): ZIO[Any, Throwable | String, String] =
     for
+      _ <- proxyZ
       response <-
         try
-          ZIO.debug("Hi") *>
-            ZIO
-              .attempt {
-                import sttp.client3.{
-                  HttpURLConnectionBackend,
-                  basicRequest
-                }
-                val r =
-                  basicRequest
-                    .get(
-                      MockServerContainerZBasic
-                        .constructUrl(
-                          host,
-                          serverPort,
-                          path
-                        )
-                    )
-                    .send(
-                      HttpURLConnectionBackend()
-                    )
-                println("Damnit")
-                r
+          ZIO
+            .attempt {
+              import sttp.client3.{
+                HttpURLConnectionBackend,
+                basicRequest
               }
-              .tapError { x =>
-                import sttp.client3.SttpClientException
-                (
-                  x match
-                    case err: ConnectException =>
-                      ZIO.debug(
-                        "ConnectException: " +
-                          err
+              val r =
+                basicRequest
+                  .get(
+                    MockServerContainerZBasic
+                      .constructUrl(
+                        host,
+                        serverPort,
+                        path
                       )
-                    case err: ReadException =>
-                      ZIO.debug(
-                        "ReadException: " + err
-                      )
-                    case _ =>
-                      ZIO.unit
-                )
-              }
+                  )
+                  .send(
+                    HttpURLConnectionBackend()
+                  )
+              r
+            }
+            .tapError { x =>
+              import sttp.client3.SttpClientException
+              (
+                x match
+                  case err: ConnectException =>
+                    ZIO.debug(
+                      "ConnectException: " + err
+                    )
+                  case err: ReadException =>
+                    ZIO.debug(
+                      "ReadException: " + err
+                    )
+                  case _ =>
+                    ZIO.unit
+              )
+            }
         catch
           case defect =>
             ZIO.debug("Defect: " + defect) *>

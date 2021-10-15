@@ -12,9 +12,43 @@ import org.mockserver.client.MockServerClient
 import org.mockserver.model.HttpRequest.request
 import org.mockserver.model.HttpResponse.response
 
-case class CareerHistoryService(
+trait CareerHistoryServiceT:
+  def citizenInfo(
+      person: Person
+  ): ZIO[Any, Throwable | String, String]
+
+class CareerHistoryHardcoded(
+    pairs: List[RequestResponsePair],
+    proxyZ: ZIO[Any, Throwable | String, Unit] =
+      ZIO.unit
+) extends CareerHistoryServiceT:
+
+  def citizenInfo(
+      person: Person
+  ): ZIO[Any, Throwable | String, String] =
+    for
+      _ <- proxyZ
+      res <-
+        ZIO
+          .fromOption(
+            pairs
+              .find(
+                _.userRequest ==
+                  s"/${person.firstName}"
+              )
+              .map(_.response)
+          )
+          .mapError(_ =>
+            new NoSuchElementException(
+              s"No response for Person: $person"
+            )
+          )
+    yield res
+end CareerHistoryHardcoded
+
+case class CareerHistoryServiceContainer(
     mockServerContainerZ: MockServerContainerZBasic
-):
+) extends CareerHistoryServiceT:
 
   def citizenInfo(
       person: Person
@@ -24,41 +58,48 @@ case class CareerHistoryService(
 
 object CareerHistoryService:
   def citizenInfo(person: Person): ZIO[Has[
-    CareerHistoryService
+    CareerHistoryServiceT
   ], Throwable | String, String] =
     for
       careerHistoryService <-
-        ZIO.service[CareerHistoryService]
+        ZIO.service[CareerHistoryServiceT]
       info <-
         careerHistoryService.citizenInfo(person)
     yield info
 
-  def construct[T](
-      pairs: List[RequestResponsePair]
+  def constructContainered[T](
+      pairs: List[RequestResponsePair],
+      proxyZ: ZIO[
+        Any,
+        Throwable | String,
+        Unit
+      ] = ZIO.unit
   ): ZLayer[Has[
     Network
   ] & Has[ToxiproxyContainer] & Has[Clock], Throwable, Has[
-    CareerHistoryService
+    CareerHistoryServiceT
   ]] =
     MockServerContainerZBasic
-      .construct("Career History", pairs)
+      .construct("Career History", pairs, proxyZ)
       .flatMap(x =>
-        ZLayer
-          .succeed(CareerHistoryService(x.get))
+        ZLayer.succeed(
+          CareerHistoryServiceContainer(x.get)
+        )
       )
 
-  def constructProxied[T](
+  def constructContainerProxied[T](
       pairs: List[RequestResponsePair]
   ): ZLayer[Has[
     Network
   ] & Has[ToxiproxyContainer] & Has[Clock], Throwable, Has[
-    CareerHistoryService
+    CareerHistoryServiceT
   ]] =
     MockServerContainerZBasic
       .constructProxied("Career History", pairs)
       .flatMap(x =>
-        ZLayer
-          .succeed(CareerHistoryService(x.get))
+        ZLayer.succeed(
+          CareerHistoryServiceContainer(x.get)
+        )
       )
 
 end CareerHistoryService
