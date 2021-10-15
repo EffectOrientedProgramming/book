@@ -4,76 +4,39 @@ import zio.*
 
 import scala.jdk.CollectionConverters.*
 import zio.Console.*
-import org.testcontainers.containers.{
-  Network,
-  ToxiproxyContainer
+import org.testcontainers.containers.{Network}
+import testcontainers.proxy.{
+  inconsistentFailuresZ,
+  jitter
 }
+import testcontainers.QuillLocal.AppPostgresContext
+import org.testcontainers.containers.KafkaContainer
+
+import org.testcontainers.containers.MockServerContainer
 
 case class SuspectProfile(
     name: String,
     criminalHistory: Option[String]
 )
 
-object Layers:
-  lazy val networkLayer
-      : ZLayer[Any, Nothing, Has[Network]] =
-    ZManaged
-      .acquireReleaseWith(
-        ZIO.debug("Creating network") *>
-          ZIO.succeed(Network.newNetwork().nn)
-      )((n: Network) =>
-        ZIO.attempt(n.close()).orDie *>
-          ZIO.debug("Closing network")
-      )
-      .toLayer
-
 val makeAProxiedRequest =
   for
     result <-
       CareerHistoryService
         .citizenInfo(Person("Zeb", "Zestie", 27))
-        .tapError { failure =>
-          val errorMsg =
-            failure match
-              case t: Throwable =>
-                if (t.getCause != null)
-                  t.getCause.nn.getMessage
-                else
-                  t
-              case s: String =>
-                s
-          printLine("Failure: " + failure) *>
-            printLine(errorMsg)
-        }
+        .tapError(reportTopLevelError)
     _ <- printLine("Result: " + result)
   yield ()
 
 object ProxiedRequestScenario
     extends zio.ZIOAppDefault:
   def run =
-    makeAProxiedRequest.provideSomeLayer[ZEnv](
-      liveLayer(proxied = false)
-    )
-
-  val inconsistentFailuresZ =
-    (
-      for
-        randomInt <- Random.nextInt
-        _ <-
-          ZIO.attempt {
-            if (randomInt % 2 == 0)
-              throw new RuntimeException(
-                "Random failure"
-              )
-            else
-              ()
-          }
-      yield ()
-    ).provideLayer(Random.live)
+    makeAProxiedRequest
+      .provideSomeLayer[ZEnv](liveLayer)
 
   val careerServer: ZLayer[Has[
     Network
-  ] & Has[ToxiproxyContainer] & Has[Clock], Throwable, Has[
+  ] & Has[Clock], Throwable, Has[
     CareerHistoryServiceT
   ]] =
     CareerHistoryService.constructContainered(
@@ -94,30 +57,7 @@ object ProxiedRequestScenario
       inconsistentFailuresZ
     )
 
-  val careerServerProxied: ZLayer[Has[
-    Network
-  ] & Has[ToxiproxyContainer] & Has[Clock], Throwable, Has[
-    CareerHistoryServiceT
-  ]] =
-    CareerHistoryService
-      .constructContainerProxied(
-        List(
-          RequestResponsePair(
-            "/Joe",
-            "Job:Athlete"
-          ),
-          RequestResponsePair(
-            "/Shtep",
-            "Job:Salesman"
-          ),
-          RequestResponsePair(
-            "/Zeb",
-            "Job:Mechanic"
-          )
-        )
-      )
-
-  def wiredDeps(proxied: Boolean): ZLayer[
+  val liveLayer: ZLayer[
     Any,
     Throwable,
     Deps.AppDependencies
@@ -127,65 +67,17 @@ object ProxiedRequestScenario
       Layers.networkLayer,
       NetworkAwareness.live,
       ToxyProxyContainerZ.construct(),
-      (
-        if (proxied)
-          careerServerProxied
-        else
-          careerServer
-      )
+      careerServer
     )
 
-  import testcontainers.QuillLocal.AppPostgresContext
-  import org.testcontainers.containers.KafkaContainer
-
-  def liveLayer(proxied: Boolean): ZLayer[
-    Any,
-    Throwable,
-    Deps.AppDependencies
-  ] =
-    (Clock.live ++ Layers.networkLayer ++
-      NetworkAwareness.live) >+>
-      ToxyProxyContainerZ.construct() >+>
-      (if (proxied)
-         careerServerProxied
-       else
-         careerServer)
 end ProxiedRequestScenario
 
 object ProxiedRequestScenarioUnit
     extends zio.ZIOAppDefault:
 
   def run =
-    makeAProxiedRequest.provideSomeLayer[ZEnv](
-      liveLayer(proxied = false)
-    )
-
-  val inconsistentFailuresZ =
-    (
-      for
-        randomInt <- Random.nextInt
-        _ <-
-          ZIO.attempt {
-            if (randomInt % 2 == 0)
-              throw new RuntimeException(
-                "Random failure"
-              )
-            else
-              ()
-          }
-      yield ()
-    ).provideLayer(Random.live)
-
-  val jitter =
-    (
-      for
-        rand <- Random.nextIntBetween(1, 5)
-        _ <-
-          ZIO
-            .debug(s"Sleeping for $rand seconds")
-        _ <- ZIO.sleep(rand.seconds)
-      yield ()
-    ).provideLayer(Random.live ++ Clock.live)
+    makeAProxiedRequest
+      .provideSomeLayer[ZEnv](liveLayer)
 
   val careerServer: ZLayer[Any, Nothing, Has[
     CareerHistoryServiceT
@@ -206,42 +98,37 @@ object ProxiedRequestScenarioUnit
             "Job:Mechanic"
           )
         ),
-//        inconsistentFailuresZ
         inconsistentFailuresZ *> jitter
       )
     )
   end careerServer
 
-  def liveLayer(
-      proxied: Boolean
-  ): ZLayer[Any, Throwable, Has[
+  val liveLayer: ZLayer[Any, Throwable, Has[
     CareerHistoryServiceT
   ]] = careerServer
 end ProxiedRequestScenarioUnit
 
+def reportTopLevelError(
+    failure: Throwable | String
+) =
+  val errorMsg =
+    failure match
+      case t: Throwable =>
+        t.getCause.nn.getMessage
+      case s: String =>
+        s
+  printLine("Failure: " + failure) *>
+    printLine(errorMsg)
+
 object ContainerScenarios:
   val logic =
     for
-      // careerService <-
-      // ZIO.service[CareerHistoryService]
-      // _ <- careerService.mockServerContainerZ
-      _ <- printLine("Doing any logic at all...")
       people <- QuillLocal.quillQuery
       allCitizenInfo <-
         ZIO.foreach(people)(x =>
           CareerHistoryService
             .citizenInfo(x)
-            .tapError { failure =>
-              val errorMsg =
-                failure match
-                  case t: Throwable =>
-                    t.getCause.nn.getMessage
-                  case s: String =>
-                    s
-              printLine("Failure: " + failure) *>
-                printLine(errorMsg) *>
-                ZIO.sleep(30.seconds)
-            }
+            .tapError(reportTopLevelError)
             .map((x, _))
         )
       _ <-
@@ -376,7 +263,6 @@ object ContainerScenarios:
           .foreachParN(12)(allCitizenInfo)(
             (citizen, citizenInfo) =>
               personEventProducer.submit(
-// personEventProducer.submitForever(
                 citizen.firstName,
                 s"${citizen.firstName},${citizenInfo}"
               )
@@ -386,7 +272,6 @@ object ContainerScenarios:
 
       _ <- producer.join
       _ <- criminalHistoryStream.join
-//      _ <- consumingPoller.join
       _ <- personEventToLocationStream.join
       _ <- criminalPoller.join
       _ <- consumingPoller2.join
@@ -421,11 +306,9 @@ object ContainerScenarios:
         )
     yield people
 
-  import org.testcontainers.containers.MockServerContainer
-
   val careerServer: ZLayer[Has[
     Network
-  ] & Has[ToxiproxyContainer] & Has[Clock], Throwable, Has[
+  ] & Has[Clock], Throwable, Has[
     CareerHistoryServiceT
   ]] =
     CareerHistoryService.constructContainered(
@@ -476,7 +359,6 @@ object ContainerScenarios:
       )
     )
 
-  import testcontainers.QuillLocal.AppPostgresContext
   val topicNames =
     List(
       "person_event",
@@ -484,52 +366,21 @@ object ContainerScenarios:
       "criminal_history"
     )
 
-  import org.testcontainers.containers.KafkaContainer
-  val layer: ZLayer[Any, Throwable, Has[
-    Network
-  ] & Has[NetworkAwareness] & (Has[PostgresContainerJ] & Has[KafkaContainer]) & Has[AppPostgresContext] & Has[CareerHistoryServiceT] & Has[LocationService] & Has[BackgroundCheckService] & Has[ToxiproxyContainer]] =
-    ((Clock.live ++ Layers.networkLayer ++
-      NetworkAwareness.live) >+>
-      (PostgresContainer.construct("init.sql") ++
-        KafkaContainerZ.construct(topicNames)) ++
-      ToxyProxyContainerZ.construct()) >+>
-      (QuillLocal.quillPostgresContext) ++
-      careerServer ++
-      locationServer ++ backgroundCheckServer
+  val layer =
+    ZLayer.wire[Deps.RubeDependencies](
+      Clock.live,
+      Layers.networkLayer,
+      NetworkAwareness.live,
+      PostgresContainer.construct("init.sql"),
+      KafkaContainerZ.construct(topicNames),
+      ToxyProxyContainerZ.construct(),
+      QuillLocal.quillPostgresContext,
+      careerServer,
+      locationServer,
+      backgroundCheckServer
+    )
 
 end ContainerScenarios
-
-object RecordManipulation:
-  import org.apache.kafka.clients.consumer.ConsumerRecord
-  def getField(
-      fieldName: String,
-      record: ConsumerRecord[String, String]
-  ) =
-    val fields: List[String] =
-      java
-        .util
-        .Arrays
-        .asList(
-          record.value.nn.split(",").nn.map(_.nn)
-        )
-        .nn
-        .asScala
-        .last
-        .toList
-
-    val field: String =
-      fields
-        .find(_.startsWith(fieldName))
-        .getOrElse(
-          throw new IllegalArgumentException(
-            s"Bad fieldName : $fieldName"
-          )
-        )
-
-    field.dropWhile(_ != ':').drop(1)
-
-  end getField
-end RecordManipulation
 
 object RunScenarios extends zio.ZIOAppDefault:
   def run =

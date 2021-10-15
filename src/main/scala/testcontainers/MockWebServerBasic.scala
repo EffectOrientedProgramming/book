@@ -26,60 +26,6 @@ case class RequestResponsePair(
 
 object MockServerContainerZBasic:
 
-  // TODO Debug this in particular
-  def constructProxied[T](
-      serviceName: String,
-      pairs: List[RequestResponsePair]
-  ): ZLayer[Has[ToxiproxyContainer] with Has[
-    Network
-  ] & Has[Clock], Throwable, Has[
-    MockServerContainerZBasic
-  ]] =
-    for
-      network <-
-        ZLayer.service[Network].map(_.get)
-      _ <- ZIO.debug("XXX").toLayer
-      toxi <-
-        ZLayer
-          .service[ToxiproxyContainer]
-          .map(_.get)
-      container =
-        MockServerContainerZBasic
-          .apply(network, "latest")
-      // TODO move toxi access into
-      // ToxyProxyContainerZ
-      _ <- ZIO.debug("ZZZ").toLayer
-      res <-
-        GenericInteractionsZ
-          .manageWithInitialization(
-            container,
-            s"$serviceName mockserver",
-            c =>
-              MockServerContainerZBasic
-                .mockSetup(c, pairs)
-          )
-          .map { mockContainer =>
-            val proxyPort: Int =
-              ToxyProxyContainerZ
-                .createProxiedLink(
-                  toxi,
-                  container
-                )
-            println("Proxy port: " + proxyPort)
-
-            new MockServerContainerZBasic(
-              container
-                .getHost
-                .nn, // TODO Assumes proxy and server are on same host
-              proxyPort,
-              ZIO.unit
-            )
-          }
-          .toLayer
-    yield res
-    end for
-  end constructProxied
-
   def construct[T](
       serviceName: String,
       pairs: List[RequestResponsePair],

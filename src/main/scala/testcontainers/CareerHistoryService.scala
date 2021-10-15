@@ -4,8 +4,7 @@ import zio.*
 import org.testcontainers.containers.{
   GenericContainer,
   MockServerContainer,
-  Network,
-  ToxiproxyContainer
+  Network
 }
 import org.testcontainers.utility.DockerImageName
 import org.mockserver.client.MockServerClient
@@ -76,26 +75,11 @@ object CareerHistoryService:
       ] = ZIO.unit
   ): ZLayer[Has[
     Network
-  ] & Has[ToxiproxyContainer] & Has[Clock], Throwable, Has[
+  ] & Has[Clock], Throwable, Has[
     CareerHistoryServiceT
   ]] =
     MockServerContainerZBasic
       .construct("Career History", pairs, proxyZ)
-      .flatMap(x =>
-        ZLayer.succeed(
-          CareerHistoryServiceContainer(x.get)
-        )
-      )
-
-  def constructContainerProxied[T](
-      pairs: List[RequestResponsePair]
-  ): ZLayer[Has[
-    Network
-  ] & Has[ToxiproxyContainer] & Has[Clock], Throwable, Has[
-    CareerHistoryServiceT
-  ]] =
-    MockServerContainerZBasic
-      .constructProxied("Career History", pairs)
       .flatMap(x =>
         ZLayer.succeed(
           CareerHistoryServiceContainer(x.get)
