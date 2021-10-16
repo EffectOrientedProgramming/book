@@ -385,4 +385,33 @@ object UseKafka:
               )
           )
     yield ()
+
+  def createSink[R, E](
+      topicName: String,
+      op: ConsumerRecord[String, String] => ZIO[
+        R,
+        E,
+        Unit
+      ],
+      groupId: String
+  ): ZIO[Has[Console] with R with Has[
+    KafkaContainer
+  ], Any, Unit] = // TODO Narrow error type
+    createConsumer(topicName, groupId)
+      .flatMap(consumer =>
+        consumer
+          .pollStream()
+          .foreach(recordsConsumed =>
+            ZIO
+              .foreach(recordsConsumed)(record =>
+                for
+                  newValue <- op(record)
+                  _ <-
+                    printLine(
+                      s"Terminal Consumption: ${consumer.topicName} --> ${record.value}"
+                    )
+                yield ()
+              )
+          )
+      )
 end UseKafka

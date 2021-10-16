@@ -23,7 +23,7 @@ import testcontainers.proxy.{
 
 trait CareerHistoryServiceT:
   def citizenInfo(
-      person: Person
+      person: String
   ): ZIO[Any, Throwable | String, String]
 
 object CareerHistoryHardcoded:
@@ -46,7 +46,7 @@ class CareerHistoryHardcoded private (
 ) extends CareerHistoryServiceT:
 
   def citizenInfo(
-      person: Person
+      person: String
   ): ZIO[Any, Throwable | String, String] =
     for
       _ <- proxyZ
@@ -55,10 +55,7 @@ class CareerHistoryHardcoded private (
           .fromOption(
             pairs
               .expectedData
-              .find(
-                _.userRequest ==
-                  s"/${person.firstName}"
-              )
+              .find(_.userRequest == s"/$person")
               .map(_.response)
           )
           .mapError(_ =>
@@ -74,13 +71,12 @@ case class CareerHistoryServiceContainer(
 ) extends CareerHistoryServiceT:
 
   def citizenInfo(
-      person: Person
+      person: String
   ): ZIO[Any, Throwable | String, String] =
-    mockServerContainerZ
-      .get(s"/${person.firstName}")
+    mockServerContainerZ.get(s"/$person")
 
 object CareerHistoryService:
-  def citizenInfo(person: Person): ZIO[Has[
+  def citizenInfo(person: String): ZIO[Has[
     CareerHistoryServiceT
   ], Throwable | String, String] =
     for
@@ -123,13 +119,12 @@ class LocationService(
 ):
 
   def locationOf(
-      person: Person
+      person: String
   ): ZIO[Any, Throwable | String, String] =
-    mockServerContainerZ
-      .get(s"/${person.firstName}")
+    mockServerContainerZ.get(s"/$person")
 
 object LocationService:
-  def locationOf(person: Person): ZIO[Has[
+  def locationOf(person: String): ZIO[Has[
     LocationService
   ], Throwable | String, String] =
     for
@@ -161,13 +156,12 @@ class BackgroundCheckService(
 ):
 
   def criminalHistoryOf(
-      person: Person
+      person: String
   ): ZIO[Any, Throwable | String, String] =
-    mockServerContainerZ
-      .get(s"/${person.firstName}")
+    mockServerContainerZ.get(s"/$person")
 
 object BackgroundCheckService:
-  def criminalHistoryOf(person: Person): ZIO[Has[
+  def criminalHistoryOf(person: String): ZIO[Has[
     BackgroundCheckService
   ], Throwable | String, String] =
     for

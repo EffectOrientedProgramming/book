@@ -26,7 +26,7 @@ val makeAProxiedRequest =
   for
     result <-
       CareerHistoryService
-        .citizenInfo(Person("Zeb", "Zestie", 27))
+        .citizenInfo("Zeb")
         .tapError(reportTopLevelError)
     _ <- printLine("Result: " + result)
   yield ()
@@ -93,7 +93,7 @@ object ContainerScenarios:
       allCitizenInfo <-
         ZIO.foreach(people)(x =>
           CareerHistoryService
-            .citizenInfo(x)
+            .citizenInfo(x.firstName)
             .tapError(reportTopLevelError)
             .map((x, _))
         )
@@ -106,18 +106,6 @@ object ContainerScenarios:
             )
           )
 
-      housingHistoryConsumer <-
-        UseKafka.createConsumer(
-          "housing_history",
-          "housing"
-        )
-
-      criminalHistoryConsumer <-
-        UseKafka.createConsumer(
-          "criminal_history",
-          "criminal"
-        )
-
       personEventProducer <-
         UseKafka.createProducer("person_event")
 
@@ -129,21 +117,9 @@ object ContainerScenarios:
             op =
               record =>
                 for
-                  // TODO Get rid of person
-                  // lookup
-                  // and pass plain String name
-                  // to
-                  // LocationService
-                  person <-
-                    ZIO.fromOption(
-                      people.find(
-                        _.firstName ==
-                          record.key.nn
-                      )
-                    )
                   location <-
                     LocationService
-                      .locationOf(person)
+                      .locationOf(record.key.nn)
                 yield record.value.nn +
                   s",Location:$location",
             outputTopicName = "housing_history",
@@ -159,21 +135,11 @@ object ContainerScenarios:
             op =
               record =>
                 for
-                  // TODO Get rid of person
-                  // lookup
-                  // and pass plain String name
-                  // to
-                  // LocationService
-                  person <-
-                    ZIO.fromOption(
-                      people.find(
-                        _.firstName ==
-                          record.key.nn
-                      )
-                    )
                   criminalHistory <-
                     BackgroundCheckService
-                      .criminalHistoryOf(person)
+                      .criminalHistoryOf(
+                        record.key.nn
+                      )
                 yield s"${record.value.nn},$criminalHistory",
             outputTopicName = "criminal_history",
             groupId = "criminal"
@@ -182,42 +148,33 @@ object ContainerScenarios:
           .fork
 
       consumingPoller2 <-
-        housingHistoryConsumer
-          .pollStream()
-          .foreach(recordsConsumed =>
-            ZIO
-              .foreach(recordsConsumed)(record =>
-                val location: String =
-                  RecordManipulation
-                    .getField("Location", record)
-                printLine(
-                  s"Location of ${record.key}: $location"
-                )
-              )
+        UseKafka
+          .createSink(
+            "housing_history",
+            record =>
+              val location: String =
+                RecordManipulation
+                  .getField("Location", record)
+              printLine(
+                s"Location of ${record.key}: $location"
+              ),
+            "housing"
           )
           .timeout(10.seconds)
           .fork
 
       criminalPoller <-
-        criminalHistoryConsumer
-          .pollStream()
-          .foreach(recordsConsumed =>
-            ZIO
-              .foreach(recordsConsumed)(record =>
-                ZIO.debug(
-                  "Criminal History record:" +
-                    record.value.nn
-                ) *> {
-                  val location: String =
-                    RecordManipulation.getField(
-                      "Criminal",
-                      record
-                    )
-                  printLine(
-                    s"History of ${record.key}: $location"
-                  )
-                }
-              )
+        UseKafka
+          .createSink(
+            "criminal_history",
+            record =>
+              val location: String =
+                RecordManipulation
+                  .getField("Criminal", record)
+              printLine(
+                s"History of ${record.key}: $location"
+              ),
+            "criminal"
           )
           .timeout(10.seconds)
           .fork
@@ -233,7 +190,7 @@ object ContainerScenarios:
                 s"${citizen.firstName},${citizenInfo}"
               )
           )
-          .timeout(4.seconds)
+          .timeout(10.seconds)
           .fork
 
       _ <- producer.join
