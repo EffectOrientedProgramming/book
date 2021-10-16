@@ -10,15 +10,37 @@ import org.testcontainers.utility.DockerImageName
 import org.mockserver.client.MockServerClient
 import org.mockserver.model.HttpRequest.request
 import org.mockserver.model.HttpResponse.response
-import testcontainers.ServiceDataSets.ExpectedData
+import testcontainers.ServiceDataSets.{
+  BackgroundData,
+  CareerData,
+  ExpectedData,
+  LocationData
+}
+import testcontainers.proxy.{
+  inconsistentFailuresZ,
+  jitter
+}
 
 trait CareerHistoryServiceT:
   def citizenInfo(
       person: Person
   ): ZIO[Any, Throwable | String, String]
 
-class CareerHistoryHardcoded(
-    pairs: ExpectedData,
+object CareerHistoryHardcoded:
+  val live: ZLayer[Has[CareerData], Nothing, Has[
+    CareerHistoryServiceT
+  ]] =
+    for
+      careerData <- ZLayer.service[CareerData]
+    yield Has(
+      CareerHistoryHardcoded(
+        careerData.get,
+        inconsistentFailuresZ *> jitter
+      )
+    )
+
+class CareerHistoryHardcoded private (
+    pairs: CareerData,
     proxyZ: ZIO[Any, Throwable | String, Unit] =
       ZIO.unit
 ) extends CareerHistoryServiceT:
@@ -32,6 +54,7 @@ class CareerHistoryHardcoded(
         ZIO
           .fromOption(
             pairs
+              .expectedData
               .find(
                 _.userRequest ==
                   s"/${person.firstName}"
@@ -68,7 +91,7 @@ object CareerHistoryService:
     yield info
 
   def constructContainered[T](
-      pairs: ExpectedData,
+      pairs: CareerData, // TODO Make this part of the environment
       proxyZ: ZIO[
         Any,
         Throwable | String,
@@ -80,7 +103,11 @@ object CareerHistoryService:
     CareerHistoryServiceT
   ]] =
     MockServerContainerZBasic
-      .construct("Career History", pairs, proxyZ)
+      .construct(
+        "Career History",
+        pairs.expectedData,
+        proxyZ
+      )
       .flatMap(x =>
         ZLayer.succeed(
           CareerHistoryServiceContainer(x.get)
@@ -89,6 +116,8 @@ object CareerHistoryService:
 
 end CareerHistoryService
 
+// TODO Convert to trait that doesn't
+// unconditionally depend on a container
 class LocationService(
     mockServerContainerZ: MockServerContainerZBasic
 ):
@@ -109,16 +138,22 @@ object LocationService:
       info <- locationService.locationOf(person)
     yield info
 
-  def construct[T](
-      pairs: ExpectedData
-  ): ZLayer[Has[Network], Throwable, Has[
+  val live: ZLayer[Has[
+    LocationData
+  ] & Has[Network], Throwable, Has[
     LocationService
   ]] =
-    MockServerContainerZBasic
-      .construct("Location Service", pairs)
-      .flatMap(x =>
-        ZLayer.succeed(LocationService(x.get))
-      )
+    for
+      data <- ZLayer.service[LocationData]
+      webserver: Has[
+        MockServerContainerZBasic
+      ] <-
+        MockServerContainerZBasic.construct(
+          "Location Service",
+          data.get.expectedData
+        )
+    yield Has(LocationService(webserver.get))
+
 end LocationService
 
 class BackgroundCheckService(
@@ -143,14 +178,14 @@ object BackgroundCheckService:
     yield s"Criminal:$info"
 
   def construct[T](
-      pairs: ExpectedData
+      pairs: BackgroundData
   ): ZLayer[Has[Network], Throwable, Has[
     BackgroundCheckService
   ]] =
     MockServerContainerZBasic
       .construct(
         "BackgroundCheck Service",
-        pairs
+        pairs.expectedData
       )
       .flatMap(x =>
         ZLayer

@@ -6,6 +6,7 @@ import org.testcontainers.containers.{
   ToxiproxyContainer
 }
 import testcontainers.QuillLocal.AppPostgresContext
+import testcontainers.ServiceDataSets.CareerData
 import zio.Has
 
 object Deps:
@@ -26,5 +27,6 @@ object Deps:
       Has[CareerHistoryServiceT] &
       Has[LocationService] &
       Has[BackgroundCheckService] &
-      Has[ToxiproxyContainer]
+      Has[ToxiproxyContainer] &
+      Has[CareerData]
 end Deps

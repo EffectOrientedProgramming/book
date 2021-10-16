@@ -4,15 +4,15 @@ import zio.*
 
 import scala.jdk.CollectionConverters.*
 import zio.Console.*
-import org.testcontainers.containers.{Network}
+import org.testcontainers.containers.Network
 import testcontainers.proxy.{
   inconsistentFailuresZ,
   jitter
 }
 import testcontainers.QuillLocal.AppPostgresContext
 import org.testcontainers.containers.KafkaContainer
-
 import org.testcontainers.containers.MockServerContainer
+import testcontainers.ServiceDataSets.CareerData
 
 case class SuspectProfile(
     name: String,
@@ -36,7 +36,7 @@ object ProxiedRequestScenario
 
   val careerServer: ZLayer[Has[
     Network
-  ] & Has[Clock], Throwable, Has[
+  ] & Has[Clock] & Has[CareerData], Throwable, Has[
     CareerHistoryServiceT
   ]] =
     CareerHistoryService.constructContainered(
@@ -50,6 +50,7 @@ object ProxiedRequestScenario
     Deps.AppDependencies
   ] =
     ZLayer.wire[Deps.AppDependencies](
+      ServiceDataSets.careerDataZ,
       Clock.live,
       Layers.networkLayer,
       NetworkAwareness.live,
@@ -66,21 +67,9 @@ object ProxiedRequestScenarioUnit
     makeAProxiedRequest
       .provideSomeLayer[ZEnv](liveLayer)
 
-  val careerServer: ZLayer[Any, Nothing, Has[
-    CareerHistoryServiceT
-  ]] =
-    ZLayer.succeed(
-      CareerHistoryHardcoded(
-        ServiceDataSets.careerData,
-        inconsistentFailuresZ *> jitter
-      )
-    )
-  end careerServer
-
-  val liveLayer: ZLayer[Any, Throwable, Has[
-    CareerHistoryServiceT
-  ]] = careerServer
-end ProxiedRequestScenarioUnit
+  val liveLayer =
+    ServiceDataSets.careerDataZ >>>
+      CareerHistoryHardcoded.live
 
 def reportTopLevelError(
     failure: Throwable | String
@@ -269,12 +258,6 @@ object ContainerScenarios:
       ServiceDataSets.careerData
     )
 
-  val locationServer: ZLayer[Has[
-    Network
-  ], Throwable, Has[LocationService]] =
-    LocationService
-      .construct(ServiceDataSets.locations)
-
   val backgroundCheckServer: ZLayer[Has[
     Network
   ], Throwable, Has[BackgroundCheckService]] =
@@ -290,6 +273,8 @@ object ContainerScenarios:
 
   val layer =
     ZLayer.wire[Deps.RubeDependencies](
+      ServiceDataSets.careerDataZ,
+      ServiceDataSets.locations,
       Clock.live,
       Layers.networkLayer,
       NetworkAwareness.live,
@@ -298,7 +283,7 @@ object ContainerScenarios:
       ToxyProxyContainerZ.construct(),
       QuillLocal.quillPostgresContext,
       careerServer,
-      locationServer,
+      LocationService.live,
       backgroundCheckServer
     )
 
