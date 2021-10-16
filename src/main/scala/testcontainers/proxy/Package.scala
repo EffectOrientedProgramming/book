@@ -9,7 +9,7 @@ val inconsistentFailuresZ =
       randomInt <- Random.nextInt
       _ <-
         ZIO.attempt {
-          if (randomInt % 2 == 0)
+          if (randomInt % 15 == 0)
             throw new RuntimeException(
               "Random failure"
             )
@@ -28,3 +28,5 @@ val jitter =
       _ <- ZIO.sleep(rand.seconds)
     yield ()
   ).provideLayer(Random.live ++ Clock.live)
+
+val allProxies = jitter *> inconsistentFailuresZ

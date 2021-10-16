@@ -18,7 +18,8 @@ import testcontainers.ServiceDataSets.{
 }
 import testcontainers.proxy.{
   inconsistentFailuresZ,
-  jitter
+  jitter,
+  allProxies
 }
 
 trait CareerHistoryServiceT:
@@ -109,6 +110,27 @@ object CareerHistoryService:
           CareerHistoryServiceContainer(x.get)
         )
       )
+
+  val live: ZLayer[Has[
+    CareerData
+  ] & Has[Network], Throwable, Has[
+    CareerHistoryServiceT
+  ]] =
+    for
+      data <- ZLayer.service[CareerData]
+      webserver: Has[
+        MockServerContainerZBasic
+      ] <-
+        MockServerContainerZBasic.construct(
+          "Career History",
+          data.get.expectedData,
+          allProxies
+        )
+    yield Has(
+      CareerHistoryServiceContainer(
+        webserver.get
+      )
+    )
 
 end CareerHistoryService
 

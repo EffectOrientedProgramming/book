@@ -37,16 +37,6 @@ object ProxiedRequestScenario
     makeAProxiedRequest
       .provideSomeLayer[ZEnv](liveLayer)
 
-  val careerServer: ZLayer[Has[
-    Network
-  ] & Has[Clock] & Has[CareerData], Throwable, Has[
-    CareerHistoryServiceT
-  ]] =
-    CareerHistoryService.constructContainered(
-      ServiceDataSets.careerData,
-      inconsistentFailuresZ
-    )
-
   val liveLayer: ZLayer[
     Any,
     Throwable,
@@ -54,11 +44,11 @@ object ProxiedRequestScenario
   ] =
     ZLayer.wire[Deps.AppDependencies](
       ServiceDataSets.careerDataZ,
-      Clock.live,
+//      Clock.live,
       Layers.networkLayer,
       NetworkAwareness.live,
       ToxyProxyContainerZ.construct(),
-      careerServer
+      CareerHistoryService.live
     )
 
 end ProxiedRequestScenario
@@ -183,7 +173,7 @@ object ContainerScenarios:
 
       producer <-
         ZIO
-          .foreachParN(12)(allCitizenInfo)(
+          .foreachPar(allCitizenInfo)(
             (citizen, citizenInfo) =>
               personEventProducer.submit(
                 citizen.firstName,
@@ -209,15 +199,6 @@ object ContainerScenarios:
         )(_ + _)
     yield people
 
-  val careerServer: ZLayer[Has[
-    Network
-  ] & Has[Clock], Throwable, Has[
-    CareerHistoryServiceT
-  ]] =
-    CareerHistoryService.constructContainered(
-      ServiceDataSets.careerData
-    )
-
   val backgroundCheckServer: ZLayer[Has[
     Network
   ] & Has[BackgroundData], Throwable, Has[
@@ -236,16 +217,15 @@ object ContainerScenarios:
       ServiceDataSets.careerDataZ,
       ServiceDataSets.locations,
       ServiceDataSets.backgroundData,
-      Clock.live,
       Layers.networkLayer,
       NetworkAwareness.live,
       PostgresContainer.construct("init.sql"),
       KafkaContainerZ.construct(topicNames),
       ToxyProxyContainerZ.construct(),
       QuillLocal.quillPostgresContext,
-      careerServer,
+      CareerHistoryService.live,
       LocationService.live,
-      backgroundCheckServer
+      BackgroundCheckService.live
     )
 
 end ContainerScenarios
