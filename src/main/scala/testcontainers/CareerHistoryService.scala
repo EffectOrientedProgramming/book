@@ -177,18 +177,21 @@ object BackgroundCheckService:
         locationService.criminalHistoryOf(person)
     yield s"Criminal:$info"
 
-  def construct[T](
-      pairs: BackgroundData
-  ): ZLayer[Has[Network], Throwable, Has[
+  val live: ZLayer[Has[
+    BackgroundData
+  ] & Has[Network], Throwable, Has[
     BackgroundCheckService
   ]] =
-    MockServerContainerZBasic
-      .construct(
-        "BackgroundCheck Service",
-        pairs.expectedData
-      )
-      .flatMap(x =>
-        ZLayer
-          .succeed(BackgroundCheckService(x.get))
-      )
+    for
+      data <- ZLayer.service[BackgroundData]
+      webserver: Has[
+        MockServerContainerZBasic
+      ] <-
+        MockServerContainerZBasic.construct(
+          "BackgroundCheck Service",
+          data.get.expectedData
+        )
+    yield Has(
+      BackgroundCheckService(webserver.get)
+    )
 end BackgroundCheckService

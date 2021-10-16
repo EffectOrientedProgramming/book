@@ -12,7 +12,10 @@ import testcontainers.proxy.{
 import testcontainers.QuillLocal.AppPostgresContext
 import org.testcontainers.containers.KafkaContainer
 import org.testcontainers.containers.MockServerContainer
-import testcontainers.ServiceDataSets.CareerData
+import testcontainers.ServiceDataSets.{
+  BackgroundData,
+  CareerData
+}
 
 case class SuspectProfile(
     name: String,
@@ -260,9 +263,9 @@ object ContainerScenarios:
 
   val backgroundCheckServer: ZLayer[Has[
     Network
-  ], Throwable, Has[BackgroundCheckService]] =
+  ] & Has[BackgroundData], Throwable, Has[
     BackgroundCheckService
-      .construct(ServiceDataSets.backgroundData)
+  ]] = BackgroundCheckService.live
 
   val topicNames =
     List(
@@ -275,6 +278,7 @@ object ContainerScenarios:
     ZLayer.wire[Deps.RubeDependencies](
       ServiceDataSets.careerDataZ,
       ServiceDataSets.locations,
+      ServiceDataSets.backgroundData,
       Clock.live,
       Layers.networkLayer,
       NetworkAwareness.live,

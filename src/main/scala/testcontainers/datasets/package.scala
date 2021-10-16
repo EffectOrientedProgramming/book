@@ -66,20 +66,23 @@ object ServiceDataSets:
       )
     )
 
-  val backgroundData: BackgroundData =
-    BackgroundData(
-      List(
-        RequestResponsePair(
-          "/Joe",
-          "GoodCitizen"
-        ),
-        RequestResponsePair(
-          "/Shtep",
-          "Arson,DomesticViolence"
-        ),
-        RequestResponsePair(
-          "/Zeb",
-          "SpeedingTicket"
+  val backgroundData
+      : Layer[Nothing, Has[BackgroundData]] =
+    ZLayer.succeed(
+      BackgroundData(
+        List(
+          RequestResponsePair(
+            "/Joe",
+            "GoodCitizen"
+          ),
+          RequestResponsePair(
+            "/Shtep",
+            "Arson,DomesticViolence"
+          ),
+          RequestResponsePair(
+            "/Zeb",
+            "SpeedingTicket"
+          )
         )
       )
     )
