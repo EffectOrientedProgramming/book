@@ -10,6 +10,7 @@ import org.testcontainers.utility.DockerImageName
 import org.mockserver.client.MockServerClient
 import org.mockserver.model.HttpRequest.request
 import org.mockserver.model.HttpResponse.response
+import testcontainers.ServiceDataSets.ExpectedData
 
 trait CareerHistoryServiceT:
   def citizenInfo(
@@ -17,7 +18,7 @@ trait CareerHistoryServiceT:
   ): ZIO[Any, Throwable | String, String]
 
 class CareerHistoryHardcoded(
-    pairs: List[RequestResponsePair],
+    pairs: ExpectedData,
     proxyZ: ZIO[Any, Throwable | String, Unit] =
       ZIO.unit
 ) extends CareerHistoryServiceT:
@@ -67,7 +68,7 @@ object CareerHistoryService:
     yield info
 
   def constructContainered[T](
-      pairs: List[RequestResponsePair],
+      pairs: ExpectedData,
       proxyZ: ZIO[
         Any,
         Throwable | String,
@@ -109,7 +110,7 @@ object LocationService:
     yield info
 
   def construct[T](
-      pairs: List[RequestResponsePair]
+      pairs: ExpectedData
   ): ZLayer[Has[Network], Throwable, Has[
     LocationService
   ]] =
@@ -142,7 +143,7 @@ object BackgroundCheckService:
     yield s"Criminal:$info"
 
   def construct[T](
-      pairs: List[RequestResponsePair]
+      pairs: ExpectedData
   ): ZLayer[Has[Network], Throwable, Has[
     BackgroundCheckService
   ]] =

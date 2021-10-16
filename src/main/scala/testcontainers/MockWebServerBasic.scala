@@ -16,6 +16,7 @@ import sttp.client3.SttpClientException.{
   ConnectException,
   ReadException
 }
+import testcontainers.ServiceDataSets.ExpectedData
 
 import java.net.SocketException;
 
@@ -28,7 +29,7 @@ object MockServerContainerZBasic:
 
   def construct[T](
       serviceName: String,
-      pairs: List[RequestResponsePair],
+      pairs: ExpectedData,
       proxyZ: ZIO[
         Any,
         Throwable | String,
@@ -85,7 +86,7 @@ object MockServerContainerZBasic:
 
   private val mockSetup: (
       MockServerContainer,
-      List[RequestResponsePair]
+      ExpectedData
   ) => ZIO[Any, Throwable, Unit] =
     (mockServer, requestResponsePairs) =>
       ZIO.debug("Starting to mock server") *>

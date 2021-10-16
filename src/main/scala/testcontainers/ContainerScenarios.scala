@@ -40,20 +40,7 @@ object ProxiedRequestScenario
     CareerHistoryServiceT
   ]] =
     CareerHistoryService.constructContainered(
-      List(
-        RequestResponsePair(
-          "/Joe",
-          "Job:Athlete"
-        ),
-        RequestResponsePair(
-          "/Shtep",
-          "Job:Salesman"
-        ),
-        RequestResponsePair(
-          "/Zeb",
-          "Job:Mechanic"
-        )
-      ),
+      ServiceDataSets.careerData,
       inconsistentFailuresZ
     )
 
@@ -84,20 +71,7 @@ object ProxiedRequestScenarioUnit
   ]] =
     ZLayer.succeed(
       CareerHistoryHardcoded(
-        List(
-          RequestResponsePair(
-            "/Joe",
-            "Job:Athlete"
-          ),
-          RequestResponsePair(
-            "/Shtep",
-            "Job:Salesman"
-          ),
-          RequestResponsePair(
-            "/Zeb",
-            "Job:Mechanic"
-          )
-        ),
+        ServiceDataSets.careerData,
         inconsistentFailuresZ *> jitter
       )
     )
@@ -284,26 +258,6 @@ object ContainerScenarios:
               .get
           )
         )(_ + _)
-
-      finalMessagesConsumed <-
-        ZIO.reduceAll(
-          ZIO.succeed(0),
-          List(
-            housingHistoryConsumer
-              .messagesConsumed
-              .get
-          )
-        )(_ + _)
-      _ <-
-        printLine(
-          "Number of messages produced: " +
-            finalMessagesProduced
-        )
-      _ <-
-        printLine(
-          "Number of messages consumed: " +
-            finalMessagesConsumed
-        )
     yield people
 
   val careerServer: ZLayer[Has[
@@ -312,52 +266,20 @@ object ContainerScenarios:
     CareerHistoryServiceT
   ]] =
     CareerHistoryService.constructContainered(
-      List(
-        RequestResponsePair(
-          "/Joe",
-          "Job:Athlete"
-        ),
-        RequestResponsePair(
-          "/Shtep",
-          "Job:Salesman"
-        ),
-        RequestResponsePair(
-          "/Zeb",
-          "Job:Mechanic"
-        )
-      )
+      ServiceDataSets.careerData
     )
 
   val locationServer: ZLayer[Has[
     Network
   ], Throwable, Has[LocationService]] =
-    LocationService.construct(
-      List(
-        RequestResponsePair("/Joe", "USA"),
-        RequestResponsePair("/Shtep", "Jordan"),
-        RequestResponsePair("/Zeb", "Taiwan")
-      )
-    )
+    LocationService
+      .construct(ServiceDataSets.locations)
 
   val backgroundCheckServer: ZLayer[Has[
     Network
   ], Throwable, Has[BackgroundCheckService]] =
-    BackgroundCheckService.construct(
-      List(
-        RequestResponsePair(
-          "/Joe",
-          "GoodCitizen"
-        ),
-        RequestResponsePair(
-          "/Shtep",
-          "Arson,DomesticViolence"
-        ),
-        RequestResponsePair(
-          "/Zeb",
-          "SpeedingTicket"
-        )
-      )
-    )
+    BackgroundCheckService
+      .construct(ServiceDataSets.backgroundData)
 
   val topicNames =
     List(
