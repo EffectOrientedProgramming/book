@@ -24,6 +24,10 @@ class SecurityModule(serviceX: ServiceX)
 class LandingPage(statisticsCalculator: StatisticsCalculator)
 ```
 
+## Historic Approaches
+
+### Manual Wiring
+
 ```scala mdoc
 class Application(userManagment: UserManagement, securityModule: SecurityModule, landingPage: LandingPage)
 
@@ -44,3 +48,14 @@ Even in this tiny example, the downsides are already starting to show.
 
 - We have to copy/paste `ServiceImplementation` numerous times
 - We have to manage multiple levels of dependencies. `LandingPage` and `ServiceImplentation` have to be manually connected.
+
+
+### Annotations
+
+Pros
+- "Easy" in the sense that they do not require much code at the use-site
+- Smoother refactoring, as the injection system will determine what needs to be passed around
+
+Cons
+- Does not follow normal control flow or composition
+- Typically, relies on some framework-level processing that is not easily controlled by the user

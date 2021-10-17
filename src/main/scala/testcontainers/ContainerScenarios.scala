@@ -99,24 +99,27 @@ object ContainerScenarios:
       personEventProducer <-
         UseKafka.createProducer("person_event")
 
-//      _ <- ZIO.forkAll(???)
-      personEventToLocationStream <-
-        UseKafka
-          .createForwardedStreamZ(
-            topicName = "person_event",
-            op =
-              record =>
-                for
-                  location <-
-                    LocationService
-                      .locationOf(record.key.nn)
-                yield record.value.nn +
-                  s",Location:$location",
-            outputTopicName = "housing_history",
-            groupId = "housing"
-          )
-          .timeout(10.seconds)
-          .fork
+      housingHistories =
+        UseKafka.createForwardedStreamZ(
+          topicName = "person_event",
+          op =
+            record =>
+              for
+                location <-
+                  LocationService
+                    .locationOf(record.key.nn)
+              yield record.value.nn +
+                s",Location:$location",
+          outputTopicName = "housing_history",
+          groupId = "housing"
+        )
+
+      // TODO Move other Stream processes into this list
+      res <-
+        ZIO.forkAll(
+          List(housingHistories)
+            .map(_.timeout(10.seconds))
+        )
 
       criminalHistoryStream <-
         UseKafka
@@ -185,7 +188,8 @@ object ContainerScenarios:
 
       _ <- producer.join
       _ <- criminalHistoryStream.join
-      _ <- personEventToLocationStream.join
+// _ <- personEventToLocationStream.join
+      _ <- res.join
       _ <- criminalPoller.join
       _ <- consumingPoller2.join
       finalMessagesProduced <-
