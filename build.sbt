@@ -56,7 +56,7 @@ libraryDependencies ++=
     "org.testcontainers"    % "mockserver"            % "1.16.0",
     "org.testcontainers"    % "toxiproxy"            % "1.16.0",
     "io.github.arkinator" % "mockserver-client-java" % "5.11.6",
-    "org.postgresql" % "postgresql" % "42.2.24"
+    "org.postgresql" % "postgresql" % "42.3.0"
     
 //  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.10.5"
 
