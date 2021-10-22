@@ -24,8 +24,11 @@ addSbtPlugin(
   "ch.epfl.scala" % "sbt-bloop" % "1.4.11"
 )
 
-lazy val MdToSourcePlugin =
-  RootProject(file("../MdToSourcePlugin"))
+//lazy val MdToSourcePlugin =
+//  RootProject(file("../MdToSourcePlugin"))
 
-lazy val root = (project in file("."))
-  .dependsOn(MdToSourcePlugin)
+//lazy val root = (project in file("."))
+//  .dependsOn(MdToSourcePlugin)
+
+libraryDependencies +=
+  "org.scalameta" %% "mdoc" % "2.2.23"

@@ -16,3 +16,4 @@ project/metals.sbt
 .env
 cs.exe
 /Examples/src/main/scala/*.scala
+/*/target/

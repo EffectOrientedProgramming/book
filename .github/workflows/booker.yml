@@ -67,7 +67,7 @@ jobs:
       - name: build for linux or mac
         if: matrix.os != 'windows'
         run: |
-          ./bin/sbt graalvm-native-image:packageBin
+          ./bin/sbt booker/graalvm-native-image:packageBin
 
       - name: run upx on ${{ matrix.os }}
         uses: svenstaro/upx-action@v2
