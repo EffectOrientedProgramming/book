@@ -7,11 +7,11 @@ libraryDependencies ++=
     "dev.zio" %% "zio"          % zioVersion,
     "dev.zio" %% "zio-test"     % zioVersion,
     "dev.zio" %% "zio-test-sbt" % zioVersion % Test,
-    "org.testcontainers"    % "testcontainers"            % "1.16.1",
-    "org.testcontainers"    % "postgresql"            % "1.16.1",
-    "org.testcontainers"    % "kafka"            % "1.16.1",
-    "org.testcontainers"    % "mockserver"            % "1.16.1",
-    "org.testcontainers"    % "toxiproxy"            % "1.16.1",
+    "org.testcontainers"    % "testcontainers"            % "1.16.2",
+    "org.testcontainers"    % "postgresql"            % "1.16.2",
+    "org.testcontainers"    % "kafka"            % "1.16.2",
+    "org.testcontainers"    % "mockserver"            % "1.16.2",
+    "org.testcontainers"    % "toxiproxy"            % "1.16.2",
     "com.softwaremill.sttp.client3" %% "circe" %
       "3.3.16",
     "com.softwaremill.sttp.client3" %% "core" %
