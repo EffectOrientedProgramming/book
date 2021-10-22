@@ -36,63 +36,6 @@ resolvers += Resolver.sonatypeRepo("snapshots")
 
 lazy val root = (project in file(".")).settings(commonSettings).enablePlugins(MdocPlugin).aggregate(booker, experiments, rube)
 
-//lazy val mdToSourcePlugin = (project in file("MdToSourcePlugin"))
-
-//enablePlugins(MdToSourcePlugin)
-
-/*
-
-libraryDependencies ++=
-  Seq(
-    // Syncronous JDBC Modules
-  "io.getquill" %% "quill-jdbc" % "3.7.2.Beta1.4",
-  "ch.qos.logback" % "logback-classic"                  % "1.2.6",
-  // Or ZIO Modules
-  "io.getquill" %% "quill-jdbc-zio" % "3.7.2.Beta1.4",
-  // Postgres Async
-  "io.getquill" %% "quill-jasync-postgres" % "3.7.2.Beta1.4",
-    "org.jetbrains" % "annotations-java5" %
-      "22.0.0",
-    "org.scalameta"      %
-      "scalafmt-dynamic" % "3.0.7" cross
-      CrossVersion.for3Use2_13,
-    "org.scalameta" % "scalafmt-cli" % "3.0.7" cross
-      CrossVersion.for3Use2_13,
-    "dev.zio"     %% "zio"    % zioVersion,
-    "com.typesafe" % "config" % "1.4.1",
-    //     cross CrossVersion.for3Use2_13,
-    "dev.zio" %% "zio-test"     % zioVersion,
-    "dev.zio" %% "zio-test-sbt" % zioVersion %
-      "it,test",
-    "org.scalameta" %% "munit" % "0.7.29" % Test,
-    "io.circe"  % "circe-core_3"  % "0.15.0-M1",
-    "io.circe" %% "circe-generic" % "0.15.0-M1",
-    "com.softwaremill.sttp.client3" %% "circe" %
-      "3.3.16",
-    "com.softwaremill.sttp.client3" %% "core" %
-      "3.3.16",
-
-    "org.apache.kafka" % "kafka-clients" % "3.0.0",
-
-    "org.testcontainers"    % "testcontainers"            % "1.16.2",
-    "org.testcontainers"    % "postgresql"            % "1.16.2",
-    "org.testcontainers"    % "kafka"            % "1.16.2",
-    "org.testcontainers"    % "mockserver"            % "1.16.2",
-    "org.testcontainers"    % "toxiproxy"            % "1.16.2",
-    "io.github.arkinator" % "mockserver-client-java" % "5.11.7",
-    "org.postgresql" % "postgresql" % "42.3.1"
-//  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.10.5"
-
-// "io.d11" %% "zhttp" % "1.0.0.0-RC17", //
-    // TODO Check for updates supporting ZIO2
-    // milestones
-// "io.d11" %% "zhttp-test" % "1.0.0.0-RC17"
-    // % Test,
-//    "dev.zio" %% "zio-json" % "0.2.0-M1"
-  )
- */
-
-
 mdocIn := file("Chapters")
 
 mdocOut := file("manuscript")
