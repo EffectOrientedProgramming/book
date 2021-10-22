@@ -32,7 +32,9 @@ libraryDependencies ++=
     "org.jetbrains" % "annotations-java5" %
       "22.0.0",
     "org.scalameta"      %
-      "scalafmt-dynamic" % "3.0.6" cross
+      "scalafmt-dynamic" % "3.0.7" cross
+      CrossVersion.for3Use2_13,
+    "org.scalameta" % "scalafmt-cli" % "3.0.7" cross
       CrossVersion.for3Use2_13,
     "dev.zio"     %% "zio"    % zioVersion,
     "com.typesafe" % "config" % "1.4.1",
@@ -57,7 +59,6 @@ libraryDependencies ++=
     "org.testcontainers"    % "toxiproxy"            % "1.16.2",
     "io.github.arkinator" % "mockserver-client-java" % "5.11.7",
     "org.postgresql" % "postgresql" % "42.3.1"
-    
 //  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.10.5"
 
 // "io.d11" %% "zhttp" % "1.0.0.0-RC17", //
