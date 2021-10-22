@@ -19,10 +19,8 @@ object Deps:
   type RubeDependencies =
     Has[Network] &
       Has[NetworkAwareness] &
-      (
-        Has[PostgresContainerJ] &
-          Has[KafkaContainer]
-      ) &
+      Has[PostgresContainerJ] &
+      Has[KafkaContainer] &
       Has[AppPostgresContext] &
       Has[CareerHistoryServiceT] &
       Has[LocationService] &

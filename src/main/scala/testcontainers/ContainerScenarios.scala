@@ -114,7 +114,8 @@ object ContainerScenarios:
           groupId = "housing"
         )
 
-      // TODO Move other Stream processes into this list
+      // TODO Move other Stream processes into
+      // this list
       res <-
         ZIO.forkAll(
           List(housingHistories)
