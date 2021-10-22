@@ -13,9 +13,9 @@ libraryDependencies ++=
     "org.testcontainers"    % "mockserver"            % "1.16.1",
     "org.testcontainers"    % "toxiproxy"            % "1.16.1",
     "com.softwaremill.sttp.client3" %% "circe" %
-      "3.3.15",
+      "3.3.16",
     "com.softwaremill.sttp.client3" %% "core" %
-      "3.3.15",
+      "3.3.16",
     "io.getquill" %% "quill-jdbc" % "3.7.2.Beta1.4",
     "ch.qos.logback" % "logback-classic"                  % "1.2.3",
     // Or ZIO Modules
