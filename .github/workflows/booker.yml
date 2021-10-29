@@ -32,7 +32,7 @@ jobs:
       - name: setup GraalVM
         uses: DeLaGuardo/setup-graalvm@4.0
         with:
-          graalvm: 21.2.0
+          graalvm: 21.3.0
           java: java11
           arch: amd64
 
@@ -72,24 +72,24 @@ jobs:
       - name: run upx on ${{ matrix.os }}
         uses: svenstaro/upx-action@v2
         with:
-          file: target/graalvm-native-image/${{matrix.artifact-name}}
+          file: booker/target/graalvm-native-image/${{matrix.artifact-name}}
           args: --best --lzma
 
       - name: verify booker by running it
         run: |
-          target/graalvm-native-image/${{matrix.artifact-name}}
+          booker/target/graalvm-native-image/${{matrix.artifact-name}}
 
       - name: upload ${{ matrix.os }}
         uses: actions/upload-artifact@v2
         with:
           name: booker-${{ matrix.os }}
-          path: target/graalvm-native-image/${{matrix.artifact-name}}
+          path: booker/target/graalvm-native-image/${{matrix.artifact-name}}
 
       - name: release binaries
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: target/graalvm-native-image/${{matrix.artifact-name}}
+          file: booker/target/graalvm-native-image/${{matrix.artifact-name}}
           asset_name: ${{ matrix.asset-name }}
           tag: release-${{ github.ref }}
           overwrite: true
