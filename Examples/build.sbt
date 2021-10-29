@@ -1,4 +1,4 @@
-scalaVersion := "3.0.2-RC2"
+scalaVersion := "3.1.0"
 
 val zioVersion = "2.0.0-M3"
 
