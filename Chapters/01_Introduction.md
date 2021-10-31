@@ -21,7 +21,7 @@ Parents say goodbye to their children.
 Thankfully, no missiles were launched that day.
 An employee at the Hawaii Emergency Management Agency had accidentally sent this warning, during what should have been a quiet system test.
 
-From the Washington Post: [Citation](15_citations.md#hawaii-alert)
+From the [Washington Post](https://www.washingtonpost.com/news/post-nation/wp/2018/01/14/hawaii-missile-alert-how-one-employee-pushed-the-wrong-button-and-caused-a-wave-of-panic/):
 
 C> "He clicked the button to send out an actual notification on Hawaii's emergency alert interface during what was intended to be a test of the state's ballistic missile preparations computer program."
 C> The employee was prompted to choose between the options "test missile alert" and "missile alert", had selected the latter, initiating the alert sent out across the state.
