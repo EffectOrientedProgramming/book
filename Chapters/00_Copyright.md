@@ -1,8 +1,6 @@
 # Copyright
 
-{{ This is just copied from Atomic Kotlin as a template, needs full rewriting }}
-
-## Atomic Kotlin
+## Effect Oriented Programming
 
 By Bill Frasure, Bruce Eckel and James Ward
 
@@ -14,7 +12,7 @@ By Bill Frasure, Bruce Eckel and James Ward
 >
 > **Print Book ISBN 978-0-9818725-7-5**
 
-The eBook ISBN covers the Leanpub eBook distribution,
+The eBook ISBN covers the Leanpub eBook distribution in all formats,
 available through *www.EffectOrientedProgramming.com*.
 
 **Please purchase this book through www.EffectOrientedProgramming.com, to support its
@@ -25,15 +23,15 @@ is protected by copyright, and permission must be obtained from the publisher
 prior to any prohibited reproduction, storage in a retrieval system, or
 transmission in any form or by any means, electronic, mechanical, photocopying,
 recording, or likewise. For information regarding permissions, see
-AtomicKotlin.com.
+EffectOrientedProgramming.com.
 
-Created in Crested Butte, Colorado, USA, and Munich, Germany.
+Created in Crested Butte, Colorado, USA.
 
 Text printed in the United States
 
-> **Ebook: Version 1.0, December 2020**
+> **Ebook: Version 1.0, Month Year**
 >
-> **First printing January 2021**
+> **First printing Month Year**
 
 Cover design by Daniel Will-Harris,
 [www.Will-Harris.com](http://www.Will-Harris.com)
@@ -43,8 +41,7 @@ products are claimed as trademarks. Where those designations appear in this
 book, and the publisher was aware of a trademark claim, the designations are
 printed with initial capital letters or in all capitals.
 
-The Kotlin trademark belongs to [the Kotlin
-Foundation](https://kotlinlang.org/foundation/kotlin-foundation.html). Java is
+The Scala trademark belongs to [???](???). Java is
 a trademark or registered trademark of Oracle, Inc. in the United States and
 other countries. Windows is a registered trademark of Microsoft Corporation in
 the United States and other countries. All other product names and company
@@ -61,7 +58,7 @@ Visit us at www.EffectOrientedProgramming.com.
 ## Source Code
 
 All the source code for this book is available as copyrighted freeware,
-distributed via [Github](https://github.com/BruceEckel/AtomicKotlinExamples).
+distributed via [Github](https://github.com/EffectOrientedProgramming/EOPCode).
 To ensure you have the most current version, this is the official code
 distribution site. You may use this code in classroom and other educational
 situations as long as you cite this book as the source.
@@ -91,8 +88,8 @@ personal and commercial software programs.
 
 2. Permission is granted to use the Source Code without
 modification in classroom situations, including in
-presentation materials, provided that the book "Atomic
-Kotlin" is cited as the origin.
+presentation materials, provided that the book "Effect Oriented
+Programming" is cited as the origin.
 
 3. Permission to incorporate the Source Code into printed
 media may be obtained by contacting:
@@ -143,11 +140,11 @@ the sole distribution point for electronic copies of the
 Source Code, where it is freely available under the terms
 stated above:
 
-  https://github.com/BruceEckel/AtomicKotlinExamples
+  https://github.com/EffectOrientedProgramming/EOPCode
 
 If you think you've found an error in the Source Code,
 please submit a correction at:
-https://github.com/BruceEckel/AtomicKotlinExamples/issues
+https://github.com/EffectOrientedProgramming/EOPCode/issues
 ```
 
 You may use the code in your projects and in the classroom (including your
