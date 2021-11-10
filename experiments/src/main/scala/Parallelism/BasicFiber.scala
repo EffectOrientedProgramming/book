@@ -13,7 +13,7 @@ object BasicFibers:
   // They are not techincally effects, but they
   // can be converted to effects.
 
-  object computation: //This object performs a computation that takes a long time. It is a recursive Fibonacci Sequence generator.
+  object computation: // This object performs a computation that takes a long time. It is a recursive Fibonacci Sequence generator.
 
     def fib(n: Long): UIO[Long] =
       UIO {

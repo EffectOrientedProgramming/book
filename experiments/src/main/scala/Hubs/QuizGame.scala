@@ -30,7 +30,7 @@ object QuizGame extends zio.App:
 
   def run(
       args: List[String]
-  ) = //Use App's run function
+  ) = // Use App's run function
 
     /* Teacher --> Questions --> Student1 -->
      * Answers --> Teacher Student2 Student3 */

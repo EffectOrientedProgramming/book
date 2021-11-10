@@ -61,7 +61,7 @@ object MicroControllerExample extends zio.App:
 
   def run(
       args: List[String]
-  ) = //Use App's run function
+  ) = // Use App's run function
     val logic =
       for
         arduino <-

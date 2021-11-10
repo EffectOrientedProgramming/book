@@ -15,10 +15,10 @@ class EitherToZio:
     try
       Right(
         input.toInt
-      ) //Right case is an integer
+      ) // Right case is an integer
     catch
       case e: NumberFormatException =>
-        Left(input) //Left case is an error type
+        Left(input) // Left case is an error type
 
   // We can tranlate this directly into a more
   // succinct and readable IO.

@@ -26,9 +26,9 @@ class Await:
   val word = "Banana"
 
   val betterBeBanana
-      : ZIO[Any, Nothing, Exit[String, String]] = //Will return the exit object of isBanana (on success)
+      : ZIO[Any, Nothing, Exit[String, String]] = // Will return the exit object of isBanana (on success)
 
-    val isBanana: IO[String, String] = //Will succeed if word is Banana. Will fail otherwise
+    val isBanana: IO[String, String] = // Will succeed if word is Banana. Will fail otherwise
       if (word == "Banana")
         ZIO.succeed("Good")
       else
@@ -36,9 +36,9 @@ class Await:
 
     for
       fiber <-
-        isBanana.fork //Make a fiber of isBanana
+        isBanana.fork // Make a fiber of isBanana
       exit <-
         fiber
-          .await //await fiber, get its exit object
-    yield exit //return exit object
+          .await // await fiber, get its exit object
+    yield exit // return exit object
 end Await

@@ -42,7 +42,7 @@ object searchFunctions:
 //        itterate(index - 1, emps, targetID)
 //    itterate(emps.length - 1, emps, ID)
 
-  def findEmp( //This is an overloaded function. The compiler can identify the correct 'findEmp' function by looking at the parameters used
+  def findEmp( // This is an overloaded function. The compiler can identify the correct 'findEmp' function by looking at the parameters used
       name: String,
       emps: Vector[Employee]
   ): ZIO[Any, EmpNotFound, Employee] =

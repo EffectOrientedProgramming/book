@@ -9,7 +9,7 @@ def finalizer(
 ) = //Define the finalizer behavior here
   UIO.succeed {
     println("Finalizing: Closing file reader")
-    source.close //Close the input source
+    source.close // Close the input source
   }
 
 val readFileContents
@@ -23,9 +23,9 @@ val readFileContents
       .fromFile(
         "src/main/scala/directoryExample/firmData.csv"
       )
-  ) //Open the file to read its contents
+  ) // Open the file to read its contents
     .acquireReleaseWith(finalizer) {
-      bufferedSource => //Use the bracket method with the finalizer defined above to define behavior on fail.
+      bufferedSource => // Use the bracket method with the finalizer defined above to define behavior on fail.
 
         val lines =
           for
@@ -36,6 +36,6 @@ val readFileContents
         // This models a fatal IOException
         errorAtNPerc(
           10
-        ) //ie, 10 % chance to fail...
+        ) // ie, 10 % chance to fail...
         ZIO.succeed(Vector() ++ lines)
     }

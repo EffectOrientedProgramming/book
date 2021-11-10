@@ -29,10 +29,10 @@ object Finalizers extends zio.App:
 
   def finalizer(
       source: scala.io.Source
-  ) = //Define the finalizer behavior here
+  ) = // Define the finalizer behavior here
     UIO.succeed {
       println("Finalizing: Closing file reader")
-      source.close //Close the input source
+      source.close // Close the input source
     }
 
   val readFileContents
@@ -44,9 +44,9 @@ object Finalizers extends zio.App:
         .fromFile(
           "src/main/scala/Parallelism/csvFile.csv"
         )
-    ) //Open the file to read its contents
+    ) // Open the file to read its contents
       .acquireReleaseWith(finalizer) {
-        bufferedSource => //Use the bracket method with the finalizer defined above to define behavior on fail.
+        bufferedSource => // Use the bracket method with the finalizer defined above to define behavior on fail.
 
           val lines =
             for
@@ -55,7 +55,7 @@ object Finalizers extends zio.App:
 
           if (
             true
-          ) //Simulating an enexpected error/exception
+          ) // Simulating an enexpected error/exception
             throw new IOException("Boom!")
 
           ZIO.succeed(Vector() ++ lines)
@@ -63,17 +63,17 @@ object Finalizers extends zio.App:
 
   def run(
       args: List[String]
-  ) = //Use App's run function
+  ) = // Use App's run function
     println("In main")
 
     val ioExample
-        : ZIO[Has[Console], Throwable, Unit] = //Define the ZIO contexts
+        : ZIO[Has[Console], Throwable, Unit] = // Define the ZIO contexts
       for
         fileLines <- readFileContents
         _ <-
           printLine(
             fileLines.mkString("\n")
-          ) //Combine the strings of the output vector into a single string, separated by \n
+          ) // Combine the strings of the output vector into a single string, separated by \n
       yield ()
     ioExample
       .catchAllDefect(exception =>
@@ -82,5 +82,5 @@ object Finalizers extends zio.App:
             exception.getMessage
         )
       )
-      .exitCode //Call the Zio with exitCode.
+      .exitCode // Call the Zio with exitCode.
 end Finalizers

@@ -5,7 +5,6 @@ import zio.test.*
 import zio.test.Assertion.*
 import zio.test.environment.*
 
-
 // TODO Figure out fi
 // TESTCONTAINERS_RYUK_DISABLED=true is a
 // band-aid that's avoiding the real problem with
@@ -21,9 +20,8 @@ object TestContainersSpec
       test("With managed layer") {
         // TODO
         val logicWithAssertions =
-          for {
+          for
             people <- ContainerScenarios.logic
-          }
           yield assert(people.head)(
             equalTo(
               Person("Joe", "Dimagio", 143)
@@ -31,13 +29,14 @@ object TestContainersSpec
           )
         val layer = ContainerScenarios.layer
 
-        logicWithAssertions.provideSomeLayer[ZTestEnv & ZEnv](
-          layer
-        )
+        logicWithAssertions
+          .provideSomeLayer[ZTestEnv & ZEnv](
+            layer
+          )
       },
       test("stream approach") {
         for
-          res <- ZIO.succeed(1) 
+          res <- ZIO.succeed(1)
         yield assert(res)(equalTo(1))
       }
     )

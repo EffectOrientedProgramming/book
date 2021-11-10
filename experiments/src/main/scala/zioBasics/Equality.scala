@@ -22,7 +22,7 @@ object Equality extends zio.App:
   val suc4: UIO[Int]         = ZIO.succeed(1)
 
   val suc4d: UIO[Int] =
-    ZIO.succeed(1) //(Duplicate of suc4)
+    ZIO.succeed(1) // (Duplicate of suc4)
   val suc5: URIO[Any, Int] = ZIO.succeed(1)
 
   // Here, we test the equality values of all the
@@ -31,7 +31,7 @@ object Equality extends zio.App:
       : ZIO[Has[Console], IOException, Unit] =
     for
       res1: Int <-
-        suc1 //Flat map all the ZIO into their integer values
+        suc1 // Flat map all the ZIO into their integer values
       res2: Int <- suc2
       res3: Int <- suc3
       res4: Int <- suc4

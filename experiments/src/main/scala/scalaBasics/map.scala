@@ -8,11 +8,11 @@ object map:
   @main
   def mapEx =
     val combined =
-      nums.map(letters) //re-order letters
+      nums.map(letters) // re-order letters
     println(combined)
 
     val comb2 =
       nums.map(i =>
         i -> letters(i)
-      ) //assign values of nums to letters
+      ) // assign values of nums to letters
     println(comb2)

@@ -151,7 +151,8 @@ object ContainerScenarios:
                   .getField("Location", record)
               printLine(
                 s"Location of ${record.key}: $location"
-              ),
+              )
+            ,
             "housing"
           )
           .timeout(10.seconds)
@@ -167,7 +168,8 @@ object ContainerScenarios:
                   .getField("Criminal", record)
               printLine(
                 s"History of ${record.key}: $location"
-              ),
+              )
+            ,
             "criminal"
           )
           .timeout(10.seconds)

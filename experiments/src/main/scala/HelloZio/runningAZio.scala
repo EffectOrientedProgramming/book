@@ -8,9 +8,9 @@ import java.io.IOException
 
 // How to run a basic Zio
 object HelloApp
-    extends zio.App: //Extend the Zio App
+    extends zio.App: // Extend the Zio App
 
-  val myAppLogic: ZIO[ //Define the Zio
+  val myAppLogic: ZIO[ // Define the Zio
     Has[Console],
     IOException,
     Unit
@@ -18,9 +18,9 @@ object HelloApp
 
   def run(
       args: List[String]
-  ) = //Use App's run function
+  ) = // Use App's run function
     myAppLogic
-      .exitCode //Call the Zio with exitCode.
+      .exitCode // Call the Zio with exitCode.
 
 // Zio's run function which we inherit from
 // zio.App needs a ZIO exitCode as a return type.

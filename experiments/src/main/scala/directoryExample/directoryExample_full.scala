@@ -47,10 +47,10 @@ object directoryExample_full extends zio.App:
 
   def finalizer(
       source: scala.io.Source
-  ) = //Define the finalizer behavior here
+  ) = // Define the finalizer behavior here
     UIO.succeed {
       println("Finalizing: Closing file reader")
-      source.close //Close the input source
+      source.close // Close the input source
     }
 
   // TODO Wyett: With the current setup, this
@@ -71,9 +71,9 @@ object directoryExample_full extends zio.App:
         .fromFile(
           "src/main/scala/directoryExample/firmData.csv"
         )
-    ) //Open the file to read its contents
+    ) // Open the file to read its contents
       .acquireReleaseWith(finalizer) {
-        bufferedSource => //Use the bracket method with the finalizer defined above to define behavior on fail.
+        bufferedSource => // Use the bracket method with the finalizer defined above to define behavior on fail.
 
           val lines =
             for
@@ -84,7 +84,7 @@ object directoryExample_full extends zio.App:
           // This models a fatal IOException
           errorAtNPerc(
             100
-          ) //ie, 10 % chance to fail...
+          ) // ie, 10 % chance to fail...
           ZIO.succeed(Vector() ++ lines)
       }
 
@@ -133,7 +133,7 @@ object directoryExample_full extends zio.App:
       lines <-
         readFileContents.retryN(
           5
-        ) //An attempt to open the file occurs 5 times.
+        ) // An attempt to open the file occurs 5 times.
       emps = linesToEmps(lines)
     yield emps
 
@@ -167,11 +167,11 @@ object directoryExample_full extends zio.App:
     itterate(emps.length - 1, emps, ID)
   end findEmp
 
-  def findEmp( //This is an overloaded function. The compiler can identify the correct 'findEmp' function by looking at the parameters used
+  def findEmp( // This is an overloaded function. The compiler can identify the correct 'findEmp' function by looking at the parameters used
       name: String,
       emps: Vector[Employee]
   ): ZIO[Any, EmpNotFound, Employee] =
-    def itterate( //Example of tail recursion (linear) search
+    def itterate( // Example of tail recursion (linear) search
         index: Int,
         emps: Vector[Employee],
         targetName: String
@@ -194,13 +194,13 @@ object directoryExample_full extends zio.App:
     val logic =
       for
         emps <-
-          compileEmps //Note: Excecutable logic is very concise. The behavior is predefined elsewhere, and only just excecuted in the main.
+          compileEmps // Note: Excecutable logic is very concise. The behavior is predefined elsewhere, and only just excecuted in the main.
         // _ <- println(emps.toString)
         searchedEmp <-
           findEmp(
             4,
             emps
-          ) //look for different employees based on ID
+          ) // look for different employees based on ID
         _ <-
           printLine(
             s"Looking for employee... \n" +

@@ -19,7 +19,7 @@ object pureCore:
   ): Double =
     errorAtNPerc(
       50
-    ) //There will be a 50% chance of random failure to model an effect
+    ) // There will be a 50% chance of random failure to model an effect
     BigDecimal(cashPayment - price)
       .setScale(
         2,

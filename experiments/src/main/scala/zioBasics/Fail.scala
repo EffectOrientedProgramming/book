@@ -14,17 +14,17 @@ object Fail:
     // specified value
     // Any parameter type can be passed in.
     val fail1: IO[Int, Nothing] =
-      ZIO.fail(12) //ZIO that fails with 12
+      ZIO.fail(12) // ZIO that fails with 12
     val fail2: IO[String, Nothing] =
       ZIO.fail(
         "Hello"
-      ) //ZIO that fails with Hello
+      ) // ZIO that fails with Hello
 
     val bar: foo2 = foo2()
     val fail3: IO[foo2, Nothing] =
       ZIO.fail(
         bar
-      ) //ZIO that fails with an object
+      ) // ZIO that fails with an object
 
     val zioEx2
         : ZIO[Has[Console], IOException, Unit] =
@@ -51,7 +51,7 @@ object Fail:
   // fails in the context of an app searching for
   // a person's credit score.
 
-  def getCreditScoreFromAgency1( //This function checks to see if the credict score can be found from Agency 1
+  def getCreditScoreFromAgency1( // This function checks to see if the credict score can be found from Agency 1
       successful: Boolean,
       fallbackIsSuccessful: Boolean
   ) =
@@ -66,7 +66,7 @@ object Fail:
 
   def getCreditScoreFromAgency2(
       successful: Boolean
-  ) = //This function checks to see if the credict score can be found from Agency 2
+  ) = // This function checks to see if the credict score can be found from Agency 2
     if (successful)
       ZIO.succeed(557)
     else

@@ -16,7 +16,7 @@ object MatrixExample:
       matrix2D(this.sizeX, this.sizeY, newData)
 
     def printMat()
-        : Unit = //Uses the map function to itterate
+        : Unit = // Uses the map function to itterate
       this.mapInt(i =>
         println(i)
         i
