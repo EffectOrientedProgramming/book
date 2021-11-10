@@ -63,6 +63,26 @@ There are two goals for exceptions:
 
 2. Reduce redundant error-handling code by handling associated errors in a single place.
 
+Exceptions have problems:
+
+1. They can be "swallowed."
+   Just because code throws an exception, there's no guarantee that issue will be dealt with.
+
+2. They can lose important information.
+   Once an exception is caught, it is considered to be "handled," and the program doesn't need to retain the failure information.
+
+3. They aren't typed.
+   Java's checked exceptions provide a small amount of type information, but it's not that helpful compared to a full type system.
+   And unchecked exceptions provide no information at all.
+
+4. They don't scale.
+   {{Need to think about this more to make the case.}}
+
+5. Hard to reason about(?)
+
+Exceptions were a valiant attempt to produce a consistent error-reporting interface, and they are definitely better than what's in C.
+But they don't end up solving the problem very well, and you just don't know what you're going to get when you use exceptions.
+
 What if we make a box called `Result` containing *both* the success-path value together with error information if it fails?
 For simplicity, both the error information and the success data are `String`s:
 
