@@ -80,6 +80,11 @@ Exceptions have problems:
 
 5. Hard to reason about(?)
 
+6. Difficult or impossible to retry an operation if it fails.
+   Java uses the "termination" model of exception handling.
+   This assumes the error is so critical there's no way to get back to where the exception occurred.
+   If you're performing an operation that you'd like to retry if it fails, exceptions don't help much.
+
 Exceptions were a valiant attempt to produce a consistent error-reporting interface, and they are definitely better than what's in C.
 But they don't end up solving the problem very well, and you just don't know what you're going to get when you use exceptions.
 
