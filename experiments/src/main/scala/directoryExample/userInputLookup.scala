@@ -22,7 +22,7 @@ object userInputLookup extends zio.App:
     val logic =
       for
         emps <-
-          compileEmps //Note: Excecutable logic is very concise. The behavior is predefined elsewhere, and only just excecuted in the main.
+          compileEmps // Note: Excecutable logic is very concise. The behavior is predefined elsewhere, and only just excecuted in the main.
         _ <-
           printLine(
             "Input full employee name to retrieve from database:   "
@@ -32,7 +32,7 @@ object userInputLookup extends zio.App:
           findEmp(
             empName,
             emps
-          ) //look for different employees based on Input Name
+          ) // look for different employees based on Input Name
         _ <-
           printLine(
             s"Looking for employee... \n" +
@@ -46,7 +46,7 @@ object userInputLookup extends zio.App:
             "2",
             "96",
             "8"
-          ) //Run this program with the following inputs
+          ) // Run this program with the following inputs
 
         _ <-
           logic

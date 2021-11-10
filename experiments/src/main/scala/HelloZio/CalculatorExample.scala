@@ -38,7 +38,7 @@ enum ArithmaticOperation(a: Float, b: Float):
     Any,
     Throwable | ArithmeticException,
     String
-  ] = //This in an function used in calculations implemented below.
+  ] = // This in an function used in calculations implemented below.
     this match
       case Add(first, second) =>
         ZIO {
@@ -73,7 +73,7 @@ object ArithmaticOperation: //This in an object used in calculations implemented
 // extends zio.App
 object CalculatorExample extends zio.App:
 
-  def input: ZIO[ //This function prompts and accepts the input from the user.
+  def input: ZIO[ // This function prompts and accepts the input from the user.
     Has[Console],
     IOException,
     Vector[String]
@@ -88,20 +88,20 @@ object CalculatorExample extends zio.App:
           | 4) Devide
           |""")
       in <-
-        readLine //User inputs the operation index
+        readLine // User inputs the operation index
       _ <- printLine(s"input: ${in}")
       _ <- printLine("Enter first number: ")
       firstNum <-
-        readLine //User inputs first and second number
+        readLine // User inputs first and second number
       _ <- printLine("Enter second number: ")
       secondNum <- readLine
     yield Vector(
       in,
       firstNum,
       secondNum
-    ) //The function returns a ZIO that succeeds with a vector of Strings
+    ) // The function returns a ZIO that succeeds with a vector of Strings
 
-  def operate( //This function takes in the inputs, and processes them to ensure they are valid.
+  def operate( // This function takes in the inputs, and processes them to ensure they are valid.
       // The function then returns a String
       // statement of the calculation.
       input: Vector[String]
@@ -117,14 +117,14 @@ object CalculatorExample extends zio.App:
       (number1, number2) <-
         ZIO {
           (input(1).toFloat, input(2).toFloat)
-        } //The inputs are cast as Floats, and passed into a ZIO object.
+        } // The inputs are cast as Floats, and passed into a ZIO object.
       result <-
-        ArithmaticOperation //This object, defined above, processes the operation index, and passes the according calculation to the function calculate.
+        ArithmaticOperation // This object, defined above, processes the operation index, and passes the according calculation to the function calculate.
           .fromInt(input(0).toInt)(
             number1,
             number2
           )
-          .calculate() //calculate takes the input numbers from ArithmaticOperation, and creates the return statement
+          .calculate() // calculate takes the input numbers from ArithmaticOperation, and creates the return statement
 // _ <- printLine("Typed, parse operation: "
     // +
     // operation)
@@ -149,7 +149,7 @@ object CalculatorExample extends zio.App:
     val stringRef =
       Ref.make(
         Seq("1", "2", "3")
-      ) //This is used in the automation software for running examples.
+      ) // This is used in the automation software for running examples.
 
     val operated =
       for
@@ -161,7 +161,7 @@ object CalculatorExample extends zio.App:
             "2",
             "96",
             "8"
-          ) //Run this program with the following inputs
+          ) // Run this program with the following inputs
         i <-
           input.provideLayer(
             ZLayer.succeed(console)

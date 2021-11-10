@@ -49,7 +49,7 @@ object processingFunctions:
       lines <-
         readFileContents.retryN(
           5
-        ) //An attempt to open the file occurs 5 times.
+        ) // An attempt to open the file occurs 5 times.
       emps = linesToEmps(lines)
     yield emps
 end processingFunctions

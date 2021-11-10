@@ -21,7 +21,7 @@ object folding extends App:
       logic.fold(
         _ => "The file wouldn't open... ",
         _ => "The file opened!"
-      ) //Non-effectful handling
+      ) // Non-effectful handling
 
     logic
       .foldZIO(
@@ -30,6 +30,6 @@ object folding extends App:
           printLine(
             "The file opened on first attempt!"
           )
-      ) //Effectful handling
+      ) // Effectful handling
       .exitCode
 end folding

@@ -11,7 +11,7 @@ object ReadIntAndMultiply extends zio.App:
 
   def run(
       args: List[String]
-  ) = //Use App's run function
+  ) = // Use App's run function
     val logic =
       for
         hub <- Hub.bounded[Int](2)

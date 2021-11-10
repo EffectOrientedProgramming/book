@@ -10,15 +10,15 @@ class Join:
   // This effect will succeed or fail depending
   // on the fiber.
   val joinedFib100
-      : UIO[Long] = //This function makes a fiber, then joins the fiber, and returns it as an effect
+      : UIO[Long] = // This function makes a fiber, then joins the fiber, and returns it as an effect
     for
       fiber <-
         computation
           .fib(100)
-          .fork //Fiber is made to find 100th value of Fib
+          .fork // Fiber is made to find 100th value of Fib
       output <-
         fiber
-          .join //Fiber is converted into an effect, then returned.
+          .join // Fiber is converted into an effect, then returned.
     yield output
 
   // This object performs a computation that

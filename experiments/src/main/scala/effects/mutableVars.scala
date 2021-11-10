@@ -11,9 +11,9 @@ object mutableVars:
 
   @main
   def mutableVarsEx =
-    println(addXnY(3)) //This gives 8
+    println(addXnY(3)) // This gives 8
     x = 2
-    println(addXnY(3)) //This gives 5
+    println(addXnY(3)) // This gives 5
 
 // The calls to addXnY have the same inputs, yet
 // give different outputs. This does

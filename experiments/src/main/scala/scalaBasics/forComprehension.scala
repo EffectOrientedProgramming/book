@@ -38,12 +38,13 @@ object forComprehension:
     var result = Vector[Int]()
     for {
       n <-
-        v //Take the input value v, and itterate through each element
-      if n > 5 //If n is greater than 5
-      if n % 2 == 0 //and n is divisible by 2
+        v // Take the input value v, and itterate through each element
+      if n > 5 // If n is greater than 5
+      if n % 2 == 0 // and n is divisible by 2
     } result =
-      result :+ n //Then add n to the result list
-    result        //return result
+      result :+
+        n  // Then add n to the result list
+    result // return result
 
 // To remove the use of a var, and simplify the
   // code, you can use the yield keyword.
@@ -58,10 +59,10 @@ object forComprehension:
     )
     for
       n <-
-        v //Take the input value v, and itterate through each element
-      if n > 5      //If n is greater than 5
-      if n % 2 == 0 //and n is divisible by 2
-    yield n //create a list of the values of n.
+        v // Take the input value v, and itterate through each element
+      if n > 5      // If n is greater than 5
+      if n % 2 == 0 // and n is divisible by 2
+    yield n // create a list of the values of n.
 
   @main
   def run() =
@@ -126,18 +127,19 @@ object forComprehension:
     val colorChanges =
       color
         .makeRed
-        .flatMap { color1 => //color1 is a string
-          color
-            .changeColor("green")
-            .flatMap {
-              color2 => //color2 is a string
-                color
-                  .changeColor2("yellow")
-                  .map {
-                    color3 => //color3 is a color
-                      color3
-                  }
-            }
+        .flatMap {
+          color1 => // color1 is a string
+            color
+              .changeColor("green")
+              .flatMap {
+                color2 => // color2 is a string
+                  color
+                    .changeColor2("yellow")
+                    .map {
+                      color3 => // color3 is a color
+                        color3
+                    }
+              }
         }
     println(colorChanges)
   end unraveled

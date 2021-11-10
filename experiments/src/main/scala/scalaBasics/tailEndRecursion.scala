@@ -20,6 +20,6 @@ object tailEndRecursion:
 
   @main
   def fib6 =
-    val fib6 = tailEndEx(6) //Expected output: 8
+    val fib6 = tailEndEx(6) // Expected output: 8
     println(fib6)
 end tailEndRecursion

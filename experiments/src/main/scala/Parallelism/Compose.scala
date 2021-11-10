@@ -20,8 +20,9 @@ class Compose:
       greeting <- IO.succeed("Hello!").fork
       fairwell <- IO.succeed("GoodBye!").fork
       totalFiber =
-        greeting
-          .zip(fairwell) //Note the '=', not '<-'
+        greeting.zip(
+          fairwell
+        ) // Note the '=', not '<-'
       tuple <- totalFiber.join
     yield tuple
 
@@ -42,13 +43,13 @@ class Compose:
     for
       fFiber <-
         notPineapple
-          .fork //notPineapple will fail
+          .fork // notPineapple will fail
       sFiber <-
         isPineapple
-          .fork //isPineapple will succedd
+          .fork // isPineapple will succedd
       totalFiber = fFiber.orElse(sFiber)
       output <-
         totalFiber
-          .join //The output effect will end up using isPineapple.
+          .join // The output effect will end up using isPineapple.
     yield output
 end Compose

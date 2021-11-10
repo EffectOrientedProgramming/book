@@ -21,9 +21,9 @@ object Chaining extends zio.App:
       _ <-
         printLine(
           "Input a word: "
-        ) //flatMap println ZIO into the wildcard char
+        ) // flatMap println ZIO into the wildcard char
       word <-
-        readLine //flatmap readLine ZIO into word
+        readLine // flatmap readLine ZIO into word
       _ <-
         printLine(
           s"${word} is a nice word! Good choice!"

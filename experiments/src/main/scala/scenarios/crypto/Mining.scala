@@ -76,7 +76,7 @@ object Mining extends zio.App:
 
   def run(
       args: List[String]
-  ) = //Use App's run function
+  ) = // Use App's run function
     val zeb   = Miner("Zeb")
     val frop  = Miner("Frop")
     val shtep = Miner("Shtep")
@@ -91,7 +91,7 @@ object Mining extends zio.App:
         chain: Ref[List[Int]]
     ): ZIO[Has[Console] with Has[
       Random
-    ] with Has[Clock], IOException, Unit] = //Uses mine2 function (sleep
+    ] with Has[Clock], IOException, Unit] = // Uses mine2 function (sleep
       // and find
       // prime numbers)
       for
