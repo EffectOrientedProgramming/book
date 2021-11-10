@@ -30,7 +30,7 @@ libraryDependencies ++=
   // Postgres Async
   "io.getquill" %% "quill-jasync-postgres" % "3.7.2.Beta1.4",
     "org.jetbrains" % "annotations-java5" %
-      "22.0.0",
+      "23.0.0",
     "org.scalameta"      %
       "scalafmt-dynamic" % "3.0.6" cross
       CrossVersion.for3Use2_13,
