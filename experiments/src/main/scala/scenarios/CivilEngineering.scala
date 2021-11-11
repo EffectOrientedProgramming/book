@@ -1,4 +1,37 @@
-package atomic
+package scenarios
+
+import zio.ZIOAppArgs
+import zio.{ZIOAppDefault, ZIO, Has}
+
+object CivilEngineering extends ZIOAppDefault {
+  trait Company[T]
+  trait ProjectSpecifications[T]
+  trait LegalRestriction
+  trait War
+  
+  val run =
+    ???
+  
+  val installPowerLine =
+    ???
+    
+    
+  trait World
+  object World:
+    def legalRestrictionsFor(state: State): ZIO[Has[World], War, Set[LegalRestriction]] = ???
+    def politicansOf(state: State): ZIO[Has[World], War, Set[LegalRestriction]] = ???
+  
+    
+  def stateBid[T](state: State, projectSpecifications: ProjectSpecifications[T]) =
+    for
+      legalRestrictions <- World.legalRestrictionsFor(state)
+      politicians <- World.politicansOf(state)
+    yield  ???
+  
+}
+
+enum State:
+  case TX, CO, CA
 
 def buildABridge() =
   trait Company[T]

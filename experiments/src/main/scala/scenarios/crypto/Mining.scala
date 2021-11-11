@@ -14,6 +14,7 @@ import zio.{
   UIO,
   URIO,
   ZIO,
+  ZIOAppDefault,
   ZLayer,
   durationInt
 }
@@ -23,7 +24,7 @@ import zio.Random.*
 
 import java.io.IOException
 
-object Mining extends zio.App:
+object Mining extends ZIOAppDefault:
 
   class Miner(val name: String):
 
@@ -74,9 +75,7 @@ object Mining extends zio.App:
       miners.tail.map(_.mine2(startNum))
     )
 
-  def run(
-      args: List[String]
-  ) = // Use App's run function
+  def run = // Use App's run function
     val zeb   = Miner("Zeb")
     val frop  = Miner("Frop")
     val shtep = Miner("Shtep")
