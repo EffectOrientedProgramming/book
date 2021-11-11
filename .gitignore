@@ -17,3 +17,5 @@ project/metals.sbt
 cs.exe
 /Examples/src/main/scala/*.scala
 /*/target/
+/MdToSourcePlugin/project/target/
+/MdToSourcePlugin/project/project/
