@@ -3,9 +3,6 @@
   "name":"[Ljava.io.File;"}
 ,
 {
-  "name":"[Ljava.lang.Object;"}
-,
-{
   "name":"izumi.reflect.macrortti.LightTypeTag",
   "fields":[{"name":"0bitmap$1"}]}
 ,
@@ -50,19 +47,7 @@
   "fields":[{"name":"0bitmap$1"}]}
 ,
 {
-  "name":"zio.ZManaged",
-  "fields":[{"name":"0bitmap$1"}]}
-,
-{
   "name":"zio.ZManaged$",
-  "fields":[{"name":"0bitmap$2"}]}
-,
-{
-  "name":"zio.internal.FiberContext",
-  "fields":[{"name":"0bitmap$1"}]}
-,
-{
-  "name":"zio.internal.stacktracer.Tracer$",
   "fields":[{"name":"0bitmap$1"}]}
 ,
 {
