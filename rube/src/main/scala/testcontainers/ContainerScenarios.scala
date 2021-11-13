@@ -31,64 +31,57 @@ val makeAProxiedRequest =
     _ <- printLine("Result: " + result)
   yield ()
 
-/*
-Good grief, I guess everyone would rather roast you for asking the question instead of answering it.
-
-FYI, I'm using these library versions:
-
-    scalaVersion := "3.0.2"
-    val zioVersion = "2.0.0-M3"
-
-def accessItem(item: Int) =
-  ZIO.succeed(item)
-
-One possible solution:
-
-    def sumInts(
-        ints: List[Int]
-    ): ZIO[Any, Nothing, Int] =
-      val zInts = ints.map(ZIO.succeed(_))
-
-      zInts match
-        case head :: tail =>
-          ZIO.reduceAllPar(head, tail)(_ + _)
-        case Nil =>
-          ZIO.succeed(0)
-
-
-    object Demo extends ZIOAppDefault:
-      def run =
-        for
-          summedInts <-
-            sumIntsLongService(List(1, 2, 3))
-          _ <- printLine(summedInts)
-        yield ()
-
-This does what you requested, but - as others have mentioned - it is probably not desirable for this particular situation.
-Parallel computations, whether done via ZIO or other tools, are more valuable when there's a lengthy processing time involved for each element.
-Something like this would see more of a payoff:
-
-    def longRunningServiceCall(input: Int) =
-      ZIO.sleep(10.seconds) *> ZIO.succeed(input)
-
-
-    def sumIntsLongService(
-                            ints: List[Int]
-                          ): ZIO[Has[Clock], Nothing, Int] =
-      val zInts =
-        ints.map(longRunningServiceCall)
-
-      zInts match
-        case head :: tail =>
-          ZIO.reduceAllPar(head, tail)(_ + _)
-        case Nil =>
-          ZIO.succeed(0)
-
-Because those 10 second processing-time delays can happen in parallel.
-
-
- */
-
+/* Good grief, I guess everyone would rather
+ * roast you for asking the question instead of
+ * answering it.
+ *
+ * FYI, I'm using these library versions:
+ *
+ * scalaVersion := "3.0.2" val zioVersion =
+ * "2.0.0-M3"
+ *
+ * def accessItem(item: Int) =
+ * ZIO.succeed(item)
+ *
+ * One possible solution:
+ *
+ * def sumInts( ints: List[Int] ): ZIO[Any,
+ * Nothing, Int] =
+ * val zInts = ints.map(ZIO.succeed(_))
+ *
+ * zInts match case head :: tail =>
+ * ZIO.reduceAllPar(head, tail)(_ + _) case Nil
+ * => ZIO.succeed(0)
+ *
+ * object Demo extends ZIOAppDefault:
+ * def run =
+ * for summedInts <- sumIntsLongService(List(1,
+ * 2, 3)) _ <- printLine(summedInts) yield ()
+ *
+ * This does what you requested, but - as others
+ * have mentioned - it is probably not desirable
+ * for this particular situation.
+ * Parallel computations, whether done via ZIO or
+ * other tools, are more valuable when there's a
+ * lengthy processing time involved for each
+ * element.
+ * Something like this would see more of a
+ * payoff:
+ *
+ * def longRunningServiceCall(input: Int) =
+ * ZIO.sleep(10.seconds) *> ZIO.succeed(input)
+ *
+ * def sumIntsLongService( ints: List[Int] ):
+ * ZIO[Has[Clock], Nothing, Int] =
+ * val zInts =
+ * ints.map(longRunningServiceCall)
+ *
+ * zInts match case head :: tail =>
+ * ZIO.reduceAllPar(head, tail)(_ + _) case Nil
+ * => ZIO.succeed(0)
+ *
+ * Because those 10 second processing-time delays
+ * can happen in parallel. */
 
 object ProxiedRequestScenario
     extends zio.ZIOAppDefault:

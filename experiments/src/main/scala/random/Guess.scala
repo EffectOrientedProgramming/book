@@ -13,9 +13,9 @@ val prompt =
 // TODO Determine how to handle .toInt failure
 // possibility
 def checkAnswer(
-                 answer: Int,
-                 guess: String
-               ): String =
+    answer: Int,
+    guess: String
+): String =
   if answer == guess.toInt then
     "You got it!"
   else
@@ -37,7 +37,6 @@ def runSideEffectingGuessingGame =
     )
   )
 
-
 import zio.Console.printLine
 
 trait RandomInt:
@@ -45,31 +44,31 @@ trait RandomInt:
 
 object RandomInt:
   def between(
-               low: Int,
-               high: Int
-             ): ZIO[Has[RandomInt], Nothing, Int] =
-  // TODO Study and determine how/when to
-  // introduct `serviceWith`
+      low: Int,
+      high: Int
+  ): ZIO[Has[RandomInt], Nothing, Int] =
+    // TODO Study and determine how/when to
+    // introduct `serviceWith`
     ZIO.serviceWith(_.between(high, low))
 
   object LiveRandomIntBetween extends RandomInt:
 
     override def between(
-                          high: Int,
-                          low: Int
-                        ): UIO[Int] =
+        high: Int,
+        low: Int
+    ): UIO[Int] =
       ZIO.succeed(
         scala.util.Random.between(low, high)
       )
 end RandomInt
 
 class FakeRandomInt(hardcodedValue: Int)
-  extends RandomInt:
+    extends RandomInt:
 
   override def between(
-                        high: Int,
-                        low: Int
-                      ): UIO[Int] = UIO.succeed(hardcodedValue)
+      high: Int,
+      low: Int
+  ): UIO[Int] = UIO.succeed(hardcodedValue)
 
 val effectfulGuessingGame =
   for
@@ -84,6 +83,7 @@ def runEffectfulGuessingGame =
   unsafeRun(
     effectfulGuessingGame.provideLayer(
       ZLayer.succeed(FakeConsole.single("3")) ++
-        ZLayer.succeed[RandomInt](FakeRandomInt(3))
+        ZLayer
+          .succeed[RandomInt](FakeRandomInt(3))
     )
   )
