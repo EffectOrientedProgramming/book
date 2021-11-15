@@ -19,7 +19,7 @@ libraryDependencies ++= Seq(
   "org.testcontainers"    % "kafka"            % "1.16.1",
   "org.testcontainers"    % "mockserver"            % "1.16.1",
   "org.testcontainers"    % "toxiproxy"            % "1.16.1",
-  "io.github.arkinator" % "mockserver-client-java" % "5.11.6",
+  "io.github.arkinator" % "mockserver-client-java" % "5.11.9",
   "org.postgresql" % "postgresql" % "42.3.0"
 )
 
