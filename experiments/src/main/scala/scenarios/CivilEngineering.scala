@@ -3,13 +3,14 @@ package scenarios
 import zio.ZIOAppArgs
 import zio.{ZIOAppDefault, ZIO, Has}
 
-object CivilEngineering extends ZIOAppDefault:
-  trait Company[T]:
-    def produceBid(
-        projectSpecifications: ProjectSpecifications[
-          T
-        ]
-    ): ProjectBid[T]
+object CivilEngineering extends ZIOAppDefault
+  trait Company[T] {
+    def produceBid(projectSpecifications: ProjectSpecifications[T]): ProjectBid[T]
+  }
+  object Companies {
+    def operatingIn[T](state: State): ZIO[Has[World], Nothing, AvailableCompanies[T]] = ???
+
+  }
   trait ProjectSpecifications[T]
   trait LegalRestriction
   case class War(reason: String)
@@ -31,31 +32,19 @@ object CivilEngineering extends ZIOAppDefault:
 
   trait World
   object World:
-    def legalRestrictionsFor(
-        state: State
-    ): ZIO[Has[World], War, Set[
-      LegalRestriction
-    ]] = ???
-    def politicansOf(state: State): ZIO[Has[
-      World
-    ], War, Set[LegalRestriction]] = ???
+    def legalRestrictionsFor(state: State): ZIO[Has[World], War, Set[LegalRestriction]] = ???
+    def politicansOf(state: State): ZIO[Has[World], War, Set[LegalRestriction]] = ???
 
-  def build[T](
-      projectBid: ProjectBid[T]
-  ): ZIO[Any, UnfulfilledPromise, T] = ???
-
-  def stateBid[T](
-      state: State,
-      projectSpecifications: ProjectSpecifications[
-        T
-      ],
-      availableCompanies: AvailableCompanies[T]
-  ): ZIO[Has[
-    World
-  ], War | UnfulfilledPromise, T] =
+  trait OutOfMoney
+  
+  trait PrivatePropertyRefusal
+  def build[T](projectBid: ProjectBid[T]): ZIO[Any, UnfulfilledPromise | OutOfMoney | PrivatePropertyRefusal, T] = ???
+  
+    
+  def stateBid[T](state: State, projectSpecifications: ProjectSpecifications[T]): ZIO[Has[World], War | UnfulfilledPromise | OutOfMoney | PrivatePropertyRefusal, T] =
     for
-      legalRestrictions <-
-        World.legalRestrictionsFor(state)
+      availableCompanies <- Companies.operatingIn[T](state)
+      legalRestrictions <- World.legalRestrictionsFor(state)
       politicians <- World.politicansOf(state)
       lowestBid =
         availableCompanies
