@@ -3,7 +3,7 @@ package scenarios
 import zio.ZIOAppArgs
 import zio.{ZIOAppDefault, ZIO, Has}
 
-object CivilEngineering extends ZIOAppDefault
+object CivilEngineering extends ZIOAppDefault:
   trait Company[T] {
     def produceBid(projectSpecifications: ProjectSpecifications[T]): ProjectBid[T]
   }
