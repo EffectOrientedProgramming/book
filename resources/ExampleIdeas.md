@@ -1,5 +1,10 @@
 # Ideas for Examples
 
+1. Music playlist. Title of list can be duplicate, title plus name of list
+   creator produces unique playlist. Possible uses: store and retrieve from
+   disk, send to your friend, convert to format that your music player (e.g.
+   Sonos) uses.
+
 1. From Joe Schrag via Tom Gagnier on WTF Slack
    https://josephschrag.blogspot.com/2021/01/lets-say-we-are-designing-interface-to.html
 
