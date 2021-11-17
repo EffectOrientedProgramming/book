@@ -9,7 +9,7 @@ import zio.{
   IO,
   Runtime,
   ZIO,
-  ZLayer,
+  ZServiceBuilder,
   durationInt
 }
 
@@ -49,8 +49,8 @@ def scheduling =
     .default
     .unsafeRunSync(
       scheduledCode
-        .provideLayer(
-          ZLayer.succeed(FakeConsole.word)
+        .provideServices(
+          ZServiceBuilder.succeed(FakeConsole.word)
         )
         .repeat(
           Schedule.recurs(4) &&
@@ -84,8 +84,8 @@ def ValPassing(): Unit =
     Runtime
       .default
       .unsafeRunSync(
-        b.provideLayer(
-            ZLayer.succeed(FakeConsole.name)
+        b.provideServices(
+            ZServiceBuilder.succeed(FakeConsole.name)
           )
           .exitCode
       )

@@ -1,18 +1,9 @@
 package fakeEnvironmentInstances
 
-import zio.{
-  BuildFrom,
-  Chunk,
-  Console,
-  Has,
-  Layer,
-  Random,
-  UIO,
-  ZIO,
-  ZLayer,
-  ZTraceElement
-}
+import zio.{BuildFrom, Chunk, Console, Has, Random, UIO, ZIO, ZServiceBuilder, ZTraceElement}
 import zio.Console.printLine
+
+import java.util.UUID
 
 trait RandomInt:
   def nextIntBounded(n: Int): UIO[Int]
@@ -54,11 +45,12 @@ object RandomInt:
           maxExclusive
         )
 
-  val live: Layer[Nothing, Has[RandomInt]] =
-    ZLayer.succeed(RandomIntLive)
+  val live: ZServiceBuilder[Any, Nothing, Has[RandomInt]] =
+    ZServiceBuilder.succeed(RandomIntLive)
 end RandomInt
 
 class FakeRandom(i: Int) extends Random:
+  def nextUUID(implicit trace: ZTraceElement): UIO[UUID] = ???
   def nextBoolean(implicit
       trace: zio.ZTraceElement
   ): zio.UIO[Boolean] = ???

@@ -39,8 +39,8 @@ object RuntimeEx:
     // parameter:
     displayWord(
       runtime.unsafeRun(
-        exZio2.provideLayer(
-          ZLayer.succeed(FakeConsole.word)
+        exZio2.provideServices(
+          ZServiceBuilder.succeed(FakeConsole.word)
         )
       )
     )

@@ -4,7 +4,6 @@ import zio.*
 import zio.Console.*
 import zio.test.*
 import zio.test.Assertion.*
-import zio.test.environment.*
 import java.io.IOException
 import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.containers.{
@@ -14,6 +13,7 @@ import org.testcontainers.containers.{
 import io.getquill._
 import org.testcontainers.containers.KafkaContainer
 import java.net.InetAddress
+import zio.ZServiceBuilder
 
 object NetworkAwareness:
   val localHostName: ZIO[Has[
@@ -23,7 +23,7 @@ object NetworkAwareness:
 
   val live
       : Layer[Nothing, Has[NetworkAwareness]] =
-    ZLayer.succeed(NetworkAwarenessLive)
+    ZServiceBuilder.succeed(NetworkAwarenessLive)
 
 trait NetworkAwareness:
   val localHostName: Task[String]

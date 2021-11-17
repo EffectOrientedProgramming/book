@@ -32,8 +32,8 @@ object Chaining extends zio.App:
 
   def run(args: List[String]) =
     chain
-      .provideLayer(
-        ZLayer.succeed(FakeConsole.word)
+      .provideServices(
+        ZServiceBuilder.succeed(FakeConsole.word)
       )
       .exitCode
 end Chaining

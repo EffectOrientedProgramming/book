@@ -8,7 +8,7 @@ import zio.{
   Random,
   UIO,
   ZIO,
-  ZLayer
+  ZServiceBuilder
 }
 import zio.Console.printLine
 
@@ -39,12 +39,12 @@ def luckyZ(
 
 object LuckyZ extends zio.App:
   def run(args: List[String]) =
-    val myRandom: ZLayer[Any, Nothing, Has[
+    val myRandom: ZServiceBuilder[Any, Nothing, Has[
       RandomIntBounded
-    ]] = ZLayer.succeed(FakeRandomIntBounded(0))
+    ]] = ZServiceBuilder.succeed(FakeRandomIntBounded(0))
 
     myAppLogic
-      .provideCustomLayer(myRandom)
+      .provideServices(myRandom)
       // does not work for some reason
       // .injectSome[Has[Console]](myRandom)
       .exitCode

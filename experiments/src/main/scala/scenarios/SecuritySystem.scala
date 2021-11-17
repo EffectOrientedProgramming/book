@@ -1,6 +1,6 @@
 package scenarios
 
-import zio.{Has, ZIO, ZLayer, Layer}
+import zio.{Has, ZIO, ZServiceBuilder, ServiceBuilder}
 import zio.Clock
 import zio.Duration
 import zio.Console.printLine
@@ -25,7 +25,7 @@ case class TempSense(
   */
 object SecuritySystem:
   // TODO Why can't I use this???
-  val s: zio.ZLayer[Any, Nothing, zio.Has[
+  val s: zio.ZServiceBuilder[Any, Nothing, zio.Has[
     scenarios.TempSense
   ]] =
     SensorData.live[Degrees, TempSense](
@@ -34,7 +34,7 @@ object SecuritySystem:
       (2.seconds, Degrees(70))
     )
 
-  val fullLayer: ZLayer[Any, Nothing, zio.Has[
+  val fullServiceBuilder: ZServiceBuilder[Any, Nothing, zio.Has[
     scenarios.MotionDetector
   ] & zio.Has[scenarios.ThermalDetectorX] & Has[AcousticDetectorX] & Has[SirenX]] =
     MotionDetector.live ++
@@ -177,8 +177,8 @@ def useSecuritySystem =
       unsafeRun(
         SecuritySystem
           .shouldAlertServices()
-          .provideLayer(
-            SecuritySystem.fullLayer ++
+          .provideServices(
+            SecuritySystem.fullServiceBuilder ++
               Clock.live
           )
           .catchSome {
@@ -214,8 +214,8 @@ object MotionDetector:
   ], HardwareFailure, Pixels] =
     ZIO.serviceWith(_.amountOfMotion())
 
-  val live: Layer[Nothing, Has[MotionDetector]] =
-    ZLayer.succeed(LiveMotionDetector)
+  val live: ZServiceBuilder[Any, Nothing, Has[MotionDetector]] =
+    ZServiceBuilder.succeed(LiveMotionDetector)
 
 trait ThermalDetectorX:
   def heatMeasurementSource()
@@ -231,10 +231,10 @@ object ThermalDetectorX:
   def apply(
       value: (Duration, Degrees),
       values: (Duration, Degrees)*
-  ): ZLayer[Any, Nothing, Has[
+  ): ZServiceBuilder[Any, Nothing, Has[
     ThermalDetectorX
   ]] =
-    ZLayer.succeed(
+    ZServiceBuilder.succeed(
       // that same service we wrote above
       new ThermalDetectorX:
         override def heatMeasurementSource()
@@ -279,10 +279,10 @@ object AcousticDetectorX:
   def apply(
       value: (Duration, Decibels),
       values: (Duration, Decibels)*
-  ): ZLayer[Any, Nothing, Has[
+  ): ZServiceBuilder[Any, Nothing, Has[
     AcousticDetectorX
   ]] =
-    ZLayer.succeed(
+    ZServiceBuilder.succeed(
       // that same service we wrote above
       new AcousticDetectorX:
         override def acquireDetector()
@@ -321,10 +321,10 @@ object Siren:
       Unit
     ]
 
-  val live: ZLayer[Any, Nothing, Has[
+  val live: ZServiceBuilder[Any, Nothing, Has[
     Siren.ServiceX
   ]] =
-    ZLayer.succeed(
+    ZServiceBuilder.succeed(
       // that same service we wrote above
       new ServiceX:
 
@@ -357,8 +357,8 @@ object SirenX:
       Unit
     ] = ZIO.debug("WOOOO EEEE WOOOOO EEEE")
 
-  val live: ZLayer[Any, Nothing, Has[SirenX]] =
-    ZLayer.succeed(SirenXLive)
+  val live: ZServiceBuilder[Any, Nothing, Has[SirenX]] =
+    ZServiceBuilder.succeed(SirenXLive)
 
   val lowBeep: ZIO[Has[
     SirenX
@@ -388,8 +388,8 @@ object SensorData:
       ] => Y,
       value: (Duration, T),
       values: (Duration, T)*
-  ): ZLayer[Any, Nothing, Has[Y]] =
-    ZLayer.succeed(
+  ): ZServiceBuilder[Any, Nothing, Has[Y]] =
+    ZServiceBuilder.succeed(
       // that same service we wrote above
       c(scheduledValues[T](value, values*))
     )
@@ -397,8 +397,8 @@ object SensorData:
   def liveS[T](
       value: (Duration, T),
       values: (Duration, T)*
-  ): ZLayer[Any, Nothing, Has[SensorD[T]]] =
-    ZLayer.succeed(
+  ): ZServiceBuilder[Any, Nothing, Has[SensorD[T]]] =
+    ZServiceBuilder.succeed(
       // that same service we wrote above
       SensorD(scheduledValues[T](value, values*))
     )

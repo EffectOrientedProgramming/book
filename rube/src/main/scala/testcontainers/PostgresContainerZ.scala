@@ -1,6 +1,6 @@
 package testcontainers
 
-import zio.{Has, ZLayer}
+import zio.Has
 import org.testcontainers.containers.{
   Network,
   PostgreSQLContainer

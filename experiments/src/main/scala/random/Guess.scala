@@ -1,6 +1,6 @@
 package random
 
-import zio.{Console, Has, UIO, ZIO, ZLayer}
+import zio.{Console, Has, UIO, ZIO, ZServiceBuilder}
 import zio.Runtime.default.unsafeRun
 import fakeEnvironmentInstances.FakeConsole
 
@@ -32,8 +32,8 @@ val sideEffectingGuessingGame =
 @main
 def runSideEffectingGuessingGame =
   unsafeRun(
-    sideEffectingGuessingGame.provideLayer(
-      ZLayer.succeed(FakeConsole.single("3"))
+    sideEffectingGuessingGame.provideServices(
+      ZServiceBuilder.succeed(FakeConsole.single("3"))
     )
   )
 
@@ -81,9 +81,9 @@ val effectfulGuessingGame =
 @main
 def runEffectfulGuessingGame =
   unsafeRun(
-    effectfulGuessingGame.provideLayer(
-      ZLayer.succeed(FakeConsole.single("3")) ++
-        ZLayer
+    effectfulGuessingGame.provideServices(
+      ZServiceBuilder.succeed(FakeConsole.single("3")) ++
+        ZServiceBuilder
           .succeed[RandomInt](FakeRandomInt(3))
     )
   )

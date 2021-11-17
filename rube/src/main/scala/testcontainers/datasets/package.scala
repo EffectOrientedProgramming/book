@@ -1,6 +1,7 @@
 package testcontainers
 
-import zio.{Has, Layer, ZLayer}
+import zio.{Has, Layer}
+import zio.ZServiceBuilder
 
 package object datasets {}
 
@@ -49,11 +50,11 @@ object ServiceDataSets:
 
   val careerDataZ
       : Layer[Nothing, Has[CareerData]] =
-    ZLayer.succeed(careerData)
+    ZServiceBuilder.succeed(careerData)
 
   val locations
       : Layer[Nothing, Has[LocationData]] =
-    ZLayer.succeed(
+    ZServiceBuilder.succeed(
       LocationData(
         List(
           RequestResponsePair("/Joe", "USA"),
@@ -68,7 +69,7 @@ object ServiceDataSets:
 
   val backgroundData
       : Layer[Nothing, Has[BackgroundData]] =
-    ZLayer.succeed(
+    ZServiceBuilder.succeed(
       BackgroundData(
         List(
           RequestResponsePair(

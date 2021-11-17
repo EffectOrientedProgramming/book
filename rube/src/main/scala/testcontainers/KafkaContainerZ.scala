@@ -22,6 +22,7 @@ import zio.stream.ZStream
 import org.apache.kafka.clients.consumer.ConsumerRecord
 
 import scala.jdk.CollectionConverters._
+import zio.ZServiceBuilder
 
 object KafkaContainerZ:
   def apply(network: Network): KafkaContainer =
@@ -33,18 +34,18 @@ object KafkaContainerZ:
 
   def construct(
       topicNames: List[String]
-  ): ZLayer[Has[
+  ): ZServiceBuilder[Has[
     Network
   ] & Has[NetworkAwareness], Throwable, Has[
     KafkaContainer
   ]] =
     for
       network <-
-        ZLayer.service[Network].map(_.get)
+        ZServiceBuilder.service[Network].map(_.get)
       localHostName <-
         NetworkAwareness
           .localHostName
-          .toLayer
+          .toServiceBuilder
           .map(_.get)
       container = apply(network)
       // _ <- container.getBootstrapServers
@@ -59,7 +60,7 @@ object KafkaContainerZ:
               topicNames
             )
           )
-          .toLayer
+          .toServiceBuilder
     yield res
 end KafkaContainerZ
 

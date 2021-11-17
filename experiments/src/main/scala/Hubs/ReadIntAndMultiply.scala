@@ -69,9 +69,9 @@ object ReadIntAndMultiply extends zio.App:
             "13"
           )
         _ <-
-          logic.provideCustomLayer(
+          logic.provideCustomServices(
             Clock.live ++
-              ZLayer.succeed(fakeConsole)
+              ZServiceBuilder.succeed(fakeConsole)
           )
       yield ()
     ).exitCode

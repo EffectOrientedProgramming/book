@@ -18,7 +18,8 @@ import sttp.client3.SttpClientException.{
 }
 import testcontainers.ServiceDataSets.ExpectedData
 
-import java.net.SocketException;
+import java.net.SocketException
+import zio.ZServiceBuilder;
 
 case class RequestResponsePair(
     userRequest: String,
@@ -35,12 +36,12 @@ object MockServerContainerZBasic:
         Throwable | String,
         Unit
       ] = ZIO.unit
-  ): ZLayer[Has[Network], Throwable, Has[
+  ): ZServiceBuilder[Has[Network], Throwable, Has[
     MockServerContainerZBasic
   ]] =
     for
       network <-
-        ZLayer.service[Network].map(_.get)
+        ZServiceBuilder.service[Network].map(_.get)
       container =
         MockServerContainerZBasic
           .apply(network, "latest")
@@ -61,7 +62,7 @@ object MockServerContainerZBasic:
               proxyZ
             )
           )
-          .toLayer
+          .toServiceBuilder
     yield res
 
   private def apply(

@@ -21,6 +21,7 @@ import testcontainers.proxy.{
   jitter,
   allProxies
 }
+import zio.ZServiceBuilder
 
 trait CareerHistoryServiceT:
   def citizenInfo(
@@ -28,11 +29,11 @@ trait CareerHistoryServiceT:
   ): ZIO[Any, Throwable | String, String]
 
 object CareerHistoryHardcoded:
-  val live: ZLayer[Has[CareerData], Nothing, Has[
+  val live: ZServiceBuilder[Has[CareerData], Nothing, Has[
     CareerHistoryServiceT
   ]] =
     for
-      careerData <- ZLayer.service[CareerData]
+      careerData <- ZServiceBuilder.service[CareerData]
     yield Has(
       CareerHistoryHardcoded(
         careerData.get,
@@ -94,7 +95,7 @@ object CareerHistoryService:
         Throwable | String,
         Unit
       ] = ZIO.unit
-  ): ZLayer[Has[
+  ): ZServiceBuilder[Has[
     Network
   ] & Has[Clock], Throwable, Has[
     CareerHistoryServiceT
@@ -106,18 +107,18 @@ object CareerHistoryService:
         proxyZ
       )
       .flatMap(x =>
-        ZLayer.succeed(
+        ZServiceBuilder.succeed(
           CareerHistoryServiceContainer(x.get)
         )
       )
 
-  val live: ZLayer[Has[
+  val live: ZServiceBuilder[Has[
     CareerData
   ] & Has[Network], Throwable, Has[
     CareerHistoryServiceT
   ]] =
     for
-      data <- ZLayer.service[CareerData]
+      data <- ZServiceBuilder.service[CareerData]
       webserver: Has[
         MockServerContainerZBasic
       ] <-
@@ -155,13 +156,13 @@ object LocationService:
       info <- locationService.locationOf(person)
     yield info
 
-  val live: ZLayer[Has[
+  val live: ZServiceBuilder[Has[
     LocationData
   ] & Has[Network], Throwable, Has[
     LocationService
   ]] =
     for
-      data <- ZLayer.service[LocationData]
+      data <- ZServiceBuilder.service[LocationData]
       webserver: Has[
         MockServerContainerZBasic
       ] <-
@@ -193,13 +194,13 @@ object BackgroundCheckService:
         locationService.criminalHistoryOf(person)
     yield s"Criminal:$info"
 
-  val live: ZLayer[Has[
+  val live: ZServiceBuilder[Has[
     BackgroundData
   ] & Has[Network], Throwable, Has[
     BackgroundCheckService
   ]] =
     for
-      data <- ZLayer.service[BackgroundData]
+      data <- ZServiceBuilder.service[BackgroundData]
       webserver: Has[
         MockServerContainerZBasic
       ] <-

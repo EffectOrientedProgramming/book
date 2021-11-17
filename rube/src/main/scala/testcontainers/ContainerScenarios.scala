@@ -16,6 +16,7 @@ import testcontainers.ServiceDataSets.{
   BackgroundData,
   CareerData
 }
+import zio.ZServiceBuilder
 
 case class SuspectProfile(
     name: String,
@@ -87,14 +88,14 @@ object ProxiedRequestScenario
     extends zio.ZIOAppDefault:
   def run =
     makeAProxiedRequest
-      .provideSomeLayer[ZEnv](liveLayer)
+      .provideSomeServices[ZEnv](liveLayer)
 
-  val liveLayer: ZLayer[
+  val liveLayer: ZServiceBuilder[
     Any,
     Throwable,
     Deps.AppDependencies
   ] =
-    ZLayer.wire[Deps.AppDependencies](
+    ZServiceBuilder.wire[Deps.AppDependencies](
       ServiceDataSets.careerDataZ,
 //      Clock.live,
       Layers.networkLayer,
@@ -110,7 +111,7 @@ object ProxiedRequestScenarioUnit
 
   def run =
     makeAProxiedRequest
-      .provideSomeLayer[ZEnv](liveLayer)
+      .provideSomeServices[ZEnv](liveLayer)
 
   val liveLayer =
     ServiceDataSets.careerDataZ >>>
@@ -258,7 +259,7 @@ object ContainerScenarios:
         )(_ + _)
     yield people
 
-  val backgroundCheckServer: ZLayer[Has[
+  val backgroundCheckServer: ZServiceBuilder[Has[
     Network
   ] & Has[BackgroundData], Throwable, Has[
     BackgroundCheckService
@@ -272,7 +273,7 @@ object ContainerScenarios:
     )
 
   val layer =
-    ZLayer.wire[Deps.RubeDependencies](
+    ZServiceBuilder.wire[Deps.RubeDependencies](
       ServiceDataSets.careerDataZ,
       ServiceDataSets.locations,
       ServiceDataSets.backgroundData,
@@ -293,6 +294,6 @@ object RunScenarios extends zio.ZIOAppDefault:
   def run =
     ContainerScenarios
       .logic
-      .provideSomeLayer[ZEnv](
+      .provideSomeServices[ZEnv](
         ContainerScenarios.layer
       )

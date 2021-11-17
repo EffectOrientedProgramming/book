@@ -1,6 +1,9 @@
 # The ZIO Type
 The `ZIO` trait is at the center of our Effect-oriented world.
 ```scala
+???
+```
+```scala
 trait ZIO[R, E, A]
 ```
 

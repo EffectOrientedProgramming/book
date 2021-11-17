@@ -1,20 +1,21 @@
 package testcontainers
 
-import zio.{Has, ZLayer}
+import zio.Has
 import org.testcontainers.containers.{
   Network,
   PostgreSQLContainer
 }
+import zio.ZServiceBuilder
 
 object PostgresDummy
 
 object PostgresContainer:
-  def construct(initScipt: String): ZLayer[Has[
+  def construct(initScipt: String): ZServiceBuilder[Has[
     Network
   ], Nothing, Has[PostgresContainerJ]] =
     for
       network <-
-        ZLayer.service[Network].map(_.get)
+        ZServiceBuilder.service[Network].map(_.get)
       safePostgres =
         PostgresContainerJ
           .apply(initScipt, network)
@@ -22,5 +23,5 @@ object PostgresContainer:
       res <-
         GenericInteractionsZ
           .manage(safePostgres, "postgres")
-          .toLayer
+          .toServiceBuilder
     yield res

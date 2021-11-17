@@ -7,7 +7,7 @@ import zio.Console.{readLine, printLine}
 import zio.Console
 import fakeEnvironmentInstances.FakeConsole
 import zio.Console
-import zio.{IO, Ref, Runtime, ZIO, ZLayer, Has}
+import zio.{IO, Ref, Runtime, ZIO, ZServiceBuilder, Has}
 
 enum ArithmaticOperation(a: Float, b: Float):
 
@@ -163,8 +163,8 @@ object CalculatorExample extends zio.App:
             "8"
           ) // Run this program with the following inputs
         i <-
-          input.provideLayer(
-            ZLayer.succeed(console)
+          input.provideServices(
+            ZServiceBuilder.succeed(console)
           )
         output <-
           operate(i).catchAll {
