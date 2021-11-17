@@ -16,14 +16,16 @@ addSbtPlugin(
 
 addSbtPlugin(
   "com.github.sbt" % "sbt-native-packager" %
-    "1.9.6"
+    "1.9.7"
 )
 
 addSbtPlugin(
   "ch.epfl.scala" % "sbt-bloop" % "1.4.11"
 )
 
-addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.9.32")
+addSbtPlugin(
+  "ch.epfl.scala" % "sbt-scalafix" % "0.9.32"
+)
 
 //lazy val MdToSourcePlugin =
 //  RootProject(file("../MdToSourcePlugin"))
