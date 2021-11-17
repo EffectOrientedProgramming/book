@@ -19,11 +19,11 @@
   "allDeclaredFields":true}
 ,
 {
-  "name":"zio.Executor",
+  "name":"zio.Chunk$",
   "fields":[{"name":"0bitmap$1"}]}
 ,
 {
-  "name":"zio.PlatformSpecific$ZEnv$",
+  "name":"zio.Executor",
   "fields":[{"name":"0bitmap$1"}]}
 ,
 {
@@ -43,11 +43,27 @@
   "fields":[{"name":"0bitmap$1"}]}
 ,
 {
-  "name":"zio.ZLayer",
-  "fields":[{"name":"0bitmap$1"}]}
+  "name":"zio.ZIOMetric$Counter",
+  "fields":[{"name":"0bitmap$2"}]}
 ,
 {
   "name":"zio.ZManaged$",
+  "fields":[{"name":"0bitmap$1"}]}
+,
+{
+  "name":"zio.ZServiceBuilder",
+  "fields":[{"name":"0bitmap$1"}]}
+,
+{
+  "name":"zio.internal.FiberContext$",
+  "fields":[{"name":"0bitmap$1"}]}
+,
+{
+  "name":"zio.internal.Platform$",
+  "fields":[{"name":"0bitmap$1"}]}
+,
+{
+  "name":"zio.internal.metrics.package$",
   "fields":[{"name":"0bitmap$1"}]}
 ,
 {

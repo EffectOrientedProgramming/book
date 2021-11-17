@@ -30,9 +30,29 @@ graalVMNativeImageOptions ++= Seq(
   "-H:Name=booker",
 )
 
-/*
-// for generating graalvm configs
 run / fork := true
+run / baseDirectory := file(".")
 
-run / javaOptions += s"-agentlib:native-image-agent=config-output-dir=src/main/resources/META-INF/native-image"
+//run / javaOptions += s"-agentlib:native-image-agent=config-output-dir=booker/src/main/resources/META-INF/native-image"
+
+/*
+// todo: run task with agent
+
+lazy val runWithAgent = inputKey[Unit]("runWithAgent")
+
+// todo: verify graalvm is the vm and the native-image-agent exists
+runWithAgent := {
+  val option = s"-agentlib:native-image-agent=config-output-dir=src/main/resources/META-INF/native-image"
+  val newState = state.value.appendWithSession(Seq(run / javaOptions += option))
+  //val mySettings = state.value.
+  //val mySettings = inScope() inConfig(Compile)() Compile
+  //run.evaluate(state.value.)
+  //println(inConfig(Compile)(Seq.empty).)
+  (Compile / run).evaluate()
+  //Project.extract(newState).runTask(t, newState)
+  //val (newNewState, output) = Project.extract(newState).runInputTask(ThisBuild / Compile / run, "", newState)
+  //println(newNewState.onFailure)
+  //(Compile / run).evaluated
+  //output
+}
  */
