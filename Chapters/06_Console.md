@@ -126,11 +126,11 @@ val logic: ZIO[Has[Console], Nothing, Unit] =
 However, providing dependencies to the logic is still tedious.
 
 ```scala mdoc
-import zio.ZLayer
+import zio.ZServiceBuilder
 import zio.Runtime.default.unsafeRun
 unsafeRun(
-  logic.provideLayer(
-    ZLayer.succeed[Console](ConsoleLive)
+  logic.provideServices(
+    ZServiceBuilder.succeed[Console](ConsoleLive)
   )
 )
 ```
@@ -140,11 +140,11 @@ unsafeRun(
 Rather than making each caller wrap our instance in a `Layer`, we can do that a single time in our companion.
 
 ```scala mdoc
-import zio.Layer
+import zio.ZServiceBuilder
 
 object ConsoleWithLayer:
-  val live: Layer[Nothing, Has[Console]] =
-    ZLayer.succeed(ConsoleLive)
+  val live: ZServiceBuilder[Any, Nothing, Has[Console]] =
+    ZServiceBuilder.succeed(ConsoleLive)
 ```
 
 Now executing our code is as simple as describing it.
@@ -152,22 +152,22 @@ Now executing our code is as simple as describing it.
 
 ```scala mdoc
 unsafeRun(
-  logic.provideLayer(ConsoleWithLayer.live)
+  logic.provideServices(ConsoleWithLayer.live)
 )
 ```
 
 In real application, both of these will go in the companion object directly.
 
 ```scala mdoc
-import zio.Layer
+import zio.ZServiceBuilder
 object Console:
   def printLine(
       variable: => String
   ): ZIO[Has[Console], Nothing, Unit] =
     ZIO.serviceWith(_.printLine(variable))
 
-  val live: Layer[Nothing, Has[Console]] =
-    ZLayer.succeed(ConsoleLive)
+  val live: ZServiceBuilder[Any, Nothing, Has[Console]] =
+    ZServiceBuilder.succeed(ConsoleLive)
 ```
 
 ## Official ZIO Approach
@@ -205,8 +205,8 @@ val leakSensitiveInfo
 
 ```scala mdoc
 unsafeRun(
-  leakSensitiveInfo.provideLayer(
-    ZLayer.succeed[Console](ConsoleSanitized)
+  leakSensitiveInfo.provideServices(
+    ZServiceBuilder.succeed[Console](ConsoleSanitized)
   )
 )
 ```

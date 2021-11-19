@@ -279,7 +279,7 @@ This is what it looks like in action:
 
 ```scala mdoc
 import zio.Runtime.default.unsafeRun
-import zio.ZLayer
+import zio.ZServiceBuilder
 import mdoc.unsafeRunPrettyPrint
 ```
 
@@ -291,8 +291,8 @@ sys.env.environment = OriginalDeveloper
 
 ```scala mdoc
 unsafeRunPrettyPrint(
-  fancyLodgingFinal().provideLayer(
-    ZLayer.succeed[System](SystemLive)
+  fancyLodgingFinal().provideServices(
+    ZServiceBuilder.succeed[System](SystemLive)
   )
 )
 ```
@@ -304,8 +304,8 @@ sys.env.environment = NewDeveloper
 
 ```scala mdoc
 unsafeRunPrettyPrint(
-  fancyLodgingFinal().provideLayer(
-    ZLayer.succeed[System](SystemLive)
+  fancyLodgingFinal().provideServices(
+    ZServiceBuilder.succeed[System](SystemLive)
   )
 )
 ```
@@ -317,8 +317,8 @@ sys.env.environment = CIServer
 
 ```scala mdoc
 unsafeRunPrettyPrint(
-  fancyLodgingFinal().provideLayer(
-    ZLayer.succeed[System](SystemLive)
+  fancyLodgingFinal().provideServices(
+    ZServiceBuilder.succeed[System](SystemLive)
   )
 )
 ```
@@ -341,8 +341,8 @@ We can now provide this to our logic, for testing both the success and failure c
 
 ```scala mdoc
 unsafeRun(
-  fancyLodgingSafe().provideLayer(
-    ZLayer.succeed[System](
+  fancyLodgingSafe().provideServices(
+    ZServiceBuilder.succeed[System](
       SystemHardcoded(
         Map("API_KEY" -> "Invalid Key")
       )
@@ -374,8 +374,8 @@ def fancyLodgingZ(): ZIO[Has[
 ## Exercises
 
 ```scala mdoc
-import zio.test.environment.TestSystem
-import zio.test.environment.TestSystem.Data
+import zio.test.TestSystem
+import zio.test.TestSystem.Data
 // TODO Use real tests once Scala3 & ZIO2 are
 // updated
 ```
@@ -409,7 +409,7 @@ val exercise1case1 =
   unsafeRun(
     Exercise1Solution
       .envOrFail("key")
-      .provideLayer(
+      .provideServices(
         TestSystem.live(
           Data(envs = Map("key" -> "value"))
         )
@@ -427,7 +427,7 @@ val exercise1case2 =
         case _: NoSuchElementException =>
           ZIO.succeed("Expected Error")
       }
-      .provideLayer(
+      .provideServices(
         TestSystem.live(Data(envs = Map()))
       )
   )
