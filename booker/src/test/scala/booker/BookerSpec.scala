@@ -3,17 +3,16 @@ package booker
 import zio.*
 import zio.test.*
 import zio.test.Assertion.*
-import zio.test.environment.*
 
 import java.io.File
 
 object BookerSpec extends DefaultRunnableSpec:
   def nope(s: String): TestResult =
-    assert(parseChapter(File(s)))(isNone)
+    zio.test.assert(parseChapter(File(s)))(isNone)
 
   def yuup(s: String, i: Int): TestResult =
     val f = File(s)
-    assert(parseChapter(f))(
+    zio.test.assert(parseChapter(f))(
       isSome(equalTo(i -> f))
     )
 
@@ -80,7 +79,7 @@ object BookerSpec extends DefaultRunnableSpec:
                   )
                 )
               }
-          yield assert(1)(equalTo(1))
+          yield zio.test.assert(1)(equalTo(1))
         }
       )
     )
