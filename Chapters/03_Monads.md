@@ -68,19 +68,24 @@ Exceptions have problems:
 1. They can be "swallowed."
    Just because code throws an exception, there's no guarantee that issue will be dealt with.
 
-2. They can lose important information.
+1. They can lose important information.
    Once an exception is caught, it is considered to be "handled," and the program doesn't need to retain the failure information.
 
-3. They aren't typed.
+1. They aren't typed.
    Java's checked exceptions provide a small amount of type information, but it's not that helpful compared to a full type system.
    And unchecked exceptions provide no information at all.
 
-4. They don't scale.
+1. Because they are handled dynamically, the only way to ensure your program
+   won't crash is by testing it through all possible execution paths. A
+   statically-typed error management solution can ensure---at compile
+   time---that all errors are handled.
+
+1. They don't scale.
    {{Need to think about this more to make the case.}}
 
-5. Hard to reason about(?)
+1. Hard to reason about(?)
 
-6. Difficult or impossible to retry an operation if it fails.
+1. Difficult or impossible to retry an operation if it fails.
    Java uses the "termination" model of exception handling.
    This assumes the error is so critical there's no way to get back to where the exception occurred.
    If you're performing an operation that you'd like to retry if it fails, exceptions don't help much.
