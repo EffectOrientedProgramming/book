@@ -3,7 +3,7 @@ import java.nio.file.{Files, Path}
 
 name := "EffectOrientedProgramming"
 
-val zioVersion = "2.0.0-M6"
+val zioVersion = "2.0.0-M5"
 
 lazy val commonSettings = Seq(
   scalaVersion := "3.1.0",
