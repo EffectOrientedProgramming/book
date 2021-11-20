@@ -11,6 +11,10 @@
   "fields":[{"name":"0bitmap$4"}]}
 ,
 {
+  "name":"izumi.reflect.macrortti.LightTypeTagInheritance",
+  "fields":[{"name":"0bitmap$1"}]}
+,
+{
   "name":"java.lang.invoke.VarHandle",
   "methods":[{"name":"releaseFence","parameterTypes":[] }]}
 ,
@@ -35,6 +39,10 @@
   "fields":[{"name":"0bitmap$1"}]}
 ,
 {
+  "name":"zio.ZEnvironment$",
+  "fields":[{"name":"0bitmap$1"}]}
+,
+{
   "name":"zio.ZFiberRef$",
   "fields":[{"name":"0bitmap$1"}]}
 ,
@@ -47,11 +55,11 @@
   "fields":[{"name":"0bitmap$2"}]}
 ,
 {
-  "name":"zio.ZManaged$",
+  "name":"zio.ZLayer",
   "fields":[{"name":"0bitmap$1"}]}
 ,
 {
-  "name":"zio.ZLayer",
+  "name":"zio.ZManaged$",
   "fields":[{"name":"0bitmap$1"}]}
 ,
 {
