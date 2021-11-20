@@ -3,7 +3,7 @@ import java.nio.file.{Files, Path}
 
 name := "EffectOrientedProgramming"
 
-val zioVersion = "2.0.0-M6"
+val zioVersion = "2.0.0-M6-2"
 
 lazy val commonSettings = Seq(
   scalaVersion := "3.1.0",
@@ -16,9 +16,9 @@ lazy val commonSettings = Seq(
   // scalacOptions -= "-encoding"
 
   libraryDependencies ++= Seq(
-    "dev.zio" %% "zio"          % zioVersion,
-    "dev.zio" %% "zio-test"     % zioVersion,
-    "dev.zio" %% "zio-test-sbt" % zioVersion % Test,
+//    "dev.zio" %% "zio"          % zioVersion,
+//    "dev.zio" %% "zio-test"     % zioVersion,
+//    "dev.zio" %% "zio-test-sbt" % zioVersion % Test,
   ),
 
   testFrameworks +=
