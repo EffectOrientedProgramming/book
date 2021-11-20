@@ -61,8 +61,7 @@ end scheduling
 @main
 def ValPassing(): Unit =
 
-  val input
-      : ZIO[Console, IOException, String] =
+  val input: ZIO[Console, IOException, String] =
     for
       _    <- printLine("What is your name?")
       name <- readLine
@@ -75,8 +74,7 @@ def ValPassing(): Unit =
     else
       false
 
-  val b
-      : ZIO[Console, IOException, Boolean] =
+  val b: ZIO[Console, IOException, Boolean] =
     input.map(i => process(i))
 
   println(

@@ -1,6 +1,15 @@
 package fakeEnvironmentInstances
 
-import zio.{BuildFrom, Chunk, Console, Random, UIO, ZIO, ZLayer, ZTraceElement}
+import zio.{
+  BuildFrom,
+  Chunk,
+  Console,
+  Random,
+  UIO,
+  ZIO,
+  ZLayer,
+  ZTraceElement
+}
 import zio.Console.printLine
 
 import java.util.UUID
@@ -50,7 +59,9 @@ object RandomInt:
 end RandomInt
 
 class FakeRandom(i: Int) extends Random:
-  def nextUUID(implicit trace: ZTraceElement): UIO[UUID] = ???
+  def nextUUID(implicit
+      trace: ZTraceElement
+  ): UIO[UUID] = ???
   def nextBoolean(implicit
       trace: zio.ZTraceElement
   ): zio.UIO[Boolean] = ???

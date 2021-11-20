@@ -16,11 +16,16 @@ import java.net.InetAddress
 import zio.ZLayer
 
 object NetworkAwareness:
-  val localHostName: ZIO[ NetworkAwareness , Throwable, String] =
-    ZIO.service[NetworkAwareness].flatMap(_.localHostName)
+  val localHostName: ZIO[
+    NetworkAwareness,
+    Throwable,
+    String
+  ] =
+    ZIO
+      .service[NetworkAwareness]
+      .flatMap(_.localHostName)
 
-  val live
-      : Layer[Nothing, NetworkAwareness] =
+  val live: Layer[Nothing, NetworkAwareness] =
     ZLayer.succeed(NetworkAwarenessLive)
 
 trait NetworkAwareness:

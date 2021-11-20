@@ -30,8 +30,7 @@ object Success:
         bar
       ) // This ZIO succeeds with a class object
 
-    val zioEx
-        : ZIO[Console, IOException, Unit] =
+    val zioEx: ZIO[Console, IOException, Unit] =
       Console.printLine("ZIO")
     val success4 =
       ZIO.succeed(

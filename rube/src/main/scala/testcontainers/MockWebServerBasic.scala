@@ -36,38 +36,26 @@ object MockServerContainerZBasic:
         Throwable | String,
         Unit
       ] = ZIO.unit
-  ): ZLayer[Network, Throwable,  MockServerContainerZBasic ] =
-    ???
+  ): ZLayer[
+    Network,
+    Throwable,
+    MockServerContainerZBasic
+  ] = ???
 
-    
-    /*
-    TODO Restore after m6 is otherwise complete
-    for
-      network <-
-        ZLayer.service[Network]
-      container =
-        MockServerContainerZBasic
-          .apply(network.get, "latest")
-      res <-
-        GenericInteractionsZ
-          .manageWithInitialization(
-            container,
-            s"$serviceName mockserver",
-            MockServerContainerZBasic
-              .mockSetup(_, pairs)
-          )
-          .map(mockServerContainer =>
-            new MockServerContainerZBasic(
-              mockServerContainer.getHost.nn,
-              mockServerContainer
-                .getServerPort
-                .nn,
-              proxyZ
-            )
-          )
-          .toLayer
-    yield ???
-    */
+  /* TODO Restore after m6 is otherwise complete
+   * for network <- ZLayer.service[Network]
+   * container =
+   * MockServerContainerZBasic
+   * .apply(network.get, "latest") res <-
+   * GenericInteractionsZ
+   * .manageWithInitialization( container,
+   * s"$serviceName mockserver",
+   * MockServerContainerZBasic .mockSetup(_,
+   * pairs) ) .map(mockServerContainer => new
+   * MockServerContainerZBasic(
+   * mockServerContainer.getHost.nn,
+   * mockServerContainer .getServerPort .nn,
+   * proxyZ ) ) .toLayer yield ??? */
 
   private def apply(
       network: Network,

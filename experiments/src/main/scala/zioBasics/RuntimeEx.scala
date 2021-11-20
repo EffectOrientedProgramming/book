@@ -19,8 +19,7 @@ object RuntimeEx:
   val runtime         = Runtime.default
   val exZio: UIO[Int] = ZIO.succeed(1)
 
-  val exZio2
-      : ZIO[Console, IOException, String] =
+  val exZio2: ZIO[Console, IOException, String] =
     for
       _    <- printLine("Input Word: ")
       word <- readLine

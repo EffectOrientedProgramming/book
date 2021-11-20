@@ -31,11 +31,19 @@ object QuillLocal:
     config.setDataSource(pgDataSource)
     config
 
-  val quillPostgresContext: ZLayer[ PostgresContainerJ , Nothing, AppPostgresContext] = 
+  val quillPostgresContext: ZLayer[
+    PostgresContainerJ,
+    Nothing,
+    AppPostgresContext
+  ] =
     ZLayer
       .service[PostgresContainerJ]
       .flatMap {
-        (safePostgresE: ZEnvironment[PostgresContainerJ]) =>
+        (
+          safePostgresE: ZEnvironment[
+            PostgresContainerJ
+          ]
+        ) =>
           val safePostgres = safePostgresE.get
 
           val config =
@@ -48,7 +56,10 @@ object QuillLocal:
           )
       }
 
-  val quillQuery: ZIO[ AppPostgresContext , Nothing, List[Person]] =
+  val quillQuery
+      : ZIO[AppPostgresContext, Nothing, List[
+        Person
+      ]] =
     for
       ctx <- ZIO.service[AppPostgresContext]
     yield

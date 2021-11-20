@@ -50,9 +50,7 @@ object userInputLookup extends zio.App:
 
         _ <-
           logic
-            .provide(
-              ZLayer.succeed(console)
-            )
+            .provide(ZLayer.succeed(console))
             // You can comment out this section
             // if you want to see what the code
             // looks like without

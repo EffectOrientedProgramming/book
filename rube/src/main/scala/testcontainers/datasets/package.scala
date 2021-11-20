@@ -48,12 +48,10 @@ object ServiceDataSets:
       )
     )
 
-  val careerDataZ
-      : Layer[Nothing, CareerData] =
+  val careerDataZ: Layer[Nothing, CareerData] =
     ZLayer.succeed(careerData)
 
-  val locations
-      : Layer[Nothing, LocationData] =
+  val locations: Layer[Nothing, LocationData] =
     ZLayer.succeed(
       LocationData(
         List(

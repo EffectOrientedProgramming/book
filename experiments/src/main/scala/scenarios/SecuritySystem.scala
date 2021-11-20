@@ -9,7 +9,11 @@ import zio.Schedule
 import scala.concurrent.TimeoutException
 
 case class TempSense(
-    z: ZIO[Clock, HardwareFailure, ZIO[ Clock , TimeoutException, Degrees]]
+    z: ZIO[
+      Clock,
+      HardwareFailure,
+      ZIO[Clock, TimeoutException, Degrees]
+    ]
 )
 
 /** Situations: Security System: Should monitor
@@ -23,14 +27,25 @@ case class TempSense(
   */
 object SecuritySystem:
   // TODO Why can't I use this???
-  val s: zio.ZLayer[Any, Nothing,  scenarios.TempSense ] =
+  val s: zio.ZLayer[
+    Any,
+    Nothing,
+    scenarios.TempSense
+  ] =
     SensorData.live[Degrees, TempSense](
       x => TempSense(x),
       (1.seconds, Degrees(71)),
       (2.seconds, Degrees(70))
     )
 
-  val fullServiceBuilder: ZLayer[Any, Nothing,  scenarios.MotionDetector  & scenarios.ThermalDetectorX & AcousticDetectorX & SirenX] =
+  val fullServiceBuilder: ZLayer[
+    Any,
+    Nothing,
+    scenarios.MotionDetector &
+      scenarios.ThermalDetectorX &
+      AcousticDetectorX &
+      SirenX
+  ] =
     MotionDetector.live ++
       ThermalDetectorX(
         (1.seconds, Degrees(71)),
@@ -42,15 +57,36 @@ object SecuritySystem:
       (4.seconds, Decibels(11)),
       (1.seconds, Decibels(20))
     ) ++ SirenX.live
+  end fullServiceBuilder
 
-  val accessMotionDetector: ZIO[ scenarios.MotionDetector , scenarios.HardwareFailure, scenarios.Pixels] =
-    ZIO.environmentWithZIO(_.get.amountOfMotion())
+  val accessMotionDetector: ZIO[
+    scenarios.MotionDetector,
+    scenarios.HardwareFailure,
+    scenarios.Pixels
+  ] =
+    ZIO
+      .environmentWithZIO(_.get.amountOfMotion())
 
   def securityLoop(
-      amountOfHeatGenerator: ZIO[ Clock , scala.concurrent.TimeoutException | scenarios.HardwareFailure, scenarios.Degrees],
+      amountOfHeatGenerator: ZIO[
+        Clock,
+        scala.concurrent.TimeoutException |
+          scenarios.HardwareFailure,
+        scenarios.Degrees
+      ],
       amountOfMotion: Pixels,
-      acousticDetector: ZIO[ Clock , scala.concurrent.TimeoutException | scenarios.HardwareFailure, scenarios.Decibels]
-  ): ZIO[ Clock  & SirenX, scala.concurrent.TimeoutException | HardwareFailure, Unit] =
+      acousticDetector: ZIO[
+        Clock,
+        scala.concurrent.TimeoutException |
+          scenarios.HardwareFailure,
+        scenarios.Decibels
+      ]
+  ): ZIO[
+    Clock & SirenX,
+    scala.concurrent.TimeoutException |
+      HardwareFailure,
+    Unit
+  ] =
     for
       amountOfHeat <- amountOfHeatGenerator
       noise        <- acousticDetector
@@ -74,7 +110,15 @@ object SecuritySystem:
             SirenX.loudSiren
     yield ()
 
-  def shouldAlertServices(): ZIO[ MotionDetector  & ThermalDetectorX & SirenX & AcousticDetectorX & Clock, scenarios.HardwareFailure | TimeoutException, String] = 
+  def shouldAlertServices(): ZIO[
+    MotionDetector &
+      ThermalDetectorX &
+      SirenX &
+      AcousticDetectorX &
+      Clock,
+    scenarios.HardwareFailure | TimeoutException,
+    String
+  ] =
     for
       amountOfMotion <-
         MotionDetector
@@ -193,11 +237,19 @@ object MotionDetector:
         : ZIO[Any, HardwareFailure, Pixels] =
       ZIO.succeed(Pixels(30))
 
-  def acquireMotionMeasurementSource(): ZIO[ MotionDetector , HardwareFailure, Pixels] =
-    ZIO.service[MotionDetector].flatMap(_.amountOfMotion())
+  def acquireMotionMeasurementSource(): ZIO[
+    MotionDetector,
+    HardwareFailure,
+    Pixels
+  ] =
+    ZIO
+      .service[MotionDetector]
+      .flatMap(_.amountOfMotion())
 
-  val live: ZLayer[Any, Nothing, MotionDetector] =
+  val live
+      : ZLayer[Any, Nothing, MotionDetector] =
     ZLayer.succeed(LiveMotionDetector)
+end MotionDetector
 
 trait ThermalDetectorX:
   def heatMeasurementSource()
@@ -213,12 +265,13 @@ object ThermalDetectorX:
   def apply(
       value: (Duration, Degrees),
       values: (Duration, Degrees)*
-  ): ZLayer[Any, Nothing,  ThermalDetectorX ] =
+  ): ZLayer[Any, Nothing, ThermalDetectorX] =
     ZLayer.succeed(
       // that same service we wrote above
       new ThermalDetectorX:
         override def heatMeasurementSource()
-            : ZIO[Clock, Nothing, ZIO[ Clock,
+            : ZIO[Clock, Nothing, ZIO[
+              Clock,
               TimeoutException |
                 scenarios.HardwareFailure,
               Degrees
@@ -227,12 +280,19 @@ object ThermalDetectorX:
 
   // This is preeeetty gnarly. How can we
   // improve?
-  val acquireHeatMeasurementSource: ZIO[ scenarios.ThermalDetectorX  & Clock, Nothing, ZIO[ Clock,
-    scala.concurrent.TimeoutException |
-      scenarios.HardwareFailure,
-    scenarios.Degrees
-  ]] =
-    ZIO.environmentWithZIO[ scenarios.ThermalDetectorX  & Clock](
+  val acquireHeatMeasurementSource: ZIO[
+    scenarios.ThermalDetectorX & Clock,
+    Nothing,
+    ZIO[
+      Clock,
+      scala.concurrent.TimeoutException |
+        scenarios.HardwareFailure,
+      scenarios.Degrees
+    ]
+  ] =
+    ZIO.environmentWithZIO[
+      scenarios.ThermalDetectorX & Clock
+    ](
       _.get[scenarios.ThermalDetectorX]
         .heatMeasurementSource()
     )
@@ -240,20 +300,18 @@ object ThermalDetectorX:
 end ThermalDetectorX
 
 trait AcousticDetectorX:
-  def acquireDetector()
-      : ZIO[Clock, Nothing, ZIO[
-        Clock,
-        TimeoutException |
-          scenarios.HardwareFailure,
-        Decibels
-      ]]
+  def acquireDetector(): ZIO[Clock, Nothing, ZIO[
+    Clock,
+    TimeoutException | scenarios.HardwareFailure,
+    Decibels
+  ]]
 
 object AcousticDetectorX:
 
   def apply(
       value: (Duration, Decibels),
       values: (Duration, Decibels)*
-  ): ZLayer[Any, Nothing,  AcousticDetectorX ] =
+  ): ZLayer[Any, Nothing, AcousticDetectorX] =
     ZLayer.succeed(
       // that same service we wrote above
       new AcousticDetectorX:
@@ -268,10 +326,19 @@ object AcousticDetectorX:
 
   // This is preeeetty gnarly. How can we
   // improve?
-  val acquireDetector: ZIO[ scenarios.AcousticDetectorX  & Clock, Nothing, ZIO[ Clock, scala.concurrent.TimeoutException | scenarios.HardwareFailure,
-    scenarios.Decibels
-  ]] =
-    ZIO.environmentWithZIO[ scenarios.AcousticDetectorX  & Clock](
+  val acquireDetector: ZIO[
+    scenarios.AcousticDetectorX & Clock,
+    Nothing,
+    ZIO[
+      Clock,
+      scala.concurrent.TimeoutException |
+        scenarios.HardwareFailure,
+      scenarios.Decibels
+    ]
+  ] =
+    ZIO.environmentWithZIO[
+      scenarios.AcousticDetectorX & Clock
+    ](
       _.get[scenarios.AcousticDetectorX]
         .acquireDetector()
     )
@@ -286,7 +353,8 @@ object Siren:
       Unit
     ]
 
-  val live: ZLayer[Any, Nothing,  Siren.ServiceX ] =
+  val live
+      : ZLayer[Any, Nothing, Siren.ServiceX] =
     ZLayer.succeed(
       // that same service we wrote above
       new ServiceX:
@@ -323,21 +391,31 @@ object SirenX:
   val live: ZLayer[Any, Nothing, SirenX] =
     ZLayer.succeed(SirenXLive)
 
-  val lowBeep: ZIO[ SirenX , scenarios.HardwareFailure, Unit] =
-    ZIO.serviceWith(_.lowBeep())
+  val lowBeep: ZIO[
+    SirenX,
+    scenarios.HardwareFailure,
+    Unit
+  ] = ZIO.serviceWith(_.lowBeep())
 
-  val loudSiren: ZIO[ SirenX , scenarios.HardwareFailure, Unit] =
-    ZIO.serviceWith(_.loudSiren())
+  val loudSiren: ZIO[
+    SirenX,
+    scenarios.HardwareFailure,
+    Unit
+  ] = ZIO.serviceWith(_.loudSiren())
 
 end SirenX
 
 class SensorD[T](
-    z: ZIO[Clock, HardwareFailure, ZIO[ Clock , TimeoutException, T]]
+    z: ZIO[
+      Clock,
+      HardwareFailure,
+      ZIO[Clock, TimeoutException, T]
+    ]
 )
 
 // TODO Figure out how to use this
 object SensorData:
-  def live[T, Y: zio.Tag : zio.IsNotIntersection](
+  def live[T, Y: zio.Tag: zio.IsNotIntersection](
       c: ZIO[
         Clock,
         HardwareFailure,

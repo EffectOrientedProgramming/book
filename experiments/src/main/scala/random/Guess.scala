@@ -49,7 +49,9 @@ object RandomInt:
   ): ZIO[RandomInt, Nothing, Int] =
     // TODO Study and determine how/when to
     // introduct `serviceWith`
-    ZIO.service[RandomInt].flatMap(_.between(high, low))
+    ZIO
+      .service[RandomInt]
+      .flatMap(_.between(high, low))
 
   object LiveRandomIntBetween extends RandomInt:
 

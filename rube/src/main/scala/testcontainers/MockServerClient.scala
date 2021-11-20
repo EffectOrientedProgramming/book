@@ -14,7 +14,11 @@ import io.getquill._
 import org.testcontainers.containers.MockServerContainer
 
 object MockServerClient:
-  def citizenInfo(person: Person): ZIO[ MockServerContainer , Throwable | String, String] =
+  def citizenInfo(person: Person): ZIO[
+    MockServerContainer,
+    Throwable | String,
+    String
+  ] =
     for
       mockServerContainer <-
         ZIO.service[MockServerContainer]

@@ -4,13 +4,19 @@ import zio.ZIOAppArgs
 import zio.{ZIOAppDefault, ZIO}
 
 object CivilEngineering extends ZIOAppDefault:
-  trait Company[T] {
-    def produceBid(projectSpecifications: ProjectSpecifications[T]): ProjectBid[T]
-  }
-  object Companies {
-    def operatingIn[T](state: State): ZIO[World, Nothing, AvailableCompanies[T]] = ???
+  trait Company[T]:
+    def produceBid(
+        projectSpecifications: ProjectSpecifications[
+          T
+        ]
+    ): ProjectBid[T]
+  object Companies:
+    def operatingIn[T](
+        state: State
+    ): ZIO[World, Nothing, AvailableCompanies[
+      T
+    ]] = ???
 
-  }
   trait ProjectSpecifications[T]
   trait LegalRestriction
   case class War(reason: String)
@@ -32,19 +38,44 @@ object CivilEngineering extends ZIOAppDefault:
 
   trait World
   object World:
-    def legalRestrictionsFor(state: State): ZIO[World, War, Set[LegalRestriction]] = ???
-    def politicansOf(state: State): ZIO[World, War, Set[LegalRestriction]] = ???
+    def legalRestrictionsFor(
+        state: State
+    ): ZIO[World, War, Set[LegalRestriction]] =
+      ???
+    def politicansOf(
+        state: State
+    ): ZIO[World, War, Set[LegalRestriction]] =
+      ???
 
   trait OutOfMoney
-  
+
   trait PrivatePropertyRefusal
-  def build[T](projectBid: ProjectBid[T]): ZIO[Any, UnfulfilledPromise | OutOfMoney | PrivatePropertyRefusal, T] = ???
-  
-    
-  def stateBid[T](state: State, projectSpecifications: ProjectSpecifications[T]): ZIO[World, War | UnfulfilledPromise | OutOfMoney | PrivatePropertyRefusal, T] =
+  def build[T](projectBid: ProjectBid[T]): ZIO[
+    Any,
+    UnfulfilledPromise |
+      OutOfMoney |
+      PrivatePropertyRefusal,
+    T
+  ] = ???
+
+  def stateBid[T](
+      state: State,
+      projectSpecifications: ProjectSpecifications[
+        T
+      ]
+  ): ZIO[
+    World,
+    War |
+      UnfulfilledPromise |
+      OutOfMoney |
+      PrivatePropertyRefusal,
+    T
+  ] =
     for
-      availableCompanies <- Companies.operatingIn[T](state)
-      legalRestrictions <- World.legalRestrictionsFor(state)
+      availableCompanies <-
+        Companies.operatingIn[T](state)
+      legalRestrictions <-
+        World.legalRestrictionsFor(state)
       politicians <- World.politicansOf(state)
       lowestBid =
         availableCompanies
@@ -84,7 +115,13 @@ def buildABridge() =
   trait ConstructionFirm:
     def produceBid(
         projectSpecifications: ProjectSpecifications
-    ): ZIO[ AvailableCompanies[Concrete ] with  AvailableCompanies[Steel ] with  AvailableCompanies[UnderWaterDrilling ], InsufficientResources, ProjectBid]
+    ): ZIO[AvailableCompanies[
+      Concrete
+    ] with AvailableCompanies[
+      Steel
+    ] with AvailableCompanies[
+      UnderWaterDrilling
+    ], InsufficientResources, ProjectBid]
 
   trait NoValidBids
 

@@ -10,8 +10,11 @@ import testcontainers.ServiceDataSets.CareerData
 
 object Deps:
   type AppDependencies =
-    Network & NetworkAwareness & CareerHistoryServiceT & ToxiproxyContainer 
-  
+    Network &
+      NetworkAwareness &
+      CareerHistoryServiceT &
+      ToxiproxyContainer
+
   type RubeDependencies =
     Network &
       NetworkAwareness &

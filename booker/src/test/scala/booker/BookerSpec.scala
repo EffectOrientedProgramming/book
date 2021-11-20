@@ -8,13 +8,17 @@ import java.io.File
 
 object BookerSpec extends DefaultRunnableSpec:
   def nope(s: String): TestResult =
-    zio.test.assert(parseChapter(File(s)))(isNone)
+    zio
+      .test
+      .assert(parseChapter(File(s)))(isNone)
 
   def yuup(s: String, i: Int): TestResult =
     val f = File(s)
-    zio.test.assert(parseChapter(f))(
-      isSome(equalTo(i -> f))
-    )
+    zio
+      .test
+      .assert(parseChapter(f))(
+        isSome(equalTo(i -> f))
+      )
 
   def spec =
     suite("BookerSpec")(

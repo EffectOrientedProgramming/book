@@ -65,8 +65,11 @@ object Finalizers extends zio.App:
   ) = // Use App's run function
     println("In main")
 
-    val ioExample
-        : ZIO[Console, Throwable, Unit] = // Define the ZIO contexts
+    val ioExample: ZIO[
+      Console,
+      Throwable,
+      Unit
+    ] = // Define the ZIO contexts
       for
         fileLines <- readFileContents
         _ <-

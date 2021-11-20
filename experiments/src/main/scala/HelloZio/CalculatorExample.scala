@@ -163,9 +163,7 @@ object CalculatorExample extends zio.App:
             "8"
           ) // Run this program with the following inputs
         i <-
-          input.provide(
-            ZLayer.succeed(console)
-          )
+          input.provide(ZLayer.succeed(console))
         output <-
           operate(i).catchAll {
             case x: String =>

@@ -29,15 +29,19 @@ trait CareerHistoryServiceT:
   ): ZIO[Any, Throwable | String, String]
 
 object CareerHistoryHardcoded:
-  val live: ZLayer[CareerData, Nothing,  CareerHistoryServiceT ] =
+  val live: ZLayer[
+    CareerData,
+    Nothing,
+    CareerHistoryServiceT
+  ] =
     for
       careerData <- ZLayer.service[CareerData]
-    yield
-      ZEnvironment(CareerHistoryHardcoded(
+    yield ZEnvironment(
+      CareerHistoryHardcoded(
         careerData.get,
         inconsistentFailuresZ *> jitter
       )
-      )
+    )
 
 class CareerHistoryHardcoded private (
     pairs: CareerData,
@@ -76,7 +80,11 @@ case class CareerHistoryServiceContainer(
     mockServerContainerZ.get(s"/$person")
 
 object CareerHistoryService:
-  def citizenInfo(person: String): ZIO[ CareerHistoryServiceT , Throwable | String, String] =
+  def citizenInfo(person: String): ZIO[
+    CareerHistoryServiceT,
+    Throwable | String,
+    String
+  ] =
     for
       careerHistoryService <-
         ZIO.service[CareerHistoryServiceT]
@@ -91,7 +99,11 @@ object CareerHistoryService:
         Throwable | String,
         Unit
       ] = ZIO.unit
-  ): ZLayer[ Network  & Clock, Throwable,  CareerHistoryServiceT ] =
+  ): ZLayer[
+    Network & Clock,
+    Throwable,
+    CareerHistoryServiceT
+  ] =
     MockServerContainerZBasic
       .construct(
         "Career History",
@@ -104,16 +116,24 @@ object CareerHistoryService:
         )
       )
 
-  val live: ZLayer[ CareerData  & Network, Throwable,  CareerHistoryServiceT ] =
+  val live: ZLayer[
+    CareerData & Network,
+    Throwable,
+    CareerHistoryServiceT
+  ] =
     for
       data <- ZLayer.service[CareerData]
-      webserver  <-
+      webserver <-
         MockServerContainerZBasic.construct(
           "Career History",
           data.get.expectedData,
           allProxies
         )
-    yield ZEnvironment(CareerHistoryServiceContainer( webserver.get ))
+    yield ZEnvironment(
+      CareerHistoryServiceContainer(
+        webserver.get
+      )
+    )
 
 end CareerHistoryService
 
@@ -129,22 +149,32 @@ class LocationService(
     mockServerContainerZ.get(s"/$person")
 
 object LocationService:
-  def locationOf(person: String): ZIO[ LocationService , Throwable | String, String] =
+  def locationOf(person: String): ZIO[
+    LocationService,
+    Throwable | String,
+    String
+  ] =
     for
       locationService <-
         ZIO.service[LocationService]
       info <- locationService.locationOf(person)
     yield info
 
-  val live: ZLayer[ LocationData  & Network, Throwable,  LocationService ] =
+  val live: ZLayer[
+    LocationData & Network,
+    Throwable,
+    LocationService
+  ] =
     for
       data <- ZLayer.service[LocationData]
-      webserver  <-
+      webserver <-
         MockServerContainerZBasic.construct(
           "Location Service",
           data.get.expectedData
         )
-    yield ZEnvironment(LocationService(webserver.get))
+    yield ZEnvironment(
+      LocationService(webserver.get)
+    )
 
 end LocationService
 
@@ -158,7 +188,11 @@ class BackgroundCheckService(
     mockServerContainerZ.get(s"/$person")
 
 object BackgroundCheckService:
-  def criminalHistoryOf(person: String): ZIO[ BackgroundCheckService , Throwable | String, String] =
+  def criminalHistoryOf(person: String): ZIO[
+    BackgroundCheckService,
+    Throwable | String,
+    String
+  ] =
     for
       locationService <-
         ZIO.service[BackgroundCheckService]
@@ -166,13 +200,19 @@ object BackgroundCheckService:
         locationService.criminalHistoryOf(person)
     yield s"Criminal:$info"
 
-  val live: ZLayer[ BackgroundData  & Network, Throwable,  BackgroundCheckService ] =
+  val live: ZLayer[
+    BackgroundData & Network,
+    Throwable,
+    BackgroundCheckService
+  ] =
     for
       data <- ZLayer.service[BackgroundData]
-      webserver  <-
+      webserver <-
         MockServerContainerZBasic.construct(
           "BackgroundCheck Service",
           data.get.expectedData
         )
-    yield ZEnvironment(BackgroundCheckService(webserver.get))
+    yield ZEnvironment(
+      BackgroundCheckService(webserver.get)
+    )
 end BackgroundCheckService

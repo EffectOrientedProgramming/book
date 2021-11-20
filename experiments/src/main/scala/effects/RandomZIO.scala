@@ -38,7 +38,11 @@ def luckyZ(
 
 object LuckyZ extends zio.App:
   def run(args: List[String]) =
-    val myRandom: ZLayer[Any, Nothing,  RandomIntBounded ] = ZLayer.succeed(FakeRandomIntBounded(0))
+    val myRandom: ZLayer[
+      Any,
+      Nothing,
+      RandomIntBounded
+    ] = ZLayer.succeed(FakeRandomIntBounded(0))
 
     myAppLogic
       .provide(myRandom)

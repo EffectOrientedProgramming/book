@@ -85,16 +85,21 @@ The first two steps are enough for us to track Effects in our system, but the er
 val logicClunky: ZIO[Console, Nothing, Unit] =
   for
     _ <-
-      ZIO
-        .environmentWithZIO[Console](_.get.printLine("Hello"))
+      ZIO.environmentWithZIO[Console](
+        _.get.printLine("Hello")
+      )
     _ <-
-      ZIO
-        .environmentWithZIO[Console](_.get.printLine("World"))
+      ZIO.environmentWithZIO[Console](
+        _.get.printLine("World")
+      )
   yield ()
 
 import zio.Runtime.default.unsafeRun
 import zio.ZLayer
-unsafeRun(logicClunky.inject(ZLayer.succeed[Console](ConsoleLive)))
+unsafeRun(
+  logicClunky
+    .inject(ZLayer.succeed[Console](ConsoleLive))
+)
 ```
 
 The caller has to handle the ZIO environment access, which is a distraction from the logic they want to implement.
@@ -149,9 +154,7 @@ Now executing our code is as simple as describing it.
 
 
 ```scala mdoc
-unsafeRun(
-  logic.inject(ConsoleWithLayer.live)
-)
+unsafeRun(logic.inject(ConsoleWithLayer.live))
 ```
 
 In real application, both of these will go in the companion object directly.

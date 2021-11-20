@@ -15,8 +15,7 @@ object Chaining extends zio.App:
   // This makes chaining multiple ZIOs within a
   // for-comprehension much easier
 
-  def chain
-      : ZIO[Console, IOException, Unit] =
+  def chain: ZIO[Console, IOException, Unit] =
     for
       _ <-
         printLine(
@@ -32,8 +31,6 @@ object Chaining extends zio.App:
 
   def run(args: List[String]) =
     chain
-      .provide(
-        ZLayer.succeed(FakeConsole.word)
-      )
+      .provide(ZLayer.succeed(FakeConsole.word))
       .exitCode
 end Chaining

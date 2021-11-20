@@ -259,7 +259,11 @@ object ContainerScenarios:
         )(_ + _)
     yield people
 
-  val backgroundCheckServer: ZLayer[ Network  & BackgroundData, Throwable,  BackgroundCheckService ] = BackgroundCheckService.live
+  val backgroundCheckServer: ZLayer[
+    Network & BackgroundData,
+    Throwable,
+    BackgroundCheckService
+  ] = BackgroundCheckService.live
 
   val topicNames =
     List(

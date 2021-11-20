@@ -33,16 +33,24 @@ object ToxyProxyContainerZ:
       )
       .nn
 
-  def construct(): ZLayer[ Network  & NetworkAwareness, Throwable,  ToxiproxyContainer ] =
-    ZLayer.service[Network].flatMap { (network: ZEnvironment[Network]) =>
-      val container: ToxiproxyContainer = apply(network.get)
-      GenericInteractionsZ
-        .manageWithInitialization(
-          container,
-          "toxi"
-        )
-        .toLayer
-    }
+  def construct(): ZLayer[
+    Network & NetworkAwareness,
+    Throwable,
+    ToxiproxyContainer
+  ] =
+    ZLayer
+      .service[Network]
+      .flatMap {
+        (network: ZEnvironment[Network]) =>
+          val container: ToxiproxyContainer =
+            apply(network.get)
+          GenericInteractionsZ
+            .manageWithInitialization(
+              container,
+              "toxi"
+            )
+            .toLayer
+      }
 
   def createProxiedLink(
       toxiproxyContainer: ToxiproxyContainer,

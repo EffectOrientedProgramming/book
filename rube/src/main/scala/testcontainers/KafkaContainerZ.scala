@@ -34,32 +34,23 @@ object KafkaContainerZ:
 
   def construct(
       topicNames: List[String]
-  ): ZLayer[ Network  & NetworkAwareness, Throwable,  KafkaContainer ] =
-    ???
-    /*
-    TODO Restore once the rest of the M6 upgrade is complete
-    for
-      network <-
-        ZLayer.service[Network]
-      localHostName: ZEnvironment[String] <-
-        NetworkAwareness
-          .localHostName
-          .toLayer
-      container = apply(network.get)
-      res: ZEnvironment[KafkaContainer] <-
-        GenericInteractionsZ
-          .manageWithInitialization(
-            container,
-            "kafka",
-            KafkaInitialization.initialize(
-              _,
-              localHostName.get,
-              topicNames
-            )
-          )
-          .toLayer
-    yield res
-    */
+  ): ZLayer[
+    Network & NetworkAwareness,
+    Throwable,
+    KafkaContainer
+  ] = ???
+/* TODO Restore once the rest of the M6 upgrade
+ * is complete for network <-
+ * ZLayer.service[Network] localHostName:
+ * ZEnvironment[String] <- NetworkAwareness
+ * .localHostName .toLayer container =
+ * apply(network.get) res:
+ * ZEnvironment[KafkaContainer] <-
+ * GenericInteractionsZ
+ * .manageWithInitialization( container, "kafka",
+ * KafkaInitialization.initialize( _,
+ * localHostName.get, topicNames ) ) .toLayer
+ * yield res */
 end KafkaContainerZ
 
 object KafkaInitialization:
@@ -137,7 +128,7 @@ case class KafkaProducerZ(
   def submitForever(
       key: String,
       value: String
-  ): ZIO[ Clock  & Console, Throwable, Unit] =
+  ): ZIO[Clock & Console, Throwable, Unit] =
     for
       curMessagesProduced <- messagesProduced.get
       _ <-
@@ -213,7 +204,11 @@ end KafkaConsumerZ
 
 object UseKafka:
 
-  def createProducer(topicName: String): ZIO[ KafkaContainer , Throwable, KafkaProducerZ] =
+  def createProducer(topicName: String): ZIO[
+    KafkaContainer,
+    Throwable,
+    KafkaProducerZ
+  ] =
     for
       kafkaContainer <-
         ZIO.service[KafkaContainer]
@@ -252,7 +247,11 @@ object UseKafka:
   def createConsumer(
       topicName: String,
       groupId: String
-  ): ZIO[ KafkaContainer , Throwable, KafkaConsumerZ] =
+  ): ZIO[
+    KafkaContainer,
+    Throwable,
+    KafkaConsumerZ
+  ] =
     for
       kafkaContainer <-
         ZIO.service[KafkaContainer]
@@ -312,7 +311,11 @@ object UseKafka:
       // here?
       output: KafkaProducerZ,
       groupId: String
-  ): ZIO[Console with R with  KafkaContainer , Throwable | E, Unit] =
+  ): ZIO[
+    Console with R with KafkaContainer,
+    Throwable | E,
+    Unit
+  ] =
     createConsumer(topicName, groupId).flatMap(consumer =>
       consumer
         .pollStream()
@@ -346,7 +349,11 @@ object UseKafka:
       // here?
       outputTopicName: String,
       groupId: String
-  ): ZIO[Console with R with  KafkaContainer , Any, Unit] = // TODO Narrow error type
+  ): ZIO[
+    Console with R with KafkaContainer,
+    Any,
+    Unit
+  ] = // TODO Narrow error type
     for
       producer <-
         UseKafka.createProducer(outputTopicName)
@@ -383,7 +390,11 @@ object UseKafka:
         Unit
       ],
       groupId: String
-  ): ZIO[Console with R with  KafkaContainer , Any, Unit] = // TODO Narrow error type
+  ): ZIO[
+    Console with R with KafkaContainer,
+    Any,
+    Unit
+  ] = // TODO Narrow error type
     createConsumer(topicName, groupId)
       .flatMap(consumer =>
         consumer
