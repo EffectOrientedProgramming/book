@@ -16,7 +16,7 @@ object Chaining extends zio.App:
   // for-comprehension much easier
 
   def chain
-      : ZIO[Has[Console], IOException, Unit] =
+      : ZIO[Console, IOException, Unit] =
     for
       _ <-
         printLine(
@@ -32,8 +32,8 @@ object Chaining extends zio.App:
 
   def run(args: List[String]) =
     chain
-      .provideServices(
-        ZServiceBuilder.succeed(FakeConsole.word)
+      .provide(
+        ZLayer.succeed(FakeConsole.word)
       )
       .exitCode
 end Chaining

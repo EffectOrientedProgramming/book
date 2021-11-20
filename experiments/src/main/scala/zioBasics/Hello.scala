@@ -5,11 +5,10 @@ import zio.Console.{readLine, printLine}
 import fakeEnvironmentInstances.FakeConsole
 import zio.Console
 import zio.{
-  Has,
   IO,
   Runtime,
   ZIO,
-  ZServiceBuilder,
+  ZLayer,
   durationInt
 }
 
@@ -21,7 +20,7 @@ def hello =
       println("2");
       "asdf";
     }
-  val h: ZIO[Has[Console], IOException, Unit] =
+  val h: ZIO[Console, IOException, Unit] =
     s.flatMap { ss =>
       println("3");
       printLine(ss);
@@ -49,8 +48,8 @@ def scheduling =
     .default
     .unsafeRunSync(
       scheduledCode
-        .provideServices(
-          ZServiceBuilder.succeed(FakeConsole.word)
+        .provide(
+          ZLayer.succeed(FakeConsole.word)
         )
         .repeat(
           Schedule.recurs(4) &&
@@ -63,7 +62,7 @@ end scheduling
 def ValPassing(): Unit =
 
   val input
-      : ZIO[Has[Console], IOException, String] =
+      : ZIO[Console, IOException, String] =
     for
       _    <- printLine("What is your name?")
       name <- readLine
@@ -77,15 +76,15 @@ def ValPassing(): Unit =
       false
 
   val b
-      : ZIO[Has[Console], IOException, Boolean] =
+      : ZIO[Console, IOException, Boolean] =
     input.map(i => process(i))
 
   println(
     Runtime
       .default
       .unsafeRunSync(
-        b.provideServices(
-            ZServiceBuilder.succeed(FakeConsole.name)
+        b.provide(
+            ZLayer.succeed(FakeConsole.name)
           )
           .exitCode
       )

@@ -1,12 +1,12 @@
 package testcontainers
 
 import org.testcontainers.containers.Network
-import zio.{Has, ZIO, ZManaged}
-import zio.ZServiceBuilder
+import zio.{ZIO, ZManaged}
+import zio.ZLayer
 
 object Layers:
   lazy val networkLayer
-      : ZServiceBuilder[Any, Nothing, Has[Network]] =
+      : ZLayer[Any, Nothing, Network] =
     ZManaged
       .acquireReleaseWith(
         ZIO.debug("Creating network") *>
@@ -15,4 +15,4 @@ object Layers:
         ZIO.attempt(n.close()).orDie *>
           ZIO.debug("Closing network")
       )
-      .toServiceBuilder
+      .toLayer

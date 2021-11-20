@@ -19,7 +19,7 @@ import sttp.client3.SttpClientException.{
 import testcontainers.ServiceDataSets.ExpectedData
 
 import java.net.SocketException
-import zio.ZServiceBuilder;
+import zio.ZLayer
 
 case class RequestResponsePair(
     userRequest: String,
@@ -36,15 +36,18 @@ object MockServerContainerZBasic:
         Throwable | String,
         Unit
       ] = ZIO.unit
-  ): ZServiceBuilder[Has[Network], Throwable, Has[
-    MockServerContainerZBasic
-  ]] =
+  ): ZLayer[Network, Throwable,  MockServerContainerZBasic ] =
+    ???
+
+    
+    /*
+    TODO Restore after m6 is otherwise complete
     for
       network <-
-        ZServiceBuilder.service[Network].map(_.get)
+        ZLayer.service[Network]
       container =
         MockServerContainerZBasic
-          .apply(network, "latest")
+          .apply(network.get, "latest")
       res <-
         GenericInteractionsZ
           .manageWithInitialization(
@@ -62,8 +65,9 @@ object MockServerContainerZBasic:
               proxyZ
             )
           )
-          .toServiceBuilder
-    yield res
+          .toLayer
+    yield ???
+    */
 
   private def apply(
       network: Network,

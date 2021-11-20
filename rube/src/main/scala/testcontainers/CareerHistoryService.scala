@@ -21,7 +21,7 @@ import testcontainers.proxy.{
   jitter,
   allProxies
 }
-import zio.ZServiceBuilder
+import zio.ZLayer
 
 trait CareerHistoryServiceT:
   def citizenInfo(
@@ -29,17 +29,15 @@ trait CareerHistoryServiceT:
   ): ZIO[Any, Throwable | String, String]
 
 object CareerHistoryHardcoded:
-  val live: ZServiceBuilder[Has[CareerData], Nothing, Has[
-    CareerHistoryServiceT
-  ]] =
+  val live: ZLayer[CareerData, Nothing,  CareerHistoryServiceT ] =
     for
-      careerData <- ZServiceBuilder.service[CareerData]
-    yield Has(
-      CareerHistoryHardcoded(
+      careerData <- ZLayer.service[CareerData]
+    yield
+      ZEnvironment(CareerHistoryHardcoded(
         careerData.get,
         inconsistentFailuresZ *> jitter
       )
-    )
+      )
 
 class CareerHistoryHardcoded private (
     pairs: CareerData,
@@ -78,9 +76,7 @@ case class CareerHistoryServiceContainer(
     mockServerContainerZ.get(s"/$person")
 
 object CareerHistoryService:
-  def citizenInfo(person: String): ZIO[Has[
-    CareerHistoryServiceT
-  ], Throwable | String, String] =
+  def citizenInfo(person: String): ZIO[ CareerHistoryServiceT , Throwable | String, String] =
     for
       careerHistoryService <-
         ZIO.service[CareerHistoryServiceT]
@@ -95,11 +91,7 @@ object CareerHistoryService:
         Throwable | String,
         Unit
       ] = ZIO.unit
-  ): ZServiceBuilder[Has[
-    Network
-  ] & Has[Clock], Throwable, Has[
-    CareerHistoryServiceT
-  ]] =
+  ): ZLayer[ Network  & Clock, Throwable,  CareerHistoryServiceT ] =
     MockServerContainerZBasic
       .construct(
         "Career History",
@@ -107,31 +99,21 @@ object CareerHistoryService:
         proxyZ
       )
       .flatMap(x =>
-        ZServiceBuilder.succeed(
+        ZLayer.succeed(
           CareerHistoryServiceContainer(x.get)
         )
       )
 
-  val live: ZServiceBuilder[Has[
-    CareerData
-  ] & Has[Network], Throwable, Has[
-    CareerHistoryServiceT
-  ]] =
+  val live: ZLayer[ CareerData  & Network, Throwable,  CareerHistoryServiceT ] =
     for
-      data <- ZServiceBuilder.service[CareerData]
-      webserver: Has[
-        MockServerContainerZBasic
-      ] <-
+      data <- ZLayer.service[CareerData]
+      webserver  <-
         MockServerContainerZBasic.construct(
           "Career History",
           data.get.expectedData,
           allProxies
         )
-    yield Has(
-      CareerHistoryServiceContainer(
-        webserver.get
-      )
-    )
+    yield ZEnvironment(CareerHistoryServiceContainer( webserver.get ))
 
 end CareerHistoryService
 
@@ -147,30 +129,22 @@ class LocationService(
     mockServerContainerZ.get(s"/$person")
 
 object LocationService:
-  def locationOf(person: String): ZIO[Has[
-    LocationService
-  ], Throwable | String, String] =
+  def locationOf(person: String): ZIO[ LocationService , Throwable | String, String] =
     for
       locationService <-
         ZIO.service[LocationService]
       info <- locationService.locationOf(person)
     yield info
 
-  val live: ZServiceBuilder[Has[
-    LocationData
-  ] & Has[Network], Throwable, Has[
-    LocationService
-  ]] =
+  val live: ZLayer[ LocationData  & Network, Throwable,  LocationService ] =
     for
-      data <- ZServiceBuilder.service[LocationData]
-      webserver: Has[
-        MockServerContainerZBasic
-      ] <-
+      data <- ZLayer.service[LocationData]
+      webserver  <-
         MockServerContainerZBasic.construct(
           "Location Service",
           data.get.expectedData
         )
-    yield Has(LocationService(webserver.get))
+    yield ZEnvironment(LocationService(webserver.get))
 
 end LocationService
 
@@ -184,9 +158,7 @@ class BackgroundCheckService(
     mockServerContainerZ.get(s"/$person")
 
 object BackgroundCheckService:
-  def criminalHistoryOf(person: String): ZIO[Has[
-    BackgroundCheckService
-  ], Throwable | String, String] =
+  def criminalHistoryOf(person: String): ZIO[ BackgroundCheckService , Throwable | String, String] =
     for
       locationService <-
         ZIO.service[BackgroundCheckService]
@@ -194,21 +166,13 @@ object BackgroundCheckService:
         locationService.criminalHistoryOf(person)
     yield s"Criminal:$info"
 
-  val live: ZServiceBuilder[Has[
-    BackgroundData
-  ] & Has[Network], Throwable, Has[
-    BackgroundCheckService
-  ]] =
+  val live: ZLayer[ BackgroundData  & Network, Throwable,  BackgroundCheckService ] =
     for
-      data <- ZServiceBuilder.service[BackgroundData]
-      webserver: Has[
-        MockServerContainerZBasic
-      ] <-
+      data <- ZLayer.service[BackgroundData]
+      webserver  <-
         MockServerContainerZBasic.construct(
           "BackgroundCheck Service",
           data.get.expectedData
         )
-    yield Has(
-      BackgroundCheckService(webserver.get)
-    )
+    yield ZEnvironment(BackgroundCheckService(webserver.get))
 end BackgroundCheckService

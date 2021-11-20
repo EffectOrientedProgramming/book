@@ -86,37 +86,35 @@ val logicClunky: ZIO[Console, Nothing, Unit] =
   for
     _ <-
       ZIO
-        .accessZIO[Console](_.printLine("Hello"))
+        .environmentWithZIO[Console](_.get.printLine("Hello"))
     _ <-
       ZIO
-        .accessZIO[Console](_.printLine("World"))
+        .environmentWithZIO[Console](_.get.printLine("World"))
   yield ()
 
 import zio.Runtime.default.unsafeRun
-unsafeRun(logicClunky.provide(ConsoleLive))
+import zio.ZLayer
+unsafeRun(logicClunky.inject(ZLayer.succeed[Console](ConsoleLive)))
 ```
 
 The caller has to handle the ZIO environment access, which is a distraction from the logic they want to implement.
-Further, in the example above, by making `Console` a direct environment dependency, our composability is harmed. 
-TODO{Consider example with another Environment trait dependency, to show  direct inheritance downsides. This probably requires a 2nd dependency to be compelling.}
-We want to leverage the `Has` type so that our code can use an arbitrary number of Environmental dependencies and be executed with `Layers`, rather than a massive super-object that inherits all these traits directly.
 
 ```scala mdoc
-import zio.Has
+// TODO Consider deleting this entirely
 
 // TODO remove alt companions and make top-level
 // functions
 object ConsoleWithAccessor:
   def printLine(
       variable: => String
-  ): ZIO[Has[Console], Nothing, Unit] =
+  ): ZIO[Console, Nothing, Unit] =
     ZIO.serviceWith(_.printLine(variable))
 ```
 
 With this function, our callers have a much nicer experience.
 
 ```scala mdoc
-val logic: ZIO[Has[Console], Nothing, Unit] =
+val logic: ZIO[Console, Nothing, Unit] =
   for
     _ <- ConsoleWithAccessor.printLine("Hello")
     _ <- ConsoleWithAccessor.printLine("World")
@@ -126,11 +124,11 @@ val logic: ZIO[Has[Console], Nothing, Unit] =
 However, providing dependencies to the logic is still tedious.
 
 ```scala mdoc
-import zio.ZServiceBuilder
+import zio.ZLayer
 import zio.Runtime.default.unsafeRun
 unsafeRun(
-  logic.provideServices(
-    ZServiceBuilder.succeed[Console](ConsoleLive)
+  logic.provide(
+    ZLayer.succeed[Console](ConsoleLive)
   )
 )
 ```
@@ -140,11 +138,11 @@ unsafeRun(
 Rather than making each caller wrap our instance in a `Layer`, we can do that a single time in our companion.
 
 ```scala mdoc
-import zio.ZServiceBuilder
+import zio.ZLayer
 
 object ConsoleWithLayer:
-  val live: ZServiceBuilder[Any, Nothing, Has[Console]] =
-    ZServiceBuilder.succeed(ConsoleLive)
+  val live: ZLayer[Any, Nothing, Console] =
+    ZLayer.succeed[Console](ConsoleLive)
 ```
 
 Now executing our code is as simple as describing it.
@@ -152,22 +150,22 @@ Now executing our code is as simple as describing it.
 
 ```scala mdoc
 unsafeRun(
-  logic.provideServices(ConsoleWithLayer.live)
+  logic.inject(ConsoleWithLayer.live)
 )
 ```
 
 In real application, both of these will go in the companion object directly.
 
 ```scala mdoc
-import zio.ZServiceBuilder
+import zio.ZLayer
 object Console:
   def printLine(
       variable: => String
-  ): ZIO[Has[Console], Nothing, Unit] =
+  ): ZIO[Console, Nothing, Unit] =
     ZIO.serviceWith(_.printLine(variable))
 
-  val live: ZServiceBuilder[Any, Nothing, Has[Console]] =
-    ZServiceBuilder.succeed(ConsoleLive)
+  val live: ZLayer[Any, Nothing, Console] =
+    ZLayer.succeed[Console](ConsoleLive)
 ```
 
 ## Official ZIO Approach
@@ -198,15 +196,15 @@ object ConsoleSanitized extends Console:
 
 ```scala mdoc:silent
 val leakSensitiveInfo
-    : ZIO[Has[Console], Nothing, Unit] =
+    : ZIO[Console, Nothing, Unit] =
   Console
     .printLine("Customer SSN is 000-00-0000")
 ```
 
 ```scala mdoc
 unsafeRun(
-  leakSensitiveInfo.provideServices(
-    ZServiceBuilder.succeed[Console](ConsoleSanitized)
+  leakSensitiveInfo.inject(
+    ZLayer.succeed[Console](ConsoleSanitized)
   )
 )
 ```

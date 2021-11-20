@@ -27,7 +27,7 @@ object Fail:
       ) // ZIO that fails with an object
 
     val zioEx2
-        : ZIO[Has[Console], IOException, Unit] =
+        : ZIO[Console, IOException, Unit] =
       Console.printLine("ZIO")
 
     // ZIO can even fail with other ZIO. Here is
@@ -38,9 +38,7 @@ object Fail:
     // return another ZIO on fail.
     def processWithSelfDescribedFallbackBehavior(
         success: Boolean
-    ): ZIO[Any, ZIO[Has[
-      Console
-    ], IOException, Unit], String] =
+    ): ZIO[Any, ZIO[ Console , IOException, Unit], String] =
       if (success)
         ZIO.succeed("Good job!")
       else
@@ -76,7 +74,7 @@ object Fail:
   // functions to string together a coherent
   // piece of logic.
   val getCreditScore
-      : ZIO[Has[Console], IOException, Int] =
+      : ZIO[Console, IOException, Int] =
     getCreditScoreFromAgency1(false, true)
       .catchAll { case failureReason =>
         for

@@ -9,10 +9,10 @@ import org.testcontainers.containers.{
   ToxiproxyContainer
 }
 import org.testcontainers.utility.DockerImageName
-import zio.{Has, ZIO}
+import zio.{ZEnvironment, ZIO}
 
 import scala.jdk.CollectionConverters.*
-import zio.ZServiceBuilder
+import zio.ZLayer
 
 object ToxyProxyContainerZ:
   val TOXIPROXY_NETWORK_ALIAS = "toxiproxy"
@@ -33,23 +33,16 @@ object ToxyProxyContainerZ:
       )
       .nn
 
-  def construct(): ZServiceBuilder[Has[
-    Network
-  ] & Has[NetworkAwareness], Throwable, Has[
-    ToxiproxyContainer
-  ]] =
-    for
-      network <-
-        ZServiceBuilder.service[Network].map(_.get)
-      container = apply(network)
-      res <-
-        GenericInteractionsZ
-          .manageWithInitialization(
-            container,
-            "toxi"
-          )
-          .toServiceBuilder
-    yield res
+  def construct(): ZLayer[ Network  & NetworkAwareness, Throwable,  ToxiproxyContainer ] =
+    ZLayer.service[Network].flatMap { (network: ZEnvironment[Network]) =>
+      val container: ToxiproxyContainer = apply(network.get)
+      GenericInteractionsZ
+        .manageWithInitialization(
+          container,
+          "toxi"
+        )
+        .toLayer
+    }
 
   def createProxiedLink(
       toxiproxyContainer: ToxiproxyContainer,

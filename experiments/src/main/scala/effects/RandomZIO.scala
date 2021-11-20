@@ -4,11 +4,10 @@ import zio.{
   BuildFrom,
   Chunk,
   Console,
-  Has,
   Random,
   UIO,
   ZIO,
-  ZServiceBuilder
+  ZLayer
 }
 import zio.Console.printLine
 
@@ -30,23 +29,21 @@ class FakeRandomIntBounded(hardcodedValue: Int)
 
 def luckyZ(
     i: Int
-): ZIO[Has[RandomIntBounded], Nothing, Boolean] =
+): ZIO[RandomIntBounded, Nothing, Boolean] =
   ZIO
-    .accessZIO[Has[RandomIntBounded]](
+    .environmentWithZIO[RandomIntBounded](
       _.get.nextIntBounded(i)
     )
     .map(_ == 0)
 
 object LuckyZ extends zio.App:
   def run(args: List[String]) =
-    val myRandom: ZServiceBuilder[Any, Nothing, Has[
-      RandomIntBounded
-    ]] = ZServiceBuilder.succeed(FakeRandomIntBounded(0))
+    val myRandom: ZLayer[Any, Nothing,  RandomIntBounded ] = ZLayer.succeed(FakeRandomIntBounded(0))
 
     myAppLogic
-      .provideServices(myRandom)
+      .provide(myRandom)
       // does not work for some reason
-      // .injectSome[Has[Console]](myRandom)
+      // .injectSome[Console](myRandom)
       .exitCode
 
   val myAppLogic =
@@ -81,8 +78,8 @@ class FakeRandomIntBetween(hardcodedValue: Int)
   ): UIO[Int] = UIO.succeed(hardcodedValue)
 
 def effectfulIntBetween(low: Int, high: Int) =
-  ZIO.accessZIO[RandomIntBetween](
-    _.intBetween(high, low)
+  ZIO.environmentWithZIO[RandomIntBetween](
+    _.get.intBetween(high, low)
   )
 
 @main

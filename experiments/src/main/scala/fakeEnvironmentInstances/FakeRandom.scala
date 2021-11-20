@@ -1,6 +1,6 @@
 package fakeEnvironmentInstances
 
-import zio.{BuildFrom, Chunk, Console, Has, Random, UIO, ZIO, ZServiceBuilder, ZTraceElement}
+import zio.{BuildFrom, Chunk, Console, Random, UIO, ZIO, ZLayer, ZTraceElement}
 import zio.Console.printLine
 
 import java.util.UUID
@@ -45,8 +45,8 @@ object RandomInt:
           maxExclusive
         )
 
-  val live: ZServiceBuilder[Any, Nothing, Has[RandomInt]] =
-    ZServiceBuilder.succeed(RandomIntLive)
+  val live: ZLayer[Any, Nothing, RandomInt] =
+    ZLayer.succeed(RandomIntLive)
 end RandomInt
 
 class FakeRandom(i: Int) extends Random:

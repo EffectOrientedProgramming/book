@@ -106,7 +106,7 @@ object ClockAndConsoleImproved extends ZIOAppDefault {
       ).repeat(Schedule.recurs(5))
     
     
-  def raceEntities( racer1: ZIO[Has[Clock], Nothing, String], racer2: ZIO[Has[Clock], Nothing, String]) =
+  def raceEntities( racer1: ZIO[Clock, Nothing, String], racer2: ZIO[Clock, Nothing, String]) =
     racer1.raceWith(
       racer2
     )(
@@ -133,7 +133,7 @@ object ClockAndConsoleImproved extends ZIOAppDefault {
   val saveCursorPosition = Console.print("\u001b7")
   val loadCursorPosition = Console.print("\u001b8")
   
-  def renderLoop[T<:Has[Console] with Has[Clock]](drawFrame: ZIO[T, Any, Unit]) =
+  def renderLoop[T<:Console with Clock](drawFrame: ZIO[T, Any, Unit]) =
     for
       _ <- saveCursorPosition
       _ <- drawFrame
@@ -147,7 +147,7 @@ object ClockAndConsoleImproved extends ZIOAppDefault {
       timeElapsed = (currentTime - startTime).toInt
     yield  Integer.max(secondsToRun-timeElapsed, 0)
     
-  def loopingTimer(name: String, startTime: Long, secondsToRun: Int, status: Ref[Int]): ZIO[Has[Clock], Nothing, String] =
+  def loopingTimer(name: String, startTime: Long, secondsToRun: Int, status: Ref[Int]): ZIO[Clock, Nothing, String] =
     (for
       timeLeft <- timer(startTime, secondsToRun)
       _ <- status.set(timeLeft)

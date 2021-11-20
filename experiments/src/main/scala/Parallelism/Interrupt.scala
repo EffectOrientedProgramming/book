@@ -10,7 +10,7 @@ class Interrupt:
 
   // This ZIO does nothing but count to n.
   // It is not productive, but it uses resources.
-  val countToN: ZIO[Has[Clock], Nothing, Unit] =
+  val countToN: ZIO[Clock, Nothing, Unit] =
     for
       _ <- ZIO.sleep(n.seconds)
     yield ()
@@ -23,7 +23,7 @@ class Interrupt:
   // safe.
   // Interrupt safely releases all resources, and
   // runs the finalizers.
-  val noCounting: ZIO[Has[Clock], Nothing, Exit[
+  val noCounting: ZIO[Clock, Nothing, Exit[
     Nothing,
     Unit
   ]] =

@@ -28,7 +28,7 @@ object Equality extends zio.App:
   // Here, we test the equality values of all the
   // ZIO:
   val myAppLogic
-      : ZIO[Has[Console], IOException, Unit] =
+      : ZIO[Console, IOException, Unit] =
     for
       res1: Int <-
         suc1 // Flat map all the ZIO into their integer values

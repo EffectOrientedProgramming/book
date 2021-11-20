@@ -12,7 +12,7 @@ object HelloWorld:
   @main
   def hello() =
     val sayHello
-        : ZIO[Has[Console], IOException, Unit] =
+        : ZIO[Console, IOException, Unit] =
       Console.printLine("Hello, World!")
 
   // This is equivelant to the above, but the Zio
@@ -23,6 +23,6 @@ object HelloWorld:
   @main
   def hello2() =
     val sayHello2
-        : ZIO[Has[Console], IOException, Unit] =
+        : ZIO[Console, IOException, Unit] =
       Console.printLine("Hello, World!")
 end HelloWorld

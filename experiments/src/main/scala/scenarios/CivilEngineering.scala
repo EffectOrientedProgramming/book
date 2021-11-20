@@ -1,14 +1,14 @@
 package scenarios
 
 import zio.ZIOAppArgs
-import zio.{ZIOAppDefault, ZIO, Has}
+import zio.{ZIOAppDefault, ZIO}
 
 object CivilEngineering extends ZIOAppDefault:
   trait Company[T] {
     def produceBid(projectSpecifications: ProjectSpecifications[T]): ProjectBid[T]
   }
   object Companies {
-    def operatingIn[T](state: State): ZIO[Has[World], Nothing, AvailableCompanies[T]] = ???
+    def operatingIn[T](state: State): ZIO[World, Nothing, AvailableCompanies[T]] = ???
 
   }
   trait ProjectSpecifications[T]
@@ -32,8 +32,8 @@ object CivilEngineering extends ZIOAppDefault:
 
   trait World
   object World:
-    def legalRestrictionsFor(state: State): ZIO[Has[World], War, Set[LegalRestriction]] = ???
-    def politicansOf(state: State): ZIO[Has[World], War, Set[LegalRestriction]] = ???
+    def legalRestrictionsFor(state: State): ZIO[World, War, Set[LegalRestriction]] = ???
+    def politicansOf(state: State): ZIO[World, War, Set[LegalRestriction]] = ???
 
   trait OutOfMoney
   
@@ -41,7 +41,7 @@ object CivilEngineering extends ZIOAppDefault:
   def build[T](projectBid: ProjectBid[T]): ZIO[Any, UnfulfilledPromise | OutOfMoney | PrivatePropertyRefusal, T] = ???
   
     
-  def stateBid[T](state: State, projectSpecifications: ProjectSpecifications[T]): ZIO[Has[World], War | UnfulfilledPromise | OutOfMoney | PrivatePropertyRefusal, T] =
+  def stateBid[T](state: State, projectSpecifications: ProjectSpecifications[T]): ZIO[World, War | UnfulfilledPromise | OutOfMoney | PrivatePropertyRefusal, T] =
     for
       availableCompanies <- Companies.operatingIn[T](state)
       legalRestrictions <- World.legalRestrictionsFor(state)
@@ -84,13 +84,7 @@ def buildABridge() =
   trait ConstructionFirm:
     def produceBid(
         projectSpecifications: ProjectSpecifications
-    ): ZIO[Has[
-      AvailableCompanies[Concrete]
-    ] with Has[
-      AvailableCompanies[Steel]
-    ] with Has[
-      AvailableCompanies[UnderWaterDrilling]
-    ], InsufficientResources, ProjectBid]
+    ): ZIO[ AvailableCompanies[Concrete ] with  AvailableCompanies[Steel ] with  AvailableCompanies[UnderWaterDrilling ], InsufficientResources, ProjectBid]
 
   trait NoValidBids
 

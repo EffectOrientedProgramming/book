@@ -11,7 +11,7 @@ object HelloApp
     extends zio.App: // Extend the Zio App
 
   val myAppLogic: ZIO[ // Define the Zio
-    Has[Console],
+    Console,
     IOException,
     Unit
   ] = Console.printLine("Hello, World!")

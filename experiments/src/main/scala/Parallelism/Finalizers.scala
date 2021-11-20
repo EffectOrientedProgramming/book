@@ -7,7 +7,6 @@ import zio.Console.{getStrLn, printLine}
 import zio.Console
 import zio.{
   Fiber,
-  Has,
   IO,
   Runtime,
   UIO,
@@ -67,7 +66,7 @@ object Finalizers extends zio.App:
     println("In main")
 
     val ioExample
-        : ZIO[Has[Console], Throwable, Unit] = // Define the ZIO contexts
+        : ZIO[Console, Throwable, Unit] = // Define the ZIO contexts
       for
         fileLines <- readFileContents
         _ <-

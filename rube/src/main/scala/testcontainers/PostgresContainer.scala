@@ -1,27 +1,24 @@
 package testcontainers
 
-import zio.Has
 import org.testcontainers.containers.{
   Network,
   PostgreSQLContainer
 }
-import zio.ZServiceBuilder
+import zio.{ZEnvironment, ZLayer}
 
 object PostgresDummy
 
 object PostgresContainer:
-  def construct(initScipt: String): ZServiceBuilder[Has[
-    Network
-  ], Nothing, Has[PostgresContainerJ]] =
-    for
-      network <-
-        ZServiceBuilder.service[Network].map(_.get)
-      safePostgres =
+  def construct(initScipt: String): ZLayer[ Network , Nothing, PostgresContainerJ] =
+    ZLayer.service[Network].flatMap { (network: ZEnvironment[Network]) =>
+      val safePostgres =
         PostgresContainerJ
-          .apply(initScipt, network)
+          .apply(initScipt, network.get)
           .nn
-      res <-
-        GenericInteractionsZ
-          .manage(safePostgres, "postgres")
-          .toServiceBuilder
-    yield res
+      GenericInteractionsZ
+        .manage(
+          safePostgres,
+          "postgres"
+        )
+        .toLayer
+    }

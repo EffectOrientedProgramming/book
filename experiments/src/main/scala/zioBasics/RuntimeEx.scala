@@ -20,7 +20,7 @@ object RuntimeEx:
   val exZio: UIO[Int] = ZIO.succeed(1)
 
   val exZio2
-      : ZIO[Has[Console], IOException, String] =
+      : ZIO[Console, IOException, String] =
     for
       _    <- printLine("Input Word: ")
       word <- readLine
@@ -39,8 +39,8 @@ object RuntimeEx:
     // parameter:
     displayWord(
       runtime.unsafeRun(
-        exZio2.provideServices(
-          ZServiceBuilder.succeed(FakeConsole.word)
+        exZio2.provide(
+          ZLayer.succeed(FakeConsole.word)
         )
       )
     )

@@ -4,7 +4,7 @@ import zio.*
 import io.getquill._
 import com.zaxxer.hikari.HikariDataSource
 import com.zaxxer.hikari.HikariConfig
-import zio.ZServiceBuilder
+import zio.ZLayer
 
 object DummyQuill
 
@@ -31,18 +31,16 @@ object QuillLocal:
     config.setDataSource(pgDataSource)
     config
 
-  val quillPostgresContext: ZServiceBuilder[Has[
-    PostgresContainerJ
-  ], Nothing, Has[AppPostgresContext]] =
-    ZServiceBuilder
+  val quillPostgresContext: ZLayer[ PostgresContainerJ , Nothing, AppPostgresContext] = 
+    ZLayer
       .service[PostgresContainerJ]
-      .map(_.get)
       .flatMap {
-        (safePostgres: PostgresContainerJ) =>
+        (safePostgresE: ZEnvironment[PostgresContainerJ]) =>
+          val safePostgres = safePostgresE.get
 
           val config =
             configFromContainer(safePostgres)
-          ZServiceBuilder.succeed(
+          ZLayer.succeed(
             new PostgresJdbcContext(
               LowerCase,
               new HikariDataSource(config)
@@ -50,9 +48,7 @@ object QuillLocal:
           )
       }
 
-  val quillQuery: ZIO[Has[
-    AppPostgresContext
-  ], Nothing, List[Person]] =
+  val quillQuery: ZIO[ AppPostgresContext , Nothing, List[Person]] =
     for
       ctx <- ZIO.service[AppPostgresContext]
     yield

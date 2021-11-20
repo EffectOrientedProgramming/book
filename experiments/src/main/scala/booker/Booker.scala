@@ -1,6 +1,6 @@
 package booker
 
-import zio.{Console, Has, ZIO}
+import zio.{Console, ZIO}
 import zio.Console.*
 import zio.Runtime.default.unsafeRun
 
@@ -60,7 +60,7 @@ def chapterFiles(dir: File): Seq[(Int, File)] =
 
 def resolveDups(
     dups: Seq[File]
-): ZIO[Has[Console], Throwable, Seq[File]] =
+): ZIO[Console, Throwable, Seq[File]] =
   val something =
     for
       _ <- printLine("Conflict detected:")

@@ -1,6 +1,6 @@
 package directoryExample
 
-import zio.{UIO, ZIO, ZServiceBuilder}
+import zio.{UIO, ZIO, ZLayer}
 import zio.Console.{readLine, printLine}
 
 import java.io.IOException
@@ -50,8 +50,8 @@ object userInputLookup extends zio.App:
 
         _ <-
           logic
-            .provideServices(
-              ZServiceBuilder.succeed(console)
+            .provide(
+              ZLayer.succeed(console)
             )
             // You can comment out this section
             // if you want to see what the code

@@ -1,6 +1,6 @@
 package zio_intro
 
-import zio.{Clock, Has, ZIO, ZIOAppDefault, System, ZServiceBuilder}
+import zio.{Clock, ZIO, ZIOAppDefault, System}
 import zio.Console.{readLine, printLine}
 
 object FirstExample extends ZIOAppDefault:
@@ -34,14 +34,14 @@ object HelloWorld extends ZIOAppDefault:
   
   
 object AuthenticationFlow extends ZIOAppDefault:
-  val activeUsers: ZIO[Has[Clock], DiskError, List[UserName]] = ???
+  val activeUsers: ZIO[Clock, DiskError, List[UserName]] = ???
   
-  val user: ZIO[Has[System], Nothing, UserName] = ???
+  val user: ZIO[System, Nothing, UserName] = ???
   
   def authenticateUser(users: List[UserName], currentUser: UserName): ZIO[Any, UnauthenticatedUser, AuthenticatedUser] = ???
       
 
-  val fullAuthenticationProcess: ZIO[Has[Clock] & Has[System], DiskError | UnauthenticatedUser, AuthenticatedUser] =
+  val fullAuthenticationProcess: ZIO[Clock & System, DiskError | UnauthenticatedUser, AuthenticatedUser] =
     for
       users <- activeUsers
       currentUser <- user
@@ -51,7 +51,7 @@ object AuthenticationFlow extends ZIOAppDefault:
   
   def run =
     fullAuthenticationProcess
-      .provideServices(zio.ZEnv.live)
+      .provide(zio.ZEnv.live)
       .orDieWith(error => new Exception("Unhandled error: " + error))
 
 

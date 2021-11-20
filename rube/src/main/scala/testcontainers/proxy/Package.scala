@@ -17,7 +17,7 @@ val inconsistentFailuresZ =
             ()
         }
     yield ()
-  ).provideServices(Random.live)
+  ).provide(Random.live)
 
 val jitter =
   (
@@ -27,6 +27,6 @@ val jitter =
         ZIO.debug(s"Sleeping for $rand seconds")
       _ <- ZIO.sleep(rand.seconds)
     yield ()
-  ).provideServices(Random.live ++ Clock.live)
+  ).provide(Random.live ++ Clock.live)
 
 val allProxies = jitter *> inconsistentFailuresZ

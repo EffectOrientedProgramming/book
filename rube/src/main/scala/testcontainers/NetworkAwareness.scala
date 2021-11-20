@@ -13,17 +13,15 @@ import org.testcontainers.containers.{
 import io.getquill._
 import org.testcontainers.containers.KafkaContainer
 import java.net.InetAddress
-import zio.ZServiceBuilder
+import zio.ZLayer
 
 object NetworkAwareness:
-  val localHostName: ZIO[Has[
-    NetworkAwareness
-  ], Throwable, String] =
-    ZIO.serviceWith(_.localHostName)
+  val localHostName: ZIO[ NetworkAwareness , Throwable, String] =
+    ZIO.service[NetworkAwareness].flatMap(_.localHostName)
 
   val live
-      : Layer[Nothing, Has[NetworkAwareness]] =
-    ZServiceBuilder.succeed(NetworkAwarenessLive)
+      : Layer[Nothing, NetworkAwareness] =
+    ZLayer.succeed(NetworkAwarenessLive)
 
 trait NetworkAwareness:
   val localHostName: Task[String]

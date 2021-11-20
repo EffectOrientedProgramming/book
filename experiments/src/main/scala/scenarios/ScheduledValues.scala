@@ -2,7 +2,6 @@ package scenarios
 
 import zio.Duration
 import zio.Clock
-import zio.Has
 import zio.ZIO
 import zio.URIO
 import zio.Schedule
@@ -26,10 +25,10 @@ def scheduledValues[A](
     value: (Duration, A),
     values: (Duration, A)*
 ): ZIO[
-  Has[Clock], // construction time
+  Clock, // construction time
   Nothing,
   ZIO[
-    Has[Clock], // access time
+    Clock, // access time
     TimeoutException,
     A
   ]
@@ -81,7 +80,7 @@ private def createTimeTableX[A](
   */
 private def accessX[A](
     timeTable: Seq[ExpiringValue[A]]
-): ZIO[Has[Clock], TimeoutException, A] =
+): ZIO[Clock, TimeoutException, A] =
   for
     now <- Clock.instant
     result <-
