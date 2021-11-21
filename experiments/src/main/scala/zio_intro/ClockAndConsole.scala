@@ -111,26 +111,24 @@ object ClockAndConsoleImproved
     for
       currentTime <-
         Clock.currentTime(TimeUnit.SECONDS)
-      racer1timeRemaining <- Ref.make(3)
-      racer2timeRemaining <- Ref.make(5)
+      racer1 <- LoopingTimer(
+        "Shtep",
+        currentTime,
+        3,
+      )
+      racer2 <- LoopingTimer(
+        "Zeb",
+        currentTime,
+        5,
+      )
       _ <-
       raceEntities(
-        loopingTimer(
-          "Shtep",
-          currentTime,
-          8,
-          racer1timeRemaining
-        ),
-        loopingTimer(
-          "Zeb",
-          currentTime,
-          5,
-          racer2timeRemaining
-        )
+        racer1.run,
+        racer1.run
       ) zipPar
         loopLogic(
-          racer1timeRemaining,
-          racer2timeRemaining
+          racer1.status,
+          racer2.status
         )
     yield ()
 
@@ -206,6 +204,39 @@ object ClockAndConsoleImproved
         .toInt
     yield Integer
       .max(secondsToRun - timeElapsed, 0)
+    
+  object LoopingTimer:
+    def apply(
+               name: String,
+               startTime: Long,
+               secondsToRun: Int,
+             ): ZIO[Any, Nothing, LoopingTimer] =
+      for
+        status <- Ref.make[Int](4)
+      yield
+        new LoopingTimer(
+          name,
+          startTime,
+          secondsToRun,
+          status
+        )
+        
+
+  class LoopingTimer(
+                    name: String,
+                    startTime: Long,
+                    secondsToRun: Int,
+                    val status: Ref[Int]
+                  ):
+    val loopAndCheck =
+      for
+        timeLeft <-
+          timer(startTime, secondsToRun)
+        _ <- status.set(timeLeft)
+      yield timeLeft
+      
+    val run : ZIO[Clock, Nothing, String] =
+      loopAndCheck.repeatUntil(_ == 0).map(_ => name)
 
   def loopingTimer(
       name: String,
