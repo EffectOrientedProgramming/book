@@ -233,7 +233,7 @@ Having an unpredictable error occur during recursion does not meet our goal of r
 
 The fix to this issue is a hack called *tail recursion*, which typically requires the programmer to organize their code such that the return expression for the recursive function does not perform any additional calculations, but simply returns a finished result.
 When this criterion is met, the compiler is able to rewrite the recursive code so that it becomes simple imperative code, without the function calls that can lead to a stack overflow.
-This produces code that is reliable from the safety standpoint (it doesn't overflow the stack) and from an invariance standpoint (there's no mutating loop variable).
+This produces code that is reliable from the safety standpoint (it doesn't overflow the stack) and from an immutability standpoint (there's no mutating loop variable).
 
 At this point you might be wondering, "Wait, are you telling me that every time I want to perform some kind of operation on a sequence, I'm supposed to write recursive code rather than just an imperative loop?" Although you would certainly get better at recursion with practice, it does sound exhausting.
 Fortunately, functional programming goes one step further by implementing basic repetitive operations for you, using recursion.
@@ -254,13 +254,16 @@ It wraps a data structure in privacy and surrounds it with custom methods (aka m
 This is important because an OO data structure is typically mutable.
 This OO ceremony attempts to create predictability by knowing how the data structure can be mutated.
 
-A functional language relies on immutability.
-An immutable data structure doesn't need privacy because it is safe for any task to read, and it cannot be written (only initialized).
-A value that doesn't need to be stored in the data structure will typically only appear inside a function, and so is inaccessible.
+Functional programming abstracts common behavior into reusable functional components. These components are adapted to specific needs using other functions. This is why lambdas are so important, because you constantly need to adapt general code to specific purposes, often with a brief amount of code that would otherwise be awkward and intrusive to right as a standalone function.
 
 Functions in a functional language don't need to be tied to a particular data structure.
 Thus, they can often be written for more general use and to reduce duplication.
 Functional languages come with a general set of well-tested, reusable operations that can be applied almost mathematically in many situations.
+
+A functional language relies on immutability.
+An immutable data structure doesn't need privacy because it is safe for any task to read, and it cannot be written (only initialized).
+Because immutability dramatically simplifies everything, objects in functional languages are simply naked data structures along with constructors.
+When everything is immutable, there is no need for private properties or methods to maintain the state of an object.
 
 ## Summary: Style vs Substance
 
