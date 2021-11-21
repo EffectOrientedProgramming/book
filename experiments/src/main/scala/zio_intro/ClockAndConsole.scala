@@ -1,10 +1,10 @@
 package zio_intro
 
-import zio.*
+import zio.{Ref, *}
 import zio.Console.printLine
 
 import java.util.concurrent.TimeUnit
-import io.AnsiColor._
+import io.AnsiColor.*
 
 object ClockAndConsole extends ZIOAppDefault:
   val renderCurrentTime =
@@ -111,75 +111,55 @@ object ClockAndConsoleImproved
     for
       currentTime <-
         Clock.currentTime(TimeUnit.SECONDS)
-      racer1 <- LoopingTimer(
+      racer1 <- LongRunningProcess(
         "Shtep",
         currentTime,
         3,
       )
-      racer2 <- LoopingTimer(
+      racer2 <- LongRunningProcess(
         "Zeb",
         currentTime,
         5,
       )
-      _ <-
+      raceFinished: Ref[Boolean] <- Ref.make[Boolean](false)
+      winnersName <-
       raceEntities(
         racer1.run,
-        racer1.run
-      ) zipPar
-        loopLogic(
-          racer1.status,
-          racer2.status
+        racer1.run,
+        raceFinished
+      ) zipParLeft 
+        monitoringLogic(
+          racer1,
+          racer2,
+          raceFinished
         )
+      _ <- printLine(s"\nWinner: $winnersName")
     yield ()
 
-  def loopLogic(
-      racer1timeRemaining: Ref[Int],
-      racer2timeRemaining: Ref[Int]
+  def monitoringLogic(
+                 racer1: LongRunningProcess,
+                 racer2: LongRunningProcess,
+                 raceFinished: Ref[Boolean]
   ) =
     renderLoop(
       for
-        racer1status <- racer1timeRemaining.get
-        racer2status <- racer2timeRemaining.get
-        _            <- progressBar(racer1status)
+        racer1status <- racer1.status.get
+        racer2status <- racer2.status.get
+        _            <- progressBar(racer1.name, racer1status)
         _            <- printLine("")
-        _            <- progressBar(racer2status)
+        _            <- progressBar(racer2.name, racer2status)
       yield ()
-    ).repeat(Schedule.recurs(5))
+    ).repeatWhileZIO(_ => raceFinished.get)
 
   def raceEntities(
       racer1: ZIO[Clock, Nothing, String],
-      racer2: ZIO[Clock, Nothing, String]
-  ) =
-    racer1.raceWith(racer2)(
-      leftDone =
-        (result, _) =>
-          result match
-            case zio.Exit.Success(success) =>
-              ZIO
-                .debug(s"$success won the race!")
-            case zio.Exit.Failure(failure) =>
-              ???
-      ,
-      rightDone =
-        (result, _) =>
-          result match
-            case zio.Exit.Success(success) =>
-              ZIO
-                .debug(s"$success won the race!")
-            case zio.Exit.Failure(failure) =>
-              ???
-    )
-
-  def updateLogic(currentTime: Long) =
-    for
-      _ <- renderRemainingTime(currentTime)
-      _ <- Console.printLine("")
-      _ <-
-        renderRemainingTime(
-          currentTime.toInt - 5
-        )
-      _ <- ZIO.sleep(1.second)
-    yield ()
+      racer2: ZIO[Clock, Nothing, String],
+      raceFinished: Ref[Boolean]
+  ): ZIO[Clock, Nothing, String] =
+    racer1.race(racer2).flatMap {
+      success => raceFinished.set(true) *>
+        ZIO.succeed(success)
+    }
 
   val saveCursorPosition =
     Console.print("\u001b7")
@@ -205,16 +185,16 @@ object ClockAndConsoleImproved
     yield Integer
       .max(secondsToRun - timeElapsed, 0)
     
-  object LoopingTimer:
+  object LongRunningProcess:
     def apply(
                name: String,
                startTime: Long,
                secondsToRun: Int,
-             ): ZIO[Any, Nothing, LoopingTimer] =
+             ): ZIO[Any, Nothing, LongRunningProcess] =
       for
         status <- Ref.make[Int](4)
       yield
-        new LoopingTimer(
+        new LongRunningProcess(
           name,
           startTime,
           secondsToRun,
@@ -222,8 +202,8 @@ object ClockAndConsoleImproved
         )
         
 
-  class LoopingTimer(
-                    name: String,
+  class LongRunningProcess(
+                    val name: String,
                     startTime: Long,
                     secondsToRun: Int,
                     val status: Ref[Int]
@@ -238,40 +218,14 @@ object ClockAndConsoleImproved
     val run : ZIO[Clock, Nothing, String] =
       loopAndCheck.repeatUntil(_ == 0).map(_ => name)
 
-  def loopingTimer(
-      name: String,
-      startTime: Long,
-      secondsToRun: Int,
-      status: Ref[Int]
-  ): ZIO[Clock, Nothing, String] =
-    (
-      for
-        timeLeft <-
-          timer(startTime, secondsToRun)
-        _ <- status.set(timeLeft)
-      yield timeLeft
-    ).repeatUntil(_ == 0).map(_ => name)
-
-  def renderRemainingTime(startTime: Long) =
-    for
-      timeRemaining <- timer(startTime, 10)
-      // NOTE: You can only reset the cursor
-      // position once in a single SBT session
-      _ <-
-        Console.print(
-          s"${BOLD}$timeRemaining seconds remaining ${RESET}"
-        )
-      _ <- progressBar(timeRemaining)
-    yield ()
-
-  def progressBar(length: Int) =
-    val color =
+  def progressBar(label: String, length: Int) =
+    val barColor =
       if (length > 3)
         GREEN_B
       else
         RED_B
     Console.print(
-      s"""${color}${" " * length}${RESET}"""
+      s"""$label$barColor${" " * length}$RESET"""
     )
 
   def run = renderCurrentTime
