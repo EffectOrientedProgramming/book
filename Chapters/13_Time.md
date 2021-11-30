@@ -1,8 +1,10 @@
+# Time
 Your program displays 2 sections:
     Summary
         -Time range
         -totalNumberOfTransactions 
         -All Participants
+
     Details
         - List[Transaction]
         
