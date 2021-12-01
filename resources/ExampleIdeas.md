@@ -1,5 +1,7 @@
 # Ideas for Examples
 
+1. The Monty Hall problem. Uses random number generator and console output.
+
 1. Music playlist. Title of list can be duplicate, title plus name of list
    creator produces unique playlist. Possible uses: store and retrieve from
    disk, send to your friend, convert to format that your music player (e.g.
