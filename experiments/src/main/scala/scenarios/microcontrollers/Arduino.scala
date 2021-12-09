@@ -28,7 +28,8 @@ case class Arduino(pin1: DigitalPin):
     else
       ZIO.succeed("Leaving the lights off")
 
-object MicroControllerExample extends zio.App:
+object MicroControllerExample
+    extends zio.ZIOAppDefault:
 
   def turnOnPinAtRightTime() = ???
 
@@ -59,9 +60,7 @@ object MicroControllerExample extends zio.App:
           ZIO.succeed(1)
     yield ()
 
-  def run(
-      args: List[String]
-  ) = // Use App's run function
+  def run = // Use App's run function
     val logic =
       for
         arduino <-
@@ -78,5 +77,4 @@ object MicroControllerExample extends zio.App:
           )
       yield ()
     logic.exitCode
-  end run
 end MicroControllerExample

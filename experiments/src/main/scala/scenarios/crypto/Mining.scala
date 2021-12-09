@@ -90,7 +90,7 @@ object Mining extends ZIOAppDefault:
       )
 
     def loopLogic(chain: Ref[List[Int]]): ZIO[
-      Console with Random with Clock,
+      Console & Random & Clock,
       IOException,
       Unit
     ] = // Uses mine2 function (sleep

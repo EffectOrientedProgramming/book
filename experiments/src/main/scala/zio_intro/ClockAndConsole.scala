@@ -111,23 +111,22 @@ object ClockAndConsoleImproved
     for
       currentTime <-
         Clock.currentTime(TimeUnit.SECONDS)
-      racer1 <- LongRunningProcess(
-        "Shtep",
-        currentTime,
-        3,
-      )
-      racer2 <- LongRunningProcess(
-        "Zeb",
-        currentTime,
-        5,
-      )
-      raceFinished: Ref[Boolean] <- Ref.make[Boolean](false)
+      racer1 <-
+        LongRunningProcess(
+          "Shtep",
+          currentTime,
+          3
+        )
+      racer2 <-
+        LongRunningProcess("Zeb", currentTime, 5)
+      raceFinished: Ref[Boolean] <-
+        Ref.make[Boolean](false)
       winnersName <-
       raceEntities(
         racer1.run,
         racer1.run,
         raceFinished
-      ) zipParLeft 
+      ) zipParLeft
         monitoringLogic(
           racer1,
           racer2,
@@ -137,17 +136,19 @@ object ClockAndConsoleImproved
     yield ()
 
   def monitoringLogic(
-                 racer1: LongRunningProcess,
-                 racer2: LongRunningProcess,
-                 raceFinished: Ref[Boolean]
+      racer1: LongRunningProcess,
+      racer2: LongRunningProcess,
+      raceFinished: Ref[Boolean]
   ) =
     renderLoop(
       for
         racer1status <- racer1.status.get
         racer2status <- racer2.status.get
-        _            <- progressBar(racer1.name, racer1status)
-        _            <- printLine("")
-        _            <- progressBar(racer2.name, racer2status)
+        _ <-
+          progressBar(racer1.name, racer1status)
+        _ <- printLine("")
+        _ <-
+          progressBar(racer2.name, racer2status)
       yield ()
     ).repeatWhileZIO(_ => raceFinished.get)
 
@@ -156,17 +157,19 @@ object ClockAndConsoleImproved
       racer2: ZIO[Clock, Nothing, String],
       raceFinished: Ref[Boolean]
   ): ZIO[Clock, Nothing, String] =
-    racer1.race(racer2).flatMap {
-      success => raceFinished.set(true) *>
-        ZIO.succeed(success)
-    }
+    racer1
+      .race(racer2)
+      .flatMap { success =>
+        raceFinished.set(true) *>
+          ZIO.succeed(success)
+      }
 
   val saveCursorPosition =
     Console.print("\u001b7")
   val loadCursorPosition =
     Console.print("\u001b8")
 
-  def renderLoop[T <: Console with Clock](
+  def renderLoop[T <: Console & Clock](
       drawFrame: ZIO[T, Any, Unit]
   ) =
     for
@@ -184,39 +187,39 @@ object ClockAndConsoleImproved
         .toInt
     yield Integer
       .max(secondsToRun - timeElapsed, 0)
-    
+
   object LongRunningProcess:
     def apply(
-               name: String,
-               startTime: Long,
-               secondsToRun: Int,
-             ): ZIO[Any, Nothing, LongRunningProcess] =
+        name: String,
+        startTime: Long,
+        secondsToRun: Int
+    ): ZIO[Any, Nothing, LongRunningProcess] =
       for
         status <- Ref.make[Int](4)
-      yield
-        new LongRunningProcess(
-          name,
-          startTime,
-          secondsToRun,
-          status
-        )
-        
+      yield new LongRunningProcess(
+        name,
+        startTime,
+        secondsToRun,
+        status
+      )
 
   class LongRunningProcess(
-                    val name: String,
-                    startTime: Long,
-                    secondsToRun: Int,
-                    val status: Ref[Int]
-                  ):
+      val name: String,
+      startTime: Long,
+      secondsToRun: Int,
+      val status: Ref[Int]
+  ):
     val loopAndCheck =
       for
         timeLeft <-
           timer(startTime, secondsToRun)
         _ <- status.set(timeLeft)
       yield timeLeft
-      
-    val run : ZIO[Clock, Nothing, String] =
-      loopAndCheck.repeatUntil(_ == 0).map(_ => name)
+
+    val run: ZIO[Clock, Nothing, String] =
+      loopAndCheck
+        .repeatUntil(_ == 0)
+        .map(_ => name)
 
   def progressBar(label: String, length: Int) =
     val barColor =

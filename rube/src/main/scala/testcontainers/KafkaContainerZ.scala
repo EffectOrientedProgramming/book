@@ -312,7 +312,7 @@ object UseKafka:
       output: KafkaProducerZ,
       groupId: String
   ): ZIO[
-    Console with R with KafkaContainer,
+    Console & R & KafkaContainer,
     Throwable | E,
     Unit
   ] =
@@ -350,7 +350,7 @@ object UseKafka:
       outputTopicName: String,
       groupId: String
   ): ZIO[
-    Console with R with KafkaContainer,
+    Console & R & KafkaContainer,
     Any,
     Unit
   ] = // TODO Narrow error type
@@ -391,7 +391,7 @@ object UseKafka:
       ],
       groupId: String
   ): ZIO[
-    Console with R with KafkaContainer,
+    Console & R & KafkaContainer,
     Any,
     Unit
   ] = // TODO Narrow error type

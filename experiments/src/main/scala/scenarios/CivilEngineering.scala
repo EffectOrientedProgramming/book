@@ -117,11 +117,7 @@ def buildABridge() =
         projectSpecifications: ProjectSpecifications
     ): ZIO[AvailableCompanies[
       Concrete
-    ] with AvailableCompanies[
-      Steel
-    ] with AvailableCompanies[
-      UnderWaterDrilling
-    ], InsufficientResources, ProjectBid]
+    ] & AvailableCompanies[Steel] & AvailableCompanies[UnderWaterDrilling], InsufficientResources, ProjectBid]
 
   trait NoValidBids
 

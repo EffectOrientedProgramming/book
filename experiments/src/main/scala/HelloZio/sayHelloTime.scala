@@ -22,7 +22,7 @@ object HelloWorldTime:
   @main
   def helloTime() =
     val sayHelloTime: ZIO[
-      Console with Clock, // implement the new environment type like a trait
+      Console & Clock, // implement the new environment type like a trait
       IOException | NewError, // implement the new error type using a | . (A logical 'or')
       Unit
     ] =
