@@ -17,7 +17,7 @@ libraryDependencies ++=
     "com.softwaremill.sttp.client3" %% "core" %
       "3.3.16",
     "io.getquill" %% "quill-jdbc" % "3.7.2.Beta1.4",
-    "ch.qos.logback" % "logback-classic"                  % "1.2.8",
+    "ch.qos.logback" % "logback-classic"                  % "1.2.9",
     // Or ZIO Modules
     "io.getquill" %% "quill-jdbc-zio" % "3.7.2.Beta1.4",
     // Postgres Async
