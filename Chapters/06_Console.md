@@ -98,7 +98,7 @@ import zio.Runtime.default.unsafeRun
 import zio.ZLayer
 unsafeRun(
   logicClunky
-    .inject(ZLayer.succeed[Console](ConsoleLive))
+    .provide(ZLayer.succeed[Console](ConsoleLive))
 )
 ```
 
@@ -154,7 +154,7 @@ Now executing our code is as simple as describing it.
 
 
 ```scala mdoc
-unsafeRun(logic.inject(ConsoleWithLayer.live))
+unsafeRun(logic.provide(ConsoleWithLayer.live))
 ```
 
 In real application, both of these will go in the companion object directly.
@@ -206,7 +206,7 @@ val leakSensitiveInfo
 
 ```scala mdoc
 unsafeRun(
-  leakSensitiveInfo.inject(
+  leakSensitiveInfo.provide(
     ZLayer.succeed[Console](ConsoleSanitized)
   )
 )

@@ -285,7 +285,7 @@ import mdoc.unsafeRunPrettyPrint
 sys.env.environment = OriginalDeveloper
 ```
 
-```scala mdoc
+```scala mdoc:fail
 unsafeRunPrettyPrint(
   fancyLodgingFinal()
     .provide(ZLayer.succeed[System](SystemLive))
@@ -297,7 +297,7 @@ unsafeRunPrettyPrint(
 sys.env.environment = NewDeveloper
 ```
 
-```scala mdoc
+```scala mdoc:fail
 unsafeRunPrettyPrint(
   fancyLodgingFinal()
     .provide(ZLayer.succeed[System](SystemLive))
@@ -309,7 +309,7 @@ unsafeRunPrettyPrint(
 sys.env.environment = CIServer
 ```
 
-```scala mdoc
+```scala mdoc:fail
 unsafeRunPrettyPrint(
   fancyLodgingFinal()
     .provide(ZLayer.succeed[System](SystemLive))
@@ -332,7 +332,7 @@ case class SystemHardcoded(
 
 We can now provide this to our logic, for testing both the success and failure cases.
 
-```scala mdoc
+```scala mdoc:fail
 unsafeRun(
   fancyLodgingSafe().provide(
     ZLayer.succeed[System](
