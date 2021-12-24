@@ -90,19 +90,18 @@ object ProxiedRequestScenario
     makeAProxiedRequest
       .provideSome[ZEnv](liveLayer)
 
+  // todo @bill
   val liveLayer: ZLayer[
     Any,
     Throwable,
     Deps.AppDependencies
-  ] =
-    ZLayer.wire[Deps.AppDependencies](
-      ServiceDataSets.careerDataZ,
-//      Clock.live,
-      Layers.networkLayer,
-      NetworkAwareness.live,
-      ToxyProxyContainerZ.construct(),
-      CareerHistoryService.live
-    )
+  ] = ???
+
+/* ZLayer.make[Deps.RubeDependencies](
+ * ServiceDataSets.careerDataZ, // Clock.live,
+ * Layers.networkLayer, NetworkAwareness.live,
+ * ToxyProxyContainerZ.construct(),
+ * CareerHistoryService.live ) */
 
 end ProxiedRequestScenario
 
@@ -273,7 +272,7 @@ object ContainerScenarios:
     )
 
   val layer =
-    ZLayer.wire[Deps.RubeDependencies](
+    ZLayer.make[Deps.RubeDependencies](
       ServiceDataSets.careerDataZ,
       ServiceDataSets.locations,
       ServiceDataSets.backgroundData,

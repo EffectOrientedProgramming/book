@@ -69,7 +69,7 @@ object ReadIntAndMultiply extends zio.App:
             "13"
           )
         _ <-
-          logic.provideCustom(
+          logic.provideLayer(
             Clock.live ++
               ZLayer.succeed(fakeConsole)
           )

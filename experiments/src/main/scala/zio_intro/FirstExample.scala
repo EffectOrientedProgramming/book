@@ -44,7 +44,7 @@ object AuthenticationFlow extends ZIOAppDefault:
 
   def run =
     fullAuthenticationProcess
-      .provide(zio.ZEnv.live)
+      .provideLayer(zio.ZEnv.live)
       .orDieWith(error =>
         new Exception(
           "Unhandled error: " + error

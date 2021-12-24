@@ -1,10 +1,12 @@
+val quillVersion = "3.10.0.Beta1.6"
+
 libraryDependencies ++= Seq(
-  "io.getquill" %% "quill-jdbc" % "3.7.2.Beta1.4",
-  "ch.qos.logback" % "logback-classic"                  % "1.2.10",
+  "io.getquill" %% "quill-jdbc" % quillVersion,
+  "ch.qos.logback" % "logback-classic"                  % "1.2.9",
   // Or ZIO Modules
-  "io.getquill" %% "quill-jdbc-zio" % "3.7.2.Beta1.4",
+  "io.getquill" %% "quill-jdbc-zio" % quillVersion,
   // Postgres Async
-  "io.getquill" %% "quill-jasync-postgres" % "3.7.2.Beta1.4",
+  "io.getquill" %% "quill-jasync-postgres" % quillVersion,
   "io.circe"  % "circe-core_3"  % "0.15.0-M1",
   "io.circe" %% "circe-generic" % "0.15.0-M1",
   "com.softwaremill.sttp.client3" %% "circe" %
