@@ -56,21 +56,23 @@ object QuillLocal:
           )
       }
 
+  // todo: Could not unift-serialize the 'class
+  // io.getquill.ast.Filter'
+  // Filter(Entity("Person", List()), Id("p"),
+  // BinaryOperation(Property(Id("p"), "age"), >,
+  // ScalarTag("d817ee45-7a77-4acf-be78-e1484ba45e84"))).
+  // Performing a regular unlift instead.
   val quillQuery
       : ZIO[AppPostgresContext, Nothing, List[
         Person
-      ]] =
-    for
-      ctx <- ZIO.service[AppPostgresContext]
-    yield
-      import ctx._
-
-      val age = 18
-      inline def somePeople =
-        quote {
-          query[Person]
-            .filter(p => p.age > lift(age))
-        }
-      run(somePeople)
+      ]] = ???
+/* val quillQuery : ZIO[AppPostgresContext,
+ * Nothing, List[ Person ]] =
+ * for ctx <- ZIO.service[AppPostgresContext]
+ * yield import ctx._
+ *
+ * val age = 18 inline def somePeople =
+ * quote { query[Person] .filter(p => p.age >
+ * lift(age)) } run(somePeople) */
 
 end QuillLocal

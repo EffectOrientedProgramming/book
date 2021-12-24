@@ -45,7 +45,7 @@ object LuckyZ extends zio.App:
     ] = ZLayer.succeed(FakeRandomIntBounded(0))
 
     myAppLogic
-      .provide(myRandom)
+      .provideLayer(myRandom)
       // does not work for some reason
       // .injectSome[Console](myRandom)
       .exitCode
