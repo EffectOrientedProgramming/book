@@ -19,6 +19,10 @@ object Trivial extends zio.ZIOAppDefault:
       _ <- ref.set(ResourceState.Closed)
     yield ()
 
+    def releaseSymbolic(ref: Ref[ResourceState]) =
+      Console.printLine("Closing Resource").orDie 
+        *> ref.set(ResourceState.Closed)
+
     // This combines creating a managed resource with using it.
     // In normal life, users just get a managed resource from
     // a library and so they don't have to think about acquire
