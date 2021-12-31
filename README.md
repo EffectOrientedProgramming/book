@@ -20,7 +20,8 @@ This will install Java, Scala, SBT (Scala Build Tool) and several other necessar
 
 * Clone this repository onto your machine.
 
-* For all the commands shown here, first start `sbt` ***In A Terminal Shell***.
+* For all the commands shown here, first start `sbt` ***In A Terminal Shell***
+  in the book's root directory.
   Do not use IntelliJ IDEA's "sbt shell" window, which doesn't work correctly and will cause problems.
   (It's OK to use the IntelliJ "Terminal" window).
   Run `sbt` without any arguments to enter `sbt` console mode.

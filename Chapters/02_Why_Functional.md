@@ -188,7 +188,7 @@ You can think of the solution as *stepwise composability*.
 Instead of calling `g(h(a))`, we break the process into steps: `x = h(a)`, then check the success of the operation.
 If successful, pass the result to `g`.
 These extra steps make composability sound like it could get tedious, and languages like Scala that provide more thorough support for functional programming provide syntax to make this kind of programming feasible.
-We will look at this support in the [Monads](#??) chapter.
+We will look at this support in the [Monads]{{???}} chapter.
 
 ## Effects
 

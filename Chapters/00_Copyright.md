@@ -41,7 +41,7 @@ products are claimed as trademarks. Where those designations appear in this
 book, and the publisher was aware of a trademark claim, the designations are
 printed with initial capital letters or in all capitals.
 
-The Scala trademark belongs to [???](???). Java is
+The Scala trademark belongs to {{???}}. Java is
 a trademark or registered trademark of Oracle, Inc. in the United States and
 other countries. Windows is a registered trademark of Microsoft Corporation in
 the United States and other countries. All other product names and company
