@@ -5,22 +5,21 @@ import zio.{Ref, ZIO, ZRef, ZManaged}
 
 case class Slot(id: String)
 case class Player(name: String, slot: Slot)
-case class Team(a: Player, b: Player)
-case class Game(red: Team, blue: Team)
+case class Game(a: Player, b: Player)
 
-object GameSlots extends zio.ZIOAppDefault:
+object ChatSlots extends zio.ZIOAppDefault:
   enum SlotState:
     case Closed, Open
 
   def run =
 
     def acquire(ref: Ref[SlotState]) = for
-      _ <- Console.printLine("Took a player slot")
+      _ <- Console.printLine("Took a speaker slot")
       _ <- ref.set(SlotState.Open)
     yield "Use Me"
 
     def release(ref: Ref[SlotState]) = for
-      _ <- Console.printLine("Freed up a player slot").orDie
+      _ <- Console.printLine("Freed up a speaker slot").orDie
       _ <- ref.set(SlotState.Closed)
     yield ()
 
