@@ -19,6 +19,7 @@ lazy val commonSettings = Seq(
     "dev.zio" %% "zio"          % zioVersion,
     "dev.zio" %% "zio-test"     % zioVersion,
     "dev.zio" %% "zio-test-sbt" % zioVersion % Test,
+    "dev.zio" %% "zio-prelude"  % "1.0.0-RC9"
   ),
 
   testFrameworks +=
@@ -26,6 +27,7 @@ lazy val commonSettings = Seq(
       "zio.test.sbt.ZTestFramework"
     ),
 
+  fork := true,
 )
 
 lazy val booker = (project in file("booker")).settings(commonSettings).enablePlugins(GraalVMNativeImagePlugin)
