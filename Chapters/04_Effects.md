@@ -42,8 +42,24 @@ object X:
 def combine(a: Int, b: Int): Int =
   X.x += 1
   a + b + X.x
+
+combine(1, 2)
+combine(1, 2)
 ```
 
 Because `combine` both writes to and reads from the global variable `X.x`, identical arguments will *not* produce the same result every time.
 `combine` affects the surrounding value of `X.x` and also depends on it to produce its result.
 `combine` is not pure.
+
+We want to manage this effect `X`.
+We'll repeat the trick we used in [Monads] but this time, instead of packaging the return value with failure information, we'll package it with the type `X`:
+
+```scala
+class XIO[I, R]:
+
+
+def combine2(a: Int, b: Int): XIO[X, Int] =
+  X.x += 1
+  a + b + X.x
+
+```
