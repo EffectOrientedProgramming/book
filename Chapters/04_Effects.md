@@ -36,6 +36,7 @@ This allows us to much more effectively reason about the behavior of our program
 Consider a function that affects its surroundings:
 
 ```scala mdoc
+trait X
 object X:
   var x: Int = 0
 
@@ -54,7 +55,7 @@ Because `combine` both writes to and reads from the global variable `X.x`, ident
 We want to manage this effect `X`.
 We'll repeat the trick we used in [Monads] but this time, instead of packaging the return value with failure information, we'll package it with the type `X`:
 
-```scala
+```scala mdoc
 trait XIO[IO, R]
 
 object IntXIO extends XIO[X, Int]:
