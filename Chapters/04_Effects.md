@@ -33,9 +33,10 @@ This allows us to much more effectively reason about the behavior of our program
 
 ## Basics
 
-Consider a function that has an affect on its surroundings:
+Consider a function that affects its surroundings:
 
 ```scala mdoc
+trait X
 object X:
   var x: Int = 0
 
@@ -54,12 +55,13 @@ Because `combine` both writes to and reads from the global variable `X.x`, ident
 We want to manage this effect `X`.
 We'll repeat the trick we used in [Monads] but this time, instead of packaging the return value with failure information, we'll package it with the type `X`:
 
-```scala
-class XIO[I, R]:
+```scala mdoc
+trait XIO[IO, R]
 
+object IntXIO extends XIO[X, Int]:
+  def apply(i: Int): XIO[X, Int] = this
 
 def combine2(a: Int, b: Int): XIO[X, Int] =
   X.x += 1
-  a + b + X.x
-
+  IntXIO(a + b + X.x)
 ```
