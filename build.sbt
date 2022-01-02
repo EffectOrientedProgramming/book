@@ -27,11 +27,12 @@ lazy val commonSettings = Seq(
       "zio.test.sbt.ZTestFramework"
     ),
 
-  fork := true,
+  // fork := true,
 )
 
 lazy val booker = (project in file("booker")).settings(commonSettings).enablePlugins(GraalVMNativeImagePlugin)
-lazy val experiments = (project in file("experiments")).settings(commonSettings)
+lazy val experiments = (project in file("experiments"))
+.settings(commonSettings).settings(fork:=true)
 lazy val rube = (project in file("rube")).settings(commonSettings)
 
 resolvers += Resolver.sonatypeRepo("snapshots")

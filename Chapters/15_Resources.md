@@ -12,3 +12,7 @@ Externalizes the resource management so that the logic that acts on the resource
 
 Assembly of resources works the same as a single resource. If a resource is more than 1 resource, the logic acting on any / all resources doesn't have to know what cleanup.  Similarly, the logic is unconcerned with the ability for all needed resources to be available.  Logic is only ever to be applied when all resources are available.
 
+
+```scala mdoc
+println("hi")
+```
