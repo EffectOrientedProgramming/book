@@ -71,6 +71,12 @@ This will install Java, Scala, SBT (Scala Build Tool) and several other necessar
   sbt:EffectOrientedProgramming> run
   ```
 
+* To format the code examples in the book, run `scalafmt`:
+
+  ```text
+  sbt:EffectOrientedProgramming> scalafmt
+  ```
+
 ## Miscellaneous Notes
 
 * Each chapter has a single namespace.

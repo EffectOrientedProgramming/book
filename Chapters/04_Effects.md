@@ -49,19 +49,37 @@ combine(1, 2)
 ```
 
 Because `combine` both writes to and reads from the global variable `X.x`, identical arguments will *not* produce the same result every time.
-`combine` affects the surrounding value of `X.x` and also depends on it to produce its result.
+`combine` modifies `X.x` and also depends on it to produce its result.
 `combine` is not pure.
 
 We want to manage this effect `X`.
-We'll repeat the trick we used in [Monads] but this time, instead of packaging the return value with failure information, we'll package it with the type `X`:
+We repeat the trick we used in [Monads] but instead of packaging the return value with failure information, we package it with the type `X`:
 
 ```scala mdoc
 trait XIO[IO, R]
 
-object IntXIO extends XIO[X, Int]:
-  def apply(i: Int): XIO[X, Int] = this
+case class IntXIO(i: Int) extends XIO[X, Int]
 
 def combine2(a: Int, b: Int): XIO[X, Int] =
   X.x += 1
   IntXIO(a + b + X.x)
+
+combine2(1, 2)
 ```
+
+At first glance this doesn't seem to fix anything.
+`combine2` returns an `XIO` instead of the simple `Int` produced by `combine`.
+The call to `combine2` shows that we still see the side effect.
+What have we achieved?
+
+We haven't prevented the side effect produced by the accesses to `X.x`, but that is presumably an essential part of the function.
+What we have done is *tracked* that effect by tagging it inside the `XIO` result.
+The fact that a side effect occurs is now tagged inside the type of `XIO`, and this information persists at runtime.
+
+What can we do with this information?
+
+We need to interpret this effect information at runtime.
+To achieve this we delay the evaluation of the program and hand it to an *interpreter*, which knows what to do with the effects.
+
+{{ This seems challenging (albeit illuminating).
+If the example were extremely specific (say, an interpreter that *only* knows about `IntXIO`) perhaps it could work.}}
