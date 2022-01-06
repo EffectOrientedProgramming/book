@@ -17,5 +17,34 @@ object TicTacToe extends ZIOAppDefault:
       , _ => ZIO.succeed(0)
     )
 
-abstract case class Name(name: String)
-object Name
+// -----------------------------------
+
+abstract case class Name private (name: String)
+
+object Name:
+  def make(name: String) = new Name(name){}
+
+def bar =
+  val name: Name = Name.make("Bob")
+  //  val name2 = new Name("Joe") {}
+  //  val jan = name.copy("Janet")
+
+// -----------------------------------
+
+trait X
+object X:
+  var x: Int = 0
+
+trait XIO[IO, R]
+
+case class IntXIO(i: Int) extends XIO[X, Int]
+
+def combine2(a: Int, b: Int): XIO[X, Int] =
+  X.x += 1
+  IntXIO(a + b + X.x)
+
+def foo =
+  combine2(1, 2)
+
+//trait YIO[ENV, F, R] extends Either[F, R]
+
