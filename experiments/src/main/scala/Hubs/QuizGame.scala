@@ -9,7 +9,7 @@ import zio.Clock
 import zio.Console.printLine
 import zio.Console
 
-object QuizGame extends zio.App:
+object QuizGame extends zio.ZIOAppDefault:
   case class Player(name: String)
 
   case class Question(
@@ -28,9 +28,7 @@ object QuizGame extends zio.App:
       answers: Seq[Answer]
   )
 
-  def run(
-      args: List[String]
-  ) = // Use App's run function
+  def run = // Use App's run function
 
     /* Teacher --> Questions --> Student1 -->
      * Answers --> Teacher Student2 Student3 */
@@ -59,9 +57,9 @@ object QuizGame extends zio.App:
         .unit
 
     def recordCorrectAnswers(
-        correctAnswer: String,
-        answers: ZDequeue[Any, Nothing, Answer],
-        correctRespondants: Ref[List[Player]]
+      correctAnswer: String,
+      answers: ZDequeue[Any, Nothing, Answer],
+      correctRespondents: Ref[List[Player]]
     ) =
       for // gather answers until there's a winner
         answer <- answers.take
@@ -69,9 +67,9 @@ object QuizGame extends zio.App:
           if (answer.text == correctAnswer)
             for
               currentCorrectRespondents <-
-                correctRespondants.get
+                correctRespondents.get
               _ <-
-                correctRespondants.set(
+                correctRespondents.set(
                   currentCorrectRespondents :+
                     answer.player
                 )

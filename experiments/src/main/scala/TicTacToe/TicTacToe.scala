@@ -24,6 +24,9 @@ abstract case class Name private (name: String)
 object Name:
   def make(name: String) = new Name(name){}
 
+// Can't inherit because constructor is private:
+// class FirstName(fn: String) extends Name(fn)
+
 def bar =
   val name: Name = Name.make("Bob")
   //  val name2 = new Name("Joe") {}

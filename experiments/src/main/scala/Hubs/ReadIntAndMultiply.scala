@@ -7,11 +7,9 @@ import zio.Duration.*
 import zio.Clock.*
 import zio.Console.*
 
-object ReadIntAndMultiply extends zio.App:
+object ReadIntAndMultiply extends zio.ZIOAppDefault:
 
-  def run(
-      args: List[String]
-  ) = // Use App's run function
+  def run = // Use App's run function
     val logic =
       for
         hub <- Hub.bounded[Int](2)

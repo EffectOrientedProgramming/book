@@ -14,7 +14,7 @@ import java.io.IOException
 
 object HelloWorldTime:
 
-  // Now, becuase we are interacting with the
+  // Now, because we are interacting with the
   // system clock, we need to add another error
   // type.
   case class NewError()

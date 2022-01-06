@@ -9,13 +9,13 @@ import fakeEnvironmentInstances.FakeConsole
 import zio.Console
 import zio.{IO, Ref, Runtime, ZIO, ZLayer}
 
-enum ArithmaticOperation(a: Float, b: Float):
+enum ArithmeticOperation(a: Float, b: Float):
 
   case Add(first: Float, second: Float)
-      extends ArithmaticOperation(first, second)
+      extends ArithmeticOperation(first, second)
 
   case Divide(first: Float, second: Float)
-      extends ArithmaticOperation(first, second)
+      extends ArithmeticOperation(first, second)
 
 // def calculateX(): ZIO[Any, Throwable |
   // ArithmeticException, String]
@@ -55,13 +55,13 @@ enum ArithmaticOperation(a: Float, b: Float):
               "divide by 0"
             )
           )
-end ArithmaticOperation
+end ArithmeticOperation
 
-object ArithmaticOperation: //This in an object used in calculations implemented below.
+object ArithmeticOperation: //This in an object used in calculations implemented below.
 
   def fromInt(
       index: Int
-  ): (Float, Float) => ArithmaticOperation =
+  ): (Float, Float) => ArithmeticOperation =
     index match
       case 1 =>
         Add.apply
@@ -119,7 +119,7 @@ object CalculatorExample extends zio.App:
           (input(1).toFloat, input(2).toFloat)
         } // The inputs are cast as Floats, and passed into a ZIO object.
       result <-
-        ArithmaticOperation // This object, defined above, processes the operation index, and passes the according calculation to the function calculate.
+        ArithmeticOperation // This object, defined above, processes the operation index, and passes the according calculation to the function calculate.
           .fromInt(input(0).toInt)(
             number1,
             number2

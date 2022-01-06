@@ -8,7 +8,7 @@ import java.io.IOException
 
 // How to run a basic Zio
 object HelloApp
-    extends zio.App: // Extend the Zio App
+    extends zio.ZIOAppDefault: // Extend the Zio App
 
   val myAppLogic: ZIO[ // Define the Zio
     Console,
@@ -16,14 +16,12 @@ object HelloApp
     Unit
   ] = Console.printLine("Hello, World!")
 
-  def run(
-      args: List[String]
-  ) = // Use App's run function
+  def run = // Use App's run function
     myAppLogic
       .exitCode // Call the Zio with exitCode.
 
 // Zio's run function which we inherit from
 // zio.App needs a ZIO exitCode as a return type.
-// If you use the run function to excecute your
+// If you use the run function to execute your
 // ZIO program, then you need to structure your
 // code to end on an exitCode.

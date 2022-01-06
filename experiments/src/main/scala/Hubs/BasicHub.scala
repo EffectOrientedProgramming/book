@@ -9,7 +9,7 @@ import zio.Console
 // very basic hub that displays small
 // capabilities.
 
-object BasicHub extends zio.App:
+object BasicHub extends zio.ZIOAppDefault:
 
   // This example makes a hub, and publishes a
   // String. Then, two entities take the
@@ -55,5 +55,5 @@ object BasicHub extends zio.App:
    *
    * } */
 
-  def run(args: List[String]) = logic1.exitCode
+  def run = logic1.exitCode
 end BasicHub
