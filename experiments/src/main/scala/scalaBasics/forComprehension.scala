@@ -4,13 +4,13 @@ object forComprehension:
 
   // This example goes through the basics of the
   // for comprehension.
-  // Intitially, it will be compared to the for
-  // loop equivelant.
+  // Initially, it will be compared to the for
+  // loop equivalent.
 
   val numbers = Vector(1, 2, 3, 4, 5, 6)
 
   // for loop
-  def forloopEx =
+  def forLoopEx =
     println("For Loop: ")
     for (i <- Range(0, 6)) {
       val value = numbers(i)
@@ -38,7 +38,7 @@ object forComprehension:
     var result = Vector[Int]()
     for {
       n <-
-        v // Take the input value v, and itterate through each element
+        v // Take the input value v, and iterate through each element
       if n > 5 // If n is greater than 5
       if n % 2 == 0 // and n is divisible by 2
     } result =
@@ -48,9 +48,9 @@ object forComprehension:
 
 // To remove the use of a var, and simplify the
   // code, you can use the yield keyword.
-  // 'Yield'ing will create a list of all the
-  // values that satasfied the critria.
-  // 'Yield'ing essentially creates the list in
+  // Yielding will create a list of all the
+  // values that satisfied the criteria.
+  // Yielding essentially creates the list in
   // place.
   def evenGT5v2(v: Vector[Int]): Vector[Int] =
     // 'var' so we can reassign 'result':
@@ -59,14 +59,14 @@ object forComprehension:
     )
     for
       n <-
-        v // Take the input value v, and itterate through each element
+        v // Take the input value v, and iterate through each element
       if n > 5      // If n is greater than 5
       if n % 2 == 0 // and n is divisible by 2
     yield n // create a list of the values of n.
 
   @main
   def run() =
-    forloopEx
+    forLoopEx
     forCompEx
 
     val v =
@@ -76,9 +76,9 @@ object forComprehension:
 
   // For comprehensions can also be used to
   // string together multiple events.
-  // In some cases, this is called chainging. A
+  // In some cases, this is called changing. A
   // programmer would use a for comprehension
-  // as it more clearly shows the sequentialsim
+  // as it more clearly shows the sequential nature
   // of a chain.
 
   // At this level, the arrow '<-" is called the

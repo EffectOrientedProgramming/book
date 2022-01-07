@@ -9,7 +9,7 @@ def lucky(
     35 // 35 is the magic number
 
 @main
-def amilucky =
+def amILucky =
   // provide a static seed
   given Random = Random(1)
   println(lucky(50))

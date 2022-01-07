@@ -28,7 +28,7 @@ object higherOrderFunctions:
     println(s"$x - $y = $subtracted!!!")
     subtracted
 
-  // The paramters of higherOrder are a function
+  // The parameters of higherOrder are a function
   // f, that takes 2 Int,
   // and returns an Int, Int x, and Int y
   def higherOrder(
@@ -54,7 +54,7 @@ object higherOrderFunctions:
     val sub3n2 = higherOrder(sub, 3, 2)
 end higherOrderFunctions
 
-// There are several higher order fucntions you
+// There are several higher order functions you
 // probably already use!
 // foreach(), map(), and flatMap() all take in
 // functions as parameters.

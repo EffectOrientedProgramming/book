@@ -42,7 +42,7 @@ object CivilEngineering extends ZIOAppDefault:
         state: State
     ): ZIO[World, War, Set[LegalRestriction]] =
       ???
-    def politicansOf(
+    def politiciansOf(
         state: State
     ): ZIO[World, War, Set[LegalRestriction]] =
       ???
@@ -76,7 +76,7 @@ object CivilEngineering extends ZIOAppDefault:
         Companies.operatingIn[T](state)
       legalRestrictions <-
         World.legalRestrictionsFor(state)
-      politicians <- World.politicansOf(state)
+      politicians <- World.politiciansOf(state)
       lowestBid =
         availableCompanies
           .lowestBid(projectSpecifications)

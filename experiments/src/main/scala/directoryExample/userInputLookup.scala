@@ -9,7 +9,7 @@ import fakeEnvironmentInstances.FakeConsole
 import processingFunctions.*
 import searchFunctions.*
 
-object userInputLookup extends zio.App:
+object userInputLookup extends zio.ZIOAppDefault:
 
   // This example shows the possible modulatriy
   // of scala and FP.
@@ -18,11 +18,11 @@ object userInputLookup extends zio.App:
   // that can be put in their own files, then
   // imported and used when nessessary.
 
-  def run(args: List[String]) =
+  def run =
     val logic =
       for
         emps <-
-          compileEmps // Note: Excecutable logic is very concise. The behavior is predefined elsewhere, and only just excecuted in the main.
+          compileEmployees // Note: Excecutable logic is very concise. The behavior is predefined elsewhere, and only just excecuted in the main.
         _ <-
           printLine(
             "Input full employee name to retrieve from database:   "

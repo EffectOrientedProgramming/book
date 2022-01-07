@@ -21,13 +21,13 @@ def loadBackupFile() =
   println("Backup file used")
   ZIO.succeed(file("BackupFile"))
 
-object fallback extends zio.App:
+object fallback extends zio.ZIOAppDefault:
 
   // orElse is a combinator that can be used to
   // handle
   // effects that can fail.
 
-  def run(args: List[String]) =
+  def run =
     val loadedFile: UIO[file] =
       loadFile("TargetFile")
         .orElse(loadBackupFile())

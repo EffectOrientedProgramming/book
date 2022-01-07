@@ -10,7 +10,7 @@ object BasicFibers:
   // Fibers model a running IO: Fiber[E,A]. They
   // have an error type, and a success type.
   // They don't need an input environment type.
-  // They are not techincally effects, but they
+  // They are not technically effects, but they
   // can be converted to effects.
 
   object computation: // This object performs a computation that takes a long time. It is a recursive Fibonacci Sequence generator.

@@ -6,7 +6,7 @@ package scalaBasics
 object usingMains:
 
   // Within a package, the compiler will analyze
-  // all of the excecutable
+  // all of the executable
   // functions, and select one of them as the
   // 'main function'.
   // Something useful that scala 3 does is to

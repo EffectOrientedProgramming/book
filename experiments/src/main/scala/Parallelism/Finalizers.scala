@@ -17,7 +17,7 @@ import zio.{
 
 import scala.io.Source._
 
-object Finalizers extends zio.App:
+object Finalizers extends zio.ZIOAppDefault:
 
   // In this example, we create a ZIO that uses
   // file IO. It opens a file to read it, but
@@ -60,9 +60,7 @@ object Finalizers extends zio.App:
           ZIO.succeed(Vector() ++ lines)
       }
 
-  def run(
-      args: List[String]
-  ) = // Use App's run function
+  def run = // Use App's run function
     println("In main")
 
     val ioExample: ZIO[

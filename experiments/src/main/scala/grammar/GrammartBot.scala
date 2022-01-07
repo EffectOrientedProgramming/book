@@ -7,8 +7,8 @@ import zio.Console.readLine
 import zio.ZIO
 import zio.System.env
 
-object GrammarInteractions extends zio.App:
-  final def run(args: List[String]) =
+object GrammarInteractions extends zio.ZIOAppDefault:
+  final def run =
     myAppLogic.exitCode
 
   val myAppLogic =

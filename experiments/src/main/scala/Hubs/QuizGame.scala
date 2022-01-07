@@ -86,10 +86,10 @@ object QuizGame extends zio.ZIOAppDefault:
       yield ()
 
     def untilWinnersAreFound(
-        correctRespondants: Ref[List[Player]]
+      correctRespondents: Ref[List[Player]]
     ) =
       Schedule.recurUntilZIO(_ =>
-        correctRespondants.get.map(_.size == 2)
+        correctRespondents.get.map(_.size == 2)
       )
 
     def printRoundResults(
@@ -137,7 +137,7 @@ object QuizGame extends zio.ZIOAppDefault:
       RoundDescription(
         Question(
           "What is the average airspeed of an unladen swallow?",
-          "INSUFFICENT DATA FOR MEANINGFUL ANSWER"
+          "INSUFFICIENT DATA FOR MEANINGFUL ANSWER"
         ),
         Seq(
           Answer(frop, "3.0 m/s", 1.seconds),
@@ -163,7 +163,7 @@ object QuizGame extends zio.ZIOAppDefault:
         questionHub <- Hub.bounded[Question](1)
         answerHub: Hub[Answer] <-
           Hub.bounded[Answer](students.size)
-        correctRespondants: Ref[List[Player]] <-
+        correctRespondents: Ref[List[Player]] <-
           Ref.make[List[Player]](List.empty)
         _ <-
           questionHub
@@ -195,7 +195,7 @@ object QuizGame extends zio.ZIOAppDefault:
                             .text
                       )
                     _ <-
-                      correctRespondants
+                      correctRespondents
                         .set(List.empty)
                     _ <-
                       questionHub.publish(
@@ -216,17 +216,17 @@ object QuizGame extends zio.ZIOAppDefault:
                                 .question
                                 .correctResponse,
                               answers,
-                              correctRespondants
+                              correctRespondents
                             ).repeat(
                               untilWinnersAreFound(
-                                correctRespondants
+                                correctRespondents
                               )
                             )
                           )
                         )
                         .timeout(4.second)
                     winners <-
-                      correctRespondants.get
+                      correctRespondents.get
                     _ <-
                       printRoundResults(winners)
                     _ <-

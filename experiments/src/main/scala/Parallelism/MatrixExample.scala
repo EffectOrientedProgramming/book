@@ -62,7 +62,7 @@ object MatrixExample:
 end MatrixExample
 
 @main
-def matricies =
+def matrices =
   val mEx    = MatrixExample
   val matrix = mEx.makeMatrix2D(4, 4)
   println("Normal Matrix:")

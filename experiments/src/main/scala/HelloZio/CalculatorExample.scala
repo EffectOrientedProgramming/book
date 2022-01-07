@@ -124,7 +124,7 @@ object CalculatorExample extends zio.App:
             number1,
             number2
           )
-          .calculate() // calculate takes the input numbers from ArithmaticOperation, and creates the return statement
+          .calculate() // calculate takes the input numbers from ArithmeticOperation, and creates the return statement
 // _ <- printLine("Typed, parse operation: "
     // +
     // operation)

@@ -41,7 +41,7 @@ object Mining extends ZIOAppDefault:
           return false
       return true
 
-    // Recursivley itterates up from starting
+    // Recursively iterates up from starting
     // value, num, until it finds a prime number,
     // which it returns
     def findNextPrime(num: Int): Int =
@@ -51,7 +51,7 @@ object Mining extends ZIOAppDefault:
         findNextPrime(num + 1)
 
     // Takes a starting value, then calls
-    // itterates up through numbers until it
+    // iterates up through numbers until it
     // finds a prime number.
     def mine2(num: Int): ZIO[
       zio.Random & Clock,

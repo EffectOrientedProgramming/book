@@ -7,10 +7,10 @@ package fpBuildingBlocks
 // behavior of the function.
 object generalFunctions {
 
-  // TODO:This is commented out becuase the scala
-  // formatter doesnt like it...
+  // TODO:This is commented out because the scala
+  // formatter doesn't like it...
 
-  /* //Most commom exmple of a general function:
+  /* //Most common example of a general function:
    * Lists
    *
    * val intList = List[Int](1,2,3,4) //The Int

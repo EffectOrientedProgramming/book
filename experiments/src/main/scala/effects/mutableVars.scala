@@ -1,8 +1,8 @@
 package effects
 
 object mutableVars:
-  // Mutable variables can be contisdered as
-  // effects. They can change the behvior of a
+  // Mutable variables can be considered as
+  // effects. They can change the behavior of a
   // function while not being an input.
 
   var x = 5

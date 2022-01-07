@@ -1,7 +1,7 @@
 package tuples
 
 @main
-def easy() =
+def easy =
   val six_1 =
     List(1, 2, 3).fold(0) { (total, i) =>
       total + i

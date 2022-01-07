@@ -18,10 +18,10 @@ class Compose:
   val helloGoodbye: UIO[Tuple] =
     for
       greeting <- IO.succeed("Hello!").fork
-      fairwell <- IO.succeed("GoodBye!").fork
+      farewell <- IO.succeed("GoodBye!").fork
       totalFiber =
         greeting.zip(
-          fairwell
+          farewell
         ) // Note the '=', not '<-'
       tuple <- totalFiber.join
     yield tuple
@@ -46,7 +46,7 @@ class Compose:
           .fork // notPineapple will fail
       sFiber <-
         isPineapple
-          .fork // isPineapple will succedd
+          .fork // isPineapple will succeed
       totalFiber = fFiber.orElse(sFiber)
       output <-
         totalFiber

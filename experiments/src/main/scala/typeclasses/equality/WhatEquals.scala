@@ -1,7 +1,7 @@
 package typeclasses.equality
 
 /** We are showing the ability to add behavior to
-  * classes we don't control. Typeclasses: the
+  * classes we don't control. Type classes: the
   * generic form of extension methods?
   */
 trait WhatEquals[T]:

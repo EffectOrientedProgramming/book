@@ -18,5 +18,5 @@ object exIOError:
       val rand = Random.nextInt(101)
       if ((0 to n).contains(rand))
         throw new IOException(
-          "An unexpected IOException Occured!!!"
+          "An unexpected IOException Occurred!!!"
         )

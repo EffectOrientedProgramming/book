@@ -17,10 +17,10 @@ object value:
   // The error is 'submerged', as it is pushed
   // from an either into a ZIO.
 
-  val zeither: UIO[Either[String, Int]] =
+  val zEither: UIO[Either[String, Int]] =
     IO.fail("Boom").either
 
-  // IO.fail("Boom") is naturlally type
+  // IO.fail("Boom") is naturally type
   // ZIO[R,String,Int], but is
   // converted into type UIO[Either[String, Int]
 

@@ -36,8 +36,8 @@ def luckyZ(
     )
     .map(_ == 0)
 
-object LuckyZ extends zio.App:
-  def run(args: List[String]) =
+object LuckyZ extends zio.ZIOAppDefault:
+  def run =
     val myRandom: ZLayer[
       Any,
       Nothing,
@@ -87,7 +87,7 @@ def effectfulIntBetween(low: Int, high: Int) =
   )
 
 @main
-def demostuff(): Unit =
+def demoStuff(): Unit =
 
   def foo(arg: => Int): Int =
     val x = arg
@@ -108,4 +108,3 @@ def demostuff(): Unit =
     println("hi")
     10
   }
-end demostuff

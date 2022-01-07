@@ -1,7 +1,7 @@
 package tuples
 
 @main
-def fun() =
+def fun =
   // special type, not ()
   val t0: Unit = ()
 

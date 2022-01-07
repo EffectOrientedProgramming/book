@@ -5,17 +5,17 @@ import zio.ZIO
 object processingFunctions:
 
   // Read a line, and return an employee object
-  def linesToEmps(
+  def linesToEmployees(
       lines: Vector[String]
   ): Vector[Employee] =
     val logic =
       for
         line <- lines
-        emp = lineToEmp(line)
+        emp = lineToEmployee(line)
       yield emp
     logic
 
-  def lineToEmp(line: String): Employee =
+  def lineToEmployee(line: String): Employee =
     val parts: Array[String] =
       safeSplit(line, ",")
     val emp =
@@ -43,13 +43,13 @@ object processingFunctions:
     }
 
   // Compile list of emp data
-  def compileEmps
+  def compileEmployees
       : ZIO[Any, Any, Vector[Employee]] =
     for
       lines <-
         readFileContents.retryN(
           5
         ) // An attempt to open the file occurs 5 times.
-      emps = linesToEmps(lines)
+      emps = linesToEmployees(lines)
     yield emps
 end processingFunctions

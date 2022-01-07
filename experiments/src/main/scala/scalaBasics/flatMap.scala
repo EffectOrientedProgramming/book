@@ -3,9 +3,9 @@ package scalaBasics
 import scala.util.*
 
 object flatMap {
-// In it's most basic sense, flatMap is the
+  // In its most basic sense, flatMap is the
   // combination of
-// the two functions map(), and flatten().
+  // the two functions map(), and flatten().
 
   /* @main def flatMapEx =
    * val nums =
@@ -21,7 +21,7 @@ object flatMap {
    *
    * println("\nflatMap: ") val flatMapped =
    * nums.flatMap(addOne) println(flatMapped) */
-  /* //In Funcitonal Programming, flatMap can be
+  /* //In Functional Programming, flatMap can be
    * used in error handling.
    * // Flat Map can behave like a Map() that can
    * fail.
@@ -43,6 +43,6 @@ object flatMap {
    * is something, return f(something) }
    * //flatMap calls a function f that returns an
    * Option //for each of the items. Then it
-   * reaturns the trasformed list as an option. */
+   * returns the transformed list as an option. */
 
 }

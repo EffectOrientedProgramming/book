@@ -8,7 +8,7 @@ class MutationTracking:
   enum Stage:
     case Hominini, Chimpanzee, Human
 
-object Timeline extends zio.App:
+object Timeline extends zio.ZIOAppDefault:
   val mutation1 = ZIO.fail("Straightened Spine")
   val mutation2 =
     ZIO
@@ -28,8 +28,6 @@ object Timeline extends zio.App:
         printLine(cause.defects)
       }
 
-  def run(
-      args: List[String]
-  ): zio.URIO[ZEnv, zio.ExitCode] =
+  def run: zio.URIO[ZEnv, zio.ExitCode] =
     timeline.exitCode
 end Timeline

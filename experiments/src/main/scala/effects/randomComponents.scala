@@ -4,7 +4,7 @@ import scala.util.Random
 
 object randomComponents:
 
-// Anthing that has a randomly generated
+  // Anything that has a randomly generated
   // component is an effect
 
   def randNum: Unit =

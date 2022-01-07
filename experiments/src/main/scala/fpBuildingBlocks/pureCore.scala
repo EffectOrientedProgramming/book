@@ -12,7 +12,7 @@ object pureCore:
   // errorAtNPerc will model our example effect.
 
   // Non-Pure
-  // (The funciton models a transation with cash)
+  // (The function models a translation with cash)
   def transaction(
       cashPayment: Double,
       price: Double
@@ -51,7 +51,7 @@ object pureCore:
       change match
         case None =>
           println(
-            "An Error occured in the Transaction"
+            "An Error occurred in the Transaction"
           );
           false
         case _ =>

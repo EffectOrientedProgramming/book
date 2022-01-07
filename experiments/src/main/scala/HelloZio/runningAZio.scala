@@ -20,7 +20,7 @@ object HelloApp
     myAppLogic
       .exitCode // Call the Zio with exitCode.
 
-// Zio's run function which we inherit from
+// ZIO's run function which we inherit from
 // zio.App needs a ZIO exitCode as a return type.
 // If you use the run function to execute your
 // ZIO program, then you need to structure your

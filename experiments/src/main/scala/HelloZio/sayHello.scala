@@ -15,10 +15,10 @@ object HelloWorld:
         : ZIO[Console, IOException, Unit] =
       Console.printLine("Hello, World!")
 
-  // This is equivelant to the above, but the Zio
+  // This is equivalent to the above, but the ZIO
   // definition is spaced across different lines.
-  // As the Zio definitions become more
-  // comlicated, it is more readable to space out
+  // As the ZIO definitions become more
+  // complicated, it is more readable to space out
   // the definition.
   @main
   def hello2() =

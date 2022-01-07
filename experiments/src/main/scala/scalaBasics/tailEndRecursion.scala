@@ -2,9 +2,9 @@ package scalaBasics
 
 object tailEndRecursion:
 
-// The Scala compiler will be able to optimize
+  // The Scala compiler will be able to optimize
   // a recursive structure into byte code similar
-// to a while loop if the recursive structure
+  // to a while loop if the recursive structure
   // is a 'tail end' recursion.
 
   def tailEndEx(num: Int): Int =

@@ -2,7 +2,7 @@ package scalaBasics
 
 object fold:
 
-  // This set of exmples explains how the fold
+  // This set of examples explains how the fold
   // function works, and how to use it.
 
   // There are three types of folds: fold(),
@@ -12,9 +12,9 @@ object fold:
     // All three take two arguments:
     val listEx = List(1, 2, 3, 4, 5, 6)
     // The first argument is where to start from,
-    // the second argument is a funciton that
+    // the second argument is a function that
     // takes two parameters.
-    // The first parameter is the acumulated or
+    // The first parameter is the accumulated or
     // 'folded up' variable, and the second is
     // the
     // next thing to be folded into the first
@@ -79,8 +79,8 @@ end fold
 def foldEx3 =
   // Folding is not always just accumulating in
   // some way. It can also just
-  // be used to itterate through a List. Here is
-  // an exmple of using a foldLeft
+  // be used to iterate through a List. Here is
+  // an example of using a foldLeft
   // to find the max value in a list.
 
   val numList = List(1, 4, 2, 10, 6, 3, 7, 9)

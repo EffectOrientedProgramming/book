@@ -20,7 +20,7 @@ class EitherToZio:
       case e: NumberFormatException =>
         Left(input) // Left case is an error type
 
-  // We can tranlate this directly into a more
+  // We can translate this directly into a more
   // succinct and readable IO.
 
   val zEither: IO[String, Int] =
