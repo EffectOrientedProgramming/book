@@ -83,10 +83,18 @@ bookTxt := {
 
 mdoc := mdoc.dependsOn(bookTxt).evaluated
 
+lazy val cleanManuscript = taskKey[Unit]("Clean manuscript dir")
+
+cleanManuscript := {
+  IO.delete(mdocOut.value)
+}
+
+clean := clean.dependsOn(cleanManuscript).value
+
 lazy val genManuscript = inputKey[Unit]("Make manuscript")
 
 genManuscript := {
-  IO.delete(mdocOut.value)
+  val manuscript = mdocOut.value
 
   (Compile / scalafmt).value
   (booker / Compile / scalafmt).value
@@ -102,7 +110,7 @@ genManuscript := {
   experimentsFiles.foreach { f =>
 
     val newFileName = f.toString.stripPrefix("experiments/src/main/scala/").replaceAllLiterally("/", "-").stripSuffix(".scala") + ".md"
-    val nf = mdocOut.value / newFileName
+    val nf = manuscript / newFileName
 
     val lines = IO.read(f.toFile)
 
@@ -118,7 +126,7 @@ genManuscript := {
 
     Files.write(nf.toPath, md.getBytes)
 
-    IO.append(mdocOut.value / "Book.txt", newFileName + "\n")
+    IO.append(manuscript / "Book.txt", newFileName + "\n")
   }
 
 }
