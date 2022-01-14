@@ -31,6 +31,10 @@
   "fields":[{"name":"0bitmap$1"}]}
 ,
 {
+  "name":"zio.Runtime$",
+  "fields":[{"name":"0bitmap$2"}]}
+,
+{
   "name":"zio.RuntimeConfig$",
   "fields":[{"name":"0bitmap$1"}]}
 ,
