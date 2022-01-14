@@ -89,6 +89,9 @@ genManuscript := {
   IO.delete(mdocOut.value)
 
   (Compile / scalafmt).value
+  (booker / Compile / scalafmt).value
+  (experiments / Compile / scalafmt).value
+  (rube / Compile / scalafmt).value
 
   mdoc.evaluated
 

@@ -12,7 +12,8 @@ object pureCore:
   // errorAtNPerc will model our example effect.
 
   // Non-Pure
-  // (The function models a translation with cash)
+  // (The function models a translation with
+  // cash)
   def transaction(
       cashPayment: Double,
       price: Double

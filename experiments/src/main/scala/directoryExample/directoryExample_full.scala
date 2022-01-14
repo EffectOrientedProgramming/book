@@ -5,7 +5,8 @@ import zio.{UIO, ZIO}
 import zio.Console.{getStrLn, printLine}
 import java.io.IOException
 
-object directoryExample_full extends zio.ZIOAppDefault:
+object directoryExample_full
+    extends zio.ZIOAppDefault:
 
   // This example will model a database with a
   // list of employees and their information.
@@ -146,8 +147,8 @@ object directoryExample_full extends zio.ZIOAppDefault:
   // iterate returns a monad. Either the ID was
   // found, or it wasn't.
   def findEmp(
-    ID: Int,
-    employees: Vector[Employee]
+      ID: Int,
+      employees: Vector[Employee]
   ): ZIO[Any, EmpNotFound, Employee] =
     def iterate(
         index: Int,
@@ -168,13 +169,13 @@ object directoryExample_full extends zio.ZIOAppDefault:
   end findEmp
 
   def findEmp( // This is an overloaded function. The compiler can identify the correct 'findEmp' function by looking at the parameters used
-    name: String,
-    employees: Vector[Employee]
+      name: String,
+      employees: Vector[Employee]
   ): ZIO[Any, EmpNotFound, Employee] =
     def iterate( // Example of tail recursion (linear) search
-      index: Int,
-      employees: Vector[Employee],
-      targetName: String
+        index: Int,
+        employees: Vector[Employee],
+        targetName: String
     ): ZIO[Any, EmpNotFound, Employee] =
       if (employees(index).getName == targetName)
         ZIO.succeed(employees(index))
@@ -186,7 +187,11 @@ object directoryExample_full extends zio.ZIOAppDefault:
         )
       else
         iterate(index - 1, employees, targetName)
-    iterate(employees.length - 1, employees, name)
+    iterate(
+      employees.length - 1,
+      employees,
+      name
+    )
   end findEmp
 
 // ///////////////////////////////////

@@ -7,7 +7,8 @@ import zio.Duration.*
 import zio.Clock.*
 import zio.Console.*
 
-object ReadIntAndMultiply extends zio.ZIOAppDefault:
+object ReadIntAndMultiply
+    extends zio.ZIOAppDefault:
 
   def run = // Use App's run function
     val logic =

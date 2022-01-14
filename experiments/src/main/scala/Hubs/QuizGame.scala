@@ -57,9 +57,9 @@ object QuizGame extends zio.ZIOAppDefault:
         .unit
 
     def recordCorrectAnswers(
-      correctAnswer: String,
-      answers: ZDequeue[Any, Nothing, Answer],
-      correctRespondents: Ref[List[Player]]
+        correctAnswer: String,
+        answers: ZDequeue[Any, Nothing, Answer],
+        correctRespondents: Ref[List[Player]]
     ) =
       for // gather answers until there's a winner
         answer <- answers.take
@@ -86,7 +86,7 @@ object QuizGame extends zio.ZIOAppDefault:
       yield ()
 
     def untilWinnersAreFound(
-      correctRespondents: Ref[List[Player]]
+        correctRespondents: Ref[List[Player]]
     ) =
       Schedule.recurUntilZIO(_ =>
         correctRespondents.get.map(_.size == 2)

@@ -24,7 +24,8 @@ case class Arduino(pin1: DigitalPin):
 
   def passSignalToLight() =
     if (pin1.active)
-      ZIO.succeed("Sending current to light bulb")
+      ZIO
+        .succeed("Sending current to light bulb")
     else
       ZIO.succeed("Leaving the lights off")
 

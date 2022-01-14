@@ -18,7 +18,8 @@ object HelloWorld:
   // This is equivalent to the above, but the ZIO
   // definition is spaced across different lines.
   // As the ZIO definitions become more
-  // complicated, it is more readable to space out
+  // complicated, it is more readable to space
+  // out
   // the definition.
   @main
   def hello2() =

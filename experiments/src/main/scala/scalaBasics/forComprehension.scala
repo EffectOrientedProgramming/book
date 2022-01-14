@@ -78,7 +78,8 @@ object forComprehension:
   // string together multiple events.
   // In some cases, this is called changing. A
   // programmer would use a for comprehension
-  // as it more clearly shows the sequential nature
+  // as it more clearly shows the sequential
+  // nature
   // of a chain.
 
   // At this level, the arrow '<-" is called the
