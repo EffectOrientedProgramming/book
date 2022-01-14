@@ -88,6 +88,8 @@ lazy val genManuscript = inputKey[Unit]("Make manuscript")
 genManuscript := {
   IO.delete(mdocOut.value)
 
+  (Compile / scalafmt).value
+
   mdoc.evaluated
 
   import scala.jdk.CollectionConverters._
