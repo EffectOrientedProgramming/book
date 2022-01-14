@@ -86,7 +86,7 @@ mdoc := mdoc.dependsOn(bookTxt).evaluated
 lazy val genManuscript = inputKey[Unit]("Make manuscript")
 
 genManuscript := {
-  mdocOut.value.delete()
+  IO.delete(mdocOut.value)
 
   mdoc.evaluated
 
@@ -96,7 +96,7 @@ genManuscript := {
 
   experimentsFiles.foreach { f =>
 
-    val newFileName = f.toString.stripPrefix("experiments/src/main/scala/").stripSuffix(".scala") + ".md"
+    val newFileName = f.toString.stripPrefix("experiments/src/main/scala/").replaceAllLiterally("/", "-").stripSuffix(".scala") + ".md"
     val nf = mdocOut.value / newFileName
 
     val lines = IO.read(f.toFile)
