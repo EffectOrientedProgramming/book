@@ -20,7 +20,7 @@ jobs:
           ~/.sbt
         key: ${{ runner.os }}-sbt-${{ hashFiles('**/build.sbt') }}
 
-    - run: ./bin/sbt mdoc
+    - run: ./bin/sbt genManuscript
 
     - name: generate and test examples
       run: |

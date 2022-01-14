@@ -1,5 +1,5 @@
 import java.io.File
-import java.nio.file.{Files, Path}
+import java.nio.file.{Files, Path, Paths}
 
 name := "EffectOrientedProgramming"
 
@@ -82,6 +82,42 @@ bookTxt := {
 }
 
 mdoc := mdoc.dependsOn(bookTxt).evaluated
+
+lazy val genManuscript = inputKey[Unit]("Make manuscript")
+
+genManuscript := {
+  mdocOut.value.delete()
+
+  mdoc.evaluated
+
+  import scala.jdk.CollectionConverters._
+
+  val experimentsFiles = Files.walk(file("experiments/src").toPath).iterator().asScala.filter(_.toFile.ext == "scala")
+
+  experimentsFiles.foreach { f =>
+
+    val newFileName = f.toString.stripPrefix("experiments/src/main/scala/").stripSuffix(".scala") + ".md"
+    val nf = mdocOut.value / newFileName
+
+    val lines = IO.read(f.toFile)
+
+    nf.getParentFile.mkdirs()
+
+    val md =
+      s"""## $newFileName
+        |
+        |```scala
+        |$lines
+        |```
+        |""".stripMargin
+
+    Files.write(nf.toPath, md.getBytes)
+
+    IO.append(mdocOut.value / "Book.txt", newFileName + "\n")
+  }
+
+}
+
 
 
 // MdToSourcePlugin
