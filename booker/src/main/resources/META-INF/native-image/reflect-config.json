@@ -15,16 +15,16 @@
   "fields":[{"name":"0bitmap$1"}]}
 ,
 {
+  "name":"izumi.reflect.macrortti.LightTypeTagRef$NameReference",
+  "fields":[{"name":"0bitmap$5"}]}
+,
+{
   "name":"java.lang.invoke.VarHandle",
   "methods":[{"name":"releaseFence","parameterTypes":[] }]}
 ,
 {
   "name":"sun.misc.Unsafe",
   "allDeclaredFields":true}
-,
-{
-  "name":"zio.Chunk$",
-  "fields":[{"name":"0bitmap$1"}]}
 ,
 {
   "name":"zio.Executor",
@@ -51,10 +51,6 @@
   "fields":[{"name":"0bitmap$1"}]}
 ,
 {
-  "name":"zio.ZIOMetric$Counter",
-  "fields":[{"name":"0bitmap$2"}]}
-,
-{
   "name":"zio.ZLayer",
   "fields":[{"name":"0bitmap$1"}]}
 ,
@@ -68,10 +64,6 @@
 ,
 {
   "name":"zio.internal.Platform$",
-  "fields":[{"name":"0bitmap$1"}]}
-,
-{
-  "name":"zio.internal.metrics.package$",
   "fields":[{"name":"0bitmap$1"}]}
 ,
 {
