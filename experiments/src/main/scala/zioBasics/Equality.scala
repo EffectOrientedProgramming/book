@@ -60,7 +60,7 @@ object Equality extends zio.App:
           (
             suc1 == suc2 && suc2 == suc3 &&
               suc3 == suc4 && suc4 == suc5
-          ).toString
+          )
         )
       // Test if identically defined ZIO are
       // considered equivelant:

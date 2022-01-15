@@ -22,7 +22,8 @@ object JustSleep extends App:
       .collectAllPar(
         (1 to 10000)
           .map(_ => ZIO.sleep(1.seconds))
-      )
+      ) *>
+    ZIO.debug("Finished far sooner than 10,000 seconds")
       .exitCode
 
 @main
