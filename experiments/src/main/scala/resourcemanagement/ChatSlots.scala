@@ -1,6 +1,6 @@
 package resourcemanagement
 
-import zio.Console
+import zio.Console.printLine
 import zio.{Ref, ZIO, ZRef, ZManaged}
 
 case class Slot(id: String)
@@ -15,17 +15,13 @@ object ChatSlots extends zio.ZIOAppDefault:
 
     def acquire(ref: Ref[SlotState]) =
       for
-        _ <-
-          Console
-            .printLine("Took a speaker slot")
+        _ <- printLine{"Took a speaker slot"}
         _ <- ref.set(SlotState.Open)
       yield "Use Me"
 
     def release(ref: Ref[SlotState]) =
       for
-        _ <-
-          Console
-            .printLine("Freed up a speaker slot")
+        _ <- printLine("Freed up a speaker slot")
             .orDie
         _ <- ref.set(SlotState.Closed)
       yield ()
@@ -39,15 +35,15 @@ object ChatSlots extends zio.ZIOAppDefault:
         )
       reusable =
         managed.use(
-          Console.printLine(_)
+          printLine(_)
         ) // note: Can't just do (Console.printLine) here
       _ <- reusable
       _ <- reusable
       _ <-
         managed.use { s =>
           for
-            _ <- Console.printLine(s)
-            _ <- Console.printLine("Blowing up")
+            _ <- printLine(s)
+            _ <- printLine("Blowing up")
             _ <- ZIO.fail("Arggggg")
           yield ()
         }
