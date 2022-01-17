@@ -15,13 +15,17 @@ object ChatSlots extends zio.ZIOAppDefault:
 
     def acquire(ref: Ref[SlotState]) =
       for
-        _ <- printLine{"Took a speaker slot"}
+        _ <-
+          printLine {
+            "Took a speaker slot"
+          }
         _ <- ref.set(SlotState.Open)
       yield "Use Me"
 
     def release(ref: Ref[SlotState]) =
       for
-        _ <- printLine("Freed up a speaker slot")
+        _ <-
+          printLine("Freed up a speaker slot")
             .orDie
         _ <- ref.set(SlotState.Closed)
       yield ()

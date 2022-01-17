@@ -101,33 +101,80 @@ genManuscript := {
   (experiments / Compile / scalafmt).value
   (rube / Compile / scalafmt).value
 
-  mdoc.evaluated
+   mdoc.evaluated
 
   import scala.jdk.CollectionConverters._
 
   val experimentsFiles = Files.walk(file("experiments/src").toPath).iterator().asScala.filter(_.toFile.ext == "scala")
 
-  experimentsFiles.foreach { f =>
+  val nf = manuscript / "ExperimentsSection.md"
+  Files.write(nf.toPath, "# Experiments".getBytes)
 
-    val newFileName = f.toString.stripPrefix("experiments/src/main/scala/").replaceAllLiterally("/", "-").stripSuffix(".scala") + ".md"
-    val nf = manuscript / newFileName
+  IO.append(manuscript / "Book.txt", nf.toString + "\n")
 
-    val lines = IO.read(f.toFile)
+  //  experimentsFiles.toList.foreach( file => println("Path: " + file.toAbsolutePath.toString.replaceAllLiterally("/"  + file.getFileName.toString, "")))
+  val groupedFiles: Map[String, List[Path]] =
+    experimentsFiles.toList.groupBy( file => file.toString.replaceAllLiterally("/"  + file.getFileName.toString, ""))
+  groupedFiles.foreach {
+    case (dir, dirFiles) =>
+      val packageMarkdownFileName = dir.stripPrefix("experiments/src/main/scala/").replaceAllLiterally("/", "-") + ".md"
 
-    nf.getParentFile.mkdirs()
+      println("Files in: " + packageMarkdownFileName)
+      dirFiles.foreach(println)
 
-    val md =
-      s"""## $newFileName
-        |
-        |```scala
-        |$lines
-        |```
-        |""".stripMargin
+      val nf = manuscript / packageMarkdownFileName
 
-    Files.write(nf.toPath, md.getBytes)
 
-    IO.append(manuscript / "Book.txt", newFileName + "\n")
+      nf.getParentFile.mkdirs()
+
+      def fileFence(path: Path) = {
+        val file = path.toFile
+        val lines = IO.read(file)
+        s"""
+           |
+           |### ${file.getName}
+           |```scala
+           | // ${file.getName}
+           |$lines
+           |```
+           |""".stripMargin
+      }
+
+      val allFences = dirFiles.map(fileFence)
+
+      val md =
+        s"""## ${packageMarkdownFileName.stripSuffix(".md")}
+           |
+           | ${allFences.mkString}
+           |""".stripMargin
+
+
+      Files.write(nf.toPath, md.getBytes)
+
+      IO.append(manuscript / "Book.txt", packageMarkdownFileName + "\n")
   }
+
+//  experimentsFiles.foreach { f =>
+//
+//    val newFileName = f.toString.stripPrefix("experiments/src/main/scala/").replaceAllLiterally("/", "-").stripSuffix(".scala") + ".md"
+//    val nf = manuscript / newFileName
+//
+//    val lines = IO.read(f.toFile)
+//
+//    nf.getParentFile.mkdirs()
+//
+//    val md =
+//      s"""## $newFileName
+//        |
+//        |```scala
+//        |$lines
+//        |```
+//        |""".stripMargin
+//
+//    Files.write(nf.toPath, md.getBytes)
+//
+//    IO.append(manuscript / "Book.txt", newFileName + "\n")
+//  }
 
 }
 

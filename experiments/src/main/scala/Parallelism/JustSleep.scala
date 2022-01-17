@@ -18,13 +18,14 @@ import scala.concurrent.Await
 object JustSleep extends App:
 
   override def run(args: List[String]) =
-    ZIO
-      .collectAllPar(
-        (1 to 10000)
-          .map(_ => ZIO.sleep(1.seconds))
-      ) *>
-    ZIO.debug("Finished far sooner than 10,000 seconds")
-      .exitCode
+    ZIO.collectAllPar(
+      (1 to 10000).map(_ => ZIO.sleep(1.seconds))
+    ) *>
+      ZIO
+        .debug(
+          "Finished far sooner than 10,000 seconds"
+        )
+        .exitCode
 
 @main
 def ToFuture() =
