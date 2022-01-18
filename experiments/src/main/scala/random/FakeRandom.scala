@@ -131,37 +131,5 @@ class FakeRandom(i: Int) extends Random:
       ]],
       trace: ZTraceElement
   ): UIO[Collection[A]] = ???
-/* override def nextIntBounded( n: => Int ):
- * UIO[Int] = UIO.succeed(i) override def
- * nextBoolean: UIO[Boolean] = ???
- * override def nextBytes( length: => Int ):
- * UIO[Chunk[Byte]] = ???
- * override def nextDouble: UIO[Double] = ???
- * override def nextDoubleBetween( minInclusive:
- * => Double, maxExclusive: => Double ):
- * UIO[Double] = ???
- * override def nextFloat: UIO[Float] = ???
- * override def nextFloatBetween( minInclusive:
- * => Float, maxExclusive: => Float ): UIO[Float]
- * = ???
- * override def nextGaussian: UIO[Double] = ???
- * override def nextInt: UIO[Int] = ???
- * override def nextIntBetween( minInclusive: =>
- * Int, maxExclusive: => Int ): UIO[Int] = ???
- * override def nextLong: UIO[Long] = ???
- * override def nextLongBetween( minInclusive: =>
- * Long, maxExclusive: => Long ): UIO[Long] = ???
- * override def nextLongBounded( n: => Long ):
- * UIO[Long] = ???
- * override def nextPrintableChar: UIO[Char] =
- * ???
- * override def nextString( length: => Int ):
- * UIO[String] = ???
- * override def setSeed( seed: => Long ):
- * UIO[Unit] = ???
- * def shuffle[A, Collection[+Element] <:
- * Iterable[Element]]( collection: =>
- * Collection[A] )(implicit bf:
- * BuildFrom[Collection[A], A, Collection[ A ]]
- * ): UIO[Collection[A]] = ??? */
+
 end FakeRandom
