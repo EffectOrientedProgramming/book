@@ -2,7 +2,7 @@ package random
 
 import zio.{Console, UIO, ZIO, ZLayer}
 import zio.Runtime.default.unsafeRun
-import fakeEnvironmentInstances.FakeConsole
+import console.FakeConsole
 
 val low  = 1
 val high = 10

@@ -5,7 +5,7 @@ import zio.Console.{readLine, printLine}
 
 import java.io.IOException
 import Employee.*
-import fakeEnvironmentInstances.FakeConsole
+import console.FakeConsole
 import processingFunctions.*
 import searchFunctions.*
 

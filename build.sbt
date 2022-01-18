@@ -155,6 +155,7 @@ genManuscript := {
           println("Should append to existing file for: " + value)
           val chapterExperiments =
             s"""
+                |
                 |## Automatically attached experiments.
                 | These are included at the end of this 
                 | chapter because their package in the

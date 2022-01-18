@@ -1,6 +1,6 @@
 package Hubs
 
-import fakeEnvironmentInstances.FakeConsole
+import console.FakeConsole
 import zio.ZIO
 import zio.*
 import zio.Duration.*

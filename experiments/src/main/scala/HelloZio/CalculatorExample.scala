@@ -5,9 +5,9 @@ import HelloZio.CalculatorExample.input
 import java.io.IOException
 import zio.Console.{readLine, printLine}
 import zio.Console
-import fakeEnvironmentInstances.FakeConsole
 import zio.Console
 import zio.{IO, Ref, Runtime, ZIO, ZLayer}
+import console.FakeConsole
 
 enum ArithmeticOperation(a: Float, b: Float):
 

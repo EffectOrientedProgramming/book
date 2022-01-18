@@ -5,7 +5,7 @@ import zio._
 import zio.Console._
 import zio.Console
 import java.io.IOException
-import fakeEnvironmentInstances.FakeConsole
+import console.FakeConsole
 
 object RuntimeEx:
 // This object's primary function is to

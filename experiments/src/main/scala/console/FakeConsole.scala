@@ -1,4 +1,4 @@
-package fakeEnvironmentInstances
+package console
 
 import zio._
 import zio.Console
