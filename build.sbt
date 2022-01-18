@@ -95,6 +95,7 @@ lazy val genManuscript = inputKey[Unit]("Make manuscript")
 
 genManuscript := {
   val manuscript = mdocOut.value
+  cleanManuscript.value
 
   (Compile / scalafmt).value
   (booker / Compile / scalafmt).value
@@ -112,46 +113,89 @@ genManuscript := {
 
   IO.append(manuscript / "Book.txt", nf.toString + "\n")
 
+  val proseFiles =  Files.walk(manuscript.toPath).iterator().asScala.toList.filter(_.toFile.getName.endsWith(".md"))
+
+  // val proseFiles =  Files.walk(manuscript.toPath).iterator().asScala.toList.filter(_.endsWith(".md"))
+
   //  experimentsFiles.toList.foreach( file => println("Path: " + file.toAbsolutePath.toString.replaceAllLiterally("/"  + file.getFileName.toString, "")))
   val groupedFiles: Map[String, List[Path]] =
     experimentsFiles.toList.groupBy( file => file.toString.replaceAllLiterally("/"  + file.getFileName.toString, ""))
   groupedFiles.foreach {
     case (dir, dirFiles) =>
-      val packageMarkdownFileName = dir.stripPrefix("experiments/src/main/scala/").replaceAllLiterally("/", "-") + ".md"
+      val packagedName = dir.stripPrefix("experiments/src/main/scala/")
 
-      println("Files in: " + packageMarkdownFileName)
-      dirFiles.foreach(println)
+      val proseFileOnSameTopic: Option[Path] =
+      proseFiles.find{proseFile => 
+          val fileNameRaw = proseFile.toFile.getName.toString().toLowerCase.stripSuffix(".md")
+          val fileNameClean =
+            if (fileNameRaw.contains("_"))
+              fileNameRaw.dropWhile(_ != '_').drop(1)
+            else fileNameRaw
+          fileNameClean == packagedName
+        }
 
-      val nf = manuscript / packageMarkdownFileName
-
-
-      nf.getParentFile.mkdirs()
 
       def fileFence(path: Path) = {
         val file = path.toFile
         val lines = IO.read(file)
         s"""
-           |
-           |### ${file.getName}
-           |```scala
-           | // ${file.getName}
-           |$lines
-           |```
-           |""".stripMargin
+          |
+          |### ${file.getName}
+          |```scala
+          | // ${file.getName}
+          |$lines
+          |```
+          |""".stripMargin
       }
 
       val allFences = dirFiles.map(fileFence)
 
-      val md =
-        s"""## ${packageMarkdownFileName.stripSuffix(".md")}
-           |
-           | ${allFences.mkString}
-           |""".stripMargin
+      proseFileOnSameTopic match {
+        case Some(value) => {
+          println("Should append to existing file for: " + value)
+          val chapterExperiments =
+            s"""
+                |## Automatically attached experiments.
+                | These are included at the end of this 
+                | chapter because their package in the
+                | experiments directory matched the name
+                | of this chapter. Enjoy working on the
+                | code with full editor capabilities :D
+                | 
+                | ${allFences.mkString}
+            """.stripMargin
+          IO.append(value.toFile, chapterExperiments)
+        }
+        case None => {
+          println("Legacy behavior")
+          // if (packagedName.contains("/"))
+          //   println("Subpackaged name: " + packagedName)
+          // else
+          //   println("Unpackaged name: " + packagedName)
+
+          val packageMarkdownFileName = packagedName.replaceAllLiterally("/", "-") + ".md"
+
+          // println("Files in: " + packageMarkdownFileName)
+          // dirFiles.foreach(println)
+
+          val nf = manuscript / packageMarkdownFileName
 
 
-      Files.write(nf.toPath, md.getBytes)
+          nf.getParentFile.mkdirs()
 
-      IO.append(manuscript / "Book.txt", packageMarkdownFileName + "\n")
+          val md =
+            s"""## ${packageMarkdownFileName.stripSuffix(".md")}
+              |
+              | ${allFences.mkString}
+              |""".stripMargin
+
+
+          Files.write(nf.toPath, md.getBytes)
+
+          IO.append(manuscript / "Book.txt", packageMarkdownFileName + "\n")
+
+        }
+      }
   }
 
 //  experimentsFiles.foreach { f =>
@@ -286,3 +330,5 @@ generateExamples := generateExamplesTask.value
 mdDir := file("Chapters")
 
 examplesDir := file("Examples/src/main/scala")
+
+Global / onChangedBuildSource := ReloadOnSourceChanges
