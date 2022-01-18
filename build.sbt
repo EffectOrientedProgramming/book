@@ -118,6 +118,9 @@ genManuscript := {
   // val proseFiles =  Files.walk(manuscript.toPath).iterator().asScala.toList.filter(_.endsWith(".md"))
 
   //  experimentsFiles.toList.foreach( file => println("Path: " + file.toAbsolutePath.toString.replaceAllLiterally("/"  + file.getFileName.toString, "")))
+
+  val lines = IO.read(manuscript / "Book.txt")
+  println(lines)
   val groupedFiles: Map[String, List[Path]] =
     experimentsFiles.toList.groupBy( file => file.toString.replaceAllLiterally("/"  + file.getFileName.toString, ""))
   groupedFiles.foreach {
