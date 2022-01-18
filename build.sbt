@@ -95,7 +95,7 @@ lazy val genManuscript = inputKey[Unit]("Make manuscript")
 
 genManuscript := {
   val manuscript = mdocOut.value
-  cleanManuscript.value
+  // cleanManuscript.value
 
   (Compile / scalafmt).value
   (booker / Compile / scalafmt).value
