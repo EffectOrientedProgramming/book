@@ -1,4 +1,4 @@
-package scenarios
+package time
 
 import zio.Duration
 import zio.Clock

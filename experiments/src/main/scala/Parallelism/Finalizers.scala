@@ -1,7 +1,5 @@
 package Parallelism
 
-import antipatterns.SomeNewClass
-
 import java.io.IOException
 import zio.Console.printLine
 import zio.Console

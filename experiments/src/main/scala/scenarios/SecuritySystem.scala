@@ -7,6 +7,7 @@ import zio.Console.printLine
 import zio.durationInt
 import zio.Schedule
 import scala.concurrent.TimeoutException
+import time.scheduledValues
 
 case class TempSense(
     z: ZIO[
