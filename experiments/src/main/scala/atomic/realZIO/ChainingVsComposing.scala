@@ -54,18 +54,6 @@ class ChainingVsComposing:
   val combined =
     getInfo(userId).zipPar(zillow(zipCode))
 
-//  val exploreChainingPar: ZIO[
-//    Any,
-//    UserNotFound |
-//      NetworkError |
-//      NoGoodHouseAvailable,
-//    Home
-//  ] =
-// combined.flatMap((userInfo, houseListings)
-  // =>
-//      buyBestHouse(userInfo, houseListings)
-//    )
-
   val finalHouse: ZIO[
     Any,
     UserNotFound |
