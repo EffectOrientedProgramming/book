@@ -44,8 +44,8 @@ val apiKey = sys.env.get("API_KEY")
 This seems rather innocuous; however, it can be an annoying source of problems as your project is built and deployed across different environments. Given this API:
 
 ```scala mdoc
-trait TravelApi:
-  def cheapestHotel(
+trait HotelApi:
+  def cheapest(
       zipCode: String,
       apiKey: String
   ): Either[Error, Hotel]
@@ -57,8 +57,8 @@ case class Error(msg: String)
 ```scala mdoc:invisible
 import scala.util.{Either, Left, Right}
 
-object TravelApiImpl extends TravelApi:
-  def cheapestHotel(
+object HotelApiImpl extends HotelApi:
+  def cheapest(
       zipCode: String,
       apiKey: String
   ): Either[Error, Hotel] =
@@ -86,12 +86,12 @@ Our business logic now looks like this:
 
 ```scala mdoc
 def fancyLodgingUnsafe(
-    travelApi: TravelApi
+    hotelApi: HotelApi
 ): Either[Error, Hotel] =
   for
     apiKey <- envRequiredUnsafe("API_KEY")
     hotel <-
-      travelApi.cheapestHotel("90210", apiKey)
+      hotelApi.cheapest("90210", apiKey)
   yield hotel
 ```
 
@@ -100,7 +100,7 @@ When you look up an Environment Variable, you are accessing information that was
 **Your Machine:**
 
 ```scala mdoc:width=47
-fancyLodgingUnsafe(TravelApiImpl)
+fancyLodgingUnsafe(HotelApiImpl)
 ```
 
 **Collaborator's Machine:**
@@ -110,7 +110,7 @@ sys.env.environment = NewDeveloper
 ```
 
 ```scala mdoc:width=47
-fancyLodgingUnsafe(TravelApiImpl)
+fancyLodgingUnsafe(HotelApiImpl)
 ```
 
 **Continuous Integration Server:**
@@ -120,7 +120,7 @@ sys.env.environment = CIServer
 ```
 
 ```scala mdoc:width=47
-fancyLodgingUnsafe(TravelApiImpl)
+fancyLodgingUnsafe(HotelApiImpl)
 ```
 
 On your own machine, everything works as expected.
@@ -180,8 +180,8 @@ def fancyLodgingSafe()
         .mapError(_ =>
           Error("Unconfigured Environment")
         )
-  yield TravelApiImpl
-    .cheapestHotel("90210", apiKey)
+  yield HotelApiImpl
+    .cheapest("90210", apiKey)
 ```
 
 This is safe, but it is not the easiest code to read.
@@ -210,8 +210,8 @@ def fancyLodgingFocused()
     : ZIO[System, Error, Either[Error, Hotel]] =
   for
     apiKey <- envRequired("API_KEY")
-  yield TravelApiImpl
-    .cheapestHotel("90210", apiKey)
+  yield HotelApiImpl
+    .cheapest("90210", apiKey)
 ```
 
 Next, we flatten our two `Error` possibilities into the one failure channel.
@@ -223,8 +223,8 @@ def fancyLodgingSingleError()
     apiKey <- envRequired("API_KEY")
     hotel <-
       ZIO.fromEither(
-        TravelApiImpl
-          .cheapestHotel("90210", apiKey)
+        HotelApiImpl
+          .cheapest("90210", apiKey)
       )
   yield hotel
 ```
@@ -232,12 +232,12 @@ def fancyLodgingSingleError()
 Finally, we move our API ZIO-wrapping to a small function.
 
 ```scala mdoc
-def cheapestHotelZ(
+def cheapestZ(
     zipCode: String,
     apiKey: String
 ) =
   ZIO.fromEither(
-    TravelApiImpl.cheapestHotel("90210", apiKey)
+    HotelApiImpl.cheapest("90210", apiKey)
   )
 ```
 
@@ -249,7 +249,7 @@ def fancyLodgingFinal()
     : ZIO[System, Error, Hotel] =
   for
     apiKey <- envRequired("API_KEY")
-    hotel  <- cheapestHotelZ("90210", apiKey)
+    hotel  <- cheapestZ("90210", apiKey)
   yield hotel
 ```
 
@@ -257,12 +257,12 @@ Original, unsafe:
 
 ```scala mdoc:nest
 def fancyLodgingUnsafe(
-    travelApi: TravelApi
+    hotelApi: HotelApi
 ): Either[Error, Hotel] =
   for
     apiKey <- envRequiredUnsafe("API_KEY")
     hotel <-
-      travelApi.cheapestHotel("90210", apiKey)
+      hotelApi.cheapest("90210", apiKey)
   yield hotel
 ```
 
@@ -360,7 +360,7 @@ def fancyLodgingZ(): ZIO[
 ] =
   for
     apiKey <- zio.System.env("API_KEY")
-  yield TravelApiImpl.cheapestHotel(
+  yield HotelApiImpl.cheapest(
     "90210",
     apiKey.get // unsafe! TODO Use either
   )
