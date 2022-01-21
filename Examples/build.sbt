@@ -23,6 +23,6 @@ libraryDependencies ++=
     // Postgres Async
     "io.getquill" %% "quill-jasync-postgres" % "3.7.2.Beta1.4",
     "io.github.arkinator" % "mockserver-client-java" % "5.11.7",
-    "org.apache.kafka" % "kafka-clients" % "3.0.0",
+    "org.apache.kafka" % "kafka-clients" % "3.1.0",
     "org.postgresql" % "postgresql" % "42.3.1"
   )
