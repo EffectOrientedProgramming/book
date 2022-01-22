@@ -151,7 +151,7 @@ genManuscript := {
           |""".stripMargin
       }
 
-      val allFences = dirFiles.map(fileFence)
+      val allFences = dirFiles.sortBy(_.getFileName.toString).map(fileFence)
 
       proseFileOnSameTopic match {
         case Some(value) => {
