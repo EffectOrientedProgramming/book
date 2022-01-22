@@ -143,9 +143,8 @@ genManuscript := {
         val lines = IO.read(file)
         s"""
           |
-          |### ${file.getName}
+          |### ${file.toString}
           |```scala
-          | // ${file.getName}
           |$lines
           |```
           |""".stripMargin
