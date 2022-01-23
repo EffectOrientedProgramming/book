@@ -99,6 +99,7 @@ genManuscript := {
 
   (Compile / scalafmt).value
   (booker / Compile / scalafmt).value
+  (experiments / Compile / compile).value
   (experiments / Compile / scalafmt).value
   (rube / Compile / scalafmt).value
 
