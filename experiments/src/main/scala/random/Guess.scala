@@ -39,53 +39,20 @@ def runSideEffectingGuessingGame =
 
 import zio.Console.printLine
 
-trait RandomInt:
-  def between(high: Int, low: Int): UIO[Int]
-
-object RandomInt:
-  def between(
-      low: Int,
-      high: Int
-  ): ZIO[RandomInt, Nothing, Int] =
-    // TODO Study and determine how/when to
-    // introduct `serviceWith`
-    ZIO
-      .service[RandomInt]
-      .flatMap(_.between(high, low))
-
-  object LiveRandomIntBetween extends RandomInt:
-
-    override def between(
-        high: Int,
-        low: Int
-    ): UIO[Int] =
-      ZIO.succeed(
-        scala.util.Random.between(low, high)
-      )
-end RandomInt
-
-class FakeRandomInt(hardcodedValue: Int)
-    extends RandomInt:
-
-  override def between(
-      high: Int,
-      low: Int
-  ): UIO[Int] = UIO.succeed(hardcodedValue)
-
 val effectfulGuessingGame =
   for
-    _      <- Console.print(prompt)
-    answer <- RandomInt.between(low, high)
-    guess  <- Console.readLine
+    _ <- Console.print(prompt)
+    answer <-
+      RandomBoundedInt.nextIntBetween(low, high)
+    guess <- Console.readLine
     response = checkAnswer(answer, guess)
   yield prompt + guess + "\n" + response
 
 @main
 def runEffectfulGuessingGame =
   unsafeRun(
-    effectfulGuessingGame.provide(
+    effectfulGuessingGame.provideLayer(
       ZLayer.succeed(FakeConsole.single("3")) ++
-        ZLayer
-          .succeed[RandomInt](FakeRandomInt(3))
+        RandomBoundedInt.live
     )
   )
