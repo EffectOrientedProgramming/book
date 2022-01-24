@@ -1,4 +1,4 @@
-package fakeEnvironmentInstances
+package random
 
 import zio.{
   BuildFrom,
@@ -14,51 +14,7 @@ import zio.Console.printLine
 
 import java.util.UUID
 
-trait RandomInt:
-  def nextIntBounded(n: Int): UIO[Int]
-  def nextInt: UIO[Int]
-  def nextIntBetween(
-      minInclusive: Int,
-      maxExclusive: Int
-  ): UIO[Int]
-
-class FakeRandomInt(hardcodedValue: Int)
-    extends RandomInt:
-  override def nextIntBounded(n: Int): UIO[Int] =
-    UIO.succeed(hardcodedValue)
-
-  override def nextInt: UIO[Int] =
-    UIO.succeed(hardcodedValue)
-  override def nextIntBetween(
-      minInclusive: Int,
-      maxExclusive: Int
-  ): UIO[Int] = UIO.succeed(hardcodedValue)
-
-object RandomInt:
-  object RandomIntLive extends RandomInt:
-    // Consider whether to re-implement from
-    // scratch
-    def nextIntBounded(n: Int): UIO[Int] =
-      Random.RandomLive.nextIntBounded(n)
-
-    def nextInt: UIO[Int] =
-      Random.RandomLive.nextInt
-    def nextIntBetween(
-        minInclusive: Int,
-        maxExclusive: Int
-    ): UIO[Int] =
-      Random
-        .RandomLive
-        .nextIntBetween(
-          minInclusive,
-          maxExclusive
-        )
-
-  val live: ZLayer[Any, Nothing, RandomInt] =
-    ZLayer.succeed(RandomIntLive)
-end RandomInt
-
-class FakeRandom(i: Int) extends Random:
+class RandomZIOFake(i: Int) extends Random:
   def nextUUID(implicit
       trace: ZTraceElement
   ): UIO[UUID] = ???
@@ -132,4 +88,4 @@ class FakeRandom(i: Int) extends Random:
       trace: ZTraceElement
   ): UIO[Collection[A]] = ???
 
-end FakeRandom
+end RandomZIOFake

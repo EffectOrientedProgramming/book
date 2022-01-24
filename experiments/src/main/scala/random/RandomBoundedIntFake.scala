@@ -2,21 +2,27 @@ package random
 
 import zio.{Ref, UIO, ZIO}
 
-class RandomBoundedIntFake private(
+class RandomBoundedIntFake private (
     values: Ref[Seq[Int]]
-) extends  RandomBoundedInt:
+) extends RandomBoundedInt:
   def nextIntBetween(
-                      minInclusive: Int,
-                      maxExclusive: Int
-                    ): UIO[Int] =
+      minInclusive: Int,
+      maxExclusive: Int
+  ): UIO[Int] =
     for
       remainingValues <- values.get
-      nextValue <- if (remainingValues.isEmpty)
-        ZIO.die(new Exception("Did not provide enough values!"))
-      else ZIO.succeed(remainingValues.head)
+      nextValue <-
+        if (remainingValues.isEmpty)
+          ZIO.die(
+            new Exception(
+              "Did not provide enough values!"
+            )
+          )
+        else
+          ZIO.succeed(remainingValues.head)
       _ <- values.set(remainingValues.tail)
     yield remainingValues.head
-      
+end RandomBoundedIntFake
 
 object RandomBoundedIntFake:
   def apply(

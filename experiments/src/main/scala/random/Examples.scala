@@ -5,9 +5,6 @@ import zio.{Tag, UIO, ZEnv, ZIO, ZIOAppArgs}
 import java.io.IOException
 import scala.util.Random
 
-// Anything that has a randomly generated
-// component is an effect
-
 def rollDice(): Int = Random.nextInt(6) + 1
 
 @main
@@ -40,11 +37,7 @@ import zio.{Tag, UIO, ZEnv, ZIOAppArgs, ZLayer}
 object randNumExZ extends ZIOApp:
   type Environment = RandomBoundedInt
 
-  val layer: ZLayer[
-    ZIOAppArgs,
-    Any,
-    RandomBoundedInt
-  ] = RandomBoundedInt.live
+  val layer = RandomBoundedInt.live
 
   val tag: Tag[RandomBoundedInt] =
     Tag[RandomBoundedInt]
@@ -56,11 +49,15 @@ object randNumExZ extends ZIOApp:
       _     <- ZIO.debug(roll2)
     yield ()
 
-def fullRoundZ(): String =
+val fullRoundZ
+    : ZIO[RandomBoundedInt, Nothing, String] =
   val roll1 = rollDice()
   val roll2 = rollDice()
 
-  (roll1, roll2) match
+  for
+    roll1 <- rollDiceZ()
+    roll2 <- rollDiceZ()
+  yield (roll1, roll2) match
     case (6, 6) =>
       "Jackpot! Winner!"
     case (1, 1) =>
