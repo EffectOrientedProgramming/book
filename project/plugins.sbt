@@ -20,7 +20,7 @@ addSbtPlugin(
 )
 
 addSbtPlugin(
-  "ch.epfl.scala" % "sbt-bloop" % "1.4.12"
+  "ch.epfl.scala" % "sbt-bloop" % "1032048a"
 )
 
 addSbtPlugin(
