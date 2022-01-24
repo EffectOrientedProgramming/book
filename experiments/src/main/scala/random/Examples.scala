@@ -72,7 +72,7 @@ val fullRoundZ
     case (_, _) =>
       "Nothing interesting. Try again."
 
-// The problem above is that you can isolate the winner logic and adequately test the program. The next example is not so simple
+// The problem above is that you can isolate the winner logic and adequately test the program. The next example cannot be split so easily.
 
 import zio.Ref
 
