@@ -64,9 +64,7 @@ object SecuritySystem:
     scenarios.MotionDetector,
     scenarios.HardwareFailure,
     scenarios.Pixels
-  ] =
-    ZIO
-      .environmentWithZIO(_.get.amountOfMotion())
+  ] = ZIO.serviceWithZIO(_.amountOfMotion())
 
   def securityLoop(
       amountOfHeatGenerator: ZIO[
@@ -291,11 +289,10 @@ object ThermalDetectorX:
       scenarios.Degrees
     ]
   ] =
-    ZIO.environmentWithZIO[
+    ZIO.serviceWithZIO[
       scenarios.ThermalDetectorX & Clock
     ](
-      _.get[scenarios.ThermalDetectorX]
-        .heatMeasurementSource()
+      _.heatMeasurementSource()
     )
 
 end ThermalDetectorX
@@ -337,11 +334,10 @@ object AcousticDetectorX:
       scenarios.Decibels
     ]
   ] =
-    ZIO.environmentWithZIO[
+    ZIO.serviceWithZIO[
       scenarios.AcousticDetectorX & Clock
     ](
-      _.get[scenarios.AcousticDetectorX]
-        .acquireDetector()
+      _.acquireDetector()
     )
 
 end AcousticDetectorX

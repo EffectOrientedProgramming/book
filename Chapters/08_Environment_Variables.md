@@ -162,8 +162,8 @@ object System:
   def env(
       variable: => String
   ): ZIO[System, Nothing, Option[String]] =
-    ZIO.environmentWithZIO[System](
-      _.get.env(variable)
+    ZIO.serviceWithZIO[System](
+      _.env(variable)
     )
 ```
 

@@ -83,12 +83,12 @@ The first two steps are enough for us to track Effects in our system, but the er
 val logicClunky: ZIO[Console, Nothing, Unit] =
   for
     _ <-
-      ZIO.environmentWithZIO[Console](
-        _.get.printLine("Hello")
+      ZIO.serviceWithZIO[Console](
+        _.printLine("Hello")
       )
     _ <-
-      ZIO.environmentWithZIO[Console](
-        _.get.printLine("World")
+      ZIO.serviceWithZIO[Console](
+        _.printLine("World")
       )
   yield ()
 
