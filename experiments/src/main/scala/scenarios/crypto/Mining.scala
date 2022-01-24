@@ -65,7 +65,7 @@ object Mining extends ZIOAppDefault:
       yield (name, prime)
   end Miner
 
-  def findNextBlock2(
+  def findNextBlock(
       miners: Seq[Miner],
       startNum: Int
   ): ZIO[
@@ -100,7 +100,7 @@ object Mining extends ZIOAppDefault:
         startNum <-
           nextIntBetween(20000000, 40000000)
         raceResult <-
-          findNextBlock2(miners, startNum)
+          findNextBlock(miners, startNum)
         (winner, winningPrime) = raceResult
         _ <- chain.update(_ :+ winningPrime)
         _ <-

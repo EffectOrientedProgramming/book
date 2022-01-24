@@ -1,9 +1,9 @@
 package scenarios.microcontrollers
 
-import zio.Console.{readLine, printLine}
-import zio.Console
-import zio.Clock.currentTime
+import zio.Console.{printLine, readLine}
 import zio.{
+  Clock,
+  Console,
   Fiber,
   IO,
   Ref,
@@ -15,10 +15,17 @@ import zio.{
   ZLayer,
   durationInt
 }
-import zio.Duration._
+import zio.Clock.{currentTime, instant}
+import zio.Duration.*
+
+import java.io.IOException
 import java.util.concurrent.TimeUnit
 
-case class DigitalPin(active: Boolean)
+case class DigitalPin private (active: Boolean)
+
+object DigitalPin:
+  object ON  extends DigitalPin(true)
+  object OFF extends DigitalPin(false)
 
 case class Arduino(pin1: DigitalPin):
 
@@ -32,22 +39,30 @@ case class Arduino(pin1: DigitalPin):
 object MicroControllerExample
     extends zio.ZIOAppDefault:
 
-  def turnOnPinAtRightTime() = ???
+  def turnOnPinAtRightTime(
+      inSeconds: Long,
+      startTime: Long
+  ) =
+    if ((inSeconds - startTime) % 4 > 2)
+      DigitalPin.ON
+    else
+      DigitalPin.OFF
 
   def loopLogic(
       startTime: Long,
       arduino: Ref[Arduino]
-  ) =
+  ): ZIO[Console with Clock, IOException, Unit] =
     for
       inSeconds <- currentTime(TimeUnit.SECONDS)
       originalArduino <- arduino.get
       originalLightStatus <-
         originalArduino.passSignalToLight()
       signalOnPin =
-        (inSeconds - startTime) % 6 > 3
-      _ <-
-        arduino
-          .set(Arduino(DigitalPin(signalOnPin)))
+        turnOnPinAtRightTime(
+          inSeconds,
+          startTime
+        )
+      _ <- arduino.set(Arduino(signalOnPin))
       updatedArduino <- arduino.get
       updatedLightStatus <-
         updatedArduino.passSignalToLight()
@@ -61,21 +76,17 @@ object MicroControllerExample
           ZIO.succeed(1)
     yield ()
 
-  def run = // Use App's run function
-    val logic =
-      for
-        arduino <-
-          Ref.make(
-            Arduino(pin1 = DigitalPin(false))
-          )
-        inSeconds <-
-          currentTime(TimeUnit.SECONDS)
-        _ <- printLine("startTime: " + inSeconds)
-        _ <-
-          loopLogic(inSeconds, arduino).repeat(
-            Schedule.recurs(60) &&
-              Schedule.spaced(100.milliseconds)
-          )
-      yield ()
-    logic.exitCode
+  def run =
+    for
+      arduino <-
+        Ref.make(Arduino(pin1 = DigitalPin.OFF))
+      inSeconds <- currentTime(TimeUnit.SECONDS)
+      _ <-
+        loopLogic(inSeconds, arduino).repeat(
+          // Can we calculate how long this is
+          // using Schedule APIs?
+          Schedule.recurs(60) &&
+            Schedule.spaced(100.milliseconds)
+        )
+    yield ()
 end MicroControllerExample

@@ -291,9 +291,7 @@ object ThermalDetectorX:
   ] =
     ZIO.serviceWithZIO[
       scenarios.ThermalDetectorX & Clock
-    ](
-      _.heatMeasurementSource()
-    )
+    ](_.heatMeasurementSource())
 
 end ThermalDetectorX
 
@@ -336,9 +334,7 @@ object AcousticDetectorX:
   ] =
     ZIO.serviceWithZIO[
       scenarios.AcousticDetectorX & Clock
-    ](
-      _.acquireDetector()
-    )
+    ](_.acquireDetector())
 
 end AcousticDetectorX
 
