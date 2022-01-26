@@ -28,6 +28,8 @@ object RandomBoundedIntFake:
   def apply(
       values: Seq[Int]
   ): ZLayer[Any, Nothing, RandomBoundedInt] =
-    (for
-      valuesR <- Ref.make(values)
-    yield new RandomBoundedIntFake(valuesR)).toLayer
+    (
+      for
+        valuesR <- Ref.make(values)
+      yield new RandomBoundedIntFake(valuesR)
+    ).toLayer
