@@ -58,9 +58,6 @@ object randNumExZ extends ZIOApp:
 
 val fullRoundZ
     : ZIO[RandomBoundedInt, Nothing, String] =
-  val roll1 = rollDice()
-  val roll2 = rollDice()
-
   for
     roll1 <- rollDiceZ()
     roll2 <- rollDiceZ()
@@ -72,7 +69,33 @@ val fullRoundZ
     case (_, _) =>
       "Nothing interesting. Try again."
 
-// The problem above is that you can isolate the winner logic and adequately test the program. The next example cannot be split so easily.
+// The problem above is that you can isolate the winner logic and adequately test the program.
+val fullRoundZSplit
+: ZIO[RandomBoundedInt, Nothing, String] =
+  val rollBothDie =
+    for
+      roll1 <- rollDiceZ()
+      roll2 <- rollDiceZ()
+    yield (roll1, roll2)
+
+  // Can be fully tested
+  def checkDie(roll1: Int, roll2: Int) =
+    (roll1, roll2)
+      match
+        case (6, 6) =>
+          "Jackpot! Winner!"
+        case (1, 1) =>
+          "Snake eyes! Loser!"
+        case (_, _) =>
+          "Nothing interesting. Try again."
+
+  for
+    rolls <- rollBothDie
+  yield checkDie(rolls._1, rolls._2)
+
+object FullRoundDecomposed
+
+// The next example cannot be split so easily.
 
 import zio.Ref
 
@@ -81,6 +104,8 @@ case class GameState()
 val threeChances =
   for
     remainingChancesR <- Ref.make(3)
+    gameResult <- Ref.make[Option[String]](None)
+
     _ <-
       (
         for
@@ -88,15 +113,23 @@ val threeChances =
           _    <- ZIO.debug(roll)
           remainingChances <-
             remainingChancesR.get
+          _ <- gameResult.set(
+            Option.when(roll == 6)("Winner!")
+          )
           _ <-
             remainingChancesR
               .set(remainingChances - 1)
         yield ()
       ).repeatWhileZIO(x =>
-        remainingChancesR.get.map(_ > 0)
+        for
+          remainingChancesValue <- remainingChancesR.get
+          gameResultValue <- gameResult.get
+        yield remainingChancesValue > 0 && gameResultValue.isEmpty
       )
+    finalGameResult <- gameResult.get
+    _ <- ZIO.debug("Final game result: " + finalGameResult)
   yield ()
 
 object ThreeChances extends ZIOAppDefault:
   def run =
-    threeChances.provide(RandomBoundedInt.live)
+    threeChances.provide(RandomBoundedIntFake.apply(Seq(2, 5, 6)))

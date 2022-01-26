@@ -1,6 +1,6 @@
 package random
 
-import zio.{Ref, UIO, ZIO}
+import zio.{Ref, UIO, ZIO, ZLayer}
 
 class RandomBoundedIntFake private (
     values: Ref[Seq[Int]]
@@ -27,7 +27,7 @@ end RandomBoundedIntFake
 object RandomBoundedIntFake:
   def apply(
       values: Seq[Int]
-  ): ZIO[Any, Nothing, RandomBoundedInt] =
-    for
+  ): ZLayer[Any, Nothing, RandomBoundedInt] =
+    (for
       valuesR <- Ref.make(values)
-    yield new RandomBoundedIntFake(valuesR)
+    yield new RandomBoundedIntFake(valuesR)).toLayer
