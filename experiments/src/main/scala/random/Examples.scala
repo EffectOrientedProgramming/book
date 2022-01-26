@@ -34,7 +34,7 @@ def fullRound(): String =
 @main
 def playUntilWinOrLoss() = println(fullRound())
 
-def rollDiceZ()
+val rollDiceZ
     : ZIO[RandomBoundedInt, Nothing, Int] =
   RandomBoundedInt.nextIntBetween(1, 7)
 
@@ -50,8 +50,8 @@ object randNumExZ extends ZIOApp:
     Tag[RandomBoundedInt]
   def run =
     for
-      roll1 <- rollDiceZ()
-      roll2 <- rollDiceZ()
+      roll1 <- rollDiceZ
+      roll2 <- rollDiceZ
       _     <- ZIO.debug(roll1)
       _     <- ZIO.debug(roll2)
     yield ()
@@ -59,8 +59,8 @@ object randNumExZ extends ZIOApp:
 val fullRoundZ
     : ZIO[RandomBoundedInt, Nothing, String] =
   for
-    roll1 <- rollDiceZ()
-    roll2 <- rollDiceZ()
+    roll1 <- rollDiceZ
+    roll2 <- rollDiceZ
   yield (roll1, roll2) match
     case (6, 6) =>
       "Jackpot! Winner!"
@@ -74,8 +74,8 @@ val fullRoundZSplit
 : ZIO[RandomBoundedInt, Nothing, String] =
   val rollBothDie =
     for
-      roll1 <- rollDiceZ()
-      roll2 <- rollDiceZ()
+      roll1 <- rollDiceZ
+      roll2 <- rollDiceZ
     yield (roll1, roll2)
 
   // Can be fully tested
@@ -99,22 +99,27 @@ object FullRoundDecomposed
 
 import zio.Ref
 
-case class GameState()
+enum GameState:
+  case GameInProgress(roundResult: String)
+  case Win
+  case Lose
 
 val threeChances =
   for
     remainingChancesR <- Ref.make(3)
-    gameResult <- Ref.make[Option[String]](None)
+    gameResult <- Ref.make[GameState](GameState.GameInProgress("Started"))
 
     _ <-
       (
         for
-          roll <- rollDiceZ()
+          roll <- rollDiceZ
           _    <- ZIO.debug(roll)
           remainingChances <-
             remainingChancesR.get
           _ <- gameResult.set(
-            Option.when(roll == 6)("Winner!")
+            if(roll == 6)
+              GameState.GameInProgress("Winner!")
+            else GameState.GameInProgress("Still playing. Last Attempt: " + roll)
           )
           _ <-
             remainingChancesR
@@ -124,7 +129,10 @@ val threeChances =
         for
           remainingChancesValue <- remainingChancesR.get
           gameResultValue <- gameResult.get
-        yield remainingChancesValue > 0 && gameResultValue.isEmpty
+        yield remainingChancesValue > 0 &&  (gameResultValue match  {
+          case GameState.GameInProgress(_) => true
+          case _ => false
+        })
       )
     finalGameResult <- gameResult.get
     _ <- ZIO.debug("Final game result: " + finalGameResult)
@@ -133,3 +141,8 @@ val threeChances =
 object ThreeChances extends ZIOAppDefault:
   def run =
     threeChances.provide(RandomBoundedIntFake.apply(Seq(2, 5, 6)))
+
+
+object FourceChances extends ZIOAppDefault:
+  def run =
+    threeChances.provide(RandomBoundedIntFake.apply(Seq(2, 5, 4, 1)))
