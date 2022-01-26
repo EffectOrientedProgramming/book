@@ -45,20 +45,20 @@ In practice this quickly becomes impossible.
 
 ```scala mdoc
 object OpenSourceLibrary:
-  def submitDataToExternalService(
+  def sendToService(
       payload: String
   ): Unit =
     println(s"NETWORK: Sending payload")
-    saveUserInfo(payload)
+    save(payload)
 
-  private def saveUserInfo(
+  private def save(
       userData: String
   ): Unit =
-    DataAnalytics.recordKeyDemographics(userData)
+    Analytics.demographicsFrom(userData)
     println(s"DATABASE: Saving data")
 
-object DataAnalytics:
-  def recordKeyDemographics(
+object Analytics:
+  def demographicsFrom(
       userData: String
   ): Unit =
     println(s"LOGGER: Key demographic found")
@@ -68,7 +68,7 @@ object DataAnalytics:
 ```scala mdoc
 def logic(): Unit =
   // ...Other calls...
-  OpenSourceLibrary.submitDataToExternalService(
+  OpenSourceLibrary.sendToService(
     "Network Payload"
   )
 // ...Other calls...
