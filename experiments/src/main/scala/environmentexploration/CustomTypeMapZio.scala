@@ -1,4 +1,4 @@
-package ZIOFromNothing
+package environmentexploration
 
 import scalaBasics.forComprehension
 
