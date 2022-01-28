@@ -1,1 +1,1 @@
-Explain and rebuild the Environment parameter of ZIO.
+Explain and recreate the Environment parameter of ZIO.

@@ -95,8 +95,9 @@ val logicClunky: ZIO[Console, Nothing, Unit] =
 import zio.Runtime.default.unsafeRun
 import zio.ZLayer
 unsafeRun(
-  logicClunky
-    .provide(ZLayer.succeed[Console](ConsoleLive))
+  logicClunky.provide(
+    ZLayer.succeed[Console](ConsoleLive)
+  )
 )
 ```
 

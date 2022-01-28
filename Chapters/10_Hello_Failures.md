@@ -18,7 +18,7 @@ class GpsException()     extends RuntimeException
 class NetworkException() extends RuntimeException
 
 enum Demo:
-  case Success, NetworkError,GPSError 
+  case Success, NetworkError, GPSError
 
 def getTemperature(behavior: Demo): String =
   if (behavior == Demo.GPSError)
@@ -67,9 +67,7 @@ This is *slightly* better, as the user can at least see the outer structure of o
 Maybe we could fallback to a `sentinel` value, such as `0` or `-1` to indicate a failure?
 
 ```scala mdoc:nest
-def currentTemperature(
-    behavior: Demo
-): String =
+def currentTemperature(behavior: Demo): String =
   try
     "Temperature: " + getTemperature(behavior)
   catch
@@ -83,9 +81,7 @@ Clearly, this isn't acceptable, as both of these common sentinel values are vali
 We can take a more honest and accurate approach in this situation.
 
 ```scala mdoc:nest
-def currentTemperature(
-    behavior: Demo
-): String =
+def currentTemperature(behavior: Demo): String =
   try
     "Temperature: " + getTemperature(behavior)
   catch
@@ -101,9 +97,7 @@ In this situation, do we show the same message to the user? Ideally, we would sh
 The Network issue is transient, but the GPS problem is likely permanent.
 
 ```scala mdoc:nest
-def currentTemperature(
-    behavior: Demo
-): String =
+def currentTemperature(behavior: Demo): String =
   try
     "Temperature: " + getTemperature(behavior)
   catch
