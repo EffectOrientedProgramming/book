@@ -110,11 +110,16 @@ genManuscript := {
   val experimentsFiles = Files.walk(file("experiments/src").toPath).iterator().asScala.filter(_.toFile.ext == "scala")
 
   val nf = manuscript / "ExperimentsSection.md"
-  Files.write(nf.toPath, "# Experiments".getBytes)
+  val experimentsHeaderContent = 
+    "# Experiments\n\n" +
+    "These experiments are not currently attached to a chapter, but are included for previewing. Before publication, we should not have any lingering experiments here.\n\n"
+  Files.write(nf.toPath, experimentsHeaderContent.getBytes)
 
   IO.append(manuscript / "Book.txt", nf.toString + "\n")
 
-  val proseFiles =  Files.walk(manuscript.toPath).iterator().asScala.toList.filter(_.toFile.getName.endsWith(".md"))
+  val proseFiles =  Files.walk(manuscript.toPath).iterator().asScala.toList.filter(_.toFile.getName.endsWith(".md")).sortBy(_.toFile.getName)
+  val lastProseFile = proseFiles.last.toFile().getName().takeWhile(_ != '=')
+  println(lastProseFile)
 
   // val proseFiles =  Files.walk(manuscript.toPath).iterator().asScala.toList.filter(_.endsWith(".md"))
 
