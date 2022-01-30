@@ -2,7 +2,7 @@
 
 > A function can take any number of inputs, but it can only return a single result.
 
-We often need to convey more information than can fit into a simple result.
+We often need a function to produce more information than can fit into a simple result.
 The programmer is forced to use side effects to express all the outcomes of a function call.
 Side effects produce unpredictable results and an unpredictable program is unreliable.
 
@@ -18,32 +18,8 @@ If there's a problem, you must handle it right after the function is called, whi
 People probably won't use our system unless we figure out a way to simplify and automate the use of these boxes.
 
 What if we had a standard set of operations that work on all boxes, to make our system easy to use by eliminating all that duplicated code?
-The box---and these associated operations---is a monad.
-
-## Concepts Used in this Chapter
-
-### General Programming
-
-- Sub-typing
-- If/else
-- String interpolation
-- List
-  - Applying functions to elements of a list via `foreach`
-
-### Scala Specific
-
-- case classes
-- Type comes after `identifier:`
-- Functions
-  - Last line is the result
-- Vals
-- Everything is an expression
-- Significant Indention / End Marker
-- Match / cases
-- Destructuring through unapply
-- How our examples work (MDoc)
-  - Result shows on next line
-  - Console output shows as following comments
+The box---and these associated operations---is a monad. 
+Mathematicians often say, *A monad embeds an object into an object with a richer structure*.
 
 ## The Error Monad
 
@@ -73,7 +49,7 @@ Exceptions have problems:
 
 1. They aren't typed.
    Java's checked exceptions provide a small amount of type information, but it's not that helpful compared to a full type system.
-   And unchecked exceptions provide no information at all.
+   Unchecked exceptions provide no information at all.
 
 1. Because they are handled dynamically, the only way to ensure your program
    won't crash is by testing it through all possible execution paths. A
@@ -83,22 +59,22 @@ Exceptions have problems:
 1. They don't scale.
    {{Need to think about this more to make the case.}}
 
-1. Hard to reason about(?)
+1. Hard to reason about. {{Also need to make this case}}
 
 1. Difficult or impossible to retry an operation if it fails.
-   Java uses the "termination" model of exception handling.
+   Java {{and Scala?}} use the "termination" model of exception handling.
    This assumes the error is so critical there's no way to get back to where the exception occurred.
    If you're performing an operation that you'd like to retry if it fails, exceptions don't help much.
 
 Exceptions were a valiant attempt to produce a consistent error-reporting interface, and they are definitely better than what's in C.
 But they don't end up solving the problem very well, and you just don't know what you're going to get when you use exceptions.
 
-What if we make a box called `Result` containing *both* the success-path value together with error information if it fails?
+What if we make a `Box` containing *both* the success-path value together with error information if it fails?
 For simplicity, both the error information and the success data are `String`s:
 
 ```scala mdoc
-case class Fail(why: String)     extends Result
-case class Success(data: String) extends Result
+case class Fail(why: String)     extends Box
+case class Success(data: String) extends Box
 ```
 
 If you reach a point in a function where something goes wrong, you return a `Fail` with failure information stored in `why`.
@@ -106,15 +82,15 @@ If you get all the way through the function without any failures, you return a `
 
 The Scala `for` comprehension is designed to work with monads.
 The `<-` in a `for` comprehension *automatically checks and unpacks a monad!*
-The monad does not have to be a standard or built-in type; you can write one yourself as we've done with `Result` (whose definition is shown later in this chapter, after you understand what it needs to do).
-Let's see how `Result` works:
+The monad does not have to be a standard or built-in type; you can write one yourself as we've done with `Box` (whose definition is shown later in this chapter, after you understand what it needs to do).
+Let's see how `Box` works:
 
 ```scala mdoc
 def check(
     step: String,
     stop: String,
     history: String
-): Result =
+): Box =
   val result =
     if step == stop then
       Fail(history + step)
@@ -128,7 +104,7 @@ def check(
 If they're equal, it returns a `Fail` object, otherwise it returns a `Success` object.
 
 ```scala mdoc
-def compose(stop: String): Result =
+def compose(stop: String): Box =
   for
     a: String <- check("a", stop, "")
     b: String <- check("b", stop, a)
@@ -143,7 +119,7 @@ def compose(stop: String): Result =
 The `for` comprehension attempts to execute three calls to `check`, each of which takes the next value of `step` in alphabetic succession.
 Each expression uses the backwards-arrow `<-` to assign the result to a `String` value.
 That value is passed to `check` in the subsequent expression in the comprehension.
-If all three expressions execute successfully, the `yield` expression uses `c` to produce the final `Result` value which is returned from the function.
+If all three expressions execute successfully, the `yield` expression uses `c` to produce the final `Box` value which is returned from the function.
 
 What happens if a call to `check` fails?
 We'll call `compose` with successive values of `stop` from `"a"` to `"d"`:
@@ -161,7 +137,7 @@ That result is `Fail` and *no further lines in `compose` are executed*.
 The `a` to the left of the `<-` is never initialized, nor are `b` or `c`.
 The resulting value of `compose` becomes the value returned by `flatMap`, which is `Fail(a)`.
 
-The `Result` returned by `compose` can be checked for failure, and error-handling can be executed if `Fail` is found.
+The `Box` returned by `compose` can be checked for failure, and error-handling can be executed if `Fail` is found.
 All the error-handling for `compose` can be in one place, in the same way that a `catch` clause combines error-handling code.
 
 ```scala mdoc
@@ -178,7 +154,7 @@ compose("c")
 
 Now we get all the way to the third expression in the `for` comprehension before it fails.
 But notice that in this case `map` is called rather than `flatMap`.
-The last `<-` in a `for` comprehension calls `map` instead of `flatMap`, for reasons that will become clear.
+The last `<-` in a `for` comprehension calls `map` instead of `flatMap`, for reasons we explain shortly.
 
 Finally, `stop = "d"` successfully makes it through the entire initialization for `compose`:
 
@@ -190,7 +166,7 @@ The return value of `check("c", stop, b)` is `Success(abc)` and this is used to 
 
 The `yield` expression produces the final result returned by `compose`.
 You should find all potential problems by the time you reach `yield`, so the `yield` expression should not be able to fail.
-Note that `c` is of type `String` but `compose` is of type `Result`.
+Note that `c` is of type `String` but `compose` is of type `Box`.
 The `yield` expression is automatically wrapped in a `Success` object.
 
 We `compose` a result from multiple expressions and the whole `for` comprehension will either succeed or fail.
@@ -208,12 +184,12 @@ compose("a") match
 `case Fail` becomes the equivalent of the `catch` clause in exception handling, so all the error handling for `compose` is now isolated in one place, just as in a `catch` clause.
 
 You can see in the output from the various calls to `compose` that the compiler responds to a `<-` within a `for` comprehension by calling `flatMap` or `map`.
-Thus, it looks like our `Result` must have `flatMap` and `map` methods in order to allow these calls.
-Here's the definition of `Result`:
+Thus, it looks like our `Box` must have `flatMap` and `map` methods in order to allow these calls.
+Here's the definition of `Box`:
 
 ```scala mdoc
-trait Result:
-  def flatMap(f: String => Result): Result =
+trait Box:
+  def flatMap(f: String => Box): Box =
     println(s"flatMap on $this")
     this match
       case fail: Fail =>
@@ -221,7 +197,7 @@ trait Result:
       case Success(c) =>
         f(c)
 
-  def map(f: String => String): Result =
+  def map(f: String => String): Box =
     println(s"map on $this")
     this match
       case fail: Fail =>
@@ -232,7 +208,7 @@ trait Result:
 
 The code in the two methods is almost identical.
 Each receives a function `f` as an argument.
-Each checks the subtype of the current (`Result`) object.
+Each checks the subtype of the current (`Box`) object.
 A `Fail` just returns that `Fail` object, and never calls `f`.
 Only a `Success` causes `f` to be evaluated.
 In `flatMap`, `f` is called on the contents of the `Success`.
@@ -246,12 +222,11 @@ These are generic so they work with any type.
 
 TODO {{This explanation is confusing}}
 TODO {{Convey that it holds generic types}}
-`Either` looks just like our `Result` monad but with different names.
-People commonly use `Either` to produce the same effect as `Result`.
-Our `Fail` becomes `Left` in `Either`, and our `Success` becomes `Right`.
+People commonly use `Either` to produce the same effect as `Box`.
+The `Fail` in `Box` becomes `Left` in `Either`, and the `Success` in `Box` becomes `Right` in `Either`.
 `Either` has numerous additional methods beyond `map` and `flatMap`, so it is much more full-featured.
 
-X> **Exercise 1:** Modify `ShowResult` to use `Either` instead of `Result`.
+X> **Exercise 1:** Modify `ShowBox` {{From where???}} to use `Either` instead of `Box`.
 X> Your output should look like this:
 
 ```scala mdoc:invisible
@@ -333,7 +308,7 @@ List("a", "b", "c", "d").foreach(solution2)
 `None` simply means that there is no value, which isn't necessarily an error.
 For example, if you look something up in a `Map`, there might not be a value for your key, so returning an `Option` of `None` is a common and reasonable result.
 
-X> **Exercise 3:** Modify `ShowResult` to work with `Option` instead of `Result`.
+X> **Exercise 3:** Modify `ShowBox` to work with `Option` instead of `Box`.
 X> Your output should look like this:
 
 ```scala mdoc:invisible
@@ -369,15 +344,15 @@ def solution3(stop: Int) =
 List(1, 2, 3, 4).foreach(solution3)
 ```
 
-X> **Exercise 4:** Modify `Result` so it is an `enum` instead of a `trait`.
-X> Modify `ShowResult` to demonstrate this new `enum ResultEnum`.
+X> **Exercise 4:** Modify `Box` so it is an `enum` instead of a `trait`.
+X> Modify `ShowBox` to demonstrate this new `enum BoxEnum`.
 X> Your output should look like this:
 
 ```scala mdoc:invisible
-enum ResultEnum:
+enum BoxEnum:
   def flatMap(
-      f: String => ResultEnum
-  ): ResultEnum =
+      f: String => BoxEnum
+  ): BoxEnum =
     println(s"flatMap on $this")
     this match
       case SuccessRE(c) =>
@@ -385,7 +360,7 @@ enum ResultEnum:
       case fail: FailRE =>
         fail
 
-  def map(f: String => String): ResultEnum =
+  def map(f: String => String): BoxEnum =
     println(s"map on $this")
     this match
       case SuccessRE(c) =>
@@ -396,17 +371,17 @@ enum ResultEnum:
   case FailRE(why: String)
   case SuccessRE(data: String)
 
-end ResultEnum
+end BoxEnum
 ```
 
 ```scala mdoc:invisible
-import ResultEnum.*
+import BoxEnum.*
 
 def checkRE(
     step: Int,
     stop: Int,
     msg: String
-): ResultEnum =
+): BoxEnum =
   val result =
     if step == stop then
       FailRE(msg + step)
@@ -431,8 +406,8 @@ List(1, 2, 3, 4).foreach(solution4)
 
 ## Understanding the `for` Comprehension
 
-At this point you should have a sense of what a `for` comprehension is doing, but *how* it does it is still a bit mysterious.
-We can use the `Either` predefined monad to understand it better.
+At this point you should have a sense of what a `for` comprehension is doing, but *how* it does this is still mysterious.
+We can use the `Either` monad to understand it better.
 Here, each expression in `fc1` uses `Right`, so each one can never fail.
 This doesn't matter because we just want to look at the structure of the code:
 
@@ -442,7 +417,7 @@ val fc1 =
     a <- Right("A")
     b <- Right("B")
     c <- Right("C")
-  yield s"Result: $a $b $c"
+  yield s"Box: $a $b $c"
 ```
 
 Because we never created a `Left`, Scala decided that the `Left` type should be `Nothing`.
@@ -457,7 +432,7 @@ The result looks like this:
 val fc2 =
   Right("A").flatMap(a =>
     Right("B").flatMap(b =>
-      Right("C").map(c => s"Result: $a $b $c")
+      Right("C").map(c => s"Box: $a $b $c")
     )
   )
 ```
@@ -465,9 +440,9 @@ val fc2 =
 The `for` comprehension left-arrow `<-` generates a call to `flatMap`.
 Notice that the argument to `flatMap` is a function.
 
-Now look back at `flatMap` in `Result`.
+Now look back at `flatMap` in `Box`.
 In the `Fail` case (which is `Left` for `Either`), `flatMap` just returns the `Fail` object and *doesn't call that function.*
-Here, in the `Right` case (which is like `Success` for `Result`), the function is called and produces `Right("B")` ... with another call to `flatMap`.
+Here, in the `Right` case (which is `Success` for `Box`), the function is called and produces `Right("B")` ... with another call to `flatMap`.
 This `flatMap` argument is another function, which is again not called in the `Left` case.
 In the `Right` case, it returns `Right("C")` ... with another call, but this time to `map`.
 The argument to `map` is another function, again not called in the `Left` case.
@@ -476,7 +451,7 @@ Also, `map` wraps the `yield` expression in a `Right`, unlike `flatMap`.
 
 Because of this cascade of functions within functions, any `flatMap` or `map` called on a `Left` result *will not evaluate the rest of the cascade.*
 It stops the evaluation and returns `Left` at that point, and the `Left` becomes the result of the expression.
-This cascaded expression is thus only evaluated up to the point where a `Left` first appears.
+This cascaded expression is thus only evaluated until a `Left` appears.
 The rest of the expression can be thought of as being short-circuited at that point.
 
 There's another benefit of this cascade of function calls: `a`, `b` and `c` are all in scope by the time you reach the `yield` expression that is the `map` argument.
@@ -491,12 +466,12 @@ val solution5a =
     a <- Some("A")
     b <- Some("B")
     c <- Some("C")
-  yield s"Result: $a $b $c"
+  yield s"Box: $a $b $c"
 
 val solution5b =
   Some("A").flatMap(a =>
     Some("B").flatMap(b =>
-      Some("C").map(c => s"Result: $a $b $c")
+      Some("C").map(c => s"Box: $a $b $c")
     )
   )
 ```
