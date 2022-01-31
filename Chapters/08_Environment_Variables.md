@@ -254,10 +254,27 @@ import mdoc.unsafeRunPrettyPrint
 sys.env.environment = OriginalDeveloper
 ```
 
+```scala mdoc:silent
+// TODO Do this for CI environment too
+val originalAuthor =
+  new HotelApiZ:
+    def cheapest(
+        zipCode: String,
+        apiKey: String
+    ): ZIO[System, Error, Hotel] =
+      ZIO.fromEither(
+        HotelApiImpl.cheapest("90210", apiKey)
+      )
+
+val originalAuthorLayer =
+  ZLayer.succeed[System](SystemLive) ++
+    ZLayer.succeed(originalAuthor)
+```
+
 ```scala mdoc:fail
 unsafeRunPrettyPrint(
   fancyLodging
-    .provide(ZLayer.succeed[System](SystemLive))
+    .provideLayer(originalAuthorLayer)
 )
 ```
 
@@ -295,10 +312,26 @@ unsafeRunPrettyPrint(
 sys.env.environment = CIServer
 ```
 
+```scala mdoc:silent
+val ci =
+  new HotelApiZ:
+    def cheapest(
+        zipCode: String,
+        apiKey: String
+    ): ZIO[System, Error, Hotel] =
+      ZIO.fromEither(
+        HotelApiImpl.cheapest("90210", apiKey)
+      )
+
+val ciLayer =
+  ZLayer.succeed[System](SystemLive) ++
+    ZLayer.succeed(ci)
+```
+
 ```scala mdoc:fail
 unsafeRunPrettyPrint(
   fancyLodging
-    .provide(ZLayer.succeed[System](SystemLive))
+    .provide(ciLayer)
 )
 ```
 
@@ -318,14 +351,29 @@ case class SystemHardcoded(
 
 We can now provide this to our logic, for testing both the success and failure cases.
 
+```scala mdoc:silent
+val testApi =
+  new HotelApiZ:
+    def cheapest(
+        zipCode: String,
+        apiKey: String
+    ): ZIO[System, Error, Hotel] =
+      ZIO.fromEither(
+        HotelApiImpl.cheapest("90210", apiKey)
+      )
+
+val testApiLayer =
+  ZLayer.succeed[System](
+    SystemHardcoded(
+      Map("API_KEY" -> "Invalid Key")
+    )
+  ) ++ ZLayer.succeed(testApi)
+```
+
 ```scala mdoc:fail
 unsafeRun(
   fancyLodging.provide(
-    ZLayer.succeed[System](
-      SystemHardcoded(
-        Map("API_KEY" -> "Invalid Key")
-      )
-    )
+    testApiLayer
   )
 )
 ```
