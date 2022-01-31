@@ -285,7 +285,7 @@ val colaboraterLayer =
 
 ```scala mdoc:fail
 unsafeRunPrettyPrint(
-  fancyLodging().provideLayer(colaboraterLayer)
+  fancyLodging.provideLayer(colaboraterLayer)
 )
 ```
 
@@ -297,7 +297,7 @@ sys.env.environment = CIServer
 
 ```scala mdoc:fail
 unsafeRunPrettyPrint(
-  fancyLodging()
+  fancyLodging
     .provide(ZLayer.succeed[System](SystemLive))
 )
 ```
@@ -320,7 +320,7 @@ We can now provide this to our logic, for testing both the success and failure c
 
 ```scala mdoc:fail
 unsafeRun(
-  fancyLodgingFocused().provide(
+  fancyLodging.provide(
     ZLayer.succeed[System](
       SystemHardcoded(
         Map("API_KEY" -> "Invalid Key")
