@@ -66,7 +66,6 @@ object HotelApiImpl extends HotelApi:
       Right(Hotel("Eddy's Roach Motel"))
     else
       Left(Error("Invalid API Key"))
-
 ```
 
 To augment the built-in environment function, we will create a wrapper.
@@ -192,26 +191,24 @@ trait HotelApiZ:
       apiKey: String
   ): ZIO[System, Error, Hotel]
 
-object  HotelApiZ:
+object HotelApiZ:
   def cheapest(
       zipCode: String,
       apiKey: String
-
   ): ZIO[System with HotelApiZ, Error, Hotel] =
-  ZIO.serviceWithZIO[HotelApiZ](
-    _.cheapest(zipCode, apiKey)
-  )
-
-  val live = new HotelApiZ:
-    def cheapest(
-        zipCode: String,
-        apiKey: String
-
-    ): ZIO[System, Error, Hotel] =
-    ZIO.fromEither(
-      HotelApiImpl.cheapest("90210", apiKey)
+    ZIO.serviceWithZIO[HotelApiZ](
+      _.cheapest(zipCode, apiKey)
     )
 
+  val live =
+    new HotelApiZ:
+      def cheapest(
+          zipCode: String,
+          apiKey: String
+      ): ZIO[System, Error, Hotel] =
+        ZIO.fromEither(
+          HotelApiImpl.cheapest("90210", apiKey)
+        )
 ```
 This helps us keep a flat `Error` channel when we write our domain logic.
 
@@ -270,27 +267,25 @@ sys.env.environment = NewDeveloper
 ```
 
 ```scala mdoc:silent
-
 // TODO Do this for CI environment too
-val collaborater = new HotelApiZ:
-  def cheapest(
-      zipCode: String,
-      apiKey: String
-
-  ): ZIO[System, Error, Hotel] =
-  ZIO.fromEither(
-    HotelApiImpl.cheapest("90210", apiKey)
-  )
+val collaborater =
+  new HotelApiZ:
+    def cheapest(
+        zipCode: String,
+        apiKey: String
+    ): ZIO[System, Error, Hotel] =
+      ZIO.fromEither(
+        HotelApiImpl.cheapest("90210", apiKey)
+      )
 
 val colaboraterLayer =
-  ZLayer.succeed[System](SystemLive) ++ ZLayer.succeed(collaborater)
+  ZLayer.succeed[System](SystemLive) ++
+    ZLayer.succeed(collaborater)
 ```
 
 ```scala mdoc:fail
-
 unsafeRunPrettyPrint(
-  fancyLodging()
-    .provideLayer(colaboraterLayer)
+  fancyLodging().provideLayer(colaboraterLayer)
 )
 ```
 

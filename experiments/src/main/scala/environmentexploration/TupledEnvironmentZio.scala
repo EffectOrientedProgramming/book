@@ -38,7 +38,9 @@ def demoSingleEnvironmentInstance =
 
   val repeatMessage
       : TupledEnvironmentZio[Int, String] =
-    TupledEnvironmentZio(env => s"Message \n" * env)
+    TupledEnvironmentZio(env =>
+      s"Message \n" * env
+    )
   println(repeatMessage.unsafeRun(5))
 
 case class BigResult(message: String)

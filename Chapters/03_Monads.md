@@ -350,9 +350,7 @@ X> Your output should look like this:
 
 ```scala mdoc:invisible
 enum BoxEnum:
-  def flatMap(
-      f: String => BoxEnum
-  ): BoxEnum =
+  def flatMap(f: String => BoxEnum): BoxEnum =
     println(s"flatMap on $this")
     this match
       case SuccessRE(c) =>
