@@ -271,7 +271,7 @@ val originalAuthorLayer =
     ZLayer.succeed(originalAuthor)
 ```
 
-```scala mdoc:fail
+```scala mdoc
 unsafeRunPrettyPrint(
   fancyLodging
     .provideLayer(originalAuthorLayer)
@@ -292,7 +292,7 @@ val collaborater =
         apiKey: String
     ): ZIO[System, Error, Hotel] =
       ZIO.fromEither(
-        HotelApiImpl.cheapest("90210", apiKey)
+        Left(Error("Invalid API key"))
       )
 
 val colaboraterLayer =
@@ -300,10 +300,12 @@ val colaboraterLayer =
     ZLayer.succeed(collaborater)
 ```
 
-```scala mdoc:fail
-unsafeRunPrettyPrint(
+```scala mdoc
+println("hi")
+println(unsafeRunPrettyPrint(
   fancyLodging.provideLayer(colaboraterLayer)
-)
+))
+println("Done")
 ```
 
 **Continuous Integration Server:**
@@ -328,10 +330,10 @@ val ciLayer =
     ZLayer.succeed(ci)
 ```
 
-```scala mdoc:fail
+```scala mdoc
 unsafeRunPrettyPrint(
   fancyLodging
-    .provide(ciLayer)
+    .provideLayer(ciLayer)
 )
 ```
 
