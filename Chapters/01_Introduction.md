@@ -44,6 +44,54 @@ The effects of this system were:
   - Playing warnings on Radio frequencies
   - Displaying banners on Television stations
 
+## The State of Software
+
+There are many other examples of carefully-built software systems failing disastrously:
+
+- The Ariane 5 rocket self-destructed on 4 June 1996 because of a malfunction
+  in the control software (the program tried to stuff a 64-bit number into a
+  16-bit space).
+
+- The American Northeast Power Blackout, August 14 2003.
+
+- The NASA Mars Climate Orbiter, September 23, 1999. The orbiter was programmed
+  for metric but ground control software used non-metric English.
+
+The list goes on; just search for something like "Famous Software Failures" to see more.
+And consider security; all the applications you use that are constantly being updated with security patches (what about those that aren't? Are they that good, or is security being ignored?).
+
+How did things get so bad?
+
+## The Software Crisis
+
+In the 70's and 80's, the idea of the *Software Crisis* emerged.
+This can be summarized as: "We can't create software fast enough." 
+One of the most popular attempts to solve this problem was *Structured Analysis & Design*, which was a way to understand a problem and design a solution using existing imperative languages.
+
+The real problem that structured analysis & design set out to solve was big monolithic pieces of code.
+When one programmer was able to solve the entire problem, the structure of the program didn't matter as much.
+But as software needs grew, this approach didn't scale.
+In particular, it wasn't easy to simply add more programmers to a project in order to get it done faster.
+To do that, teams needed some way to break down the complexity of the program into individual functions that these additional programmers could work on (and that might someday be reused).
+So the development bottleneck was ultimately that there wasn't a way to hand off portions of a program to be developed in parallel by multiple programmers.
+
+Structured analysis was an attempt to discover the individual functions in a program.
+But it was a top-down approach, and it assumed these functions could be determined before any code is written.
+Structured Analysis & Design continued the approach of "big up-front design." 
+The analyst produced the structure, and then the programmers implemented it.
+
+Experienced programmers know that a design that cannot evolve during development is doomed to failure: both programmers and stakeholders learn things during development.
+You discover much of your structure *as* you're building the program, and not on a whiteboard.
+Building a program reveals things you didn't know were important when you were originally designing the solution.
+
+From this book's perspective, the most fundamental problem with Structured Analysis & Design was that it only paid lip service to the idea of reliability. 
+There was nothing about reliability truly integrated into Structured Analysis & Design.
+
+Structured Analysis & Design was motivated by a business problem: "how do we create software faster?"
+Virtually every language that came out in its aftermath focused on development speed.
+Not reliability.
+So we produced a lot of languages to quickly create unreliable software.
+
 ## Reliability
 
 A reliable system does not break.
@@ -54,7 +102,7 @@ Most existing languages are built for rapid development.
 You create a system as quickly as possible, then begin isolating areas of failure, finding and fixing bugs until the system is tolerable and can be delivered.
 Throughout the lifetime of the system, bugs are regularly discovered and fixed.
 There is no realistic expectation that you will ever achieve a completely bug-free system, just one that seems to work well enough to meet the requirements.
-This is the reality we have come to accept as programmers.
+This is the reality programmers have come to accept.
 
 If each piece of a traditional system is unreliable, when you combine these pieces you get a multiplicative effect -- the resulting parts are significantly less reliable than their component pieces.
 
@@ -69,17 +117,17 @@ This is what *functional programming* together with *effects management* can ach
 This is what we want to teach you in this book.
 
 The biggest impact on you as a programmer is the requirement for patience.
-With most languages, the first thing you want to do is figure out how to write "Hello, World!" as quickly as possible, then start accumulating the other language features as standalone concepts.
+With most languages, the first thing you want to do is figure out how to write "Hello, World!", then start accumulating the other language features as standalone concepts.
 In functional programming we start by examining the impact of each concept on reliability.
-Eventually we combine the smaller concepts, again ensuring reliability at each step.
-A reliable system isolates parts that are always the same (pure functions) from the parts that can change (effects).
+We then combine the smaller concepts, ensuring reliability at each step.
 
-This mathematical rigor is what ultimately produces a reliable system.
+A reliable system isolates parts that are always the same (pure functions) from the parts that can change (effects).
+This mathematical rigor produces a reliable system.
 
 It can seem like a painfully long process before you begin writing working programs.
 Most of us are used to the more immediate feedback and satisfaction of getting something working, so this can be challenging.
 But would you rather create an unreliable system quickly?
-Presumably you do not, otherwise you wouldn't be reading this book.
+We assume you are reading this book because you do not.
 
 ## What is an Effect?
 
@@ -178,4 +226,4 @@ The README for this repository contains thorough, step-by-step instructions for 
 
 Kit Langton, for being a kindred spirit in software interests and inspiring contributor to the open source world.
 
-Wyett Considine, for being an enthusiastic intern, math consultant, and initial audience.
+Wyett Considine, for being an enthusiastic intern and initial audience.
