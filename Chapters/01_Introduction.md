@@ -68,21 +68,21 @@ In the 70's and 80's, the idea of the *Software Crisis* emerged.
 This can be summarized as: "We can't create software fast enough." 
 One of the most popular attempts to solve this problem was *Structured Analysis & Design*, which was a way to understand a problem and design a solution using existing imperative languages.
 
-The real problem that structured analysis & design set out to solve was big monolithic pieces of code.
+The real problem that Structured Analysis & Design set out to solve was big monolithic pieces of code.
 When one programmer was able to solve the entire problem, the structure of the program didn't matter as much.
 But as software needs grew, this approach didn't scale.
-In particular, it wasn't easy to simply add more programmers to a project in order to get it done faster.
-To do that, teams needed some way to break down the complexity of the program into individual functions that these additional programmers could work on (and that might someday be reused).
-So the development bottleneck was ultimately that there wasn't a way to hand off portions of a program to be developed in parallel by multiple programmers.
+In particular, you couldn't finish a project more quickly by adding more programmers, because there wasn't a way to hand off portions of a program to multiple programmers. 
+To do that, teams needed some way to break down the complexity of the program into individual functions---functions that might someday be reused.
+This was seen as the reason for the Software Crisis.
 
-Structured analysis was an attempt to discover the individual functions in a program.
+Structured Analysis was an attempt to discover the individual functions in a program.
 But it was a top-down approach, and it assumed these functions could be determined before any code is written.
 Structured Analysis & Design continued the approach of "big up-front design." 
 The analyst produced the structure, and then the programmers implemented it.
 
 Experienced programmers know that a design that cannot evolve during development is doomed to failure: both programmers and stakeholders learn things during development.
 You discover much of your structure *as* you're building the program, and not on a whiteboard.
-Building a program reveals things you didn't know were important when you were originally designing the solution.
+Building a program reveals things you didn't know were important when you designed the solution.
 
 From this book's perspective, the most fundamental problem with Structured Analysis & Design was that it only paid lip service to the idea of reliability. 
 There was nothing about reliability truly integrated into Structured Analysis & Design.
@@ -133,14 +133,14 @@ We assume you are reading this book because you do not.
 
 An *effect* is the term for any computational interaction with the world outside your CPU.
 There are an infinite number of effects that might need to be modeled in an application.
-The authors of this book consider them in these categories:
+We consider these categories:
 
 - Observing the World
 - Changing the World
 
 TODO {{Explain these Effects: Optionality, Failure, Asynchronicity, Blocking}}
 
-## Observing the World
+### Observing the World
 
 Observation can be very basic, such as:
 
@@ -161,7 +161,7 @@ Observations can also be arbitrarily complex and domain-specific:
 
 We explore similar scenarios throughout the book.
 
-## Changing the World
+### Changing the World
 
 Mirroring observations, changes can be basic:
 
