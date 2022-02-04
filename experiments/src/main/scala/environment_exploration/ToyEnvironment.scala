@@ -1,4 +1,4 @@
-package environmentexploration.classtag
+package environment_exploration
 
 import scala.reflect.{ClassTag, classTag}
 

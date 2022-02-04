@@ -1,4 +1,4 @@
-package environmentexploration
+package environment_exploration
 
 import scalaBasics.forComprehension
 
