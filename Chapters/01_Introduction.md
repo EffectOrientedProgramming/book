@@ -94,7 +94,7 @@ So we produced a lot of languages to quickly create unreliable software.
 
 ## Reliability
 
-A reliable system does not break.
+A reliable system does not break. // TODO Discuss
 
 If you've been programming for a while, this sounds far-fetched or even impossible.
 
@@ -124,7 +124,7 @@ We then combine the smaller concepts, ensuring reliability at each step.
 A reliable system isolates parts that are always the same (pure functions) from the parts that can change (effects).
 This mathematical rigor produces a reliable system.
 
-It can seem like a painfully long process before you begin writing working programs.
+It can seem like a painfully long process before you begin writing working programs. // TODO Discuss
 Most of us are used to the more immediate feedback and satisfaction of getting something working, so this can be challenging.
 But would you rather create an unreliable system quickly?
 We assume you are reading this book because you do not.
@@ -142,7 +142,7 @@ If you 3D-print a figurine, you cannot reclaim that material.
 Once you send a Tweet, you can delete it but people might have already read it.
 Even if you provide database `DELETE` statements paired with `INSERT` statements, it must still be considered effectful: Another program might read your data before you delete it, or a database trigger might activate during an `INSERT`.
 
-TODO {{Explain: Optionality, Failure, Asynchronicity, Blocking -- In a later chapter. }}
+TODO {{Explain: Optionality, Asynchronicity, Blocking -- In a later chapter. }}
 
 ### Observing the World
 
