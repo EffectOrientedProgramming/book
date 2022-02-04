@@ -273,8 +273,7 @@ val originalAuthorLayer =
 
 ```scala mdoc
 unsafeRunPrettyPrint(
-  fancyLodging
-    .provideLayer(originalAuthorLayer)
+  fancyLodging.provideLayer(originalAuthorLayer)
 )
 ```
 
@@ -302,9 +301,11 @@ val colaboraterLayer =
 
 ```scala mdoc
 println("hi")
-println(unsafeRunPrettyPrint(
-  fancyLodging.provideLayer(colaboraterLayer)
-))
+println(
+  unsafeRunPrettyPrint(
+    fancyLodging.provideLayer(colaboraterLayer)
+  )
+)
 println("Done")
 ```
 
@@ -332,8 +333,7 @@ val ciLayer =
 
 ```scala mdoc
 unsafeRunPrettyPrint(
-  fancyLodging
-    .provideLayer(ciLayer)
+  fancyLodging.provideLayer(ciLayer)
 )
 ```
 
@@ -373,11 +373,7 @@ val testApiLayer =
 ```
 
 ```scala mdoc:fail
-unsafeRun(
-  fancyLodging.provide(
-    testApiLayer
-  )
-)
+unsafeRun(fancyLodging.provide(testApiLayer))
 ```
 
 ## Official ZIO Approach
