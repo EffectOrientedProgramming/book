@@ -131,39 +131,39 @@ We assume you are reading this book because you do not.
 
 ## What is an Effect?
 
-An *effect* is the term for any computational interaction with the world outside your CPU.
-There are an infinite number of effects that might need to be modeled in an application.
-We consider these categories:
+An *effect* is an interaction with the world outside your CPU.
+An application might generate any number of effects, which fall into two categories:
 
 - Observing the World
 - Changing the World
 
-TODO {{Explain these Effects: Optionality, Failure, Asynchronicity, Blocking}}
+Effects cannot be undone.
+If you 3D-print a figurine, you cannot reclaim that material.
+Once you send a Tweet, you can delete it but people might have already read it.
+Even if you provide database `DELETE` statements paired with `INSERT` statements, it must still be considered effectful: Another program might read your data before you delete it, or a database trigger might activate during an `INSERT`.
+
+TODO {{Explain: Optionality, Failure, Asynchronicity, Blocking -- In a later chapter. }}
 
 ### Observing the World
 
-Observation can be very basic, such as:
+Observation can be very basic:
 
 - Accepting user input from the console
 - Getting the current time from the system clock
 - Taking the output of a random number generator
 
-ZIO provides built-in services for many of these common programming tasks.
-We will examine these pieces in detail, contrasting them with historic approaches, and highlighting some of their benefits.
-
-ZIO does not try to cover every possibility.
-Observations can also be arbitrarily complex and domain-specific:
+Observations can also be complex and domain-specific:
 
 - Sensing slippage in an anti-lock braking system
 - Getting the current price of a stock
-- Detecting the current passing through your heart from a pacemaker
+- Detecting the current from a pacemaker
 - Checking the temperature of a nuclear reactor
 
 We explore similar scenarios throughout the book.
 
 ### Changing the World
 
-Mirroring observations, changes can be basic:
+Just as with observations, changes can be basic:
 
 - Displaying on the console
 - Writing to a file
@@ -177,29 +177,11 @@ They can be advanced:
 - Stabilizing an airplane
 - Detonating explosives
 
-## You Can't Undo an Effect
+## Managing Effects
 
-One important aspect of effects is that, generally, they cannot be undone.
-If you 3D-print a figurine, you cannot reclaim that material.
-Once you send a Tweet, you can delete it but people might have already read it.
+{{ A very high-level overview of what an effects-management system does }}
 
-It is possible to undo special cases.
-For example, you can provide database `DELETE` statements paired with your `INSERT` statements.
-However, even in this relatively simple case, a database trigger might have been activated on an `INSERT` that is completely hidden from you.
-
-## Effects VS Side-Effects
-
-The distinction between the terms *effects* and *side-effects* are important.
-Each represents a fundamentally different way of modeling a program.
-
-Side-effecting code observes or changes the world in some way that is not apparent in the type signature.
-Effectful code signals this in the type signature.
-If your
-
-## The Advent of ZIO
-
-
-## Who this book is for
+## Who This Book Is For
 
 * Your background
 * What to expect
@@ -210,17 +192,22 @@ We expect the kind of basic programming knowledge that allows you to effectively
 We explain more complex Scala syntax as it appears in the book.
 However, we avoid the use of complex Scala syntax, as our goal is to teach ZIO in as simple a fashion as possible.
 
-## How to use this book
+## How to Use This Book
 
+This book is designed to be a self-study guide together with exercises and solutions.
 
-### Individual Study
-
-### Teaching Situations
-
-## Getting Started
-
-All the examples and exercise solutions are contained in the book's [Github Repository](https://github.com/EffectOrientedProgramming/EOPCode).
+All examples and exercise solutions are available as copyrighted freeware,
+distributed via [Github](https://github.com/EffectOrientedProgramming/EOPCode).
+To ensure you have the most current version, this is the official code distribution site. 
 The README for this repository contains thorough, step-by-step instructions for setting up your computer to compile and run the examples and exercise solutions.
+
+### Teaching With This Book
+
+You may use the examples, exercises and solutions in classroom and other educational situations as long as you cite this book as the source.
+See the [Copyright]({{???}}) page for further details.
+
+The primary goal of the copyright is to ensure that the source of the code is properly cited, and to prevent you from republishing the code without permission. 
+As long as this book is cited, using examples from the book in most media is generally not a problem.
 
 ## Acknowledgements
 
