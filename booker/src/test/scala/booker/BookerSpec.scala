@@ -61,8 +61,7 @@ object BookerSpec extends DefaultRunnableSpec:
          * assert(output.last.trim)( equalTo("2)
          * 1_bar.md") ) }, */
         test("Renaming") {
-          for
-            newName <-
+          for newName <-
               ZIO {
                 val original =
                   File(

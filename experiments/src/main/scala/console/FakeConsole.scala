@@ -39,8 +39,7 @@ object FakeConsole:
   def withInput(
       hardcodedInput: String*
   ): ZIO[Any, Nothing, Console] =
-    for
-      inputVariable <-
+    for inputVariable <-
         Ref.make(hardcodedInput.toSeq)
     yield inputConsole(inputVariable)
 

@@ -5,7 +5,8 @@ import zio.{Ref, ZIO, ZRef, ZManaged}
 
 object Trivial extends zio.ZIOAppDefault:
   enum ResourceState:
-    case Closed, Open
+    case Closed,
+      Open
 
   def run =
 

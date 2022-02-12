@@ -11,13 +11,18 @@ object StateRepresentations:
 
     enum State:
 
-      case Texas, NorthCarolina, Colorado,
-      NewHampshire
+      case Texas,
+        NorthCarolina,
+        Colorado,
+        NewHampshire
 
   object UpStartHealth:
 
     enum State:
-      case TX, NC, CO, NH
+      case TX,
+        NC,
+        CO,
+        NH
 
   object InterOp:
 

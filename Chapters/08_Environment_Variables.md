@@ -390,8 +390,7 @@ def fancyLodgingZ(): ZIO[
   SecurityException,
   Either[Error, Hotel]
 ] =
-  for
-    apiKey <- zio.System.env("API_KEY")
+  for apiKey <- zio.System.env("API_KEY")
   yield HotelApiImpl.cheapest(
     "90210",
     apiKey.get // unsafe! TODO Use either

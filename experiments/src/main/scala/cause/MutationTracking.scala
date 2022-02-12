@@ -6,7 +6,9 @@ import zio.Cause
 
 class MutationTracking:
   enum Stage:
-    case Hominini, Chimpanzee, Human
+    case Hominini,
+      Chimpanzee,
+      Human
 
 object Timeline extends zio.ZIOAppDefault:
   val mutation1 = ZIO.fail("Straightened Spine")

@@ -51,6 +51,7 @@ def demoToyEnvironment =
   // Downside of the current approach is that it
   // doesn't prevent duplicate types
   env3.add("hi") // is accepted
+end demoToyEnvironment
 
 // Consider this runtime de-duping
 

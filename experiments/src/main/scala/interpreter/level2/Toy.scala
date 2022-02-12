@@ -2,7 +2,8 @@ package interpreter.level2
 
 case class Print(s: String)
 
-val program: Seq[Print] = Seq(Print("asdf"), Print("hello"))
+val program: Seq[Print] =
+  Seq(Print("asdf"), Print("hello"))
 
 def interpreter(prints: Seq[Print]): Unit =
   prints match

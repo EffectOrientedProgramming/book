@@ -6,13 +6,19 @@ sealed trait DoSomething:
 case class DoNothing() extends DoSomething:
   override val toDo = s => DoNothing()
 
-case class Print(s: String)(myTodo: String => DoSomething = _ => DoNothing()) extends DoSomething:
+case class Print(s: String)(
+    myTodo: String => DoSomething =
+      _ => DoNothing()
+) extends DoSomething:
   override val toDo = myTodo
 
-case class Random()(myTodo: String => DoSomething) extends DoSomething:
+case class Random()(
+    myTodo: String => DoSomething
+) extends DoSomething:
   override val toDo = myTodo
 
-val program: DoSomething = Random()(s => Print(s)())
+val program: DoSomething =
+  Random()(s => Print(s)())
 
 def interpreter(doSomething: DoSomething): Unit =
   doSomething match
@@ -26,5 +32,4 @@ def interpreter(doSomething: DoSomething): Unit =
       interpreter(p.toDo(""))
 
 @main
-def m1 =
-  interpreter(program)
+def m1 = interpreter(program)

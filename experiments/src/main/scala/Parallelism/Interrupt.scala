@@ -11,8 +11,7 @@ class Interrupt:
   // This ZIO does nothing but count to n.
   // It is not productive, but it uses resources.
   val countToN: ZIO[Clock, Nothing, Unit] =
-    for
-      _ <- ZIO.sleep(n.seconds)
+    for _ <- ZIO.sleep(n.seconds)
     yield ()
 
   // This effect will create a fiber vrsion of

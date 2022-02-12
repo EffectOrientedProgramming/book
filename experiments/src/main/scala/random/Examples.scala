@@ -49,8 +49,7 @@ object RollTheDice extends ZIOAppDefault:
 
 val fullRoundZ
     : ZIO[RandomBoundedInt, Nothing, GameState] =
-  for
-    roll <- rollDiceZ
+  for roll <- rollDiceZ
   yield scoreRound(roll)
 
 // The problem above is that you can test the winner logic completely separate from the random number generator.
