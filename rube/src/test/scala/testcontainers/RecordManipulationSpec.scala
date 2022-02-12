@@ -30,8 +30,7 @@ object RecordManipulationSpec
           RecordManipulation
             .getField("Location", record)
         )
-        for
-          res <- ZIO.succeed(1)
+        for res <- ZIO.succeed(1)
         yield assert(res)(equalTo(1))
       }
     )

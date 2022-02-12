@@ -41,10 +41,11 @@ object forComprehension:
         v // Take the input value v, and iterate through each element
       if n > 5 // If n is greater than 5
       if n % 2 == 0 // and n is divisible by 2
-    } result =
-      result :+
-        n  // Then add n to the result list
-    result // return result
+    }
+      result =
+        result :+
+          n // Then add n to the result list
+    result  // return result
 
 // To remove the use of a var, and simplify the
   // code, you can use the yield keyword.
@@ -60,7 +61,7 @@ object forComprehension:
     for
       n <-
         v // Take the input value v, and iterate through each element
-      if n > 5      // If n is greater than 5
+      if n > 5 // If n is greater than 5
       if n % 2 == 0 // and n is divisible by 2
     yield n // create a list of the values of n.
 

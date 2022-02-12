@@ -46,8 +46,7 @@ object Finalizers extends zio.ZIOAppDefault:
         bufferedSource => // Use the bracket method with the finalizer defined above to define behavior on fail.
 
           val lines =
-            for
-              line <- bufferedSource.getLines
+            for line <- bufferedSource.getLines
             yield line
 
           if (
@@ -81,4 +80,5 @@ object Finalizers extends zio.ZIOAppDefault:
         )
       )
       .exitCode // Call the Zio with exitCode.
+  end run
 end Finalizers

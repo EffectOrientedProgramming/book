@@ -60,8 +60,7 @@ object KafkaInitialization:
       localHostname: String,
       topicNames: List[String]
   ): ZIO[Any, Throwable, Unit] =
-    for
-      container <-
+    for container <-
         ZIO.attempt {
           val properties =
             new java.util.Properties()
@@ -326,7 +325,7 @@ object UseKafka:
               _ <-
                 printLine(
                   s"${consumer.topicName} --> ${record
-                    .value} => $newValue--> ${output.topicName}"
+                      .value} => $newValue--> ${output.topicName}"
                 )
               _ <-
                 output.submit(

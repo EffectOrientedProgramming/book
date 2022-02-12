@@ -1,9 +1,13 @@
 // From: https://scalac.io/blog/write-command-line-application-with-zio/
 package TicTacToe
+
 import zio.{Console, ZIOAppDefault, ZEnv, ZIO}
 
 enum MenuCommand:
-  case NewGame, Resume, Quit, Invalid
+  case NewGame,
+    Resume,
+    Quit,
+    Invalid
 
 object TicTacToe extends ZIOAppDefault:
 

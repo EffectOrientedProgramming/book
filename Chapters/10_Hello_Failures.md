@@ -18,7 +18,9 @@ class GpsException()     extends RuntimeException
 class NetworkException() extends RuntimeException
 
 enum Demo:
-  case Success, NetworkError, GPSError
+  case Success,
+    NetworkError,
+    GPSError
 
 def getTemperature(behavior: Demo): String =
   if (behavior == Demo.GPSError)

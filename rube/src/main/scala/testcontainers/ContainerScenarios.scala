@@ -156,8 +156,7 @@ object ContainerScenarios:
           topicName = "person_event",
           op =
             record =>
-              for
-                location <-
+              for location <-
                   LocationService
                     .locationOf(record.key.nn)
               yield record.value.nn +
@@ -180,8 +179,7 @@ object ContainerScenarios:
             topicName = "person_event",
             op =
               record =>
-                for
-                  criminalHistory <-
+                for criminalHistory <-
                     BackgroundCheckService
                       .criminalHistoryOf(
                         record.key.nn

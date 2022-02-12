@@ -40,8 +40,7 @@ object ReadIntAndMultiply
                 yield ()
 
               val reps = 5
-              for
-                _ <-
+              for _ <-
                   ZIO
                     .collectAllPar(
                       Set(

@@ -29,8 +29,7 @@ object BasicFibers:
   // computing the 100th digit of the Fibonacci
   // Sequence.
   val fib100: UIO[Fiber[Nothing, Long]] =
-    for
-      fiber <- computation.fib(100).fork
+    for fiber <- computation.fib(100).fork
     yield fiber
 
   // Part of the power of Fibers is that many of

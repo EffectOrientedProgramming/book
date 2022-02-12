@@ -34,8 +34,7 @@ object CareerHistoryHardcoded:
     Nothing,
     CareerHistoryServiceT
   ] =
-    for
-      careerData <- ZLayer.service[CareerData]
+    for careerData <- ZLayer.service[CareerData]
     yield ZEnvironment(
       CareerHistoryHardcoded(
         careerData.get,

@@ -57,7 +57,7 @@ enum ArithmeticOperation(a: Float, b: Float):
           )
 end ArithmeticOperation
 
-object ArithmeticOperation: //This in an object used in calculations implemented below.
+object ArithmeticOperation: // This in an object used in calculations implemented below.
 
   def fromInt(
       index: Int

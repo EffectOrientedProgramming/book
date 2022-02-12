@@ -85,7 +85,9 @@ object CivilEngineering extends ZIOAppDefault:
 end CivilEngineering
 
 enum State:
-  case TX, CO, CA
+  case TX,
+    CO,
+    CA
 
 def buildABridge() =
   trait Company[T]

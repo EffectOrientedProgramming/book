@@ -9,7 +9,8 @@ case class Game(a: Player, b: Player)
 
 object ChatSlots extends zio.ZIOAppDefault:
   enum SlotState:
-    case Closed, Open
+    case Closed,
+      Open
 
   def run =
 

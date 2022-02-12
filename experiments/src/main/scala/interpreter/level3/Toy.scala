@@ -6,17 +6,26 @@ trait DoSomething:
 case class DoNothing() extends DoSomething:
   override val toDo = s => DoNothing()
 
-case class Print(s: String)(myTodo: String => DoSomething = _ => DoNothing()) extends DoSomething:
+case class Print(s: String)(
+    myTodo: String => DoSomething =
+      _ => DoNothing()
+) extends DoSomething:
   override val toDo = myTodo
 
-val something: String => DoSomething = s =>
-  if s == "hello" then Print(s)() else DoNothing()
+val something: String => DoSomething =
+  s =>
+    if s == "hello" then
+      Print(s)()
+    else
+      DoNothing()
 
-val program: DoSomething = Print("asdf")(something)
+val program: DoSomething =
+  Print("asdf")(something)
 
 def interpreter(doSomething: DoSomething): Unit =
   doSomething match
-    case _: DoNothing => ()
+    case _: DoNothing =>
+      ()
     case p: Print =>
       println(p.s)
       interpreter(p.toDo("hello"))

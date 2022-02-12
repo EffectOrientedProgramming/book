@@ -1,5 +1,6 @@
 // Monads/Solution4b.scala
 package monads
+
 import ResultEnum.*
 
 def showRE(n: Char) =

@@ -194,8 +194,7 @@ object ClockAndConsoleImproved
         startTime: Long,
         secondsToRun: Int
     ): ZIO[Any, Nothing, LongRunningProcess] =
-      for
-        status <- Ref.make[Int](4)
+      for status <- Ref.make[Int](4)
       yield new LongRunningProcess(
         name,
         startTime,

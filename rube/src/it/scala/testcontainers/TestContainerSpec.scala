@@ -20,8 +20,7 @@ object TestContainersSpec
       test("With managed layer") {
         // TODO
         val logicWithAssertions =
-          for
-            people <- ContainerScenarios.logic
+          for people <- ContainerScenarios.logic
           yield assert(people.head)(
             equalTo(
               Person("Joe", "Dimagio", 143)
@@ -35,8 +34,7 @@ object TestContainersSpec
           )
       },
       test("stream approach") {
-        for
-          res <- ZIO.succeed(1)
+        for res <- ZIO.succeed(1)
         yield assert(res)(equalTo(1))
       }
     )

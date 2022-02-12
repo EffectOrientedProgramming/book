@@ -71,8 +71,7 @@ trait CountryService:
 object CountryService:
   def currentCountry
       : ZIO[Location, HardwareFailure, Country] =
-    for
-      gpsCords <- Location.gpsCoords
+    for gpsCords <- Location.gpsCoords
     yield Country("USA")
 ```
 
@@ -85,7 +84,8 @@ trait GeoPolitcalState
 trait CurrentWar
 
 enum Issue:
-  case OnlineGambling, Alcohol
+  case OnlineGambling,
+    Alcohol
 
 trait LawLibrary:
   def status(
