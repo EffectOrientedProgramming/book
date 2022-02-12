@@ -3,10 +3,10 @@ import java.nio.file.{Files, Path, Paths}
 
 name := "EffectOrientedProgramming"
 
-val zioVersion = "2.0.0-RC1"
+val zioVersion = "2.0.0-RC2"
 
 lazy val commonSettings = Seq(
-  scalaVersion := "3.1.0",
+  scalaVersion := "3.1.1",
 
   scalacOptions += "-Yexplicit-nulls",
   scalacOptions -= "-explain-types",
@@ -19,7 +19,7 @@ lazy val commonSettings = Seq(
     "dev.zio" %% "zio"          % zioVersion,
     "dev.zio" %% "zio-test"     % zioVersion,
     "dev.zio" %% "zio-test-sbt" % zioVersion % Test,
-    "dev.zio" %% "zio-prelude"  % "1.0.0-RC9"
+    "dev.zio" %% "zio-prelude"  % "1.0.0-RC10"
   ),
 
   testFrameworks +=
@@ -110,11 +110,16 @@ genManuscript := {
   val experimentsFiles = Files.walk(file("experiments/src").toPath).iterator().asScala.filter(_.toFile.ext == "scala")
 
   val nf = manuscript / "ExperimentsSection.md"
-  Files.write(nf.toPath, "# Experiments".getBytes)
+  val experimentsHeaderContent = 
+    "# Experiments\n\n" +
+    "These experiments are not currently attached to a chapter, but are included for previewing. Before publication, we should not have any lingering experiments here.\n\n"
+  Files.write(nf.toPath, experimentsHeaderContent.getBytes)
 
-  IO.append(manuscript / "Book.txt", nf.toString + "\n")
+  IO.append(manuscript / "Book.txt", nf.getName + "\n")
 
-  val proseFiles =  Files.walk(manuscript.toPath).iterator().asScala.toList.filter(_.toFile.getName.endsWith(".md"))
+  val proseFiles =  Files.walk(manuscript.toPath).iterator().asScala.toList.filter(_.toFile.getName.endsWith(".md")).sortBy(_.toFile.getName)
+  val lastProseFile = proseFiles.last.toFile().getName().takeWhile(_ != '=')
+  println(lastProseFile)
 
   // val proseFiles =  Files.walk(manuscript.toPath).iterator().asScala.toList.filter(_.endsWith(".md"))
 

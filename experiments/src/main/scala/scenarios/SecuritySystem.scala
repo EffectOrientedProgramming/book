@@ -8,6 +8,8 @@ import zio.durationInt
 import zio.Schedule
 import scala.concurrent.TimeoutException
 import time.scheduledValues
+import izumi.reflect.Tag
+import zio.IsNotIntersection
 
 case class TempSense(
     z: ZIO[
@@ -109,12 +111,15 @@ object SecuritySystem:
             SirenX.loudSiren
     yield ()
 
-  def shouldAlertServices(): ZIO[
-    MotionDetector &
-      ThermalDetectorX &
-      SirenX &
-      AcousticDetectorX &
-      Clock,
+  def shouldAlertServices[
+      T
+        <: MotionDetector &
+          ThermalDetectorX &
+          SirenX &
+          AcousticDetectorX &
+          Clock
+  ](): ZIO[
+    T,
     scenarios.HardwareFailure | TimeoutException,
     String
   ] =
@@ -279,19 +284,19 @@ object ThermalDetectorX:
 
   // This is preeeetty gnarly. How can we
   // improve?
-  val acquireHeatMeasurementSource: ZIO[
-    scenarios.ThermalDetectorX & Clock,
-    Nothing,
-    ZIO[
-      Clock,
-      scala.concurrent.TimeoutException |
-        scenarios.HardwareFailure,
-      scenarios.Degrees
-    ]
-  ] =
-    ZIO.serviceWithZIO[
-      scenarios.ThermalDetectorX & Clock
-    ](_.heatMeasurementSource())
+  def acquireHeatMeasurementSource[
+      T
+        <: scenarios.ThermalDetectorX & Clock
+        : Tag
+  ]: ZIO[T, Nothing, ZIO[
+    Clock,
+    scala.concurrent.TimeoutException |
+      scenarios.HardwareFailure,
+    scenarios.Degrees
+  ]] =
+    ZIO.serviceWithZIO[ThermalDetectorX](
+      _.heatMeasurementSource()
+    )
 
 end ThermalDetectorX
 
@@ -322,18 +327,18 @@ object AcousticDetectorX:
 
   // This is preeeetty gnarly. How can we
   // improve?
-  val acquireDetector: ZIO[
-    scenarios.AcousticDetectorX & Clock,
-    Nothing,
-    ZIO[
-      Clock,
-      scala.concurrent.TimeoutException |
-        scenarios.HardwareFailure,
-      scenarios.Decibels
-    ]
-  ] =
+  def acquireDetector[
+      T
+        <: scenarios.AcousticDetectorX & Clock
+        : Tag
+  ]: ZIO[T, Nothing, ZIO[
+    Clock,
+    scala.concurrent.TimeoutException |
+      scenarios.HardwareFailure,
+    scenarios.Decibels
+  ]] =
     ZIO.serviceWithZIO[
-      scenarios.AcousticDetectorX & Clock
+      scenarios.AcousticDetectorX
     ](_.acquireDetector())
 
 end AcousticDetectorX
@@ -408,7 +413,7 @@ class SensorD[T](
 
 // TODO Figure out how to use this
 object SensorData:
-  def live[T, Y: zio.Tag: zio.IsNotIntersection](
+  def live[T, Y: zio.Tag](
       c: ZIO[
         Clock,
         HardwareFailure,

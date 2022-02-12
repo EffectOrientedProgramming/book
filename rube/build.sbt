@@ -10,19 +10,19 @@ libraryDependencies ++= Seq(
   "io.circe"  % "circe-core_3"  % "0.15.0-M1",
   "io.circe" %% "circe-generic" % "0.15.0-M1",
   "com.softwaremill.sttp.client3" %% "circe" %
-    "3.3.18",
+    "3.4.1",
   "com.softwaremill.sttp.client3" %% "core" %
-    "3.3.18",
+    "3.4.1",
 
   "org.apache.kafka" % "kafka-clients" % "3.1.0",
 
-  "org.testcontainers"    % "testcontainers"            % "1.16.1",
-  "org.testcontainers"    % "postgresql"            % "1.16.1",
-  "org.testcontainers"    % "kafka"            % "1.16.1",
-  "org.testcontainers"    % "mockserver"            % "1.16.1",
-  "org.testcontainers"    % "toxiproxy"            % "1.16.1",
+  "org.testcontainers"    % "testcontainers"            % "1.16.3",
+  "org.testcontainers"    % "postgresql"            % "1.16.3",
+  "org.testcontainers"    % "kafka"            % "1.16.3",
+  "org.testcontainers"    % "mockserver"            % "1.16.3",
+  "org.testcontainers"    % "toxiproxy"            % "1.16.3",
   "io.github.arkinator" % "mockserver-client-java" % "5.11.9",
-  "org.postgresql" % "postgresql" % "42.3.0"
+  "org.postgresql" % "postgresql" % "42.3.2"
 )
 
 configs(IntegrationTest)

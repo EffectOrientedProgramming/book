@@ -17,22 +17,25 @@ Temperature: 30 degrees
 class GpsException()     extends RuntimeException
 class NetworkException() extends RuntimeException
 
-def getTemperature(behavior: String): String =
-  if (behavior == "GPS Error")
+enum Demo:
+  case Success, NetworkError, GPSError
+
+def getTemperature(behavior: Demo): String =
+  if (behavior == Demo.GPSError)
     throw new GpsException()
-  else if (behavior == "Network Error")
+  else if (behavior == Demo.NetworkError)
     throw new NetworkException()
   else
     "35 degrees"
 ```
 
 ```scala mdoc
-def displayTemperatureUnsafe(
-    behavior: String
+def currentTemperatureUnsafe(
+    behavior: Demo
 ): String =
   "Temperature: " + getTemperature(behavior)
 
-displayTemperatureUnsafe("succeed")
+currentTemperatureUnsafe(Demo.Success)
 ```
 
 On the happy path, everything looks as desired.
@@ -41,14 +44,14 @@ This can take many forms.
 If we don't make any attempt to handle our problem, the whole program could blow up and show the gory details to the user.
 
 ```scala mdoc:crash
-displayTemperatureUnsafe("Network Error")
+currentTemperatureUnsafe(Demo.NetworkError)
 ```
 
 We could take the bare-minimum approach of catching the `Exception` and returning `null`:
 
 ```scala mdoc
-def displayTemperatureNull(
-    behavior: String
+def currentTemperatureNull(
+    behavior: Demo
 ): String =
   try
     "Temperature: " + getTemperature(behavior)
@@ -56,7 +59,7 @@ def displayTemperatureNull(
     case (ex: RuntimeException) =>
       "Temperature: " + null
 
-displayTemperatureNull("Network Error")
+currentTemperatureNull(Demo.NetworkError)
 ```
 
 This is *slightly* better, as the user can at least see the outer structure of our UI element, but it still leaks out code-specific details world.
@@ -64,32 +67,28 @@ This is *slightly* better, as the user can at least see the outer structure of o
 Maybe we could fallback to a `sentinel` value, such as `0` or `-1` to indicate a failure?
 
 ```scala mdoc:nest
-def displayTemperature(
-    behavior: String
-): String =
+def currentTemperature(behavior: Demo): String =
   try
     "Temperature: " + getTemperature(behavior)
   catch
     case (ex: RuntimeException) =>
       "Temperature: -1 degrees"
 
-displayTemperature("Network Error")
+currentTemperature(Demo.NetworkError)
 ```
 
 Clearly, this isn't acceptable, as both of these common sentinel values are valid temperatures.
 We can take a more honest and accurate approach in this situation.
 
 ```scala mdoc:nest
-def displayTemperature(
-    behavior: String
-): String =
+def currentTemperature(behavior: Demo): String =
   try
     "Temperature: " + getTemperature(behavior)
   catch
     case (ex: RuntimeException) =>
       "Temperature Unavailable"
 
-displayTemperature("Network Error")
+currentTemperature(Demo.NetworkError)
 ```
 
 We have improved the failure behavior significantly; is it sufficient for all cases?
@@ -98,9 +97,7 @@ In this situation, do we show the same message to the user? Ideally, we would sh
 The Network issue is transient, but the GPS problem is likely permanent.
 
 ```scala mdoc:nest
-def displayTemperature(
-    behavior: String
-): String =
+def currentTemperature(behavior: Demo): String =
   try
     "Temperature: " + getTemperature(behavior)
   catch
@@ -109,14 +106,14 @@ def displayTemperature(
     case (ex: GpsException) =>
       "GPS problem"
 
-displayTemperature("Network Error")
-displayTemperature("GPS Error")
+currentTemperature(Demo.NetworkError)
+currentTemperature(Demo.GPSError)
 ```
 
 Wonderful!
 We have specific messages for all relevant error cases. However, this still suffers from downsides that become more painful as the codebase grows.
 
-- The signature of `displayTemperature` does not alert us that it might fail
+- The signature of `currentTemperature` does not alert us that it might fail
 - If we realize it can fail, we must dig through the implementation to discover the multiple failure values
 
 ## ZIO Error Handling
@@ -134,25 +131,25 @@ TODO {{Update verbiage now that ZIO section is first}}
 import zio.ZIO
 import zio.Runtime.default.unsafeRun
 
-def getTemperatureZ(behavior: String): ZIO[
+def getTemperatureZ(behavior: Demo): ZIO[
   Any,
   GpsException | NetworkException,
   String
 ] =
-  if (behavior == "GPS Error")
+  if (behavior == Demo.GPSError)
     ZIO.fail(new GpsException())
-  else if (behavior == "Network Error")
+  else if (behavior == Demo.NetworkError)
     // TODO Use a non-exceptional error
     ZIO.fail(new NetworkException())
   else
     ZIO.succeed("30 degrees")
 
-unsafeRun(getTemperatureZ("Succeed"))
+unsafeRun(getTemperatureZ(Demo.Success))
 ```
 
 ```scala mdoc:fail
 unsafeRun(
-  getTemperatureZ("Succeed").catchAll {
+  getTemperatureZ(Demo.Success).catchAll {
     case ex: NetworkException =>
       ZIO.succeed("Network Unavailable")
   }
@@ -162,7 +159,7 @@ unsafeRun(
 TODO Demonstrate ZIO calculating the error types without an explicit annotation being provided
 
 ```scala mdoc:crash
-unsafeRun(getTemperatureZ("GPS Error"))
+unsafeRun(getTemperatureZ(Demo.GPSError))
 ```
 
 ### Wrapping Legacy Code
@@ -176,7 +173,7 @@ import zio.{Task, ZIO}
 
 ```scala mdoc
 def getTemperatureZWrapped(
-    behavior: String
+    behavior: Demo
 ): ZIO[Any, Throwable, String] =
   ZIO(getTemperature(behavior)).catchAll {
     case ex: NetworkException =>
@@ -187,12 +184,12 @@ def getTemperatureZWrapped(
 ```
 
 ```scala mdoc
-unsafeRun(getTemperatureZWrapped("Succeed"))
+unsafeRun(getTemperatureZWrapped(Demo.Success))
 ```
 
 ```scala mdoc
 unsafeRun(
-  getTemperatureZWrapped("Network Error")
+  getTemperatureZWrapped(Demo.NetworkError)
 )
 ```
 
@@ -200,7 +197,7 @@ This is decent, but does not provide the maximum possible guarantees. Look at wh
 
 ```scala mdoc
 def getTemperatureZGpsGap(
-    behavior: String
+    behavior: Demo
 ): ZIO[Any, Exception, String] =
   ZIO(getTemperature(behavior)).catchAll {
     case ex: NetworkException =>
@@ -212,9 +209,9 @@ import mdoc.unsafeRunTruncate
 ```scala mdoc
 import mdoc.unsafeRunTruncate
 unsafeRunTruncate(
-  getTemperatureZGpsGap("GPS Error")
+  getTemperatureZGpsGap(Demo.GPSError)
 )
 ```
 
-The compiler does not catch this bug, and instead fails at runtime. Can we do better?
+The compiler does not catch this bug, and instead fails at runtime. 
 

@@ -1,23 +1,24 @@
 # Why Functional?
 
-In your journey to this book, you have undoubtedly learned at least one way to think about programming, and possibly several.
+> In your journey to this book, you have undoubtedly learned at least one way to think about programming, and possibly several.
 
 You might have had reasonable success using that approach.
 
 You might also have encountered programming constructs inspired by functional programming.
 For example, Java 8 introduced lambdas along with library support for streams and functional primitives like `map`.
-Python has always allowed functions to be passed into, created by, and returned from other functions, and includes other functional support.
+Python has always allowed functions to be passed into, be created by, and be returned from other functions, and includes other functional support.
 C++, especially more recent versions, has added a number of features that support functional-style programming.
 
 If, however, you are coming from an imperative programming background, these functional-style devices can seem arbitrarily complicated.
-Why go to the trouble to use something like `fold` or `reduce` when a simple `for` loop will do the job, and be much easier to understand? Sometimes it seems like functional programmers write code like this just to be fancy.
+Why go to the trouble to use something like `fold` or `reduce` when a simple `for` loop will do the job, and be much easier to understand? 
+Sometimes it seems like functional programmers write code like this just to be fancy.
 
 To understand what's really behind this different way of thinking about programming, it helps to start with some history.
 
 ## A Different Goal
 
 In the early days of programming, most code was written in an assembly language for a particular machine.
-Assembly language had primitive function-like constructs called subroutines, but you had to do the work of setting up a call (storing arguments in registers or on the stack), then inside the subroutine you had to access those arguments by hand, and then before returning from the subroutine you had to somehow pass the return value back to the caller (again, typically using either a register or the stack).
+Assembly language had primitive function-like constructs called subroutines, but you had to do the work of setting up a call (storing arguments in registers or on the stack), then inside the subroutine you had to access those arguments, and then before returning from the subroutine you had to somehow pass the return value back to the caller (again, typically using either a register or the stack).
 You had to do all this by hand.
 It was worth it if you *knew* you were going to reuse that subroutine, but if you thought you were only ever going to use that code once then it was easier and more efficient to just insert the code inline.
 Even if you wanted to create reusable code, it was often easier to just "goto" a piece of code and use global variables, rather than bothering with passing arguments and returning results.
@@ -34,35 +35,14 @@ Thus "code reuse" was a big hurdle; there were many attempts within companies to
 
 Monolithic programs that didn't reuse code were also a maintenance nightmare.
 It was not uncommon for such programs to be thrown away and rewritten just to add some new features.
-Not surprisingly, writing everything from scratch also took a lot longer than reusing common functionality.
-
-In the 70's and 80's, the idea of the *Software Crisis* began emerging.
-This can be summarized as: "We can't create software fast enough." One of the most popular attempts to solve this problem was *Structured Analysis & Design*, which was a way to understand a problem and design a solution using existing imperative languages.
-
-The real problem that structured analysis & design set out to solve was programs that were big monolithic pieces of code.
-When one programmer was able to solve the entire problem, the structure of the program didn't matter as much.
-But as software needs grew, this approach didn't scale.
-In particular, it wasn't easy to simply add more programmers to a project in order to get it done faster.
-To do that, teams needed some way to break down the complexity of the program into individual functions that these additional programmers could work on (and that might someday be reused).
-So the development bottleneck was ultimately that there wasn't a way to hand off portions of a program to be developed in parallel by multiple programmers.
-
-Structured analysis was an attempt to discover the individual functions in a program.
-But it was a top-down approach, and it assumed these functions could be determined before any code is written.
-If you've been programming for a while, you can understand why this didn't work very well---you usually discover this kind of structure *as* you're building the program, and not on a whiteboard.
-And while building a program, you discover new things that you don't know are important while originally designing the solution.
-
-There was another fundamental issue.
-Although structured analysis & design paid lip service to the idea of reliability, there was nothing truly integrated into this approach that supported it.
-
-It's worth noting that the emphasis was on the speed of creating software, and this focus influenced the industry for decades to come.
-
-Structured analysis & design was motivated by a business problem: "how do we create software faster?" At least part of the answer to that question is: "reuse code," so the new question became: "how do we make code reuse easier?"
+Not surprisingly, writing everything from scratch also took a lot longer than reusing common functionality. 
+The new question became: "how do we make code reuse easier?"
 
 Because languages like C and Pascal made it easy to not only write functions but to call them, they were a big improvement over assembly language, although the monolithic habits of assembly-language programmers persisted into those new languages.
-As libraries grew bigger and more complex, using those libraries was not easy.
-In C, for example, you'd often have to call `malloc` to allocate memory before calling those functions and later `free` to release the memory when you were done with it.
+Libraries grew bigger and more complex, and using those libraries was not easy.
+In C, for example, you'd often have to call `malloc` to allocate memory before calling a library function, and later `free` to release the memory when that function was done with it.
 You also had to learn how to pass information from one library function to another.
-And you'd have to understand how a particular library reported errors, which typically varied in strategy from one library to the next.
+You had to learn how a each library reported errors, which typically varied in strategy from one library to the next.
 Code could be reused, but it wasn't easy.
 
 At this point, object-oriented programming seemed like a good idea, because it combined a common data structure, automatic initialization and cleanup of that data structure, together with all the functions that act upon that data.
@@ -72,7 +52,7 @@ It also came with the distraction of inheritance polymorphism and an entire educ
 
 C++ added object-oriented features from the Simula language while maintaining backward compatibility with the C language.
 C++ had a strong emphasis on static type checking.
-Java was created as a counterpoint to C++ and is primarily inspired by the Smalltalk language.
+Java was created as a counterpoint to C++ and was heavily inspired by the Smalltalk language.
 
 Smalltalk's success came from its ability to rapidly create systems by adding functionality to existing objects.
 This introduced a conundrum, because Smalltalk is a dynamic language, and Java, like C++, is statically typed.
@@ -81,10 +61,9 @@ But C++ and Java ensure everything is valid, at compile time (along with escape 
 This conundrum is exemplified by the *Liskov Substitution Principle*, which says that you shouldn't add new methods to an inherited type---and yet that activity is the foundation of Smalltalk.
 
 The Agile methodologies that began in the early 2000's were another attempt to produce software faster, but through a more bottom-up lens.
-A big problem with Structured Analysis & Design was that it continued the approach of "big up-front design." The analyst produced the structure, and then the programmers implemented it.
-Experienced programmers know that a design that cannot evolve during development is doomed to failure: both programmers and stakeholders learn things during development.
-Agile was primarily focused on improving communication between stakeholders and developers, and producing more rapid round trips between needs and experiments, improving the chance that the stakeholders will get what they need, faster.
-This has helped the process of software development, but again, the focus is on developing software quickly, not on developing reliable software.
+Agile was primarily focused on improving communication between stakeholders and developers, and producing more rapid round trips between needs and experiments.
+This improves the chance that the stakeholders will get what they need, faster.
+Agile helped the process of software development, but again, the focus is on developing software quickly, not on developing reliable software.
 
 The most important thing to take away from this language history is that the fundamental goal of the various techniques was speed of creation.
 There seems to be an underlying assumption that these approaches will somehow automatically create more reliable software.
@@ -105,7 +84,8 @@ We must delve into the reasons that software fails---either it doesn't do what i
 
 ## Reuse
 
-How do we create software? When you first learned to program, you probably solved problems by writing code using the basic constructs of your language.
+How do we create software? 
+When you first learned to program, you probably solved problems by writing code using the basic constructs of your language.
 But at some point you began realizing that you could only produce and debug so much code by yourself.
 If you could use code that was already written and debugged by other people, you could produce solutions faster.
 
@@ -192,10 +172,11 @@ We will look at this support in the [Monads]{{???}} chapter.
 
 ## Effects
 
-Now we have created this perfect world of functions that behave just like the functions in theoretical mathematics.
+Now we have created this perfect world of pure functions that behave just like the functions in theoretical mathematics.
 They have no side effects and cannot be affected by other functions, and can be neatly and safely composed.
 
-"But," you wonder, "if all I can do with the result of one pure function is pass it as an argument to another pure function, what's the point of all these pure function calls? If these functions have no effect on the world, they seem like an intellectual exercise that merely heats up the CPU."
+"But," you wonder, "if all I can do with the result of one pure function is pass it as an argument to another pure function, what's the point of all these pure function calls? 
+If these functions have no effect on the world, they seem like an intellectual exercise that merely heats up the CPU."
 
 This is absolutely true.
 A program that never affects the world is pointless.
@@ -203,23 +184,28 @@ For a program to be useful, it must be affected by the world, and it must have e
 
 The phrase "side effect" implies an incidental or accidental impact on the world.
 What we need to do is formalize this idea and bring it under our control.
-We can then call it simply an "effect," without the "side." The solution is to manage these effects so they are under our control.
+We can then call it simply an "effect," without the "side." 
+The solution is to manage these effects so they are under our control.
 
 This bridge between pure functions and practical programs with controlled and managed effects is the reason for the title of this book.
 
 ## Immutability During Repetition
 
+{{ This might be moved somewhere else... }}
+
 Many functional programming tutorials begin by introducing recursion.
 Such tutorials assume you will just accept that recursion is important.
 This can make the reader wonder whether the entire language will be filled with what seems like theoretical exercises.
 
-Any time you perform a repetitive task, you *could* use recursion, but why would you? It's much easier to think about an ordinary looping construct.
+Any time you perform a repetitive task, you *could* use recursion, but why would you? 
+It's much easier to think about an ordinary looping construct.
 You just count through the elements in a sequence and perform operations upon them.
 Recursion seems to add needless complexity to an otherwise simple piece of code.
 
 The problem is that recursion is not properly motivated in such tutorials.
 You must first understand the need for immutability, then encounter the problem of repetition and see that your loop variable(s) mutate.
-How do you get rid of this mutation? By *initializing* values but never changing them.
+How do you get rid of this mutation? 
+By *initializing* values but never changing them.
 To achieve this when you iterate through a sequence, you can create a new frame for each iteration, and what was originally a loop variable becomes a value that is initialized to the next step for each frame.
 
 The *stack frame* of a function call is already set up to hold arguments and return the result.
@@ -235,10 +221,10 @@ The fix to this issue is a hack called *tail recursion*, which typically require
 When this criterion is met, the compiler is able to rewrite the recursive code so that it becomes simple imperative code, without the function calls that can lead to a stack overflow.
 This produces code that is reliable from the safety standpoint (it doesn't overflow the stack) and from an immutability standpoint (there's no mutating loop variable).
 
-At this point you might be wondering, "Wait, are you telling me that every time I want to perform some kind of operation on a sequence, I'm supposed to write recursive code rather than just an imperative loop?" Although you would certainly get better at recursion with practice, it does sound exhausting.
+At this point you might be wondering, "Wait, are you telling me that every time I want to perform some kind of operation on a sequence, I'm supposed to write recursive code rather than just an imperative loop?" 
+Although you would certainly get better at recursion with practice, it does sound exhausting.
 Fortunately, functional programming goes one step further by implementing basic repetitive operations for you, using recursion.
-This is why you see operations like `map`, `reduce`, `fold`, etc.
-in functional languages, or even languages that support a functional style of programming.
+This is why you see operations like `map`, `reduce`, `fold`, etc., instead of loops, in functional languages, or even languages that support a functional style of programming.
 These operations allow you to benefit from the purity of recursion without implementing your own recursive functions except on rare occasions.
 
 There's another fascinating factor that recursion exposes.
@@ -250,11 +236,13 @@ The concept of immutability only requires that storage be *effectively immutable
 ## Core Differences Between OO and Functional
 
 An OO language worries about managing state.
-It wraps a data structure in privacy and surrounds it with custom methods (aka member functions) which are ideally the only way to access and modify the state of that data structure.
+It "encapsulates" a data structure in privacy and surrounds it with custom methods (aka member functions) which are ideally the only way to access and modify the state of that data structure.
 This is important because an OO data structure is typically mutable.
 This OO ceremony attempts to create predictability by knowing how the data structure can be mutated.
 
-Functional programming abstracts common behavior into reusable functional components. These components are adapted to specific needs using other functions. This is why lambdas are so important, because you constantly need to adapt general code to specific purposes, often with a brief amount of code that would otherwise be awkward and intrusive to right as a standalone function.
+Functional programming abstracts common behavior into reusable functional components. 
+These components are adapted to specific needs using other functions. 
+This is why lambdas are so important, because you constantly need to adapt general code to specific purposes, often with a brief amount of code that would otherwise be awkward and intrusive to right as a standalone function.
 
 Functions in a functional language don't need to be tied to a particular data structure.
 Thus, they can often be written for more general use and to reduce duplication.
@@ -267,9 +255,16 @@ When everything is immutable, there is no need for private properties or methods
 
 ## Summary: Style vs Substance
 
+Functional programming abstracts common behavior into reusable functional components.
+These components are adapted to specific needs using other functions. 
+This is why lambdas are so important, because you constantly need to adapt general code to specific purposes, often with a brief amount of code that would otherwise be awkward and intrusive to write as a standalone function.
+
+The two things we do with functions is compose them to make more complex functions, and adapt to them to our specific problem.
+
 We assume that many readers are attracted to this book because they have some experience with functional programming constructs in other languages such as Java (version 8 or newer), Kotlin, Python or some other language that provides a modicum of support.
 However, we also assume you have heard---or you have a sense---that there could be significantly more than, for example, a function's ability to create other functions, or putting elements into a stream and acting upon that stream with `map`, or parallelizing stream operations.
-Those are indeed significant benefits, but they are really just dipping into the possibilities by adopting some of the styles found in functional programming.
+Those are indeed important benefits, but they just dip into the possibilities.
+Adopting some of the styles found in functional programming does not make a language functional.
 
 In this book we want to get to the heart of what it means to be functional.
 In particular, we want to show what it takes to make *reliable* functional code that can be composed without propagating or amplifying flaws in its components.

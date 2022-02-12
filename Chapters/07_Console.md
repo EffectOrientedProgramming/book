@@ -95,8 +95,9 @@ val logicClunky: ZIO[Console, Nothing, Unit] =
 import zio.Runtime.default.unsafeRun
 import zio.ZLayer
 unsafeRun(
-  logicClunky
-    .provide(ZLayer.succeed[Console](ConsoleLive))
+  logicClunky.provide(
+    ZLayer.succeed[Console](ConsoleLive)
+  )
 )
 ```
 
@@ -173,6 +174,32 @@ object Console:
 TODO
 
 ## ZIO Super-Powers
+
+#### Single expression debugging
+When debugging code, we often want to stick a `println` among our logic.
+
+```scala mdoc
+def crunch(a: Int, b: Int) = (a * 2) / (a * 10)
+```
+Historically, this has caused friction for chained expressions.
+We must surround our expression in braces, in order to add this _statement_ before it.
+
+```scala mdoc
+def crunchDebugged(a: Int, b: Int) =
+  println("")
+  a * a
+```
+
+
+```scala mdoc
+import zio.ZIOAppDefault
+import mdoc.unsafeRunPrettyPrint
+
+unsafeRunPrettyPrint(
+  ZIO.debug("ping") *>
+    ConsoleLive.printLine("Normal logic")
+)
+```
 
 ```scala mdoc
 object ConsoleSanitized extends Console:

@@ -7,7 +7,7 @@ addSbtPlugin(
   "org.scalameta" % "sbt-scalafmt" % "2.4.6"
 )
 addSbtPlugin(
-  "org.scalameta" % "sbt-mdoc" % "2.2.24"
+  "org.scalameta" % "sbt-mdoc" % "2.3.0"
 )
 
 addSbtPlugin(
@@ -20,7 +20,7 @@ addSbtPlugin(
 )
 
 addSbtPlugin(
-  "ch.epfl.scala" % "sbt-bloop" % "1.4.12"
+  "ch.epfl.scala" % "sbt-bloop" % "7e30aec7"
 )
 
 addSbtPlugin(

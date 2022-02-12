@@ -1,15 +1,5 @@
 package random
 
-import zio.{
-  Tag,
-  UIO,
-  ZEnv,
-  ZIO,
-  ZIOAppArgs,
-  ZIOAppDefault
-}
-
-import java.io.IOException
 import scala.util.Random
 
 def rollDice(): Int = Random.nextInt(6) + 1
@@ -19,84 +9,90 @@ def randNumEx =
   println(rollDice())
   println(rollDice())
 
-def fullRound(): String =
-  val roll1 = rollDice()
-  val roll2 = rollDice()
+enum GameState:
+  case InProgress(roundResult: String)
+  case Win
+  case Lose
 
-  (roll1, roll2) match
-    case (6, 6) =>
-      "Jackpot! Winner!"
-    case (1, 1) =>
-      "Snake eyes! Loser!"
-    case (_, _) =>
-      "Nothing interesting. Try again."
+def scoreRound(input: Int): GameState =
+  input match
+    case 6 =>
+      GameState.Win
+    case 1 =>
+      GameState.Lose
+    case _ =>
+      GameState.InProgress("Attempt: " + input)
+
+def fullRound(): GameState =
+  val roll = rollDice()
+  scoreRound(roll)
 
 @main
-def playUntilWinOrLoss() = println(fullRound())
+def playASingleRound() = println(fullRound())
 
-def rollDiceZ()
+import zio.ZIO
+
+val rollDiceZ
     : ZIO[RandomBoundedInt, Nothing, Int] =
   RandomBoundedInt.nextIntBetween(1, 7)
 
-import zio.ZIOApp
-import zio.{Tag, UIO, ZEnv, ZIOAppArgs, ZLayer}
-
-object randNumExZ extends ZIOApp:
-  type Environment = RandomBoundedInt
-
-  val layer = RandomBoundedInt.live
-
-  val tag: Tag[RandomBoundedInt] =
-    Tag[RandomBoundedInt]
-  def run =
+import zio.{ZIO, ZIOAppDefault}
+object RollTheDice extends ZIOAppDefault:
+  val logic =
     for
-      roll1 <- rollDiceZ()
-      roll2 <- rollDiceZ()
-      _     <- ZIO.debug(roll1)
-      _     <- ZIO.debug(roll2)
+      roll <- rollDiceZ
+      _    <- ZIO.debug(roll)
     yield ()
 
+  def run =
+    logic.provideLayer(RandomBoundedInt.live)
+
 val fullRoundZ
-    : ZIO[RandomBoundedInt, Nothing, String] =
-  val roll1 = rollDice()
-  val roll2 = rollDice()
-
+    : ZIO[RandomBoundedInt, Nothing, GameState] =
   for
-    roll1 <- rollDiceZ()
-    roll2 <- rollDiceZ()
-  yield (roll1, roll2) match
-    case (6, 6) =>
-      "Jackpot! Winner!"
-    case (1, 1) =>
-      "Snake eyes! Loser!"
-    case (_, _) =>
-      "Nothing interesting. Try again."
+    roll <- rollDiceZ
+  yield scoreRound(roll)
 
-// The problem above is that you can isolate the winner logic and adequately test the program. The next example cannot be split so easily.
+// The problem above is that you can test the winner logic completely separate from the random number generator.
+// The next example cannot be split so easily.
 
 import zio.Ref
-
-case class GameState()
 
 val threeChances =
   for
     remainingChancesR <- Ref.make(3)
-    _ <-
+
+    finalGameResult <-
       (
         for
-          roll <- rollDiceZ()
-          _    <- ZIO.debug(roll)
+          roll <- rollDiceZ
           remainingChances <-
-            remainingChancesR.get
-          _ <-
-            remainingChancesR
-              .set(remainingChances - 1)
-        yield ()
-      ).repeatWhileZIO(x =>
-        remainingChancesR.get.map(_ > 0)
+            remainingChancesR.getAndUpdate(_ - 1)
+        yield
+          if (remainingChances == 0)
+            GameState.Lose
+          else
+            scoreRound(roll)
+      ).repeatWhile {
+        case GameState.InProgress(_) =>
+          true
+        case _ =>
+          false
+      }
+    _ <-
+      ZIO.debug(
+        "Final game result: " + finalGameResult
       )
   yield ()
 
 object ThreeChances extends ZIOAppDefault:
   def run =
-    threeChances.provide(RandomBoundedInt.live)
+    threeChances.provide(
+      RandomBoundedIntFake.apply(Seq(2, 5, 6))
+    )
+
+object LoseInTwoChances extends ZIOAppDefault:
+  def run =
+    threeChances.provide(
+      RandomBoundedIntFake.apply(Seq(2, 1))
+    )
