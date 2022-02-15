@@ -10,9 +10,9 @@ libraryDependencies ++= Seq(
   "io.circe"  % "circe-core_3"  % "0.15.0-M1",
   "io.circe" %% "circe-generic" % "0.15.0-M1",
   "com.softwaremill.sttp.client3" %% "circe" %
-    "3.4.1",
+    "3.4.2",
   "com.softwaremill.sttp.client3" %% "core" %
-    "3.4.1",
+    "3.4.2",
 
   "org.apache.kafka" % "kafka-clients" % "3.1.0",
 
