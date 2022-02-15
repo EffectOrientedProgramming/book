@@ -213,6 +213,8 @@ Only a `Success` causes `f` to be evaluated.
 In `flatMap`, `f` is called on the contents of the `Success`.
 In `map`, `f` is also called on the contents of the `Success`, and then the result of that call is wrapped in another `Success` object.
 
+You can also think of a monad as some functions that enable you to separate the steps of a computation from what happens between those steps.
+
 ## Predefined Monads
 
 Because the `for` comprehension provides direct support for monads, you might not be surprised to discover that Scala comes with some predefined monads.
