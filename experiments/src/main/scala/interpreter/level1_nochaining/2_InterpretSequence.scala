@@ -1,14 +1,16 @@
 package interpreter.level1_nochaining
 
-def interpretSequence(prints: Seq[Print]): Unit =
+def interpretSequence(prints: Seq[Operation]): Unit =
   prints match
     case Nil =>
       ()
     case head :: tail =>
-      println(head.s)
+      interpret(head)
       interpretSequence(tail)
 
 @main
 def demoSequence =
-  val program = Seq(Print("asdf"), Print("hello"))
+  val program =
+    Seq(Print("asdf"), Print("hello"))
+
   interpretSequence(program)

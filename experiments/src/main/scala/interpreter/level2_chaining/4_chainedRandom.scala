@@ -1,10 +1,13 @@
 package interpreter.level2_chaining
 
-case class ToyRandom(nextAction: String => DoSomething) extends DoSomething
+case class ToyRandom(
+    nextAction: String => Operation
+) extends Operation
 
-val program: DoSomething = ToyRandom(s => Print(s))
+val program: Operation =
+  ToyRandom(s => Print(s))
 
-def interpreter(doSomething: DoSomething): Unit =
+def interpreter(doSomething: Operation): Unit =
   doSomething match
     case DoNothing =>
       ()
@@ -16,6 +19,4 @@ def interpreter(doSomething: DoSomething): Unit =
       interpreter(p.nextAction(""))
 
 @main
-def m4 =
-  interpreter(program)
-
+def m4 = interpreter(program)

@@ -3,12 +3,14 @@ package interpreter.level1_nochaining
 /* Programs with no chained operations.
  * The interpreter only handles known types. */
 
-case class Print(s: String)
+trait Operation
 
-case class Random(f: Int => Unit)
+case class Print(s: String) extends Operation
+case class Random(f: Int => Unit) extends Operation
+object NoOp extends Operation
 
-def interpret(pOrR: Print | Random): Unit =
-  pOrR match
+def interpret(operation: Operation): Unit =
+  operation match
     case p: Print =>
       println(p.s)
     case r: Random =>
@@ -18,6 +20,6 @@ def interpret(pOrR: Print | Random): Unit =
 def m1 =
   val p1 = Print("hello")
   val r1 = Random(println)
-  
+
   interpret(p1)
   interpret(r1)
