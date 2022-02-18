@@ -1,7 +1,10 @@
 package interpreter.chaining_with_previous_result
 
-import interpreter.level1_nochaining.Random
+import environment_exploration.ToyEnvironment
 import zio.{ZIO, ZIOAppDefault}
+
+import scala.reflect.{ClassTag, classTag}
+import scala.util.Random
 
 trait Operation
 
@@ -12,30 +15,30 @@ case class StringManipulation(
                 ) extends Operation:
   def actOn(input: String): String = action(input)
 
-object Print extends Operation
+case class Print() extends Operation
 
-object RandomString extends Operation
+case class RandomString() extends Operation
 
 val program = Seq(
   Value("Hello There"),
-  Print,
+  Print(),
   StringManipulation(_.toUpperCase().nn),
-  Print,
+  Print(),
   StringManipulation(_.take(5).nn),
-  Print,
-  RandomString,
-  Print,
+  Print(),
+  RandomString(),
+  Print(),
   StringManipulation(_.toUpperCase().nn),
-  Print,
+  Print(),
 )
 
 def interpret(program: Seq[Operation]): String =
   program.foldLeft("") { (acc, op) =>
     op match {
-      case Print =>
+      case Print() =>
         println(acc)
         acc
-      case RandomString =>
+      case RandomString() =>
         scala.util.Random.alphanumeric.take(10).mkString
       case Value(value) =>
         value
@@ -46,3 +49,21 @@ def interpret(program: Seq[Operation]): String =
 
 @main
 def demoInterpreter() = interpret(program)
+
+trait Printer:
+  def print(input: String): Unit
+
+def interpretWithEnvironment(program: Seq[Operation], environment: ToyEnvironment[Printer & Random]): String =
+  program.foldLeft("") { (acc, op) =>
+    op match {
+      case Print() =>
+        environment.get[Printer].print(acc)
+        acc
+      case RandomString() =>
+        environment.get[Random].alphanumeric.take(10).mkString
+      case Value(value) =>
+        value
+      case StringManipulation(action) =>
+        action(acc)
+    }
+  }
