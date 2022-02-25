@@ -11,6 +11,6 @@ def interpretSequence(prints: Seq[Operation]): Unit =
 @main
 def demoSequence =
   val program =
-    Seq(Print("asdf"), Print("hello"))
+    Seq(Print("asdf"), Print("hello"), Random(println))
 
   interpretSequence(program)
