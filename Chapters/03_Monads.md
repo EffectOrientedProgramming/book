@@ -24,50 +24,6 @@ Mathematicians often say, *A monad embeds an object into an object with a richer
 
 Initially, the most compelling reason to use monads is error handling.
 
-Encountering an error during a function call generally means two things:
-
-1. You can't continue executing the function in the normal fashion.
-
-2. You can't return a normal result.
-
-Many languages use *exceptions* for handling errors.
-An exception *throws* out of the current execution path to locate a user-written *handler* to deal with the error.
-There are two goals for exceptions:
-
-1. Separate error-handling code from "success-path" code, so the success-path code is easier to understand and reason about.
-
-2. Reduce redundant error-handling code by handling associated errors in a single place.
-
-Exceptions have problems:
-
-1. They can be "swallowed."
-   Just because code throws an exception, there's no guarantee that issue will be dealt with.
-
-1. They can lose important information.
-   Once an exception is caught, it is considered to be "handled," and the program doesn't need to retain the failure information.
-
-1. They aren't typed.
-   Java's checked exceptions provide a small amount of type information, but it's not that helpful compared to a full type system.
-   Unchecked exceptions provide no information at all.
-
-1. Because they are handled dynamically, the only way to ensure your program
-   won't crash is by testing it through all possible execution paths. A
-   statically-typed error management solution can ensure---at compile
-   time---that all errors are handled.
-
-1. They don't scale.
-   {{Need to think about this more to make the case.}}
-
-1. Hard to reason about. {{Also need to make this case}}
-
-1. Difficult or impossible to retry an operation if it fails.
-   Java {{and Scala?}} use the "termination" model of exception handling.
-   This assumes the error is so critical there's no way to get back to where the exception occurred.
-   If you're performing an operation that you'd like to retry if it fails, exceptions don't help much.
-
-Exceptions were a valiant attempt to produce a consistent error-reporting interface, and they are definitely better than what's in C.
-But they don't end up solving the problem very well, and you just don't know what you're going to get when you use exceptions.
-
 What if we make a `Box` containing *both* the success-path value together with error information if it fails?
 For simplicity, both the error information and the success data are `String`s:
 
