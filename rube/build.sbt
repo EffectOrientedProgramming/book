@@ -2,7 +2,7 @@ val quillVersion = "3.10.0.Beta1.6"
 
 libraryDependencies ++= Seq(
   "io.getquill" %% "quill-jdbc" % quillVersion,
-  "ch.qos.logback" % "logback-classic"                  % "1.2.10",
+  "ch.qos.logback" % "logback-classic"                  % "1.2.11",
   // Or ZIO Modules
   "io.getquill" %% "quill-jdbc-zio" % quillVersion,
   // Postgres Async
