@@ -133,7 +133,7 @@ def program(dir: File) =
     // Now, strip out numbers and rename
     // according to place in this sequence
     _ <-
-      ZIO {
+      ZIO.attempt {
         flatResults
           .zipWithIndex
           .map((file, index) =>
@@ -174,13 +174,16 @@ def rename(original: File, index: Int) =
       .replaceAll("[^0-9a-zA-Z_]", "")
       .nn + ".md"
 
+  val source = Source.fromFile(original)
+
   val fromMarkdown =
-    Source
-      .fromFile(original)
+    source
       .getLines()
       .nextOption()
       .map(cleanupName)
       .getOrElse(stripped)
+
+  source.close()
 
   val withLeadingZero =
     if (index > 9)

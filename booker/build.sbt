@@ -33,7 +33,7 @@ graalVMNativeImageOptions ++= Seq(
 run / fork := true
 run / baseDirectory := file(".")
 
-//run / javaOptions += s"-agentlib:native-image-agent=config-output-dir=booker/src/main/resources/META-INF/native-image"
+run / javaOptions += s"-agentlib:native-image-agent=config-output-dir=booker/src/main/resources/META-INF/native-image"
 
 /*
 // todo: run task with agent

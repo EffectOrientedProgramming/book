@@ -41,12 +41,12 @@ enum ArithmeticOperation(a: Float, b: Float):
   ] = // This in an function used in calculations implemented below.
     this match
       case Add(first, second) =>
-        ZIO {
+        ZIO.succeed {
           s"Adding $first and $second: ${first - second}"
         }
       case Divide(first, second) =>
         if (second != 0.0)
-          ZIO {
+          ZIO.succeed {
             s"Dividing $first by $second: ${first / second}"
           }
         else
@@ -114,15 +114,16 @@ object CalculatorExample extends zio.App:
     String
   ] =
     for
-      (number1, number2) <-
-        ZIO {
+      number <- // note that `(number1, number2)` now results in: value withFilter is not a member of zio.ZIO[Any, Nothing, (Float, Float)], but could be made available as an extension method.
+        ZIO.attempt {
           (input(1).toFloat, input(2).toFloat)
         } // The inputs are cast as Floats, and passed into a ZIO object.
+
       result <-
         ArithmeticOperation // This object, defined above, processes the operation index, and passes the according calculation to the function calculate.
           .fromInt(input(0).toInt)(
-            number1,
-            number2
+            number._1,
+            number._2
           )
           .calculate() // calculate takes the input numbers from ArithmeticOperation, and creates the return statement
 // _ <- printLine("Typed, parse operation: "
@@ -167,9 +168,10 @@ object CalculatorExample extends zio.App:
         output <-
           operate(i).catchAll {
             case x: String =>
-              ZIO("Input failure: " + x)
+              ZIO.succeed("Input failure: " + x)
             case x: Throwable =>
-              ZIO("toFloat failure: " + x)
+              ZIO
+                .succeed("toFloat failure: " + x)
           }
         _ <- printLine(output)
       yield ()

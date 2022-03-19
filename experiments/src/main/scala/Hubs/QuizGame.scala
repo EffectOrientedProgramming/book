@@ -47,7 +47,7 @@ object QuizGame extends zio.ZIOAppDefault:
     ) =
       ZIO
         .collectAllPar(
-          answers.map { case answer =>
+          answers.map { answer =>
             for
               _ <- ZIO.sleep(answer.delay)
               _ <- answerHub.publish(answer)
@@ -73,10 +73,8 @@ object QuizGame extends zio.ZIOAppDefault:
                   currentCorrectRespondents :+
                     answer.player
                 )
-            yield (
-              "Correct response from: " +
-                answer.player
-            )
+            yield "Correct response from: " +
+              answer.player
           else
             ZIO.succeed(
               "Incorrect response from: " +
@@ -169,7 +167,7 @@ object QuizGame extends zio.ZIOAppDefault:
           questionHub
             .subscribe
             .zip(answerHub.subscribe)
-            .use {
+            .flatMap {
               case (
                     questions,
                     answers: ZDequeue[
@@ -177,8 +175,7 @@ object QuizGame extends zio.ZIOAppDefault:
                       Nothing,
                       Answer
                     ]
-                  ) => {
-
+                  ) =>
                 def playARound(
                     roundDescription: RoundDescription
                 ) =
@@ -236,7 +233,6 @@ object QuizGame extends zio.ZIOAppDefault:
                   yield ()
 
                 ZIO.foreach(rounds)(playARound)
-              }
             }
       yield ()
 

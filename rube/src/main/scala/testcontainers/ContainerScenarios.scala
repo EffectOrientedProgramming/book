@@ -271,6 +271,7 @@ object ContainerScenarios:
 
   val layer =
     ZLayer.make[Deps.RubeDependencies](
+      Scope.default,
       ServiceDataSets.careerDataZ,
       ServiceDataSets.locations,
       ServiceDataSets.backgroundData,

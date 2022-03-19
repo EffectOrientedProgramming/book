@@ -155,9 +155,9 @@ class MatchError:
     Recommendations
   ] =
     for
-      (userInfo, productInfo) <-
-        userAndProductInfo
+      infos <-
+        userAndProductInfo // note: tuple `(userInfo, productInfo)` no longer working: value withFilter is not a member of zio.ZIO
       recommendations <-
-        recommended(userInfo, productInfo)
+        recommended(infos._1, infos._2)
     yield recommendations
 end MatchError

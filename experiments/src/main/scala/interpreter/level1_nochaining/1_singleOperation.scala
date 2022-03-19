@@ -6,7 +6,8 @@ package interpreter.level1_nochaining
 trait Operation
 
 case class Print(s: String) extends Operation
-case class Random(f: Int => Unit) extends Operation
+case class Random(f: Int => Unit)
+    extends Operation
 object NoOp extends Operation
 
 def interpret(operation: Operation): Unit =

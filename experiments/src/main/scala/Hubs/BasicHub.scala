@@ -18,25 +18,31 @@ object BasicHub extends zio.ZIOAppDefault:
     Hub
       .bounded[String](2)
       .flatMap { Hub =>
-        Hub
-          .subscribe
-          .zip(Hub.subscribe)
-          .use { case (left, right) =>
-            for
-              _ <-
-                Hub.publish(
-                  "This is from Hub left!"
-                )
-              _ <-
-                left
-                  .take
-                  .flatMap(Console.printLine(_))
-              _ <-
-                right
-                  .take
-                  .flatMap(Console.printLine(_))
-            yield ()
-          }
+        ZIO.scoped {
+          Hub
+            .subscribe
+            .zip(Hub.subscribe)
+            .flatMap { case (left, right) =>
+              for
+                _ <-
+                  Hub.publish(
+                    "This is from Hub left!"
+                  )
+                _ <-
+                  left
+                    .take
+                    .flatMap(
+                      Console.printLine(_)
+                    )
+                _ <-
+                  right
+                    .take
+                    .flatMap(
+                      Console.printLine(_)
+                    )
+              yield ()
+            }
+        }
       }
 
   /* case class entity(name:String) case class

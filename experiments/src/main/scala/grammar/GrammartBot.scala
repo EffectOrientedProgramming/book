@@ -16,7 +16,7 @@ object GrammarInteractions
       apiKey <- env("GRAMMARBOT_API_KEY")
       _      <- printLine(s"API KEY $apiKey")
       _ <-
-        ZIO {
+        ZIO.succeed {
           /* import sttp.client3._ import
            * sttp.client3.circe._ import
            * io.circe.generic.auto._ import

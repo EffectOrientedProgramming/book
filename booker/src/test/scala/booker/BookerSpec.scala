@@ -62,7 +62,7 @@ object BookerSpec extends DefaultRunnableSpec:
          * 1_bar.md") ) }, */
         test("Renaming") {
           for newName <-
-              ZIO {
+              ZIO.attempt {
                 val original =
                   File(
                     "/home/bfrasure/Repositories/EffectOrientedProgramming/Chapters/08_HelloTest.md"
@@ -70,7 +70,7 @@ object BookerSpec extends DefaultRunnableSpec:
 
                 val stripped =
                   original
-                    .getName()
+                    .getName
                     .nn
                     .dropWhile(_ != '_')
                     .drop(1)

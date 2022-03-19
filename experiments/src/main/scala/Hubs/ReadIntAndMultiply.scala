@@ -15,44 +15,47 @@ object ReadIntAndMultiply
       for
         hub <- Hub.bounded[Int](2)
         _ <-
-          hub
-            .subscribe
-            .use { case hubSubscription =>
-              val getAndStoreInput =
-                for
-                  _ <-
-                    Console.printLine(
-                      "Please provide an int"
-                    )
-                  input <- Console.readLine
-                  nextInt = input.toInt
-                  _ <- hub.publish(nextInt)
-                yield ()
-
-              val processNextIntAndPrint =
-                for
-                  nextInt <- hubSubscription.take
-                  _ <-
-                    Console.printLine(
-                      "Multiplied Int: " +
-                        nextInt * 5
-                    )
-                yield ()
-
-              val reps = 5
-              for _ <-
-                  ZIO
-                    .collectAllPar(
-                      Set(
-                        getAndStoreInput
-                          .repeatN(reps),
-                        processNextIntAndPrint
-                          .forever
+          ZIO.scoped {
+            hub
+              .subscribe
+              .flatMap { hubSubscription =>
+                val getAndStoreInput =
+                  for
+                    _ <-
+                      Console.printLine(
+                        "Please provide an int"
                       )
-                    )
-                    .timeout(5.seconds)
-              yield ()
-            }
+                    input <- Console.readLine
+                    nextInt = input.toInt
+                    _ <- hub.publish(nextInt)
+                  yield ()
+
+                val processNextIntAndPrint =
+                  for
+                    nextInt <-
+                      hubSubscription.take
+                    _ <-
+                      Console.printLine(
+                        "Multiplied Int: " +
+                          nextInt * 5
+                      )
+                  yield ()
+
+                val reps = 5
+                for _ <-
+                    ZIO
+                      .collectAllPar(
+                        Set(
+                          getAndStoreInput
+                            .repeatN(reps),
+                          processNextIntAndPrint
+                            .forever
+                        )
+                      )
+                      .timeout(5.seconds)
+                yield ()
+              }
+          }
       yield ()
 
     (
