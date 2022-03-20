@@ -1,18 +1,17 @@
 package testcontainers
 
 import org.testcontainers.containers.Network
-import zio.{ZIO, ZManaged}
-import zio.ZLayer
+import zio.{Scope, ZIO, ZLayer}
 
 object Layers:
   lazy val networkLayer
-      : ZLayer[Any, Nothing, Network] =
-    ZManaged
-      .acquireReleaseWith(
+      : ZLayer[Scope, Nothing, Network] =
+    ZIO
+      .acquireRelease {
         ZIO.debug("Creating network") *>
           ZIO.succeed(Network.newNetwork().nn)
-      )((n: Network) =>
+      } { n =>
         ZIO.attempt(n.close()).orDie *>
           ZIO.debug("Closing network")
-      )
+      }
       .toLayer

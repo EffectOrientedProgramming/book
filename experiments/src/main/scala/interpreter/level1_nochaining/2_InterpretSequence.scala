@@ -1,6 +1,8 @@
 package interpreter.level1_nochaining
 
-def interpretSequence(prints: Seq[Operation]): Unit =
+def interpretSequence(
+    prints: Seq[Operation]
+): Unit =
   prints match
     case Nil =>
       ()
@@ -11,6 +13,10 @@ def interpretSequence(prints: Seq[Operation]): Unit =
 @main
 def demoSequence =
   val program =
-    Seq(Print("asdf"), Print("hello"), Random(println))
+    Seq(
+      Print("asdf"),
+      Print("hello"),
+      Random(println)
+    )
 
   interpretSequence(program)

@@ -1,73 +1,69 @@
 [
 {
-  "name":"[Ljava.io.File;"}
-,
-{
   "name":"izumi.reflect.macrortti.LightTypeTag",
-  "fields":[{"name":"0bitmap$1"}]}
-,
+  "fields":[{"name":"0bitmap$1"}]
+},
 {
   "name":"izumi.reflect.macrortti.LightTypeTag$ParsedLightTypeTag110",
-  "fields":[{"name":"0bitmap$4"}]}
-,
+  "fields":[{"name":"0bitmap$4"}]
+},
 {
   "name":"izumi.reflect.macrortti.LightTypeTagInheritance",
-  "fields":[{"name":"0bitmap$1"}]}
-,
+  "fields":[{"name":"0bitmap$1"}]
+},
 {
   "name":"izumi.reflect.macrortti.LightTypeTagRef$NameReference",
-  "fields":[{"name":"0bitmap$5"}]}
-,
+  "fields":[{"name":"0bitmap$5"}]
+},
+{
+  "name":"java.io.File[]"
+},
 {
   "name":"java.lang.invoke.VarHandle",
-  "methods":[{"name":"releaseFence","parameterTypes":[] }]}
-,
+  "methods":[{"name":"releaseFence","parameterTypes":[] }]
+},
 {
   "name":"sun.misc.Unsafe",
-  "allDeclaredFields":true}
-,
+  "allDeclaredFields":true
+},
 {
   "name":"zio.Executor",
-  "fields":[{"name":"0bitmap$1"}]}
-,
+  "fields":[{"name":"0bitmap$1"}]
+},
 {
   "name":"zio.Runtime$",
-  "fields":[{"name":"0bitmap$2"}]}
-,
+  "fields":[{"name":"0bitmap$2"}]
+},
 {
   "name":"zio.RuntimeConfig$",
-  "fields":[{"name":"0bitmap$1"}]}
-,
+  "fields":[{"name":"0bitmap$1"}]
+},
 {
   "name":"zio.ZEnvironment$",
-  "fields":[{"name":"0bitmap$1"}]}
-,
+  "fields":[{"name":"0bitmap$1"}]
+},
 {
   "name":"zio.ZFiberRef$",
-  "fields":[{"name":"0bitmap$1"}]}
-,
+  "fields":[{"name":"0bitmap$1"}]
+},
 {
   "name":"zio.ZIO$",
-  "fields":[{"name":"0bitmap$1"}]}
-,
+  "fields":[{"name":"0bitmap$1"}]
+},
 {
   "name":"zio.ZLayer",
-  "fields":[{"name":"0bitmap$1"}]}
-,
-{
-  "name":"zio.ZManaged$",
-  "fields":[{"name":"0bitmap$1"}]}
-,
+  "fields":[{"name":"0bitmap$1"}]
+},
 {
   "name":"zio.internal.FiberContext$",
-  "fields":[{"name":"0bitmap$1"}]}
-,
+  "fields":[{"name":"0bitmap$1"}]
+},
 {
   "name":"zio.internal.Platform$",
-  "fields":[{"name":"0bitmap$1"}]}
-,
+  "fields":[{"name":"0bitmap$1"}]
+},
 {
   "name":"zio.package$",
-  "fields":[{"name":"0bitmap$1"}]}
-
+  "fields":[{"name":"0bitmap$1"}]
+}
 ]

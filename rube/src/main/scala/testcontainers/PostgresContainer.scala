@@ -4,7 +4,7 @@ import org.testcontainers.containers.{
   Network,
   PostgreSQLContainer
 }
-import zio.{ZEnvironment, ZLayer}
+import zio.{ZEnvironment, ZIO, ZLayer}
 
 object PostgresDummy
 
@@ -22,7 +22,12 @@ object PostgresContainer:
             PostgresContainerJ
               .apply(initScipt, network.get)
               .nn
-          GenericInteractionsZ
-            .manage(safePostgres, "postgres")
+
+          ZIO
+            .scoped {
+              GenericInteractionsZ
+                .manage(safePostgres, "postgres")
+            }
             .toLayer
       }
+end PostgresContainer

@@ -60,12 +60,12 @@ val zioLogic =
     _ <- printLine("Accessing the environment")
     state1 <-
       ZIO.serviceWithZIO[XEnvironment](env =>
-        ZIO(env.increment(1))
+        ZIO.succeed(env.increment(1))
       )
     _ <- printLine("state1: " + state1)
     state2 <-
       ZIO.serviceWithZIO[XEnvironment](env =>
-        ZIO(env.increment(1))
+        ZIO.succeed(env.increment(1))
       )
     _ <- printLine("state2: " + state2)
   yield ()

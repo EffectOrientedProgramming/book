@@ -4,8 +4,7 @@ case class ToyRandom(
     nextAction: String => Operation
 ) extends Operation
 
-val program: Operation =
-  ToyRandom(s => Print(s))
+val program: Operation = ToyRandom(s => Print(s))
 
 def interpreter(doSomething: Operation): Unit =
   doSomething match

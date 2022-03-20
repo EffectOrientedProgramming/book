@@ -16,9 +16,7 @@ case class Print(
 //    value: String
 //) extends Operation
 
-def interpreter3(
-    doSomething: Operation
-): Unit =
+def interpreter3(doSomething: Operation): Unit =
   doSomething match
     case DoNothing =>
       ()

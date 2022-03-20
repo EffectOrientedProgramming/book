@@ -49,24 +49,24 @@ object NewTypeDemos extends ZIOAppDefault:
             .safeConstructor("idValue", -10)
         )
       specialClassResult <-
-        ZIO(
+        ZIO.succeed(
           NewSpecialClass.make(
             OurPrimitiveClass("idValue", -10)
           )
         )
       accountNumber <-
-        ZIO {
+        ZIO.succeed {
           SecurePassword("Special String #$")
         }
       accountNumbers <-
-        ZIO {
+        ZIO.succeed {
           SecurePassword(
             "Special String $",
             "bad string!"
           )
         }
       accountNumberRuntime <-
-        ZIO {
+        ZIO.succeed {
           SecurePassword.make(badValue)
         }
       _ <-

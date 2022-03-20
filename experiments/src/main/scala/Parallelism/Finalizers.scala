@@ -34,14 +34,15 @@ object Finalizers extends zio.ZIOAppDefault:
 
   val readFileContents
       : ZIO[Any, Throwable, Vector[String]] =
-    ZIO(
-      scala
-        .io
-        .Source
-        .fromFile(
-          "src/main/scala/Parallelism/csvFile.csv"
-        )
-    ) // Open the file to read its contents
+    ZIO
+      .succeed(
+        scala
+          .io
+          .Source
+          .fromFile(
+            "src/main/scala/Parallelism/csvFile.csv"
+          )
+      ) // Open the file to read its contents
       .acquireReleaseWith(finalizer) {
         bufferedSource => // Use the bracket method with the finalizer defined above to define behavior on fail.
 

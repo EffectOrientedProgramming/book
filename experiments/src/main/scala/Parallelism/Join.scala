@@ -1,7 +1,6 @@
 package Parallelism
 
 import java.io.IOException
-import zio.Console.{getStrLn, putStrLn}
 import zio.{Fiber, IO, Runtime, UIO, ZIO, ZLayer}
 
 class Join:
@@ -27,10 +26,12 @@ class Join:
   object computation:
 
     def fib(n: Long): UIO[Long] =
-      UIO {
-        if (n <= 1)
-          UIO.succeed(n)
-        else
-          fib(n - 1).zipWith(fib(n - 2))(_ + _)
-      }.flatten
+      UIO
+        .succeed {
+          if (n <= 1)
+            UIO.succeed(n)
+          else
+            fib(n - 1).zipWith(fib(n - 2))(_ + _)
+        }
+        .flatten
 end Join

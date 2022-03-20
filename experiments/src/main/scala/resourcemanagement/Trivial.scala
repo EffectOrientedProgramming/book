@@ -1,7 +1,7 @@
 package resourcemanagement
 
 import zio.Console
-import zio.{Ref, ZIO, ZRef, ZManaged}
+import zio.{Ref, ZIO, ZRef}
 
 object Trivial extends zio.ZIOAppDefault:
   enum ResourceState:
@@ -46,22 +46,26 @@ object Trivial extends zio.ZIOAppDefault:
           ResourceState.Closed
         )
       managed =
-        ZManaged.acquireRelease(acquire(ref))(
+        ZIO.acquireRelease(acquire(ref))(_ =>
           release(ref)
         )
+
       reusable =
-        managed.use(
-          Console.printLine(_)
-        ) // note: Can't just do (Console.printLine) here
+        ZIO.scoped {
+          managed.map(Console.printLine(_))
+        } // note: Can't just do (Console.printLine) here
       _ <- reusable
       _ <- reusable
       _ <-
-        managed.use { s =>
-          for
-            _ <- Console.printLine(s)
-            _ <- Console.printLine("Blowing up")
-            _ <- ZIO.fail("Arggggg")
-          yield ()
+        ZIO.scoped {
+          managed.flatMap { s =>
+            for
+              _ <- Console.printLine(s)
+              _ <-
+                Console.printLine("Blowing up")
+              _ <- ZIO.fail("Arggggg")
+            yield ()
+          }
         }
     yield ()
     end for

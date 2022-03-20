@@ -230,7 +230,7 @@ import zio.{Task, ZIO}
 def displayTemperatureZWrapped(
     behavior: Scenario
 ): ZIO[Any, Nothing, String] =
-  ZIO(displayTemperature(behavior)).catchAll {
+  ZIO.attempt(displayTemperature(behavior)).catchAll {
     case ex: NetworkException =>
       ZIO.succeed("Network Unavailable")
     case ex: GpsException =>
@@ -254,7 +254,7 @@ This is decent, but does not provide the maximum possible guarantees. Look at wh
 def getTemperatureZGpsGap(
     behavior: Scenario
 ): ZIO[Any, Nothing, String] =
-  ZIO(displayTemperature(behavior)).catchAll {
+  ZIO.attempt(displayTemperature(behavior)).catchAll {
     case ex: NetworkException =>
       ZIO.succeed("Network Unavailable")
   }
