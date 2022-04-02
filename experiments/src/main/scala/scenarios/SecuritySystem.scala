@@ -46,8 +46,7 @@ object SecuritySystem:
     Nothing,
     scenarios.MotionDetector &
       scenarios.ThermalDetectorX &
-      AcousticDetectorX &
-      SirenX
+      AcousticDetectorX & SirenX
   ] =
     MotionDetector.live ++
       ThermalDetectorX(
@@ -113,11 +112,8 @@ object SecuritySystem:
 
   def shouldAlertServices[
       T
-        <: MotionDetector &
-          ThermalDetectorX &
-          SirenX &
-          AcousticDetectorX &
-          Clock
+        <: MotionDetector & ThermalDetectorX &
+          SirenX & AcousticDetectorX & Clock
   ](): ZIO[
     T,
     scenarios.HardwareFailure | TimeoutException,
