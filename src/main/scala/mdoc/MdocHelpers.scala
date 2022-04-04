@@ -95,6 +95,6 @@ def wrapUnsafeZIOReportError[E, A](
 end wrapUnsafeZIOReportError
 
 def unsafeRunPrettyPrint[E, A](
-    z: => ZIO[zio.ZEnv, E, A]
+    z: => ZIO[Any, E, A]
 ): A | Unit =
   unsafeRun(wrapUnsafeZIOReportError(z))
