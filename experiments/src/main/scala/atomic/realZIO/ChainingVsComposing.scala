@@ -39,8 +39,7 @@ class ChainingVsComposing:
 
   val exploreChaining: ZIO[
     Any,
-    UserNotFound |
-      NetworkError |
+    UserNotFound | NetworkError |
       NoGoodHouseAvailable,
     Home
   ] =
@@ -56,8 +55,7 @@ class ChainingVsComposing:
 
   val finalHouse: ZIO[
     Any,
-    UserNotFound |
-      NetworkError |
+    UserNotFound | NetworkError |
       NoGoodHouseAvailable,
     Home
   ] =
@@ -141,16 +139,14 @@ class MatchError:
 
   val userAndProductInfo: ZIO[
     Any,
-    UserNotFound |
-      ProductNotFound |
+    UserNotFound | ProductNotFound |
       NoSuchElementException,
     (UserInfo, ProductInfo)
   ] = getInfo("asdf").zipPar(getProduct("zxcv"))
 
   val app: ZIO[
     Any,
-    UserNotFound |
-      ProductNotFound |
+    UserNotFound | ProductNotFound |
       NoSuchElementException,
     Recommendations
   ] =

@@ -10,20 +10,13 @@ import testcontainers.ServiceDataSets.CareerData
 
 object Deps:
   type AppDependencies =
-    Network &
-      NetworkAwareness &
-      CareerHistoryServiceT &
-      ToxiproxyContainer
+    Network & NetworkAwareness &
+      CareerHistoryServiceT & ToxiproxyContainer
 
   type RubeDependencies =
-    Network &
-      NetworkAwareness &
-      PostgresContainerJ &
-      KafkaContainer &
+    Network & NetworkAwareness &
+      PostgresContainerJ & KafkaContainer &
       AppPostgresContext &
-      CareerHistoryServiceT &
-      LocationService &
+      CareerHistoryServiceT & LocationService &
       BackgroundCheckService &
-      ToxiproxyContainer &
-      CareerData
-end Deps
+      ToxiproxyContainer & CareerData

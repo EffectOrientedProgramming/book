@@ -107,10 +107,8 @@ object CalculatorExample extends zio.App:
       input: Vector[String]
   ): ZIO[
     Any,
-    String |
-      NumberFormatException |
-      ArithmeticException |
-      Throwable,
+    String | NumberFormatException |
+      ArithmeticException | Throwable,
     String
   ] =
     for

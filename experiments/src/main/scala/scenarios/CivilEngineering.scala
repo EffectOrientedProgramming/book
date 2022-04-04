@@ -52,8 +52,7 @@ object CivilEngineering extends ZIOAppDefault:
   trait PrivatePropertyRefusal
   def build[T](projectBid: ProjectBid[T]): ZIO[
     Any,
-    UnfulfilledPromise |
-      OutOfMoney |
+    UnfulfilledPromise | OutOfMoney |
       PrivatePropertyRefusal,
     T
   ] = ???
@@ -65,9 +64,7 @@ object CivilEngineering extends ZIOAppDefault:
       ]
   ): ZIO[
     World,
-    War |
-      UnfulfilledPromise |
-      OutOfMoney |
+    War | UnfulfilledPromise | OutOfMoney |
       PrivatePropertyRefusal,
     T
   ] =
@@ -117,9 +114,13 @@ def buildABridge() =
   trait ConstructionFirm:
     def produceBid(
         projectSpecifications: ProjectSpecifications
-    ): ZIO[AvailableCompanies[
-      Concrete
-    ] & AvailableCompanies[Steel] & AvailableCompanies[UnderWaterDrilling], InsufficientResources, ProjectBid]
+    ): ZIO[
+      AvailableCompanies[Concrete] &
+        AvailableCompanies[Steel] &
+        AvailableCompanies[UnderWaterDrilling],
+      InsufficientResources,
+      ProjectBid
+    ]
 
   trait NoValidBids
 
