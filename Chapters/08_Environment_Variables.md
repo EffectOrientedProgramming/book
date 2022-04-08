@@ -152,14 +152,13 @@ import zio.ZLayer
 
 object System:
   object Live extends System:
-      def env(
-          variable: String
-      ): ZIO[Any, Nothing, Option[String]] =
-        ZIO.succeed(sys.env.get("API_KEY"))
-        
-  
+    def env(
+        variable: String
+    ): ZIO[Any, Nothing, Option[String]] =
+      ZIO.succeed(sys.env.get("API_KEY"))
+
   val live: ZLayer[Any, Nothing, System] =
-      ZLayer.succeed(Live)
+    ZLayer.succeed(Live)
 
   def env(
       variable: => String
@@ -172,22 +171,25 @@ This is safe, but it is not the easiest code to use or read.
 We then build on first accessor to flatten out the function signature.
 
 ```scala mdoc
-
 trait SystemStrict:
-   def envRequired(
-      variable: String
-  ): ZIO[Any, Error, String]
-  
-object SystemStrict:
-  val live: ZLayer[System, Nothing, SystemStrict] =
-      ZIO.service[System].map(Live(_)).toLayer
-      
   def envRequired(
       variable: String
-  ): ZIO[SystemStrict, Error, String] = 
-      ZIO.serviceWithZIO[SystemStrict](_.envRequired(variable))
-  
-  case class Live(system: System) extends SystemStrict:
+  ): ZIO[Any, Error, String]
+
+object SystemStrict:
+  val live
+      : ZLayer[System, Nothing, SystemStrict] =
+    ZIO.service[System].map(Live(_)).toLayer
+
+  def envRequired(
+      variable: String
+  ): ZIO[SystemStrict, Error, String] =
+    ZIO.serviceWithZIO[SystemStrict](
+      _.envRequired(variable)
+    )
+
+  case class Live(system: System)
+      extends SystemStrict:
     def envRequired(
         variable: String
     ): ZIO[Any, Error, String] =
@@ -200,7 +202,7 @@ object SystemStrict:
               Error("Unconfigured Environment")
             )
       yield res
-      
+end SystemStrict
 ```
      
 Similarly, we wrap our API in one that leverages ZIO.
@@ -208,33 +210,43 @@ Similarly, we wrap our API in one that leverages ZIO.
 ```scala mdoc
 trait HotelApiZ:
   def cheapest(
-      zipCode: String,
+      zipCode: String
   ): ZIO[Any, Error, Hotel]
 
 object HotelApiZ:
-  def cheapest(
-      zipCode: String,
-  ): ZIO[SystemStrict with HotelApiZ, Error, Hotel] =
+  def cheapest(zipCode: String): ZIO[
+    SystemStrict with HotelApiZ,
+    Error,
+    Hotel
+  ] =
     ZIO.serviceWithZIO[HotelApiZ](
       _.cheapest(zipCode)
     )
-    
 
-  case class Live(system: SystemStrict) extends HotelApiZ:
-      def cheapest(
-          zipCode: String
-      ): ZIO[Any, Error, Hotel] =
-      for {
+  case class Live(system: SystemStrict)
+      extends HotelApiZ:
+    def cheapest(
+        zipCode: String
+    ): ZIO[Any, Error, Hotel] =
+      for
         apiKey <- system.envRequired("API_KEY")
-        res <- ZIO.fromEither(
-          HotelApiImpl.cheapest(zipCode, apiKey)
-        )
-      } yield  res
-      
-  val live: ZLayer[SystemStrict, Nothing, HotelApiZ] =
-      ZIO.service[SystemStrict].map(Live(_)).toLayer
-    
-    
+        res <-
+          ZIO.fromEither(
+            HotelApiImpl
+              .cheapest(zipCode, apiKey)
+          )
+      yield res
+
+  val live: ZLayer[
+    SystemStrict,
+    Nothing,
+    HotelApiZ
+  ] =
+    ZIO
+      .service[SystemStrict]
+      .map(Live(_))
+      .toLayer
+end HotelApiZ
 ```
 This helps us keep a flat `Error` channel when we write our domain logic.
 
@@ -242,10 +254,12 @@ This was quite a process; where did it get us?
 Our fully ZIO-centric, side-effect-free logic looks like this:
 
 ```scala mdoc
-val fancyLodging
-    : ZIO[SystemStrict with HotelApiZ, Error, Hotel] =
-  for
-    hotel  <- HotelApiZ.cheapest("90210")
+val fancyLodging: ZIO[
+  SystemStrict with HotelApiZ,
+  Error,
+  Hotel
+] =
+  for hotel <- HotelApiZ.cheapest("90210")
   yield hotel
 ```
 
@@ -281,15 +295,14 @@ sys.env.environment = OriginalDeveloper
 
 ```scala mdoc:silent
 // TODO Do this for CI environment too
-val originalAuthor =
-  HotelApiZ.live
-
+val originalAuthor = HotelApiZ.live
 ```
 
 ```scala mdoc
 unsafeRunPrettyPrint(
   fancyLodging.provideLayer(
-  System.live >>> SystemStrict.live >+> originalAuthor
+    System.live >>> SystemStrict.live >+>
+      originalAuthor
   )
 )
 ```
@@ -301,19 +314,19 @@ sys.env.environment = NewDeveloper
 
 ```scala mdoc:silent
 // TODO Do this for CI environment too
-val collaborater =
-  HotelApiZ.live
+val collaborater = HotelApiZ.live
 
 val colaboraterLayer =
-    collaborater ++ System.live
+  collaborater ++ System.live
 ```
 
 ```scala mdoc
-  unsafeRunPrettyPrint(
+unsafeRunPrettyPrint(
   fancyLodging.provideLayer(
-  System.live >>> SystemStrict.live >+> collaborater
+    System.live >>> SystemStrict.live >+>
+      collaborater
   )
-  )
+)
 ```
 
 **Continuous Integration Server:**
@@ -323,16 +336,15 @@ sys.env.environment = CIServer
 ```
 
 ```scala mdoc:silent
-val ci =
-  HotelApiZ.live
+val ci = HotelApiZ.live
 ```
 
 ```scala mdoc
-  unsafeRunPrettyPrint(
+unsafeRunPrettyPrint(
   fancyLodging.provideLayer(
-  System.live >>> SystemStrict.live >+> ci
+    System.live >>> SystemStrict.live >+> ci
   )
-  )
+)
 ```
 
 TODO{{The actual line looks the same, which I highlighted as a problem before. How should we indicate that the Environment is different?}}
