@@ -110,7 +110,7 @@ genManuscript := {
   val experimentsFiles = Files.walk(file("experiments/src").toPath).iterator().asScala.filter(_.toFile.ext == "scala")
 
   val nf = manuscript / "ExperimentsSection.md"
-  val experimentsHeaderContent = 
+  val experimentsHeaderContent =
     "# Experiments\n\n" +
     "These experiments are not currently attached to a chapter, but are included for previewing. Before publication, we should not have any lingering experiments here.\n\n"
   Files.write(nf.toPath, experimentsHeaderContent.getBytes)
@@ -134,7 +134,7 @@ genManuscript := {
       val packagedName = dir.stripPrefix("experiments/src/main/scala/")
 
       val proseFileOnSameTopic: Option[Path] =
-      proseFiles.find{proseFile => 
+      proseFiles.find{proseFile =>
           val fileNameRaw = proseFile.toFile.getName.toString().toLowerCase.stripSuffix(".md")
           val fileNameClean =
             if (fileNameRaw.contains("_"))
@@ -165,12 +165,12 @@ genManuscript := {
             s"""
                 |
                 |## Automatically attached experiments.
-                | These are included at the end of this 
+                | These are included at the end of this
                 | chapter because their package in the
                 | experiments directory matched the name
                 | of this chapter. Enjoy working on the
                 | code with full editor capabilities :D
-                | 
+                |
                 | ${allFences.mkString}
             """.stripMargin
           IO.append(value.toFile, chapterExperiments)
