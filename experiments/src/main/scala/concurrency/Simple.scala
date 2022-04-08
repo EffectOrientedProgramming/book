@@ -1,6 +1,6 @@
 package concurrency
 
-import zio.{durationInt, duration2DurationOps, Clock, Console, Duration, ZIO, ZIOAppDefault}
+import zio.{durationInt, duration2DurationOps, Clock, Console, Duration, ZIO, ZIOAppDefault, Random}
 
 def sleepThenPrint(d: Duration): ZIO[Clock & Console, java.io.IOException, Duration] =
   for
@@ -49,4 +49,24 @@ object CollectAllParDemo extends zio.ZIOAppDefault:
       )
      total = durations.fold(Duration.Zero)(_ + _).render
      _ <- Console.printLine(total)
+    yield ()
+
+object CollectAllParMassiveDemo extends zio.ZIOAppDefault:
+  override def run =
+    for
+      durations <- ZIO.collectAllSuccessesPar(
+        Seq.fill(
+          1_000_000
+        )(1.seconds).map(duration =>
+          for {
+            randInt <- Random.nextIntBetween(0, 100)
+            _ <- ZIO.sleep(duration)
+            _ <- ZIO.when(randInt < 10)(
+              ZIO.fail("Number is too low")
+            )
+          } yield duration
+        )
+      )
+      total = durations.fold(Duration.Zero)(_ + _).render
+      _ <- Console.printLine(total)
     yield ()
