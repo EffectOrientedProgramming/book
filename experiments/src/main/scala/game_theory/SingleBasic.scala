@@ -5,7 +5,18 @@ import game_theory.Outcome.{BothFree, BothPrison, OnePrison}
 import zio.Console.printLine
 import zio.*
 
-case class Prisoner(name: String)
+
+trait Strategy:
+  def decide(): ZIO[Any, Nothing, Action]
+
+case class Prisoner(name: String, strategy: Strategy):
+  def decide(): ZIO[Any, Nothing, Action] = strategy.decide()
+
+val alwaysBetray = new Strategy:
+  override def decide(): ZIO[Any, Nothing, Action] = ZIO.succeed(Betray)
+
+val alwaysTrust = new Strategy:
+  override def decide(): ZIO[Any, Nothing, Action] = ZIO.succeed(Silent)
 
 enum Action:
   case Silent
@@ -16,8 +27,8 @@ enum Outcome:
   case OnePrison(prisoner: Prisoner)
 
 object SingleBasic extends ZIOAppDefault {
-  val bruce = Prisoner("Bruce")
-  val bill = Prisoner("Bill")
+  val bruce = Prisoner("Bruce", alwaysBetray)
+  val bill = Prisoner("Bill", alwaysTrust)
 
   trait DecisionService:
     def getDecisionFor(prisoner: Prisoner): ZIO[Clock, String, Action]
@@ -37,18 +48,14 @@ object SingleBasic extends ZIOAppDefault {
         case (Betray, Betray) => BothPrison
     yield outcome
 
-  val basicHardcodedService = ZLayer.succeed(new DecisionService {
-    def getDecisionFor(prisoner: Prisoner): ZIO[Clock, String, Action] =
-      (if ( prisoner == bruce)
-        ZIO.succeed(Silent)
-      else if (prisoner == bill)
-        ZIO.sleep(4.seconds) *> ZIO.succeed(Betray)
-      else ZIO.fail("Unknown prisoner")).debug(prisoner.name)
-  })
-
   val everybodyIsAnAsshole = ZLayer.succeed(new DecisionService {
     def getDecisionFor(prisoner: Prisoner): ZIO[Clock, String, Action] =
       ZIO.succeed(Betray)
+  })
+
+  val liveDecisionService = ZLayer.succeed(new DecisionService {
+    def getDecisionFor(prisoner: Prisoner): ZIO[Clock, String, Action] =
+      prisoner.decide()
   })
 
 
@@ -56,7 +63,7 @@ object SingleBasic extends ZIOAppDefault {
     play(bruce, bill).debug
       .provideSomeLayer[Clock](
         //        basicHardcodedService
-        everybodyIsAnAsshole
+        liveDecisionService
       )
 
 }
