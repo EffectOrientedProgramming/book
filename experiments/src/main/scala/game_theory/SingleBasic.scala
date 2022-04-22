@@ -62,7 +62,7 @@ object SingleBasic extends ZIOAppDefault {
           getDecisionFor(prisoner1).zipPar(
             getDecisionFor(prisoner2))
         roundResult = RoundResult(decisions._1, decisions._2)
-        _ <- history.updateAndGet( oldHistory => DecisionHistory(oldHistory.results :+ roundResult)).debug
+        _ <- history.updateAndGet( oldHistory => DecisionHistory(roundResult :: oldHistory.results )).debug
       yield  roundResult
 
   object LiveDecisionService:
