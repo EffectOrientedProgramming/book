@@ -1,11 +1,18 @@
 [
 {
+  "name":"[Ljava.io.File;"
+},
+{
+  "name":"izumi.reflect.internal.fundamentals.platform.console.TrivialLogger$Config$",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
   "name":"izumi.reflect.macrortti.LightTypeTag",
   "fields":[{"name":"0bitmap$1"}]
 },
 {
-  "name":"izumi.reflect.macrortti.LightTypeTag$ParsedLightTypeTag110",
-  "fields":[{"name":"0bitmap$4"}]
+  "name":"izumi.reflect.macrortti.LightTypeTag$ParsedLightTypeTag210",
+  "fields":[{"name":"0bitmap$5"}]
 },
 {
   "name":"izumi.reflect.macrortti.LightTypeTagInheritance",
@@ -16,7 +23,7 @@
   "fields":[{"name":"0bitmap$5"}]
 },
 {
-  "name":"java.io.File[]"
+  "name":"java.lang.ClassValue"
 },
 {
   "name":"java.lang.invoke.VarHandle",
@@ -31,6 +38,10 @@
   "fields":[{"name":"0bitmap$1"}]
 },
 {
+  "name":"zio.FiberRef$",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
   "name":"zio.Runtime$",
   "fields":[{"name":"0bitmap$2"}]
 },
@@ -39,11 +50,11 @@
   "fields":[{"name":"0bitmap$1"}]
 },
 {
-  "name":"zio.ZEnvironment$",
+  "name":"zio.System$",
   "fields":[{"name":"0bitmap$1"}]
 },
 {
-  "name":"zio.ZFiberRef$",
+  "name":"zio.ZEnvironment$",
   "fields":[{"name":"0bitmap$1"}]
 },
 {
@@ -56,10 +67,6 @@
 },
 {
   "name":"zio.internal.FiberContext$",
-  "fields":[{"name":"0bitmap$1"}]
-},
-{
-  "name":"zio.internal.Platform$",
   "fields":[{"name":"0bitmap$1"}]
 },
 {
