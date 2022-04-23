@@ -6,7 +6,7 @@ name := "EffectOrientedProgramming"
 val zioVersion = "2.0.0-RC5"
 
 lazy val commonSettings = Seq(
-  scalaVersion := "3.1.1",
+  scalaVersion := "3.1.2",
 
   scalacOptions += "-Yexplicit-nulls",
   scalacOptions -= "-explain-types",
@@ -19,7 +19,7 @@ lazy val commonSettings = Seq(
     "dev.zio" %% "zio"          % zioVersion,
     "dev.zio" %% "zio-test"     % zioVersion,
     "dev.zio" %% "zio-test-sbt" % zioVersion % Test,
-    "dev.zio" %% "zio-prelude"  % "1.0.0-RC11-2"
+    "dev.zio" %% "zio-prelude"  % "1.0.0-RC13"
   ),
 
   testFrameworks +=
