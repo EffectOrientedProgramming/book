@@ -28,7 +28,7 @@ object RandomBoundedIntFake:
   def apply(
       values: Seq[Int]
   ): ZLayer[Any, Nothing, RandomBoundedInt] =
-    (
+    ZLayer.fromZIO(
       for valuesR <- Ref.make(values)
       yield new RandomBoundedIntFake(valuesR)
-    ).toLayer
+    )

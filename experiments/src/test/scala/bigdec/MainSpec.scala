@@ -10,7 +10,6 @@ import zio.test.Assertion.{
   isSubtype
 }
 import zio.test.{
-  DefaultRunnableSpec,
   ErrorMessage,
   TestConsole,
   TestResult,

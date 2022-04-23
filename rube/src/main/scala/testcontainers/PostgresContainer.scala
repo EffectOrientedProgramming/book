@@ -23,11 +23,11 @@ object PostgresContainer:
               .apply(initScipt, network.get)
               .nn
 
-          ZIO
-            .scoped {
+          ZLayer.fromZIO(
+            ZIO.scoped {
               GenericInteractionsZ
                 .manage(safePostgres, "postgres")
             }
-            .toLayer
+          )
       }
 end PostgresContainer

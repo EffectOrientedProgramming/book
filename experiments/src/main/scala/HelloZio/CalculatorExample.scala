@@ -6,8 +6,14 @@ import java.io.IOException
 import zio.Console.{readLine, printLine}
 import zio.Console
 import zio.Console
-import zio.{IO, Ref, Runtime, ZIO, ZLayer}
-import console.FakeConsole
+import zio.{
+  IO,
+  Ref,
+  Runtime,
+  ZIO,
+  ZLayer,
+  ZIOAppDefault
+}
 
 enum ArithmeticOperation(a: Float, b: Float):
 
@@ -71,7 +77,7 @@ object ArithmeticOperation: // This in an object used in calculations implemente
         throw new RuntimeException("boom")
 
 // extends zio.App
-object CalculatorExample extends zio.App:
+object CalculatorExample extends ZIOAppDefault:
 
   def input: ZIO[ // This function prompts and accepts the input from the user.
     Console,
@@ -143,7 +149,7 @@ object CalculatorExample extends zio.App:
     // index: " + badIndex)
     yield result
 
-  def run(args: List[String]) =
+  def run =
     println("In tester")
     val stringRef =
       Ref.make(
@@ -156,11 +162,13 @@ object CalculatorExample extends zio.App:
         // FakeConsole.createConsoleWithInput(Seq("1",
         // "24", "8"))
         console <-
-          FakeConsole.withInput(
-            "2",
-            "96",
-            "8"
-          ) // Run this program with the following inputs
+          console
+            .FakeConsole
+            .withInput(
+              "2",
+              "96",
+              "8"
+            ) // Run this program with the following inputs
         i <-
           input.provide(ZLayer.succeed(console))
         output <-

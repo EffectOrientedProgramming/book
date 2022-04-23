@@ -44,15 +44,16 @@ object ToxyProxyContainerZ:
         (network: ZEnvironment[Network]) =>
           val container: ToxiproxyContainer =
             apply(network.get)
-          ZIO
-            .scoped {
+
+          ZLayer.fromZIO(
+            ZIO.scoped {
               GenericInteractionsZ
                 .manageWithInitialization(
                   container,
                   "toxi"
                 )
             }
-            .toLayer
+          )
       }
 
   def createProxiedLink(

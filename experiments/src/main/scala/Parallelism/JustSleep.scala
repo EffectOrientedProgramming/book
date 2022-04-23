@@ -1,31 +1,28 @@
 package Parallelism
 
 import java.io.IOException
-import zio.Console.{getStrLn, putStrLn}
 import zio.durationInt
 import zio.{
-  App,
   Fiber,
   IO,
   Runtime,
   UIO,
   ZIO,
+  ZIOAppDefault,
   ZLayer
 }
 
 import scala.concurrent.Await
 
-object JustSleep extends App:
+object JustSleep extends ZIOAppDefault:
 
-  override def run(args: List[String]) =
+  override def run =
     ZIO.collectAllPar(
       (1 to 10000).map(_ => ZIO.sleep(1.seconds))
     ) *>
-      ZIO
-        .debug(
-          "Finished far sooner than 10,000 seconds"
-        )
-        .exitCode
+      ZIO.debug(
+        "Finished far sooner than 10,000 seconds"
+      )
 
 @main
 def ToFuture() =

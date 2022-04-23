@@ -6,12 +6,12 @@ import zio.{Scope, ZIO, ZLayer}
 object Layers:
   lazy val networkLayer
       : ZLayer[Scope, Nothing, Network] =
-    ZIO
-      .acquireRelease {
+    ZLayer.fromZIO(
+      ZIO.acquireRelease {
         ZIO.debug("Creating network") *>
           ZIO.succeed(Network.newNetwork().nn)
       } { n =>
         ZIO.attempt(n.close()).orDie *>
           ZIO.debug("Closing network")
       }
-      .toLayer
+    )
