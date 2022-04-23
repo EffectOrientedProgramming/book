@@ -4,12 +4,8 @@ import zio.Runtime.default.unsafeRun
 import zio.{Console, ZEnv, ZIO}
 
 def wrapUnsafeZIO[E, A](
-    z: => ZIO[zio.ZEnv, E, A]
-): ZIO[
-  zio.ZEnv,
-  E | java.io.IOException,
-  A | Unit
-] =
+    z: => ZIO[Any, E, A]
+): ZIO[Any, E | java.io.IOException, A | Unit] =
   val commentPrefix = "// "
   val columnWidth =
     49 -
@@ -58,14 +54,13 @@ end wrapUnsafeZIO
 // repl.MdocSession$App$GpsException (of class
 // repl.MdocSession$App$GpsException)
 def unsafeRunTruncate[E, A](
-    z: => ZIO[zio.ZEnv, E, A]
+    z: => ZIO[Any, E, A]
 ): A | Unit = unsafeRun(wrapUnsafeZIO(z))
 
 // TODO Print successful result also
 def wrapUnsafeZIOReportError[E, A](
-    z: => ZIO[zio.ZEnv, E, A]
-): ZIO[zio.ZEnv, java.io.IOException, A | Unit] =
-  println("Doing new stuff in here!")
+    z: => ZIO[Any, E, A]
+): ZIO[Any, java.io.IOException, A | Unit] =
   val commentPrefix = "// "
   val columnWidth =
     49 -
