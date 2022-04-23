@@ -153,10 +153,10 @@ object ClockAndConsoleImproved
     ).repeatWhileZIO(_ => raceFinished.get)
 
   def raceEntities(
-      racer1: ZIO[Clock, Nothing, String],
-      racer2: ZIO[Clock, Nothing, String],
+      racer1: ZIO[Any, Nothing, String],
+      racer2: ZIO[Any, Nothing, String],
       raceFinished: Ref[Boolean]
-  ): ZIO[Clock, Nothing, String] =
+  ): ZIO[Any, Nothing, String] =
     racer1
       .race(racer2)
       .flatMap { success =>
@@ -169,7 +169,7 @@ object ClockAndConsoleImproved
   val loadCursorPosition =
     Console.print("\u001b8")
 
-  def renderLoop[T <: Console & Clock](
+  def renderLoop[T](
       drawFrame: ZIO[T, Any, Unit]
   ) =
     for
@@ -215,7 +215,7 @@ object ClockAndConsoleImproved
         _ <- status.set(timeLeft)
       yield timeLeft
 
-    val run: ZIO[Clock, Nothing, String] =
+    val run: ZIO[Any, Nothing, String] =
       loopAndCheck
         .repeatUntil(_ == 0)
         .map(_ => name)

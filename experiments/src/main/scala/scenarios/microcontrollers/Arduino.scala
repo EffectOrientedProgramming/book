@@ -51,7 +51,7 @@ object MicroControllerExample
   def loopLogic(
       startTime: Long,
       arduino: Ref[Arduino]
-  ): ZIO[Console with Clock, IOException, Unit] =
+  ): ZIO[Any, IOException, Unit] =
     for
       inSeconds <- currentTime(TimeUnit.SECONDS)
       originalArduino <- arduino.get

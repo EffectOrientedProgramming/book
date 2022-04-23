@@ -1,12 +1,9 @@
 package cause
 
-import zio.ZEnv
-import zio.ZIO
+import zio.{ZEnv, ZIO, ZIOAppDefault}
 
-object MalcomInTheMiddle extends zio.App:
-  def run(
-      args: List[String]
-  ): zio.URIO[ZEnv, zio.ExitCode] =
+object MalcomInTheMiddle extends ZIOAppDefault:
+  def run =
 
     def turnOnLights() = ???
     class BurntBulb() extends Exception

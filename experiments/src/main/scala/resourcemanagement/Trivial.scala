@@ -1,7 +1,7 @@
 package resourcemanagement
 
 import zio.Console
-import zio.{Ref, ZIO, ZRef}
+import zio.{Ref, ZIO}
 
 object Trivial extends zio.ZIOAppDefault:
   enum ResourceState:
@@ -42,7 +42,7 @@ object Trivial extends zio.ZIOAppDefault:
     // & release logic.
     for
       ref <-
-        ZRef.make[ResourceState](
+        Ref.make[ResourceState](
           ResourceState.Closed
         )
       managed =

@@ -3,11 +3,18 @@ package Hubs
 import console.FakeConsole
 
 import java.io.IOException
-import zio.{Hub, Ref, Schedule, ZDequeue, ZIO}
-import zio.{durationInt, Duration}
-import zio.Clock
+import zio.{
+  Clock,
+  Console,
+  Dequeue,
+  Duration,
+  Hub,
+  Ref,
+  Schedule,
+  ZIO,
+  durationInt
+}
 import zio.Console.printLine
-import zio.Console
 
 object QuizGame extends zio.ZIOAppDefault:
   case class Player(name: String)
@@ -58,7 +65,7 @@ object QuizGame extends zio.ZIOAppDefault:
 
     def recordCorrectAnswers(
         correctAnswer: String,
-        answers: ZDequeue[Any, Nothing, Answer],
+        answers: Dequeue[Answer],
         correctRespondents: Ref[List[Player]]
     ) =
       for // gather answers until there's a winner
@@ -170,11 +177,7 @@ object QuizGame extends zio.ZIOAppDefault:
             .flatMap {
               case (
                     questions,
-                    answers: ZDequeue[
-                      Any,
-                      Nothing,
-                      Answer
-                    ]
+                    answers: Dequeue[Answer]
                   ) =>
                 def playARound(
                     roundDescription: RoundDescription

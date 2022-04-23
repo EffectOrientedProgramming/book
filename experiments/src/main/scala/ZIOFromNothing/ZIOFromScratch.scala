@@ -72,8 +72,7 @@ val zioLogic =
 object RealZIOEnvironmentPassingExplicitlyProvided
     extends ZIOAppDefault:
   def run =
-    zioLogic.provide(
-      Console.live,
+    zioLogic.provideLayer(
       ZLayer.succeed(XEnvironment())
     )
 

@@ -12,7 +12,7 @@ enum MenuCommand:
 object TicTacToe extends ZIOAppDefault:
 
   val program
-      : ZIO[Console, java.io.IOException, Unit] =
+      : ZIO[Any, java.io.IOException, Unit] =
     Console.printLine("TicTacToe game!")
 
   def run =

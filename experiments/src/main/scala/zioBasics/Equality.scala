@@ -14,8 +14,7 @@ val suc4duplicate: UIO[Int] = ZIO.succeed(1)
 
 val suc5: URIO[Any, Int] = ZIO.succeed(1)
 
-val testEqualities
-    : ZIO[Console, IOException, Unit] =
+val testEqualities: ZIO[Any, IOException, Unit] =
   for
     res1: Int <- suc1
     res2: Int <- suc2

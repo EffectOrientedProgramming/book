@@ -17,7 +17,7 @@ def MainFail() =
     ZIO
       .fail(bar) // ZIO that fails with an object
 
-  val zioEx2: ZIO[Console, IOException, Unit] =
+  val zioEx2: ZIO[Any, IOException, Unit] =
     Console.printLine("ZIO")
 
   // ZIO can even fail with other ZIO. Here is
@@ -29,7 +29,7 @@ def MainFail() =
   def processWithSelfDescribedFallbackBehavior(
       success: Boolean
   ): ZIO[Any, ZIO[
-    Console,
+    Any,
     IOException,
     Unit
   ], String] =
@@ -65,8 +65,7 @@ def getCreditScoreFromAgency2(
 // Here we use the different ZIO-based
 // functions to string together a coherent
 // piece of logic.
-val getCreditScore
-    : ZIO[Console, IOException, Int] =
+val getCreditScore: ZIO[Any, IOException, Int] =
   getCreditScoreFromAgency1(false, true)
     .catchAll { case failureReason =>
       for

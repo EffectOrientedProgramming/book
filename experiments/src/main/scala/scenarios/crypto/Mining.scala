@@ -53,11 +53,9 @@ object Mining extends ZIOAppDefault:
     // Takes a starting value, then calls
     // iterates up through numbers until it
     // finds a prime number.
-    def mine2(num: Int): ZIO[
-      zio.Random & Clock,
-      Nothing,
-      (String, Int)
-    ] =
+    def mine2(
+        num: Int
+    ): ZIO[Any, Nothing, (String, Int)] =
       for
         duration <- nextIntBetween(1, 4)
         _        <- ZIO.sleep(duration.second)
@@ -68,11 +66,7 @@ object Mining extends ZIOAppDefault:
   def findNextBlock(
       miners: Seq[Miner],
       startNum: Int
-  ): ZIO[
-    zio.Random & zio.Clock,
-    Nothing,
-    (String, Int)
-  ] =
+  ): ZIO[Any, Nothing, (String, Int)] =
     ZIO.raceAll(
       miners.head.mine2(startNum),
       miners.tail.map(_.mine2(startNum))
@@ -90,7 +84,7 @@ object Mining extends ZIOAppDefault:
       )
 
     def loopLogic(chain: Ref[List[Int]]): ZIO[
-      Console & Random & Clock,
+      Any,
       IOException,
       Unit
     ] = // Uses mine2 function (sleep

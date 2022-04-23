@@ -5,7 +5,7 @@ import zio.Console.*
 import handlingErrors.file
 import java.io.IOException
 
-def standIn: ZIO[Console, IOException, Unit] =
+def standIn: ZIO[Any, IOException, Unit] =
   printLine("Im a stand-in")
 
 object catching extends zio.ZIOAppDefault:

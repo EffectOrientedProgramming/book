@@ -87,8 +87,7 @@ val makeAProxiedRequest =
 object ProxiedRequestScenario
     extends zio.ZIOAppDefault:
   def run =
-    makeAProxiedRequest
-      .provideSome[ZEnv](liveLayer)
+    makeAProxiedRequest.provide(liveLayer)
 
   // todo @bill
   val liveLayer: ZLayer[
@@ -109,8 +108,7 @@ object ProxiedRequestScenarioUnit
     extends zio.ZIOAppDefault:
 
   def run =
-    makeAProxiedRequest
-      .provideSome[ZEnv](liveLayer)
+    makeAProxiedRequest.provide(liveLayer)
 
   val liveLayer =
     ServiceDataSets.careerDataZ >>>
@@ -289,9 +287,9 @@ object ContainerScenarios:
 end ContainerScenarios
 
 object RunScenarios extends zio.ZIOAppDefault:
-  def run =
-    ContainerScenarios
-      .logic
-      .provideSome[ZEnv](
-        ContainerScenarios.layer
-      )
+  def run = ZIO.unit
+//    ContainerScenarios
+//      .logic
+//      .provideSomeLayer[ZIOAppArgs & zio.Scope](
+//        ContainerScenarios.layer
+//      )

@@ -6,7 +6,7 @@ import zio.test.Assertion.*
 
 import java.io.File
 
-object BookerSpec extends DefaultRunnableSpec:
+object BookerSpec extends ZIOSpecDefault:
   def nope(s: String): TestResult =
     zio
       .test

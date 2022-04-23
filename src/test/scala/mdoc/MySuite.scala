@@ -7,8 +7,7 @@ import zio.test.Assertion.*
 
 import java.io.IOException
 
-object MdocHelperSpec
-    extends DefaultRunnableSpec:
+object MdocHelperSpec extends ZIOSpecDefault:
 
   def spec =
     suite("mdoc.MdocHelperSpec")(

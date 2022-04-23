@@ -11,7 +11,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord
 // test cleanup
 
 object RecordManipulationSpec
-    extends DefaultRunnableSpec:
+    extends ZIOSpecDefault:
 
   import zio.durationInt
 

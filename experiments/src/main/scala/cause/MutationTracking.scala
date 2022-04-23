@@ -30,6 +30,5 @@ object Timeline extends zio.ZIOAppDefault:
         printLine(cause.defects)
       }
 
-  def run: zio.URIO[ZEnv, zio.ExitCode] =
-    timeline.exitCode
+  def run = timeline.exitCode
 end Timeline

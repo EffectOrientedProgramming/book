@@ -60,7 +60,7 @@ def chapterFiles(dir: File): Seq[(Int, File)] =
 
 def resolveDups(
     dups: Seq[File]
-): ZIO[Console, Throwable, Seq[File]] =
+): ZIO[Any, Throwable, Seq[File]] =
   val something =
     for
       _ <- printLine("Conflict detected:")
@@ -110,7 +110,9 @@ end resolveDups
  * Resolutions:
  * 02-foo 03-bar */
 
-def program(dir: File) =
+def program(
+    dir: File
+): ZIO[Any, Throwable, Unit] =
   for
     _ <- validateDir(dir)
     _ <- printLine(s"Reordering $dir")

@@ -32,7 +32,7 @@ val sideEffectingGuessingGame =
 @main
 def runSideEffectingGuessingGame =
   unsafeRun(
-    sideEffectingGuessingGame.provide(
+    sideEffectingGuessingGame.provideLayer(
       ZLayer.succeed(FakeConsole.single("3"))
     )
   )
