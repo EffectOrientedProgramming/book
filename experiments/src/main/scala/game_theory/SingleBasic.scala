@@ -17,15 +17,20 @@ case class RoundResult(
     prisoner1Decision: Decision,
     prisoner2Decision: Decision
 ):
-  override def toString: String = {
-    s"RoundResult(${prisoner1Decision.prisoner}:${prisoner1Decision.action} ${prisoner2Decision.prisoner}:${prisoner2Decision.action})"
-  }
+  override def toString: String =
+    s"RoundResult(${prisoner1Decision.prisoner}:${prisoner1Decision
+        .action} ${prisoner2Decision.prisoner}:${prisoner2Decision.action})"
 case class DecisionHistory(
     results: List[RoundResult]
 ):
-  def historyFor(prisoner: Prisoner): List[Action] =
+  def historyFor(
+      prisoner: Prisoner
+  ): List[Action] =
     results.map(roundResult =>
-      if ( roundResult.prisoner1Decision.prisoner == prisoner)
+      if (
+        roundResult.prisoner1Decision.prisoner ==
+          prisoner
+      )
         roundResult.prisoner1Decision.action
       else
         roundResult.prisoner2Decision.action
@@ -50,9 +55,9 @@ case class Prisoner(
 val silentAtFirstAndEventuallyBetray =
   new Strategy:
     override def decide(
-      actionsAgainst: List[Action]
+        actionsAgainst: List[Action]
     ): ZIO[Any, Nothing, Action] =
-      if(actionsAgainst.length < 3)
+      if (actionsAgainst.length < 3)
         ZIO.succeed(Silent)
       else
         ZIO.succeed(Betray)
@@ -60,15 +65,15 @@ val silentAtFirstAndEventuallyBetray =
 val alwaysTrust =
   new Strategy:
     override def decide(
-      actionsAgainst: List[Action]
+        actionsAgainst: List[Action]
     ): ZIO[Any, Nothing, Action] =
       ZIO.succeed(Silent)
 
 val silentUntilBetrayed =
   new Strategy:
     override def decide(
-                         actionsAgainst: List[Action]
-                       ): ZIO[Any, Nothing, Action] =
+        actionsAgainst: List[Action]
+    ): ZIO[Any, Nothing, Action] =
       if (actionsAgainst.contains(Betray))
         ZIO.succeed(Betray)
       else
@@ -82,10 +87,6 @@ enum Outcome:
   case BothFree,
     BothPrison
   case OnePrison(prisoner: Prisoner)
-
-
-
-
 
 object SingleBasic extends ZIOAppDefault:
 
@@ -116,8 +117,13 @@ object SingleBasic extends ZIOAppDefault:
             BothPrison
     yield outcome
 
-  val bruce = Prisoner("Bruce", silentAtFirstAndEventuallyBetray)
-  val bill  = Prisoner("Bill", silentUntilBetrayed)
+  val bruce =
+    Prisoner(
+      "Bruce",
+      silentAtFirstAndEventuallyBetray
+    )
+  val bill =
+    Prisoner("Bill", silentUntilBetrayed)
 
   def run =
     play(bruce, bill)
