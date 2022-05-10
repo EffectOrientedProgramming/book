@@ -14,7 +14,7 @@ libraryDependencies ++= Seq(
   "com.softwaremill.sttp.client3" %% "core" %
     "3.5.2",
 
-  "org.apache.kafka" % "kafka-clients" % "3.1.0",
+  "org.apache.kafka" % "kafka-clients" % "3.2.0",
 
   "org.testcontainers"    % "testcontainers"            % "1.17.1",
   "org.testcontainers"    % "postgresql"            % "1.17.1",
