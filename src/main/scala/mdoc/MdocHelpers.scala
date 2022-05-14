@@ -38,7 +38,7 @@ def wrapUnsafeZIO[E, A](
         else
           ""
       indentedMsg =
-        (" " * defectPrefix.length) +
+        " " * defectPrefix.length +
           extractedMessage
       formattedMsg =
         if (indentedMsg.length > topLineLength)

@@ -179,7 +179,7 @@ TODO
 When debugging code, we often want to stick a `println` among our logic.
 
 ```scala mdoc
-def crunch(a: Int, b: Int) = (a * 2) / (a * 10)
+def crunch(a: Int, b: Int) = a * 2 / (a * 10)
 ```
 Historically, this has caused friction for chained expressions.
 We must surround our expression in braces, in order to add this _statement_ before it.

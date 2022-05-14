@@ -63,7 +63,7 @@ object KafkaInitialization:
     for container <-
         ZIO.attempt {
           val properties =
-            new java.util.Properties()
+            new java.util.Properties
 
           import org.apache.kafka.clients.admin.AdminClientConfig
           import org.apache.kafka.clients.admin.Admin
@@ -213,7 +213,7 @@ object UseKafka:
         ZIO.service[KafkaContainer]
       messagesProduced <- Ref.make(1)
     yield
-      val config = new java.util.Properties().nn
+      val config = new java.util.Properties.nn
       config.put(
         "client.id",
         InetAddress
@@ -256,7 +256,7 @@ object UseKafka:
         ZIO.service[KafkaContainer]
       messagesConsumed <- Ref.make(0)
     yield
-      val config = new java.util.Properties().nn
+      val config = new java.util.Properties.nn
       config.put(
         "client.id",
         InetAddress

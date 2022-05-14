@@ -10,8 +10,8 @@ trait WhatEquals[T]:
 given WhatEquals[Boolean] with
 
   def strEq(s: String, t: Boolean): Boolean =
-    (s == "true" && t == true) ||
-      (s == "false" && t == false)
+    s == "true" && t == true ||
+      s == "false" && t == false
 
 // Note: This syntax gives garbage error message
 // when a TC is not available

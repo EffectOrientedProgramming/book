@@ -151,19 +151,17 @@ class MockServerContainerZBasic(
             }
             .tapError { x =>
               import sttp.client3.SttpClientException
-              (
-                x match
-                  case err: ConnectException =>
-                    ZIO.debug(
-                      "ConnectException: " + err
-                    )
-                  case err: ReadException =>
-                    ZIO.debug(
-                      "ReadException: " + err
-                    )
-                  case _ =>
-                    ZIO.unit
-              )
+              x match
+                case err: ConnectException =>
+                  ZIO.debug(
+                    "ConnectException: " + err
+                  )
+                case err: ReadException =>
+                  ZIO.debug(
+                    "ReadException: " + err
+                  )
+                case _ =>
+                  ZIO.unit
             }
         catch
           case defect =>

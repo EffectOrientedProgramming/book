@@ -21,13 +21,22 @@ trait AccountService
 trait AccountError
 trait Account
 
-def getUser(userId: String): ZIO[UserService, UserNotFound, User] = ???
+def getUser(
+    userId: String
+): ZIO[UserService, UserNotFound, User] = ???
 
-def userToAccount(user: User): ZIO[AccountService, AccountError, Account] = ???
+def userToAccount(
+    user: User
+): ZIO[AccountService, AccountError, Account] =
+  ???
 
-def getAccount(userId: String):  ZIO[UserService & AccountService, AccountError | UserNotFound, Account] =
+def getAccount(userId: String): ZIO[
+  UserService & AccountService,
+  AccountError | UserNotFound,
+  Account
+] =
   for
-    user <- getUser(userId)
+    user    <- getUser(userId)
     account <- userToAccount(user)
   yield account
 ```

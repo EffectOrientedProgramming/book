@@ -17,7 +17,7 @@ object QuillLocal:
       container: PostgresContainerJ
   ) =
     val pgDataSource =
-      new org.postgresql.ds.PGSimpleDataSource()
+      new org.postgresql.ds.PGSimpleDataSource
 
     val exposedPort =
       container.getMappedPort(5432).nn
@@ -27,7 +27,7 @@ object QuillLocal:
     pgDataSource
       .setPortNumbers(Array(exposedPort))
     pgDataSource.setPassword(password)
-    val config = new HikariConfig()
+    val config = new HikariConfig
     config.setDataSource(pgDataSource)
     config
 

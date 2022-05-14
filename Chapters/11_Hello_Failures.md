@@ -24,9 +24,9 @@ def displayTemperature(
     behavior: Scenario
 ): String =
   if (behavior == Scenario.GPSError)
-    throw new GpsException()
+    throw new GpsException
   else if (behavior == Scenario.NetworkError)
-    throw new NetworkException()
+    throw new NetworkException
   else
     "35 degrees"
 ```
@@ -201,10 +201,10 @@ def getTemperatureZ(behavior: Scenario): ZIO[
   String
 ] =
   if (behavior == Scenario.GPSError)
-    ZIO.fail(new GpsException())
+    ZIO.fail(new GpsException)
   else if (behavior == Scenario.NetworkError)
     // TODO Use a non-exceptional error
-    ZIO.fail(new NetworkException())
+    ZIO.fail(new NetworkException)
   else
     ZIO.succeed("30 degrees")
 
