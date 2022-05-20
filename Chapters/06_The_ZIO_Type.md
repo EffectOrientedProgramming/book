@@ -8,50 +8,6 @@ trait ZIO[Requirements, Error, Answer]
 
 One downside of these type parameters 
 
-Functions usually transform the `Answer` from one type to another type.  Errors often aggregate.
-
-```scala mdoc
-import zio.ZIO
-
-trait UserService
-trait UserNotFound
-trait User
-
-trait AccountService
-trait AccountError
-trait Account
-
-def getUser(userId: String): ZIO[UserService, UserNotFound, User] = ???
-
-def userToAccount(user: User): ZIO[AccountService, AccountError, Account] = ???
-
-def getAccount(userId: String):  ZIO[UserService & AccountService, AccountError | UserNotFound, Account] =
-  for
-    user <- getUser(userId)
-    account <- userToAccount(user)
-  yield account
-```
-
-```
-sealed trait SomeErrors
-object AccountError extends SomeErrors
-object UserNotFound extends SomeErrors
-```
-
-```
-case class SomeServices(userService: UserService, accountService: AccountService)
-
-//trait SomeServices extends UserService with AccountService
-```
-
-The requirements for each ZIO are combined as an anonymous product type denoted by the `&` symbol.
-
-Scala 3 automatically aggregates the error types by synthesizing an anonymous sum type from the combined errors.
-
-You have the ability to handle all the possible errors from your logic without needing to create a new name that encompasses all of them.
-
-For your `Answer`, it can be desirable to give a clear name that is relevant to your domain.
-
 
 The `ZIO` trait is at the center of our Effect-oriented world.
 
