@@ -1,4 +1,4 @@
-package scenarios.microcontrollers
+package microcontrollers
 
 import zio.Console.{printLine, readLine}
 import zio.{

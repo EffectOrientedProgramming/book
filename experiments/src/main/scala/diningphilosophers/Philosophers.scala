@@ -1,4 +1,4 @@
-package scenarios.diningphilosophers
+package diningphilosophers
 
 /** Problem statement
   *
