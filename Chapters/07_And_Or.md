@@ -1,6 +1,8 @@
-# Combining Types
+# And / Or
 
-## Unions
+## Unions AKA Sum Types AKA Enums AKA Ors
+
+Note - Avoid official terminology in most prose. Just say "And"/"Or" where appropriate.
 
 Scala 3 automatically aggregates the error types by synthesizing an anonymous sum type from the combined errors.
 
@@ -47,7 +49,7 @@ def check(userId: String): ZIO[UserService & NetworkService, UserNotFound, Statu
 ```
 
 
-## Intersections
+## Intersections AKA Products AKA Case Classes AKA Ands
 
 ```scala mdoc
 trait Piece1
