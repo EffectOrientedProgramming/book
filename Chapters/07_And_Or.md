@@ -51,6 +51,13 @@ def check(userId: String): ZIO[UserService & NetworkService, UserNotFound, Statu
 
 ## Intersections AKA Products AKA Case Classes AKA Ands
 
+```mermaid
+graph TD;
+  Any-->User;
+  Any-->Account;
+   
+```
+
 ```scala mdoc
 trait Piece1
 trait Piece2
