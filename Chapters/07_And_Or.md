@@ -1,11 +1,5 @@
 # And / Or
 
-<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-<script>
-    mermaid.initialize({ startOnLoad: true });
-</script>
-
-
 ## Unions AKA Sum Types AKA Enums AKA Ors
 
 Note - Avoid official terminology in most prose. Just say "And"/"Or" where appropriate.
