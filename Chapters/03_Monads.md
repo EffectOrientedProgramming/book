@@ -352,7 +352,7 @@ def solution4(stop: Int) =
     c: String <- checkRE(3, stop, b)
   yield
     println(s"Completed: $c")
-    c.toUpperCase.nn
+    c.toUpperCase
 ```
 
 ```scala mdoc

@@ -24,13 +24,13 @@ val program =
   Seq(
     Value("Hello There"),
     Print(),
-    StringManipulation(_.toUpperCase().nn),
+    StringManipulation(_.toUpperCase()),
     Print(),
-    StringManipulation(_.take(5).nn),
+    StringManipulation(_.take(5)),
     Print(),
     RandomString(),
     Print(),
-    StringManipulation(_.toUpperCase().nn),
+    StringManipulation(_.toUpperCase()),
     Print()
   )
 

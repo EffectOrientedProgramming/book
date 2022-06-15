@@ -120,7 +120,7 @@ def reportTopLevelError(
   val errorMsg =
     failure match
       case t: Throwable =>
-        t.getCause.nn.getMessage
+        t.getCause.getMessage
       case s: String =>
         s
   printLine("Failure: " + failure) *>
@@ -156,8 +156,8 @@ object ContainerScenarios:
             record =>
               for location <-
                   LocationService
-                    .locationOf(record.key.nn)
-              yield record.value.nn +
+                    .locationOf(record.key)
+              yield record.value +
                 s",Location:$location",
           outputTopicName = "housing_history",
           groupId = "housing"
@@ -180,9 +180,9 @@ object ContainerScenarios:
                 for criminalHistory <-
                     BackgroundCheckService
                       .criminalHistoryOf(
-                        record.key.nn
+                        record.key
                       )
-                yield s"${record.value.nn},$criminalHistory",
+                yield s"${record.value},$criminalHistory",
             outputTopicName = "criminal_history",
             groupId = "criminal"
           )

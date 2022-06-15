@@ -20,9 +20,9 @@ object QuillLocal:
       new org.postgresql.ds.PGSimpleDataSource()
 
     val exposedPort =
-      container.getMappedPort(5432).nn
-    val username = container.getUsername.nn
-    val password = container.getPassword.nn
+      container.getMappedPort(5432)
+    val username = container.getUsername
+    val password = container.getPassword
     pgDataSource.setUser(username)
     pgDataSource
       .setPortNumbers(Array(exposedPort))

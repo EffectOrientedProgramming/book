@@ -12,10 +12,7 @@ object RecordManipulation:
       java
         .util
         .Arrays
-        .asList(
-          record.value.nn.split(",").nn.map(_.nn)
-        )
-        .nn
+        .asList(record.value.split(","))
         .asScala
         .last
         .toList

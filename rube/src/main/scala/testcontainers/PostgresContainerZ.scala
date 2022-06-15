@@ -12,10 +12,10 @@ class Shit()
  * object PostgresContainerZ:
  * def apply( initScript: String, network:
  * Network ): PostgresContainerZ =
- * new PostgresContainerZ() .nn
- * .withInitScript(initScript) .nn
- * .withNetwork(network) .nn
- * .withNetworkAliases("postgres") .nn
+ * new PostgresContainerZ()
+ * .withInitScript(initScript)
+ * .withNetwork(network)
+ * .withNetworkAliases("postgres")
  *
  * def construct(initScipt: String): ZLayer[Has[
  * Network ], Nothing, Has[PostgresContainerZ]] =

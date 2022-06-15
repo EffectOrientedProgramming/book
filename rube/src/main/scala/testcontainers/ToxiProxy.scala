@@ -25,13 +25,10 @@ object ToxyProxyContainerZ:
     // Toxiproxy container, which will be used as
     // a TCP proxy
     new ToxiproxyContainer(TOXIPROXY_IMAGE)
-      .nn
       .withNetwork(network)
-      .nn
       .withNetworkAliases(
         TOXIPROXY_NETWORK_ALIAS
       )
-      .nn
 
   def construct(): ZLayer[
     Network & NetworkAwareness,
@@ -64,22 +61,19 @@ object ToxyProxyContainerZ:
     println("Using")
 
     /* toxiproxyContainer .getBoundPortNumbers
-     * .nn .forEach(x => println(x.nn)) while
+     * .forEach(x => println(x)) while
      * (!toxiproxyContainer.isHealthy) {
      * println("Waiting for health check") } */
 
     val proxy
         : ToxiproxyContainer.ContainerProxy =
-      toxiproxyContainer
-        .getProxy(
-          mockServerContainer,
-          mockServerContainer.getServerPort.nn
-        )
-        .nn
+      toxiproxyContainer.getProxy(
+        mockServerContainer,
+        mockServerContainer.getServerPort
+      )
 
 //    proxy
 //      .toxics()
-//      .nn
 //      .latency(
 //        "latency",
 //        ToxicDirection.DOWNSTREAM,
@@ -88,14 +82,14 @@ object ToxyProxyContainerZ:
 
     println(
       "Hopefully setup Proxy target: " +
-        mockServerContainer.getServerPort.nn
+        mockServerContainer.getServerPort
     )
 
     println(
       "Proxy target on underlying service: " +
-        proxy.getOriginalProxyPort.nn
+        proxy.getOriginalProxyPort
     )
-    proxy.getProxyPort.nn
-//    proxy.getOriginalProxyPort.nn
+    proxy.getProxyPort
+//    proxy.getOriginalProxyPort
   end createProxiedLink
 end ToxyProxyContainerZ

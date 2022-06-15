@@ -28,17 +28,15 @@ def validateDir(
     .map(_ => ())
 
 def filesInDir(dir: File): Seq[File] =
-  dir.listFiles().nn.map(_.nn).toSeq
+  dir.listFiles().toSeq
 
 def parseChapter(f: File): Option[(Int, File)] =
   def intPrefix(s: String): Option[(Int, File)] =
     Try(Integer.parseInt(s)).toOption.map(_ -> f)
 
-  if f.getName.nn.endsWith(".md") then
+  if f.getName.endsWith(".md") then
     f.getName
-      .nn
       .split('_')
-      .nn
       .headOption
       .flatMap(intPrefix)
   else
@@ -158,23 +156,17 @@ def run(args: String*) =
   val f: File =
 //    File(args.headOption.getOrElse(""))
     File("Chapters")
-  unsafeRun(program(f.getAbsoluteFile.nn))
+  unsafeRun(program(f.getAbsoluteFile))
 
 def rename(original: File, index: Int) =
 
   val stripped =
-    original
-      .getName
-      .nn
-      .dropWhile(_ != '_')
-      .drop(1)
+    original.getName.dropWhile(_ != '_').drop(1)
 
   def cleanupName(s: String): String =
     s.stripPrefix("# ")
       .replace(' ', '_')
-      .nn
-      .replaceAll("[^0-9a-zA-Z_]", "")
-      .nn + ".md"
+      .replaceAll("[^0-9a-zA-Z_]", "") + ".md"
 
   val source = Source.fromFile(original)
 

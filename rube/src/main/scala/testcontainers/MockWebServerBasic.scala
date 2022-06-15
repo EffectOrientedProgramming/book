@@ -53,9 +53,9 @@ object MockServerContainerZBasic:
    * MockServerContainerZBasic .mockSetup(_,
    * pairs) ) .map(mockServerContainer => new
    * MockServerContainerZBasic(
-   * mockServerContainer.getHost.nn,
-   * mockServerContainer .getServerPort .nn,
-   * proxyZ ) ) .toLayer yield ??? */
+   * mockServerContainer.getHost,
+   * mockServerContainer .getServerPort, proxyZ )
+   * ) .toLayer yield ??? */
 
   private def apply(
       network: Network,
@@ -64,8 +64,7 @@ object MockServerContainerZBasic:
     new MockServerContainer(
       DockerImageName
         .parse(s"mockserver/mockserver:$version")
-        .nn
-    ).nn
+    )
 
   def constructUrl(
       host: String,
@@ -91,19 +90,13 @@ object MockServerContainerZBasic:
                 ) =>
               new MockServerClient(
                 mockServer.getHost(),
-                mockServer.getServerPort().nn
+                mockServer.getServerPort()
               ).when(
-                  request()
-                    .nn
-                    .withPath(userRequest)
-                    .nn
+                  request().withPath(userRequest)
                 )
-                .nn
                 .respond(
                   response()
-                    .nn
                     .withBody(userResponse)
-                    .nn
                 );
           }
         } *> ZIO.debug("Finished mock server")

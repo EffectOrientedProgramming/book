@@ -35,8 +35,7 @@ object TimeIgnorant:
       case Some(value) =>
         ()
       case None =>
-        summaryCalledTime =
-          Some(Instant.now().nn)
+        summaryCalledTime = Some(Instant.now())
 
     ZIO.succeed(Summary(1))
 

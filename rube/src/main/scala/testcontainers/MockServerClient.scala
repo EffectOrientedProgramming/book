@@ -31,7 +31,8 @@ object MockServerClient:
             basicRequest
               .body("Hello, world!")
               .get(
-                uri"http://${mockServerContainer.getHost()}:${mockServerContainer.getServerPort().nn}/person/${person.firstName}"
+                uri"http://${mockServerContainer.getHost()}:${mockServerContainer
+                    .getServerPort()}/person/${person.firstName}"
               )
               .send(backend)
 

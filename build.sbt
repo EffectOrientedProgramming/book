@@ -7,8 +7,6 @@ val zioVersion = "2.0.0-RC5"
 
 lazy val commonSettings = Seq(
   scalaVersion := "3.1.2",
-
-  scalacOptions += "-Yexplicit-nulls",
   scalacOptions -= "-explain-types",
   scalacOptions -= "-explain",
 

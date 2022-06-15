@@ -21,7 +21,6 @@ object PostgresContainer:
           val safePostgres =
             PostgresContainerJ
               .apply(initScipt, network.get)
-              .nn
 
           ZLayer.fromZIO(
             ZIO.scoped {

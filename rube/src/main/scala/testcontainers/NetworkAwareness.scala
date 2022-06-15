@@ -35,10 +35,6 @@ object NetworkAwarenessLive
     extends NetworkAwareness:
   import java.net.InetAddress
   val localHostName =
-    ZIO.attempt {
-      InetAddress
-        .getLocalHost()
-        .nn
-        .getHostName()
-        .nn
-    }
+    ZIO.attempt(
+      InetAddress.getLocalHost().getHostName()
+    )

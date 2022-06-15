@@ -71,13 +71,12 @@ object BookerSpec extends ZIOSpecDefault:
                 val stripped =
                   original
                     .getName
-                    .nn
                     .dropWhile(_ != '_')
                     .drop(1)
 
                 original.renameTo(
                   File(
-                    original.getParent.nn + "/" +
+                    original.getParent + "/" +
                       stripped
                   )
                 )

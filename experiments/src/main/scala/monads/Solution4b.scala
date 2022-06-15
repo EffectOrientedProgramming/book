@@ -20,7 +20,7 @@ def showRE(n: Char) =
       c: String <- op('c', b)
     yield
       println(s"Completed: $c")
-      c.toUpperCase.nn
+      c.toUpperCase
 
   println(compose)
   compose match

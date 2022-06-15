@@ -29,8 +29,7 @@ object KafkaContainerZ:
     new KafkaContainer(
       DockerImageName
         .parse("confluentinc/cp-kafka:5.4.3")
-        .nn
-    ).nn
+    )
 
   def construct(
       topicNames: List[String]
@@ -85,9 +84,9 @@ object KafkaInitialization:
               )
             )
 
-          val admin = Admin.create(properties).nn
+          val admin = Admin.create(properties)
           import scala.jdk.CollectionConverters._
-          admin.createTopics(newTopics.asJava).nn
+          admin.createTopics(newTopics.asJava)
         }
     yield ()
 end KafkaInitialization
@@ -103,24 +102,22 @@ case class KafkaProducerZ(
       value: String
   ): Task[RecordMetadata] =
     val partition = 0
-    val timestamp = Instant.now().nn.toEpochMilli
+    val timestamp = Instant.now().toEpochMilli
     import org.apache.kafka.common.header.Header
     val headers: List[Header] = List.empty
 
     messagesProduced.update(_ + 1) *>
       ZIO.fromFutureJava(
-        rawProducer
-          .send(
-            new ProducerRecord(
-              topicName,
-              partition,
-              timestamp,
-              key,
-              value,
-              headers.asJava
-            )
+        rawProducer.send(
+          new ProducerRecord(
+            topicName,
+            partition,
+            timestamp,
+            key,
+            value,
+            headers.asJava
           )
-          .nn
+        )
       )
   end submit
 
@@ -162,12 +159,10 @@ case class KafkaConsumerZ(
           val records
               : ConsumerRecords[String, String] =
             rawConsumer
-              .poll(Duration.ofMillis(100).nn)
-              .nn
+              .poll(Duration.ofMillis(100))
           rawConsumer.commitSync
           records
             .records(topicName)
-            .nn
             .asScala
             .toList // TODO Parameterize/access topicName more cleanly
         }
@@ -187,7 +182,7 @@ case class KafkaConsumerZ(
         if debug then
           ZIO.foreach(
             recordsConsumed.map { record =>
-              record.nn.value.toString
+              record.value.toString
             }
           )(record =>
             ZIO.debug(
@@ -213,18 +208,14 @@ object UseKafka:
         ZIO.service[KafkaContainer]
       messagesProduced <- Ref.make(1)
     yield
-      val config = new java.util.Properties().nn
+      val config = new java.util.Properties()
       config.put(
         "client.id",
-        InetAddress
-          .getLocalHost()
-          .nn
-          .getHostName()
-          .nn
+        InetAddress.getLocalHost().getHostName()
       )
       config.put(
         "bootstrap.servers",
-        kafkaContainer.getBootstrapServers.nn
+        kafkaContainer.getBootstrapServers
       )
       config.put("acks", "all")
       config.put(
@@ -256,19 +247,15 @@ object UseKafka:
         ZIO.service[KafkaContainer]
       messagesConsumed <- Ref.make(0)
     yield
-      val config = new java.util.Properties().nn
+      val config = new java.util.Properties()
       config.put(
         "client.id",
-        InetAddress
-          .getLocalHost()
-          .nn
-          .getHostName()
-          .nn
+        InetAddress.getLocalHost().getHostName()
       );
       config.put("group.id", groupId);
       config.put(
         "bootstrap.servers",
-        kafkaContainer.getBootstrapServers.nn
+        kafkaContainer.getBootstrapServers
       )
       // config.put("max.poll.records", "1")
       config.put("auto_offset_rest", "earliest")
@@ -291,7 +278,7 @@ object UseKafka:
         new KafkaConsumer[String, String](config)
       consumer.subscribe(List(topicName).asJava)
       // consumer.seekToBeginning(List(new
-      // TopicPartition(topicName, 1).nn).asJava)
+      // TopicPartition(topicName, 1)).asJava)
       KafkaConsumerZ(
         consumer,
         topicName,
@@ -328,10 +315,8 @@ object UseKafka:
                       .value} => $newValue--> ${output.topicName}"
                 )
               _ <-
-                output.submit(
-                  record.key.nn,
-                  newValue
-                )
+                output
+                  .submit(record.key, newValue)
             yield ()
           )
         )
@@ -372,7 +357,7 @@ object UseKafka:
                         )
                       _ <-
                         producer.submit(
-                          record.key.nn,
+                          record.key,
                           newValue
                         )
                     yield ()

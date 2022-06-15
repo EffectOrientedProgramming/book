@@ -28,11 +28,8 @@ def wrapUnsafeZIO[E, A](
           if (msg.contains("$"))
             msg
               .split("\\$")
-              .nn
               .last
-              .nn
               .replace(")", "")
-              .nn
           else
             msg
         else
