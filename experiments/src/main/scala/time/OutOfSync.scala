@@ -6,24 +6,28 @@ import zio.{IO, UIO, ZIO, ZIOAppDefault}
 object OutOfSync
 
 // TODO Consider deduping User throughout the book
-case class User(name: String)
 case class Post(content: String)
 case class Summary(numberOfPosts: Int)
-
-case class UserUI(
-    user: User,
-    summary: Summary,
-    transactionDetails: Seq[Post]
-)
 
 case class TransactionDetails(
     transactions: Seq[Post]
 )
 
-val frop  = User("Frop")
-val zeb   = User("Zeb")
-val shtep = User("Shtep")
-val cheep = User("Cheep")
+object User:
+  case class User(name: String)
+  val frop  = User("Frop")
+  val zeb   = User("Zeb")
+  val shtep = User("Shtep")
+  val cheep = User("Cheep")
+
+import time.User.*
+
+case class UserUI(
+                   user: User,
+                   summary: Summary,
+                   transactionDetails: Seq[Post]
+                 )
+
 
 object TimeIgnorant:
   private var summaryCalledTime
