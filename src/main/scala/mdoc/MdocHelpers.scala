@@ -5,7 +5,11 @@ import zio.{Console, ZEnv, ZIO}
 
 def wrapUnsafeZIO[E, A](
     z: => ZIO[Any, E, A]
-): ZIO[Any, E | java.io.IOException, A | Unit] =
+): ZIO[
+  Any,
+  E | java.io.IOException,
+  A | Unit | String
+] =
   val commentPrefix = "// "
   val columnWidth =
     49 -
@@ -45,6 +49,7 @@ def wrapUnsafeZIO[E, A](
       _ <- Console.printLine(formattedMsg)
     yield ()
   }
+  ZIO.succeed("bloop")
 end wrapUnsafeZIO
 
 // Needs to handle messages like this:
@@ -52,12 +57,17 @@ end wrapUnsafeZIO
 // repl.MdocSession$App$GpsException)
 def unsafeRunTruncate[E, A](
     z: => ZIO[Any, E, A]
-): A | Unit = unsafeRun(wrapUnsafeZIO(z))
+): A | Unit | String =
+  unsafeRun(wrapUnsafeZIO(z))
 
 // TODO Print successful result also
 def wrapUnsafeZIOReportError[E, A](
     z: => ZIO[Any, E, A]
-): ZIO[Any, java.io.IOException, A | Unit] =
+): ZIO[
+  Any,
+  java.io.IOException,
+  A | Unit | String
+] =
   val commentPrefix = "// "
   val columnWidth =
     49 -
@@ -88,5 +98,5 @@ end wrapUnsafeZIOReportError
 
 def unsafeRunPrettyPrint[E, A](
     z: => ZIO[Any, E, A]
-): A | Unit =
+): A | Unit | String =
   unsafeRun(wrapUnsafeZIOReportError(z))

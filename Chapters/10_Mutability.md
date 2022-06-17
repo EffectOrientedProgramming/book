@@ -36,6 +36,7 @@ object UnreliableMutability:
   def increment() =
     ZIO.succeed {
       counter = counter + 1
+      counter
     }
 
   val demo: UIO[String] =
@@ -45,17 +46,7 @@ object UnreliableMutability:
         )
     yield "Final count: " + counter
 
-  val simplerDemo: UIO[String] =
-    ZIO.succeed("label")
-
-unsafeRunPrettyPrint(ZIO.succeed(1))
-// TODO Figure out why this demo result isn't being printed
 unsafeRunPrettyPrint(UnreliableMutability.demo)
-unsafeRun(UnreliableMutability.demo)
-unsafeRunPrettyPrint(
-  UnreliableMutability.simplerDemo
-)
-println("ah")
 ```
 
 Rather than avoiding mutability entirely, we want to avoid unprincipled, unsafe mutability.
@@ -73,6 +64,7 @@ A simple representation of this could look like:
 trait Ref[A]:
   def get: UIO[A]
   def set(a: A): UIO[Unit]
+
 object Ref:
   def make[A](a: A): UIO[Ref[A]] = ???
 ```
