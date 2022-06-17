@@ -13,18 +13,22 @@ object UnreliableMutability
     }
 
   def run =
-    (for
+    for
       results <-
-        ZIO.foreachParDiscard(Range(0, 10000))(
-          _ => incrementCounter()
-        ).timed
+        ZIO
+          .foreachParDiscard(Range(0, 10000))(
+            _ => incrementCounter()
+          )
+          .timed
       _ <- ZIO.debug("Final count: " + counter)
-      _ <- ZIO.debug("Duration: " + results._1.toMillis)
-    yield ())
+      _ <-
+        ZIO.debug(
+          "Duration: " + results._1.toMillis
+        )
+    yield ()
+end UnreliableMutability
 
-
-object ReliableMutability
-  extends ZIOAppDefault:
+object ReliableMutability extends ZIOAppDefault:
   def incrementCounter(counter: Ref[Int]) =
     counter.update(_ + 1)
 
@@ -32,28 +36,37 @@ object ReliableMutability
     for
       counter <- Ref.make(0)
       results <-
-        ZIO.foreachParDiscard(Range(0, 10000))(
-          _ => incrementCounter(counter)
-        ).timed
+        ZIO
+          .foreachParDiscard(Range(0, 10000))(
+            _ => incrementCounter(counter)
+          )
+          .timed
       finalResult <- counter.get
-      _ <- ZIO.debug("Final count: " + finalResult)
-      _ <- ZIO.debug("Duration: " + results._1.toMillis)
+      _ <-
+        ZIO.debug("Final count: " + finalResult)
+      _ <-
+        ZIO.debug(
+          "Duration: " + results._1.toMillis
+        )
     yield ()
-
+end ReliableMutability
 
 object MutabilityWithComplexTypes
-  extends ZIOAppDefault:
-
+    extends ZIOAppDefault:
 
   class Sensor(lastReading: Ref[SensorData]):
-    def read: ZIO[Any, Nothing, SensorData] = zio.Random.nextIntBounded(10).map(SensorData(_))
+    def read: ZIO[Any, Nothing, SensorData] =
+      zio
+        .Random
+        .nextIntBounded(10)
+        .map(SensorData(_))
 
   object Sensor:
     val make: ZIO[Any, Nothing, Sensor] =
-      for
-        lastReading <- Ref.make(SensorData(0))
-      yield new Sensor(lastReading) // TODO Why do we need new?
-
+      for lastReading <- Ref.make(SensorData(0))
+      yield new Sensor(
+        lastReading
+      ) // TODO Why do we need new?
 
   case class SensorData(value: Int)
 
@@ -61,20 +74,22 @@ object MutabilityWithComplexTypes
 
   val arbitrarilyChangeWorldData =
     for
-      sensors <- ZIO.foreach(List.fill(100)(0))(_ => Sensor.make)
+      sensors <-
+        ZIO.foreach(List.fill(100)(0))(_ =>
+          Sensor.make
+        )
       world = World(sensors)
-      _ <- ZIO.foreach(world.sensors)(_.read ).debug("Current data: ")
+      _ <-
+        ZIO
+          .foreach(world.sensors)(_.read)
+          .debug("Current data: ")
     yield ()
 
-  def run =
-
-    arbitrarilyChangeWorldData
+  def run = arbitrarilyChangeWorldData
 //    readFromSensors
 
-
   val readFromSensors =
-    for
-      _ <- ZIO.unit
+    for _ <- ZIO.unit
 //      currentData <- Ref.make(List.fill(100)(SensorData(0)))
 //      sensors = List.fill(100)(Sensor())
 //      world = World(sensors, currentData)
@@ -83,9 +98,7 @@ object MutabilityWithComplexTypes
 //      _ <- world.currentData.set(updatedSensorReadings)
 //      _ <- world.currentData.get.debug("Updated data from sensors: ")
     yield ()
-
-
-
+end MutabilityWithComplexTypes
 
 object Refs extends ZIOAppDefault:
   def run =
