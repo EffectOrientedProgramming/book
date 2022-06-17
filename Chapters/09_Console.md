@@ -210,11 +210,10 @@ object ConsoleSanitized extends Console:
       output: String
   ): ZIO[Any, Nothing, Unit] =
     val sanitized =
-      output
-        .replaceAll(
-          socialSecurity,
-          "***-**-****"
-        )
+      output.replaceAll(
+        socialSecurity,
+        "***-**-****"
+      )
     ConsoleLive.printLine(sanitized)
 ```
 
