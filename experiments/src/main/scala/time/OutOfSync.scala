@@ -23,11 +23,10 @@ object User:
 import time.User.*
 
 case class UserUI(
-                   user: User,
-                   summary: Summary,
-                   transactionDetails: Seq[Post]
-                 )
-
+    user: User,
+    summary: Summary,
+    transactionDetails: Seq[Post]
+)
 
 object TimeIgnorant:
   private var summaryCalledTime

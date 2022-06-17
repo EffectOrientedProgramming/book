@@ -15,7 +15,8 @@ import zio.ZIO
 trait Error1
 trait Error2
 
-def failableFunction(): ZIO[Any, Error1 | Error2, Unit] = ???
+def failableFunction()
+    : ZIO[Any, Error1 | Error2, Unit] = ???
 ```
 Consider 2 error types
 
@@ -59,27 +60,41 @@ graph TD;
 trait User
 trait SuperUser
 
-def getUser(userId: String): ZIO[UserService, UserNotFound, User] = ???
-def getSuperUser(user: User): ZIO[UserService, PermissionError, SuperUser] = ???
+def getUser(
+    userId: String
+): ZIO[UserService, UserNotFound, User] = ???
+def getSuperUser(
+    user: User
+): ZIO[UserService, PermissionError, SuperUser] =
+  ???
 
-def loginSuperUser(userId: String): ZIO[UserService, UserNotFound | PermissionError, SuperUser] =
-   for
-     basicUser <- getUser(userId)
-     superUser <- getSuperUser(basicUser)
-   yield superUser
-   
+def loginSuperUser(userId: String): ZIO[
+  UserService,
+  UserNotFound | PermissionError,
+  SuperUser
+] =
+  for
+    basicUser <- getUser(userId)
+    superUser <- getSuperUser(basicUser)
+  yield superUser
+
 trait Status
 trait NetworkService
-   
-def statusOf(user: User): ZIO[NetworkService, UserNotFound, Status] = ???
-   
-def check(userId: String): ZIO[UserService & NetworkService, UserNotFound, Status] =
+
+def statusOf(
+    user: User
+): ZIO[NetworkService, UserNotFound, Status] =
+  ???
+
+def check(userId: String): ZIO[
+  UserService & NetworkService,
+  UserNotFound,
+  Status
+] =
   for
-     user <- getUser(userId)
-     status <- statusOf(user)
+    user   <- getUser(userId)
+    status <- statusOf(user)
   yield status
-     
-    
 ```
 
 
@@ -96,7 +111,8 @@ graph TD;
 trait Piece1
 trait Piece2
 
-def needyFunction(): ZIO[Piece1 & Piece1, Nothing, Unit] = ???
+def needyFunction()
+    : ZIO[Piece1 & Piece1, Nothing, Unit] = ???
 ```
 
 For your `Answer`, it can be desirable to give a clear name that is relevant to your domain.
@@ -104,7 +120,7 @@ For your `Answer`, it can be desirable to give a clear name that is relevant to 
 The requirements for each ZIO are combined as an anonymous product type denoted by the `&` symbol.
 
 ```scala mdoc
-     
+
 ```
 
 ```scala mdoc
@@ -118,11 +134,18 @@ import zio.ZIO
 trait Account
 trait AccountError
 
-def userToAccount(user: User): ZIO[AccountService, AccountError, Account] = ???
+def userToAccount(
+    user: User
+): ZIO[AccountService, AccountError, Account] =
+  ???
 
-def getAccount(userId: String):  ZIO[UserService & AccountService, AccountError | UserNotFound, Account] =
+def getAccount(userId: String): ZIO[
+  UserService & AccountService,
+  AccountError | UserNotFound,
+  Account
+] =
   for
-    user <- getUser(userId)
+    user    <- getUser(userId)
     account <- userToAccount(user)
   yield account
 ```
