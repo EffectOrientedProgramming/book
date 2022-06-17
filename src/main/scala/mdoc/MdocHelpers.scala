@@ -49,7 +49,6 @@ def wrapUnsafeZIO[E, A](
       _ <- Console.printLine(formattedMsg)
     yield ()
   }
-  ZIO.succeed("bloop")
 end wrapUnsafeZIO
 
 // Needs to handle messages like this:

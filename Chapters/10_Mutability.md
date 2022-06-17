@@ -58,6 +58,7 @@ Required Operations:
 
 These are both effectful operations.
 Less obviously, we also need to create the Mutable reference itself.
+We are changing the world, by creating a space that we can manipulate.
 A simple representation of this could look like:
 
 ```scala mdoc
