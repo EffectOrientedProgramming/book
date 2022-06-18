@@ -5,22 +5,23 @@ import zio.{ZEnv, ZIO, ZIOAppDefault}
 object MalcomInTheMiddle extends ZIOAppDefault:
   def run =
 
-    def turnOnLights() = ???
+    def turnOnLights() = throw new BurntBulb()
     class BurntBulb() extends Exception
 
-    def getNewBulb() = ???
+    def getNewBulb() = throw new WobblyShelf()
     class WobblyShelf() extends Exception
 
-    def grabScrewDriver() = ???
+    def grabScrewDriver() =
+      throw new SqueakyDrawer()
     class SqueakyDrawer() extends Exception
 
-    def sprayWD40() = ???
+    def sprayWD40() = throw new EmptyCan()
     class EmptyCan() extends Exception
 
-    def driveToStore() = ???
+    def driveToStore() = throw new DeadCar()
     class DeadCar() extends Exception
 
-    def repairCar() = ???
+    def repairCar() = throw new Nagging()
     class Nagging() extends Exception
 
     try
@@ -48,10 +49,8 @@ object MalcomInTheMiddle extends ZIOAppDefault:
                         catch
                           case nagging: Nagging =>
                             ZIO
-                              .succeed(
-                                println(
-                                  "What does it look like I'm doing?!"
-                                )
+                              .debug(
+                                "What does it look like I'm doing?!"
                               )
                               .exitCode
     end try

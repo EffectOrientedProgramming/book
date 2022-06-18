@@ -72,8 +72,8 @@ def increment() =
 
 val unreliableCounting =
   for _ <-
-      ZIO.foreachParDiscard(Range(0, 10000))(
-        _ => increment()
+      ZIO.foreachParDiscard(Range(0, 10000))(_ =>
+        increment()
       )
   yield "Final count: " + counter
 
@@ -86,7 +86,6 @@ We need to fully embrace the ZIO components, utilizing `Ref` for correct mutatio
 #### Reliable Counting
 
 ```scala mdoc
-
 def incrementCounter(counter: Ref[Int]) =
   counter.update(_ + 1)
 
@@ -94,12 +93,11 @@ val reliableCounting =
   for
     counter <- Ref.make(0)
     _ <-
-      ZIO
-        .foreachParDiscard(Range(0, 10000))(
-          _ => incrementCounter(counter)
-        )
+      ZIO.foreachParDiscard(Range(0, 10000))(_ =>
+        incrementCounter(counter)
+      )
     finalResult <- counter.get
   yield "Final count: " + finalResult
-  
+
 unsafeRunPrettyPrint(reliableCounting)
 ```

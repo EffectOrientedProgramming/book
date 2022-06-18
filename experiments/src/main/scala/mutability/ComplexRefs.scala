@@ -2,8 +2,7 @@ package mutability
 
 import zio.{Ref, ZIO, ZIOAppDefault}
 
-object ComplexRefs
-    extends ZIOAppDefault:
+object ComplexRefs extends ZIOAppDefault:
 
   class Sensor(lastReading: Ref[SensorData]):
     def read: ZIO[Any, Nothing, SensorData] =
@@ -15,9 +14,7 @@ object ComplexRefs
   object Sensor:
     val make: ZIO[Any, Nothing, Sensor] =
       for lastReading <- Ref.make(SensorData(0))
-      yield Sensor(
-        lastReading
-      )
+      yield Sensor(lastReading)
 
   case class SensorData(value: Int)
 
