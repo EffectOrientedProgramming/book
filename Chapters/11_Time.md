@@ -1,5 +1,7 @@
 # Time
 
+Time based functions are effectful because they
+rely on a variable that is constantly changing.
 
 
 Your program displays 2 sections:
