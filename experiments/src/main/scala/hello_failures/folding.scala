@@ -1,9 +1,9 @@
-package handlingErrors
+package hello_failures
 
 import zio.*
 import zio.Console.*
-import handlingErrors.file
-import handlingErrors.standIn
+import hello_failures.file
+import hello_failures.standIn
 
 object folding extends ZIOAppDefault:
 // When applied to ZIO, fold() allows the

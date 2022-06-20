@@ -1,8 +1,8 @@
-package handlingErrors
+package hello_failures
 
 import zio.*
 import zio.Console.*
-import handlingErrors.file
+import hello_failures.file
 import java.io.IOException
 
 def standIn: ZIO[Any, IOException, Unit] =

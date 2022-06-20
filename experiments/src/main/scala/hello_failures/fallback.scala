@@ -1,4 +1,4 @@
-package handlingErrors
+package hello_failures
 
 import zio.*
 import zio.Console
