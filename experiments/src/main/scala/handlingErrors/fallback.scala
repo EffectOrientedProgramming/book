@@ -14,7 +14,7 @@ def loadFile(fileName: String) =
     println("First Attempt Successful")
     ZIO.succeed(file(fileName))
   else
-    println("First Attemp Not Successful")
+    println("First Attempt Not Successful")
     ZIO.fail("File not found")
 
 def loadBackupFile() =

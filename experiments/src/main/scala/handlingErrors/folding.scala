@@ -17,12 +17,6 @@ object folding extends ZIOAppDefault:
   val logic = loadFile("targetFile")
 
   def run =
-    val message =
-      logic.fold(
-        _ => "The file wouldn't open... ",
-        _ => "The file opened!"
-      ) // Non-effectful handling
-
     logic
       .foldZIO(
         _ => loadBackupFile(),

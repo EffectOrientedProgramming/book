@@ -1,42 +1,88 @@
 package handlingErrors
 
+import zio.Console.printLine
 import zio.ZIO
 
 object KeepSuccesses extends zio.ZIOAppDefault:
   val allCalls =
-    List(
-      shoddyNetworkCall("a"),
-      shoddyNetworkCall("b"),
-      shoddyNetworkCall("large payload")
-    )
+    List("a", "b", "large payload", "doomed")
+
+  case class GoodResponse(payload: String)
+  case class BadResponse(payload: String)
+
+  val initialRequests =
+    allCalls.map(fastUnreliableNetworkCall)
+
   val logic =
-    ZIO.collectAllSuccesses(
-      allCalls.map(
-        _.tapError(e =>
-          zio.Console.printLine("Error: " + e)
-        )
-      )
-    )
-
-  val logicSpecific =
-    ZIO.collectAllWith(allCalls)(_.contains("a"))
-
-  def run =
     for
-      results <- logic
-      _ <-
-        zio
-          .Console
-          .printLine(
-            results
-              .filter(_.contains("b"))
-              .mkString(",")
+      results <-
+        ZIO.collectAllSuccesses(
+          initialRequests.map(
+            _.tapError(e =>
+              printLine("Error: " + e)
+            )
           )
+        )
+      _ <- printLine(results)
     yield ()
 
-  def shoddyNetworkCall(input: String) =
+  val moreStructuredLogic =
+    for
+      results <-
+        ZIO.partition(allCalls)(
+          fastUnreliableNetworkCall
+        )
+      _ <-
+        results match
+          case (failures, successes) =>
+            for
+              _ <-
+                ZIO.foreach(failures)(e =>
+                  printLine(
+                    "Error: " + e +
+                      ". Should retry on other server."
+                  )
+                )
+              recoveries <-
+                ZIO.collectAllSuccesses(
+                  failures.map(failure =>
+                    slowMoreReliableNetworkCall(
+                      failure.payload
+                    ).tapError(e =>
+                      printLine(
+                        "Giving up on: " + e
+                      )
+                    )
+                  )
+                )
+              _ <-
+                printLine(
+                  "All successes: " +
+                    (successes ++ recoveries)
+                )
+            yield ()
+    yield ()
+
+  val logicSpecific =
+    ZIO.collectAllWith(initialRequests)(
+      _.payload.contains("a")
+    )
+
+  def run =
+//      logic
+    moreStructuredLogic
+
+  def fastUnreliableNetworkCall(input: String) =
     if (input.length < 5)
-      ZIO.succeed("Good call: " + input)
+      ZIO.succeed(GoodResponse(input))
     else
-      ZIO.fail("Bad call: " + input)
+      ZIO.fail(BadResponse(input))
+
+  def slowMoreReliableNetworkCall(
+      input: String
+  ) =
+    if (input.contains("a"))
+      ZIO.succeed(GoodResponse(input))
+    else
+      ZIO.fail(BadResponse(input))
 end KeepSuccesses
