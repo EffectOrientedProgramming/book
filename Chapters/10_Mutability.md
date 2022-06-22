@@ -58,6 +58,14 @@ In order to confidently use this, we need certain guarantees about the behavior:
 - Multiple writes cannot happen concurrently, which would result in lost updates
 
 #### Unreliable Counting
+Possible scenarios:
+- vote counting
+- deli counter tickets. 
+– escaping a disaster area with limited exit slots
+
+Need to show:
+ – how conflicts can lead to missed or unwanted behavior
+ - specific bad scenarios enabled by clever clock usage 
 
 ```scala mdoc
 import zio.{Ref, ZIO}
