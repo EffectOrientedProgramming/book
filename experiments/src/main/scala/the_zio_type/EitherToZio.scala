@@ -1,28 +1,16 @@
 // EitherToZio.scala
 package the_zio_type
 
-import zio._
+import zio.{ZIO, ZIOAppDefault}
 
-import java.io
-import java.io.IOException
+import scala.util.{Left, Right}
 
 case class InvalidIntegerInput(value: String)
 
-def parseInteger(
-    input: String
-): Either[InvalidIntegerInput, Int] =
-  try
-    Right(
-      input.toInt
-    ) // Right case is an integer
-  catch
-    case e: NumberFormatException =>
-      Left(
-        InvalidIntegerInput(input)
-      ) // Left case is an error type
 object EitherToZio extends ZIOAppDefault:
+  val goodInt: Either[InvalidIntegerInput, Int] = Right(42)
 
-  val zEither: IO[InvalidIntegerInput, Int] =
-    ZIO.fromEither(parseInteger("42"))
+  val zEither: ZIO[Any, InvalidIntegerInput, Int] =
+    ZIO.fromEither(goodInt)
 
-  def run = zEither
+  def run = zEither.debug("Converted Either")

@@ -12,10 +12,6 @@ One downside of these type parameters
 The `ZIO` trait is at the center of our Effect-oriented world.
 
 ```scala
-???
-```
-
-```scala
 trait ZIO[R, E, A]
 ```
 
@@ -57,4 +53,28 @@ This is what our code will return if it completes successfully.
 ```scala mdoc
 def defaultGreeting()
     : ZIO[Any, Nothing, String] = ???
+```
+
+## Conversions from standard Scala types
+ZIO provides simple interop with may of the built-in Scala data types, namely
+
+- `Option`
+- `Either`
+- `Try`
+- `scala.concurrent.Future`
+- `Promise`
+
+And even some Java types -
+
+- `java.util.concurrent.Future`
+- `AutoCloseable`
+
+```scala mdoc
+import zio.{ZIO, ZIOAppDefault}
+import scala.concurrent.Future
+import mdoc.unsafeRunPrettyPrint
+val zFuture = ZIO.fromFuture(implicit ec => Future.successful("Success!"))
+val zFutureFailed = ZIO.fromFuture(implicit ec => Future.failed(new Exception("Failure :(")))
+unsafeRunPrettyPrint(zFuture)
+unsafeRunPrettyPrint(zFutureFailed)
 ```

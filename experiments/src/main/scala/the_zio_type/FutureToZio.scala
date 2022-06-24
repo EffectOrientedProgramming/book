@@ -1,16 +1,13 @@
 package the_zio_type
 
-import zio._
-
-import java.io
-import java.io.IOException
+import zio.{ZIO, ZIOAppDefault}
 import scala.concurrent.Future
 
 object FutureToZio extends ZIOAppDefault:
 
-  lazy val sFuture: Future[String] =
-    Future.successful("Success!")
-  // Future.failed(new Exception("Failure :("))
+  val zFuture = ZIO.fromFuture(implicit ec => Future.successful("Success!"))
+
+  val zFutureFailed = ZIO.fromFuture(implicit ec => Future.failed(new Exception("Failure :(")))
 
   val run =
-    ZIO.fromFuture(implicit ec => sFuture)
+    zFutureFailed.debug("Converted Future")
