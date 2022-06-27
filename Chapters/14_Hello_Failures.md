@@ -271,6 +271,7 @@ def displayTemperatureZWrapped(
 ```
 
 ```scala mdoc
+import zio.Runtime.default.unsafe
   Unsafe.unsafeCompat { implicit u =>
     unsafe
       .run(

@@ -372,7 +372,15 @@ val testApiLayer =
 ```
 
 ```scala mdoc:fail
-unsafeRun(fancyLodging.provide(testApiLayer))
+import zio.Unsafe
+import zio.Runtime.default.unsafe
+  Unsafe.unsafeCompat { implicit u =>
+    unsafe
+      .run(
+          fancyLodging.provide(testApiLayer)
+      )
+      .getOrThrowFiberFailure()
+  }
 ```
 
 ## Official ZIO Approach
