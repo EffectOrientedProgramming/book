@@ -1,6 +1,13 @@
 package scenarios
 
-import zio.{Duration, Schedule, Unsafe, ZIO, ZLayer, durationInt}
+import zio.{
+  Duration,
+  Schedule,
+  Unsafe,
+  ZIO,
+  ZLayer,
+  durationInt
+}
 import zio.Console.printLine
 
 import scala.concurrent.TimeoutException
@@ -280,9 +287,7 @@ object ThermalDetectorX:
   // This is preeeetty gnarly. How can we
   // improve?
   def acquireHeatMeasurementSource[
-      T
-        <: scenarios.ThermalDetectorX
-        : Tag
+      T <: scenarios.ThermalDetectorX: Tag
   ]: ZIO[T, Nothing, ZIO[
     Any,
     scala.concurrent.TimeoutException |
@@ -323,9 +328,7 @@ object AcousticDetectorX:
   // This is preeeetty gnarly. How can we
   // improve?
   def acquireDetector[
-      T
-        <: scenarios.AcousticDetectorX
-        : Tag
+      T <: scenarios.AcousticDetectorX: Tag
   ]: ZIO[T, Nothing, ZIO[
     Any,
     scala.concurrent.TimeoutException |

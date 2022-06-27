@@ -282,7 +282,6 @@ It now reports the `System` and `HotelApiZ` dependencies of our function.
 This is what it looks like in action:
 
 ```scala mdoc
-import zio.Runtime.default.unsafeRun
 import zio.ZLayer
 import mdoc.unsafeRunPrettyPrint
 ```
@@ -435,22 +434,30 @@ object Exercise1Solution extends Exercise1:
 ```
 
 ```scala mdoc
+import zio.Unsafe
+import zio.Runtime.default.unsafe
 val exercise1case1 =
-  unsafeRun(
-    Exercise1Solution
-      .envOrFail("key")
-      .provide(
-        TestSystem.live(
-          Data(envs = Map("key" -> "value"))
-        )
+  Unsafe.unsafeCompat { implicit u =>
+    unsafe
+      .run(
+        Exercise1Solution
+          .envOrFail("key")
+          .provide(
+            TestSystem.live(
+              Data(envs = Map("key" -> "value"))
+            )
+          )
       )
-  )
+      .getOrThrowFiberFailure()
+  }
 assert(exercise1case1 == "value")
 ```
 
 ```scala mdoc
 val exercise1case2 =
-  unsafeRun(
+  Unsafe.unsafeCompat { implicit u =>
+    unsafe
+      .run(
     Exercise1Solution
       .envOrFail("key")
       .catchSome {
@@ -461,6 +468,8 @@ val exercise1case2 =
         TestSystem.live(Data(envs = Map()))
       )
   )
+      .getOrThrowFiberFailure()
+  }
 
 assert(exercise1case2 == "Expected Error")
 ```

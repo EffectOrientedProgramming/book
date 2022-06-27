@@ -2,7 +2,17 @@ package Parallelism
 
 import java.io.IOException
 import zio.Console.printLine
-import zio.{Console, Fiber, IO, Runtime, Scope, UIO, URIO, ZIO, ZLayer}
+import zio.{
+  Console,
+  Fiber,
+  IO,
+  Runtime,
+  Scope,
+  UIO,
+  URIO,
+  ZIO,
+  ZLayer
+}
 
 import scala.io.Source.*
 
@@ -27,14 +37,16 @@ object Finalizers extends zio.ZIOAppDefault:
       : ZIO[Scope, Throwable, Vector[String]] =
     ZIO
       .acquireRelease(
-        ZIO.succeed(scala
-          .io
-          .Source
-          .fromFile(
-            "src/main/scala/Parallelism/csvFile.csv"
-          )
+        ZIO.succeed(
+          scala
+            .io
+            .Source
+            .fromFile(
+              "src/main/scala/Parallelism/csvFile.csv"
+            )
         )
-      ) (finalizer) .map {
+      )(finalizer)
+      .map {
         bufferedSource => // Use the bracket method with the finalizer defined above to define behavior on fail.
 
           val lines =

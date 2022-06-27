@@ -40,7 +40,6 @@ def stmDemo() =
     yield ()
 
   Unsafe.unsafeCompat { implicit u =>
-    unsafe
-      .run(logic)
-      .getOrThrowFiberFailure()
+    unsafe.run(logic).getOrThrowFiberFailure()
   }
+end stmDemo

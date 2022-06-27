@@ -16,8 +16,7 @@ object HelloWorld extends ZIOAppDefault:
 
 object AuthenticationFlow extends ZIOAppDefault:
   val activeUsers
-      : ZIO[Any, DiskError, List[UserName]] =
-    ???
+      : ZIO[Any, DiskError, List[UserName]] = ???
 
   val user: ZIO[Any, Nothing, UserName] = ???
 
@@ -43,12 +42,9 @@ object AuthenticationFlow extends ZIOAppDefault:
     yield authenticatedUser
 
   def run =
-    fullAuthenticationProcess
-      .orDieWith(error =>
-        new Exception(
-          "Unhandled error: " + error
-        )
-      )
+    fullAuthenticationProcess.orDieWith(error =>
+      new Exception("Unhandled error: " + error)
+    )
 end AuthenticationFlow
 
 trait UserName

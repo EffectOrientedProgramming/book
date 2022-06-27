@@ -69,10 +69,7 @@ object ReadIntAndMultiply
             "11",
             "13"
           )
-        _ <-
-          logic.withConsole(
-              fakeConsole
-          )
+        _ <- logic.withConsole(fakeConsole)
       yield ()
     ).exitCode
   end run

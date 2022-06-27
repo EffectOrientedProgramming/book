@@ -34,7 +34,7 @@ object RuntimeEx:
     // their output value.
     println(
       Unsafe.unsafeCompat { implicit u =>
-      runtime.unsafe.run(exZio)
+        runtime.unsafe.run(exZio)
       }
     )
 
@@ -42,10 +42,13 @@ object RuntimeEx:
     // parameter:
     displayWord(
       Unsafe.unsafeCompat { implicit u =>
-        runtime.unsafe.run(
-          exZio2.withConsole(
-            FakeConsole.word)
-        ).getOrThrow()
+        runtime
+          .unsafe
+          .run(
+            exZio2.withConsole(FakeConsole.word)
+          )
+          .getOrThrow()
       }
     )
+  end runZIO
 end RuntimeEx

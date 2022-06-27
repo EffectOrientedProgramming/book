@@ -58,7 +58,8 @@ def runEffectfulGuessingGame =
     unsafe
       .run(
         effectfulGuessingGame.provideLayer(
-          ZLayer.succeed(FakeConsole.single("3")) ++
+          ZLayer
+            .succeed(FakeConsole.single("3")) ++
             RandomBoundedInt.live
         )
       )

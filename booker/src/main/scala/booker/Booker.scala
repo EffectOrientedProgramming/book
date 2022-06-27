@@ -4,7 +4,11 @@ import zio.{Console, Unsafe, ZIO}
 import zio.Console.*
 import zio.Runtime.default.unsafe
 
-import java.io.{File, FileNotFoundException, IOException}
+import java.io.{
+  File,
+  FileNotFoundException,
+  IOException
+}
 import scala.io.Source
 import scala.util.CommandLineParser.FromString
 import scala.util.Try

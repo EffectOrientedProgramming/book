@@ -193,7 +193,8 @@ TODO {{Update verbiage now that ZIO section is first}}
 
 ```scala mdoc
 import zio.ZIO
-import zio.Runtime.default.unsafeRun
+import zio.Unsafe
+import zio.Runtime.default.unsafe
 
 def getTemperatureZ(behavior: Scenario): ZIO[
   Any,
@@ -208,22 +209,38 @@ def getTemperatureZ(behavior: Scenario): ZIO[
   else
     ZIO.succeed("30 degrees")
 
-unsafeRun(getTemperatureZ(Scenario.Success))
+Unsafe.unsafeCompat { implicit u =>
+  unsafe
+    .run(
+       getTemperatureZ(Scenario.Success)
+    )
+    .getOrThrowFiberFailure()
+}
 ```
 
 ```scala mdoc:fail
-unsafeRun(
-  getTemperatureZ(Scenario.Success).catchAll {
-    case ex: NetworkException =>
-      ZIO.succeed("Network Unavailable")
+  Unsafe.unsafeCompat { implicit u =>
+    unsafe
+      .run(
+        getTemperatureZ(Scenario.Success).catchAll {
+          case ex: NetworkException =>
+            ZIO.succeed("Network Unavailable")
+        }
+      )
+      .getOrThrowFiberFailure()
   }
-)
 ```
 
 TODO Demonstrate ZIO calculating the error types without an explicit annotation being provided
 
 ```scala mdoc:crash
-unsafeRun(getTemperatureZ(Scenario.GPSError))
+  Unsafe.unsafeCompat { implicit u =>
+    unsafe
+      .run(
+         getTemperatureZ(Scenario.GPSError)
+      )
+      .getOrThrowFiberFailure()
+  }
 ```
 
 ### Wrapping Legacy Code
@@ -234,8 +251,9 @@ We are re-using the  `displayTemperature`
 {{TODO }}
 
 ```scala mdoc
-import zio.Runtime.default.unsafeRun
 import zio.{Task, ZIO}
+import zio.Unsafe
+import zio.Runtime.default.unsafe
 ```
 
 ```scala mdoc
@@ -253,17 +271,25 @@ def displayTemperatureZWrapped(
 ```
 
 ```scala mdoc
-unsafeRun(
-  displayTemperatureZWrapped(Scenario.Success)
-)
+  Unsafe.unsafeCompat { implicit u =>
+    unsafe
+      .run(
+        displayTemperatureZWrapped(Scenario.Success)
+      )
+      .getOrThrowFiberFailure()
+  }
 ```
 
 ```scala mdoc
-unsafeRun(
-  displayTemperatureZWrapped(
-    Scenario.NetworkError
-  )
-)
+  Unsafe.unsafeCompat { implicit u =>
+    unsafe
+      .run(
+        displayTemperatureZWrapped(
+          Scenario.NetworkError
+        )
+      )
+      .getOrThrowFiberFailure()
+  }
 ```
 
 This is decent, but does not provide the maximum possible guarantees. Look at what happens if we forget to handle one of our errors.

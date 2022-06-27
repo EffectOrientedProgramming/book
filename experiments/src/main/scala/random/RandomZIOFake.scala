@@ -30,18 +30,16 @@ class RandomZIOFake(i: Int) extends Random:
   def nextDoubleBetween(
       minInclusive: => Double,
       maxExclusive: => Double
-  )(implicit
-      trace: zio.Trace
-  ): zio.UIO[Double] = ???
+  )(implicit trace: zio.Trace): zio.UIO[Double] =
+    ???
   def nextFloat(implicit
       trace: zio.Trace
   ): zio.UIO[Float] = ???
   def nextFloatBetween(
       minInclusive: => Float,
       maxExclusive: => Float
-  )(implicit
-      trace: zio.Trace
-  ): zio.UIO[Float] = ???
+  )(implicit trace: zio.Trace): zio.UIO[Float] =
+    ???
   def nextGaussian(implicit
       trace: zio.Trace
   ): zio.UIO[Double] = ???
@@ -51,9 +49,8 @@ class RandomZIOFake(i: Int) extends Random:
   def nextIntBetween(
       minInclusive: => Int,
       maxExclusive: => Int
-  )(implicit
-      trace: zio.Trace
-  ): zio.UIO[Int] = ???
+  )(implicit trace: zio.Trace): zio.UIO[Int] =
+    ???
   def nextIntBounded(n: => Int)(implicit
       trace: zio.Trace
   ): zio.UIO[Int] = ???
@@ -63,9 +60,8 @@ class RandomZIOFake(i: Int) extends Random:
   def nextLongBetween(
       minInclusive: => Long,
       maxExclusive: => Long
-  )(implicit
-      trace: zio.Trace
-  ): zio.UIO[Long] = ???
+  )(implicit trace: zio.Trace): zio.UIO[Long] =
+    ???
   def nextLongBounded(n: => Long)(implicit
       trace: zio.Trace
   ): zio.UIO[Long] = ???
