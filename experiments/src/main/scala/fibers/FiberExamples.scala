@@ -1,8 +1,9 @@
 package fibers
 
-import zio.Console
+import zio.{Console, Unsafe}
 import zio.Duration.fromMillis
 import zio.Schedule.recurs
+import zio.Runtime.default.unsafe
 
 @main
 def forDemo() =
@@ -23,6 +24,10 @@ def forDemo() =
       res <- b.join
     yield println("done")
 
-  import zio.Runtime.default.unsafeRun
-  unsafeRun(logic)
+//  unsafeRun(logic)
+  Unsafe.unsafeCompat { implicit u =>
+    unsafe
+      .run(logic)
+      .getOrThrowFiberFailure()
+  }
 end forDemo

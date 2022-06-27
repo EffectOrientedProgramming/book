@@ -1,14 +1,10 @@
 package booker
 
-import zio.{Console, ZIO}
+import zio.{Console, Unsafe, ZIO}
 import zio.Console.*
-import zio.Runtime.default.unsafeRun
+import zio.Runtime.default.unsafe
 
-import java.io.{
-  File,
-  FileNotFoundException,
-  IOException
-}
+import java.io.{File, FileNotFoundException, IOException}
 import scala.io.Source
 import scala.util.CommandLineParser.FromString
 import scala.util.Try
@@ -156,7 +152,11 @@ def run(args: String*) =
   val f: File =
 //    File(args.headOption.getOrElse(""))
     File("Chapters")
-  unsafeRun(program(f.getAbsoluteFile))
+  Unsafe.unsafeCompat { implicit u =>
+    unsafe
+      .run(program(f.getAbsoluteFile))
+      .getOrThrowFiberFailure()
+  }
 
 def rename(original: File, index: Int) =
 

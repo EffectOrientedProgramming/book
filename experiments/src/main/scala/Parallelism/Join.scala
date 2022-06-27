@@ -26,10 +26,10 @@ class Join:
   object computation:
 
     def fib(n: Long): UIO[Long] =
-      UIO
+      ZIO
         .succeed {
           if (n <= 1)
-            UIO.succeed(n)
+            ZIO.succeed(n)
           else
             fib(n - 1).zipWith(fib(n - 2))(_ + _)
         }

@@ -19,7 +19,7 @@ object RuntimeEx:
   val runtime         = Runtime.default
   val exZio: UIO[Int] = ZIO.succeed(1)
 
-  val exZio2: ZIO[Console, IOException, String] =
+  val exZio2: ZIO[Any, IOException, String] =
     for
       _    <- printLine("Input Word: ")
       word <- readLine
@@ -32,15 +32,20 @@ object RuntimeEx:
   def runZIO() =
     // Runtime excecutes the effects, and returns
     // their output value.
-    println(runtime.unsafeRun(exZio))
+    println(
+      Unsafe.unsafeCompat { implicit u =>
+      runtime.unsafe.run(exZio)
+      }
+    )
 
     // Runtimes can be used in a function
     // parameter:
     displayWord(
-      runtime.unsafeRun(
-        exZio2.provide(
-          ZLayer.succeed(FakeConsole.word)
-        )
-      )
+      Unsafe.unsafeCompat { implicit u =>
+        runtime.unsafe.run(
+          exZio2.withConsole(
+            FakeConsole.word)
+        ).getOrThrow()
+      }
     )
 end RuntimeEx

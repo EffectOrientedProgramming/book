@@ -1,7 +1,7 @@
 // From: https://scalac.io/blog/write-command-line-application-with-zio/
 package TicTacToe
 
-import zio.{Console, ZIOAppDefault, ZEnv, ZIO}
+import zio.{Console, ZIOAppDefault, ZIO}
 
 enum MenuCommand:
   case NewGame,

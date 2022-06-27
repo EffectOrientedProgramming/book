@@ -1,16 +1,7 @@
 package Parallelism
 
 import java.io.IOException
-import zio.durationInt
-import zio.{
-  Fiber,
-  IO,
-  Runtime,
-  UIO,
-  ZIO,
-  ZIOAppDefault,
-  ZLayer
-}
+import zio.{Fiber, IO, Runtime, UIO, Unsafe, ZIO, ZIOAppDefault, ZLayer, durationInt}
 
 import scala.concurrent.Await
 
@@ -27,8 +18,12 @@ object JustSleep extends ZIOAppDefault:
 @main
 def ToFuture() =
   Await.result(
-    Runtime
-      .default
-      .unsafeRunToFuture(ZIO.sleep(1.seconds)),
+    Unsafe.unsafeCompat { implicit u =>
+      zio.Runtime.default.unsafe
+        .runToFuture(
+          ZIO.sleep(1.seconds)
+        )
+//        .getOrThrowFiberFailure()
+    },
     scala.concurrent.duration.Duration.Inf
   )

@@ -2,7 +2,8 @@ package stm
 
 import zio.Console.printLine
 import zio.stm.{STM, TRef}
-import zio.Runtime.default.unsafeRun
+import zio.Runtime.default.unsafe
+import zio.Unsafe
 
 def transfer(
     from: TRef[Int],
@@ -38,4 +39,8 @@ def stmDemo() =
         )
     yield ()
 
-  unsafeRun(logic)
+  Unsafe.unsafeCompat { implicit u =>
+    unsafe
+      .run(logic)
+      .getOrThrowFiberFailure()
+  }

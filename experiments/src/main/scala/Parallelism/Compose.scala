@@ -17,8 +17,8 @@ class Compose:
 
   val helloGoodbye: UIO[Tuple] =
     for
-      greeting <- IO.succeed("Hello!").fork
-      farewell <- IO.succeed("GoodBye!").fork
+      greeting <- ZIO.succeed("Hello!").fork
+      farewell <- ZIO.succeed("GoodBye!").fork
       totalFiber =
         greeting.zip(
           farewell
@@ -34,10 +34,10 @@ class Compose:
   // first fails, the second will be used.
 
   val isPineapple: IO[String, String] =
-    IO.succeed("Pineapple!")
+    ZIO.succeed("Pineapple!")
 
   val notPineapple: IO[String, String] =
-    IO.fail("Banana...")
+    ZIO.fail("Banana...")
 
   val composeFruit: IO[String, String] =
     for

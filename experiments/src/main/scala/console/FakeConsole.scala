@@ -16,23 +16,23 @@ object FakeConsole:
   def single(hardcodedInput: String) =
     new Console:
       def print(line: => Any)(implicit
-          trace: zio.ZTraceElement
+          trace: zio.Trace
       ): zio.IO[java.io.IOException, Unit] =
         ZIO.succeed(print("Hard-coded: " + line))
       def printError(line: => Any)(implicit
-          trace: zio.ZTraceElement
+          trace: zio.Trace
       ): zio.IO[java.io.IOException, Unit] = ???
       def printLine(line: => Any)(implicit
-          trace: zio.ZTraceElement
+          trace: zio.Trace
       ): zio.IO[java.io.IOException, Unit] =
         ZIO.succeed(
           println("Hard-coded: " + line)
         )
       def printLineError(line: => Any)(implicit
-          trace: zio.ZTraceElement
+          trace: zio.Trace
       ): zio.IO[java.io.IOException, Unit] = ???
       def readLine(implicit
-          trace: zio.ZTraceElement
+          trace: zio.Trace
       ): zio.IO[java.io.IOException, String] =
         ZIO.succeed(hardcodedInput)
 
@@ -48,26 +48,26 @@ object FakeConsole:
   ) =
     new Console:
       def print(line: => Any)(implicit
-          trace: zio.ZTraceElement
+          trace: zio.Trace
       ): zio.IO[java.io.IOException, Unit] =
-        IO.succeed(print(line))
+        ZIO.succeed(print(line))
 
       def printError(line: => Any)(implicit
-          trace: zio.ZTraceElement
+          trace: zio.Trace
       ): zio.IO[java.io.IOException, Unit] = ???
 
       def printLine(line: => Any)(implicit
-          trace: zio.ZTraceElement
+          trace: zio.Trace
       ): zio.IO[java.io.IOException, Unit] =
         ZIO
           .succeed(println("Automated: " + line))
 
       def printLineError(line: => Any)(implicit
-          trace: zio.ZTraceElement
+          trace: zio.Trace
       ): zio.IO[java.io.IOException, Unit] = ???
 
       def readLine(implicit
-          trace: zio.ZTraceElement
+          trace: zio.Trace
       ): zio.IO[java.io.IOException, String] =
         for
           curInput <- hardcodedInput.get

@@ -15,10 +15,10 @@ object BasicFiber:
   object computation: // This object performs a computation that takes a long time. It is a recursive Fibonacci Sequence generator.
 
     def fib(n: Long): UIO[Long] =
-      UIO
+      ZIO
         .succeed {
           if (n <= 1)
-            UIO.succeed(n)
+            ZIO.succeed(n)
           else
             fib(n - 1).zipWith(fib(n - 2))(_ + _)
         }

@@ -1,6 +1,6 @@
 package random
 
-import zio.{Tag, UIO, ZEnv, ZIO, ZIOAppArgs}
+import zio.{Tag, UIO, ZIO, ZIOAppArgs}
 import scala.util.Random
 
 trait RandomBoundedInt:

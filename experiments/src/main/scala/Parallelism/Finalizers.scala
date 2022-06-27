@@ -2,18 +2,9 @@ package Parallelism
 
 import java.io.IOException
 import zio.Console.printLine
-import zio.Console
-import zio.{
-  Fiber,
-  IO,
-  Runtime,
-  UIO,
-  URIO,
-  ZIO,
-  ZLayer
-}
+import zio.{Console, Fiber, IO, Runtime, Scope, UIO, URIO, ZIO, ZLayer}
 
-import scala.io.Source._
+import scala.io.Source.*
 
 object Finalizers extends zio.ZIOAppDefault:
 
@@ -27,23 +18,23 @@ object Finalizers extends zio.ZIOAppDefault:
   def finalizer(
       source: scala.io.Source
   ) = // Define the finalizer behavior here
-    UIO.succeed {
+    ZIO.succeed {
       println("Finalizing: Closing file reader")
       source.close // Close the input source
     }
 
   val readFileContents
-      : ZIO[Any, Throwable, Vector[String]] =
+      : ZIO[Scope, Throwable, Vector[String]] =
     ZIO
-      .succeed(
-        scala
+      .acquireRelease(
+        ZIO.succeed(scala
           .io
           .Source
           .fromFile(
             "src/main/scala/Parallelism/csvFile.csv"
           )
-      ) // Open the file to read its contents
-      .acquireReleaseWith(finalizer) {
+        )
+      ) (finalizer) .map {
         bufferedSource => // Use the bracket method with the finalizer defined above to define behavior on fail.
 
           val lines =
@@ -55,14 +46,14 @@ object Finalizers extends zio.ZIOAppDefault:
           ) // Simulating an enexpected error/exception
             throw new IOException("Boom!")
 
-          ZIO.succeed(Vector() ++ lines)
+          Vector() ++ lines
       }
 
   def run = // Use App's run function
     println("In main")
 
     val ioExample: ZIO[
-      Any,
+      Scope,
       Throwable,
       Unit
     ] = // Define the ZIO contexts

@@ -1,6 +1,6 @@
 package cause
 
-import zio.{ZEnv, ZIO}
+import zio.ZIO
 import zio.Console._
 import zio.Cause
 

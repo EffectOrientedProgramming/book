@@ -1,7 +1,7 @@
 package mdoc
 
-import zio.Runtime.default.unsafeRun
-import zio.{Console, ZEnv, ZIO}
+import zio.Runtime.default.unsafe
+import zio.{Console, Unsafe, ZIO}
 
 def wrapUnsafeZIO[E, A](
     z: => ZIO[Any, E, A]
@@ -57,7 +57,11 @@ end wrapUnsafeZIO
 def unsafeRunTruncate[E, A](
     z: => ZIO[Any, E, A]
 ): A | Unit | String =
-  unsafeRun(wrapUnsafeZIO(z))
+  Unsafe.unsafeCompat { implicit u =>
+    unsafe
+      .run(wrapUnsafeZIO(z))
+      .getOrThrowFiberFailure()
+  }
 
 // TODO Print successful result also
 def wrapUnsafeZIOReportError[E, A](
@@ -98,4 +102,8 @@ end wrapUnsafeZIOReportError
 def unsafeRunPrettyPrint[E, A](
     z: => ZIO[Any, E, A]
 ): A | Unit | String =
-  unsafeRun(wrapUnsafeZIOReportError(z))
+  Unsafe.unsafeCompat { implicit u =>
+    unsafe
+      .run(wrapUnsafeZIOReportError(z))
+      .getOrThrowFiberFailure()
+  }

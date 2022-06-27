@@ -70,9 +70,8 @@ object ReadIntAndMultiply
             "13"
           )
         _ <-
-          logic.provideLayer(
-            Clock.live ++
-              ZLayer.succeed(fakeConsole)
+          logic.withConsole(
+              fakeConsole
           )
       yield ()
     ).exitCode

@@ -16,10 +16,10 @@ object HelloWorld extends ZIOAppDefault:
 
 object AuthenticationFlow extends ZIOAppDefault:
   val activeUsers
-      : ZIO[Clock, DiskError, List[UserName]] =
+      : ZIO[Any, DiskError, List[UserName]] =
     ???
 
-  val user: ZIO[System, Nothing, UserName] = ???
+  val user: ZIO[Any, Nothing, UserName] = ???
 
   def authenticateUser(
       users: List[UserName],
@@ -31,7 +31,7 @@ object AuthenticationFlow extends ZIOAppDefault:
   ] = ???
 
   val fullAuthenticationProcess: ZIO[
-    Clock & System,
+    Any,
     DiskError | UnauthenticatedUser,
     AuthenticatedUser
   ] =
@@ -44,7 +44,6 @@ object AuthenticationFlow extends ZIOAppDefault:
 
   def run =
     fullAuthenticationProcess
-      .provideLayer(zio.ZEnv.live)
       .orDieWith(error =>
         new Exception(
           "Unhandled error: " + error

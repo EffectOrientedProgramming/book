@@ -1,8 +1,8 @@
 package random
 
-import zio.{Console, UIO, ZIO, ZLayer}
-import zio.Runtime.default.unsafeRun
+import zio.{Console, UIO, Unsafe, ZIO, ZLayer}
 import console.FakeConsole
+import zio.Runtime.default.unsafe
 
 val low  = 1
 val high = 10
@@ -31,11 +31,15 @@ val sideEffectingGuessingGame =
 
 @main
 def runSideEffectingGuessingGame =
-  unsafeRun(
-    sideEffectingGuessingGame.provideLayer(
-      ZLayer.succeed(FakeConsole.single("3"))
-    )
-  )
+  Unsafe.unsafeCompat { implicit u =>
+    unsafe
+      .run(
+        sideEffectingGuessingGame.provideLayer(
+          ZLayer.succeed(FakeConsole.single("3"))
+        )
+      )
+      .getOrThrowFiberFailure()
+  }
 
 import zio.Console.printLine
 
@@ -50,9 +54,13 @@ val effectfulGuessingGame =
 
 @main
 def runEffectfulGuessingGame =
-  unsafeRun(
-    effectfulGuessingGame.provideLayer(
-      ZLayer.succeed(FakeConsole.single("3")) ++
-        RandomBoundedInt.live
-    )
-  )
+  Unsafe.unsafeCompat { implicit u =>
+    unsafe
+      .run(
+        effectfulGuessingGame.provideLayer(
+          ZLayer.succeed(FakeConsole.single("3")) ++
+            RandomBoundedInt.live
+        )
+      )
+      .getOrThrowFiberFailure()
+  }

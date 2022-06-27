@@ -18,7 +18,7 @@ object value:
   // from an either into a ZIO.
 
   val zEither: UIO[Either[String, Int]] =
-    IO.fail("Boom").either
+    ZIO.fail("Boom").either
 
   // IO.fail("Boom") is naturally type
   // ZIO[R,String,Int], but is
