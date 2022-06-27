@@ -1,11 +1,15 @@
 package mdoc
 
-import zio.Runtime.default.unsafeRun
-import zio.{Console, ZEnv, ZIO}
+import zio.Runtime.default.unsafe
+import zio.{Console, Unsafe, ZIO}
 
 def wrapUnsafeZIO[E, A](
     z: => ZIO[Any, E, A]
-): ZIO[Any, E | java.io.IOException, A | Unit] =
+): ZIO[
+  Any,
+  E | java.io.IOException,
+  A | Unit | String
+] =
   val commentPrefix = "// "
   val columnWidth =
     49 -
@@ -52,12 +56,21 @@ end wrapUnsafeZIO
 // repl.MdocSession$App$GpsException)
 def unsafeRunTruncate[E, A](
     z: => ZIO[Any, E, A]
-): A | Unit = unsafeRun(wrapUnsafeZIO(z))
+): A | Unit | String =
+  Unsafe.unsafeCompat { implicit u =>
+    unsafe
+      .run(wrapUnsafeZIO(z))
+      .getOrThrowFiberFailure()
+  }
 
 // TODO Print successful result also
 def wrapUnsafeZIOReportError[E, A](
     z: => ZIO[Any, E, A]
-): ZIO[Any, java.io.IOException, A | Unit] =
+): ZIO[
+  Any,
+  java.io.IOException,
+  A | Unit | String
+] =
   val commentPrefix = "// "
   val columnWidth =
     49 -
@@ -88,5 +101,9 @@ end wrapUnsafeZIOReportError
 
 def unsafeRunPrettyPrint[E, A](
     z: => ZIO[Any, E, A]
-): A | Unit =
-  unsafeRun(wrapUnsafeZIOReportError(z))
+): A | Unit | String =
+  Unsafe.unsafeCompat { implicit u =>
+    unsafe
+      .run(wrapUnsafeZIOReportError(z))
+      .getOrThrowFiberFailure()
+  }
