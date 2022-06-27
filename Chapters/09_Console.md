@@ -1,4 +1,5 @@
 # Console
+NON-MDOC examples throughout this file after 2.0.0 upgrade. TODO Fix before release
 
 ## The Unprincipled Way
 
@@ -6,26 +7,19 @@ This is generally the first effect that we will want as we learn to construct fu
 It is so basic that most languages do not consider it as anything special.
 The typical first scala program is something like:
 
-```scala mdoc
+```scala // mdoc
 println("Hi there.")
 ```
 
 Simple enough, and familiar to anyone that has programmed before.
 Take a look at the signature of this function in the Scala `Predef` object:
 
-```scala mdoc:nest
+```scala // mdoc:nest
 def println(x: Any): Unit = ???
 ```
 
 Based on the name, it is likely that the `Console` is involved.
 Unfortunately the type signature does not indicate that.
-If we check the implementation, we discover this:
-
-```scala mdoc:nest
-def println(x: Any): Unit = Console.println(x)
-```
-
-Now it is clear that we are printing to the `Console`.
 If we do not have access to the implementation source code, this is a surprise to us at runtime.
 
 ## Building a Better Way
@@ -53,7 +47,7 @@ If we succeed, the reader will add them when creating their own Effects.
 This `trait` represents a piece of the `Environment` that our codes need to interact with.
 It contains the methods for effectful interactions.
 
-```scala mdoc
+```scala // mdoc
 import zio.ZIO
 
 trait Console:
@@ -64,7 +58,7 @@ trait Console:
 
 ### Two: Create the implementation
 
-```scala mdoc
+```scala // mdoc
 object ConsoleLive extends Console:
   def printLine(
       output: String
@@ -79,7 +73,8 @@ TODO{Determine how to best split the 2 pieces we need to add to the same `object
 
 The first two steps are enough for us to track Effects in our system, but the ergonomics are not great.
 
-```scala mdoc:nest
+```scala
+// NON-MDOC. TODO Fix before release
 val logicClunky: ZIO[Console, Nothing, Unit] =
   for
     _ <-
@@ -108,7 +103,7 @@ import zio.ZLayer
 
 The caller has to handle the ZIO environment access, which is a distraction from the logic they want to implement.
 
-```scala mdoc
+```scala // mdoc
 // TODO Consider deleting this entirely
 
 // TODO remove alt companions and make top-level
@@ -122,7 +117,7 @@ object ConsoleWithAccessor:
 
 With this function, our callers have a much nicer experience.
 
-```scala mdoc
+```scala // mdoc
 val logic: ZIO[Console, Nothing, Unit] =
   for
     _ <- ConsoleWithAccessor.printLine("Hello")
@@ -132,7 +127,8 @@ val logic: ZIO[Console, Nothing, Unit] =
 
 However, providing dependencies to the logic is still tedious.
 
-```scala mdoc
+```scala
+// NON-MDOC. TODO Fix before release
 import zio.ZLayer
 import zio.Runtime.default.unsafe
   Unsafe.unsafeCompat { implicit u =>
@@ -150,7 +146,7 @@ import zio.Runtime.default.unsafe
 
 Rather than making each caller wrap our instance in a `Layer`, we can do that a single time in our companion.
 
-```scala mdoc
+```scala // mdoc
 import zio.ZLayer
 
 object ConsoleWithLayer:
@@ -160,7 +156,8 @@ object ConsoleWithLayer:
 
 Now executing our code is as simple as describing it.
 
-```scala mdoc
+```scala
+// NON-MDOC. TODO Fix before release
   Unsafe.unsafeCompat { implicit u =>
     unsafe
       .run(logic.provide(ConsoleWithLayer.live))
@@ -170,7 +167,7 @@ Now executing our code is as simple as describing it.
 
 In real application, both of these will go in the companion object directly.
 
-```scala mdoc
+```scala // mdoc
 import zio.ZLayer
 object Console:
   def printLine(
@@ -191,20 +188,21 @@ TODO
 #### Single expression debugging
 When debugging code, we often want to stick a `println` among our logic.
 
-```scala mdoc
+```scala // mdoc
 def crunch(a: Int, b: Int) = (a * 2) / (a * 10)
 ```
 Historically, this has caused friction for chained expressions.
 We must surround our expression in braces, in order to add this _statement_ before it.
 
-```scala mdoc
+```scala // mdoc
 def crunchDebugged(a: Int, b: Int) =
   println("")
   a * a
 ```
 
 
-```scala mdoc
+```scala
+// NON-MDOC. TODO Fix before release
 import zio.ZIOAppDefault
 import mdoc.unsafeRunPrettyPrint
 
@@ -214,7 +212,7 @@ unsafeRunPrettyPrint(
 )
 ```
 
-```scala mdoc
+```scala // mdoc
 object ConsoleSanitized extends Console:
   private val socialSecurity =
     "\\d{3}-\\d{2}-\\d{4}"
@@ -230,14 +228,15 @@ object ConsoleSanitized extends Console:
     ConsoleLive.printLine(sanitized)
 ```
 
-```scala mdoc:silent
+```scala // mdoc:silent
 val leakSensitiveInfo
     : ZIO[Console, Nothing, Unit] =
   Console
     .printLine("Customer SSN is 000-00-0000")
 ```
 
-```scala mdoc
+```scala
+// NON-MDOC. TODO Fix before release
 Unsafe.unsafeCompat { implicit u =>
   unsafe
     .run(
