@@ -92,13 +92,18 @@ val logicClunky: ZIO[Console, Nothing, Unit] =
       )
   yield ()
 
-import zio.Runtime.default.unsafeRun
+import zio.Runtime.default.unsafe
+import zio.Unsafe
 import zio.ZLayer
-unsafeRun(
-  logicClunky.provide(
-    ZLayer.succeed[Console](ConsoleLive)
-  )
-)
+  Unsafe.unsafeCompat { implicit u =>
+    unsafe
+      .run(
+        logicClunky.provide(
+          ZLayer.succeed[Console](ConsoleLive)
+        )
+      )
+      .getOrThrowFiberFailure()
+  }
 ```
 
 The caller has to handle the ZIO environment access, which is a distraction from the logic they want to implement.
@@ -129,12 +134,16 @@ However, providing dependencies to the logic is still tedious.
 
 ```scala mdoc
 import zio.ZLayer
-import zio.Runtime.default.unsafeRun
-unsafeRun(
-  logic.provide(
-    ZLayer.succeed[Console](ConsoleLive)
-  )
-)
+import zio.Runtime.default.unsafe
+  Unsafe.unsafeCompat { implicit u =>
+    unsafe
+      .run(
+        logic.provide(
+          ZLayer.succeed[Console](ConsoleLive)
+        )
+      )
+      .getOrThrowFiberFailure()
+  }
 ```
 
 ### Four: Create `object Effect.live` field
@@ -152,7 +161,11 @@ object ConsoleWithLayer:
 Now executing our code is as simple as describing it.
 
 ```scala mdoc
-unsafeRun(logic.provide(ConsoleWithLayer.live))
+  Unsafe.unsafeCompat { implicit u =>
+    unsafe
+      .run(logic.provide(ConsoleWithLayer.live))
+      .getOrThrowFiberFailure()
+  }
 ```
 
 In real application, both of these will go in the companion object directly.
@@ -225,9 +238,13 @@ val leakSensitiveInfo
 ```
 
 ```scala mdoc
-unsafeRun(
-  leakSensitiveInfo.provide(
-    ZLayer.succeed[Console](ConsoleSanitized)
-  )
-)
+Unsafe.unsafeCompat { implicit u =>
+  unsafe
+    .run(
+      leakSensitiveInfo.provide(
+        ZLayer.succeed[Console](ConsoleSanitized)
+      )
+    )
+    .getOrThrowFiberFailure()
+}
 ```
