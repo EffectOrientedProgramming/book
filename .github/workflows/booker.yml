@@ -10,12 +10,10 @@ jobs:
         include:
           - os: ubuntu
             runs-on: ubuntu-latest
-            gu-binary: gu
             artifact-name: booker
             asset-name: booker-linux-amd64
           - os: macos
             runs-on: macos-latest
-            gu-binary: gu
             artifact-name: booker
             asset-name: booker-macos-amd64
 #          - os: windows
@@ -29,15 +27,15 @@ jobs:
       - name: checkout
         uses: actions/checkout@v2
 
-      - name: setup GraalVM
-        uses: DeLaGuardo/setup-graalvm@4.0
-        with:
-          graalvm: 22.0.0.2
-          java: java11
-          arch: amd64
+      - name: Cache Coursier
+        uses: coursier/cache-action@v6
 
-      - name: install native-image
-        run: ${{ matrix.gu-binary }} install native-image
+      - uses: graalvm/setup-graalvm@v1
+        with:
+          version: 'latest'
+          java-version: '17'
+          components: 'native-image'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install msvc-dev
         if: matrix.os == 'windows'
@@ -47,22 +45,12 @@ jobs:
         if: matrix.os == 'windows'
         uses: microsoft/setup-msbuild@v1.0.2
 
-      - name: Cache Coursier
-        if: matrix.os == 'windows'
-        uses: coursier/cache-action@v6
-
-      - name: Setup Coursier
-        if: matrix.os == 'windows'
-        uses: coursier/setup-action@v1
-        with:
-          apps: sbt
-
       - name: build for windows
         if: matrix.os == 'windows'
         shell: cmd
         run: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-          sbt booker/graalvm-native-image:packageBin
+          ./bin/sbt.bat booker/graalvm-native-image:packageBin
 
       - name: build for linux or mac
         if: matrix.os != 'windows'
