@@ -73,8 +73,14 @@ And even some Java types -
 import zio.{ZIO, ZIOAppDefault}
 import scala.concurrent.Future
 import mdoc.unsafeRunPrettyPrint
-val zFuture = ZIO.fromFuture(implicit ec => Future.successful("Success!"))
-val zFutureFailed = ZIO.fromFuture(implicit ec => Future.failed(new Exception("Failure :(")))
+val zFuture =
+  ZIO.fromFuture(implicit ec =>
+    Future.successful("Success!")
+  )
+val zFutureFailed =
+  ZIO.fromFuture(implicit ec =>
+    Future.failed(new Exception("Failure :("))
+  )
 unsafeRunPrettyPrint(zFuture)
 unsafeRunPrettyPrint(zFutureFailed)
 ```

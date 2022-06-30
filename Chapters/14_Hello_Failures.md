@@ -211,36 +211,32 @@ def getTemperatureZ(behavior: Scenario): ZIO[
 
 Unsafe.unsafeCompat { implicit u =>
   unsafe
-    .run(
-       getTemperatureZ(Scenario.Success)
-    )
+    .run(getTemperatureZ(Scenario.Success))
     .getOrThrowFiberFailure()
 }
 ```
 
 ```scala mdoc:fail
-  Unsafe.unsafeCompat { implicit u =>
-    unsafe
-      .run(
-        getTemperatureZ(Scenario.Success).catchAll {
-          case ex: NetworkException =>
-            ZIO.succeed("Network Unavailable")
+Unsafe.unsafeCompat { implicit u =>
+  unsafe
+    .run(
+      getTemperatureZ(Scenario.Success)
+        .catchAll { case ex: NetworkException =>
+          ZIO.succeed("Network Unavailable")
         }
-      )
-      .getOrThrowFiberFailure()
-  }
+    )
+    .getOrThrowFiberFailure()
+}
 ```
 
 TODO Demonstrate ZIO calculating the error types without an explicit annotation being provided
 
 ```scala mdoc:crash
-  Unsafe.unsafeCompat { implicit u =>
-    unsafe
-      .run(
-         getTemperatureZ(Scenario.GPSError)
-      )
-      .getOrThrowFiberFailure()
-  }
+Unsafe.unsafeCompat { implicit u =>
+  unsafe
+    .run(getTemperatureZ(Scenario.GPSError))
+    .getOrThrowFiberFailure()
+}
 ```
 
 ### Wrapping Legacy Code
@@ -272,25 +268,27 @@ def displayTemperatureZWrapped(
 
 ```scala mdoc
 import zio.Runtime.default.unsafe
-  Unsafe.unsafeCompat { implicit u =>
-    unsafe
-      .run(
-        displayTemperatureZWrapped(Scenario.Success)
+Unsafe.unsafeCompat { implicit u =>
+  unsafe
+    .run(
+      displayTemperatureZWrapped(
+        Scenario.Success
       )
-      .getOrThrowFiberFailure()
-  }
+    )
+    .getOrThrowFiberFailure()
+}
 ```
 
 ```scala mdoc
-  Unsafe.unsafeCompat { implicit u =>
-    unsafe
-      .run(
-        displayTemperatureZWrapped(
-          Scenario.NetworkError
-        )
+Unsafe.unsafeCompat { implicit u =>
+  unsafe
+    .run(
+      displayTemperatureZWrapped(
+        Scenario.NetworkError
       )
-      .getOrThrowFiberFailure()
-  }
+    )
+    .getOrThrowFiberFailure()
+}
 ```
 
 This is decent, but does not provide the maximum possible guarantees. Look at what happens if we forget to handle one of our errors.

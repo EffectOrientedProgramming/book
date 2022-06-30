@@ -374,13 +374,11 @@ val testApiLayer =
 ```scala mdoc:fail
 import zio.Unsafe
 import zio.Runtime.default.unsafe
-  Unsafe.unsafeCompat { implicit u =>
-    unsafe
-      .run(
-          fancyLodging.provide(testApiLayer)
-      )
-      .getOrThrowFiberFailure()
-  }
+Unsafe.unsafeCompat { implicit u =>
+  unsafe
+    .run(fancyLodging.provide(testApiLayer))
+    .getOrThrowFiberFailure()
+}
 ```
 
 ## Official ZIO Approach
@@ -466,16 +464,16 @@ val exercise1case2 =
   Unsafe.unsafeCompat { implicit u =>
     unsafe
       .run(
-    Exercise1Solution
-      .envOrFail("key")
-      .catchSome {
-        case _: NoSuchElementException =>
-          ZIO.succeed("Expected Error")
-      }
-      .provide(
-        TestSystem.live(Data(envs = Map()))
+        Exercise1Solution
+          .envOrFail("key")
+          .catchSome {
+            case _: NoSuchElementException =>
+              ZIO.succeed("Expected Error")
+          }
+          .provide(
+            TestSystem.live(Data(envs = Map()))
+          )
       )
-  )
       .getOrThrowFiberFailure()
   }
 
