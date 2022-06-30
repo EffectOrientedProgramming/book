@@ -6,6 +6,11 @@ import java.lang
 
 object UnsafeEffectsInsideAtomicRefs extends ZIOAppDefault {
 
+  def wasteTime() =
+    for (x <- Range(0,1000))
+      for (y <- Range(0, 1000))
+        x + y
+
   var updateAttempts = 0
   val reliableCounting =
     for
@@ -15,6 +20,7 @@ object UnsafeEffectsInsideAtomicRefs extends ZIOAppDefault {
           counter.update{previousValue =>
             // This is dangerous because using a non-synchronized Ref might retry this block many times before succeeding
             // Pure functions can be re-executed an arbitrary number of times, but side effects have to happen exactly once.
+            wasteTime()
             updateAttempts += 1
             previousValue + 1
           }
