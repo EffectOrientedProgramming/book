@@ -57,15 +57,7 @@ In order to confidently use this, we need certain guarantees about the behavior:
 - The underlying value cannot be changed during a read
 - Multiple writes cannot happen concurrently, which would result in lost updates
 
-#### Unreliable Counting
-Possible scenarios:
-- vote counting
-- deli counter tickets. 
-- escaping a disaster area with limited exit slots
-
-Need to show:
- - how conflicts can lead to missed or unwanted behavior
- - specific bad scenarios enabled by clever clock usage 
+## Unreliable Counting
 
 ```scala mdoc
 import zio.{Ref, ZIO}
@@ -80,7 +72,7 @@ object UnreliableCounting:
 
   val logic =
     for _ <-
-        ZIO.foreachParDiscard(Range(0, 10000))(
+        ZIO.foreachParDiscard(Range(0, 100000))(
           _ => increment
         )
     yield "Final count: " + counter
@@ -90,7 +82,7 @@ unsafeRunPrettyPrint(UnreliableCounting.logic)
 
 Due to the unpredictable nature of shared mutable state, we do not know exactly what the final count above is.
 Each time we publish a copy of this book, the code is re-executed and a different wrong result is generated.
-However, conflicts are extremely likely, so some of our writes get clobbered by others, and we end up with less than the expected 10,000.
+However, conflicts are extremely likely, so some of our writes get clobbered by others, and we end up with less than the expected 100,000.
 Ultimately, we lose information with this approach.
 
 ```
@@ -99,7 +91,7 @@ TODO Demo/diagram parallel writes
 Performing our side effects inside ZIO's does not magically make them safe.
 We need to fully embrace the ZIO components, utilizing `Ref` for correct mutation.
 
-#### Reliable Counting
+## Reliable Counting
 
 ```scala mdoc
 object ReliableCounting:
@@ -110,7 +102,7 @@ object ReliableCounting:
     for
       counter <- Ref.make(0)
       _ <-
-        ZIO.foreachParDiscard(Range(0, 10000))(
+        ZIO.foreachParDiscard(Range(0, 100000))(
           _ => incrementCounter(counter)
         )
       finalResult <- counter.get
@@ -118,7 +110,7 @@ object ReliableCounting:
 
 unsafeRunPrettyPrint(ReliableCounting.logic)
 ```
-Now we can say with full confidence that our final count is 10000.
+Now we can say with full confidence that our final count is 100000.
 Additionally, these updates happen _without blocking_.
 This is achieved through a strategy called "Compare & Swap", which we will not cover in detail.
 *TODO Link/reference supplemental reading*
@@ -175,7 +167,7 @@ However, it is completely inappropriate for effects, which should only be execut
 For these situations, we need a specialized variation of `Ref`
 
 
-### Ref.Synchronized
+## Ref.Synchronized
 
 `Ref.Synchronized` guarantees only a single execution of the `update` body and any of the effects contained inside.
 The only change required is replacing `Ref.make` with `Ref.Synchronized.make`
