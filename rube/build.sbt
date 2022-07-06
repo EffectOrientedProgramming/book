@@ -16,11 +16,11 @@ libraryDependencies ++= Seq(
 
   "org.apache.kafka" % "kafka-clients" % "3.2.0",
 
-  "org.testcontainers"    % "testcontainers"            % "1.17.1",
-  "org.testcontainers"    % "postgresql"            % "1.17.1",
-  "org.testcontainers"    % "kafka"            % "1.17.1",
-  "org.testcontainers"    % "mockserver"            % "1.17.1",
-  "org.testcontainers"    % "toxiproxy"            % "1.17.1",
+  "org.testcontainers"    % "testcontainers"            % "1.17.3",
+  "org.testcontainers"    % "postgresql"            % "1.17.3",
+  "org.testcontainers"    % "kafka"            % "1.17.3",
+  "org.testcontainers"    % "mockserver"            % "1.17.3",
+  "org.testcontainers"    % "toxiproxy"            % "1.17.3",
   "io.github.arkinator" % "mockserver-client-java" % "5.11.9",
   "org.postgresql" % "postgresql" % "42.3.4"
 )
