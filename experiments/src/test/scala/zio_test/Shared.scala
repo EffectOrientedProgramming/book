@@ -4,7 +4,7 @@ import zio.{Ref, Scope, ZIO, ZLayer}
 
 object Shared:
   val layer: ZLayer[Scope, Nothing, Ref[Int]] =
-    ZLayer.scoped[Scope] {
+    ZLayer.scoped {
       ZIO.acquireRelease(
         Ref.make(0) <* ZIO.debug("Initializing!")
       )(
@@ -14,3 +14,25 @@ object Shared:
           )
       )
     }
+
+  case class Scoreboard(value: Ref[Int]):
+    def display(): ZIO[Any, Nothing, String] =
+      for {
+        current <- value.get
+      } yield s"**$current**"
+
+  val scoreBoard: ZLayer[Scope with Ref[Int], Nothing, Scoreboard] =
+
+    for {
+      value <- ZLayer.service[Ref[Int]]
+      res <- ZLayer.scoped[Scope] {
+        ZIO.acquireRelease(
+          ZIO.succeed(Scoreboard(value.get)) <* ZIO.debug("Initializing scoreboard!")
+        )(
+          _ => ZIO.debug("Shutting down scoreboard")
+        )
+      }
+    }
+    yield res
+    
+
