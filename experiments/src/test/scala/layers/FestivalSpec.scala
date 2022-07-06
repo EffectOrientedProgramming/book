@@ -18,12 +18,16 @@ object FestivalSpec extends ZIOSpec[Festival] {
       security,
       venue,
       permit,
-//      ZLayer.Debug.mermaid
     )
 
 
   val spec =
-    test("festival time")(
-      assertCompletes
+    suite("Play some music")(
+      test("Song 1")(
+        assertCompletes
+      ),
+      test("Song 2")(
+        assertCompletes
+      ),
     )
 }

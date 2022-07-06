@@ -1,6 +1,6 @@
 package layers
 
-import zio.{ZIO, ZLayer}
+import zio.{ZIO, ZLayer, Duration}
 import zio.ZIO.debug
 import zio.durationInt
 
@@ -16,8 +16,8 @@ case class Stage()
 val stage =
   ZLayer.scoped(
     ZIO.acquireRelease(
-      debug("STAGE: Transporting") *>
-      debug("STAGE: Building").delay(3.seconds) *>
+      activity("STAGE", "Transporting", 2.seconds) *>
+      activity("STAGE", "Building", 4.seconds) *>
         ZIO.succeed(Stage())
     )(_ => debug("STAGE: Tearing down"))
   )
@@ -26,11 +26,7 @@ case class Permit()
 val permit =
   ZLayer.scoped(
     ZIO.acquireRelease(
-      debug(
-        "PERMIT: Submitted legal request"
-      ) *>
-          debug("PERMIT: Granted")
-          .delay(5.seconds) *>
+      activity("PERMIT", "Legal Request", 5.seconds) *>
         ZIO.succeed(Permit())
     )(_ => debug("PERMIT: Relinquished"))
   )
@@ -123,8 +119,7 @@ val foodtruck =
   ZLayer.scoped(
     ZIO.acquireRelease(
       debug("FOODTRUCK:  Driving in ") *>
-          debug("FOODTRUCK: Done fueling")
-          .delay(2.seconds) *>
+        activity("FOODTRUCK", "Fueling", 2.seconds) *>
         ZIO.succeed(FoodTruck())
     )(_ => debug("FOODTRUCK: Driving out "))
   )
@@ -159,3 +154,7 @@ case class Security(
 )
 val security =
   ZLayer.fromFunction(Security.apply)
+
+def activity(entity: String, name: String, duration: Duration) =
+  debug(s"$entity: BEGIN $name") *>
+    debug(s"$entity: END $name").delay(duration)
