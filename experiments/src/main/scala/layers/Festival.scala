@@ -16,9 +16,16 @@ case class Stage()
 val stage =
   ZLayer.scoped(
     ZIO.acquireRelease(
-      activity("STAGE", "Transporting", 2.seconds) *>
-      activity("STAGE", "Building", 4.seconds) *>
-        ZIO.succeed(Stage())
+      activity(
+        "STAGE",
+        "Transporting",
+        2.seconds
+      ) *>
+        activity(
+          "STAGE",
+          "Building",
+          4.seconds
+        ) *> ZIO.succeed(Stage())
     )(_ => debug("STAGE: Tearing down"))
   )
 
@@ -26,8 +33,11 @@ case class Permit()
 val permit =
   ZLayer.scoped(
     ZIO.acquireRelease(
-      activity("PERMIT", "Legal Request", 5.seconds) *>
-        ZIO.succeed(Permit())
+      activity(
+        "PERMIT",
+        "Legal Request",
+        5.seconds
+      ) *> ZIO.succeed(Permit())
     )(_ => debug("PERMIT: Relinquished"))
   )
 
@@ -54,18 +64,16 @@ case class Wires()
 val wires =
   ZLayer.scoped(
     ZIO.acquireRelease(
-      debug(
-        "WIRES: Unrolling"
-      ) *> ZIO.succeed(Wires())
+      debug("WIRES: Unrolling") *>
+        ZIO.succeed(Wires())
     )(_ => debug("WIRES: Spooling up"))
   )
 case class Fencing()
 val fencing =
   ZLayer.scoped(
     ZIO.acquireRelease(
-      debug(
-        "FENCING: Surrounding the area"
-      ) *> ZIO.succeed(Fencing())
+      debug("FENCING: Surrounding the area") *>
+        ZIO.succeed(Fencing())
     )(_ => debug("FENCING: Tearing down"))
   )
 case class SoundSystem(
@@ -119,8 +127,11 @@ val foodtruck =
   ZLayer.scoped(
     ZIO.acquireRelease(
       debug("FOODTRUCK:  Driving in ") *>
-        activity("FOODTRUCK", "Fueling", 2.seconds) *>
-        ZIO.succeed(FoodTruck())
+        activity(
+          "FOODTRUCK",
+          "Fueling",
+          2.seconds
+        ) *> ZIO.succeed(FoodTruck())
     )(_ => debug("FOODTRUCK: Driving out "))
   )
 
@@ -155,6 +166,10 @@ case class Security(
 val security =
   ZLayer.fromFunction(Security.apply)
 
-def activity(entity: String, name: String, duration: Duration) =
+def activity(
+    entity: String,
+    name: String,
+    duration: Duration
+) =
   debug(s"$entity: BEGIN $name") *>
     debug(s"$entity: END $name").delay(duration)
