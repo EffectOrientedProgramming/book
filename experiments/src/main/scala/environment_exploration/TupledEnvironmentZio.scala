@@ -1,7 +1,5 @@
 package environment_exploration
 
-import scalaBasics.forComprehension
-
 // trait TypeTag // TODO Or ClassTag?
 // trait TypeInstance
 
