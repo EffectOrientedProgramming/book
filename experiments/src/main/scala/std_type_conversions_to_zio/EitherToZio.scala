@@ -1,5 +1,5 @@
 // EitherToZio.scala
-package the_zio_type
+package std_type_conversions_to_zio
 
 import zio.{ZIO, ZIOAppDefault}
 

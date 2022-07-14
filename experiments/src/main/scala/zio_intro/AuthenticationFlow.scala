@@ -1,29 +1,18 @@
 package zio_intro
 
-import zio.{Clock, ZIO, ZIOAppDefault, System}
-import zio.Console.{readLine, printLine}
+import zio.{ZIO, ZIOAppDefault}
 
-object FirstExample extends ZIOAppDefault:
-  def run =
-    for
-      _    <- printLine("Give us your name:")
-      name <- readLine
-      _    <- printLine(s"$name")
-    yield ()
-
-object HelloWorld extends ZIOAppDefault:
-  def run = printLine("Hello World")
 
 object AuthenticationFlow extends ZIOAppDefault:
   val activeUsers
-      : ZIO[Any, DiskError, List[UserName]] = ???
+  : ZIO[Any, DiskError, List[UserName]] = ???
 
   val user: ZIO[Any, Nothing, UserName] = ???
 
   def authenticateUser(
-      users: List[UserName],
-      currentUser: UserName
-  ): ZIO[
+                        users: List[UserName],
+                        currentUser: UserName
+                      ): ZIO[
     Any,
     UnauthenticatedUser,
     AuthenticatedUser
