@@ -22,7 +22,7 @@ libraryDependencies ++= Seq(
   "org.testcontainers"    % "mockserver"            % "1.17.3",
   "org.testcontainers"    % "toxiproxy"            % "1.17.3",
   "io.github.arkinator" % "mockserver-client-java" % "5.11.9",
-  "org.postgresql" % "postgresql" % "42.3.6"
+  "org.postgresql" % "postgresql" % "42.4.0"
 )
 
 configs(IntegrationTest)
