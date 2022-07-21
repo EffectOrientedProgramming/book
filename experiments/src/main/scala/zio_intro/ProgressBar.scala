@@ -1,9 +1,13 @@
 package zio_intro
 
 import zio.{Ref, *}
+
 import zio.Console.printLine
 
 import java.util.concurrent.TimeUnit
+
+trait ProgressBar
+/*
 import io.AnsiColor.*
 
 object ClockAndConsole extends ZIOAppDefault:
@@ -232,3 +236,5 @@ object ClockAndConsoleImproved
 
   def run = renderCurrentTime
 end ClockAndConsoleImproved
+
+*/
