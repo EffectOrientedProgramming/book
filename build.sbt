@@ -18,7 +18,8 @@ lazy val commonSettings = Seq(
     "dev.zio" %% "zio-logging"          % zioVersion,
     "dev.zio" %% "zio-test"     % zioVersion,
     "dev.zio" %% "zio-test-sbt" % zioVersion % Test,
-    "dev.zio" %% "zio-prelude"  % "1.0.0-RC15"
+    "dev.zio" %% "zio-prelude"  % "1.0.0-RC15",
+    "io.github.scottweaver" % "zio-2-0-testcontainers-postgresql_3" % "0.8.0",
   ),
 
   testFrameworks +=
