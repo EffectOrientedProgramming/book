@@ -2,7 +2,7 @@ package booker
 
 import tui.{TUI, TerminalApp, TerminalEvent}
 import view._
-import zio.{Scope, ZIO, ZIOAppArgs, ZIOAppDefault}
+import zio.{Scope, ZEnvironment, ZIO, ZIOAppArgs, ZIOAppDefault}
 import zio.Console._
 
 import java.io.{File, FileNotFoundException}
@@ -196,21 +196,38 @@ object BookerTools {
 
 }
 
-case class CliState()
+case class CliState(messages: Seq[String] = Seq.empty)
+
+/*
+
+
+ */
 
 object BookerApp extends TerminalApp[Nothing, CliState, Unit] {
   override def render(state: CliState): View = {
-    View.text("hello, world")
+    val views = state.messages.map(View.text)
+    View.vertical(
+      views: _*
+    )
   }
 
   override def update(
                        state: CliState,
                        event: TerminalEvent[Nothing]
                      ): TerminalApp.Step[CliState, Unit] = {
-
-    ???
+    event match {
+      case TerminalEvent.UserEvent(_) =>
+        ???
+      case TerminalEvent.SystemEvent(keyEvent) =>
+        keyEvent match {
+          case KeyEvent.Escape | KeyEvent.Exit | KeyEvent.Character('q') =>
+            TerminalApp.Step.exit
+          case otherEvent =>
+            TerminalApp.Step.update(state.copy(messages = state.messages :+ otherEvent.toString))
+            //TerminalApp.Step.update(state)
+        }
+    }
   }
-
 }
 
 object Booker extends ZIOAppDefault {
