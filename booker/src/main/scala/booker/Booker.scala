@@ -90,7 +90,7 @@ object BookerTools {
         else
           ZIO.succeed(rest)
     } yield first +: resolution
-    something
+  something
 }
 
   /* File:
@@ -203,7 +203,17 @@ object BookerTools {
 
 }
 
-case class CliState(files: Seq[(Int, Seq[File])])
+case class CliState(files: Seq[(Int, Seq[File])], cursorIdx: Int = 0) {
+  val (conflicting, nonConflicting) =
+    files
+      .partition(_._2.size > 1)
+//      .flatMap(tuple => tuple._2)
+
+  val conflicts =
+    conflicting
+      .flatMap(tuple => tuple._2)
+
+}
 
 /*
 Conflict detected:
@@ -219,31 +229,78 @@ Conflict detected. Choose the first one:
 
  */
 
-object BookerApp extends TerminalApp[Nothing, CliState, Unit] {
+object BookerApp extends TerminalApp[Nothing, CliState, String] {
   override def render(state: CliState): View = {
-    val conflicts = state
-      .files
-      .filter(_._2.size > 1)
-      .flatMap(_._2)
-      .map { file => View.text(file.toString) }
+    val indexedView =
+      state.nonConflicting.map(f => (f._1, View.text(f._2.head.toString())))
+
+    val conflict =
+      state.conflicting.head // TODO Make safe.
+
+    val conflictView: Seq[(Int, View)] =
+      conflict._2
+        .zipWithIndex
+        .map { case (file, idx) =>
+          if (idx == state.cursorIdx)
+            View.text("▣" + file.toString).green
+          else
+            View.text("☐" + file.toString).cyan.dim
+        }.map( (conflict._1, _))
+
+    val sortedViews =
+      (indexedView ++ conflictView).sortBy(_._1)
 
     View.vertical(
-      View.text("Conflict detected. Choose the first one:"),
       View.vertical(
-        conflicts: _*
-      )
+        sortedViews.map(_._2): _*
+      ),
     )
   }
 
   override def update(
                        state: CliState,
                        event: TerminalEvent[Nothing]
-                     ): TerminalApp.Step[CliState, Unit] = {
+                     ): TerminalApp.Step[CliState, String] = {
     event match {
       case TerminalEvent.UserEvent(_) =>
         ???
       case TerminalEvent.SystemEvent(keyEvent) =>
         keyEvent match {
+          case KeyEvent.Up =>
+            if (state.cursorIdx == 0)
+              TerminalApp.Step.update(state)
+            else
+              TerminalApp.Step.update(state.copy(cursorIdx = state.cursorIdx - 1))
+          case KeyEvent.Down =>
+            if (state.cursorIdx == 1)
+              TerminalApp.Step.update(state)
+            else
+              TerminalApp.Step.update(state.copy(cursorIdx = state.cursorIdx + 1))
+          case KeyEvent.Enter =>
+//            val firstFile: File = state.conflicts(state.cursorIdx)
+            val flatFiles =
+              state.files
+                .flatMap {
+                  case (_, filesWithIdx) =>
+                    if (filesWithIdx.length == 1)
+                      filesWithIdx
+                    else {
+                      val (firstFileWithIndex, secondFileWithIndex) =
+                        filesWithIdx.zipWithIndex.partition(_._2 == state.cursorIdx)
+                      val firstFile: File = firstFileWithIndex.head._1
+                      val secondFile: File = secondFileWithIndex.head._1
+                      Seq(firstFile, secondFile)
+                    }
+                }
+            flatFiles
+              .zipWithIndex
+              .map { case (file, index) =>
+                BookerTools.rename(file, index)
+              }
+
+            TerminalApp.Step.succeed(s"Reordered files!")
+
+
           case KeyEvent.Escape | KeyEvent.Exit | KeyEvent.Character('q') =>
             TerminalApp.Step.exit
           case _ =>
@@ -259,9 +316,10 @@ object Booker extends ZIOAppDefault {
 
     for {
       files <- BookerTools.filesWithChapterIndexes(f)
-      _ <- BookerApp
+      result <- BookerApp
             .run(CliState(files))
             .provide(TUI.live(false))
+      _ <- printLine(result)
     } yield ()
   }
 }
