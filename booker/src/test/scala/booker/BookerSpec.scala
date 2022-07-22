@@ -1,8 +1,9 @@
 package booker
 
-import zio.*
-import zio.test.*
-import zio.test.Assertion.*
+/*
+import zio._
+import zio.test._
+import zio.test.Assertion._
 
 import java.io.File
 
@@ -86,3 +87,4 @@ object BookerSpec extends ZIOSpecDefault:
       )
     )
 end BookerSpec
+*/

@@ -1,5 +1,11 @@
 import scala.util.Try
 
+scalaVersion := "2.13.8"
+
+libraryDependencies := Seq(
+  "io.github.kitlangton" %% "zio-tui" % "0.1.7" // withCrossVersion CrossVersion.for3Use2_13
+)
+
 // for building in a docker container
 //graalVMNativeImageGraalVersion := Some("21.2.0")
 
@@ -33,7 +39,7 @@ graalVMNativeImageOptions ++= Seq(
 run / fork := true
 run / baseDirectory := file(".")
 
-run / javaOptions += s"-agentlib:native-image-agent=config-output-dir=booker/src/main/resources/META-INF/native-image"
+//run / javaOptions += s"-agentlib:native-image-agent=config-output-dir=booker/src/main/resources/META-INF/native-image"
 
 /*
 // todo: run task with agent

@@ -1,101 +1,98 @@
 package booker
 
-import zio.{Console, Unsafe, ZIO}
-import zio.Console.*
-import zio.Runtime.default.unsafe
+import tui.{TUI, TerminalApp, TerminalEvent}
+import view._
+import zio.{Scope, ZIO, ZIOAppArgs, ZIOAppDefault}
+import zio.Console._
 
-import java.io.{
-  File,
-  FileNotFoundException,
-  IOException
-}
+import java.io.{File, FileNotFoundException}
 import scala.io.Source
-import scala.util.CommandLineParser.FromString
 import scala.util.Try
 
-// interestingly these are effects but are not
-// wrapped in ZIO
-def validateDir(
-    dir: File
-): ZIO[Any, FileNotFoundException, Unit] =
-  ZIO
-    .fail(
-      FileNotFoundException(
-        s"$dir was not found or was not a directory"
+object BookerTools {
+  // interestingly these are effects but are not
+  // wrapped in ZIO
+  def validateDir(
+                   dir: File
+                 ): ZIO[Any, FileNotFoundException, Unit] = {
+    ZIO
+      .fail(
+        new FileNotFoundException(
+          s"$dir was not found or was not a directory"
+        )
       )
-    )
-    .unless(dir.exists() && dir.isDirectory)
-    .map(_ => ())
+      .unless(dir.exists() && dir.isDirectory)
+      .map(_ => ())
+  }
 
-def filesInDir(dir: File): Seq[File] =
-  dir.listFiles().toSeq
+  def filesInDir(dir: File): Seq[File] =
+    dir.listFiles().toSeq
 
-def parseChapter(f: File): Option[(Int, File)] =
-  def intPrefix(s: String): Option[(Int, File)] =
-    Try(Integer.parseInt(s)).toOption.map(_ -> f)
+  def parseChapter(f: File): Option[(Int, File)] = {
 
-  if f.getName.endsWith(".md") then
-    f.getName
-      .split('_')
-      .headOption
-      .flatMap(intPrefix)
-  else
-    None
+    def intPrefix(s: String): Option[(Int, File)] =
+      Try(Integer.parseInt(s)).toOption.map(_ -> f)
 
-def chapterFiles(dir: File): Seq[(Int, File)] =
-  val files = filesInDir(dir)
-  files.flatMap(parseChapter)
+    if (f.getName.endsWith(".md"))
+      f.getName
+        .split('_')
+        .headOption
+        .flatMap(intPrefix)
+    else
+      None
+  }
 
-// def duplicates(
-//    files: Seq[(Int, File)]
-// ): Seq[(Int, File)] =
-//  val justNums = files.toSeq.map(_._1)
-//  val dups =
-//    justNums.diff(justNums.distinct).distinct
-//  files.filter { f =>
-//    dups.contains(f._1)
-//  }
+  def chapterFiles(dir: File): Seq[(Int, File)] = {
 
-def resolveDups(
-    dups: Seq[File]
-): ZIO[Any, Throwable, Seq[File]] =
+    val files = filesInDir(dir)
+    files.flatMap(parseChapter)
+  }
+    // def duplicates(
+    //    files: Seq[(Int, File)]
+    // ): Seq[(Int, File)] =
+    //  val justNums = files.toSeq.map(_._1)
+    //  val dups =
+    //    justNums.diff(justNums.distinct).distinct
+    //  files.filter { f =>
+    //    dups.contains(f._1)
+    //  }
+
+  def resolveDups(
+                   dups: Seq[File]
+                 ): ZIO[Any, Throwable, Seq[File]] = {
+
   val something =
-    for
+    for {
       _ <- printLine("Conflict detected:")
-      _ <-
-        ZIO.foreach(dups.zipWithIndex) {
+      _ <- ZIO.foreach(dups.zipWithIndex) {
           case (f, i) =>
             printLine(s"$i) ${f.getName}")
         }
-      _ <-
-        printLine("\nWhich one should be first:")
+      _ <- printLine("\nWhich one should be first:")
       numString <- readLine
-      num <-
-        ZIO.fromTry(
+      num <- ZIO.fromTry(
           Try(Integer.parseInt(numString))
         ) // todo: retry if unparsable
-      (firstIndex, restIndex) =
-        dups.zipWithIndex.partition(_._2 == num)
+      (firstIndex, restIndex) = dups.zipWithIndex.partition(_._2 == num)
       firstSeq = firstIndex.map(_._1)
-      rest     = restIndex.map(_._1)
+      rest = restIndex.map(_._1)
       first <-
-        if firstSeq.size == 1 then
+        if (firstSeq.size == 1)
           ZIO.succeed(firstSeq.head)
         else
           ZIO.fail(
             new Exception("Invalid index")
           ) // todo: retry
       resolution <-
-        if rest.size > 1 then
+        if (rest.size > 1)
           resolveDups(rest)
         else
           ZIO.succeed(rest)
-    yield first +: resolution
+    } yield first +: resolution
+    something
+}
 
-  something
-end resolveDups
-
-/* File:
+  /* File:
  * 01-a 02-foo 02-bar 03-fiz
  *
  * GroupedFiles:
@@ -108,95 +105,131 @@ end resolveDups
  * Resolutions:
  * 02-foo 03-bar */
 
-def program(
-    dir: File
-): ZIO[Any, Throwable, Unit] =
-  for
-    _ <- validateDir(dir)
-    _ <- printLine(s"Reordering $dir")
-    files = chapterFiles(dir)
-    grouped: Seq[(Int, Seq[File])] =
-      files
-        .groupBy(_._1)
-        .view
-        .mapValues(_.map(_._2))
-        .toSeq
-        .sortBy(_._1)
-    results: Seq[Seq[File]] <-
-      ZIO.foreach(grouped)(dups =>
-        if (dups._2.length > 1)
-          resolveDups(dups._2)
-        else
-          ZIO.succeed(dups._2)
-      )
-    flatResults = results.flatten
-    // Now, strip out numbers and rename
-    // according to place in this sequence
-    _ <-
-      ZIO.attempt {
-        flatResults
-          .zipWithIndex
-          .map((file, index) =>
-            rename(file, index)
-          )
-      }
-    _ <-
-      printLine(
-        s"Completed with ${files.size} files"
-      )
-    _ <-
-      printLine(
-        s"Potential Re-ordering: \n" +
-          flatResults.mkString("\n")
-      )
-  yield ()
-
-@main
-def run(args: String*) =
-  val f: File =
-//    File(args.headOption.getOrElse(""))
-    File("Chapters")
-  Unsafe.unsafeCompat { implicit u =>
-    unsafe
-      .run(program(f.getAbsoluteFile))
-      .getOrThrowFiberFailure()
+  def program(
+               dir: File
+             ): ZIO[Any, Throwable, Unit] = {
+    for {
+      _ <- validateDir(dir)
+      _ <- printLine(s"Reordering $dir")
+      files = chapterFiles(dir)
+      grouped: Seq[(Int, Seq[File])] =
+        files
+          .groupBy(_._1)
+          .view
+          .mapValues(_.map(_._2))
+          .toSeq
+          .sortBy(_._1)
+      results <-
+        ZIO.foreach(grouped)(dups =>
+          if (dups._2.length > 1)
+            resolveDups(dups._2)
+          else
+            ZIO.succeed(dups._2)
+        )
+      flatResults = results.flatten
+      // Now, strip out numbers and rename
+      // according to place in this sequence
+      _
+        <-
+        ZIO.attempt {
+          flatResults
+            .zipWithIndex
+            .map { case (file, index) =>
+              rename(file, index)
+            }
+        }
+      _
+        <-
+        printLine(
+          s"Completed with ${files.size} files"
+        )
+      _
+        <-
+        printLine(
+          s"Potential Re-ordering: \n" +
+            flatResults.mkString("\n")
+        )
+    }
+    yield ()
   }
 
-def rename(original: File, index: Int) =
+  def rename(original: File, index: Int) = {
 
-  val stripped =
-    original.getName.dropWhile(_ != '_').drop(1)
+    val stripped =
+      original.getName.dropWhile(_ != '_').drop(1)
 
-  def cleanupName(s: String): String =
-    s.stripPrefix("# ")
-      .replace(' ', '_')
-      .replaceAll("[^0-9a-zA-Z_]", "") + ".md"
+    def cleanupName(s: String): String = {
+      s.stripPrefix("# ")
+        .replace(' ', '_')
+        .replaceAll("[^0-9a-zA-Z_]", "") + ".md"
+    }
 
-  val source = Source.fromFile(original)
+    val source = Source.fromFile(original)
 
-  val fromMarkdown =
-    source
-      .getLines()
-      .nextOption()
-      .map(cleanupName)
-      .getOrElse(stripped)
+    val fromMarkdown =
+      source
+        .getLines()
+        .nextOption()
+        .map(cleanupName)
+        .getOrElse(stripped)
 
-  source.close()
+    source.close()
 
-  val withLeadingZero =
-    if (index > 9)
-      index.toString
-    else
-      s"0$index"
+    val withLeadingZero =
+      if (index > 9)
+        index.toString
+      else
+        s"0$index"
 
-  val name = withLeadingZero + "_" + fromMarkdown
+    val name = withLeadingZero + "_" + fromMarkdown
 
-  original
-    .renameTo(File(original.getParentFile, name))
-end rename
+    original
+      .renameTo(new File(original.getParentFile, name))
+    }
 
-def withMarkdownNames(
-    files: Seq[File]
-): ZIO[Any, FileNotFoundException, Seq[File]] =
-  println(files)
-  ZIO.succeed(files)
+    def withMarkdownNames(
+                           files: Seq[File]
+                         ): ZIO[Any, FileNotFoundException, Seq[File]] = {
+      println(files)
+      ZIO.succeed(files)
+  }
+
+}
+
+case class CliState()
+
+object BookerApp extends TerminalApp[Nothing, CliState, Unit] {
+  override def render(state: CliState): View = {
+    View.text("hello, world")
+  }
+
+  override def update(
+                       state: CliState,
+                       event: TerminalEvent[Nothing]
+                     ): TerminalApp.Step[CliState, Unit] = {
+
+    ???
+  }
+
+}
+
+object Booker extends ZIOAppDefault {
+  override def run: ZIO[Any with ZIOAppArgs with Scope, Any, Any] = {
+      BookerApp
+        .run(CliState())
+        .provide(TUI.live(false))
+  }
+}
+/*
+object Booker extends App {
+  val f: File =
+  //    File(args.headOption.getOrElse(""))
+    new File("Chapters")
+
+  Unsafe.unsafeCompat { implicit u =>
+    unsafe
+      .run(BookerTools.program(f.getAbsoluteFile))
+      .getOrThrowFiberFailure()
+  }
+}
+*/
