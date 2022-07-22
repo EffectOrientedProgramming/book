@@ -11,6 +11,12 @@ import scala.io.Source
 import scala.util.Try
 
 object BookerTools {
+  def withLeadingZero(i: Int) =
+    if (i > 9)
+      i.toString
+    else
+      s"0$i"
+
   // interestingly these are effects but are not
   // wrapped in ZIO
   def validateDir(
@@ -160,7 +166,11 @@ object BookerTools {
     yield ()
   }
 
-  def rename(original: File, index: Int) = {
+  def rename(original: File, index: Int) =
+    original
+      .renameTo(renameRep(original, index))
+
+  def renameRep(original: File, index: Int) = {
 
     val stripped =
       original.getName.dropWhile(_ != '_').drop(1)
@@ -190,11 +200,10 @@ object BookerTools {
 
     val name = withLeadingZero + "_" + fromMarkdown
 
-    original
-      .renameTo(new File(original.getParentFile, name))
-    }
+    new File(original.getParentFile, name)
+  }
 
-    def withMarkdownNames(
+  def withMarkdownNames(
                            files: Seq[File]
                          ): ZIO[Any, FileNotFoundException, Seq[File]] = {
       println(files)
@@ -212,6 +221,20 @@ case class CliState(files: Seq[(Int, Seq[File])], cursorIdx: Int = 0) {
   val conflicts =
     conflicting
       .flatMap(tuple => tuple._2)
+
+}
+
+case class CliStateSimp(files: Seq[File], cursorIdx: Int = 0, newFileName: String = "") {
+  val fileNameRep = {
+    val name =
+      if (newFileName.isEmpty)
+        "???"
+      else
+        newFileName
+
+    BookerTools.withLeadingZero(cursorIdx) + "_" + name + ".md"
+  }
+
 
 }
 
@@ -310,14 +333,86 @@ object BookerApp extends TerminalApp[Nothing, CliState, String] {
   }
 }
 
+object BookerReorderApp extends TerminalApp[Nothing, CliStateSimp, String] {
+  override def render(state: CliStateSimp): View = {
+    View.vertical(
+    state.files.zipWithIndex
+      .flatMap { case (file, index) =>
+        val newFileGroup =
+          if (index == state.cursorIdx) {
+            Seq(
+              View.text("New Chapter: " + state.fileNameRep).green,
+            )
+          } else {
+            Seq()
+          }
+
+        val existingFileGroup =
+          if (index >=  state.cursorIdx) {
+            Seq(
+            View.text(BookerTools.renameRep(file, index + 1).toString)
+            )
+
+          } else
+            Seq(
+              View.text(file.toString)
+            )
+
+        newFileGroup ++ existingFileGroup
+      }: _*
+    )
+  }
+
+  override def update(
+                       state: CliStateSimp,
+                       event: TerminalEvent[Nothing]
+                     ): TerminalApp.Step[CliStateSimp, String] = {
+    event match {
+      case TerminalEvent.UserEvent(_) =>
+        ???
+      case TerminalEvent.SystemEvent(keyEvent) =>
+        keyEvent match {
+          case c :KeyEvent.Character =>
+              TerminalApp.Step.update(state.copy(newFileName = state.newFileName + c.char))
+          case KeyEvent.Delete =>
+            if (state.newFileName.nonEmpty)
+              TerminalApp.Step.update(state.copy(newFileName = state.newFileName.init))
+            else
+              TerminalApp.Step.update(state)
+          case KeyEvent.Up =>
+            if (state.cursorIdx == 0)
+              TerminalApp.Step.update(state)
+            else
+              TerminalApp.Step.update(state.copy(cursorIdx = state.cursorIdx - 1))
+          case KeyEvent.Down =>
+            if (state.cursorIdx < state.files.length - 1)
+              TerminalApp.Step.update(state.copy(cursorIdx = state.cursorIdx + 1))
+            else
+              TerminalApp.Step.update(state)
+          case KeyEvent.Enter =>
+            //            val firstFile: File = state.conflicts(state.cursorIdx)
+            ???
+
+
+          case KeyEvent.Escape | KeyEvent.Exit =>
+            TerminalApp.Step.exit
+          case _ =>
+            TerminalApp.Step.update(state)
+        }
+    }
+  }
+}
+
 object Booker extends ZIOAppDefault {
   override def run: ZIO[Any with ZIOAppArgs with Scope, Any, Any] = {
     val f: File = new File("Chapters")
 
     for {
       files <- BookerTools.filesWithChapterIndexes(f)
-      result <- BookerApp
-            .run(CliState(files))
+      flatFiles = files
+        .flatMap(_._2)
+      result <- BookerReorderApp
+            .run(CliStateSimp(flatFiles))
             .provide(TUI.live(false))
       _ <- printLine(result)
     } yield ()
