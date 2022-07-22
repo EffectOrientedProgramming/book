@@ -391,8 +391,10 @@ object BookerReorderApp extends TerminalApp[Nothing, CliStateSimp, String] {
               TerminalApp.Step.update(state)
           case KeyEvent.Enter =>
             new File("Chapters/" + state.fileNameRep).createNewFile()
-            state.files.drop(state.cursorIdx)
-              .foreach(BookerTools.rename(_, state.cursorIdx + 1))
+            state.files
+              .zipWithIndex
+              .drop(state.cursorIdx)
+              .foreach{ case (file, idx) => BookerTools.rename(file, idx + 1)}
             throw new NotImplementedError("Created a new file and renamed everything after it: ")
 
 
