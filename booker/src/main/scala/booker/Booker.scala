@@ -2,8 +2,9 @@ package booker
 
 import tui.{TUI, TerminalApp, TerminalEvent}
 import view._
-import zio.{Scope, ZEnvironment, ZIO, ZIOAppArgs, ZIOAppDefault}
+import zio.{Scope, Unsafe, ZEnvironment, ZIO, ZIOAppArgs, ZIOAppDefault}
 import zio.Console._
+import zio.Runtime.unsafe
 
 import java.io.{File, FileNotFoundException}
 import scala.io.Source
@@ -105,20 +106,26 @@ object BookerTools {
  * Resolutions:
  * 02-foo 03-bar */
 
+  def filesWithChapterIndexes(dir: File):
+    ZIO[Any, Throwable, Seq[(Int, Seq[File])]] = {
+    for {
+      _ <- validateDir(dir)
+      _ <- printLine(s"Reordering $dir")
+    }
+    yield
+      chapterFiles(dir)
+        .groupBy(_._1)
+        .view
+        .mapValues(_.map(_._2))
+        .toSeq
+        .sortBy(_._1)
+  }
+
   def program(
                dir: File
              ): ZIO[Any, Throwable, Unit] = {
     for {
-      _ <- validateDir(dir)
-      _ <- printLine(s"Reordering $dir")
-      files = chapterFiles(dir)
-      grouped: Seq[(Int, Seq[File])] =
-        files
-          .groupBy(_._1)
-          .view
-          .mapValues(_.map(_._2))
-          .toSeq
-          .sortBy(_._1)
+      grouped <- filesWithChapterIndexes(dir)
       results <-
         ZIO.foreach(grouped)(dups =>
           if (dups._2.length > 1)
@@ -141,7 +148,7 @@ object BookerTools {
       _
         <-
         printLine(
-          s"Completed with ${files.size} files"
+          s"Completed with ${flatResults.size} files"
         )
       _
         <-
@@ -196,18 +203,35 @@ object BookerTools {
 
 }
 
-case class CliState(messages: Seq[String] = Seq.empty)
+case class CliState(files: Seq[(Int, Seq[File])])
 
 /*
+Conflict detected:
+0) 01_Introduction.md
+1) 01_asdf.md
 
+Which one should be first:
+
+
+Conflict detected. Choose the first one:
+[ ] 01_Intro.md
+[x] 01_Asdf.md
 
  */
 
 object BookerApp extends TerminalApp[Nothing, CliState, Unit] {
   override def render(state: CliState): View = {
-    val views = state.messages.map(View.text)
+    val conflicts = state
+      .files
+      .filter(_._2.size > 1)
+      .flatMap(_._2)
+      .map { file => View.text(file.toString) }
+
     View.vertical(
-      views: _*
+      View.text("Conflict detected. Choose the first one:"),
+      View.vertical(
+        conflicts: _*
+      )
     )
   }
 
@@ -222,9 +246,8 @@ object BookerApp extends TerminalApp[Nothing, CliState, Unit] {
         keyEvent match {
           case KeyEvent.Escape | KeyEvent.Exit | KeyEvent.Character('q') =>
             TerminalApp.Step.exit
-          case otherEvent =>
-            TerminalApp.Step.update(state.copy(messages = state.messages :+ otherEvent.toString))
-            //TerminalApp.Step.update(state)
+          case _ =>
+            TerminalApp.Step.update(state)
         }
     }
   }
@@ -232,21 +255,23 @@ object BookerApp extends TerminalApp[Nothing, CliState, Unit] {
 
 object Booker extends ZIOAppDefault {
   override def run: ZIO[Any with ZIOAppArgs with Scope, Any, Any] = {
-      BookerApp
-        .run(CliState())
-        .provide(TUI.live(false))
-  }
-}
-/*
-object Booker extends App {
-  val f: File =
-  //    File(args.headOption.getOrElse(""))
-    new File("Chapters")
+    val f: File = new File("Chapters")
 
-  Unsafe.unsafeCompat { implicit u =>
-    unsafe
-      .run(BookerTools.program(f.getAbsoluteFile))
-      .getOrThrowFiberFailure()
+    for {
+      files <- BookerTools.filesWithChapterIndexes(f)
+      _ <- BookerApp
+            .run(CliState(files))
+            .provide(TUI.live(false))
+    } yield ()
   }
 }
-*/
+
+object BookerOld extends ZIOAppDefault {
+  override def run: ZIO[Any with ZIOAppArgs with Scope, Any, Any] = {
+    val f: File =
+    //    File(args.headOption.getOrElse(""))
+      new File("Chapters")
+
+    BookerTools.program(f.getAbsoluteFile)
+  }
+}
