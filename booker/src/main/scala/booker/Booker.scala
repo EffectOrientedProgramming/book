@@ -390,8 +390,9 @@ object BookerReorderApp extends TerminalApp[Nothing, CliStateSimp, String] {
             else
               TerminalApp.Step.update(state)
           case KeyEvent.Enter =>
+            new File(state.fileNameRep).createNewFile()
             //            val firstFile: File = state.conflicts(state.cursorIdx)
-            ???
+            throw new NotImplementedError("Created a new file!")
 
 
           case KeyEvent.Escape | KeyEvent.Exit =>
