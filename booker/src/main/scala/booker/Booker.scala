@@ -230,7 +230,7 @@ case class CliStateSimp(files: Seq[File], cursorIdx: Int = 0, newFileName: Strin
       if (newFileName.isEmpty)
         "???"
       else
-        newFileName
+        newFileName.capitalize
 
     BookerTools.withLeadingZero(cursorIdx) + "_" + name + ".md"
   }
