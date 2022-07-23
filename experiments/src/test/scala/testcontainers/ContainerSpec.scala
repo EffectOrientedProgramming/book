@@ -22,7 +22,7 @@ object ContainerSpec extends ZIOSpecDefault {
 //    ZPostgreSQLContainer.Settings.default,
 //    ZPostgreSQLContainer.live,
 //    TestContainerLayers.dataSourceLayer,
-  ) @@ DbMigrationAspect.migrateOnce()()).provide(
+  ) @@ DbMigrationAspect.migrateOnce("db")()).provide(
 
       ZPostgreSQLContainer.Settings.default,
       ZPostgreSQLContainer.live

@@ -1,5 +1,5 @@
 CREATE TABLE MyFirstTable(
-                             id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                             id BIGINT NOT NULL PRIMARY KEY,
                              uKey VARCHAR(200) NOT NULL,
                              uValue TEXT NOT NULL,
                              createdAt TIMESTAMP NOT NULL,
