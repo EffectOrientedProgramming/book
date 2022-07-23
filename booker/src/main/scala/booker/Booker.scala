@@ -10,18 +10,29 @@ import java.io.{File, FileNotFoundException, IOException}
 import scala.io.Source
 import scala.util.Try
 
-object BookerTools {
-  def withLeadingZero(i: Int) =
+object BookerTools:
+  def orderedChapters(dir: File): ZIO[Any, IOException, Seq[File]] =
+    for
+      _ <- validateDir(dir)
+      _ <- printLine(s"Reordering $dir")
+    yield
+      chapterFiles(dir)
+        .groupBy(_._1)
+        .view
+        .mapValues(_.map(_._2))
+        .toSeq
+        .sortBy(_._1)
+        .flatMap(_._2)
+
+  def withLeadingZero(i: Int): String =
     if (i > 9)
       i.toString
     else
       s"0$i"
 
-  // interestingly these are effects but are not
-  // wrapped in ZIO
-  def validateDir(
+  private def validateDir(
                    dir: File
-                 ): ZIO[Any, FileNotFoundException, Unit] = {
+                 ): ZIO[Any, FileNotFoundException, Unit] =
     ZIO
       .fail(
         new FileNotFoundException(
@@ -30,7 +41,6 @@ object BookerTools {
       )
       .unless(dir.exists() && dir.isDirectory)
       .map(_ => ())
-  }
 
   def filesInDir(dir: File): Seq[File] =
     dir.listFiles().toSeq
@@ -50,20 +60,6 @@ object BookerTools {
   private def chapterFiles(dir: File): Seq[(Int, File)] =
     val files = filesInDir(dir)
     files.flatMap(parseChapter)
-
-  def orderedChapters(dir: File): ZIO[Any, IOException, Seq[File]] =
-    for
-      _ <- validateDir(dir)
-      _ <- printLine(s"Reordering $dir")
-    yield
-      chapterFiles(dir)
-        .groupBy(_._1)
-        .view
-        .mapValues(_.map(_._2))
-        .toSeq
-        .sortBy(_._1)
-        .flatMap(_._2)
-
 
   def rename(original: File, index: Int) =
     original
@@ -102,10 +98,9 @@ object BookerTools {
     new File(original.getParentFile, name)
   }
 
-}
 
 case class CliStateSimp(files: Seq[File], cursorIdx: Int = 0, newFileName: String = "") {
-  val fileNameRep = {
+  val fileNameRep =
     val name =
       if (newFileName.isEmpty)
         "???"
@@ -113,40 +108,31 @@ case class CliStateSimp(files: Seq[File], cursorIdx: Int = 0, newFileName: Strin
         newFileName.capitalize
 
     BookerTools.withLeadingZero(cursorIdx) + "_" + name + ".md"
-  }
-
 
 }
 
-object BookerReorderApp extends TerminalApp[Nothing, CliStateSimp, String] {
-  override def render(state: CliStateSimp): View = {
+object BookerReorderApp extends TerminalApp[Nothing, CliStateSimp, String]:
+  override def render(state: CliStateSimp): View =
     View.vertical(
-    state.files.zipWithIndex
-      .flatMap { case (file, index) =>
-        val newFileGroup =
-          if (index == state.cursorIdx) {
-            Seq(
-              View.text("New Chapter: " + state.fileNameRep).green,
-            )
-          } else {
-            Seq()
-          }
+      state.files.zipWithIndex
+        .flatMap { case (file, index) =>
+          val newFileGroup =
+            if (index == state.cursorIdx)
+              Seq(
+                View.text("New Chapter: " + state.fileNameRep).green,
+              )
+            else
+              Seq()
 
-        val existingFileGroup =
-          if (index >=  state.cursorIdx) {
-            Seq(
-            View.text(BookerTools.renameRep(file, index + 1).toString)
-            )
+          val existingFileGroup =
+            if (index >=  state.cursorIdx)
+              Seq( View.text(BookerTools.renameRep(file, index + 1).toString) )
+            else
+              Seq( View.text(file.toString) )
 
-          } else
-            Seq(
-              View.text(file.toString)
-            )
-
-        newFileGroup ++ existingFileGroup
-      }: _*
+          newFileGroup ++ existingFileGroup
+        }: _*
     )
-  }
 
   override def update(
                        state: CliStateSimp,
@@ -189,19 +175,17 @@ object BookerReorderApp extends TerminalApp[Nothing, CliStateSimp, String] {
             TerminalApp.Step.update(state)
         }
     }
-  }
 }
 
-object Booker extends ZIOAppDefault {
+object Booker extends ZIOAppDefault:
   override def run: ZIO[Any with ZIOAppArgs with Scope, Any, Any] = {
     val f: File = new File("Chapters")
 
-    for {
+    for
       flatFiles <- BookerTools.orderedChapters(f)
       result <- BookerReorderApp
             .run(CliStateSimp(flatFiles))
             .provide(TUI.live(false))
       _ <- printLine(result)
-    } yield ()
+    yield ()
   }
-}
