@@ -1,7 +1,7 @@
 package booker
 
-import tui.{TUI, TerminalApp, TerminalEvent}
-import view._
+import  tui.{TUI, TerminalApp, TerminalEvent}
+import tui.view._
 import zio.{Scope, Unsafe, ZEnvironment, ZIO, ZIOAppArgs, ZIOAppDefault}
 import zio.Console._
 import zio.Runtime.unsafe
@@ -54,63 +54,6 @@ object BookerTools {
     val files = filesInDir(dir)
     files.flatMap(parseChapter)
   }
-    // def duplicates(
-    //    files: Seq[(Int, File)]
-    // ): Seq[(Int, File)] =
-    //  val justNums = files.toSeq.map(_._1)
-    //  val dups =
-    //    justNums.diff(justNums.distinct).distinct
-    //  files.filter { f =>
-    //    dups.contains(f._1)
-    //  }
-
-  def resolveDups(
-                   dups: Seq[File]
-                 ): ZIO[Any, Throwable, Seq[File]] = {
-
-  val something =
-    for {
-      _ <- printLine("Conflict detected:")
-      _ <- ZIO.foreach(dups.zipWithIndex) {
-          case (f, i) =>
-            printLine(s"$i) ${f.getName}")
-        }
-      _ <- printLine("\nWhich one should be first:")
-      numString <- readLine
-      num <- ZIO.fromTry(
-          Try(Integer.parseInt(numString))
-        ) // todo: retry if unparsable
-      (firstIndex, restIndex) = dups.zipWithIndex.partition(_._2 == num)
-      firstSeq = firstIndex.map(_._1)
-      rest = restIndex.map(_._1)
-      first <-
-        if (firstSeq.size == 1)
-          ZIO.succeed(firstSeq.head)
-        else
-          ZIO.fail(
-            new Exception("Invalid index")
-          ) // todo: retry
-      resolution <-
-        if (rest.size > 1)
-          resolveDups(rest)
-        else
-          ZIO.succeed(rest)
-    } yield first +: resolution
-  something
-}
-
-  /* File:
- * 01-a 02-foo 02-bar 03-fiz
- *
- * GroupedFiles:
- * Seq(01-a), Seq(02-foo, 02-bar), Seq(03-fiz)
- * Seq(04-foo, 04-bar),
- *
- * Dups:
- * 02-foo 02-bar
- *
- * Resolutions:
- * 02-foo 03-bar */
 
   def filesWithChapterIndexes(dir: File):
     ZIO[Any, Throwable, Seq[(Int, Seq[File])]] = {
@@ -127,44 +70,6 @@ object BookerTools {
         .sortBy(_._1)
   }
 
-  def program(
-               dir: File
-             ): ZIO[Any, Throwable, Unit] = {
-    for {
-      grouped <- filesWithChapterIndexes(dir)
-      results <-
-        ZIO.foreach(grouped)(dups =>
-          if (dups._2.length > 1)
-            resolveDups(dups._2)
-          else
-            ZIO.succeed(dups._2)
-        )
-      flatResults = results.flatten
-      // Now, strip out numbers and rename
-      // according to place in this sequence
-      _
-        <-
-        ZIO.attempt {
-          flatResults
-            .zipWithIndex
-            .map { case (file, index) =>
-              rename(file, index)
-            }
-        }
-      _
-        <-
-        printLine(
-          s"Completed with ${flatResults.size} files"
-        )
-      _
-        <-
-        printLine(
-          s"Potential Re-ordering: \n" +
-            flatResults.mkString("\n")
-        )
-    }
-    yield ()
-  }
 
   def rename(original: File, index: Int) =
     original
@@ -420,15 +325,5 @@ object Booker extends ZIOAppDefault {
             .provide(TUI.live(false))
       _ <- printLine(result)
     } yield ()
-  }
-}
-
-object BookerOld extends ZIOAppDefault {
-  override def run: ZIO[Any with ZIOAppArgs with Scope, Any, Any] = {
-    val f: File =
-    //    File(args.headOption.getOrElse(""))
-      new File("Chapters")
-
-    BookerTools.program(f.getAbsoluteFile)
   }
 }
