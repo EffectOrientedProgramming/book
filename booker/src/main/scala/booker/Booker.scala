@@ -99,7 +99,7 @@ object BookerTools:
   }
 
 
-case class CliStateSimp(files: Seq[File], cursorIdx: Int = 0, newFileName: String = "") {
+case class CliStateSimp(files: Seq[File], cursorIdx: Int = 0, newFileName: String = ""):
   val fileNameRep =
     val name =
       if (newFileName.isEmpty)
@@ -108,8 +108,6 @@ case class CliStateSimp(files: Seq[File], cursorIdx: Int = 0, newFileName: Strin
         newFileName.capitalize
 
     BookerTools.withLeadingZero(cursorIdx) + "_" + name + ".md"
-
-}
 
 object BookerReorderApp extends TerminalApp[Nothing, CliStateSimp, String]:
   override def render(state: CliStateSimp): View =
@@ -137,8 +135,8 @@ object BookerReorderApp extends TerminalApp[Nothing, CliStateSimp, String]:
   override def update(
                        state: CliStateSimp,
                        event: TerminalEvent[Nothing]
-                     ): TerminalApp.Step[CliStateSimp, String] = {
-    event match {
+                     ): TerminalApp.Step[CliStateSimp, String] =
+    event match
       case TerminalEvent.UserEvent(_) =>
         ???
       case TerminalEvent.SystemEvent(keyEvent) =>
@@ -174,11 +172,9 @@ object BookerReorderApp extends TerminalApp[Nothing, CliStateSimp, String]:
           case _ =>
             TerminalApp.Step.update(state)
         }
-    }
-}
 
 object Booker extends ZIOAppDefault:
-  override def run: ZIO[Any with ZIOAppArgs with Scope, Any, Any] = {
+  override def run: ZIO[Any with ZIOAppArgs with Scope, Any, Any] =
     val f: File = new File("Chapters")
 
     for
@@ -188,4 +184,3 @@ object Booker extends ZIOAppDefault:
             .provide(TUI.live(false))
       _ <- printLine(result)
     yield ()
-  }
