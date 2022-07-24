@@ -98,6 +98,18 @@ object BookerTools:
     new File(original.getParentFile, name)
   }
 
+  def scrollBetween(begin: Int, end: Int, state: CliStateSimp, event: KeyEvent.Up.type | KeyEvent.Down.type) =
+    event match
+      case KeyEvent.Up =>
+        if (state.cursorIdx == begin)
+          TerminalApp.Step.update(state)
+        else
+          TerminalApp.Step.update(state.copy(cursorIdx = state.cursorIdx - 1))
+      case KeyEvent.Down =>
+        if (state.cursorIdx < end - 1)
+          TerminalApp.Step.update(state.copy(cursorIdx = state.cursorIdx + 1))
+        else
+          TerminalApp.Step.update(state)
 
 case class CliStateSimp(files: Seq[File], cursorIdx: Int = 0, newFileName: String = ""):
   val fileNameRep =
@@ -109,7 +121,34 @@ case class CliStateSimp(files: Seq[File], cursorIdx: Int = 0, newFileName: Strin
 
     BookerTools.withLeadingZero(cursorIdx) + "_" + name + ".md"
 
-object BookerReorderApp extends TerminalApp[Nothing, CliStateSimp, String]:
+object ReorderExistingApp extends TerminalApp[Nothing, CliStateSimp, String]:
+  override def render(state: CliStateSimp): View =
+    View.vertical(
+      state.files.zipWithIndex.map((file, idx) =>
+        if (idx == state.cursorIdx)
+          View.text(file.toString).green.bold.bordered.
+        else
+          View.text(file.toString)
+      ): _*
+    )
+
+  override def update(
+                       state: CliStateSimp,
+                       event: TerminalEvent[Nothing]
+                     ): TerminalApp.Step[CliStateSimp, String] =
+    event match
+      case TerminalEvent.UserEvent(_) =>
+        ???
+      case TerminalEvent.SystemEvent(keyEvent) =>
+        keyEvent match
+          case KeyEvent.Escape | KeyEvent.Exit =>
+            TerminalApp.Step.exit
+          case k @ (KeyEvent.Up | KeyEvent.Down) =>
+            BookerTools.scrollBetween(0, state.files.length, state, k)
+          case _ =>
+            TerminalApp.Step.update(state)
+
+object AddNewChapterApp extends TerminalApp[Nothing, CliStateSimp, String]:
   override def render(state: CliStateSimp): View =
     View.vertical(
       state.files.zipWithIndex
@@ -148,16 +187,8 @@ object BookerReorderApp extends TerminalApp[Nothing, CliStateSimp, String]:
               TerminalApp.Step.update(state.copy(newFileName = state.newFileName.init))
             else
               TerminalApp.Step.update(state)
-          case KeyEvent.Up =>
-            if (state.cursorIdx == 0)
-              TerminalApp.Step.update(state)
-            else
-              TerminalApp.Step.update(state.copy(cursorIdx = state.cursorIdx - 1))
-          case KeyEvent.Down =>
-            if (state.cursorIdx < state.files.length - 1)
-              TerminalApp.Step.update(state.copy(cursorIdx = state.cursorIdx + 1))
-            else
-              TerminalApp.Step.update(state)
+          case k @ (KeyEvent.Up | KeyEvent.Down) =>
+              BookerTools.scrollBetween(0, state.files.length, state, k)
           case KeyEvent.Enter =>
             new File("Chapters/" + state.fileNameRep).createNewFile()
             state.files
@@ -179,8 +210,10 @@ object Booker extends ZIOAppDefault:
 
     for
       flatFiles <- BookerTools.orderedChapters(f)
-      result <- BookerReorderApp
-            .run(CliStateSimp(flatFiles))
-            .provide(TUI.live(false))
+      result <-
+        ReorderExistingApp
+//        AddNewChapterApp
+          .run(CliStateSimp(flatFiles))
+          .provide(TUI.live(false))
       _ <- printLine(result)
     yield ()
