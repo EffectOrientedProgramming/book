@@ -126,7 +126,7 @@ object ReorderExistingApp extends TerminalApp[Nothing, CliStateSimp, String]:
     View.vertical(
       state.files.zipWithIndex.map((file, idx) =>
         if (idx == state.cursorIdx)
-          View.text(file.toString).green.bold.bordered.
+          View.text(file.toString).green.bold.bordered
         else
           View.text(file.toString)
       ): _*

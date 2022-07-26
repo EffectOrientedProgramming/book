@@ -19,11 +19,6 @@ lazy val commonSettings = Seq(
     "dev.zio" %% "zio-test"     % zioVersion,
     "dev.zio" %% "zio-test-sbt" % zioVersion % Test,
     "dev.zio" %% "zio-prelude"  % "1.0.0-RC15",
-    "io.github.scottweaver" % "zio-2-0-testcontainers-postgresql_3" % "0.8.0",
-    "io.github.scottweaver" %% "zio-2-0-db-migration-aspect" % "0.8.0",
-//    "io.getquill" %% "quill-jdbc-zio" % "4.1.0-V2",
-//    "io.getquill" %% "quill-jdbc-zio" % "4.1.0-V2",
-//    "io.getquill" %% "quill-zio" % "4.1.0"
   ),
 
   testFrameworks +=
@@ -37,6 +32,16 @@ lazy val commonSettings = Seq(
 lazy val booker = (project in file("booker")).settings(commonSettings).enablePlugins(GraalVMNativeImagePlugin)
 lazy val experiments = (project in file("experiments"))
 .settings(commonSettings).settings(fork:=true)
+  .settings(
+    libraryDependencies ++= Seq(
+      "io.github.scottweaver" %% "zio-2-0-testcontainers-postgresql" % "0.8.0",
+      "io.github.scottweaver" %% "zio-2-0-db-migration-aspect" % "0.8.0",
+          "io.getquill" %% "quill-jdbc-zio" % "4.1.0-V2",
+      //    "io.getquill" %% "quill-jdbc-zio" % "4.1.0-V2",
+      "io.getquill" %% "quill-zio" % "4.1.0-V2",
+//      "io.getquill" %% "quill-jasync-postgres" % "4.1.0-V2",
+    )
+  )
 //lazy val rube = (project in file("rube")).settings(commonSettings)
 
 resolvers += Resolver.sonatypeRepo("snapshots")
