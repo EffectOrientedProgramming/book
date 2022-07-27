@@ -1,6 +1,9 @@
 package testcontainers
 
+import io.getquill.{Query, Quoted}
 import zio.*
+
+import java.sql.SQLException
 import javax.sql.DataSource
 
 
@@ -22,22 +25,26 @@ object UserService:
 final case class UserServiceLive(dataSource: DataSource) extends UserService {
   import io.getquill._
   // SnakeCase turns firstName -> first_name
-  println("A")
   val ctx = new PostgresZioJdbcContext(SnakeCase)
-  println("B")
   import ctx._
+
+  inline def runWithSourceQuery[T](inline quoted: Quoted[Query[T]]): ZIO[Any, SQLException, List[T]] =
+    run(quoted).provideEnvironment(ZEnvironment(dataSource))
+
+  inline def runWithSourceInsert[T](inline quoted: Quoted[Insert[T]]): ZIO[Any, SQLException, Long] =
+    run(quoted).provideEnvironment(ZEnvironment(dataSource))
 
   def get(userId: String): ZIO[Any, UserNotFound, AppUser] =
     inline def somePeople = quote {
       query[AppUser].filter(_.userId == lift(userId))
     }
-    run(somePeople).provideEnvironment(ZEnvironment(dataSource)).orDie.map(_.head)
+    runWithSourceQuery(somePeople).orDie.map(_.head)
 
   def insert(user: AppUser): ZIO[Any, Nothing, Long] =
     inline def insert = quote {
       query[AppUser].insertValue(lift(user))
     }
-    run(insert).provideEnvironment(ZEnvironment(dataSource)).orDie
+    runWithSourceInsert(insert).orDie
 
 }
 
