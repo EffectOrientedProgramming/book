@@ -7,24 +7,25 @@ import java.sql.SQLException
 import javax.sql.DataSource
 
 trait UserNotFound
-case class AppUser(userId: String, name: String)
+case class User(userId: String, name: String)
 
 trait UserService {
-  def get(userId: String): ZIO[Any, UserNotFound, AppUser]
-  def insert(user: AppUser): ZIO[Any, Nothing, Long]
+  def get(userId: String): ZIO[Any, UserNotFound, User]
+  def insert(user: User): ZIO[Any, Nothing, Long]
 }
 
 object UserService:
-  def get(userId: String): ZIO[UserService with DataSource, UserNotFound, AppUser] =
+  def get(userId: String): ZIO[UserService with DataSource, UserNotFound, User] =
     ZIO.serviceWithZIO[UserService](_.get(userId)) // use .option ?
 
-  def insert(user: AppUser): ZIO[UserService with DataSource, Nothing, Long] = // TODO Um? Why Nothing?????
+  def insert(user: User): ZIO[UserService with DataSource, Nothing, Long] = // TODO Um? Why Nothing?????
     ZIO.serviceWithZIO[UserService](_.insert(user))
 
 final case class UserServiceLive(dataSource: DataSource) extends UserService {
   import io.getquill._
   // SnakeCase turns firstName -> first_name
-  val ctx = new PostgresZioJdbcContext(SnakeCase)
+
+  val ctx = new PostgresZioJdbcContext(NamingStrategy(PluralizedTableNames, SnakeCase))
   import ctx._
 
   inline def runWithSourceQuery[T](inline quoted: Quoted[Query[T]]): ZIO[Any, SQLException, List[T]] =
@@ -33,15 +34,15 @@ final case class UserServiceLive(dataSource: DataSource) extends UserService {
   inline def runWithSourceInsert[T](inline quoted: Quoted[Insert[T]]): ZIO[Any, SQLException, Long] =
     run(quoted).provideEnvironment(ZEnvironment(dataSource))
 
-  def get(userId: String): ZIO[Any, UserNotFound, AppUser] =
+  def get(userId: String): ZIO[Any, UserNotFound, User] =
     inline def somePeople = quote {
-      query[AppUser].filter(_.userId == lift(userId))
+      query[User].filter(_.userId == lift(userId))
     }
     runWithSourceQuery(somePeople).orDie.map(_.head)
 
-  def insert(user: AppUser): ZIO[Any, Nothing, Long] =
+  def insert(user: User): ZIO[Any, Nothing, Long] =
     inline def insert = quote {
-      query[AppUser].insertValue(lift(user))
+      query[User].insertValue(lift(user))
     }
     runWithSourceInsert(insert).orDie
 

@@ -25,7 +25,7 @@ object ContainerSpec extends ZIOSpecDefault {
       } yield assertCompletes
     ),
       test("inserts a user"){
-        val newUser = AppUser("user_id_from_app", "Appy")
+        val newUser = User("user_id_from_app", "Appy")
         for {
           _ <- UserService.insert(newUser)
           user <- UserService.get(newUser.userId)

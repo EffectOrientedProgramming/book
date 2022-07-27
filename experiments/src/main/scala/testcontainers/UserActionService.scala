@@ -28,7 +28,7 @@ object UserActionService:
 final case class UserActionServiceLive(dataSource: DataSource) extends UserActionService {
   import io.getquill._
   // SnakeCase turns firstName -> first_name
-  val ctx = new PostgresZioJdbcContext(SnakeCase)
+  val ctx = new PostgresZioJdbcContext(NamingStrategy(PluralizedTableNames, SnakeCase))
   import ctx._
 
   inline def runWithSourceQuery[T](inline quoted: Quoted[Query[T]]): ZIO[Any, SQLException, List[T]] =
