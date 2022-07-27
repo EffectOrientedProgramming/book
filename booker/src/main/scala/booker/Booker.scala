@@ -2,7 +2,7 @@ package booker
 
 import tui.{TUI, TerminalApp, TerminalEvent}
 import tui.view.*
-import zio.{Scope, Unsafe, ZEnvironment, ZIO, ZIOAppArgs, ZIOAppDefault}
+import zio.{Scope, Unsafe, ZEnvironment, ZIO, ZIOAppArgs, ZIOAppDefault, ZLayer}
 import zio.Console.*
 import zio.Runtime.unsafe
 
@@ -205,15 +205,26 @@ object AddNewChapterApp extends TerminalApp[Nothing, CliStateSimp, String]:
         }
 
 object Booker extends ZIOAppDefault:
-  override def run: ZIO[Any with ZIOAppArgs with Scope, Any, Any] =
+  val program =  {
     val f: File = new File("Chapters")
 
     for
       flatFiles <- BookerTools.orderedChapters(f)
       result <-
         ReorderExistingApp
-//        AddNewChapterApp
+          //        AddNewChapterApp
           .run(CliStateSimp(flatFiles))
           .provide(TUI.live(false))
       _ <- printLine(result)
     yield ()
+  }
+  override def run: ZIO[Any with ZIOAppArgs with Scope, Any, Any] =
+    program
+
+@main
+def run(args: String*) =
+  Unsafe.unsafeCompat { implicit u =>
+    unsafe.fromLayer(ZLayer.empty)
+      .run(Booker.program) // TODO This is totally broken. It returns an effect, rather than the final value we want
+//      .getOrThrowFiberFailure()
+  }
