@@ -7,7 +7,6 @@ import java.sql.SQLException
 import javax.sql.DataSource
 
 
-trait UserNotFound
 case class AppUser(userId: String, name: String)
 
 trait UserService {

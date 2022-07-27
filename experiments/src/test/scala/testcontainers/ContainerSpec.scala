@@ -29,10 +29,12 @@ object ContainerSpec extends ZIOSpecDefault {
         for {
           _ <- UserService.insert(newUser)
           user <- UserService.get(newUser.userId)
+          _ <- UserActionService.get("uuid_hard_coded").debug("Actions")
         } yield assertTrue(newUser == user)
       },
     ) @@ DbMigrationAspect.migrateOnce("db")()).provideShared(
       UserServiceLive.layer,
+      UserActionServiceLive.layer,
       ZPostgreSQLContainer.live,
       ZPostgreSQLContainer.Settings.default,
     )
