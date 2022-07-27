@@ -18,18 +18,22 @@ object ContainerSpec extends ZIOSpecDefault {
     PGSimpleDataSource
       & PostgreSQLContainer] = ZPostgreSQLContainer.live
   def spec =
-    (suite("hi")(
-    test("there")(
+    (suite("UserService")(
+    test("retrieves an existin user")(
       for {
-//        _ <- ZIO.service[DataSource]
         user <- UserService.get("uuid_hard_coded").debug
       } yield assertCompletes
-    )
+    ),
+      test("inserts a user"){
+        val newUser = AppUser("user_id_from_app", "Appy")
+        for {
+          _ <- UserService.insert(newUser)
+          user <- UserService.get(newUser.userId)
+        } yield assertTrue(newUser == user)
+      },
     ) @@ DbMigrationAspect.migrateOnce("db")()).provideShared(
       UserServiceLive.layer,
-//      testContainerSource,
       ZPostgreSQLContainer.live,
       ZPostgreSQLContainer.Settings.default,
-//      postgres,
     )
 }
