@@ -8,8 +8,10 @@ import java.time.Instant
 import javax.sql.DataSource
 
 
-trait UserNotFound
-case class UserAction(userId: String, actionType: String, timestamp: Instant)
+enum ActionType:
+  case LogIn, LogOut, UpdatePreferences
+
+case class UserAction(userId: String, actionType: ActionType, timestamp: Instant)
 
 trait UserActionService {
   def get(userId: String): ZIO[Any, UserNotFound, List[UserAction]]
@@ -36,6 +38,9 @@ final case class UserActionServiceLive(dataSource: DataSource) extends UserActio
     run(quoted).provideEnvironment(ZEnvironment(dataSource))
 
   import java.util.UUID
+
+  implicit val encodeUserAction: MappedEncoding[ActionType, String] = MappedEncoding[ActionType, String](_.toString)
+  implicit val decodeUserAction: MappedEncoding[String, ActionType] = MappedEncoding[String, ActionType](ActionType.valueOf(_))
 
   implicit val encodeUUID: MappedEncoding[Instant, String] = MappedEncoding[Instant, String](_.toString)
   implicit val decodeUUID: MappedEncoding[String, Instant] = MappedEncoding[String, Instant](Instant.parse(_))

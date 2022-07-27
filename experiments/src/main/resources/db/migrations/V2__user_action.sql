@@ -19,14 +19,14 @@ INSERT INTO user_action(
 ) VALUES
       (
           'uuid_hard_coded',
-          'login',
-            '2021-03-24T16:48:05.591+08:00'
-      ),(
-          'uuid_hard_coded',
-              'update_preferences',
+          'LogIn',
           '2021-03-24T16:48:05.591+08:00'
       ),(
           'uuid_hard_coded',
-          'logout',
+          'UpdatePreferences',
+          '2021-03-24T16:48:05.591+08:00'
+      ),(
+          'uuid_hard_coded',
+          'LogOut',
           '2021-03-24T16:48:05.591+08:00'
       );

@@ -6,7 +6,7 @@ import zio.*
 import java.sql.SQLException
 import javax.sql.DataSource
 
-
+trait UserNotFound
 case class AppUser(userId: String, name: String)
 
 trait UserService {
@@ -16,10 +16,10 @@ trait UserService {
 
 object UserService:
   def get(userId: String): ZIO[UserService with DataSource, UserNotFound, AppUser] =
-    ZIO.serviceWithZIO[UserService](x => x.get(userId)) // use .option ?
+    ZIO.serviceWithZIO[UserService](_.get(userId)) // use .option ?
 
   def insert(user: AppUser): ZIO[UserService with DataSource, Nothing, Long] = // TODO Um? Why Nothing?????
-    ZIO.serviceWithZIO[UserService](x => x.insert(user))
+    ZIO.serviceWithZIO[UserService](_.insert(user))
 
 final case class UserServiceLive(dataSource: DataSource) extends UserService {
   import io.getquill._
