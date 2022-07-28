@@ -18,21 +18,29 @@ trait ParticipantAction
 object ParticipantAction:
   trait Speak extends ParticipantAction
   trait Emoji extends ParticipantAction
-  trait Chat extends ParticipantAction
+  trait TextChat extends ParticipantAction
 
 trait ParticipantStatus
 object ParticipantStatus:
+  trait VideoAndAudio extends ParticipantStatus
   trait VideoOnly extends ParticipantStatus
   trait AudioOnly extends ParticipantStatus
+  trait NoVideoNoAudio extends ParticipantStatus
 
 
 trait CorrectiveAction
 object CorrectiveAction:
   trait Disband extends CorrectiveAction
+  trait WarnParticipant extends CorrectiveAction
   trait MuteParticipant extends CorrectiveAction
   trait DismissParticipant extends CorrectiveAction
-  trait Split extends CorrectiveAction
+  trait SplitMeeting extends CorrectiveAction
 
 case class MeetingMoment(
                           actions: Set[ParticipantAction]
                         )
+
+trait MeetingEnforcer:
+  def process(meetingMoment: MeetingMoment): Option[CorrectiveAction]
+
+case class Meeting(frames: zio.stream.ZStream[Any, Nothing, MeetingMoment])
