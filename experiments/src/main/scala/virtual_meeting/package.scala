@@ -1,5 +1,8 @@
 package virtual_meeting
 
+import zio._
+import zio.stream._
+
 
 trait Rule
 object Rule:
@@ -44,3 +47,6 @@ trait MeetingEnforcer:
   def process(meetingMoment: MeetingMoment): Option[CorrectiveAction]
 
 case class Meeting(frames: zio.stream.ZStream[Any, Nothing, MeetingMoment])
+
+case class Meeting2(frames: Ref[Set[zio.stream.ZStream[Any, Nothing, MeetingMoment]]])
+

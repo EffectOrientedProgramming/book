@@ -6,13 +6,6 @@ name := "EffectOrientedProgramming"
 val zioVersion = "2.0.0"
 
 lazy val commonSettings = Seq(
-  scalaVersion := "3.1.3",
-  scalacOptions -= "-explain-types",
-  scalacOptions -= "-explain",
-
-  // TODO Make sure this only happens in Intellij. It breaks VSCode
-  // scalacOptions -= "-encoding"
-
   libraryDependencies ++= Seq(
     "dev.zio" %% "zio"          % zioVersion,
     "dev.zio" %% "zio-logging"          % zioVersion,
@@ -28,6 +21,12 @@ lazy val commonSettings = Seq(
     ),
 
   // fork := true,
+  // TODO Make sure this only happens in Intellij. It breaks VSCode
+  // scalacOptions -= "-encoding"
+
+  scalaVersion := "3.1.3",
+  scalacOptions -= "-explain-types",
+  scalacOptions -= "-explain",
 )
 
 lazy val booker = (project in file("booker")).settings(commonSettings).enablePlugins(GraalVMNativeImagePlugin)

@@ -2,6 +2,7 @@ package testcontainers
 
 import io.getquill.{Query, Quoted}
 import zio.*
+import io.getquill._
 
 import java.sql.SQLException
 import javax.sql.DataSource
@@ -12,6 +13,7 @@ case class User(userId: String, name: String)
 trait UserService {
   def get(userId: String): ZIO[Any, UserNotFound, User]
   def insert(user: User): ZIO[Any, Nothing, Long]
+  // TODO update(user)
 }
 
 object UserService:
@@ -22,38 +24,32 @@ object UserService:
     ZIO.serviceWithZIO[UserService](_.insert(user))
 
 final case class UserServiceLive(dataSource: DataSource) extends UserService {
-  import io.getquill._
   // SnakeCase turns firstName -> first_name
 
   val ctx = new PostgresZioJdbcContext(NamingStrategy(PluralizedTableNames, SnakeCase))
-  import ctx._
-
-  inline def runWithSourceQuery[T](inline quoted: Quoted[Query[T]]): ZIO[Any, SQLException, List[T]] =
-    run(quoted).provideEnvironment(ZEnvironment(dataSource))
-
-  inline def runWithSourceInsert[T](inline quoted: Quoted[Insert[T]]): ZIO[Any, SQLException, Long] =
-    run(quoted).provideEnvironment(ZEnvironment(dataSource))
+  import ctx.{run, lift, _}
 
   def get(userId: String): ZIO[Any, UserNotFound, User] =
     inline def somePeople = quote {
       query[User].filter(_.userId == lift(userId))
     }
-    runWithSourceQuery(somePeople).orDie.map(_.head)
+    run(somePeople)
+      .provideEnvironment(ZEnvironment(dataSource))
+      .orDie
+      .map(_.head)
 
   def insert(user: User): ZIO[Any, Nothing, Long] =
     inline def insert = quote {
       query[User].insertValue(lift(user))
     }
-    runWithSourceInsert(insert).orDie
+    run(insert).provideEnvironment(ZEnvironment(dataSource)).orDie
 
 }
 
 object UserServiceLive:
-  val layer: URLayer[DataSource, UserService] =
-    ZLayer.fromFunction(UserServiceLive.apply _)
-//    ZLayer.fromZIO(
-//    for {
-//      ds <- ZIO.service[DataSource]
-//    } yield UserServiceLive(ds)
-//    )
-//    ZLayer.fromFunction()
+  val layer =
+    ZLayer.fromZIO(
+      for {
+        datasource <- ZIO.service[DataSource]
+      } yield UserServiceLive(datasource)
+    )

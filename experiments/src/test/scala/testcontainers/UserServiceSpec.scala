@@ -12,11 +12,9 @@ import org.postgresql.ds.PGSimpleDataSource
 import java.sql.Connection
 import javax.sql.DataSource
 
-object ContainerSpec extends ZIOSpecDefault {
-  val testContainerSource: ZLayer[JdbcInfo, Nothing, DataSource] = TestContainerLayers.dataSourceLayer
-  val postgres: ZLayer[Settings, Nothing, JdbcInfo & Connection &
-    PGSimpleDataSource
-      & PostgreSQLContainer] = ZPostgreSQLContainer.live
+object UserServiceSpec extends ZIOSpec[DataSource & JdbcInfo] {
+  val bootstrap =
+    SharedDbLayer.layer
   def spec =
     (suite("UserService")(
     test("retrieves an existin user")(
@@ -29,13 +27,9 @@ object ContainerSpec extends ZIOSpecDefault {
         for {
           _ <- UserService.insert(newUser)
           user <- UserService.get(newUser.userId)
-          _ <- UserActionService.get("uuid_hard_coded").debug("Actions")
         } yield assertTrue(newUser == user)
       },
-    ) @@ DbMigrationAspect.migrateOnce("db")()).provideShared(
+    ) ).provideSomeShared[DataSource](
       UserServiceLive.layer,
-      UserActionServiceLive.layer,
-      ZPostgreSQLContainer.live,
-      ZPostgreSQLContainer.Settings.default,
     )
 }

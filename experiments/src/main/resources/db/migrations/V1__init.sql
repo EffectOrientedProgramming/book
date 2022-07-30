@@ -8,7 +8,7 @@ CREATE TABLE app_user(
 --     ON MyFirstTable(uKey);
 
 INSERT INTO app_user(
-                  user_id, name
+          user_id, name
 
 ) VALUES  (
            'uuid_hard_coded',

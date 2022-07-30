@@ -2,7 +2,7 @@ package testcontainers
 
 import com.typesafe.config.ConfigFactory
 import io.getquill.context.ZioJdbc.DataSourceLayer
-import io.getquill.{PostgresZioJdbcContext, SnakeCase}
+import io.getquill.{NamingStrategy, PluralizedTableNames, PostgresZioJdbcContext, SnakeCase}
 import zio.*
 
 import javax.sql.DataSource
@@ -13,7 +13,7 @@ import scala.jdk.CollectionConverters.MapHasAsJava
   * connection details. Database URL will only be defined when run from Heroku
   * in production.
   */
-object QuillContext extends PostgresZioJdbcContext(SnakeCase) {
+object QuillContext extends PostgresZioJdbcContext(NamingStrategy(PluralizedTableNames, SnakeCase)) {
   val dataSourceLayer: ZLayer[Any, Nothing, DataSource] =
     ZLayer {
       for {

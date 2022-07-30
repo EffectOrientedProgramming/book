@@ -19,10 +19,10 @@ trait UserActionService {
 }
 
 object UserActionService:
-  def get(userId: String): ZIO[UserActionService with DataSource, UserNotFound, List[UserAction]] =
+  def get(userId: String): ZIO[UserActionService, UserNotFound, List[UserAction]] =
     ZIO.serviceWithZIO[UserActionService](x => x.get(userId)) // use .option ?
 
-  def insert(user: UserAction): ZIO[UserActionService with DataSource, Nothing, Long] = // TODO Um? Why Nothing?????
+  def insert(user: UserAction): ZIO[UserActionService, Nothing, Long] =
     ZIO.serviceWithZIO[UserActionService](x => x.insert(user))
 
 final case class UserActionServiceLive(dataSource: DataSource) extends UserActionService {
