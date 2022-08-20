@@ -103,7 +103,7 @@ def resourcesDemo() =
       _ <- printLine(finalGrainVilleResources)
     yield ()
 
-  Unsafe.unsafe { implicit u =>
+  Unsafe.unsafe { (_: Unsafe) =>
     unsafe.run(logic).getOrThrowFiberFailure()
   }
 end resourcesDemo

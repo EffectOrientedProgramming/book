@@ -374,7 +374,7 @@ val testApiLayer =
 ```scala mdoc:fail
 import zio.Unsafe
 import zio.Runtime.default.unsafe
-Unsafe.unsafe { implicit u =>
+Unsafe.unsafe { (_: Unsafe) =>
   unsafe
     .run(fancyLodging.provide(testApiLayer))
     .getOrThrowFiberFailure()
@@ -443,7 +443,7 @@ object Exercise1Solution extends Exercise1:
 import zio.Unsafe
 import zio.Runtime.default.unsafe
 val exercise1case1 =
-  Unsafe.unsafe { implicit u =>
+  Unsafe.unsafe { (_: Unsafe) =>
     unsafe
       .run(
         Exercise1Solution
@@ -461,7 +461,7 @@ assert(exercise1case1 == "value")
 
 ```scala mdoc
 val exercise1case2 =
-  Unsafe.unsafe { implicit u =>
+  Unsafe.unsafe { (_: Unsafe) =>
     unsafe
       .run(
         Exercise1Solution

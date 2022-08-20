@@ -39,7 +39,7 @@ def stmDemo() =
         )
     yield ()
 
-  Unsafe.unsafe { implicit u =>
+  Unsafe.unsafe { (_: Unsafe) =>
     unsafe.run(logic).getOrThrowFiberFailure()
   }
 end stmDemo

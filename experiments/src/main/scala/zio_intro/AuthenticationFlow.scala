@@ -2,17 +2,16 @@ package zio_intro
 
 import zio.{ZIO, ZIOAppDefault}
 
-
 object AuthenticationFlow extends ZIOAppDefault:
   val activeUsers
-  : ZIO[Any, DiskError, List[UserName]] = ???
+      : ZIO[Any, DiskError, List[UserName]] = ???
 
   val user: ZIO[Any, Nothing, UserName] = ???
 
   def authenticateUser(
-                        users: List[UserName],
-                        currentUser: UserName
-                      ): ZIO[
+      users: List[UserName],
+      currentUser: UserName
+  ): ZIO[
     Any,
     UnauthenticatedUser,
     AuthenticatedUser

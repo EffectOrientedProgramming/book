@@ -205,7 +205,7 @@ def useSecuritySystem =
   import zio.Runtime.default.unsafe
   println(
     "Final result: " +
-      Unsafe.unsafe { implicit u =>
+      Unsafe.unsafe { (_: Unsafe) =>
         unsafe
           .run(
             SecuritySystem
