@@ -33,4 +33,9 @@ object DbMigration {
         .orDie
 
 
+  def migratedLayer(jdbcInfo: ZEnvironment[JdbcInfo]): ZLayer[Any, Throwable, Unit] =
+    ZLayer.fromZIO(
+      DbMigration.migrate("db")().provideEnvironment(jdbcInfo).unit
+    )
+    
 }
