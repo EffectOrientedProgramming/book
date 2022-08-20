@@ -57,7 +57,8 @@ end wrapUnsafeZIO
 def unsafeRunTruncate[E, A](
     z: => ZIO[Any, E, A]
 ): A | Unit | String =
-  Unsafe.unsafe { implicit u =>
+  Unsafe.unsafe { (u: Unsafe) =>
+    given Unsafe = u
     unsafe
       .run(wrapUnsafeZIO(z))
       .getOrThrowFiberFailure()
@@ -96,7 +97,8 @@ end wrapUnsafeZIOReportError
 def unsafeRunPrettyPrint[E, A](
     z: => ZIO[Any, E, A]
 ): String =
-  Unsafe.unsafe { implicit u =>
+  Unsafe.unsafe { (u: Unsafe) =>
+    given Unsafe = u
     unsafe
       .run(wrapUnsafeZIOReportError(z))
       .getOrThrowFiberFailure()
