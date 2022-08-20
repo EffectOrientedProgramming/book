@@ -209,7 +209,8 @@ def getTemperatureZ(behavior: Scenario): ZIO[
   else
     ZIO.succeed("30 degrees")
 
-Unsafe.unsafe { (_: Unsafe) =>
+Unsafe.unsafe { (u: Unsafe) =>
+  given Unsafe = u
   unsafe
     .run(getTemperatureZ(Scenario.Success))
     .getOrThrowFiberFailure()
@@ -217,7 +218,8 @@ Unsafe.unsafe { (_: Unsafe) =>
 ```
 
 ```scala mdoc:fail
-Unsafe.unsafe { (_: Unsafe) =>
+Unsafe.unsafe { (u: Unsafe) =>
+  given Unsafe = u
   unsafe
     .run(
       getTemperatureZ(Scenario.Success)
@@ -232,7 +234,8 @@ Unsafe.unsafe { (_: Unsafe) =>
 TODO Demonstrate ZIO calculating the error types without an explicit annotation being provided
 
 ```scala mdoc:crash
-Unsafe.unsafe { (_: Unsafe) =>
+Unsafe.unsafe { (u: Unsafe) =>
+  given Unsafe = u
   unsafe
     .run(getTemperatureZ(Scenario.GPSError))
     .getOrThrowFiberFailure()
@@ -268,7 +271,8 @@ def displayTemperatureZWrapped(
 
 ```scala mdoc
 import zio.Runtime.default.unsafe
-Unsafe.unsafe { (_: Unsafe) =>
+Unsafe.unsafe { (u: Unsafe) =>
+  given Unsafe = u
   unsafe
     .run(
       displayTemperatureZWrapped(
@@ -280,7 +284,8 @@ Unsafe.unsafe { (_: Unsafe) =>
 ```
 
 ```scala mdoc
-Unsafe.unsafe { (_: Unsafe) =>
+Unsafe.unsafe { (u: Unsafe) =>
+  given Unsafe = u
   unsafe
     .run(
       displayTemperatureZWrapped(

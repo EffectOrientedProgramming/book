@@ -31,7 +31,8 @@ val sideEffectingGuessingGame =
 
 @main
 def runSideEffectingGuessingGame =
-  Unsafe.unsafe { (_: Unsafe) =>
+  Unsafe.unsafe { (u: Unsafe) =>
+    given Unsafe = u
     unsafe
       .run(
         sideEffectingGuessingGame.provideLayer(
@@ -54,7 +55,8 @@ val effectfulGuessingGame =
 
 @main
 def runEffectfulGuessingGame =
-  Unsafe.unsafe { (_: Unsafe) =>
+  Unsafe.unsafe { (u: Unsafe) =>
+    given Unsafe = u
     unsafe
       .run(
         effectfulGuessingGame.provideLayer(
