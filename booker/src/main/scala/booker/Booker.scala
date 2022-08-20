@@ -223,7 +223,7 @@ object Booker extends ZIOAppDefault:
 
 @main
 def run(args: String*) =
-  Unsafe.unsafeCompat { implicit u =>
+  Unsafe.unsafe { (u: Unsafe) =>
     unsafe.fromLayer(ZLayer.empty)
       .run(Booker.program) // TODO This is totally broken. It returns an effect, rather than the final value we want
 //      .getOrThrowFiberFailure()

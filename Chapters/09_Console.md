@@ -90,7 +90,7 @@ val logicClunky: ZIO[Console, Nothing, Unit] =
 import zio.Runtime.default.unsafe
 import zio.Unsafe
 import zio.ZLayer
-  Unsafe.unsafeCompat { implicit u =>
+  Unsafe.unsafe { implicit u =>
     unsafe
       .run(
         logicClunky.provide(
@@ -131,7 +131,7 @@ However, providing dependencies to the logic is still tedious.
 // NON-MDOC. TODO Fix before release
 import zio.ZLayer
 import zio.Runtime.default.unsafe
-  Unsafe.unsafeCompat { implicit u =>
+  Unsafe.unsafe { implicit u =>
     unsafe
       .run(
         logic.provide(
@@ -158,7 +158,7 @@ Now executing our code is as simple as describing it.
 
 ```scala
 // NON-MDOC. TODO Fix before release
-  Unsafe.unsafeCompat { implicit u =>
+  Unsafe.unsafe { implicit u =>
     unsafe
       .run(logic.provide(ConsoleWithLayer.live))
       .getOrThrowFiberFailure()
@@ -237,7 +237,7 @@ val leakSensitiveInfo
 
 ```scala
 // NON-MDOC. TODO Fix before release
-Unsafe.unsafeCompat { implicit u =>
+Unsafe.unsafe { implicit u =>
   unsafe
     .run(
       leakSensitiveInfo.provide(
