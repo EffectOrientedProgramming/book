@@ -28,7 +28,8 @@ object JustSleep extends ZIOAppDefault:
 @main
 def ToFuture() =
   Await.result(
-    Unsafe.unsafeCompat { implicit u =>
+    Unsafe.unsafe { (u: Unsafe) =>
+      given Unsafe = u
       zio
         .Runtime
         .default

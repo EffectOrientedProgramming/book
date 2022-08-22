@@ -57,20 +57,16 @@ end wrapUnsafeZIO
 def unsafeRunTruncate[E, A](
     z: => ZIO[Any, E, A]
 ): A | Unit | String =
-  Unsafe.unsafeCompat { implicit u =>
+  Unsafe.unsafe { (u: Unsafe) =>
+    given Unsafe = u
     unsafe
       .run(wrapUnsafeZIO(z))
       .getOrThrowFiberFailure()
   }
 
-// TODO Print successful result also
 def wrapUnsafeZIOReportError[E, A](
     z: => ZIO[Any, E, A]
-): ZIO[
-  Any,
-  java.io.IOException,
-  A | Unit | String
-] =
+): ZIO[Any, java.io.IOException, String] =
   val commentPrefix = "// "
   val columnWidth =
     49 -
@@ -79,10 +75,9 @@ def wrapUnsafeZIOReportError[E, A](
   val defectPrefix = "Error: "
   val topLineLength =
     columnWidth - defectPrefix.length
-  z.tap { case res =>
-      ZIO.debug("Res: " + res)
-    // ZIO.succeed(res)
-    }
+  z.map(
+      _.toString // TODO Respect width limit
+    )
     .catchAll { case error: E =>
       println("Should handle errors")
       val extractedMessage = error.toString
@@ -94,15 +89,16 @@ def wrapUnsafeZIOReportError[E, A](
         else
           extractedMessage
 
-      Console.printLine(formattedMsg)
+      ZIO.succeed(formattedMsg)
     }
 
 end wrapUnsafeZIOReportError
 
 def unsafeRunPrettyPrint[E, A](
     z: => ZIO[Any, E, A]
-): A | Unit | String =
-  Unsafe.unsafeCompat { implicit u =>
+): String =
+  Unsafe.unsafe { (u: Unsafe) =>
+    given Unsafe = u
     unsafe
       .run(wrapUnsafeZIOReportError(z))
       .getOrThrowFiberFailure()

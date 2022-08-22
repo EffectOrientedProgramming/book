@@ -6,7 +6,8 @@ import zio.Console.{readLine, printLine}
 object HelloWorld extends ZIOAppDefault:
   def run = printLine("Hello World")
 
-object FirstMeaningfulExample extends ZIOAppDefault:
+object FirstMeaningfulExample
+    extends ZIOAppDefault:
   def run =
     for
       _    <- printLine("Give us your name:")
