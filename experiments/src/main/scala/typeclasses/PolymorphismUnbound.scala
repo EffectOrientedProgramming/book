@@ -22,17 +22,12 @@ given Communicate[Dog] with
   extension (t: Dog)
     override def communicate(): Unit = t.bark()
 
-object PolymorphismUnbound extends ZIOAppDefault {
+object PolymorphismUnbound extends App:
 
   def demo[T](instance: T)(using Communicate[T]) =
     instance.communicate()
 
-  def run =
-    ZIO.attempt(
-      demo(
+  demo(
 //        Person()
-        Dog()
-      )
-    )
-
-}
+    Dog()
+  )
