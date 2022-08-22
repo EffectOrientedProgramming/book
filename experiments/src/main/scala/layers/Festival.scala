@@ -164,15 +164,12 @@ case class Security(
     foodTruck: FoodTruck
 )
 val security =
-  for
+  for {
     layer <- ZLayer.fromFunction(Security.apply)
-    _ <-
-      ZLayer.scoped(
-        ZIO.acquireRelease(
-          debug("SECURITY: Ready")
-        )(_ => debug("SECURITY: Going home"))
-      )
-  yield layer
+    _ <- ZLayer.scoped(
+      ZIO.acquireRelease(debug("SECURITY: Ready"))(_ => debug("SECURITY: Going home"))
+    )
+  } yield layer
 
 def activity(
     entity: String,

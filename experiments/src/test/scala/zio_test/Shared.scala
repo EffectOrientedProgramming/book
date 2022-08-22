@@ -17,26 +17,22 @@ object Shared:
 
   case class Scoreboard(value: Ref[Int]):
     def display(): ZIO[Any, Nothing, String] =
-      for current <- value.get
-      yield s"**$current**"
+      for {
+        current <- value.get
+      } yield s"**$current**"
 
-  val scoreBoard: ZLayer[
-    Scope with Ref[Int],
-    Nothing,
-    Scoreboard
-  ] =
-    for
+  val scoreBoard: ZLayer[Scope with Ref[Int], Nothing, Scoreboard] =
+
+    for {
       value <- ZLayer.service[Ref[Int]]
-      res <-
-        ZLayer.scoped[Scope] {
-          ZIO.acquireRelease(
-            ZIO.succeed(Scoreboard(value.get)) <*
-              ZIO.debug(
-                "Initializing scoreboard!"
-              )
-          )(_ =>
-            ZIO.debug("Shutting down scoreboard")
-          )
-        }
+      res <- ZLayer.scoped[Scope] {
+        ZIO.acquireRelease(
+          ZIO.succeed(Scoreboard(value.get)) <* ZIO.debug("Initializing scoreboard!")
+        )(
+          _ => ZIO.debug("Shutting down scoreboard")
+        )
+      }
+    }
     yield res
-end Shared
+    
+
