@@ -1,8 +1,7 @@
 package cause
 
-import zio.ZIO
-import zio.Console._
-import zio.Cause
+import zio.{Cause, IO, UIO, ZIO}
+import zio.Console.*
 
 class MutationTracking:
   enum Stage:
@@ -10,25 +9,41 @@ class MutationTracking:
       Chimpanzee,
       Human
 
+
+object TimelineFinally extends App:
+  try {
+    throw new Exception("Straightened Spine")
+  } finally {
+    try {
+      throw new Exception("Less Hair")
+    } finally {
+      throw new Exception("Fine Voice Control")
+    }
+  }
+
 object Timeline extends zio.ZIOAppDefault:
-  val mutation1 = ZIO.fail("Straightened Spine")
-  val mutation2 =
-    ZIO
-      .fail("Less Hair")
-      .orDieWith(new Exception(_))
+  val mutation1: UIO[Nothing] =
+    ZIO.die(Exception("Straightened Spine"))
+  val mutation2 = ZIO.die(Exception("Less Hair"))
   val mutation3 =
-    ZIO
-      .fail("Fine voice control")
-      .orDieWith(new Exception(_))
+    ZIO.die(Exception("Fine voice control"))
 
   val timeline =
-    mutation1
+    (mutation1
       .ensuring(mutation2)
       .ensuring(mutation3)
-      .sandbox
-      .catchAll { case cause: Cause[String] =>
-        printLine(cause.defects)
-      }
+  )
+      // .sandbox
+//      .catchAll { case cause: Cause[String] =>
+//        printLine(cause.defects)
+//      }
 
-  def run = timeline.exitCode
+//  val failable: ZIO[Any, String, Nothing] = ZIO.fail("boom")
+  val timelineSandboxed: ZIO[Any, Cause[String], Nothing] =
+    timeline.sandbox
+
+  def run =
+    timeline.sandbox
 end Timeline
+
+
