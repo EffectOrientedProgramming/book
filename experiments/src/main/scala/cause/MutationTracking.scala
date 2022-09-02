@@ -12,7 +12,8 @@ class MutationTracking:
 
 object TimelineFinally extends App:
   try {
-    throw new Exception("Straightened Spine")
+    "Everything went fine"
+//    throw new Exception("Straightened Spine")
   } finally {
     try {
       throw new Exception("Less Hair")
