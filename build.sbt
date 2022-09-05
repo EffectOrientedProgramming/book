@@ -29,7 +29,8 @@ lazy val commonSettings = Seq(
   scalacOptions -= "-explain",
 )
 
-lazy val booker = (project in file("booker")).settings(commonSettings).enablePlugins(GraalVMNativeImagePlugin)
+
+lazy val booker = (project in file("booker")).dependsOn(experiments).settings(commonSettings).enablePlugins(GraalVMNativeImagePlugin)
 lazy val experiments = (project in file("experiments"))
 .settings(commonSettings).settings(fork:=true)
   .settings(
@@ -39,6 +40,7 @@ lazy val experiments = (project in file("experiments"))
           "io.getquill" %% "quill-jdbc-zio" % "4.1.0-V2",
       //    "io.getquill" %% "quill-jdbc-zio" % "4.1.0-V2",
       "io.getquill" %% "quill-zio" % "4.1.0-V2",
+      "dev.zio" %% "zio-process" % "0.7.1",
 //      "io.getquill" %% "quill-jasync-postgres" % "4.1.0-V2",
     )
   )
