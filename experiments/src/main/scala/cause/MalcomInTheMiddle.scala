@@ -46,14 +46,23 @@ object MalcomInTheMiddle extends ZIOAppDefault:
                       case deadCar: DeadCar =>
                         try
                           repairCar()
-                        catch
-                          case nagging: Nagging =>
+                        finally
                             ZIO
                               .debug(
                                 "What does it look like I'm doing?!"
                               )
                               .exitCode
+    finally {
+      println
+    }
     end try
+//    finally
+//      ZIO
+//        .debug(
+//          "What does it look like I'm doing?!"
+//        )
+//    .exitCode
+
   end run
 
 /** try { turnOnLights } catch { case
