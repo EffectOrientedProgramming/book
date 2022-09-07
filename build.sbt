@@ -24,7 +24,7 @@ lazy val commonSettings = Seq(
   // TODO Make sure this only happens in Intellij. It breaks VSCode
   // scalacOptions -= "-encoding"
 
-  scalaVersion := "3.1.3",
+  scalaVersion := "3.2.0",
   scalacOptions -= "-explain-types",
   scalacOptions -= "-explain",
 )
