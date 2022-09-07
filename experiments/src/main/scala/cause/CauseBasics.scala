@@ -19,3 +19,14 @@ object CauseZIO extends ZIOAppDefault:
     ZIO.die(Exception("Blah"))
   def run =
     ZIO.die(Exception("Blah"))
+
+object LostInfo extends ZIOAppDefault:
+  def run = ZIO.attempt(
+    try
+      throw new Exception("Client connection lost")
+    finally
+      try
+        () // Cleanup
+      finally
+        throw new Exception("Problem relinquishing to pool")
+  )

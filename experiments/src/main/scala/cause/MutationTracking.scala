@@ -11,16 +11,14 @@ class MutationTracking:
 
 
 object TimelineFinally extends App:
-  try {
-    "Everything went fine"
-//    throw new Exception("Straightened Spine")
-  } finally {
-    try {
+  try
+    throw new Exception("Straightened Spine")
+  finally
+    try
       throw new Exception("Less Hair")
-    } finally {
+    finally
       throw new Exception("Fine Voice Control")
-    }
-  }
+
 
 object Timeline extends zio.ZIOAppDefault:
   val mutation1: UIO[Nothing] =
@@ -34,14 +32,6 @@ object Timeline extends zio.ZIOAppDefault:
       .ensuring(mutation2)
       .ensuring(mutation3)
   )
-      // .sandbox
-//      .catchAll { case cause: Cause[String] =>
-//        printLine(cause.defects)
-//      }
-
-//  val failable: ZIO[Any, String, Nothing] = ZIO.fail("boom")
-  val timelineSandboxed: ZIO[Any, Cause[String], Nothing] =
-    timeline.sandbox
 
   def run =
     timeline.sandbox
