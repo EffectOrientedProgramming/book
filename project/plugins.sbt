@@ -24,7 +24,7 @@ addSbtPlugin(
 )
 
 addSbtPlugin(
-  "ch.epfl.scala" % "sbt-scalafix" % "0.10.1"
+  "ch.epfl.scala" % "sbt-scalafix" % "0.10.2"
 )
 
 //lazy val MdToSourcePlugin =
