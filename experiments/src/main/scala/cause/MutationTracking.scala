@@ -9,16 +9,12 @@ class MutationTracking:
       Chimpanzee,
       Human
 
-
 object TimelineFinally extends App:
-  try
-    throw new Exception("Straightened Spine")
+  try throw new Exception("Straightened Spine")
   finally
-    try
-      throw new Exception("Less Hair")
+    try throw new Exception("Less Hair")
     finally
       throw new Exception("Fine Voice Control")
-
 
 object Timeline extends zio.ZIOAppDefault:
   val mutation1: UIO[Nothing] =
@@ -28,13 +24,8 @@ object Timeline extends zio.ZIOAppDefault:
     ZIO.die(Exception("Fine voice control"))
 
   val timeline =
-    (mutation1
+    mutation1
       .ensuring(mutation2)
       .ensuring(mutation3)
-  )
 
-  def run =
-    timeline.sandbox
-end Timeline
-
-
+  def run = timeline.sandbox

@@ -6,11 +6,13 @@
 import zio._
 import mdoc.unsafeRunPrettyPrint
 val logic =
-  ZIO.die(new Exception("Client connection lost"))
-      .ensuring(ZIO.die(
+  ZIO
+    .die(new Exception("Client connection lost"))
+    .ensuring(
+      ZIO.die(
         throw new Exception("Release Failed")
-        )
-  )
+      )
+    )
 unsafeRunPrettyPrint(logic)
 ```
 
@@ -33,10 +35,11 @@ import mdoc.unsafeRunPrettyPrint
 val thrownLogic =
   ZIO.attempt(
     try
-      throw new Exception("Client connection lost")
+      throw new Exception(
+        "Client connection lost"
+      )
     finally
-      try 
-        () // Cleanup
+      try () // Cleanup
       finally
         throw new Exception("Release Failed")
   )

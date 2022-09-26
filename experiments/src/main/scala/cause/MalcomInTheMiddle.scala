@@ -44,17 +44,15 @@ object MalcomInTheMiddle extends ZIOAppDefault:
                       driveToStore()
                     catch
                       case deadCar: DeadCar =>
-                        try
-                          repairCar()
+                        try repairCar()
                         finally
-                            ZIO
-                              .debug(
-                                "What does it look like I'm doing?!"
-                              )
-                              .exitCode
-    finally {
+                          ZIO
+                            .debug(
+                              "What does it look like I'm doing?!"
+                            )
+                            .exitCode
+    finally
       println
-    }
     end try
 //    finally
 //      ZIO

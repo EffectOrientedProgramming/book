@@ -308,9 +308,10 @@ object AddNewChapterApp
               .foreach { case (file, idx) =>
                 BookerTools.rename(file, idx + 1)
               }
-            throw new NotImplementedError(
-              "Created a new file and renamed everything after it: "
-            )
+            TerminalApp.Step.exit
+//            throw new NotImplementedError(
+//              "Created a new file and renamed everything after it: "
+//            )
 
           case KeyEvent.Escape | KeyEvent.Exit =>
             TerminalApp.Step.exit
@@ -324,9 +325,9 @@ object Booker extends ZIOAppDefault:
 
     for
       flatFiles <- BookerTools.orderedChapters(f)
-      result <-
-        ReorderExistingApp
-          //        AddNewChapterApp
+      result    <-
+//        ReorderExistingApp
+        AddNewChapterApp
           .run(CliStateSimp(flatFiles))
           .provide(TUI.live(false))
       _ <- printLine(result)
