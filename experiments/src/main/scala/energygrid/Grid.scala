@@ -1,0 +1,5 @@
+package energygrid
+
+object Grid {
+
+}
