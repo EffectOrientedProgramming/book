@@ -12,18 +12,45 @@ import energrygrid.GridErrors._
 */
 trait EnergyParticipant
 
-enum EnergyProducer extends EnergyParticipant:
-  case SolarPanels, Generator
+trait EnergyProvider:
+  val producingPriority: Int
+
+sealed trait EnergyProducer extends EnergyParticipant with EnergyProvider:
+  object SolarPanels extends EnergyProducer with EnergyProvider:
+    override val producingPriority = 10
+
+  object Generator extends EnergyProducer with EnergyProvider:
+    override val producingPriority = 1
+
   def sendPowerTo(consumer: EnergyConsumer | EnergyBidirectional): ZIO[Any, Overheat, Unit] = ???
 
-enum EnergyConsumer extends EnergyParticipant:
-  case Dishwasher, WiFi, Refrigerator, Lights
+sealed trait EnergyConsumer extends EnergyParticipant:
+  val consumerPriority: Int
+object EnergyConsumer:
+  object Dishwasher extends EnergyConsumer:
+    override val consumerPriority: Int = 3
+
+  object Wifi extends EnergyConsumer:
+    override val consumerPriority: Int = 4
+
+  object Refrigerator extends EnergyConsumer:
+    override val consumerPriority: Int = 5
+
   def drawPowerFrom(producer: EnergyProducer | EnergyBidirectional): ZIO[Any, InsufficientPower, Unit] = ???
 
-enum EnergyBidirectional extends EnergyParticipant:
-  case HomeBattery, ElectricVehicle, ExternalGrid
+sealed trait EnergyBidirectional extends EnergyProvider with EnergyConsumer:
   def sendPowerTo(consumer: EnergyConsumer | EnergyBidirectional): ZIO[Any, Overheat, Unit] = ???
   def drawPowerFrom(producer: EnergyProducer | EnergyBidirectional): ZIO[Any, InsufficientPower, Unit] = ???
+
+object EnergyBidirectional:
+  object HomeBattery extends EnergyBidirectional:
+    override val producingPriority: Int = 3
+    override val consumerPriority: Int = 2
+
+  object ExternalGrid extends EnergyBidirectional:
+    override val producingPriority: Int = 1
+    override val consumerPriority: Int = 1
+
 
 case class Grid(
   participants: Set[EnergyParticipant]
@@ -54,10 +81,29 @@ object GridErrors:
 
 object GridSpec extends ZIOSpecDefault {
   def spec =
-    test("recognizes grid input")(
-      for
-        _ <- ZIO.unit
-      yield assertNever("Need a test!")
+    suite("GridSpec")(
+      test("recognizes grid input")(
+        for
+          _ <- ZIO.unit
+        yield assertNever("Need a test!")
+      ),
+      test("runs through an energy scenario")(
+        /*
+          We start by running our dishwasher before the sun is hitting our panels,
+          so we are drawing power fully from the grid. Once the panels are active, they
+          provide most of the power, but we still need some from the grid. Once the dishes
+          finished, we start feeding the solar power back into the grid.
+
+                         8:00     8:30    9:00
+          Dishwasher    -1.5kw   -1.5kw    0kw
+          Solar Panels    0kw    +1.0kw   +1.0kw
+          CityGrid      +1.5kw   +0.5kw   -1.0kw
+        */
+        for
+          _ <- ZIO.unit
+        yield assertNever("Need a test!")
+
+      )
     )
 
 }
