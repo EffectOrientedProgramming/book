@@ -12,7 +12,7 @@ lazy val commonSettings = Seq(
     "dev.zio" %% "zio-streams"          % zioVersion,
     "dev.zio" %% "zio-test"     % zioVersion,
     "dev.zio" %% "zio-test-sbt" % zioVersion % Test,
-    "dev.zio" %% "zio-prelude"  % "1.0.0-RC15",
+    "dev.zio" %% "zio-prelude"  % "1.0.0-RC16",
   ),
 
   testFrameworks +=
