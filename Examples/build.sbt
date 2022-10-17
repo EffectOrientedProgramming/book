@@ -16,8 +16,8 @@ libraryDependencies ++=
     "io.getquill" %% "quill-jdbc" % "3.7.2.Beta1.4",
 //    "ch.qos.logback" % "logback-classic"                  % "1.2.11",
     // Or ZIO Modules
-    "io.getquill" %% "quill-jdbc-zio" % "4.1.0-V2",
-    "io.getquill" %% "quill-zio" % "4.1.0-V2",
+    "io.getquill" %% "quill-jdbc-zio" % "4.6.0",
+    "io.getquill" %% "quill-zio" % "4.6.0",
     // Postgres Async
 //    "io.getquill" %% "quill-jasync-postgres" % "3.7.2.Beta1.4",
 //    "io.github.arkinator" % "mockserver-client-java" % "5.11.7",
