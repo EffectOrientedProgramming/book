@@ -341,6 +341,7 @@ object Booker extends ZIOAppDefault:
 @main
 def run(args: String*) =
   Unsafe.unsafe { (u: Unsafe) =>
+    implicit val un: Unsafe = u
     unsafe
       .fromLayer(ZLayer.empty)
       .run(

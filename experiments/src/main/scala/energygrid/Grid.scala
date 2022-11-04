@@ -1,5 +1,3 @@
 package energygrid
 
-object Grid {
-
-}
+object Grid {}
