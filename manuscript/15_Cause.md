@@ -15,19 +15,31 @@ val logic =
     )
 unsafeRunPrettyPrint(logic)
 // Exception in thread "zio-fiber-200030" java.lang.Exception: Client connection lost
-// 	at repl.MdocSession$App.$anonfun$1(15_Cause.md:12)
-// 	at repl.MdocSession.App.<local App>.logic(15_Cause.md:12)
-// 	at repl.MdocSession.App.<local App>.logic(15_Cause.md:17)
+// 	at repl.MdocSession$MdocApp.$anonfun$1(15_Cause.md:12)
+// 	at zio.ZIO$.die$$anonfun$1(ZIO.scala:3017)
+// 	at zio.ZIO$.failCause$$anonfun$1(ZIO.scala:3088)
+// 	at repl.MdocSession.MdocApp.<local MdocApp>.logic(15_Cause.md:12)
+// 	at repl.MdocSession.MdocApp.<local MdocApp>.logic(15_Cause.md:17)
 // 	at mdoc.MdocHelpers$package.wrapUnsafeZIOReportError(MdocHelpers.scala:80)
 // 	at mdoc.MdocHelpers$package.wrapUnsafeZIOReportError(MdocHelpers.scala:93)
 // 	at mdoc.MdocHelpers$package.unsafeRunPrettyPrint(MdocHelpers.scala:103)
 // 	Suppressed: java.lang.Exception: Release Failed
-// 		at repl.MdocSession$App.$anonfun$2$$anonfun$1(15_Cause.md:15)
-// 		at repl.MdocSession.App.<local App>.logic(15_Cause.md:16)
-// 		at repl.MdocSession.App.<local App>.logic(15_Cause.md:17)
+// 		at repl.MdocSession$MdocApp.$anonfun$2$$anonfun$1(15_Cause.md:15)
+// 		at zio.ZIO$.die$$anonfun$1(ZIO.scala:3017)
+// 		at zio.ZIO$.failCause$$anonfun$1(ZIO.scala:3088)
+// 		at repl.MdocSession.MdocApp.<local MdocApp>.logic(15_Cause.md:16)
+// 		at repl.MdocSession.MdocApp.<local MdocApp>.logic(15_Cause.md:17)
 // 		at mdoc.MdocHelpers$package.wrapUnsafeZIOReportError(MdocHelpers.scala:80)
 // 		at mdoc.MdocHelpers$package.wrapUnsafeZIOReportError(MdocHelpers.scala:93)
 // 		at mdoc.MdocHelpers$package.unsafeRunPrettyPrint(MdocHelpers.scala:103)
+// Caused by: java.lang.Exception: Client connection lost
+// 	at repl.MdocSession$MdocApp.$anonfun$1(15_Cause.md:12)
+// 	at zio.ZIO$.die$$anonfun$1(ZIO.scala:3017)
+// 	at zio.ZIO$.failCause$$anonfun$1(ZIO.scala:3088)
+// 	at zio.internal.FiberRuntime.runLoop(FiberRuntime.scala:1115)
+// 	at zio.internal.FiberRuntime.evaluateEffect(FiberRuntime.scala:384)
+// 	at zio.internal.FiberRuntime.start(FiberRuntime.scala:1369)
+// 	at zio.Runtime$UnsafeAPIV1.run(Runtime.scala:124)
 ```
 
 Cause allows you to aggregate multiple errors of the same type
@@ -58,8 +70,8 @@ val thrownLogic =
         throw new Exception("Release Failed")
   )
 // thrownLogic: ZIO[Any, Throwable, Nothing] = Stateful(
-//   trace = "repl.MdocSession.App.thrownLogic(15_Cause.md:42)",
-//   onState = zio.ZIOCompanionVersionSpecific$$Lambda$15458/527669028@39b30b67
+//   trace = "repl.MdocSession.MdocApp.thrownLogic(15_Cause.md:42)",
+//   onState = zio.ZIOCompanionVersionSpecific$$Lambda$15613/1176398398@42035db3
 // )
 unsafeRunPrettyPrint(thrownLogic)
 // Should handle errors

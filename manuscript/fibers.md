@@ -2,39 +2,18 @@
 
  
 
-### experiments/src/main/scala/fibers/FiberExamples.scala
+### experiments/src/main/scala/fibers/HowMany.scala
 ```scala
 package fibers
 
-import zio.{Console, Unsafe}
-import zio.Duration.fromMillis
-import zio.Schedule.recurs
-import zio.Runtime.default.unsafe
+import zio.*
+import zio.Console.*
 
-@main
-def forDemo() =
-  val logic =
-    for
-      a <-
-        Console
-          .printLine("Application HeartBeat")
-          .delay(fromMillis(2000))
-          .repeat(recurs(2))
-          .fork
-      b <-
-        Console
-          .printLine("Processing Item")
-          .delay(fromMillis(700))
-          .repeat(recurs(6))
-          .fork
-      res <- b.join
-    yield println("done")
-
-//  unsafeRun(logic)
-  Unsafe.unsafeCompat { implicit u =>
-    unsafe.run(logic).getOrThrowFiberFailure()
-  }
-end forDemo
+object HowMany extends ZIOAppDefault:
+  def run =
+    ZIO.foreachPar(Range(0, 1_000_000))(_ =>
+      ZIO.sleep(1.second)
+    )
 
 ```
 

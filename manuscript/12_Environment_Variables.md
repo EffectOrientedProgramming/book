@@ -220,16 +220,16 @@ val fancyLodging: ZIO[
   for hotel <- HotelApiZ.cheapest("90210")
   yield hotel
 // fancyLodging: ZIO[SystemStrict & HotelApiZ, Error, Hotel] = OnSuccess(
-//   trace = "repl.MdocSession.App.fancyLodging(12_Environment_Variables.md:262)",
+//   trace = "repl.MdocSession.MdocApp.fancyLodging(12_Environment_Variables.md:262)",
 //   first = OnSuccess(
-//     trace = "repl.MdocSession.App.HotelApiZ.cheapest(12_Environment_Variables.md:226)",
+//     trace = "repl.MdocSession.MdocApp.HotelApiZ.cheapest(12_Environment_Variables.md:226)",
 //     first = Sync(
-//       trace = "repl.MdocSession.App.HotelApiZ.cheapest(12_Environment_Variables.md:226)",
-//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$15483/602399757@57752bf9
+//       trace = "repl.MdocSession.MdocApp.HotelApiZ.cheapest(12_Environment_Variables.md:226)",
+//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$15637/802165111@27f5ebdf
 //     ),
-//     successK = zio.ZIO$$$Lambda$15445/1173295652@6443f7e2
+//     successK = zio.ZIO$$$Lambda$15599/776076371@b279cef
 //   ),
-//   successK = zio.ZIO$$Lambda$15439/1450970170@7472764f
+//   successK = zio.ZIO$$Lambda$15593/181900042@324275dc
 // )
 ```
 

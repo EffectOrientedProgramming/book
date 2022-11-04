@@ -48,10 +48,10 @@ If we don't make any attempt to handle our problem, the whole program blows up a
 
 ```scala
 currentTemperatureUnsafe(Scenario.NetworkError)
-// repl.MdocSession$App$NetworkException
-// 	at repl.MdocSession$App.displayTemperature(14_Hello_Failures.md:25)
-// 	at repl.MdocSession$App.currentTemperatureUnsafe(14_Hello_Failures.md:35)
-// 	at repl.MdocSession$App.$init$$$anonfun$1(14_Hello_Failures.md:46)
+// repl.MdocSession$MdocApp$NetworkException
+// 	at repl.MdocSession$MdocApp.displayTemperature(14_Hello_Failures.md:25)
+// 	at repl.MdocSession$MdocApp.currentTemperatureUnsafe(14_Hello_Failures.md:35)
+// 	at repl.MdocSession$MdocApp.$init$$$anonfun$1(14_Hello_Failures.md:46)
 ```
 
 We could take the bare-minimum approach of catching the `Exception` and returning `null`:
@@ -258,9 +258,20 @@ Unsafe.unsafe { (u: Unsafe) =>
     .run(getTemperatureZ(Scenario.GPSError))
     .getOrThrowFiberFailure()
 }
-// Exception in thread "zio-fiber-200026" repl.MdocSession$App$GpsException: repl.MdocSession$App$GpsException
-// 	at repl.MdocSession.App.<local App>.getTemperatureZ(14_Hello_Failures.md:151)
-// 	at repl.MdocSession.App.<local App>(14_Hello_Failures.md:181)
+// Exception in thread "zio-fiber-200026" repl.MdocSession$MdocApp$GpsException: repl.MdocSession$MdocApp$GpsException
+// 	at repl.MdocSession.MdocApp.<local MdocApp>.getTemperatureZ(14_Hello_Failures.md:151)
+// 	at repl.MdocSession.MdocApp.<local MdocApp>(14_Hello_Failures.md:181)
+// Caused by: repl.MdocSession$MdocApp$GpsException
+// 	at repl.MdocSession$MdocApp.getTemperatureZ$1$$anonfun$1(14_Hello_Failures.md:151)
+// 	at zio.ZIO$.fail$$anonfun$1(ZIO.scala:3082)
+// 	at zio.ZIO$.failCause$$anonfun$1(ZIO.scala:3088)
+// 	at zio.internal.FiberRuntime.runLoop(FiberRuntime.scala:1115)
+// 	at zio.internal.FiberRuntime.evaluateEffect(FiberRuntime.scala:384)
+// 	at zio.internal.FiberRuntime.start(FiberRuntime.scala:1369)
+// 	at zio.Runtime$UnsafeAPIV1.run(Runtime.scala:124)
+// 	at repl.MdocSession$MdocApp.$init$$$anonfun$2$$anonfun$1(14_Hello_Failures.md:181)
+// 	at zio.Unsafe$.unsafe(Unsafe.scala:37)
+// 	at repl.MdocSession$MdocApp.$init$$$anonfun$2(14_Hello_Failures.md:182)
 ```
 
 ### Wrapping Legacy Code

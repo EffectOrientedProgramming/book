@@ -47,12 +47,15 @@ Parallelism.md
 game_theory.md
 scenarios.md
 logging.md
+fibers.md
 prelude.md
 std_type_conversions_to_zio.md
 interpreter-chaining_with_previous_result.md
 experiments-src-test-scala-zio_test.md
+helloworld.md
 experiments-src-test-scala-layers.md
 experiments-src-test-scala-bigdec.md
 virtual_meeting.md
+zio.md
 zio_intro.md
 interpreter-chaining_with_monads.md
