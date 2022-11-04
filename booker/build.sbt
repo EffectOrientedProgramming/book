@@ -55,6 +55,8 @@ run / fork := true
 run / javaOptions += s"-agentlib:native-image-agent=config-output-dir=booker/src/main/resources/META-INF/native-image"
 */
 
+run / connectInput := true
+
 /*
 // todo: run task with agent
 
