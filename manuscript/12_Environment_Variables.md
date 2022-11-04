@@ -225,11 +225,11 @@ val fancyLodging: ZIO[
 //     trace = "repl.MdocSession.MdocApp.HotelApiZ.cheapest(12_Environment_Variables.md:226)",
 //     first = Sync(
 //       trace = "repl.MdocSession.MdocApp.HotelApiZ.cheapest(12_Environment_Variables.md:226)",
-//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$15623/492175842@19cb42d1
+//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$15577/586852855@642c6c8f
 //     ),
-//     successK = zio.ZIO$$$Lambda$15582/1014998287@227607c8
+//     successK = zio.ZIO$$$Lambda$15532/828065840@9b9d8e3
 //   ),
-//   successK = zio.ZIO$$Lambda$15576/552345730@250f6c96
+//   successK = zio.ZIO$$Lambda$15522/797709950@7dd86f5f
 // )
 ```
 
@@ -291,7 +291,6 @@ unsafeRunPrettyPrint(
       collaborater
   )
 )
-// Should handle errors
 // res9: String = "Error(Invalid API Key)"
 ```
 
