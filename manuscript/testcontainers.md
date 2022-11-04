@@ -35,6 +35,7 @@ package testcontainers
 
 import com.typesafe.config.ConfigFactory
 import io.getquill.context.ZioJdbc.DataSourceLayer
+import io.getquill.jdbczio.Quill
 import io.getquill.{
   NamingStrategy,
   PluralizedTableNames,
@@ -88,7 +89,8 @@ object QuillContext
               )
               .asJava
           )
-      yield DataSourceLayer
+      yield Quill
+        .DataSource
         .fromConfig(config)
         .orDie
     }.flatten
