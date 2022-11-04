@@ -31,10 +31,18 @@ graalVMNativeImageOptions ++= (
 graalVMNativeImageOptions ++= Seq(
   "--verbose",
   "--no-fallback",
-  "-H:+StaticExecutableWithDynamicLibC",
   "--install-exit-handlers",
   "-H:+ReportExceptionStackTraces",
   "-H:Name=booker",
+)
+
+graalVMNativeImageOptions ++= (
+  if (System.getProperty("os.name").toLowerCase.contains("linux")) {
+    Seq("-H:+StaticExecutableWithDynamicLibC")
+  }
+  else {
+    Seq.empty
+  }
 )
 
 scalacOptions -= "-Wunused:imports"
