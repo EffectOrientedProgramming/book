@@ -1,122 +1,1047 @@
 [
 {
+  "name":"$1df6f53206752daa1512$",
+  "fields":[{"name":"MODULE$"}],
+  "methods":[{"name":"$sbtdef","parameterTypes":[] }]
+},
+{
+  "name":"$20ff606c3ee3601b8278$",
+  "fields":[{"name":"MODULE$"}],
+  "methods":[{"name":"$sbtdef","parameterTypes":[] }]
+},
+{
+  "name":"$230f1d0d879d3d178b28$",
+  "fields":[{"name":"MODULE$"}],
+  "methods":[{"name":"$sbtdef","parameterTypes":[] }]
+},
+{
+  "name":"$23806b25adc7b00499ec$",
+  "fields":[{"name":"MODULE$"}],
+  "methods":[{"name":"$sbtdef","parameterTypes":[] }]
+},
+{
+  "name":"$265eca92e21d0506a35f$",
+  "fields":[{"name":"MODULE$"}],
+  "methods":[{"name":"$sbtdef","parameterTypes":[] }]
+},
+{
+  "name":"$26a09fa51bc659869a22$",
+  "fields":[{"name":"MODULE$"}],
+  "methods":[{"name":"$sbtdef","parameterTypes":[] }]
+},
+{
+  "name":"$4285f22358b8dd39c859$",
+  "fields":[{"name":"MODULE$"}],
+  "methods":[{"name":"$sbtdef","parameterTypes":[] }]
+},
+{
+  "name":"$43c97276320cb47a06af$",
+  "fields":[{"name":"MODULE$"}],
+  "methods":[{"name":"$sbtdef","parameterTypes":[] }]
+},
+{
+  "name":"$442716d587e66a9e279b$",
+  "fields":[{"name":"MODULE$"}],
+  "methods":[{"name":"$sbtdef","parameterTypes":[] }]
+},
+{
+  "name":"$4af1de242e056958ffd5$",
+  "fields":[{"name":"MODULE$"}],
+  "methods":[{"name":"$sbtdef","parameterTypes":[] }]
+},
+{
+  "name":"$4d4e9985da221b02dec7$",
+  "fields":[{"name":"MODULE$"}],
+  "methods":[{"name":"$sbtdef","parameterTypes":[] }]
+},
+{
+  "name":"$54cb5e30a2f4e72a2b9c$",
+  "fields":[{"name":"MODULE$"}],
+  "methods":[{"name":"$sbtdef","parameterTypes":[] }]
+},
+{
+  "name":"$55fed1c34fc5a18445cd$",
+  "fields":[{"name":"MODULE$"}],
+  "methods":[{"name":"$sbtdef","parameterTypes":[] }]
+},
+{
+  "name":"$58820de8f9c93a932c8f$",
+  "fields":[{"name":"MODULE$"}],
+  "methods":[{"name":"$sbtdef","parameterTypes":[] }]
+},
+{
+  "name":"$5f0f0b68d2a5b61187a9$",
+  "fields":[{"name":"MODULE$"}],
+  "methods":[{"name":"$sbtdef","parameterTypes":[] }]
+},
+{
+  "name":"$61dbbf3ec80937f50a06$",
+  "fields":[{"name":"MODULE$"}],
+  "methods":[{"name":"$sbtdef","parameterTypes":[] }]
+},
+{
+  "name":"$6a3ed6716ea15ac00715$",
+  "fields":[{"name":"MODULE$"}],
+  "methods":[{"name":"$sbtdef","parameterTypes":[] }]
+},
+{
+  "name":"$6e6e98f72dbf37b3737a$",
+  "fields":[{"name":"MODULE$"}],
+  "methods":[{"name":"$sbtdef","parameterTypes":[] }]
+},
+{
+  "name":"$7d86f5e7bc0435aba27b$",
+  "fields":[{"name":"MODULE$"}],
+  "methods":[{"name":"$sbtdef","parameterTypes":[] }]
+},
+{
+  "name":"$85236e3b3cfd83e29d38$",
+  "fields":[{"name":"MODULE$"}],
+  "methods":[{"name":"$sbtdef","parameterTypes":[] }]
+},
+{
+  "name":"$852af3bf4bd1cae7d160$",
+  "fields":[{"name":"MODULE$"}],
+  "methods":[{"name":"$sbtdef","parameterTypes":[] }]
+},
+{
+  "name":"$8778500934428032d4f8$",
+  "fields":[{"name":"MODULE$"}],
+  "methods":[{"name":"$sbtdef","parameterTypes":[] }]
+},
+{
+  "name":"$8bbdfb6af7e3bfbf06ac$",
+  "fields":[{"name":"MODULE$"}],
+  "methods":[{"name":"$sbtdef","parameterTypes":[] }]
+},
+{
+  "name":"$8e30c59726de1685ed40$",
+  "fields":[{"name":"MODULE$"}],
+  "methods":[
+    {"name":"bookTxt","parameterTypes":[] }, 
+    {"name":"booker","parameterTypes":[] }, 
+    {"name":"cleanManuscript","parameterTypes":[] }, 
+    {"name":"examplesDir","parameterTypes":[] }, 
+    {"name":"experiments","parameterTypes":[] }, 
+    {"name":"genManuscript","parameterTypes":[] }, 
+    {"name":"generateExamples","parameterTypes":[] }, 
+    {"name":"mdDir","parameterTypes":[] }, 
+    {"name":"root","parameterTypes":[] }
+  ]
+},
+{
+  "name":"$9277e161b666adbe36ab$",
+  "fields":[{"name":"MODULE$"}],
+  "methods":[{"name":"$sbtdef","parameterTypes":[] }]
+},
+{
+  "name":"$94180a81fe967494a62c$",
+  "fields":[{"name":"MODULE$"}],
+  "methods":[{"name":"$sbtdef","parameterTypes":[] }]
+},
+{
+  "name":"$98f93d2a3182d45b66d5$",
+  "fields":[{"name":"MODULE$"}],
+  "methods":[{"name":"$sbtdef","parameterTypes":[] }]
+},
+{
+  "name":"$9c7797fb986fe802b3dd$",
+  "fields":[{"name":"MODULE$"}],
+  "methods":[{"name":"$sbtdef","parameterTypes":[] }]
+},
+{
+  "name":"$b82f753da91a0138548b$",
+  "fields":[{"name":"MODULE$"}],
+  "methods":[{"name":"$sbtdef","parameterTypes":[] }]
+},
+{
+  "name":"$c1ab71220052dd3b2014$",
+  "fields":[{"name":"MODULE$"}],
+  "methods":[{"name":"$sbtdef","parameterTypes":[] }]
+},
+{
+  "name":"$c43fae389106fc01ed94$",
+  "fields":[{"name":"MODULE$"}],
+  "methods":[{"name":"$sbtdef","parameterTypes":[] }]
+},
+{
+  "name":"$ca78985b9dfa9fce4405$",
+  "fields":[{"name":"MODULE$"}],
+  "methods":[{"name":"$sbtdef","parameterTypes":[] }]
+},
+{
+  "name":"$cfd7e53d644a2bf54a0b$",
+  "fields":[{"name":"MODULE$"}],
+  "methods":[{"name":"$sbtdef","parameterTypes":[] }]
+},
+{
+  "name":"$d6065a46c110191bdd31$",
+  "fields":[{"name":"MODULE$"}],
+  "methods":[{"name":"$sbtdef","parameterTypes":[] }]
+},
+{
+  "name":"$daecb1266643469d32a6$",
+  "fields":[{"name":"MODULE$"}],
+  "methods":[{"name":"$sbtdef","parameterTypes":[] }]
+},
+{
+  "name":"$e5df55dfd006eef70684$",
+  "fields":[{"name":"MODULE$"}],
+  "methods":[{"name":"$sbtdef","parameterTypes":[] }]
+},
+{
+  "name":"$e9e79cd0c1a3382bfed5$",
+  "fields":[{"name":"MODULE$"}],
+  "methods":[{"name":"$sbtdef","parameterTypes":[] }]
+},
+{
+  "name":"$eabc5169de178e1125e1$",
+  "fields":[{"name":"MODULE$"}],
+  "methods":[{"name":"$sbtdef","parameterTypes":[] }]
+},
+{
+  "name":"$f0e77465ce88c16ceec2$",
+  "fields":[{"name":"MODULE$"}],
+  "methods":[{"name":"$sbtdef","parameterTypes":[] }]
+},
+{
+  "name":"$f97af063cf4839407559$",
+  "fields":[{"name":"MODULE$"}],
+  "methods":[{"name":"$sbtdef","parameterTypes":[] }]
+},
+{
+  "name":"[B"
+},
+{
+  "name":"[C"
+},
+{
+  "name":"[D"
+},
+{
+  "name":"[F"
+},
+{
+  "name":"[I"
+},
+{
+  "name":"[J"
+},
+{
+  "name":"[Lcoursierapi.Repository;"
+},
+{
+  "name":"[Ljava.io.File;"
+},
+{
+  "name":"[Ljava.lang.Object;"
+},
+{
   "name":"[Ljava.lang.String;"
 },
 {
-  "name":"[Ltui.view.Color;"
+  "name":"[Ljava.net.URL;"
 },
 {
-  "name":"[Ltui.view.Style;"
+  "name":"[Ljava.nio.file.Path;"
 },
 {
-  "name":"[Lzio.ZIO$EvaluationStep;"
+  "name":"[Llmcoursier.definitions.Configuration;"
 },
 {
-  "name":"[[Ljava.lang.String;"
+  "name":"[Lorg.apache.ivy.core.module.descriptor.DependencyArtifactDescriptor;"
 },
 {
-  "name":"[[Ltui.view.Color;"
+  "name":"[Lorg.apache.ivy.core.module.descriptor.ExcludeRule;"
 },
 {
-  "name":"[[Ltui.view.Style;"
+  "name":"[Lsbt.internal.librarymanagement.SemComparator;"
+},
+{
+  "name":"[Lsbt.internal.librarymanagement.SemSelAndChunk;"
+},
+{
+  "name":"[Lsbt.internal.util.Attributed;"
+},
+{
+  "name":"[Lscala.Tuple2;"
+},
+{
+  "name":"[Lscala.reflect.internal.Phase;"
+},
+{
+  "name":"[Lscala.runtime.BoxedUnit;"
+},
+{
+  "name":"[Lscala.util.Either;"
+},
+{
+  "name":"[Lsjsonnew.shaded.scalajson.ast.unsafe.JField;"
+},
+{
+  "name":"[Lsjsonnew.shaded.scalajson.ast.unsafe.JValue;"
+},
+{
+  "name":"[Lsun.security.pkcs.SignerInfo;"
+},
+{
+  "name":"[Lxsbt.boot.RetrievedModule;"
+},
+{
+  "name":"[Lxsbti.Problem;"
+},
+{
+  "name":"[Lxsbti.Repository;"
+},
+{
+  "name":"[Lxsbti.T2;"
+},
+{
+  "name":"[Lxsbti.VirtualFile;"
+},
+{
+  "name":"[Lxsbti.VirtualFileRef;"
+},
+{
+  "name":"[Lxsbti.api.Annotation;"
+},
+{
+  "name":"[Lxsbti.api.AnnotationArgument;"
+},
+{
+  "name":"[Lxsbti.api.ClassDefinition;"
+},
+{
+  "name":"[Lxsbti.api.MethodParameter;"
+},
+{
+  "name":"[Lxsbti.api.NameHash;"
+},
+{
+  "name":"[Lxsbti.api.ParameterList;"
+},
+{
+  "name":"[Lxsbti.api.PathComponent;"
+},
+{
+  "name":"[Lxsbti.api.Type;"
+},
+{
+  "name":"[Lxsbti.api.TypeParameter;"
+},
+{
+  "name":"[Lxsbti.compile.AuxiliaryClassFiles;"
+},
+{
+  "name":"[Lxsbti.compile.FileHash;"
+},
+{
+  "name":"[S"
+},
+{
+  "name":"[Z"
+},
+{
+  "name":"au.com.onegeek.sbtdotenv.SbtDotenv$",
+  "fields":[{"name":"MODULE$"}]
+},
+{
+  "name":"au.com.onegeek.sbtdotenv.SbtDotenv$autoImport$"
+},
+{
+  "name":"bloop.integrations.sbt.BloopPlugin$",
+  "fields":[
+    {"name":"MODULE$"}, 
+    {"name":"autoImport"}
+  ]
+},
+{
+  "name":"com.github.benmanes.caffeine.cache.BLCHeader$DrainStatusRef",
+  "fields":[{"name":"drainStatus"}]
+},
+{
+  "name":"com.github.benmanes.caffeine.cache.BaseMpscLinkedArrayQueueColdProducerFields",
+  "fields":[{"name":"producerLimit"}]
+},
+{
+  "name":"com.github.benmanes.caffeine.cache.BaseMpscLinkedArrayQueueConsumerFields",
+  "fields":[{"name":"consumerIndex"}]
+},
+{
+  "name":"com.github.benmanes.caffeine.cache.BaseMpscLinkedArrayQueueProducerFields",
+  "fields":[{"name":"producerIndex"}]
+},
+{
+  "name":"com.github.benmanes.caffeine.cache.PS",
+  "fields":[
+    {"name":"key"}, 
+    {"name":"value"}
+  ]
+},
+{
+  "name":"com.github.benmanes.caffeine.cache.PSMW",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"com.github.benmanes.caffeine.cache.SSMW",
+  "methods":[{"name":"<init>","parameterTypes":["com.github.benmanes.caffeine.cache.Caffeine","com.github.benmanes.caffeine.cache.CacheLoader","boolean"] }]
+},
+{
+  "name":"com.github.benmanes.caffeine.cache.StripedBuffer",
+  "fields":[{"name":"tableBusy"}]
 },
 {
   "name":"com.sun.jna.CallbackProxy",
   "methods":[{"name":"callback","parameterTypes":["java.lang.Object[]"] }]
 },
 {
-  "name":"izumi.reflect.internal.fundamentals.platform.console.TrivialLogger$Config$",
-  "fields":[{"name":"0bitmap$1"}]
+  "name":"com.sun.jna.Structure$FFIType",
+  "allDeclaredFields":true,
+  "queryAllPublicConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"izumi.reflect.macrortti.LightTypeTag",
-  "fields":[{"name":"0bitmap$1"}]
+  "name":"com.sun.jna.Structure$FFIType$size_t",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"izumi.reflect.macrortti.LightTypeTag$ParsedLightTypeTag210",
-  "fields":[{"name":"0bitmap$5"}]
+  "name":"com.sun.jna.Union",
+  "allDeclaredFields":true
 },
 {
-  "name":"izumi.reflect.macrortti.LightTypeTagInheritance",
-  "fields":[{"name":"0bitmap$1"}]
+  "name":"com.sun.jna.ptr.IntByReference",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"izumi.reflect.macrortti.LightTypeTagRef$NameReference",
-  "fields":[{"name":"0bitmap$5"}]
+  "name":"com.sun.management.GcInfo",
+  "fields":[
+    {"name":"builder"}, 
+    {"name":"extAttributes"}
+  ],
+  "methods":[{"name":"getMemoryUsageBeforeGc","parameterTypes":[] }]
+},
+{
+  "name":"com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"com.typesafe.sbt.SbtNativePackager$",
+  "fields":[{"name":"MODULE$"}]
+},
+{
+  "name":"com.typesafe.sbt.SbtNativePackager$autoImport$"
+},
+{
+  "name":"com.typesafe.sbt.packager.archetypes.JavaAppPackaging$",
+  "fields":[{"name":"MODULE$"}]
+},
+{
+  "name":"com.typesafe.sbt.packager.archetypes.JavaAppPackaging$autoImport$"
+},
+{
+  "name":"com.typesafe.sbt.packager.archetypes.JavaServerAppPackaging$",
+  "fields":[{"name":"MODULE$"}]
+},
+{
+  "name":"com.typesafe.sbt.packager.archetypes.JavaServerAppPackaging$autoImport$"
+},
+{
+  "name":"com.typesafe.sbt.packager.archetypes.jar.ClasspathJarPlugin$",
+  "fields":[{"name":"MODULE$"}]
+},
+{
+  "name":"com.typesafe.sbt.packager.archetypes.jar.ClasspathJarPlugin$autoImport$"
+},
+{
+  "name":"com.typesafe.sbt.packager.archetypes.jar.LauncherJarPlugin$",
+  "fields":[{"name":"MODULE$"}]
+},
+{
+  "name":"com.typesafe.sbt.packager.archetypes.jar.LauncherJarPlugin$autoImport$"
+},
+{
+  "name":"com.typesafe.sbt.packager.archetypes.jlink.JlinkPlugin$",
+  "fields":[{"name":"MODULE$"}]
+},
+{
+  "name":"com.typesafe.sbt.packager.archetypes.jlink.JlinkPlugin$autoImport$"
+},
+{
+  "name":"com.typesafe.sbt.packager.archetypes.scripts.AshScriptPlugin$",
+  "fields":[{"name":"MODULE$"}]
+},
+{
+  "name":"com.typesafe.sbt.packager.archetypes.scripts.AshScriptPlugin$autoImport$"
+},
+{
+  "name":"com.typesafe.sbt.packager.archetypes.scripts.BashStartScriptPlugin$",
+  "fields":[{"name":"MODULE$"}]
+},
+{
+  "name":"com.typesafe.sbt.packager.archetypes.scripts.BashStartScriptPlugin$autoImport$"
+},
+{
+  "name":"com.typesafe.sbt.packager.archetypes.scripts.BatStartScriptPlugin$",
+  "fields":[{"name":"MODULE$"}]
+},
+{
+  "name":"com.typesafe.sbt.packager.archetypes.scripts.BatStartScriptPlugin$autoImport$"
+},
+{
+  "name":"com.typesafe.sbt.packager.archetypes.systemloader.SystemVPlugin$",
+  "fields":[{"name":"MODULE$"}]
+},
+{
+  "name":"com.typesafe.sbt.packager.archetypes.systemloader.SystemVPlugin$autoImport$"
+},
+{
+  "name":"com.typesafe.sbt.packager.archetypes.systemloader.SystemdPlugin$",
+  "fields":[{"name":"MODULE$"}]
+},
+{
+  "name":"com.typesafe.sbt.packager.archetypes.systemloader.SystemdPlugin$autoImport$"
+},
+{
+  "name":"com.typesafe.sbt.packager.archetypes.systemloader.SystemloaderPlugin$",
+  "fields":[{"name":"MODULE$"}]
+},
+{
+  "name":"com.typesafe.sbt.packager.archetypes.systemloader.SystemloaderPlugin$autoImport$"
+},
+{
+  "name":"com.typesafe.sbt.packager.archetypes.systemloader.UpstartPlugin$",
+  "fields":[{"name":"MODULE$"}]
+},
+{
+  "name":"com.typesafe.sbt.packager.archetypes.systemloader.UpstartPlugin$autoImport$"
+},
+{
+  "name":"com.typesafe.sbt.packager.debian.DebianDeployPlugin$",
+  "fields":[{"name":"MODULE$"}]
+},
+{
+  "name":"com.typesafe.sbt.packager.debian.DebianDeployPlugin$autoImport$"
+},
+{
+  "name":"com.typesafe.sbt.packager.debian.DebianPlugin$",
+  "fields":[{"name":"MODULE$"}]
+},
+{
+  "name":"com.typesafe.sbt.packager.debian.DebianPlugin$autoImport$"
+},
+{
+  "name":"com.typesafe.sbt.packager.debian.JDebPackaging$",
+  "fields":[{"name":"MODULE$"}]
+},
+{
+  "name":"com.typesafe.sbt.packager.debian.JDebPackaging$autoImport$"
+},
+{
+  "name":"com.typesafe.sbt.packager.docker.DockerPlugin$",
+  "fields":[{"name":"MODULE$"}]
+},
+{
+  "name":"com.typesafe.sbt.packager.docker.DockerPlugin$autoImport$"
+},
+{
+  "name":"com.typesafe.sbt.packager.docker.DockerSpotifyClientPlugin$",
+  "fields":[{"name":"MODULE$"}]
+},
+{
+  "name":"com.typesafe.sbt.packager.docker.DockerSpotifyClientPlugin$autoImport$"
+},
+{
+  "name":"com.typesafe.sbt.packager.graalvmnativeimage.GraalVMNativeImagePlugin$",
+  "fields":[{"name":"MODULE$"}]
+},
+{
+  "name":"com.typesafe.sbt.packager.graalvmnativeimage.GraalVMNativeImagePlugin$autoImport$"
+},
+{
+  "name":"com.typesafe.sbt.packager.jdkpackager.JDKPackagerDeployPlugin$",
+  "fields":[{"name":"MODULE$"}]
+},
+{
+  "name":"com.typesafe.sbt.packager.jdkpackager.JDKPackagerDeployPlugin$autoImport$"
+},
+{
+  "name":"com.typesafe.sbt.packager.jdkpackager.JDKPackagerPlugin$",
+  "fields":[{"name":"MODULE$"}]
+},
+{
+  "name":"com.typesafe.sbt.packager.jdkpackager.JDKPackagerPlugin$autoImport$"
+},
+{
+  "name":"com.typesafe.sbt.packager.linux.LinuxPlugin$",
+  "fields":[{"name":"MODULE$"}]
+},
+{
+  "name":"com.typesafe.sbt.packager.linux.LinuxPlugin$autoImport$"
+},
+{
+  "name":"com.typesafe.sbt.packager.rpm.RpmDeployPlugin$",
+  "fields":[{"name":"MODULE$"}]
+},
+{
+  "name":"com.typesafe.sbt.packager.rpm.RpmDeployPlugin$autoImport$"
+},
+{
+  "name":"com.typesafe.sbt.packager.rpm.RpmPlugin$",
+  "fields":[{"name":"MODULE$"}]
+},
+{
+  "name":"com.typesafe.sbt.packager.rpm.RpmPlugin$autoImport$"
+},
+{
+  "name":"com.typesafe.sbt.packager.universal.UniversalDeployPlugin$",
+  "fields":[{"name":"MODULE$"}]
+},
+{
+  "name":"com.typesafe.sbt.packager.universal.UniversalDeployPlugin$autoImport$"
+},
+{
+  "name":"com.typesafe.sbt.packager.universal.UniversalPlugin$",
+  "fields":[{"name":"MODULE$"}]
+},
+{
+  "name":"com.typesafe.sbt.packager.universal.UniversalPlugin$autoImport$"
+},
+{
+  "name":"com.typesafe.sbt.packager.windows.WindowsDeployPlugin$",
+  "fields":[{"name":"MODULE$"}]
+},
+{
+  "name":"com.typesafe.sbt.packager.windows.WindowsDeployPlugin$autoImport$"
+},
+{
+  "name":"com.typesafe.sbt.packager.windows.WindowsPlugin$",
+  "fields":[{"name":"MODULE$"}]
+},
+{
+  "name":"com.typesafe.sbt.packager.windows.WindowsPlugin$autoImport$"
+},
+{
+  "name":"core.tools.linker.backend.ModuleKind"
+},
+{
+  "name":"coursier.cache.protocol.HttpsHandler"
+},
+{
+  "name":"io.github.davidgregory084.TpolecatPlugin$",
+  "fields":[{"name":"MODULE$"}]
+},
+{
+  "name":"io.github.davidgregory084.TpolecatPlugin$autoImport$"
+},
+{
+  "name":"java.lang.Boolean",
+  "fields":[{"name":"TYPE"}]
+},
+{
+  "name":"java.lang.Byte",
+  "fields":[{"name":"TYPE"}]
+},
+{
+  "name":"java.lang.Character",
+  "fields":[{"name":"TYPE"}]
 },
 {
   "name":"java.lang.ClassValue"
 },
 {
-  "name":"java.lang.Object",
+  "name":"java.lang.Double",
+  "fields":[{"name":"TYPE"}]
+},
+{
+  "name":"java.lang.Float",
+  "fields":[{"name":"TYPE"}]
+},
+{
+  "name":"java.lang.Integer",
+  "fields":[{"name":"TYPE"}]
+},
+{
+  "name":"java.lang.Long",
+  "fields":[{"name":"TYPE"}]
+},
+{
+  "name":"java.lang.Runtime",
+  "methods":[{"name":"version","parameterTypes":[] }]
+},
+{
+  "name":"java.lang.Runtime$Version",
   "methods":[
-    {"name":"equals","parameterTypes":["java.lang.Object"] }, 
-    {"name":"hashCode","parameterTypes":[] }, 
-    {"name":"toString","parameterTypes":[] }
+    {"name":"major","parameterTypes":[] }, 
+    {"name":"parse","parameterTypes":["java.lang.String"] }
   ]
 },
 {
-  "name":"java.lang.ProcessHandle",
-  "methods":[
-    {"name":"current","parameterTypes":[] }, 
-    {"name":"info","parameterTypes":[] }, 
-    {"name":"parent","parameterTypes":[] }
-  ]
+  "name":"java.lang.Short",
+  "fields":[{"name":"TYPE"}]
 },
 {
-  "name":"java.lang.ProcessHandle$Info",
-  "methods":[{"name":"command","parameterTypes":[] }]
+  "name":"java.lang.String",
+  "fields":[{"name":"value"}]
+},
+{
+  "name":"java.lang.Thread",
+  "fields":[{"name":"threadLocalRandomProbe"}]
 },
 {
   "name":"java.lang.Throwable",
   "methods":[{"name":"addSuppressed","parameterTypes":["java.lang.Throwable"] }]
 },
 {
-  "name":"java.lang.invoke.MethodHandle",
-  "methods":[
-    {"name":"bindTo","parameterTypes":["java.lang.Object"] }, 
-    {"name":"invokeWithArguments","parameterTypes":["java.lang.Object[]"] }
-  ]
-},
-{
-  "name":"java.lang.invoke.MethodHandles",
-  "methods":[
-    {"name":"lookup","parameterTypes":[] }, 
-    {"name":"privateLookupIn","parameterTypes":["java.lang.Class","java.lang.invoke.MethodHandles$Lookup"] }
-  ]
-},
-{
-  "name":"java.lang.invoke.MethodHandles$Lookup",
-  "methods":[
-    {"name":"findSpecial","parameterTypes":["java.lang.Class","java.lang.String","java.lang.invoke.MethodType","java.lang.Class"] }, 
-    {"name":"in","parameterTypes":["java.lang.Class"] }, 
-    {"name":"unreflectSpecial","parameterTypes":["java.lang.reflect.Method","java.lang.Class"] }
-  ]
-},
-{
-  "name":"java.lang.invoke.MethodType",
-  "methods":[{"name":"methodType","parameterTypes":["java.lang.Class","java.lang.Class[]"] }]
+  "name":"java.lang.Void",
+  "fields":[{"name":"TYPE"}]
 },
 {
   "name":"java.lang.invoke.VarHandle",
   "methods":[{"name":"releaseFence","parameterTypes":[] }]
 },
 {
-  "name":"java.lang.reflect.Method",
-  "methods":[
-    {"name":"isDefault","parameterTypes":[] }, 
-    {"name":"isVarArgs","parameterTypes":[] }
-  ]
+  "name":"java.lang.management.MemoryUsage",
+  "queryAllPublicMethods":true,
+  "methods":[{"name":"from","parameterTypes":["javax.management.openmbean.CompositeData"] }]
 },
 {
-  "name":"java.nio.Buffer"
+  "name":"java.lang.reflect.Method",
+  "methods":[{"name":"isVarArgs","parameterTypes":[] }]
+},
+{
+  "name":"java.math.BigDecimal"
+},
+{
+  "name":"java.math.BigInteger"
+},
+{
+  "name":"java.net.Authenticator",
+  "methods":[{"name":"getDefault","parameterTypes":[] }]
+},
+{
+  "name":"java.nio.Buffer",
+  "fields":[{"name":"address"}]
+},
+{
+  "name":"java.security.MessageDigestSpi"
 },
 {
   "name":"java.security.SecureRandomParameters"
 },
 {
-  "name":"sun.misc.Unsafe",
+  "name":"java.security.interfaces.RSAPrivateKey"
+},
+{
+  "name":"java.security.interfaces.RSAPublicKey"
+},
+{
+  "name":"java.util.Date"
+},
+{
+  "name":"java.util.jar.JarFile",
+  "methods":[{"name":"<init>","parameterTypes":["java.io.File","boolean","int","java.lang.Runtime$Version"] }]
+},
+{
+  "name":"javax.management.ObjectName"
+},
+{
+  "name":"javax.security.auth.x500.X500Principal",
+  "fields":[{"name":"thisX500Name"}],
+  "methods":[{"name":"<init>","parameterTypes":["sun.security.x509.X500Name"] }]
+},
+{
+  "name":"libcore.io.Memory"
+},
+{
+  "name":"mdoc.DocusaurusPlugin$",
+  "fields":[{"name":"MODULE$"}]
+},
+{
+  "name":"mdoc.DocusaurusPlugin$autoImport$"
+},
+{
+  "name":"mdoc.MdocPlugin$",
+  "fields":[{"name":"MODULE$"}]
+},
+{
+  "name":"mdoc.MdocPlugin$autoImport$"
+},
+{
+  "name":"org.apache.ivy.ant.AntBuildTrigger"
+},
+{
+  "name":"org.apache.ivy.ant.AntCallTrigger"
+},
+{
+  "name":"org.apache.ivy.core.cache.DefaultRepositoryCacheManager"
+},
+{
+  "name":"org.apache.ivy.osgi.core.OSGiManifestParser"
+},
+{
+  "name":"org.apache.ivy.osgi.obr.OBRResolver"
+},
+{
+  "name":"org.apache.ivy.osgi.updatesite.UpdateSiteResolver"
+},
+{
+  "name":"org.apache.ivy.plugins.conflict.FixedConflictManager"
+},
+{
+  "name":"org.apache.ivy.plugins.conflict.LatestCompatibleConflictManager"
+},
+{
+  "name":"org.apache.ivy.plugins.conflict.LatestConflictManager"
+},
+{
+  "name":"org.apache.ivy.plugins.conflict.NoConflictManager"
+},
+{
+  "name":"org.apache.ivy.plugins.conflict.RegexpConflictManager"
+},
+{
+  "name":"org.apache.ivy.plugins.conflict.StrictConflictManager"
+},
+{
+  "name":"org.apache.ivy.plugins.latest.LatestLexicographicStrategy"
+},
+{
+  "name":"org.apache.ivy.plugins.latest.LatestRevisionStrategy"
+},
+{
+  "name":"org.apache.ivy.plugins.latest.LatestTimeStrategy"
+},
+{
+  "name":"org.apache.ivy.plugins.matcher.GlobPatternMatcher",
+  "fields":[{"name":"INSTANCE"}]
+},
+{
+  "name":"org.apache.ivy.plugins.namespace.Namespace"
+},
+{
+  "name":"org.apache.ivy.plugins.resolver.ChainResolver"
+},
+{
+  "name":"org.apache.ivy.plugins.resolver.DualResolver"
+},
+{
+  "name":"org.apache.ivy.plugins.resolver.FileSystemResolver"
+},
+{
+  "name":"org.apache.ivy.plugins.resolver.IBiblioResolver"
+},
+{
+  "name":"org.apache.ivy.plugins.resolver.IvyRepResolver"
+},
+{
+  "name":"org.apache.ivy.plugins.resolver.JarResolver"
+},
+{
+  "name":"org.apache.ivy.plugins.resolver.MirroredURLResolver"
+},
+{
+  "name":"org.apache.ivy.plugins.resolver.SFTPResolver"
+},
+{
+  "name":"org.apache.ivy.plugins.resolver.SshResolver"
+},
+{
+  "name":"org.apache.ivy.plugins.resolver.URLResolver"
+},
+{
+  "name":"org.apache.ivy.plugins.resolver.VfsResolver"
+},
+{
+  "name":"org.apache.ivy.plugins.resolver.VsftpResolver"
+},
+{
+  "name":"org.apache.ivy.plugins.resolver.packager.PackagerResolver"
+},
+{
+  "name":"org.apache.ivy.plugins.signer.bouncycastle.OpenPGPSignatureGenerator"
+},
+{
+  "name":"org.apache.ivy.plugins.trigger.LogTrigger"
+},
+{
+  "name":"org.apache.ivy.plugins.version.ChainVersionMatcher"
+},
+{
+  "name":"org.apache.ivy.plugins.version.ExactVersionMatcher"
+},
+{
+  "name":"org.apache.ivy.plugins.version.LatestVersionMatcher"
+},
+{
+  "name":"org.apache.ivy.plugins.version.PatternVersionMatcher"
+},
+{
+  "name":"org.apache.ivy.plugins.version.SubVersionMatcher"
+},
+{
+  "name":"org.apache.ivy.plugins.version.VersionRangeMatcher"
+},
+{
+  "name":"org.eclipse.jgit.internal.JGitText",
+  "allPublicFields":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.robolectric.Robolectric"
+},
+{
+  "name":"org.scalafmt.sbt.ScalafmtPlugin$",
+  "fields":[{"name":"MODULE$"}]
+},
+{
+  "name":"org.scalafmt.sbt.ScalafmtPlugin$autoImport$"
+},
+{
+  "name":"org.scalajs.sbtplugin.Stage"
+},
+{
+  "name":"org.scalasbt.ipcsocket.UnixDomainSocketLibrary",
+  "allPublicFields":true,
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"org.scalasbt.ipcsocket.UnixDomainSocketLibrary$SockaddrUn",
   "allDeclaredFields":true
+},
+{
+  "name":"org.scalasbt.ipcsocket.UnixDomainSocketLibrary$SockaddrUn$SunFamily",
+  "allDeclaredFields":true,
+  "queryAllPublicConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.scalasbt.ipcsocket.UnixDomainSocketLibrary$SockaddrUn$SunLenAndFamily",
+  "allDeclaredFields":true,
+  "queryAllPublicConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sbt.Keys$",
+  "methods":[
+    {"name":"makeIvyXmlConfiguration","parameterTypes":[] }, 
+    {"name":"makeIvyXmlLocalConfiguration","parameterTypes":[] }
+  ]
+},
+{
+  "name":"sbt.ScriptedPlugin$autoImport$"
+},
+{
+  "name":"sbt.internal.ClassLoaderWarmup$",
+  "fields":[{"name":"MODULE$"}],
+  "methods":[{"name":"warmup","parameterTypes":[] }]
+},
+{
+  "name":"sbt.internal.MetaBuildLoader",
+  "methods":[{"name":"makeLoader","parameterTypes":["xsbti.AppProvider"] }]
+},
+{
+  "name":"sbt.internal.XMainConfiguration",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sbt.internal.XMainConfiguration$ModifiedConfiguration",
+  "queryAllPublicConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":["sbt.internal.XMainConfiguration","xsbti.AppConfiguration","java.lang.ClassLoader"] }]
+},
+{
+  "name":"sbt.internal.parser.SbtParserInit",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sbt.internal.shaded.com.google.protobuf.ExtensionRegistry",
+  "methods":[{"name":"getEmptyRegistry","parameterTypes":[] }]
+},
+{
+  "name":"sbt.plugins.CorePlugin$autoImport$"
+},
+{
+  "name":"sbt.plugins.Giter8TemplatePlugin$autoImport$"
+},
+{
+  "name":"sbt.plugins.IvyPlugin$autoImport$"
+},
+{
+  "name":"sbt.plugins.JUnitXmlReportPlugin$autoImport$"
+},
+{
+  "name":"sbt.plugins.JvmPlugin$autoImport$"
+},
+{
+  "name":"sbt.plugins.MiniDependencyTreePlugin$autoImport$"
+},
+{
+  "name":"sbt.plugins.SbtPlugin$autoImport$"
+},
+{
+  "name":"sbt.plugins.SemanticdbPlugin$autoImport$"
+},
+{
+  "name":"sbt.testing.Framework"
+},
+{
+  "name":"sbt.xMain",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sbt.xMain$",
+  "fields":[{"name":"MODULE$"}],
+  "methods":[{"name":"run","parameterTypes":["xsbti.AppConfiguration"] }]
+},
+{
+  "name":"scala.Option"
+},
+{
+  "name":"scala.tools.nsc.Global"
+},
+{
+  "name":"scalafix.sbt.ScalafixPlugin$",
+  "fields":[{"name":"MODULE$"}]
+},
+{
+  "name":"scalafix.sbt.ScalafixPlugin$autoImport$"
+},
+{
+  "name":"scalafix.sbt.ScalafixTestkitPlugin$",
+  "fields":[{"name":"MODULE$"}]
+},
+{
+  "name":"scalafix.sbt.ScalafixTestkitPlugin$autoImport$"
+},
+{
+  "name":"sun.misc.Unsafe",
+  "allDeclaredFields":true,
+  "methods":[
+    {"name":"arrayBaseOffset","parameterTypes":["java.lang.Class"] }, 
+    {"name":"arrayIndexScale","parameterTypes":["java.lang.Class"] }, 
+    {"name":"copyMemory","parameterTypes":["long","long","long"] }, 
+    {"name":"copyMemory","parameterTypes":["java.lang.Object","long","java.lang.Object","long","long"] }, 
+    {"name":"getBoolean","parameterTypes":["java.lang.Object","long"] }, 
+    {"name":"getByte","parameterTypes":["long"] }, 
+    {"name":"getByte","parameterTypes":["java.lang.Object","long"] }, 
+    {"name":"getDouble","parameterTypes":["java.lang.Object","long"] }, 
+    {"name":"getFloat","parameterTypes":["java.lang.Object","long"] }, 
+    {"name":"getInt","parameterTypes":["long"] }, 
+    {"name":"getInt","parameterTypes":["java.lang.Object","long"] }, 
+    {"name":"getLong","parameterTypes":["long"] }, 
+    {"name":"getLong","parameterTypes":["java.lang.Object","long"] }, 
+    {"name":"getObject","parameterTypes":["java.lang.Object","long"] }, 
+    {"name":"objectFieldOffset","parameterTypes":["java.lang.reflect.Field"] }, 
+    {"name":"putBoolean","parameterTypes":["java.lang.Object","long","boolean"] }, 
+    {"name":"putByte","parameterTypes":["long","byte"] }, 
+    {"name":"putByte","parameterTypes":["java.lang.Object","long","byte"] }, 
+    {"name":"putDouble","parameterTypes":["java.lang.Object","long","double"] }, 
+    {"name":"putFloat","parameterTypes":["java.lang.Object","long","float"] }, 
+    {"name":"putInt","parameterTypes":["long","int"] }, 
+    {"name":"putInt","parameterTypes":["java.lang.Object","long","int"] }, 
+    {"name":"putLong","parameterTypes":["long","long"] }, 
+    {"name":"putLong","parameterTypes":["java.lang.Object","long","long"] }, 
+    {"name":"putObject","parameterTypes":["java.lang.Object","long","java.lang.Object"] }
+  ]
 },
 {
   "name":"sun.security.provider.NativePRNG",
@@ -127,71 +1052,81 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"tui.view.Input$",
-  "fields":[{"name":"0bitmap$1"}]
+  "name":"sun.security.provider.SHA2$SHA256",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"tui.view.TextMap$",
-  "fields":[{"name":"0bitmap$1"}]
+  "name":"sun.security.provider.SHA5$SHA384",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"tui.view.View$Text",
-  "fields":[{"name":"0bitmap$2"}]
+  "name":"sun.security.provider.X509Factory",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"zio.Chunk$",
-  "fields":[{"name":"0bitmap$1"}]
+  "name":"sun.security.rsa.RSAKeyFactory$Legacy",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"zio.ConfigProvider$",
-  "fields":[{"name":"0bitmap$1"}]
+  "name":"sun.security.rsa.RSASignature$SHA256withRSA",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"zio.Executor",
-  "fields":[{"name":"0bitmap$1"}]
+  "name":"sun.security.rsa.RSASignature$SHA384withRSA",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"zio.FiberRef$",
-  "fields":[{"name":"0bitmap$1"}]
+  "name":"sun.security.util.ObjectIdentifier"
 },
 {
-  "name":"zio.Ref$Atomic",
-  "fields":[{"name":"0bitmap$1"}]
+  "name":"sun.security.x509.AuthorityInfoAccessExtension",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
 },
 {
-  "name":"zio.StackTrace$",
-  "fields":[{"name":"0bitmap$1"}]
+  "name":"sun.security.x509.AuthorityKeyIdentifierExtension",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
 },
 {
-  "name":"zio.System$",
-  "fields":[{"name":"0bitmap$1"}]
+  "name":"sun.security.x509.BasicConstraintsExtension",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
 },
 {
-  "name":"zio.ZEnvironment$",
-  "fields":[{"name":"0bitmap$1"}]
+  "name":"sun.security.x509.CRLDistributionPointsExtension",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
 },
 {
-  "name":"zio.ZIO$",
-  "fields":[{"name":"0bitmap$1"}]
+  "name":"sun.security.x509.CertificateExtensions"
 },
 {
-  "name":"zio.ZLayer",
-  "fields":[{"name":"0bitmap$1"}]
+  "name":"sun.security.x509.CertificatePoliciesExtension",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
 },
 {
-  "name":"zio.internal.FiberRuntime",
-  "fields":[{"name":"0bitmap$1"}]
+  "name":"sun.security.x509.ExtendedKeyUsageExtension",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
 },
 {
-  "name":"zio.package$",
-  "fields":[{"name":"0bitmap$1"}]
+  "name":"sun.security.x509.KeyUsageExtension",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
 },
 {
-  "name":"zio.stm.ZSTM$",
-  "fields":[{"name":"0bitmap$1"}]
+  "name":"sun.security.x509.SubjectAlternativeNameExtension",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
 },
 {
-  "name":"zio.stream.ZStream$",
-  "fields":[{"name":"0bitmap$2"}]
+  "name":"sun.security.x509.SubjectKeyIdentifierExtension",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
+},
+{
+  "name":"xsbt.boot.Boot",
+  "methods":[{"name":"main","parameterTypes":["java.lang.String[]"] }]
+},
+{
+  "name":"xsbt.boot.Launch$$anon$5",
+  "methods":[{"name":"loaderLibraryOnly","parameterTypes":[] }]
+},
+{
+  "name":"xsbti.api.Modifiers",
+  "methods":[{"name":"<init>","parameterTypes":["byte"] }]
 }
 ]

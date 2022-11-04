@@ -2,20 +2,74 @@
   "resources":{
   "includes":[
     {
-      "pattern":"\\QMETA-INF/services/org.jline.terminal.spi.JansiSupport\\E"
+      "pattern":"\\QMETA-INF/services/java.nio.file.spi.FileSystemProvider\\E"
     }, 
     {
-      "pattern":"\\QMETA-INF/services/org.jline.terminal.spi.JnaSupport\\E"
+      "pattern":"\\QMETA-INF/services/org.scalafmt.interfaces.Scalafmt\\E"
     }, 
     {
       "pattern":"\\Qcom/sun/jna/linux-x86-64/libjnidispatch.so\\E"
     }, 
     {
+      "pattern":"\\Qcom/typesafe/sbt/packager/linux/control-functions\\E"
+    }, 
+    {
+      "pattern":"\\Qcompiler.properties\\E"
+    }, 
+    {
+      "pattern":"\\Qcoursier/bootstrap/launcher/bootstrap-jar-urls\\E"
+    }, 
+    {
+      "pattern":"\\Qcoursier/bootstrap/launcher/bootstrap.properties\\E"
+    }, 
+    {
+      "pattern":"\\Qincrementalcompiler.version.properties\\E"
+    }, 
+    {
+      "pattern":"\\Qlibrary.properties\\E"
+    }, 
+    {
+      "pattern":"\\Qmodule.properties\\E"
+    }, 
+    {
+      "pattern":"\\Qnative/x86_64/libswoval-files0.so\\E"
+    }, 
+    {
+      "pattern":"\\Qorg/apache/ivy/core/settings/ivysettings.xml\\E"
+    }, 
+    {
+      "pattern":"\\Qorg/apache/ivy/core/settings/typedef.properties\\E"
+    }, 
+    {
+      "pattern":"\\Qorg/fusesource/jansi/jansi.properties\\E"
+    }, 
+    {
       "pattern":"\\Qorg/jline/utils/capabilities.txt\\E"
     }, 
     {
-      "pattern":"\\Qorg/jline/utils/dumb.caps\\E"
+      "pattern":"\\Qorg/jline/utils/xterm-256color.caps\\E"
+    }, 
+    {
+      "pattern":"\\Qorg/slf4j/impl/StaticLoggerBinder.class\\E"
+    }, 
+    {
+      "pattern":"\\Qsbt-mdoc.properties\\E"
+    }, 
+    {
+      "pattern":"\\Qsbt/internal/XMainConfiguration.class\\E"
+    }, 
+    {
+      "pattern":"\\Qsbt/sbt.autoplugins\\E"
+    }, 
+    {
+      "pattern":"\\Qsbt/sbt.boot.properties\\E"
+    }, 
+    {
+      "pattern":"\\Qscalafix-interfaces.properties\\E"
     }
   ]},
-  "bundles":[]
+  "bundles":[{
+      "name":"org.eclipse.jgit.internal.JGitText",
+      "locales":[""]
+    }]
 }

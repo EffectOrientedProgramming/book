@@ -49,8 +49,8 @@ scalacOptions -= "-Wunused:imports"
 
 run / baseDirectory := file(".")
 
-/*
 // uncomment to run with the agent
+/*
 run / fork := true
 run / javaOptions += s"-agentlib:native-image-agent=config-output-dir=booker/src/main/resources/META-INF/native-image"
 */
