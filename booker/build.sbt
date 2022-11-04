@@ -31,6 +31,7 @@ graalVMNativeImageOptions ++= (
 graalVMNativeImageOptions ++= Seq(
   "--verbose",
   "--no-fallback",
+  "-H:+StaticExecutableWithDynamicLibC",
   "--install-exit-handlers",
   "-H:+ReportExceptionStackTraces",
   "-H:Name=booker",
