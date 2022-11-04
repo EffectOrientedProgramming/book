@@ -57,11 +57,11 @@ jobs:
         run: |
           ./bin/sbt booker/graalvm-native-image:packageBin
 
-      - name: run upx on ${{ matrix.os }}
-        uses: svenstaro/upx-action@v2
-        with:
-          file: booker/target/graalvm-native-image/${{matrix.artifact-name}}
-          args: --best --lzma
+#      - name: run upx on ${{ matrix.os }}
+#        uses: svenstaro/upx-action@v2
+#        with:
+#          file: booker/target/graalvm-native-image/${{matrix.artifact-name}}
+#          args: --best --lzma
 
       - name: verify booker by running it
         run: |
