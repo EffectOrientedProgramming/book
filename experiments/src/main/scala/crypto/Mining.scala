@@ -36,10 +36,7 @@ object Mining extends ZIOAppDefault:
     // Inefficiently determines if the input
     // number is prime.
     def isPrime(num: Int): Boolean =
-      for (i <- 2 to num.toInt - 1)
-        if (num % i == 0)
-          return false
-      return true
+      (2 until num).forall(_ % 1 != 0)
 
     // Recursively iterates up from starting
     // value, num, until it finds a prime number,

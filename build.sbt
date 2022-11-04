@@ -3,13 +3,13 @@ import java.nio.file.{Files, Path, Paths}
 
 name := "EffectOrientedProgramming"
 
-val zioVersion = "2.0.1"
+val zioVersion = "2.0.3"
 
 lazy val commonSettings = Seq(
   libraryDependencies ++= Seq(
     "dev.zio" %% "zio"          % zioVersion,
-    "dev.zio" %% "zio-logging"          % zioVersion,
-    "dev.zio" %% "zio-streams"          % zioVersion,
+    "dev.zio" %% "zio-logging"  % "2.1.3",
+    "dev.zio" %% "zio-streams"  % zioVersion,
     "dev.zio" %% "zio-test"     % zioVersion,
     "dev.zio" %% "zio-test-sbt" % zioVersion % Test,
     "dev.zio" %% "zio-prelude"  % "1.0.0-RC15",
@@ -24,7 +24,7 @@ lazy val commonSettings = Seq(
   // TODO Make sure this only happens in Intellij. It breaks VSCode
   // scalacOptions -= "-encoding"
 
-  scalaVersion := "3.1.3",
+  scalaVersion := "3.2.0",
   scalacOptions -= "-explain-types",
   scalacOptions -= "-explain",
 )

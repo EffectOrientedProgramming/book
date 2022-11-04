@@ -3,7 +3,7 @@ package zio_test
 import zio.{Ref, Scope, ZIO, ZLayer}
 
 object Shared:
-  val layer: ZLayer[Scope, Nothing, Ref[Int]] =
+  val layer: ZLayer[Any, Nothing, Ref[Int]] =
     ZLayer.scoped {
       ZIO.acquireRelease(
         Ref.make(0) <* ZIO.debug("Initializing!")
