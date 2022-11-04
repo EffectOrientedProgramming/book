@@ -9,7 +9,7 @@ libraryDependencies := Seq(
 // for building in a docker container
 //graalVMNativeImageGraalVersion := Some("21.2.0")
 
-GraalVMNativeImage / mainClass := Some("booker.run")
+GraalVMNativeImage / mainClass := Some("booker.Booker")
 
 graalVMNativeImageCommand := (
   if (System.getProperty("os.name").toLowerCase.contains("win")) {
@@ -38,10 +38,13 @@ graalVMNativeImageOptions ++= Seq(
 
 scalacOptions -= "-Wunused:imports"
 
-//run / fork := true
 run / baseDirectory := file(".")
 
-//run / javaOptions += s"-agentlib:native-image-agent=config-output-dir=booker/src/main/resources/META-INF/native-image"
+/*
+// uncomment to run with the agent
+run / fork := true
+run / javaOptions += s"-agentlib:native-image-agent=config-output-dir=booker/src/main/resources/META-INF/native-image"
+*/
 
 /*
 // todo: run task with agent

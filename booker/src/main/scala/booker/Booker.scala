@@ -332,20 +332,10 @@ object Booker extends ZIOAppDefault:
           .provide(TUI.live(false))
       _ <- printLine(result)
     yield ()
+
   override def run: ZIO[
     Any with ZIOAppArgs with Scope,
     Any,
     Any
   ] = program
-
-@main
-def run(args: String*) =
-  Unsafe.unsafe { (u: Unsafe) =>
-    implicit val un: Unsafe = u
-    unsafe
-      .fromLayer(ZLayer.empty)
-      .run(
-        Booker.program
-      ) // TODO This is totally broken. It returns an effect, rather than the final value we want
-//      .getOrThrowFiberFailure()
-  }
+end Booker

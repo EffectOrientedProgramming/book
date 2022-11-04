@@ -1,6 +1,28 @@
 [
 {
+  "name":"[Ljava.lang.String;"
+},
+{
+  "name":"[Ltui.view.Color;"
+},
+{
+  "name":"[Ltui.view.Style;"
+},
+{
   "name":"[Lzio.ZIO$EvaluationStep;"
+},
+{
+  "name":"[[Ljava.lang.String;"
+},
+{
+  "name":"[[Ltui.view.Color;"
+},
+{
+  "name":"[[Ltui.view.Style;"
+},
+{
+  "name":"com.sun.jna.CallbackProxy",
+  "methods":[{"name":"callback","parameterTypes":["java.lang.Object[]"] }]
 },
 {
   "name":"izumi.reflect.internal.fundamentals.platform.console.TrivialLogger$Config$",
@@ -26,15 +48,102 @@
   "name":"java.lang.ClassValue"
 },
 {
+  "name":"java.lang.Object",
+  "methods":[
+    {"name":"equals","parameterTypes":["java.lang.Object"] }, 
+    {"name":"hashCode","parameterTypes":[] }, 
+    {"name":"toString","parameterTypes":[] }
+  ]
+},
+{
+  "name":"java.lang.ProcessHandle",
+  "methods":[
+    {"name":"current","parameterTypes":[] }, 
+    {"name":"info","parameterTypes":[] }, 
+    {"name":"parent","parameterTypes":[] }
+  ]
+},
+{
+  "name":"java.lang.ProcessHandle$Info",
+  "methods":[{"name":"command","parameterTypes":[] }]
+},
+{
+  "name":"java.lang.Throwable",
+  "methods":[{"name":"addSuppressed","parameterTypes":["java.lang.Throwable"] }]
+},
+{
+  "name":"java.lang.invoke.MethodHandle",
+  "methods":[
+    {"name":"bindTo","parameterTypes":["java.lang.Object"] }, 
+    {"name":"invokeWithArguments","parameterTypes":["java.lang.Object[]"] }
+  ]
+},
+{
+  "name":"java.lang.invoke.MethodHandles",
+  "methods":[
+    {"name":"lookup","parameterTypes":[] }, 
+    {"name":"privateLookupIn","parameterTypes":["java.lang.Class","java.lang.invoke.MethodHandles$Lookup"] }
+  ]
+},
+{
+  "name":"java.lang.invoke.MethodHandles$Lookup",
+  "methods":[
+    {"name":"findSpecial","parameterTypes":["java.lang.Class","java.lang.String","java.lang.invoke.MethodType","java.lang.Class"] }, 
+    {"name":"in","parameterTypes":["java.lang.Class"] }, 
+    {"name":"unreflectSpecial","parameterTypes":["java.lang.reflect.Method","java.lang.Class"] }
+  ]
+},
+{
+  "name":"java.lang.invoke.MethodType",
+  "methods":[{"name":"methodType","parameterTypes":["java.lang.Class","java.lang.Class[]"] }]
+},
+{
   "name":"java.lang.invoke.VarHandle",
   "methods":[{"name":"releaseFence","parameterTypes":[] }]
+},
+{
+  "name":"java.lang.reflect.Method",
+  "methods":[
+    {"name":"isDefault","parameterTypes":[] }, 
+    {"name":"isVarArgs","parameterTypes":[] }
+  ]
+},
+{
+  "name":"java.nio.Buffer"
+},
+{
+  "name":"java.security.SecureRandomParameters"
 },
 {
   "name":"sun.misc.Unsafe",
   "allDeclaredFields":true
 },
 {
+  "name":"sun.security.provider.NativePRNG",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.provider.SHA",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"tui.view.Input$",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"tui.view.TextMap$",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"tui.view.View$Text",
+  "fields":[{"name":"0bitmap$2"}]
+},
+{
   "name":"zio.Chunk$",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"zio.ConfigProvider$",
   "fields":[{"name":"0bitmap$1"}]
 },
 {
@@ -43,6 +152,14 @@
 },
 {
   "name":"zio.FiberRef$",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"zio.Ref$Atomic",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"zio.StackTrace$",
   "fields":[{"name":"0bitmap$1"}]
 },
 {
@@ -62,7 +179,19 @@
   "fields":[{"name":"0bitmap$1"}]
 },
 {
+  "name":"zio.internal.FiberRuntime",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
   "name":"zio.package$",
   "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"zio.stm.ZSTM$",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"zio.stream.ZStream$",
+  "fields":[{"name":"0bitmap$2"}]
 }
 ]

@@ -1,2 +1,5 @@
 [
+  {
+    "interfaces":["org.jline.terminal.impl.jna.linux.CLibrary"]
+  }
 ]

@@ -1,13 +1,15 @@
-resolvers += Resolver.sonatypeRepo("snapshots")
+resolvers ++= Resolver.sonatypeOssRepos("snapshots")
+
 addSbtPlugin(
   "io.github.davidgregory084" % "sbt-tpolecat" %
-    "0.3.3"
+    "0.4.1"
 )
 addSbtPlugin(
   "org.scalameta" % "sbt-scalafmt" % "2.4.6"
 )
+
 addSbtPlugin(
-  "org.scalameta" % "sbt-mdoc" % "2.3.2"
+  "org.scalameta" % "sbt-mdoc" % "2.3.6"
 )
 
 addSbtPlugin(
@@ -16,15 +18,15 @@ addSbtPlugin(
 
 addSbtPlugin(
   "com.github.sbt" % "sbt-native-packager" %
-    "1.9.9"
+    "1.9.11"
 )
 
 addSbtPlugin(
-  "ch.epfl.scala" % "sbt-bloop" % "1032048a"
+  "ch.epfl.scala" % "sbt-bloop" % "1.5.4"
 )
 
 addSbtPlugin(
-  "ch.epfl.scala" % "sbt-scalafix" % "0.10.1"
+  "ch.epfl.scala" % "sbt-scalafix" % "0.10.4"
 )
 
 //lazy val MdToSourcePlugin =
@@ -35,3 +37,7 @@ addSbtPlugin(
 
 libraryDependencies +=
   "org.scalameta" %% "mdoc" % "2.2.23"
+
+ThisBuild / libraryDependencySchemes ++= Seq(
+  "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
+)
