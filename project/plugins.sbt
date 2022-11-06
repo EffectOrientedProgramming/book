@@ -1,4 +1,5 @@
-resolvers ++= Resolver.sonatypeOssRepos("snapshots")
+resolvers ++=
+  Resolver.sonatypeOssRepos("snapshots")
 
 addSbtPlugin(
   "io.github.davidgregory084" % "sbt-tpolecat" %
@@ -38,6 +39,8 @@ addSbtPlugin(
 libraryDependencies +=
   "org.scalameta" %% "mdoc" % "2.2.23"
 
-ThisBuild / libraryDependencySchemes ++= Seq(
-  "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
-)
+ThisBuild / libraryDependencySchemes ++=
+  Seq(
+    "org.scala-lang.modules" %% "scala-xml" %
+      VersionScheme.Always
+  )
