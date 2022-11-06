@@ -71,7 +71,7 @@ val thrownLogic =
   )
 // thrownLogic: ZIO[Any, Throwable, Nothing] = Stateful(
 //   trace = "repl.MdocSession.MdocApp.thrownLogic(15_Cause.md:42)",
-//   onState = zio.ZIOCompanionVersionSpecific$$Lambda$15518/1785209399@4b6eb084
+//   onState = zio.ZIOCompanionVersionSpecific$$Lambda$15579/1714947549@621f055f
 // )
 unsafeRunPrettyPrint(thrownLogic)
 // Should handle errors
