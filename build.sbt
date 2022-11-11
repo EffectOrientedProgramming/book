@@ -35,6 +35,7 @@ lazy val experiments = (project in file("experiments"))
 .settings(commonSettings).settings(fork:=true)
   .settings(
     libraryDependencies ++= Seq(
+      "org.apache.commons" % "commons-text" % "1.10.0",
       "io.github.scottweaver" %% "zio-2-0-testcontainers-postgresql" % "0.9.0",
       "io.github.scottweaver" %% "zio-2-0-db-migration-aspect" % "0.9.0",
           "io.getquill" %% "quill-jdbc-zio" % "4.6.0",

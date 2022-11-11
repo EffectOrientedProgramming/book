@@ -1,5 +1,8 @@
 package zio
 
+def bah = ???
+
+/*
 import scala.annotation.MainAnnotation.{
   Info,
   Parameter
@@ -41,3 +44,5 @@ class zioMain
   )(using parser: FromString[T]): () => Seq[T] =
     ???
 end zioMain
+
+*/
