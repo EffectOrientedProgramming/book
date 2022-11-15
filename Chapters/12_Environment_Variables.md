@@ -371,11 +371,10 @@ val testApiLayer =
   ) >>> SystemStrict.live >+> HotelApiZ.live
 ```
 
-```scala mdoc:fail
+```scala mdoc:crash
 import zio.Unsafe
 import zio.Runtime.default.unsafe
-Unsafe.unsafe { (u: Unsafe) =>
-  given Unsafe = u
+Unsafe.unsafely {
   unsafe
     .run(fancyLodging.provide(testApiLayer))
     .getOrThrowFiberFailure()
