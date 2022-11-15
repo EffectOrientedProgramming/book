@@ -1,5 +1,6 @@
 00_Copyright.md
 01_Introduction.md
+01_why_start_with_zio.md
 02_Why_Functional.md
 03_Monads.md
 04_Effects.md

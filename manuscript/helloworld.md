@@ -10,10 +10,11 @@ import zio.*
 
 import scala.annotation.{experimental, nowarn}
 
-@experimental
-@nowarn
-@zioMain
-def run = Console.printLine("hello, world")
+def blah = ???
+/* @experimental
+ * @nowarn
+ * @zioMain def run = Console.printLine("hello,
+ * world") */
 
 ```
 

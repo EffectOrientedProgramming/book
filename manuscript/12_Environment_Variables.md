@@ -225,11 +225,11 @@ val fancyLodging: ZIO[
 //     trace = "repl.MdocSession.MdocApp.HotelApiZ.cheapest(12_Environment_Variables.md:226)",
 //     first = Sync(
 //       trace = "repl.MdocSession.MdocApp.HotelApiZ.cheapest(12_Environment_Variables.md:226)",
-//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$15603/397822029@aaba2ae
+//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$15658/1504628963@57e54620
 //     ),
-//     successK = zio.ZIO$$$Lambda$15565/365149431@516f21c8
+//     successK = zio.ZIO$$$Lambda$15620/1618385567@40dedc1b
 //   ),
-//   successK = zio.ZIO$$Lambda$15559/639183452@69065211
+//   successK = zio.ZIO$$Lambda$15614/181098169@3b3acff0
 // )
 ```
 
@@ -338,14 +338,16 @@ val testApiLayer =
 ```scala
 import zio.Unsafe
 import zio.Runtime.default.unsafe
-Unsafe.unsafe { (u: Unsafe) =>
-  given Unsafe = u
+Unsafe.unsafely {
   unsafe
     .run(fancyLodging.provide(testApiLayer))
     .getOrThrowFiberFailure()
 }
-// error: 
-// Cannot call macro class Hotel defined in the same source file
+// Exception in thread "zio-fiber-200023" repl.MdocSession$MdocApp$Error: Error(Invalid API Key)
+// 	at repl.MdocSession.MdocApp.HotelApiZ.Live.cheapest(12_Environment_Variables.md:239)
+// 	at repl.MdocSession.MdocApp.HotelApiZ.Live.cheapest(12_Environment_Variables.md:240)
+// 	at repl.MdocSession.MdocApp.fancyLodging(12_Environment_Variables.md:262)
+// 	at repl.MdocSession.MdocApp.<local MdocApp>(12_Environment_Variables.md:394)
 ```
 
 ## Official ZIO Approach

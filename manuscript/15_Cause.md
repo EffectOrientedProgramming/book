@@ -14,7 +14,7 @@ val logic =
       )
     )
 unsafeRunPrettyPrint(logic)
-// Exception in thread "zio-fiber-200030" java.lang.Exception: Client connection lost
+// Exception in thread "zio-fiber-200033" java.lang.Exception: Client connection lost
 // 	at repl.MdocSession$MdocApp.$anonfun$1(15_Cause.md:12)
 // 	at zio.ZIO$.die$$anonfun$1(ZIO.scala:3017)
 // 	at zio.ZIO$.failCause$$anonfun$1(ZIO.scala:3088)
@@ -71,7 +71,7 @@ val thrownLogic =
   )
 // thrownLogic: ZIO[Any, Throwable, Nothing] = Stateful(
 //   trace = "repl.MdocSession.MdocApp.thrownLogic(15_Cause.md:42)",
-//   onState = zio.ZIOCompanionVersionSpecific$$Lambda$15579/1714947549@621f055f
+//   onState = zio.ZIOCompanionVersionSpecific$$Lambda$15634/1755843233@11425228
 // )
 unsafeRunPrettyPrint(thrownLogic)
 // Should handle errors

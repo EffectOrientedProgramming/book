@@ -258,7 +258,7 @@ Unsafe.unsafe { (u: Unsafe) =>
     .run(getTemperatureZ(Scenario.GPSError))
     .getOrThrowFiberFailure()
 }
-// Exception in thread "zio-fiber-200026" repl.MdocSession$MdocApp$GpsException: repl.MdocSession$MdocApp$GpsException
+// Exception in thread "zio-fiber-200029" repl.MdocSession$MdocApp$GpsException: repl.MdocSession$MdocApp$GpsException
 // 	at repl.MdocSession.MdocApp.<local MdocApp>.getTemperatureZ(14_Hello_Failures.md:151)
 // 	at repl.MdocSession.MdocApp.<local MdocApp>(14_Hello_Failures.md:181)
 // Caused by: repl.MdocSession$MdocApp$GpsException
@@ -350,7 +350,6 @@ unsafeRunTruncate(
 )
 // Defect: class scala.MatchError
 //         GpsException
-// res10: String | Unit | String = ()
 ```
 
 The compiler does not catch this bug, and instead fails at runtime. 
