@@ -4,11 +4,12 @@ import zio.*
 import zio.test.*
 import zio.test.TestAspect.*
 
-object FestivalSpec extends ZIOSpec[Festival]:
+object FestivalFencingUnavailableSpec extends ZIOSpec[Festival]:
+  val missingFencing: ZIO[Any, String, Fencing] = ZIO.fail("No fencing!")
   val bootstrap =
     ZLayer.make[Festival](
       festival,
-      fencing,
+      ZLayer.fromZIO(missingFencing),
       stage,
       speakers,
       wires,
@@ -25,4 +26,4 @@ object FestivalSpec extends ZIOSpec[Festival]:
     suite("Play some music")(
       test("Good festival")(assertCompletes)
     )
-end FestivalSpec
+end FestivalFencingUnavailableSpec

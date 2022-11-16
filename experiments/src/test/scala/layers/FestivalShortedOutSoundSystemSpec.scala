@@ -4,7 +4,7 @@ import zio.*
 import zio.test.*
 import zio.test.TestAspect.*
 
-object FestivalSpec extends ZIOSpec[Festival]:
+object FestivalShortedOutSoundSystemSpec extends ZIOSpec[Festival]:
   val bootstrap =
     ZLayer.make[Festival](
       festival,
@@ -13,7 +13,7 @@ object FestivalSpec extends ZIOSpec[Festival]:
       speakers,
       wires,
       amplifiers,
-      soundSystem,
+      soundSystemShortedOut,
       toilets,
       foodtruck,
       security,
@@ -25,4 +25,4 @@ object FestivalSpec extends ZIOSpec[Festival]:
     suite("Play some music")(
       test("Good festival")(assertCompletes)
     )
-end FestivalSpec
+end FestivalShortedOutSoundSystemSpec
