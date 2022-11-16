@@ -2,6 +2,75 @@
 
  
 
+### experiments/src/test/scala/layers/FestivalFencingUnavailableSpec.scala
+```scala
+package layers
+
+import zio.*
+import zio.test.*
+import zio.test.TestAspect.*
+
+object FestivalFencingUnavailableSpec extends ZIOSpec[Festival]:
+  val missingFencing: ZIO[Any, String, Fencing] = ZIO.fail("No fencing!")
+  val bootstrap =
+    ZLayer.make[Festival](
+      festival,
+      ZLayer.fromZIO(missingFencing),
+      stage,
+      speakers,
+      wires,
+      amplifiers,
+      soundSystem,
+      toilets,
+      foodtruck,
+      security,
+      venue,
+      permit
+    )
+
+  val spec =
+    suite("Play some music")(
+      test("Good festival")(assertCompletes)
+    )
+end FestivalFencingUnavailableSpec
+
+```
+
+
+### experiments/src/test/scala/layers/FestivalShortedOutSoundSystemSpec.scala
+```scala
+package layers
+
+import zio.*
+import zio.test.*
+import zio.test.TestAspect.*
+
+object FestivalShortedOutSoundSystemSpec extends ZIOSpec[Festival]:
+  val bootstrap =
+    ZLayer.make[Festival](
+      festival,
+      fencing,
+      stage,
+      speakers,
+      wires,
+      amplifiers,
+      soundSystemShortedOut,
+      toilets,
+      foodtruck,
+      security,
+      venue,
+      permit
+    )
+
+  val spec =
+    suite("Play some music")(
+      test("Good festival")(assertCompletes)
+    )
+end FestivalShortedOutSoundSystemSpec
+
+```
+
+
 ### experiments/src/test/scala/layers/FestivalSpec.scala
 ```scala
 package layers
@@ -27,32 +96,9 @@ object FestivalSpec extends ZIOSpec[Festival]:
       permit
     )
 
-  def halfFlaky[A](a: A): ZIO[Any, String, A] =
-    for
-      b <- zio.Random.nextBoolean.debug
-      o <-
-        ZIO
-          .cond(b, a, "failed")
-          .tapError(ZIO.logError(_))
-    yield o
-
-  val song =
-    for _ <- halfFlaky("works").debug
-    yield assertCompletes
-
-  val song1: Spec[Any, String] =
-    test("Song 1")(song)
-
-  val songFlaky
-      : Spec[Live & Annotations, String] =
-    test("Song Flaky")(song) @@ flaky(10) @@
-      withLiveRandom
-
   val spec =
     suite("Play some music")(
-      song1,
-      songFlaky,
-      test("Song 2")(assertCompletes)
+      test("Good festival")(assertCompletes)
     )
 end FestivalSpec
 

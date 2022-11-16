@@ -8,6 +8,7 @@
 - Repeat
 - Parallelism
 - Resource Safety
+- Mutability that you can trust
 - Human-readable
 - Cross-cutting Concerns / Observability / Regular Aspects
   - timed

@@ -34,6 +34,7 @@ interpreter-level1_nochaining.md
 bigdec.md
 typeclasses.md
 ZIOFromNothing.md
+experiments-src-test-scala-test_aspects.md
 testcontainers.md
 interpreter-level2_chaining.md
 Hubs.md
