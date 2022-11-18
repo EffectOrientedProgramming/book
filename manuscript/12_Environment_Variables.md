@@ -225,11 +225,11 @@ val fancyLodging: ZIO[
 //     trace = "repl.MdocSession.MdocApp.HotelApiZ.cheapest(12_Environment_Variables.md:226)",
 //     first = Sync(
 //       trace = "repl.MdocSession.MdocApp.HotelApiZ.cheapest(12_Environment_Variables.md:226)",
-//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$14657/1870041499@6b12e061
+//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$14825/1031931049@3bbd963f
 //     ),
-//     successK = zio.ZIO$$$Lambda$14604/694273357@40a1e5b7
+//     successK = zio.ZIO$$$Lambda$14782/1419101623@7d3abb3e
 //   ),
-//   successK = zio.ZIO$$Lambda$14598/2051173785@61dac11b
+//   successK = zio.ZIO$$Lambda$14776/1102096871@740c787f
 // )
 ```
 
@@ -291,6 +291,7 @@ unsafeRunPrettyPrint(
       collaborater
   )
 )
+// Should handle errors
 // res9: String = "Error(Invalid API Key)"
 ```
 
@@ -307,6 +308,7 @@ unsafeRunPrettyPrint(
     System.live >>> SystemStrict.live >+> ci
   )
 )
+// Should handle errors
 // res11: String = "Error(Unconfigured Environment)"
 ```
 
