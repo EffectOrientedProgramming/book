@@ -11,6 +11,6 @@ object HelloStreams extends ZIOAppDefault:
       insultStream = ZStream.repeatWithSchedule("Dummy", Schedule.spaced(2.seconds))
       combinedStream = ZStream.mergeAllUnbounded()(greetingStream, insultStream)
       aFewElements = combinedStream.take(6)
-      res <- aFewElements.run(ZSink.collectAll)
+      res <- aFewElements.runCollect
       _ <- ZIO.debug("Res: " + res)
     yield ()
