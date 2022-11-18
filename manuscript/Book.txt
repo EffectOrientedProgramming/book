@@ -48,6 +48,7 @@ HelloZio.md
 Parallelism.md
 game_theory.md
 scenarios.md
+streams.md
 logging.md
 fibers.md
 prelude.md
