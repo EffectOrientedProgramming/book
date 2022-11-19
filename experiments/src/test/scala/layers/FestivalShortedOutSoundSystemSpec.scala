@@ -4,7 +4,8 @@ import zio.*
 import zio.test.*
 import zio.test.TestAspect.*
 
-object FestivalShortedOutSoundSystemSpec extends ZIOSpec[Festival]:
+object FestivalShortedOutSoundSystemSpec
+    extends ZIOSpec[Festival]:
   val bootstrap =
     ZLayer.make[Festival](
       festival,

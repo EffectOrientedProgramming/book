@@ -4,8 +4,10 @@ import zio.*
 import zio.test.*
 import zio.test.TestAspect.*
 
-object FestivalFencingUnavailableSpec extends ZIOSpec[Festival]:
-  val missingFencing: ZIO[Any, String, Fencing] = ZIO.fail("No fencing!")
+object FestivalFencingUnavailableSpec
+    extends ZIOSpec[Festival]:
+  val missingFencing: ZIO[Any, String, Fencing] =
+    ZIO.fail("No fencing!")
   val bootstrap =
     ZLayer.make[Festival](
       festival,
