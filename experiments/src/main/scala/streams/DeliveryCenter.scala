@@ -6,6 +6,25 @@ import zio.stream.*
 case class Order()
 
 object DeliveryCenter extends ZIOAppDefault:
+  def handle(order: Order, staged: Ref[List[Order]]) =
+    val truckCapacity = 3
+    for
+      orders <- staged.updateAndGet(_ :+ order)
+      _ <-
+        if (orders.length == truckCapacity)
+          ZIO
+            .debug("Ship the orders!") *>
+            staged.set(List.empty)
+        else
+          ZIO.debug("Queuing order: " + (orders.length) + "/" + truckCapacity) *>
+            ZIO.when(orders.isEmpty)(
+                ZIO.whenZIO(staged.get.map(_.nonEmpty))(
+                  ZIO.debug("Truck has bit sitting half-full too long. Send it!") *>
+                    staged.set(List.empty)
+                ).delay(2.seconds)
+            ).forkDaemon
+    yield ()
+
   def run =
     (
       for
@@ -17,21 +36,8 @@ object DeliveryCenter extends ZIOAppDefault:
             Schedule.exponential(1.second)
           )
         _ <-
-          orderStream.foreach(order =>
-            for
-              orders <- stagedItems.get
-              _ <-
-                if (orders.length == 2)
-                  ZIO
-                    .debug("Ship the orders!") *>
-                    stagedItems.set(List.empty)
-                else
-                  ZIO.debug("Queuing order") *>
-                    stagedItems
-                      .update(_ :+ order)
-            yield ()
+          orderStream.foreach(handle(_, stagedItems)
           )
-//      _ <- orderStream.runDrain
       yield ()
-    ).timeout(10.seconds)
+    ).timeout(15.seconds)
 end DeliveryCenter

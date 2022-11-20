@@ -34,3 +34,17 @@ which might never happen, but also buffering a potentially unlimited number of p
 - Zionomicon
 
 TODO - Should we talk about unfold?
+"In addition to the basic variant of unfold there is also an effectual variant, unfoldZIO, 
+which allows performing an effect in the state transformation function. 
+This allows describing many types of streams, for example reading incrementally from a data source 
+while maintaining some cursor that represents where we currently are in reading from the data source."
+- Zionomicon
+
+"the signature of the foreach method on ZStream returns a ZIO effect and so it is safe to use. Using this, we can write code like:
+
+    val effect: ZIO[Any, Nothing, Unit] = for {
+        x <- ZStream(1, 2)
+        y <- ZStream(x, x + 3)
+    } Console.printLine((x, y).toString).orDie
+This now just describes running these two streams and printing the values they produce to the console."
+- Zionomicon
