@@ -258,16 +258,16 @@ Unsafe.unsafe { (u: Unsafe) =>
     .run(getTemperatureZ(Scenario.GPSError))
     .getOrThrowFiberFailure()
 }
-// Exception in thread "zio-fiber-200029" repl.MdocSession$MdocApp$GpsException: repl.MdocSession$MdocApp$GpsException
+// Exception in thread "zio-fiber-200021" repl.MdocSession$MdocApp$GpsException: repl.MdocSession$MdocApp$GpsException
 // 	at repl.MdocSession.MdocApp.<local MdocApp>.getTemperatureZ(14_Hello_Failures.md:151)
 // 	at repl.MdocSession.MdocApp.<local MdocApp>(14_Hello_Failures.md:181)
 // Caused by: repl.MdocSession$MdocApp$GpsException
 // 	at repl.MdocSession$MdocApp.getTemperatureZ$1$$anonfun$1(14_Hello_Failures.md:151)
-// 	at zio.ZIO$.fail$$anonfun$1(ZIO.scala:3082)
-// 	at zio.ZIO$.failCause$$anonfun$1(ZIO.scala:3088)
-// 	at zio.internal.FiberRuntime.runLoop(FiberRuntime.scala:1115)
+// 	at zio.ZIO$.fail$$anonfun$1(ZIO.scala:3083)
+// 	at zio.ZIO$.failCause$$anonfun$1(ZIO.scala:3089)
+// 	at zio.internal.FiberRuntime.runLoop(FiberRuntime.scala:1126)
 // 	at zio.internal.FiberRuntime.evaluateEffect(FiberRuntime.scala:384)
-// 	at zio.internal.FiberRuntime.start(FiberRuntime.scala:1369)
+// 	at zio.internal.FiberRuntime.start(FiberRuntime.scala:1380)
 // 	at zio.Runtime$UnsafeAPIV1.run(Runtime.scala:124)
 // 	at repl.MdocSession$MdocApp.$init$$$anonfun$2$$anonfun$1(14_Hello_Failures.md:181)
 // 	at zio.Unsafe$.unsafe(Unsafe.scala:37)

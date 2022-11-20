@@ -225,11 +225,11 @@ val fancyLodging: ZIO[
 //     trace = "repl.MdocSession.MdocApp.HotelApiZ.cheapest(12_Environment_Variables.md:226)",
 //     first = Sync(
 //       trace = "repl.MdocSession.MdocApp.HotelApiZ.cheapest(12_Environment_Variables.md:226)",
-//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$14744/897034736@66de5a2f
+//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$15555/1126641792@8d12d94
 //     ),
-//     successK = zio.ZIO$$$Lambda$14678/2134424460@566eef3d
+//     successK = zio.ZIO$$$Lambda$15505/1933639946@22ec61c7
 //   ),
-//   successK = zio.ZIO$$Lambda$14672/63806491@5398bdd8
+//   successK = zio.ZIO$$Lambda$15499/1175916183@1f35fa60
 // )
 ```
 
@@ -291,6 +291,7 @@ unsafeRunPrettyPrint(
       collaborater
   )
 )
+// Should handle errors
 // res9: String = "Error(Invalid API Key)"
 ```
 
@@ -307,6 +308,7 @@ unsafeRunPrettyPrint(
     System.live >>> SystemStrict.live >+> ci
   )
 )
+// Should handle errors
 // res11: String = "Error(Unconfigured Environment)"
 ```
 
@@ -343,7 +345,7 @@ Unsafe.unsafely {
     .run(fancyLodging.provide(testApiLayer))
     .getOrThrowFiberFailure()
 }
-// Exception in thread "zio-fiber-200023" repl.MdocSession$MdocApp$Error: Error(Invalid API Key)
+// Exception in thread "zio-fiber-200017" repl.MdocSession$MdocApp$Error: Error(Invalid API Key)
 // 	at repl.MdocSession.MdocApp.HotelApiZ.Live.cheapest(12_Environment_Variables.md:239)
 // 	at repl.MdocSession.MdocApp.HotelApiZ.Live.cheapest(12_Environment_Variables.md:240)
 // 	at repl.MdocSession.MdocApp.fancyLodging(12_Environment_Variables.md:262)
