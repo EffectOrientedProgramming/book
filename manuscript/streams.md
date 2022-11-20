@@ -34,6 +34,21 @@ which might never happen, but also buffering a potentially unlimited number of p
 - Zionomicon
 
 TODO - Should we talk about unfold?
+"In addition to the basic variant of unfold there is also an effectual variant, unfoldZIO, 
+which allows performing an effect in the state transformation function. 
+This allows describing many types of streams, for example reading incrementally from a data source 
+while maintaining some cursor that represents where we currently are in reading from the data source."
+- Zionomicon
+
+"the signature of the foreach method on ZStream returns a ZIO effect and so it is safe to use. Using this, we can write code like:
+
+    val effect: ZIO[Any, Nothing, Unit] = for {
+        x <- ZStream(1, 2)
+        y <- ZStream(x, x + 3)
+    } Console.printLine((x, y).toString).orDie
+This now just describes running these two streams and printing the values they produce to the console."
+- Zionomicon
+
 
 ## Automatically attached experiments.
  These are included at the end of this
@@ -54,6 +69,40 @@ import zio.stream.*
 case class Order()
 
 object DeliveryCenter extends ZIOAppDefault:
+  def handle(
+      order: Order,
+      staged: Ref[List[Order]]
+  ) =
+    val truckCapacity = 3
+    for
+      orders <- staged.updateAndGet(_ :+ order)
+      _ <-
+        if (orders.length == truckCapacity)
+          ZIO.debug("Ship the orders!") *>
+            staged.set(List.empty)
+        else
+          ZIO.debug(
+            "Queuing order: " +
+              (orders.length) + "/" +
+              truckCapacity
+          ) *>
+            ZIO
+              .when(orders.isEmpty)(
+                ZIO
+                  .whenZIO(
+                    staged.get.map(_.nonEmpty)
+                  )(
+                    ZIO.debug(
+                      "Truck has bit sitting half-full too long. Send it!"
+                    ) *> staged.set(List.empty)
+                  )
+                  .delay(2.seconds)
+              )
+              .forkDaemon
+    yield ()
+    end for
+  end handle
+
   def run =
     (
       for
@@ -65,23 +114,10 @@ object DeliveryCenter extends ZIOAppDefault:
             Schedule.exponential(1.second)
           )
         _ <-
-          orderStream.foreach(order =>
-            for
-              orders <- stagedItems.get
-              _ <-
-                if (orders.length == 2)
-                  ZIO
-                    .debug("Ship the orders!") *>
-                    stagedItems.set(List.empty)
-                else
-                  ZIO.debug("Queuing order") *>
-                    stagedItems
-                      .update(_ :+ order)
-            yield ()
-          )
-//      _ <- orderStream.runDrain
+          orderStream
+            .foreach(handle(_, stagedItems))
       yield ()
-    ).timeout(10.seconds)
+    ).timeout(15.seconds)
 end DeliveryCenter
 
 ```
