@@ -9,7 +9,8 @@ object DeliveryCenter extends ZIOAppDefault:
   sealed trait Truck
   case class TruckInUse(
       queued: List[Order],
-      fuse: Promise[Nothing, Unit]
+      fuse: Promise[Nothing, Unit],
+      capacity: Int = 3
   ) extends Truck
   case class TruckEmpty() extends Truck
   def handle(order: Order, staged: Ref[Truck]) =
@@ -17,39 +18,36 @@ object DeliveryCenter extends ZIOAppDefault:
       ZIO.debug("Ship the orders!") *>
         staged.set(TruckEmpty())
 
-    val truckCapacity = 3
+    val loadTruck =
+      for
+        latch <- Promise.make[Nothing, Unit]
+        truck <-
+          staged.updateAndGet(truck =>
+            truck match
+              case TruckInUse(queued, fuse, capacity) =>
+                TruckInUse(queued :+ order, fuse, capacity)
+              case TruckEmpty() =>
+                TruckInUse(List(order), latch)
+          ).map(_.asInstanceOf[TruckInUse])
+        _ <-
+          ZIO.debug(
+            "Loading order: " +
+              (truck.queued.length) + "/" +
+              truck.capacity
+          )
+      yield truck
+
     for
-      // TODO Only make this down below
-      latch <- Promise.make[Nothing, Unit]
-      truckZ <-
-        staged.updateAndGet(truck =>
-          truck match
-            case TruckInUse(queued, fuse) =>
-              TruckInUse(queued :+ order, fuse)
-            case TruckEmpty() =>
-              TruckInUse(List(order), latch)
-        )
-      truck =
-        truckZ match
-          case t: TruckInUse =>
-            t
-          case TruckEmpty() =>
-            ???
+      truck <- loadTruck
       _ <-
-        ZIO.debug(
-          "Queuing order: " +
-            (truck.queued.length) + "/" +
-            truckCapacity
-        )
-      _ <-
-        if (truck.queued.length == truckCapacity)
+        if (truck.queued.length == truck.capacity)
           shipIt *> truck.fuse.succeed(())
         else
           ZIO
             .when(truck.queued.length == 1)(
               ZIO
                 .whenZIO(
-                  latch.isDone.map(done => !done)
+                  truck.fuse.isDone.map(done => !done)
                 )(
                   ZIO.debug(
                     "Truck has bit sitting half-full too long."
