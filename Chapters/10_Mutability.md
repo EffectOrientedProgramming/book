@@ -7,24 +7,6 @@ However, it is easy to find situations that are intrinsically mutable.
 - How many people are currently inside a building?
 - How much fuel is in your car?
 - How much money is in your bank account?
-- TODO more
-
-*TODO Consider deleting*
-It is true that many of these concepts can be derived from a sequence of state transformations.
-For example, the number of people in a building can be calculated from the number of people who have entered the building and the number of people who have left the building.
-
-```
-Seq(
-  Entered(2),
-  Exited(1),
-  Entered(3),
-  Exited(2),
-)
-```
-However, this can be tedious to work with.
-We want a way to jump straight to the current state of the system.
-*/TODO Consider deleting*
-    
 
 Rather than avoiding mutability entirely, we want to avoid unprincipled, unsafe mutability.
 If we codify and enumerate everything that we need from Mutability, then we can wield it safely.
