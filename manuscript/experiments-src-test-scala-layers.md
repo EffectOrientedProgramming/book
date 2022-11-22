@@ -11,10 +11,10 @@ import zio.test.*
 import zio.test.TestAspect.*
 
 object FestivalFencingUnavailableSpec
-    extends ZIOSpec[Festival]:
+    extends ZIOSpecDefault:
   val missingFencing: ZIO[Any, String, Fencing] =
     ZIO.fail("No fencing!")
-  val bootstrap =
+  private val brokenFestival: ZLayer[Any, String, Festival] =
     ZLayer.make[Festival](
       festival,
       ZLayer.fromZIO(missingFencing),
@@ -32,7 +32,14 @@ object FestivalFencingUnavailableSpec
 
   val spec =
     suite("Play some music")(
-      test("Good festival")(assertCompletes)
+      test("Good festival")(
+        (for
+          _ <- ZIO.service[Festival]
+        yield assertCompletes)
+          .provide(brokenFestival)
+          .withClock(Clock.ClockLive)
+          .catchAll(e => ZIO.debug("Expected error: " + e) *> ZIO.succeed(assertCompletes))
+      )
     )
 end FestivalFencingUnavailableSpec
 
