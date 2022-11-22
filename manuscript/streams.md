@@ -68,81 +68,93 @@ import zio.stream.*
 
 case class Order()
 
+/** Possible stages to demo:
+  *   1. Ship individual orders as they come 2.
+  *      Queue up multiple items and then send 3.
+  *      Ship partially-filled truck if it has
+  *      been waiting too long
+  */
 object DeliveryCenter extends ZIOAppDefault:
   sealed trait Truck
+
   case class TruckInUse(
       queued: List[Order],
-      fuse: Promise[Nothing, Unit]
-  ) extends Truck
+      fuse: Promise[Nothing, Unit],
+      capacity: Int = 3
+  ) extends Truck:
+    val isFull: Boolean =
+      queued.length == capacity
+
   case class TruckEmpty() extends Truck
+
   def handle(order: Order, staged: Ref[Truck]) =
-    val shipIt =
-      ZIO.debug("Ship the orders!") *>
+    def shipIt(reason: String) =
+      ZIO.debug(reason + " Ship the orders!") *>
         staged.set(TruckEmpty())
 
-    val truckCapacity = 3
+    val loadTruck =
+      for
+        latch <- Promise.make[Nothing, Unit]
+        truck <-
+          staged
+            .updateAndGet(truck =>
+              truck match
+                case t: TruckInUse =>
+                  t.copy(queued =
+                    t.queued :+ order
+                  )
+                case TruckEmpty() =>
+                  TruckInUse(List(order), latch)
+            )
+            .map(_.asInstanceOf[TruckInUse])
+        _ <-
+          ZIO.debug(
+            "Loading order: " +
+              truck.queued.length + "/" +
+              truck.capacity
+          )
+      yield truck
+
+    def shipIfWaitingTooLong(truck: TruckInUse) =
+      ZIO
+        .whenZIO(
+          truck.fuse.isDone.map(done => !done)
+        )(
+          shipIt(reason =
+            "Truck has bit sitting half-full too long."
+          )
+        )
+        .delay(4.seconds)
+
     for
-      // TODO Only make this down below
-      latch <- Promise.make[Nothing, Unit]
-      truckZ <-
-        staged.updateAndGet(truck =>
-          truck match
-            case TruckInUse(queued, fuse) =>
-              TruckInUse(queued :+ order, fuse)
-            case TruckEmpty() =>
-              TruckInUse(List(order), latch)
-        )
-      truck =
-        truckZ match
-          case t: TruckInUse =>
-            t
-          case TruckEmpty() =>
-            ???
+      truck <- loadTruck
       _ <-
-        ZIO.debug(
-          "Queuing order: " +
-            (truck.queued.length) + "/" +
-            truckCapacity
-        )
-      _ <-
-        if (truck.queued.length == truckCapacity)
-          shipIt *> truck.fuse.succeed(())
+        if (truck.isFull)
+          shipIt(reason = "Truck is full.")
         else
           ZIO
             .when(truck.queued.length == 1)(
-              ZIO
-                .whenZIO(
-                  latch.isDone.map(done => !done)
-                )(
-                  ZIO.debug(
-                    "Truck has bit sitting half-full too long."
-                  ) *> shipIt
-                )
-                .delay(4.seconds)
+              shipIfWaitingTooLong(truck)
             )
             .forkDaemon
     yield ()
-    end for
   end handle
 
   def run =
-    (
-      for
-        stagedItems <-
-          Ref.make[Truck](TruckEmpty())
-        orderStream =
-          ZStream.repeatWithSchedule(
-            Order(),
-            Schedule.exponential(
-              1.second,
-              factor = 1.8
-            )
-          )
-        _ <-
-          orderStream
-            .foreach(handle(_, stagedItems))
-      yield ()
-    ).timeout(12.seconds)
+    for
+      stagedItems <-
+        Ref.make[Truck](TruckEmpty())
+      orderStream =
+        ZStream.repeatWithSchedule(
+          Order(),
+          Schedule
+            .exponential(1.second, factor = 1.8)
+        )
+      _ <-
+        orderStream
+          .foreach(handle(_, stagedItems))
+          .timeout(12.seconds)
+    yield ()
 end DeliveryCenter
 
 ```
