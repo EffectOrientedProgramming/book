@@ -27,14 +27,12 @@ object DeliveryCenter extends ZIOAppDefault:
         .isDone
         .map(done => !done)
 
-  case class TruckEmpty() extends Truck
-
-  def handle(order: Order, staged: Ref[Truck]) =
+  def handle(order: Order, staged: Ref[Option[TruckInUse]]) =
     def shipIt(reason: String) =
       ZIO.debug(reason + " Ship the orders!") *>
-        staged.get.flatMap(_.asInstanceOf[TruckInUse].fuse.succeed(())) *>
+        staged.get.flatMap(_.get.fuse.succeed(())) *>
         // TODO Should complete latch here before clearing out value
-        staged.set(TruckEmpty())
+        staged.set(None)
 
     val loadTruck =
       for
@@ -43,11 +41,11 @@ object DeliveryCenter extends ZIOAppDefault:
           staged
             .updateAndGet(truck =>
               truck match
-                case t: TruckInUse => t.copy(queued = t.queued :+ order)
-                case TruckEmpty() =>
-                  TruckInUse(List(order), latch)
+                case Some(t) => Some(t.copy(queued = t.queued :+ order))
+                case None =>
+                  Some(TruckInUse(List(order), latch))
             )
-            .map(_.asInstanceOf[TruckInUse])
+            .map(_.get)
         _ <-
           ZIO.debug(
             "Loading order: " +
@@ -86,7 +84,7 @@ object DeliveryCenter extends ZIOAppDefault:
   def run =
     for
       stagedItems <-
-        Ref.make[Truck](TruckEmpty())
+        Ref.make[Option[TruckInUse]](None)
       orderStream =
         ZStream.repeatWithSchedule(
           Order(),
