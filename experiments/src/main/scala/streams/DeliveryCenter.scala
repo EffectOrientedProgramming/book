@@ -22,11 +22,18 @@ object DeliveryCenter extends ZIOAppDefault:
     val isFull: Boolean =
       queued.length == capacity
 
+    val waitingTooLong =
+        fuse
+        .isDone
+        .map(done => !done)
+
   case class TruckEmpty() extends Truck
 
   def handle(order: Order, staged: Ref[Truck]) =
     def shipIt(reason: String) =
       ZIO.debug(reason + " Ship the orders!") *>
+        staged.get.flatMap(_.asInstanceOf[TruckInUse].fuse.succeed(())) *>
+        // TODO Should complete latch here before clearing out value
         staged.set(TruckEmpty())
 
     val loadTruck =
@@ -52,10 +59,7 @@ object DeliveryCenter extends ZIOAppDefault:
     def shipIfWaitingTooLong(truck: TruckInUse) =
       ZIO
         .whenZIO(
-          truck
-            .fuse
-            .isDone
-            .map(done => !done)
+          truck.waitingTooLong
         )(
           shipIt(reason =
             "Truck has bit sitting half-full too long."
@@ -71,6 +75,7 @@ object DeliveryCenter extends ZIOAppDefault:
         else
           ZIO
             .when(truck.queued.length == 1)(
+              ZIO.debug("Adding timeout daemon") *>
                 shipIfWaitingTooLong(truck)
             )
             .forkDaemon
