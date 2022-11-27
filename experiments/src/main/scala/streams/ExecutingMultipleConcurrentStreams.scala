@@ -1,11 +1,22 @@
 package streams
 
-import zio._
-import zio.stream._
+import zio.*
+import zio.stream.*
+
+import java.io.File
 
 object ExecutingMultipleConcurrentStreams extends ZIOAppDefault:
   val userActions =
-    ZStream("login", "post:I_feel_happy", "post:_I_want_to_buy_something", "updateAccount", "logout", "post:_I_want_to_buy_something_expensive")
+    ZStream("login", "post:I feel happy", "post: I want to buy something", "updateAccount", "logout", "post:I want to buy something expensive")
+      .mapZIO(action => ZIO.sleep(1.seconds) *> ZIO.succeed(action))
+//      .throttleShape(1, 1.seconds, 2)(_.length)
+
+  val actionBytes: ZStream[Any, Nothing, Byte] =
+    userActions.flatMap( action => ZStream.fromIterable((action + "\n").getBytes))
+  val filePipeline: ZPipeline[Any, Throwable, Byte, Long] = ZPipeline.fromSink(
+    ZSink.fromFile(new File("target/output"))
+  )
+  val writeActionsToFile = actionBytes >>> filePipeline
 
   val marketingData =
     userActions.filter( action => action.contains("buy"))
@@ -20,4 +31,4 @@ object ExecutingMultipleConcurrentStreams extends ZIOAppDefault:
     accountAuthentication.mapZIO(event => ZIO.debug("Security info: "  + event))
 
   def run =
-    ZStream.mergeAllUnbounded()(marketingActions, auditingReport).runDrain
+    ZStream.mergeAllUnbounded()(marketingActions, auditingReport, writeActionsToFile).runDrain
