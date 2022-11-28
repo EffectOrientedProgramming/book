@@ -16,6 +16,7 @@ import java.sql.Connection
 import javax.sql.DataSource
 
 object UserActionSpec
+/*
     extends ZIOSpec[DataSource & JdbcInfo]:
   val bootstrap = SharedDbLayer.layer
 
@@ -31,3 +32,5 @@ object UserActionSpec
     ).provideSomeShared[DataSource](
       UserActionServiceLive.layer
     )
+
+*/

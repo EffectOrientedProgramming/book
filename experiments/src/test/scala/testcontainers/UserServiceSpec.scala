@@ -9,11 +9,13 @@ import io.github.scottweaver.zio.testcontainers.postgres.ZPostgreSQLContainer.Se
 import io.github.scottweaver.zio.testcontainers.postgres.ZPostgreSQLContainer
 import io.github.scottweaver.zio.aspect.DbMigrationAspect
 import org.postgresql.ds.PGSimpleDataSource
+import zio.test.TestAspect.ignore
 
 import java.sql.Connection
 import javax.sql.DataSource
 
 object UserServiceSpec
+/*
     extends ZIOSpec[DataSource & JdbcInfo]:
   val bootstrap = SharedDbLayer.layer
   def spec =
@@ -37,3 +39,5 @@ object UserServiceSpec
       UserServiceLive.layer
     )
 end UserServiceSpec
+
+*/
