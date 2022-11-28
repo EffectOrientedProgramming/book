@@ -55,8 +55,8 @@ import zio.test.*
 import zio.test.TestAspect.*
 
 object FestivalShortedOutSoundSystemSpec
-    extends ZIOSpec[Festival]:
-  val bootstrap =
+    extends ZIOSpecDefault:
+  val brokenFestival: ZLayer[Any, String, Festival] =
     ZLayer.make[Festival](
       festival,
       fencing,
@@ -74,7 +74,14 @@ object FestivalShortedOutSoundSystemSpec
 
   val spec =
     suite("Play some music")(
-      test("Good festival")(assertCompletes)
+      test("Good festival")(
+        (for
+          _ <- ZIO.service[Festival]
+        yield assertCompletes)
+          .provide(brokenFestival)
+          .withClock(Clock.ClockLive)
+          .catchAll(e => ZIO.debug("Expected error: " + e) *> ZIO.succeed(assertCompletes))
+      )
     )
 end FestivalShortedOutSoundSystemSpec
 
