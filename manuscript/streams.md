@@ -85,12 +85,21 @@ object DeliveryCenter extends ZIOAppDefault:
     val isFull: Boolean =
       queued.length == capacity
 
-  case class TruckEmpty() extends Truck
+    val waitingTooLong =
+      fuse.isDone.map(done => !done)
 
-  def handle(order: Order, staged: Ref[Truck]) =
+  def handle(
+      order: Order,
+      staged: Ref[Option[TruckInUse]]
+  ) =
     def shipIt(reason: String) =
       ZIO.debug(reason + " Ship the orders!") *>
-        staged.set(TruckEmpty())
+        staged
+          .get
+          .flatMap(_.get.fuse.succeed(())) *>
+        // TODO Should complete latch here before
+        // clearing out value
+        staged.set(None)
 
     val loadTruck =
       for
@@ -99,14 +108,21 @@ object DeliveryCenter extends ZIOAppDefault:
           staged
             .updateAndGet(truck =>
               truck match
-                case t: TruckInUse =>
-                  t.copy(queued =
-                    t.queued :+ order
+                case Some(t) =>
+                  Some(
+                    t.copy(queued =
+                      t.queued :+ order
+                    )
                   )
-                case TruckEmpty() =>
-                  TruckInUse(List(order), latch)
+                case None =>
+                  Some(
+                    TruckInUse(
+                      List(order),
+                      latch
+                    )
+                  )
             )
-            .map(_.asInstanceOf[TruckInUse])
+            .map(_.get)
         _ <-
           ZIO.debug(
             "Loading order: " +
@@ -117,9 +133,7 @@ object DeliveryCenter extends ZIOAppDefault:
 
     def shipIfWaitingTooLong(truck: TruckInUse) =
       ZIO
-        .whenZIO(
-          truck.fuse.isDone.map(done => !done)
-        )(
+        .whenZIO(truck.waitingTooLong)(
           shipIt(reason =
             "Truck has bit sitting half-full too long."
           )
@@ -134,7 +148,9 @@ object DeliveryCenter extends ZIOAppDefault:
         else
           ZIO
             .when(truck.queued.length == 1)(
-              shipIfWaitingTooLong(truck)
+              ZIO.debug(
+                "Adding timeout daemon"
+              ) *> shipIfWaitingTooLong(truck)
             )
             .forkDaemon
     yield ()
@@ -143,7 +159,7 @@ object DeliveryCenter extends ZIOAppDefault:
   def run =
     for
       stagedItems <-
-        Ref.make[Truck](TruckEmpty())
+        Ref.make[Option[TruckInUse]](None)
       orderStream =
         ZStream.repeatWithSchedule(
           Order(),
@@ -156,6 +172,75 @@ object DeliveryCenter extends ZIOAppDefault:
           .timeout(12.seconds)
     yield ()
 end DeliveryCenter
+
+```
+
+
+### experiments/src/main/scala/streams/ExecutingMultipleConcurrentStreams.scala
+```scala
+package streams
+
+import zio.*
+import zio.stream.*
+
+import java.io.File
+
+object ExecutingMultipleConcurrentStreams
+    extends ZIOAppDefault:
+  val userActions =
+    ZStream(
+      "login",
+      "post:I feel happy",
+      "post: I want to buy something",
+      "updateAccount",
+      "logout",
+      "post:I want to buy something expensive"
+    ).mapZIO(action =>
+      ZIO.sleep(1.seconds) *> ZIO.succeed(action)
+    )
+//      .throttleShape(1, 1.seconds, 2)(_.length)
+
+  val actionBytes: ZStream[Any, Nothing, Byte] =
+    userActions.flatMap(action =>
+      ZStream
+        .fromIterable((action + "\n").getBytes)
+    )
+  val filePipeline
+      : ZPipeline[Any, Throwable, Byte, Long] =
+    ZPipeline.fromSink(
+      ZSink.fromFile(new File("target/output"))
+    )
+  val writeActionsToFile =
+    actionBytes >>> filePipeline
+
+  val marketingData =
+    userActions
+      .filter(action => action.contains("buy"))
+
+  val marketingActions =
+    marketingData.mapZIO(marketingDataPoint =>
+      ZIO.debug("$$ info: " + marketingDataPoint)
+    )
+
+  val accountAuthentication =
+    userActions.filter(action =>
+      action == "login" || action == "logout"
+    )
+
+  val auditingReport =
+    accountAuthentication.mapZIO(event =>
+      ZIO.debug("Security info: " + event)
+    )
+
+  def run =
+    ZStream
+      .mergeAllUnbounded()(
+        marketingActions,
+        auditingReport,
+        writeActionsToFile
+      )
+      .runDrain
+end ExecutingMultipleConcurrentStreams
 
 ```
 
@@ -191,6 +276,70 @@ object HelloStreams extends ZIOAppDefault:
       _   <- ZIO.debug("Res: " + res)
     yield ()
 end HelloStreams
+
+```
+
+
+### experiments/src/main/scala/streams/Scanning.scala
+```scala
+package streams
+
+import zio._
+import zio.stream._
+
+object Scanning extends ZIOAppDefault:
+  enum GdpDirection:
+    case GROWING,
+      SHRINKING
+
+  enum EconomicStatus:
+    case GOOD_TIMES,
+      RECESSION
+
+  import GdpDirection._
+  import EconomicStatus._
+
+  case class EconomicHistory(
+      quarters: Seq[GdpDirection],
+      economicStatus: EconomicStatus
+  )
+
+  object EconomicHistory:
+    def apply(
+        quarters: Seq[GdpDirection]
+    ): EconomicHistory =
+      EconomicHistory(
+        quarters,
+        if (
+          quarters
+            .sliding(2)
+            .toList
+            .lastOption
+            .contains(List(SHRINKING, SHRINKING))
+        )
+          RECESSION
+        else
+          GOOD_TIMES
+      )
+
+  val gdps =
+    ZStream(
+      GROWING,
+      SHRINKING,
+      GROWING,
+      SHRINKING,
+      SHRINKING
+    )
+  val economicSnapshots =
+    gdps.scan(EconomicHistory(List.empty))(
+      (history, gdp) =>
+        EconomicHistory(history.quarters :+ gdp)
+    )
+  def run =
+    economicSnapshots.runForeach(snapShot =>
+      ZIO.debug(snapShot)
+    )
+end Scanning
 
 ```
 
