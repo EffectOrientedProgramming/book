@@ -5,12 +5,12 @@ import zio.stream.*
 
 case class Order()
 
-/**
- * Possible stages to demo:
- *  1. Ship individual orders as they come
- *  2. Queue up multiple items and then send
- *  3. Ship partially-filled truck if it has been waiting too long
- */
+/** Possible stages to demo:
+  *   1. Ship individual orders as they come 2.
+  *      Queue up multiple items and then send 3.
+  *      Ship partially-filled truck if it has
+  *      been waiting too long
+  */
 object DeliveryCenter extends ZIOAppDefault:
   sealed trait Truck
 
@@ -23,15 +23,19 @@ object DeliveryCenter extends ZIOAppDefault:
       queued.length == capacity
 
     val waitingTooLong =
-        fuse
-        .isDone
-        .map(done => !done)
+      fuse.isDone.map(done => !done)
 
-  def handle(order: Order, staged: Ref[Option[TruckInUse]]) =
+  def handle(
+      order: Order,
+      staged: Ref[Option[TruckInUse]]
+  ) =
     def shipIt(reason: String) =
       ZIO.debug(reason + " Ship the orders!") *>
-        staged.get.flatMap(_.get.fuse.succeed(())) *>
-        // TODO Should complete latch here before clearing out value
+        staged
+          .get
+          .flatMap(_.get.fuse.succeed(())) *>
+        // TODO Should complete latch here before
+        // clearing out value
         staged.set(None)
 
     val loadTruck =
@@ -41,9 +45,19 @@ object DeliveryCenter extends ZIOAppDefault:
           staged
             .updateAndGet(truck =>
               truck match
-                case Some(t) => Some(t.copy(queued = t.queued :+ order))
+                case Some(t) =>
+                  Some(
+                    t.copy(queued =
+                      t.queued :+ order
+                    )
+                  )
                 case None =>
-                  Some(TruckInUse(List(order), latch))
+                  Some(
+                    TruckInUse(
+                      List(order),
+                      latch
+                    )
+                  )
             )
             .map(_.get)
         _ <-
@@ -56,9 +70,7 @@ object DeliveryCenter extends ZIOAppDefault:
 
     def shipIfWaitingTooLong(truck: TruckInUse) =
       ZIO
-        .whenZIO(
-          truck.waitingTooLong
-        )(
+        .whenZIO(truck.waitingTooLong)(
           shipIt(reason =
             "Truck has bit sitting half-full too long."
           )
@@ -73,12 +85,12 @@ object DeliveryCenter extends ZIOAppDefault:
         else
           ZIO
             .when(truck.queued.length == 1)(
-              ZIO.debug("Adding timeout daemon") *>
-                shipIfWaitingTooLong(truck)
+              ZIO.debug(
+                "Adding timeout daemon"
+              ) *> shipIfWaitingTooLong(truck)
             )
             .forkDaemon
     yield ()
-    end for
   end handle
 
   def run =

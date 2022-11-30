@@ -8,7 +8,8 @@ object FestivalFencingUnavailableSpec
     extends ZIOSpecDefault:
   val missingFencing: ZIO[Any, String, Fencing] =
     ZIO.fail("No fencing!")
-  private val brokenFestival: ZLayer[Any, String, Festival] =
+  private val brokenFestival
+      : ZLayer[Any, String, Festival] =
     ZLayer.make[Festival](
       festival,
       ZLayer.fromZIO(missingFencing),
@@ -27,12 +28,15 @@ object FestivalFencingUnavailableSpec
   val spec =
     suite("Play some music")(
       test("Good festival")(
-        (for
-          _ <- ZIO.service[Festival]
-        yield assertCompletes)
-          .provide(brokenFestival)
+        (
+          for _ <- ZIO.service[Festival]
+          yield assertCompletes
+        ).provide(brokenFestival)
           .withClock(Clock.ClockLive)
-          .catchAll(e => ZIO.debug("Expected error: " + e) *> ZIO.succeed(assertCompletes))
+          .catchAll(e =>
+            ZIO.debug("Expected error: " + e) *>
+              ZIO.succeed(assertCompletes)
+          )
       )
     )
 end FestivalFencingUnavailableSpec
