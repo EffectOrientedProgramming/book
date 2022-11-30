@@ -13,3 +13,5 @@ This is maximally informative, but it is also a lot of boilerplate code.
 ## 2.x
 Late in the development of ZIO 2.0, the team decided to bake these deeper into the runtime.
 Now you can use any of these services without an impact on your method signatures.
+This reduces boilerplate, with a trade-off.
+You can no longer discern _which_ piece of the Environment/Runtime is being accessed by reading the signature.
