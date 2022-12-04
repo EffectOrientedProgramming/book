@@ -193,7 +193,6 @@ TODO {{Update verbiage now that ZIO section is first}}
 
 ```scala mdoc
 import zio.ZIO
-import zio.Unsafe
 import mdoc.unsafeRunPrettyPrint
 
 def getTemperatureZ(behavior: Scenario): ZIO[
