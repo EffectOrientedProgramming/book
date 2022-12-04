@@ -194,7 +194,6 @@ TODO {{Update verbiage now that ZIO section is first}}
 ```scala mdoc
 import zio.ZIO
 import zio.Unsafe
-import zio.Runtime.default.unsafe
 import mdoc.unsafeRunPrettyPrint
 
 def getTemperatureZ(behavior: Scenario): ZIO[
@@ -239,8 +238,6 @@ We are re-using the  `displayTemperature`
 
 ```scala mdoc
 import zio.{Task, ZIO}
-import zio.Unsafe
-import zio.Runtime.default.unsafe
 ```
 
 ```scala mdoc

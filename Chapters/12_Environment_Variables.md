@@ -371,14 +371,12 @@ val testApiLayer =
   ) >>> SystemStrict.live >+> HotelApiZ.live
 ```
 
-```scala mdoc:crash
-import zio.Unsafe
-import zio.Runtime.default.unsafe
-Unsafe.unsafely {
-  unsafe
-    .run(fancyLodging.provide(testApiLayer))
-    .getOrThrowFiberFailure()
-}
+```scala mdoc
+import mdoc.unsafeRunPrettyPrint
+
+unsafeRunPrettyPrint(
+  fancyLodging.provide(testApiLayer)
+)
 ```
 
 ## Official ZIO Approach
@@ -440,13 +438,8 @@ object Exercise1Solution extends Exercise1:
 ```
 
 ```scala mdoc
-import zio.Unsafe
-import zio.Runtime.default.unsafe
 val exercise1case1 =
-  Unsafe.unsafe { (u: Unsafe) =>
-    given Unsafe = u
-    unsafe
-      .run(
+  unsafeRunPrettyPrint(
         Exercise1Solution
           .envOrFail("key")
           .provide(
@@ -455,17 +448,12 @@ val exercise1case1 =
             )
           )
       )
-      .getOrThrowFiberFailure()
-  }
 assert(exercise1case1 == "value")
 ```
 
 ```scala mdoc
 val exercise1case2 =
-  Unsafe.unsafe { (u: Unsafe) =>
-    given Unsafe = u
-    unsafe
-      .run(
+  unsafeRunPrettyPrint(
         Exercise1Solution
           .envOrFail("key")
           .catchSome {
@@ -476,8 +464,6 @@ val exercise1case2 =
             TestSystem.live(Data(envs = Map()))
           )
       )
-      .getOrThrowFiberFailure()
-  }
 
 assert(exercise1case2 == "Expected Error")
 ```
