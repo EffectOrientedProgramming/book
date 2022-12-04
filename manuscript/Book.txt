@@ -2,7 +2,6 @@
 01_why_start_with_zio.md
 01_Introduction.md
 02_Why_Functional.md
-03_Monads.md
 04_Effects.md
 05_Unit.md
 06_The_ZIO_Type.md

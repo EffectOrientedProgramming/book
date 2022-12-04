@@ -204,7 +204,7 @@ TODO {{Update verbiage now that ZIO section is first}}
 ```scala
 import zio.ZIO
 import zio.Unsafe
-import zio.Runtime.default.unsafe
+import mdoc.unsafeRunPrettyPrint
 
 def getTemperatureZ(behavior: Scenario): ZIO[
   Any,
@@ -219,59 +219,34 @@ def getTemperatureZ(behavior: Scenario): ZIO[
   else
     ZIO.succeed("30 degrees")
 
-Unsafe.unsafe { (u: Unsafe) =>
-  given Unsafe = u
-  unsafe
-    .run(getTemperatureZ(Scenario.Success))
-    .getOrThrowFiberFailure()
-}
+unsafeRunPrettyPrint(getTemperatureZ(Scenario.Success))
 // res6: String = "30 degrees"
 ```
 
 ```scala
-Unsafe.unsafe { (u: Unsafe) =>
-  given Unsafe = u
-  unsafe
-    .run(
+unsafeRunPrettyPrint(
       getTemperatureZ(Scenario.Success)
         .catchAll { case ex: NetworkException =>
           ZIO.succeed("Network Unavailable")
         }
-    )
-    .getOrThrowFiberFailure()
-}
+)
 // error:
 // match may not be exhaustive.
 // 
 // It would fail on pattern case: _: GpsException
 // 
-// Unsafe.unsafe { (u: Unsafe) =>
-//                ^
+//          ZIO.succeed("Unexpected error: " + other)
+//                                            ^
 ```
 
 TODO Demonstrate ZIO calculating the error types without an explicit annotation being provided
 
 ```scala
-Unsafe.unsafe { (u: Unsafe) =>
-  given Unsafe = u
-  unsafe
-    .run(getTemperatureZ(Scenario.GPSError))
-    .getOrThrowFiberFailure()
-}
-// Exception in thread "zio-fiber-200021" repl.MdocSession$MdocApp$GpsException: repl.MdocSession$MdocApp$GpsException
-// 	at repl.MdocSession.MdocApp.<local MdocApp>.getTemperatureZ(14_Hello_Failures.md:151)
-// 	at repl.MdocSession.MdocApp.<local MdocApp>(14_Hello_Failures.md:181)
-// Caused by: repl.MdocSession$MdocApp$GpsException
-// 	at repl.MdocSession$MdocApp.getTemperatureZ$1$$anonfun$1(14_Hello_Failures.md:151)
-// 	at zio.ZIO$.fail$$anonfun$1(ZIO.scala:3083)
-// 	at zio.ZIO$.failCause$$anonfun$1(ZIO.scala:3089)
-// 	at zio.internal.FiberRuntime.runLoop(FiberRuntime.scala:1126)
-// 	at zio.internal.FiberRuntime.evaluateEffect(FiberRuntime.scala:384)
-// 	at zio.internal.FiberRuntime.start(FiberRuntime.scala:1380)
-// 	at zio.Runtime$UnsafeAPIV1.run(Runtime.scala:124)
-// 	at repl.MdocSession$MdocApp.$init$$$anonfun$2$$anonfun$1(14_Hello_Failures.md:181)
-// 	at zio.Unsafe$.unsafe(Unsafe.scala:37)
-// 	at repl.MdocSession$MdocApp.$init$$$anonfun$2(14_Hello_Failures.md:182)
+unsafeRunPrettyPrint(
+    getTemperatureZ(Scenario.GPSError)
+)
+// Should handle errors
+// res8: String = "repl.MdocSession$MdocApp$GpsException"
 ```
 
 ### Wrapping Legacy Code
@@ -283,8 +258,6 @@ We are re-using the  `displayTemperature`
 
 ```scala
 import zio.{Task, ZIO}
-import zio.Unsafe
-import zio.Runtime.default.unsafe
 ```
 
 ```scala
@@ -302,32 +275,21 @@ def displayTemperatureZWrapped(
 ```
 
 ```scala
-import zio.Runtime.default.unsafe
-Unsafe.unsafe { (u: Unsafe) =>
-  given Unsafe = u
-  unsafe
-    .run(
+unsafeRunPrettyPrint(
       displayTemperatureZWrapped(
         Scenario.Success
       )
-    )
-    .getOrThrowFiberFailure()
-}
-// res8: String = "35 degrees"
+)
+// res9: String = "35 degrees"
 ```
 
 ```scala
-Unsafe.unsafe { (u: Unsafe) =>
-  given Unsafe = u
-  unsafe
-    .run(
+unsafeRunPrettyPrint(
       displayTemperatureZWrapped(
         Scenario.NetworkError
       )
-    )
-    .getOrThrowFiberFailure()
-}
-// res9: String = "Network Unavailable"
+)
+// res10: String = "Network Unavailable"
 ```
 
 This is decent, but does not provide the maximum possible guarantees. Look at what happens if we forget to handle one of our errors.
@@ -353,6 +315,53 @@ unsafeRunTruncate(
 ```
 
 The compiler does not catch this bug, and instead fails at runtime. 
+Take extra care when interacting with legacy code, since we cannot automatically recognize these situations at compile time.
+We have 2 options in these situations.
+
+First, we can provide a fallback case that will report anything we missed:
+```scala
+def getTemperatureZWithFallback(
+    behavior: Scenario
+): ZIO[Any, Nothing, String] =
+  ZIO
+    .attempt(displayTemperature(behavior))
+    .catchAll { 
+       case ex: NetworkException =>
+         ZIO.succeed("Network Unavailable")
+       case other =>
+         ZIO.succeed("Unexpected error: " + other)
+    }
+```
+
+```scala
+unsafeRunPrettyPrint(
+  getTemperatureZWithFallback(Scenario.GPSError)
+)
+// res12: String = "Unexpected error: repl.MdocSession$MdocApp$GpsException"
+```
+
+This lets us avoid the most egregious gaps in functionality, but it does not take full advantage of ZIO's type-safety.
+```scala
+def getTemperatureZAndFlagUnhandled(
+    behavior: Scenario
+): ZIO[Any, GpsException, String] =
+  ZIO
+    .attempt(displayTemperature(behavior))
+    .catchSome { 
+       case ex: NetworkException =>
+         ZIO.succeed("Network Unavailable")
+    }
+    // TODO Eh, find a better version of this.
+    .mapError(_.asInstanceOf[GpsException])
+```
+
+```scala
+unsafeRunPrettyPrint(
+  getTemperatureZAndFlagUnhandled(Scenario.GPSError)
+)
+// Should handle errors
+// res13: String = "repl.MdocSession$MdocApp$GpsException"
+```
 
 
 {{TODO show catchSome}}
