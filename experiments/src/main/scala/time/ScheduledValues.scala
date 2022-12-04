@@ -45,7 +45,7 @@ def scheduledValues[A](
 
 // TODO Some comments, tests, examples, etc to
 // make this function more obvious
-private def createTimeTableX[A](
+private[time] def createTimeTableX[A](
     startTime: Instant,
     value: (Duration, A),
     values: (Duration, A)*
@@ -78,7 +78,7 @@ private def createTimeTableX[A](
   * Output: ( ("8:01", "value1"), ("8:03",
   * "value2") )
   */
-private def accessX[A](
+private[time] def accessX[A](
     timeTable: Seq[ExpiringValue[A]]
 ): ZIO[Any, TimeoutException, A] =
   for
