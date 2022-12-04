@@ -9,38 +9,42 @@ import scala.concurrent.TimeoutException
 object ScheduledValuesSpec extends ZIOSpecDefault:
   def spec =
     suite("ScheduledValues")(
-    suite("timeTableX")(
-      test("simple")(
-        for
-          _ <- ZIO.debug("TODO Test something!")
-          timeTable <- ZIO.succeed(
-            createTimeTableX(Instant.parse("2000-01-01T00:00:00.00Z"),
-              (1.seconds, "First Section"),
-              (2.seconds, "Second Section"),
-            )
-          )
-        yield assertCompletes
-      )
-
-    ),
       suite("scheduledValues")(
-        test("simple")(
+        test("querying after no time has passed returns the first value, if duration was > 0")(
+          for
+            valueAccessor <- scheduledValues(
+              (1.seconds, "First Section"),
+            )
+            firstValue <- valueAccessor
+          yield assertTrue(firstValue == "First Section")
+        ),
+        test("querying after no time has passed fails when the duration == 0")(
+          for
+            valueAccessor <- scheduledValues(
+              (0.seconds, "First Section"),
+            )
+            _ <- valueAccessor.flip
+          yield assertCompletes
+        ),
+        test("next value is returned after enough time has elapsed")(
           for
             valueAccessor <- scheduledValues(
               (1.seconds, "First Section"),
               (2.seconds, "Second Section"),
             )
-            firstValue <- valueAccessor
             _ <- TestClock.adjust(1.seconds)
             secondValue <- valueAccessor
+          yield
+            assertTrue(secondValue == "Second Section")
+        ),
+        test("time range end is not inclusive")(
+          for
+            valueAccessor <- scheduledValues(
+              (1.seconds, "First Section"),
+            )
             _ <- TestClock.adjust(1.seconds)
-            thirdValue <- valueAccessor
-            _ <- TestClock.adjust(5.seconds)
-            failure <- valueAccessor.flip
-          yield assertTrue(firstValue == "First Section") &&
-            assertTrue(secondValue == "Second Section") &&
-            assertTrue(thirdValue == "Second Section") &&
-            assertTrue(failure.getMessage == "TOO LATE") &&
+            _ <- valueAccessor.flip
+          yield
             assertCompletes
         )
       )
