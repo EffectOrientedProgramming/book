@@ -14,23 +14,20 @@ object MdocHelperSpec extends ZIOSpecDefault:
       test(
         "Intercept and format MatchError from unhandled RuntimeException"
       ) {
-        for
-          _ <-
-            mdoc.wrapUnsafeZIO(
-              ZIO.succeed(
-                throw new MatchError(
-                  MdocSession.App.GpsException()
+        for output <-
+            ZIO.succeed(
+              unsafeRunPrettyPrint(
+                ZIO.succeed(
+                  throw new MatchError(
+                    MdocSession
+                      .App
+                      .GpsException()
+                  )
                 )
               )
             )
-          output <- TestConsole.output
-        yield assert(output)(
-          equalTo(
-            Vector(
-              "Defect: class scala.MatchError\n",
-              "        GpsException\n"
-            )
-          )
+        yield assertTrue(
+          output == "Defect: GpsException"
         )
       }
     )

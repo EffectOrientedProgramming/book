@@ -2,7 +2,7 @@
 
 `Cause` will track all errors originating from a single call in an application, regardless of concurrency and parallelism.
 
-```scala mdoc:crash
+```scala mdoc:silent
 import zio._
 import mdoc.unsafeRunPrettyPrint
 val logic =
@@ -13,6 +13,8 @@ val logic =
         throw new Exception("Release Failed")
       )
     )
+```
+```scala mdoc
 unsafeRunPrettyPrint(logic)
 ```
 

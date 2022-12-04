@@ -129,10 +129,10 @@ import zio.ZLayer
 import zio.Runtime.default.unsafe
 
 unsafeRunPrettyPrint(
-        logic.provide(
-          ZLayer.succeed[Console](ConsoleLive)
-        )
-      )
+  logic.provide(
+    ZLayer.succeed[Console](ConsoleLive)
+  )
+)
 ```
 
 ### Four: Create `object Effect.live` field
@@ -151,7 +151,7 @@ Now executing our code is as simple as describing it.
 
 ```scala mdoc
 unsafeRunPrettyPrint(
-      logic.provide(ConsoleWithLayer.live)
+  logic.provide(ConsoleWithLayer.live)
 )
 ```
 
@@ -218,14 +218,15 @@ object ConsoleSanitized extends Console:
 ```scala mdoc:silent
 val leakSensitiveInfo
     : ZIO[Console, java.io.IOException, Unit] =
-  zio.Console
+  zio
+    .Console
     .printLine("Customer SSN is 000-00-0000")
 ```
 
 ```scala mdoc
 unsafeRunPrettyPrint(
-      leakSensitiveInfo.provide(
-        ZLayer.succeed[Console](ConsoleSanitized)
-      )
+  leakSensitiveInfo.provide(
+    ZLayer.succeed[Console](ConsoleSanitized)
+  )
 )
 ```

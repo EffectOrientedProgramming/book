@@ -440,30 +440,30 @@ object Exercise1Solution extends Exercise1:
 ```scala mdoc
 val exercise1case1 =
   unsafeRunPrettyPrint(
-        Exercise1Solution
-          .envOrFail("key")
-          .provide(
-            TestSystem.live(
-              Data(envs = Map("key" -> "value"))
-            )
-          )
+    Exercise1Solution
+      .envOrFail("key")
+      .provide(
+        TestSystem.live(
+          Data(envs = Map("key" -> "value"))
+        )
       )
+  )
 assert(exercise1case1 == "value")
 ```
 
 ```scala mdoc
 val exercise1case2 =
   unsafeRunPrettyPrint(
-        Exercise1Solution
-          .envOrFail("key")
-          .catchSome {
-            case _: NoSuchElementException =>
-              ZIO.succeed("Expected Error")
-          }
-          .provide(
-            TestSystem.live(Data(envs = Map()))
-          )
+    Exercise1Solution
+      .envOrFail("key")
+      .catchSome {
+        case _: NoSuchElementException =>
+          ZIO.succeed("Expected Error")
+      }
+      .provide(
+        TestSystem.live(Data(envs = Map()))
       )
+  )
 
 assert(exercise1case2 == "Expected Error")
 ```
