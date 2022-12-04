@@ -13,33 +13,10 @@ val logic =
         throw new Exception("Release Failed")
       )
     )
+```
+```scala
 unsafeRunPrettyPrint(logic)
-// Exception in thread "zio-fiber-200027" java.lang.Exception: Client connection lost
-// 	at repl.MdocSession$MdocApp.$anonfun$1(15_Cause.md:12)
-// 	at zio.ZIO$.die$$anonfun$1(ZIO.scala:3018)
-// 	at zio.ZIO$.failCause$$anonfun$1(ZIO.scala:3089)
-// 	at repl.MdocSession.MdocApp.<local MdocApp>.logic(15_Cause.md:12)
-// 	at repl.MdocSession.MdocApp.<local MdocApp>.logic(15_Cause.md:17)
-// 	at mdoc.MdocHelpers$package.wrapUnsafeZIOReportError(MdocHelpers.scala:80)
-// 	at mdoc.MdocHelpers$package.wrapUnsafeZIOReportError(MdocHelpers.scala:93)
-// 	at mdoc.MdocHelpers$package.unsafeRunPrettyPrint(MdocHelpers.scala:103)
-// 	Suppressed: java.lang.Exception: Release Failed
-// 		at repl.MdocSession$MdocApp.$anonfun$2$$anonfun$1(15_Cause.md:15)
-// 		at zio.ZIO$.die$$anonfun$1(ZIO.scala:3018)
-// 		at zio.ZIO$.failCause$$anonfun$1(ZIO.scala:3089)
-// 		at repl.MdocSession.MdocApp.<local MdocApp>.logic(15_Cause.md:16)
-// 		at repl.MdocSession.MdocApp.<local MdocApp>.logic(15_Cause.md:17)
-// 		at mdoc.MdocHelpers$package.wrapUnsafeZIOReportError(MdocHelpers.scala:80)
-// 		at mdoc.MdocHelpers$package.wrapUnsafeZIOReportError(MdocHelpers.scala:93)
-// 		at mdoc.MdocHelpers$package.unsafeRunPrettyPrint(MdocHelpers.scala:103)
-// Caused by: java.lang.Exception: Client connection lost
-// 	at repl.MdocSession$MdocApp.$anonfun$1(15_Cause.md:12)
-// 	at zio.ZIO$.die$$anonfun$1(ZIO.scala:3018)
-// 	at zio.ZIO$.failCause$$anonfun$1(ZIO.scala:3089)
-// 	at zio.internal.FiberRuntime.runLoop(FiberRuntime.scala:1126)
-// 	at zio.internal.FiberRuntime.evaluateEffect(FiberRuntime.scala:384)
-// 	at zio.internal.FiberRuntime.start(FiberRuntime.scala:1380)
-// 	at zio.Runtime$UnsafeAPIV1.run(Runtime.scala:124)
+// res0: String = "Defect: java.lang.Exception: Client connection "
 ```
 
 Cause allows you to aggregate multiple errors of the same type
@@ -70,12 +47,11 @@ val thrownLogic =
         throw new Exception("Release Failed")
   )
 // thrownLogic: ZIO[Any, Throwable, Nothing] = Stateful(
-//   trace = "repl.MdocSession.MdocApp.thrownLogic(15_Cause.md:42)",
-//   onState = zio.ZIOCompanionVersionSpecific$$Lambda$14326/758576934@102aad95
+//   trace = "repl.MdocSession.MdocApp.thrownLogic(15_Cause.md:49)",
+//   onState = zio.ZIOCompanionVersionSpecific$$Lambda$14233/1614473292@6e7789dd
 // )
 unsafeRunPrettyPrint(thrownLogic)
-// Should handle errors
-// res0: String = "java.lang.Exception: Release Failed"
+// res1: String = "java.lang.Exception: Release Failed"
 ```
 
 We will only see the later `pool` problem.

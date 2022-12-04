@@ -225,11 +225,11 @@ val fancyLodging: ZIO[
 //     trace = "repl.MdocSession.MdocApp.HotelApiZ.cheapest(12_Environment_Variables.md:226)",
 //     first = Sync(
 //       trace = "repl.MdocSession.MdocApp.HotelApiZ.cheapest(12_Environment_Variables.md:226)",
-//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$14352/1384713122@18123b3
+//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$14257/1010029820@4153ac5b
 //     ),
-//     successK = zio.ZIO$$$Lambda$14289/1265120128@53932f7d
+//     successK = zio.ZIO$$$Lambda$14200/54380339@2152d92c
 //   ),
-//   successK = zio.ZIO$$Lambda$14282/91884869@4026cdfc
+//   successK = zio.ZIO$$Lambda$14183/1012647035@3706a34d
 // )
 ```
 
@@ -291,7 +291,6 @@ unsafeRunPrettyPrint(
       collaborater
   )
 )
-// Should handle errors
 // res9: String = "Error(Invalid API Key)"
 ```
 
@@ -308,7 +307,6 @@ unsafeRunPrettyPrint(
     System.live >>> SystemStrict.live >+> ci
   )
 )
-// Should handle errors
 // res11: String = "Error(Unconfigured Environment)"
 ```
 
@@ -343,7 +341,6 @@ import mdoc.unsafeRunPrettyPrint
 unsafeRunPrettyPrint(
   fancyLodging.provide(testApiLayer)
 )
-// Should handle errors
 // res12: String = "Error(Invalid API Key)"
 ```
 
@@ -390,14 +387,14 @@ trait Exercise1:
 ```scala
 val exercise1case1 =
   unsafeRunPrettyPrint(
-        Exercise1Solution
-          .envOrFail("key")
-          .provide(
-            TestSystem.live(
-              Data(envs = Map("key" -> "value"))
-            )
-          )
+    Exercise1Solution
+      .envOrFail("key")
+      .provide(
+        TestSystem.live(
+          Data(envs = Map("key" -> "value"))
+        )
       )
+  )
 // exercise1case1: String = "value"
 assert(exercise1case1 == "value")
 ```
@@ -405,16 +402,16 @@ assert(exercise1case1 == "value")
 ```scala
 val exercise1case2 =
   unsafeRunPrettyPrint(
-        Exercise1Solution
-          .envOrFail("key")
-          .catchSome {
-            case _: NoSuchElementException =>
-              ZIO.succeed("Expected Error")
-          }
-          .provide(
-            TestSystem.live(Data(envs = Map()))
-          )
+    Exercise1Solution
+      .envOrFail("key")
+      .catchSome {
+        case _: NoSuchElementException =>
+          ZIO.succeed("Expected Error")
+      }
+      .provide(
+        TestSystem.live(Data(envs = Map()))
       )
+  )
 // exercise1case2: String = "Expected Error"
 
 assert(exercise1case2 == "Expected Error")

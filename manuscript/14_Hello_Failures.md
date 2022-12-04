@@ -47,6 +47,7 @@ This can take many forms.
 If we don't make any attempt to handle our problem, the whole program blows up and shows the gory details to the user.
 
 ```scala
+// Note - Can't make this output prettier/simpler because it's *not* using ZIO
 currentTemperatureUnsafe(Scenario.NetworkError)
 // repl.MdocSession$MdocApp$NetworkException
 // 	at repl.MdocSession$MdocApp.displayTemperature(14_Hello_Failures.md:25)
@@ -203,7 +204,6 @@ TODO {{Update verbiage now that ZIO section is first}}
 
 ```scala
 import zio.ZIO
-import zio.Unsafe
 import mdoc.unsafeRunPrettyPrint
 
 def getTemperatureZ(behavior: Scenario): ZIO[
@@ -219,33 +219,32 @@ def getTemperatureZ(behavior: Scenario): ZIO[
   else
     ZIO.succeed("30 degrees")
 
-unsafeRunPrettyPrint(getTemperatureZ(Scenario.Success))
+unsafeRunPrettyPrint(
+  getTemperatureZ(Scenario.Success)
+)
 // res6: String = "30 degrees"
 ```
 
 ```scala
 unsafeRunPrettyPrint(
-      getTemperatureZ(Scenario.Success)
-        .catchAll { case ex: NetworkException =>
-          ZIO.succeed("Network Unavailable")
-        }
+  getTemperatureZ(Scenario.Success).catchAll {
+    case ex: NetworkException =>
+      ZIO.succeed("Network Unavailable")
+  }
 )
-// error:
+// error: 
 // match may not be exhaustive.
 // 
 // It would fail on pattern case: _: GpsException
-// 
-//          ZIO.succeed("Unexpected error: " + other)
-//                                            ^
+//
 ```
 
 TODO Demonstrate ZIO calculating the error types without an explicit annotation being provided
 
 ```scala
 unsafeRunPrettyPrint(
-    getTemperatureZ(Scenario.GPSError)
+  getTemperatureZ(Scenario.GPSError)
 )
-// Should handle errors
 // res8: String = "repl.MdocSession$MdocApp$GpsException"
 ```
 
@@ -276,18 +275,16 @@ def displayTemperatureZWrapped(
 
 ```scala
 unsafeRunPrettyPrint(
-      displayTemperatureZWrapped(
-        Scenario.Success
-      )
+  displayTemperatureZWrapped(Scenario.Success)
 )
 // res9: String = "35 degrees"
 ```
 
 ```scala
 unsafeRunPrettyPrint(
-      displayTemperatureZWrapped(
-        Scenario.NetworkError
-      )
+  displayTemperatureZWrapped(
+    Scenario.NetworkError
+  )
 )
 // res10: String = "Network Unavailable"
 ```
@@ -306,12 +303,10 @@ def getTemperatureZGpsGap(
 ```
 
 ```scala
-import mdoc.unsafeRunTruncate
-unsafeRunTruncate(
+unsafeRunPrettyPrint(
   getTemperatureZGpsGap(Scenario.GPSError)
 )
-// Defect: class scala.MatchError
-//         GpsException
+// res11: String = "Defect: GpsException"
 ```
 
 The compiler does not catch this bug, and instead fails at runtime. 
@@ -325,11 +320,11 @@ def getTemperatureZWithFallback(
 ): ZIO[Any, Nothing, String] =
   ZIO
     .attempt(displayTemperature(behavior))
-    .catchAll { 
-       case ex: NetworkException =>
-         ZIO.succeed("Network Unavailable")
-       case other =>
-         ZIO.succeed("Unexpected error: " + other)
+    .catchAll {
+      case ex: NetworkException =>
+        ZIO.succeed("Network Unavailable")
+      case other =>
+        ZIO.succeed("Unexpected error: " + other)
     }
 ```
 
@@ -347,9 +342,8 @@ def getTemperatureZAndFlagUnhandled(
 ): ZIO[Any, GpsException, String] =
   ZIO
     .attempt(displayTemperature(behavior))
-    .catchSome { 
-       case ex: NetworkException =>
-         ZIO.succeed("Network Unavailable")
+    .catchSome { case ex: NetworkException =>
+      ZIO.succeed("Network Unavailable")
     }
     // TODO Eh, find a better version of this.
     .mapError(_.asInstanceOf[GpsException])
@@ -357,9 +351,10 @@ def getTemperatureZAndFlagUnhandled(
 
 ```scala
 unsafeRunPrettyPrint(
-  getTemperatureZAndFlagUnhandled(Scenario.GPSError)
+  getTemperatureZAndFlagUnhandled(
+    Scenario.GPSError
+  )
 )
-// Should handle errors
 // res13: String = "repl.MdocSession$MdocApp$GpsException"
 ```
 

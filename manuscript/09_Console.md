@@ -7,14 +7,15 @@ This is generally the first effect that we will want as we learn to construct fu
 It is so basic that most languages do not consider it as anything special.
 The typical first scala program is something like:
 
-```scala // mdoc
+```scala
 println("Hi there.")
+// Hi there.
 ```
 
 Simple enough, and familiar to anyone that has programmed before.
 Take a look at the signature of this function in the Scala `Predef` object:
 
-```scala // mdoc:nest
+```scala
 def println(x: Any): Unit = ???
 ```
 
@@ -47,7 +48,7 @@ If we succeed, the reader will add them when creating their own Effects.
 This `trait` represents a piece of the `Environment` that our codes need to interact with.
 It contains the methods for effectful interactions.
 
-```scala // mdoc
+```scala
 import zio.ZIO
 
 trait Console:
@@ -58,7 +59,7 @@ trait Console:
 
 ### Two: Create the implementation
 
-```scala // mdoc
+```scala
 object ConsoleLive extends Console:
   def printLine(
       output: String
@@ -74,7 +75,6 @@ TODO{Determine how to best split the 2 pieces we need to add to the same `object
 The first two steps are enough for us to track Effects in our system, but the ergonomics are not great.
 
 ```scala
-// NON-MDOC. TODO Fix before release
 val logicClunky: ZIO[Console, Nothing, Unit] =
   for
     _ <-
@@ -86,25 +86,25 @@ val logicClunky: ZIO[Console, Nothing, Unit] =
         _.printLine("World")
       )
   yield ()
+```
 
-import zio.Runtime.default.unsafe
-import zio.Unsafe
+```scala
+import mdoc.unsafeRunPrettyPrint
 import zio.ZLayer
-  Unsafe.unsafe { (u: Unsafe) =>
-    given Unsafe = u
-    unsafe
-      .run(
-        logicClunky.provide(
-          ZLayer.succeed[Console](ConsoleLive)
-        )
-      )
-      .getOrThrowFiberFailure()
-  }
+
+unsafeRunPrettyPrint(
+  logicClunky.provide(
+    ZLayer.succeed[Console](ConsoleLive)
+  )
+)
+// Hello
+// World
+// res1: String = "()"
 ```
 
 The caller has to handle the ZIO environment access, which is a distraction from the logic they want to implement.
 
-```scala // mdoc
+```scala
 // TODO Consider deleting this entirely
 
 // TODO remove alt companions and make top-level
@@ -118,7 +118,7 @@ object ConsoleWithAccessor:
 
 With this function, our callers have a much nicer experience.
 
-```scala // mdoc
+```scala
 val logic: ZIO[Console, Nothing, Unit] =
   for
     _ <- ConsoleWithAccessor.printLine("Hello")
@@ -129,26 +129,22 @@ val logic: ZIO[Console, Nothing, Unit] =
 However, providing dependencies to the logic is still tedious.
 
 ```scala
-// NON-MDOC. TODO Fix before release
 import zio.ZLayer
 import zio.Runtime.default.unsafe
-  Unsafe.unsafe { (u: Unsafe) =>
-    given Unsafe = u
-    unsafe
-      .run(
-        logic.provide(
-          ZLayer.succeed[Console](ConsoleLive)
-        )
-      )
-      .getOrThrowFiberFailure()
-  }
+
+unsafeRunPrettyPrint(
+  logic.provide(
+    ZLayer.succeed[Console](ConsoleLive)
+  )
+)
+// res2: String = "()"
 ```
 
 ### Four: Create `object Effect.live` field
 
 Rather than making each caller wrap our instance in a `Layer`, we can do that a single time in our companion.
 
-```scala // mdoc
+```scala
 import zio.ZLayer
 
 object ConsoleWithLayer:
@@ -159,12 +155,10 @@ object ConsoleWithLayer:
 Now executing our code is as simple as describing it.
 
 ```scala
-// NON-MDOC. TODO Fix before release
-  Unsafe.unsafe { (u: Unsafe) =>
-    unsafe
-      .run(logic.provide(ConsoleWithLayer.live))
-      .getOrThrowFiberFailure()
-  }
+unsafeRunPrettyPrint(
+  logic.provide(ConsoleWithLayer.live)
+)
+// res3: String = "()"
 ```
 
 In real application, both of these will go in the companion object directly.
@@ -190,13 +184,14 @@ TODO
 #### Single expression debugging
 When debugging code, we often want to stick a `println` among our logic.
 
-```scala // mdoc
+```scala
 def crunch(a: Int, b: Int) = (a * 2) / (a * 10)
 ```
 Historically, this has caused friction for chained expressions.
 We must surround our expression in braces, in order to add this _statement_ before it.
+TODO Disclaimer that this is less compelling in a "fewer braces" world
 
-```scala // mdoc
+```scala
 def crunchDebugged(a: Int, b: Int) =
   println("")
   a * a
@@ -204,17 +199,16 @@ def crunchDebugged(a: Int, b: Int) =
 
 
 ```scala
-// NON-MDOC. TODO Fix before release
-import zio.ZIOAppDefault
-import mdoc.unsafeRunPrettyPrint
-
 unsafeRunPrettyPrint(
   ZIO.debug("ping") *>
     ConsoleLive.printLine("Normal logic")
 )
+// ping
+// Normal logic
+// res4: String = "()"
 ```
 
-```scala // mdoc
+```scala
 object ConsoleSanitized extends Console:
   private val socialSecurity =
     "\\d{3}-\\d{2}-\\d{4}"
@@ -230,24 +224,22 @@ object ConsoleSanitized extends Console:
     ConsoleLive.printLine(sanitized)
 ```
 
-```scala // mdoc:silent
+```scala
 val leakSensitiveInfo
-    : ZIO[Console, Nothing, Unit] =
-  Console
+    : ZIO[Console, java.io.IOException, Unit] =
+  zio
+    .Console
     .printLine("Customer SSN is 000-00-0000")
 ```
 
 ```scala
-// NON-MDOC. TODO Fix before release
-Unsafe.unsafe { (u: Unsafe) =>
-  unsafe
-    .run(
-      leakSensitiveInfo.provide(
-        ZLayer.succeed[Console](ConsoleSanitized)
-      )
-    )
-    .getOrThrowFiberFailure()
-}
+unsafeRunPrettyPrint(
+  leakSensitiveInfo.provide(
+    ZLayer.succeed[Console](ConsoleSanitized)
+  )
+)
+// Customer SSN is 000-00-0000
+// res5: String = "()"
 ```
 
 
