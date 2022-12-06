@@ -1,27 +1,13 @@
 package crypto
 
 import zio.Console.{printLine, readLine}
-import zio.{
-  Clock,
-  Console,
-  Fiber,
-  IO,
-  Random,
-  Ref,
-  Runtime,
-  Schedule,
-  UIO,
-  URIO,
-  ZIO,
-  ZIOAppDefault,
-  ZLayer,
-  durationInt
-}
+import zio.{Clock, Console, Fiber, IO, Random, Ref, Runtime, Schedule, UIO, URIO, ZIO, ZIOAppDefault, ZLayer, durationInt}
 import zio.Clock.currentTime
 import zio.Duration.*
 import zio.Random.*
 
 import java.io.IOException
+import scala.annotation.tailrec
 
 object Mining extends ZIOAppDefault:
 
@@ -36,12 +22,13 @@ object Mining extends ZIOAppDefault:
     // Inefficiently determines if the input
     // number is prime.
     def isPrime(num: Int): Boolean =
-      (2 until num).forall(_ % 1 != 0)
+      (2 until num).forall(divisor => num % divisor != 0)
 
     // Recursively iterates up from starting
     // value, num, until it finds a prime number,
     // which it returns
-    def findNextPrime(num: Int): Int =
+    @tailrec
+    private def findNextPrime(num: Int): Int =
       if (isPrime(num))
         num
       else
@@ -89,7 +76,7 @@ object Mining extends ZIOAppDefault:
       // prime numbers)
       for
         startNum <-
-          nextIntBetween(20000000, 40000000)
+          nextIntBetween(200000, 400000)
         raceResult <-
           findNextBlock(miners, startNum)
         (winner, winningPrime) = raceResult
