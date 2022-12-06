@@ -7,7 +7,7 @@ import zio._
 import mdoc.unsafeRunPrettyPrint
 val logic =
   ZIO
-    .die(new Exception("Client connection lost"))
+    .die(new Exception("Connection lost"))
     .ensuring(
       ZIO.die(
         throw new Exception("Release Failed")

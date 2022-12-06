@@ -29,11 +29,74 @@ object MdocHelperSpec extends ZIOSpecDefault:
         yield assertTrue(
           output == "Defect: GpsException"
         )
+      },
+      test(
+        "Ensure successful result lines are all below length limit"
+      )(
+        for _ <-
+            ZIO
+              .attempt(
+                unsafeRunPrettyPrint(
+                  ZIO.succeed("A" * 50)
+                )
+              )
+              .flip
+        yield assertCompletes
+      ),
+      test(
+        "Concisely renders a custom Exception"
+      ) {
+        for result <-
+            ZIO
+              .attempt(
+                unsafeRunPrettyPrint(
+                  ZIO.attempt(
+                    throw MdocSession
+                      .App
+                      .SuperDeeplyNested
+                      .NameThatShouldBreakRendering
+                      .CustomException()
+                  )
+                )
+              )
+              .debug
+        yield assertCompletes
+      },
+      test("Handle HelloFailures situation") {
+        val badMsg =
+          """
+            |error: repl.MdocSession$MdocApp$GpsException
+            |        at repl.MdocSession.MdocApp.<local MdocApp>.getTemperatureZWithFallback(14_Hello_Failures.md:250)
+            |        at mdoc.MdocHelpers$package.unsafeRunPrettyPrint(MdocHelpers.scala:78)
+            |""".stripMargin
+        for result <-
+            ZIO.succeed(
+              unsafeRunPrettyPrint(
+                ZIO.succeed(badMsg)
+              )
+            )
+        yield assertCompletes
+      },
+      test("Invoke failure with stack trace") {
+        for result <-
+            ZIO
+              .succeed(
+                unsafeRunPrettyPrint(
+                  ZIO.attempt(foo())
+                )
+              )
+              .debug
+        yield assertCompletes
       }
     )
 end MdocHelperSpec
 
 object MdocSession:
   object App:
+    object SuperDeeplyNested:
+      object NameThatShouldBreakRendering:
+        class CustomException()
+            extends Exception()
+
     case class GpsException()
         extends RuntimeException

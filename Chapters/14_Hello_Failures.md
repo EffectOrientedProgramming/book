@@ -215,6 +215,7 @@ unsafeRunPrettyPrint(
 ```
 
 ```scala mdoc:fail
+// TODO make MDoc:fail adhere to line limits?
 unsafeRunPrettyPrint(
   getTemperatureZ(Scenario.Success).catchAll {
     case ex: NetworkException =>
@@ -304,7 +305,7 @@ def getTemperatureZWithFallback(
       case ex: NetworkException =>
         ZIO.succeed("Network Unavailable")
       case other =>
-        ZIO.succeed("Unexpected error: " + other)
+        ZIO.succeed("Error: " + other)
     }
 ```
 

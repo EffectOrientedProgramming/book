@@ -284,6 +284,7 @@ This is what it looks like in action:
 ```scala mdoc
 import zio.ZLayer
 import mdoc.unsafeRunPrettyPrint
+import mdoc.unsafeRunPrettyPrintValue
 ```
 
 **Your Machine:**
@@ -439,7 +440,7 @@ object Exercise1Solution extends Exercise1:
 
 ```scala mdoc
 val exercise1case1 =
-  unsafeRunPrettyPrint(
+  unsafeRunPrettyPrintValue(
     Exercise1Solution
       .envOrFail("key")
       .provide(
@@ -453,7 +454,7 @@ assert(exercise1case1 == "value")
 
 ```scala mdoc
 val exercise1case2 =
-  unsafeRunPrettyPrint(
+  unsafeRunPrettyPrintValue(
     Exercise1Solution
       .envOrFail("key")
       .catchSome {
