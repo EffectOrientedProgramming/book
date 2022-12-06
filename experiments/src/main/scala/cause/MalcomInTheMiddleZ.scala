@@ -26,7 +26,7 @@ object MalcomInTheMiddleZ extends ZIOAppDefault:
         )
       _ <- ZIO.debug("Preserve failures!")
     yield ()
-      ).catchAllCause(bigError => ZIO.debug("Final error: " + simpleStructure(bigError)))
+      ).catchAllCause(bigError => ZIO.debug("Final error: " + simpleStructureAlternative(bigError)))
 
 def simpleStructure(cause: Cause[Throwable]): String =
   cause match
@@ -39,3 +39,12 @@ def simpleStructure(cause: Cause[Throwable]): String =
     case Cause.Then(left, right) =>
       "Then(" + simpleStructure(left) + ", " + simpleStructure(right) + ")"
     case Cause.Both(left, right) => ???
+
+def simpleStructureAlternative(cause: Cause[Throwable]): String =
+  cause match
+    case Cause.Fail(value, trace) =>
+      value.getMessage
+    case Cause.Then(left, right) =>
+      simpleStructureAlternative(left) + " => " + simpleStructureAlternative(right)
+    case Cause.Both(left, right) => ???
+    case _ => ???
