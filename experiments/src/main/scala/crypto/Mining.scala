@@ -1,101 +1,87 @@
 package crypto
 
-import zio.Console.{printLine, readLine}
-import zio.{Clock, Console, Fiber, IO, Random, Ref, Runtime, Schedule, UIO, URIO, ZIO, ZIOAppDefault, ZLayer, durationInt}
-import zio.Clock.currentTime
-import zio.Duration.*
-import zio.Random.*
+import zio._
+import ZIO.debug
+import zio.Random.nextIntBetween
 
 import java.io.IOException
 import scala.annotation.tailrec
 
 object Mining extends ZIOAppDefault:
+  def run =
+    for
+      chain <- Ref.make[BlockChain](BlockChain())
+      _     <- raceForNextBlock(chain).repeatN(5)
+      _ <- chain.get.debug("Final")
+    yield ()
+
+  private val miners =
+    Seq(
+      "Zeb",
+      "Frop",
+      "Shtep"
+    ).flatMap(minerName =>
+      Range(1, 50)
+        .map(i => new Miner(minerName + i))
+    )
+
+  def raceForNextBlock(
+                        chain: Ref[BlockChain]
+                      ): ZIO[Any, Nothing, Unit] =
+    for
+      raceResult <- findNextBlock(miners)
+      (winner, winningPrime) = raceResult
+      _ <-
+        chain.update(chainCurrent =>
+          chainCurrent.copy(blocks =
+            chainCurrent.blocks :+ winningPrime
+          )
+        )
+      _ <-
+        debug(
+          s"$winner mined block: $winningPrime"
+        )
+    yield ()
+
+  case class BlockChain(
+      blocks: List[Int] = List.empty
+  )
 
   class Miner(val name: String):
-
-    val mine =
-      for
-        duration <- nextInt.map(_.abs % 7 + 1)
-        _        <- ZIO.sleep(duration.second)
-      yield s"$name mined the next coin in $duration seconds"
-
-    // Inefficiently determines if the input
-    // number is prime.
-    def isPrime(num: Int): Boolean =
-      (2 until num).forall(divisor => num % divisor != 0)
-
-    // Recursively iterates up from starting
-    // value, num, until it finds a prime number,
-    // which it returns
-    @tailrec
-    private def findNextPrime(num: Int): Int =
-      if (isPrime(num))
-        num
-      else
-        findNextPrime(num + 1)
-
-    // Takes a starting value, then calls
-    // iterates up through numbers until it
-    // finds a prime number.
-    def mine2(
+    def mine(
         num: Int
     ): ZIO[Any, Nothing, (String, Int)] =
       for
         duration <- nextIntBetween(1, 4)
         _        <- ZIO.sleep(duration.second)
-        prime = findNextPrime(num)
-      yield (name, prime)
+      yield (name, nextPrimeAfter(num))
   end Miner
 
   def findNextBlock(
-      miners: Seq[Miner],
-      startNum: Int
+      miners: Seq[Miner]
   ): ZIO[Any, Nothing, (String, Int)] =
-    ZIO.raceAll(
-      miners.head.mine2(startNum),
-      miners.tail.map(_.mine2(startNum))
-    )
+    for
+      startNum <-
+        nextIntBetween(2000, 4000)
+      result <-
+        ZIO.raceAll(
+          miners.head.mine(startNum),
+          miners.tail.map(_.mine(startNum))
+        )
+    yield result
 
-  def run = // Use App's run function
-    val zeb   = Miner("Zeb")
-    val frop  = Miner("Frop")
-    val shtep = Miner("Shtep")
-
-    val miners =
-      Seq(zeb, frop, shtep).flatMap(miner =>
-        Range(1, 50)
-          .map(i => new Miner(miner.name + i))
-      )
-
-    def loopLogic(chain: Ref[List[Int]]): ZIO[
-      Any,
-      IOException,
-      Unit
-    ] = // Uses mine2 function (sleep
-      // and find
-      // prime numbers)
-      for
-        startNum <-
-          nextIntBetween(200000, 400000)
-        raceResult <-
-          findNextBlock(miners, startNum)
-        (winner, winningPrime) = raceResult
-        _ <- chain.update(_ :+ winningPrime)
-        _ <-
-          printLine(
-            s"$winner mined the next coin at prime number: $winningPrime"
-          )
-      yield ()
-
-    val fullLogic =
-      for
-        chain <- Ref.make[List[Int]](List.empty)
-        _     <- loopLogic(chain).repeatN(5)
-        finalChain <- chain.get
-        _ <-
-          printLine("Final Chain: " + finalChain)
-      yield ()
-
-    fullLogic.exitCode
-  end run
 end Mining
+
+// TODO Consider putting math functions somewhere else to avoid cluttering example
+
+private def isPrime(num: Int): Boolean =
+  (2 until num)
+    .forall(divisor => num % divisor != 0)
+
+@tailrec
+private def nextPrimeAfter(num: Int): Int =
+  if (isPrime(num))
+    num
+  else
+    nextPrimeAfter(num + 1)
+
