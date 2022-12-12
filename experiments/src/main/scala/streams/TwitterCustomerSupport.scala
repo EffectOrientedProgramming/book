@@ -24,8 +24,10 @@ object TwitterCustomerSupport extends ZIOAppDefault:
 
 //            ZIO.debug("TODO Collect bytes here!")
       )
-      lines = linesMaybe.map(o => ZStream.fromIterable(o)).flatten
-      _ <- lines.foreach(l => ZIO.debug("Line: " + Tweet(l)))
+      lines = linesMaybe.flatMap(o => ZStream.fromIterable(o))
+      tweets = lines.flatMap(l => ZStream.fromIterable(Tweet(l).toOption))
+      _ <- tweets.debug.runDrain
+//      _ <- lines.foreach(l => ZIO.debug("Line: " + Tweet(l)))
 //      _ <- tweetStream.foreach( byte => ZIO.when(byte == 0xA)(ZIO.debug("New Line")))
     yield ()
 
