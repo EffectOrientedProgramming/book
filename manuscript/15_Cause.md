@@ -48,7 +48,7 @@ val thrownLogic =
   )
 // thrownLogic: ZIO[Any, Throwable, Nothing] = Stateful(
 //   trace = "repl.MdocSession.MdocApp.thrownLogic(15_Cause.md:49)",
-//   onState = zio.ZIOCompanionVersionSpecific$$Lambda$15110/520259246@50e6b70e
+//   onState = zio.ZIOCompanionVersionSpecific$$Lambda$15238/1566201712@27213ef6
 // )
 unsafeRunPrettyPrint(thrownLogic)
 // java.lang.Exception: Release Failed
