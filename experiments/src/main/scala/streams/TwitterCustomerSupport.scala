@@ -24,26 +24,24 @@ object TwitterCustomerSupport extends ZIOAppDefault:
             yield Some(line)
           else
             currentLine.update(_.appended(byte)) *> ZIO.succeed(None)
-
-//            ZIO.debug("TODO Collect bytes here!")
       )
       lines = linesMaybe.flatMap(o => ZStream.fromIterable(o))
       tweets = lines.flatMap(l => ZStream.fromIterable(Tweet(l).toOption))
       activeCompanies <- Ref.make[Map[String, Int]](Map.empty)
       companyActivity = tweets.mapZIO(tweet =>
         for
-          companies <- activeCompanies.updateAndGet(_.updatedWith(tweet.author_id)(entry => entry match
-            case Some(value) => Some(value + 1)
-            case None => Some(1)))
-//          _ <- ZIO.debug("Most active so far: " + companies.maxBy(_._2))
+          companies <- activeCompanies.updateAndGet(incrementCompanyActivity(_, tweet))
         yield companies.maxBy(_._2)
       )
       _ <- companyActivity.debug.runDrain
-//      _ <- lines.foreach(l => ZIO.debug("Line: " + Tweet(l)))
-//      _ <- tweetStream.foreach( byte => ZIO.when(byte == 0xA)(ZIO.debug("New Line")))
     yield ()
 
-  case class CompanyActivities(name: String, count: Int)
+  private def incrementCompanyActivity(value1: Map[String, Int], tweet: Tweet):Map[String, Int] =
+    value1.updatedWith(tweet.author_id)(entry => entry match
+            case Some(value) => Some(value + 1)
+            case None => Some(1))
+
+  case class CompanyActivities(name: String, count: Int) // TODO Use?
 
   case class ParsingError(msg: String)
   case class Tweet(tweet_id: String, author_id: String, inbound: Boolean, created_at: String, text: String, response_tweet_id: Option[String], in_response_to_tweet_id: Option[String])
