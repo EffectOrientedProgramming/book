@@ -7,7 +7,7 @@ import zio._
 import mdoc.unsafeRunPrettyPrint
 val logic =
   ZIO
-    .die(new Exception("Client connection lost"))
+    .die(new Exception("Connection lost"))
     .ensuring(
       ZIO.die(
         throw new Exception("Release Failed")
@@ -16,7 +16,7 @@ val logic =
 ```
 ```scala
 unsafeRunPrettyPrint(logic)
-// res0: String = "Defect: java.lang.Exception: Client connection "
+// Defect: java.lang.Exception: Connection lost
 ```
 
 Cause allows you to aggregate multiple errors of the same type
@@ -48,10 +48,10 @@ val thrownLogic =
   )
 // thrownLogic: ZIO[Any, Throwable, Nothing] = Stateful(
 //   trace = "repl.MdocSession.MdocApp.thrownLogic(15_Cause.md:49)",
-//   onState = zio.ZIOCompanionVersionSpecific$$Lambda$14218/863331572@5bef8445
+//   onState = zio.ZIOCompanionVersionSpecific$$Lambda$14269/1396453504@50de2fa3
 // )
 unsafeRunPrettyPrint(thrownLogic)
-// res1: String = "java.lang.Exception: Release Failed"
+// java.lang.Exception: Release Failed
 ```
 
 We will only see the later `pool` problem.
@@ -195,6 +195,90 @@ object MalcomInTheMiddle extends ZIOAppDefault:
   * burntLightBulb => try {
   */
 end MalcomInTheMiddle
+
+```
+
+
+### experiments/src/main/scala/cause/MalcomInTheMiddleZ.scala
+```scala
+package cause
+
+import zio.*
+
+object MalcomInTheMiddleZ extends ZIOAppDefault:
+  def run =
+    def turnOnLights() = ZIO.fail(BurntBulb())
+    class BurntBulb()
+        extends Exception("Burnt Bulb!")
+
+    def getNewBulb() =
+      ZIO.attempt(
+        throw new Exception("Wobbly Shelf!")
+      )
+
+    def grabScrewDriver() =
+      ZIO.fail(Exception("SqueakyDrawer"))
+
+    (
+      for
+        _ <-
+          turnOnLights()
+            .catchAllCause(originalError =>
+              getNewBulb()
+                .catchAllCause(bulbError =>
+                  grabScrewDriver()
+                    .mapErrorCause(
+                      screwDriverError =>
+                        (originalError ++
+                          bulbError) ++
+                          screwDriverError
+                    )
+                )
+            )
+        _ <- ZIO.debug("Preserve failures!")
+      yield ()
+    ).catchAllCause(bigError =>
+      ZIO.debug(
+        "Final error: " +
+          simpleStructureAlternative(bigError)
+      )
+    )
+  end run
+end MalcomInTheMiddleZ
+
+def simpleStructure(
+    cause: Cause[Throwable]
+): String =
+  cause match
+    case Cause.Empty =>
+      ???
+    case Cause.Fail(value, trace) =>
+      value.getMessage
+    case Cause.Die(value, trace) =>
+      ???
+    case Cause.Interrupt(fiberId, trace) =>
+      ???
+    case Cause.Stackless(cause, stackless) =>
+      ???
+    case Cause.Then(left, right) =>
+      "Then(" + simpleStructure(left) + ", " +
+        simpleStructure(right) + ")"
+    case Cause.Both(left, right) =>
+      ???
+
+def simpleStructureAlternative(
+    cause: Cause[Throwable]
+): String =
+  cause match
+    case Cause.Fail(value, trace) =>
+      value.getMessage
+    case Cause.Then(left, right) =>
+      simpleStructureAlternative(left) + " => " +
+        simpleStructureAlternative(right)
+    case Cause.Both(left, right) =>
+      ???
+    case _ =>
+      ???
 
 ```
 

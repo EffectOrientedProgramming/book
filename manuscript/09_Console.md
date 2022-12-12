@@ -99,7 +99,7 @@ unsafeRunPrettyPrint(
 )
 // Hello
 // World
-// res1: String = "()"
+// ()
 ```
 
 The caller has to handle the ZIO environment access, which is a distraction from the logic they want to implement.
@@ -137,7 +137,7 @@ unsafeRunPrettyPrint(
     ZLayer.succeed[Console](ConsoleLive)
   )
 )
-// res2: String = "()"
+// ()
 ```
 
 ### Four: Create `object Effect.live` field
@@ -158,7 +158,7 @@ Now executing our code is as simple as describing it.
 unsafeRunPrettyPrint(
   logic.provide(ConsoleWithLayer.live)
 )
-// res3: String = "()"
+// ()
 ```
 
 In real application, both of these will go in the companion object directly.
@@ -205,7 +205,7 @@ unsafeRunPrettyPrint(
 )
 // ping
 // Normal logic
-// res4: String = "()"
+// ()
 ```
 
 ```scala
@@ -239,7 +239,7 @@ unsafeRunPrettyPrint(
   )
 )
 // Customer SSN is 000-00-0000
-// res5: String = "()"
+// ()
 ```
 
 

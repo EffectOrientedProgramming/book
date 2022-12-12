@@ -225,11 +225,11 @@ val fancyLodging: ZIO[
 //     trace = "repl.MdocSession.MdocApp.HotelApiZ.cheapest(12_Environment_Variables.md:226)",
 //     first = Sync(
 //       trace = "repl.MdocSession.MdocApp.HotelApiZ.cheapest(12_Environment_Variables.md:226)",
-//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$14242/759086377@445cc678
+//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$14279/722809439@1606d1f6
 //     ),
-//     successK = zio.ZIO$$$Lambda$14204/1483540033@6d451649
+//     successK = zio.ZIO$$$Lambda$14255/2085148989@308f292
 //   ),
-//   successK = zio.ZIO$$Lambda$14194/110609102@798f0490
+//   successK = zio.ZIO$$Lambda$14242/577173284@2e71f728
 // )
 ```
 
@@ -254,6 +254,7 @@ This is what it looks like in action:
 ```scala
 import zio.ZLayer
 import mdoc.unsafeRunPrettyPrint
+import mdoc.unsafeRunPrettyPrintValue
 ```
 
 **Your Machine:**
@@ -271,7 +272,7 @@ unsafeRunPrettyPrint(
       originalAuthor
   )
 )
-// res7: String = "Hotel(Eddy's Roach Motel)"
+// Hotel(Eddy's Roach Motel)
 ```
 
 **Collaborator's Machine:**
@@ -291,7 +292,7 @@ unsafeRunPrettyPrint(
       collaborater
   )
 )
-// res9: String = "Error(Invalid API Key)"
+// Error(Invalid API Key)
 ```
 
 **Continuous Integration Server:**
@@ -307,7 +308,7 @@ unsafeRunPrettyPrint(
     System.live >>> SystemStrict.live >+> ci
   )
 )
-// res11: String = "Error(Unconfigured Environment)"
+// Error(Unconfigured Environment)
 ```
 
 TODO{{The actual line looks the same, which I highlighted as a problem before. How should we indicate that the Environment is different?}}
@@ -341,7 +342,7 @@ import mdoc.unsafeRunPrettyPrint
 unsafeRunPrettyPrint(
   fancyLodging.provide(testApiLayer)
 )
-// res12: String = "Error(Invalid API Key)"
+// Error(Invalid API Key)
 ```
 
 ## Official ZIO Approach
@@ -386,7 +387,7 @@ trait Exercise1:
 
 ```scala
 val exercise1case1 =
-  unsafeRunPrettyPrint(
+  unsafeRunPrettyPrintValue(
     Exercise1Solution
       .envOrFail("key")
       .provide(
@@ -395,13 +396,14 @@ val exercise1case1 =
         )
       )
   )
+// value
 // exercise1case1: String = "value"
 assert(exercise1case1 == "value")
 ```
 
 ```scala
 val exercise1case2 =
-  unsafeRunPrettyPrint(
+  unsafeRunPrettyPrintValue(
     Exercise1Solution
       .envOrFail("key")
       .catchSome {
@@ -412,6 +414,7 @@ val exercise1case2 =
         TestSystem.live(Data(envs = Map()))
       )
   )
+// Expected Error
 // exercise1case2: String = "Expected Error"
 
 assert(exercise1case2 == "Expected Error")

@@ -222,10 +222,11 @@ def getTemperatureZ(behavior: Scenario): ZIO[
 unsafeRunPrettyPrint(
   getTemperatureZ(Scenario.Success)
 )
-// res6: String = "30 degrees"
+// 30 degrees
 ```
 
 ```scala
+// TODO make MDoc:fail adhere to line limits?
 unsafeRunPrettyPrint(
   getTemperatureZ(Scenario.Success).catchAll {
     case ex: NetworkException =>
@@ -245,7 +246,7 @@ TODO Demonstrate ZIO calculating the error types without an explicit annotation 
 unsafeRunPrettyPrint(
   getTemperatureZ(Scenario.GPSError)
 )
-// res8: String = "repl.MdocSession$MdocApp$GpsException"
+// repl.MdocSession$MdocApp$GpsException
 ```
 
 ### Wrapping Legacy Code
@@ -277,7 +278,7 @@ def displayTemperatureZWrapped(
 unsafeRunPrettyPrint(
   displayTemperatureZWrapped(Scenario.Success)
 )
-// res9: String = "35 degrees"
+// 35 degrees
 ```
 
 ```scala
@@ -286,7 +287,7 @@ unsafeRunPrettyPrint(
     Scenario.NetworkError
   )
 )
-// res10: String = "Network Unavailable"
+// Network Unavailable
 ```
 
 This is decent, but does not provide the maximum possible guarantees. Look at what happens if we forget to handle one of our errors.
@@ -306,7 +307,7 @@ def getTemperatureZGpsGap(
 unsafeRunPrettyPrint(
   getTemperatureZGpsGap(Scenario.GPSError)
 )
-// res11: String = "Defect: GpsException"
+// Defect: GpsException
 ```
 
 The compiler does not catch this bug, and instead fails at runtime. 
@@ -324,7 +325,7 @@ def getTemperatureZWithFallback(
       case ex: NetworkException =>
         ZIO.succeed("Network Unavailable")
       case other =>
-        ZIO.succeed("Unexpected error: " + other)
+        ZIO.succeed("Error: " + other)
     }
 ```
 
@@ -332,7 +333,7 @@ def getTemperatureZWithFallback(
 unsafeRunPrettyPrint(
   getTemperatureZWithFallback(Scenario.GPSError)
 )
-// res12: String = "Unexpected error: repl.MdocSession$MdocApp$GpsException"
+// Error: repl.MdocSession$MdocApp$GpsException
 ```
 
 This lets us avoid the most egregious gaps in functionality, but it does not take full advantage of ZIO's type-safety.
@@ -355,7 +356,7 @@ unsafeRunPrettyPrint(
     Scenario.GPSError
   )
 )
-// res13: String = "repl.MdocSession$MdocApp$GpsException"
+// repl.MdocSession$MdocApp$GpsException
 ```
 
 

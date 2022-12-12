@@ -60,7 +60,7 @@ object UnreliableCounting:
     yield "Final count: " + counter
 
 unsafeRunPrettyPrint(UnreliableCounting.logic)
-// res0: String = "Final count: 99725"
+// Final count: 99999
 ```
 
 Due to the unpredictable nature of shared mutable state, we do not know exactly what the final count above is.
@@ -92,7 +92,7 @@ object ReliableCounting:
     yield "Final count: " + finalResult
 
 unsafeRunPrettyPrint(ReliableCounting.logic)
-// res1: String = "Final count: 100000"
+// Final count: 100000
 ```
 Now we can say with full confidence that our final count is 100000.
 Additionally, these updates happen _without blocking_.
@@ -139,7 +139,6 @@ unsafeRunPrettyPrint(SideEffectingUpdates.logic)
 // Alert: We have updated our count!
 // Alert: We have updated our count!
 // Alert: We have updated our count!
-// res2: String = "Final count: 4"
 ```
 What is going on?!
 Previously, we were losing updates because of unsafe mutability.
@@ -187,7 +186,6 @@ unsafeRunPrettyPrint(
 // Alert: We have updated our count!
 // Alert: We have updated our count!
 // Alert: We have updated our count!
-// res3: String = "Final count: 4"
 ```
 
 Now we see exactly the number of alerts that we expected.
