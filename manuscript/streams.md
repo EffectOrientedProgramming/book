@@ -397,8 +397,6 @@ object TwitterCustomerSupport
             currentLine
               .update(_.appended(byte)) *>
               ZIO.succeed(None)
-
-//            ZIO.debug("TODO Collect bytes here!")
         )
       lines =
         linesMaybe
@@ -413,27 +411,32 @@ object TwitterCustomerSupport
         tweets.mapZIO(tweet =>
           for companies <-
               activeCompanies.updateAndGet(
-                _.updatedWith(tweet.author_id)(
-                  entry =>
-                    entry match
-                      case Some(value) =>
-                        Some(value + 1)
-                      case None =>
-                        Some(1)
+                incrementCompanyActivity(
+                  _,
+                  tweet
                 )
               )
-//          _ <- ZIO.debug("Most active so far: " + companies.maxBy(_._2))
           yield companies.maxBy(_._2)
         )
       _ <- companyActivity.debug.runDrain
-//      _ <- lines.foreach(l => ZIO.debug("Line: " + Tweet(l)))
-//      _ <- tweetStream.foreach( byte => ZIO.when(byte == 0xA)(ZIO.debug("New Line")))
     yield ()
+
+  private def incrementCompanyActivity(
+      value1: Map[String, Int],
+      tweet: Tweet
+  ): Map[String, Int] =
+    value1.updatedWith(tweet.author_id)(entry =>
+      entry match
+        case Some(value) =>
+          Some(value + 1)
+        case None =>
+          Some(1)
+    )
 
   case class CompanyActivities(
       name: String,
       count: Int
-  )
+  ) // TODO Use?
 
   case class ParsingError(msg: String)
   case class Tweet(
