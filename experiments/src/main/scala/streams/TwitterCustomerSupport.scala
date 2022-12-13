@@ -16,27 +16,15 @@ object TwitterCustomerSupport
 
   def run =
     for
-      startTime <- Clock.instant
-      tweetStream =
-        ZStream.fromFileName(fileName).drop(1)
       lineNumber <- Ref.make(0)
-      currentLine <-
-        Ref.make[Chunk[Byte]](Chunk.empty)
-      linesMaybe: ZStream[Any, Throwable, Option[String]] =
-        tweetStream.mapZIO(byte =>
-              gatherLines(byte, currentLine, lineNumber, startTime)
-        )
-
       lines =
         ZStream.fromJavaStream(
           Files.lines(Paths.get("..", "datasets", "twcs", "twcs.csv"))
         )
-//        linesMaybe
-//          .flatMap(o => ZStream.fromIterable(o))
       tweets =
-        lines.flatMap(l =>
-          ZStream.fromIterable(Tweet(l).toOption)
-        )
+//        lines.flatMap(l =>
+//          ZStream.fromIterable(Tweet(l).toOption)
+//        )
         lines.map(l =>
           Tweet(l)
         ).filter(_.isRight)
@@ -54,43 +42,24 @@ object TwitterCustomerSupport
                   tweet
                 )
               )
-            mostActive =   companies.maxBy(_._2)
-          yield  mostActive
-
+          yield  companies.map(x=>x).toList.sortBy(_._2).reverse // TODO Check Performance of reversing
         )
-      _ <-
-        mostActiveCompanyAtEachMoment
-          .tap( (name, count) =>
-            for
-              lastMostActive <- mostActiveRef.get
-              _ <- mostActiveRef.set((name, count))
-              _ <- ZIO.when(count % 100 == 0 && count != lastMostActive._2)(
-                ZIO.debug("Active company: " + name + "  " + count + " interactions.")
-              )
-            yield ()
-          )
-        .runDrain
-        .timeout(15.seconds)
+      _ <- mostActiveCompanyAtEachMoment
+        .mapZIO(activities => ZIO.debug(activities.take(5).mkString(" : ")))
+          .runDrain
+          .timeout(15.seconds)
+//      _ <-
+//        mostActiveCompanyAtEachMoment
+//          .tap( (name, count) =>
+//            for
+//              lastMostActive <- mostActiveRef.get
+//              _ <- mostActiveRef.set((name, count))
+//              _ <- ZIO.when(count % 100 == 0 && count != lastMostActive._2)(
+//                ZIO.debug("Active company: " + name + "  " + count + " interactions.")
+//              )
+//            yield ()
+//          )
     yield ()
-
-  def gatherLines(byte: Byte, currentLine: Ref[Chunk[Byte]], lineNumber: Ref[Int], startTime: Instant) =
-    if (byte == 0xa)
-      for
-        lineContents <-
-          currentLine
-            .getAndSet(Chunk.empty)
-        currentLineNumber <- lineNumber.updateAndGet(_ + 1)
-        line =
-          new String(
-            lineContents
-              .appended(byte)
-              .toArray
-          )
-      yield Some(line)
-    else
-      currentLine
-        .update(_.appended(byte)) *>
-        ZIO.succeed(None)
 
   private def incrementCompanyActivity(
       value1: Map[String, Int],
@@ -103,11 +72,6 @@ object TwitterCustomerSupport
         case None =>
           Some(1)
     )
-
-  case class CompanyActivities(
-      name: String,
-      count: Int
-  ) // TODO Use?
 
   case class ParsingError(msg: String)
   case class Tweet(
