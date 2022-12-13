@@ -41,29 +41,37 @@ object TwitterCustomerSupport
           .map(_.getOrElse(???))
       activeCompanies <-
         Ref.make[Map[String, Int]](Map.empty)
+      mostActiveRef <- Ref.make[(String, Int)](("UNKNOWN", 0))
       companyActivity =
         tweets.mapZIO(tweet =>
-          for companies <-
+          for
+            companies <-
               activeCompanies.updateAndGet(
                 incrementCompanyActivity(
                   _,
                   tweet
                 )
               )
-          yield companies.maxBy(_._2)
+            mostActive =   companies.maxBy(_._2)
+          yield  mostActive
+
         )
       _ <-
         companyActivity
           .tap( (name, count) =>
-            ZIO.when(count % 100 == 0)(
-              ZIO.debug("Active company: " + name + "  " + count + " interactions.")
-            )
+            for
+              lastMostActive <- mostActiveRef.get
+              _ <- mostActiveRef.set((name, count))
+              _ <- ZIO.when(count % 100 == 0 && count != lastMostActive._2)(
+                ZIO.debug("Active company: " + name + "  " + count + " interactions.")
+              )
+            yield ()
           )
 //        .debug
 //        lines
 //        linesMaybe
         .runDrain
-        .timeout(30.seconds)
+//        .timeout(30.seconds)
     yield ()
 
   def gatherLines(byte: Byte, currentLine: Ref[Chunk[Byte]], lineNumber: Ref[Int], startTime: Instant) =
