@@ -4,6 +4,7 @@ import zio.*
 import zio.stream.*
 
 import java.time.Instant
+import java.nio.file.{Files, Paths}
 
 // This currently runs against the dataset available here:
 // https://www.kaggle.com/datasets/thoughtvector/customer-support-on-twitter?resource=download
@@ -21,14 +22,15 @@ object TwitterCustomerSupport
       lineNumber <- Ref.make(0)
       currentLine <-
         Ref.make[Chunk[Byte]](Chunk.empty)
-      linesMaybe =
+      linesMaybe: ZStream[Any, Throwable, Option[String]] =
         tweetStream.mapZIO(byte =>
               gatherLines(byte, currentLine, lineNumber, startTime)
         )
+
       lines =
-        linesMaybe
-          .filter(_.isDefined)
-          .map(_.get)
+        ZStream.fromJavaStream(
+          Files.lines(Paths.get("..", "datasets", "twcs", "twcs.csv"))
+        )
 //        linesMaybe
 //          .flatMap(o => ZStream.fromIterable(o))
       tweets =
@@ -42,7 +44,7 @@ object TwitterCustomerSupport
       activeCompanies <-
         Ref.make[Map[String, Int]](Map.empty)
       mostActiveRef <- Ref.make[(String, Int)](("UNKNOWN", 0))
-      companyActivity =
+      mostActiveCompanyAtEachMoment =
         tweets.mapZIO(tweet =>
           for
             companies <-
@@ -57,7 +59,7 @@ object TwitterCustomerSupport
 
         )
       _ <-
-        companyActivity
+        mostActiveCompanyAtEachMoment
           .tap( (name, count) =>
             for
               lastMostActive <- mostActiveRef.get
@@ -67,11 +69,8 @@ object TwitterCustomerSupport
               )
             yield ()
           )
-//        .debug
-//        lines
-//        linesMaybe
         .runDrain
-//        .timeout(30.seconds)
+        .timeout(15.seconds)
     yield ()
 
   def gatherLines(byte: Byte, currentLine: Ref[Chunk[Byte]], lineNumber: Ref[Int], startTime: Instant) =
@@ -81,13 +80,6 @@ object TwitterCustomerSupport
           currentLine
             .getAndSet(Chunk.empty)
         currentLineNumber <- lineNumber.updateAndGet(_ + 1)
-        _ <- ZIO.when(currentLineNumber % 10000 == 0)(
-          for
-            currentTime <- Clock.instant
-            runtime = java.time.Duration.between(startTime, currentTime)
-            _ <- ZIO.debug("Line number: " + currentLineNumber + ". Time per 10,000 rows: " + runtime)
-          yield ()
-        )
         line =
           new String(
             lineContents
