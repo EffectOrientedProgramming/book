@@ -376,68 +376,70 @@ object TwitterCustomerSupport
 //    "../datasets/sample.csv"
     "../datasets/twcs/twcs.csv"
 
+  def isHappy(tweet: Tweet): Boolean =
+    List(
+      "fantastic",
+      "awesome",
+      "great",
+      "wonderful"
+    ).exists(tweet.text.toLowerCase.contains(_))
+
+  def isAngry(tweet: Tweet): Boolean =
+    List("stupid", "dumb", "idiot", "shit")
+      .exists(tweet.text.toLowerCase.contains(_))
+
   def run =
-    for
-      lineNumber <- Ref.make(0)
-      lines =
-        ZStream.fromJavaStream(
-          Files.lines(
-            Paths.get(
-              "..",
-              "datasets",
-              "twcs",
-              "twcs.csv"
-            )
-          )
-        )
-      tweets =
-//        lines.flatMap(l =>
-//          ZStream.fromIterable(Tweet(l).toOption)
-//        )
-        lines
-          .map(l => Tweet(l))
-          .filter(_.isRight)
-          .map(_.getOrElse(???))
-      activeCompanies <-
-        Ref.make[Map[String, Int]](Map.empty)
-      mostActiveRef <-
-        Ref.make[(String, Int)](("UNKNOWN", 0))
-      mostActiveCompanyAtEachMoment =
-        tweets.mapZIO(tweet =>
-          for companies <-
-              activeCompanies.updateAndGet(
-                incrementCompanyActivity(
-                  _,
-                  tweet
-                )
+    (
+      for
+        lineNumber <- Ref.make(0)
+        lines =
+          ZStream.fromJavaStream(
+            Files.lines(
+              Paths.get(
+                "..",
+                "datasets",
+                "twcs",
+                "twcs.csv"
               )
-          yield companies
-            .map(x => x)
-            .toList
-            .sortBy(_._2)
-            .reverse // TODO Check Performance of reversing
-        )
-      _ <-
-        mostActiveCompanyAtEachMoment
-          .mapZIO(activities =>
-            ZIO.debug(
-              activities.take(5).mkString(" : ")
             )
           )
-          .runDrain
-          .timeout(15.seconds)
-//      _ <-
-//        mostActiveCompanyAtEachMoment
-//          .tap( (name, count) =>
-//            for
-//              lastMostActive <- mostActiveRef.get
-//              _ <- mostActiveRef.set((name, count))
-//              _ <- ZIO.when(count % 100 == 0 && count != lastMostActive._2)(
-//                ZIO.debug("Active company: " + name + "  " + count + " interactions.")
+        tweets =
+          lines
+            .map(l => Tweet(l))
+            .filter(_.isRight)
+            .map(_.getOrElse(???))
+        activeCompanies <-
+          Ref.make[Map[String, Int]](Map.empty)
+        mostActiveRef <-
+          Ref.make[(String, Int)](("UNKNOWN", 0))
+
+//      mostActiveCompanyAtEachMoment =
+//        tweets.mapZIO(tweet =>
+//          for
+//            companies <-
+//              activeCompanies.updateAndGet(
+//                incrementCompanyActivity(
+//                  _,
+//                  tweet
+//                )
 //              )
-//            yield ()
-//          )
-    yield ()
+//          yield  companies.map(x=>x).toList.sortBy(_._2).reverse // TODO Check Performance of reversing
+//        )
+//      _ <- mostActiveCompanyAtEachMoment
+//        .mapZIO(activities => ZIO.debug(activities.take(3).mkString(" : ")))
+//          .runDrain
+
+        _ <-
+        tweets
+          .filter(isHappy(_))
+          .runCount
+          .debug("Number of happy tweets") <&>
+          tweets
+            .filter(isAngry(_))
+            .runCount
+            .debug("Number of angry tweets")
+      yield ()
+    ).timeout(30.seconds)
 
   private def incrementCompanyActivity(
       value1: Map[String, Int],
