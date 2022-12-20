@@ -60,7 +60,6 @@ object UnreliableCounting:
     yield "Final count: " + counter
 
 unsafeRunPrettyPrint(UnreliableCounting.logic)
-// Final count: 99992
 ```
 
 Due to the unpredictable nature of shared mutable state, we do not know exactly what the final count above is.
