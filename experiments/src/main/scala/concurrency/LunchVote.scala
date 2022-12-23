@@ -10,29 +10,41 @@ object LunchVote:
     case Yay,
       Nay
 
-  case class Voter(name: String, delay: Duration, response: Vote, onInterrupt: ZIO[Any, Nothing, Unit] = ZIO.unit)
+  case class Voter(
+      name: String,
+      delay: Duration,
+      response: Vote,
+      onInterrupt: ZIO[Any, Nothing, Unit] =
+        ZIO.unit
+  )
 
-  def run(voters: List[Voter], maximumVoteTime: Duration = Duration.Infinity) =
+  def run(
+      voters: List[Voter],
+      maximumVoteTime: Duration =
+        Duration.Infinity
+  ) =
     for
       resultMap <-
         ConcurrentMap.make[Vote, Int](
           Vote.Yay -> 0,
           Vote.Nay -> 0
         )
-      voteProcesses = voters.map(voter =>
-            getVoteFrom(
-              voter,
-              resultMap,
-              voters.size
-            ).onInterrupt(
-              voter.onInterrupt
-            )
-          )
+      voteProcesses =
+        voters.map(voter =>
+          getVoteFrom(
+            voter,
+            resultMap,
+            voters.size
+          ).onInterrupt(voter.onInterrupt)
+        )
       result <-
-        ZIO.raceAll(
-          voteProcesses.head,
-          voteProcesses.tail,
-        ).timeout(maximumVoteTime).some
+        ZIO
+          .raceAll(
+            voteProcesses.head,
+            voteProcesses.tail
+          )
+          .timeout(maximumVoteTime)
+          .some
     yield result
     end for
   end run
@@ -40,10 +52,10 @@ object LunchVote:
   case object NotConclusive
 
   def getVoteFrom(
-                   person: Voter,
-                   results: ConcurrentMap[Vote, Int],
-                   voterCount: Int
-                 ): ZIO[Any, NotConclusive.type, Vote] =
+      person: Voter,
+      results: ConcurrentMap[Vote, Int],
+      voterCount: Int
+  ): ZIO[Any, NotConclusive.type, Vote] =
     for
       _ <- ZIO.sleep(person.delay)
       answer = person.response
@@ -60,9 +72,9 @@ object LunchVote:
           )
           .orDie
       _ <-
-        ZIO.when(
-          currentTally <= voterCount / 2
-        )(ZIO.fail(NotConclusive))
+        ZIO.when(currentTally <= voterCount / 2)(
+          ZIO.fail(NotConclusive)
+        )
     yield answer
 
 end LunchVote
