@@ -26,7 +26,9 @@ object LunchVote:
   case class Voter(
       name: String,
       delay: Duration,
-      response: Vote
+      response: Vote,
+      onInterrupt: ZIO[Any, Nothing, Unit] =
+        ZIO.unit
   )
 
   def run(voters: List[Voter]) =
@@ -42,9 +44,7 @@ object LunchVote:
             voter,
             resultMap,
             voters.size
-          ).onInterrupt(
-            ZIO.debug(s"interrupted $voter")
-          )
+          ).onInterrupt(voter.onInterrupt)
         )
       result <-
         ZIO.raceAll(

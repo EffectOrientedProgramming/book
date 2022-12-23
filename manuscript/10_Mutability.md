@@ -60,7 +60,7 @@ object UnreliableCounting:
     yield "Final count: " + counter
 
 unsafeRunPrettyPrint(UnreliableCounting.logic)
-// Final count: 99980
+// Final count: 99997
 ```
 
 Due to the unpredictable nature of shared mutable state, we do not know exactly what the final count above is.
@@ -92,7 +92,6 @@ object ReliableCounting:
     yield "Final count: " + finalResult
 
 unsafeRunPrettyPrint(ReliableCounting.logic)
-// Final count: 100000
 ```
 Now we can say with full confidence that our final count is 100000.
 Additionally, these updates happen _without blocking_.
