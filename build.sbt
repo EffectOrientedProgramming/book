@@ -8,6 +8,7 @@ val zioVersion = "2.0.5"
 lazy val commonSettings = Seq(
   libraryDependencies ++= Seq(
     "dev.zio" %% "zio"          % zioVersion,
+    "dev.zio" %% "zio-concurrent"          % zioVersion,
     "dev.zio" %% "zio-logging"  % "2.1.4",
     "dev.zio" %% "zio-streams"  % zioVersion,
     "dev.zio" %% "zio-test"     % zioVersion,
