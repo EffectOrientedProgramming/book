@@ -60,4 +60,5 @@ virtual_meeting.md
 zio.md
 experiments-src-test-scala-time.md
 zio_intro.md
+experiments-src-test-scala-concurrency.md
 interpreter-chaining_with_monads.md
