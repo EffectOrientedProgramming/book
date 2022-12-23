@@ -12,7 +12,7 @@ object LunchVote:
 
   case class Voter(name: String, delay: Duration, response: Vote, onInterrupt: ZIO[Any, Nothing, Unit] = ZIO.unit)
 
-  def run(voters: List[Voter]) =
+  def run(voters: List[Voter], maximumVoteTime: Duration = Duration.Infinity) =
     for
       resultMap <-
         ConcurrentMap.make[Vote, Int](
@@ -32,7 +32,7 @@ object LunchVote:
         ZIO.raceAll(
           voteProcesses.head,
           voteProcesses.tail,
-        )
+        ).timeout(maximumVoteTime).some
     yield result
     end for
   end run

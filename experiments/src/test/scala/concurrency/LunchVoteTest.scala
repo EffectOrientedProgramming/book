@@ -36,5 +36,20 @@ object LunchVoteTest extends ZIOSpecDefault:
         for
           result <- LunchVote.run(voters)
         yield assertTrue(result == Nay)
+      },
+      test("slow voters") {
+        val voters =
+          List(
+            Voter("Alice", 10.seconds, Nay),
+            Voter("Bob", 10.seconds, Nay),
+            Voter("Charlie", 10.seconds, Nay),
+            Voter("Dave", 10.seconds, Yay),
+            Voter("Eve", 10.seconds, Yay)
+          )
+        for
+          resultF <- LunchVote.run(voters, 1.seconds).fork
+          _ <- TestClock.adjust(2.seconds)
+          timeout <- resultF.join.flip
+        yield assertTrue(timeout == None)
       }
     )
