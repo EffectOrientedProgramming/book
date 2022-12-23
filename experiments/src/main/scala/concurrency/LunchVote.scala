@@ -4,21 +4,15 @@ import concurrency.LunchVote.Vote.Yay
 import zio.*
 import zio.concurrent.*
 
-object LunchVote extends ZIOAppDefault:
+object LunchVote:
 
   enum Vote:
     case Yay,
       Nay
 
-  def run =
-    val voters =
-      List(
-        "Alice",
-        "Bob",
-        "Charlie",
-        "Dave",
-        "Eve"
-      )
+  case class Voter(name: String, delay: Duration, response: Vote)
+
+  def run(voters: List[Voter]) =
     for
       resultMap <-
         ConcurrentMap.make[Vote, Int](
@@ -39,32 +33,20 @@ object LunchVote extends ZIOAppDefault:
           voteProcesses.head,
           voteProcesses.tail,
         )
-      _ <- ZIO.debug("Result: " + result)
-    yield ()
+    yield result
     end for
   end run
 
   case object NotConclusive
 
   def getVoteFrom(
-                   person: String,
+                   person: Voter,
                    results: ConcurrentMap[Vote, Int],
                    voterCount: Int
                  ): ZIO[Any, NotConclusive.type, Vote] =
     for
-      sleepAmount <-
-        Random.nextIntBetween(1, 5)
-      _ <- ZIO.sleep(sleepAmount.seconds)
-      answer <-
-        Random
-          .nextBoolean
-          .map(b =>
-            if (b)
-              Vote.Yay
-            else
-              Vote.Nay
-          )
-          .debug(s"$person vote")
+      _ <- ZIO.sleep(person.delay)
+      answer = person.response
       currentTally <-
         results
           .computeIfPresent(
