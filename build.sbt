@@ -116,7 +116,7 @@ genManuscript := {
   (experiments / Compile / scalafmt).value
 //  (rube / Compile / scalafmt).value
 
-   mdoc.evaluated
+  mdoc.evaluated
 
   import scala.jdk.CollectionConverters._
 
@@ -148,7 +148,7 @@ genManuscript := {
 
       val proseFileOnSameTopic: Option[Path] =
       proseFiles.find{proseFile =>
-          val fileNameRaw = proseFile.toFile.getName.toString().toLowerCase.stripSuffix(".md")
+          val fileNameRaw = proseFile.toFile.getName.toLowerCase.stripSuffix(".md")
           val fileNameClean =
             if (fileNameRaw.contains("_"))
               fileNameRaw.dropWhile(_ != '_').drop(1)
@@ -169,7 +169,7 @@ genManuscript := {
           |""".stripMargin
       }
 
-      val allFences = dirFiles.sortBy(_.getFileName.toString).map(fileFence)
+      val allFences: List[String] = dirFiles.sortBy(_.getFileName.toString).map(fileFence)
 
       proseFileOnSameTopic match {
         case Some(value) => {
@@ -189,7 +189,6 @@ genManuscript := {
           IO.append(value.toFile, chapterExperiments)
         }
         case None => {
-          println("Legacy behavior")
           // if (packagedName.contains("/"))
           //   println("Subpackaged name: " + packagedName)
           // else
@@ -197,11 +196,9 @@ genManuscript := {
 
           val packageMarkdownFileName = packagedName.replaceAllLiterally("/", "-") + ".md"
 
-          // println("Files in: " + packageMarkdownFileName)
-          // dirFiles.foreach(println)
 
           val nf = manuscript / packageMarkdownFileName
-
+          println("Adding standalone example to end of book: " + nf.toString)
 
           nf.getParentFile.mkdirs()
 
