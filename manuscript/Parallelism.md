@@ -58,67 +58,6 @@ end BasicFiber
 ```
 
 
-### experiments/src/main/scala/Parallelism/Compose.scala
-```scala
-package Parallelism
-
-import java.io.IOException
-import zio._
-import zio.Console._
-import zio.Fiber._
-
-class Compose:
-  // Composing Fibers will combine 2 or more
-  // fibers into a single fiber. This new fiber
-  // will produce the results of both. If any of
-  // the fibers fail, the entire zipped fiber
-  // will also fail.
-
-  // Note: The results of the zipped fibers will
-  // be put into a tuple.
-
-  val helloGoodbye: UIO[Tuple] =
-    for
-      greeting <- ZIO.succeed("Hello!").fork
-      farewell <- ZIO.succeed("GoodBye!").fork
-      totalFiber =
-        greeting.zip(
-          farewell
-        ) // Note the '=', not '<-'
-      tuple <- totalFiber.join
-    yield tuple
-
-  // A very useful fiber method or composing is
-  // the 'orElse' method.
-  // This method will combine two fibers. If the
-  // first succeeds, the composed fiber will
-  // succeed with first fiber's result. If the
-  // first fails, the second will be used.
-
-  val isPineapple: IO[String, String] =
-    ZIO.succeed("Pineapple!")
-
-  val notPineapple: IO[String, String] =
-    ZIO.fail("Banana...")
-
-  val composeFruit: IO[String, String] =
-    for
-      fFiber <-
-        notPineapple
-          .fork // notPineapple will fail
-      sFiber <-
-        isPineapple
-          .fork // isPineapple will succeed
-      totalFiber = fFiber.orElse(sFiber)
-      output <-
-        totalFiber
-          .join // The output effect will end up using isPineapple.
-    yield output
-end Compose
-
-```
-
-
 ### experiments/src/main/scala/Parallelism/Finalizers.scala
 ```scala
 package Parallelism
@@ -213,89 +152,7 @@ end Finalizers
 ```
 
 
-### experiments/src/main/scala/Parallelism/Interrupt.scala
-```scala
-package Parallelism
-
-import java.io.IOException
-import zio._
-import zio.Console._
-import zio.durationInt
-
-class Interrupt:
-  val n = 100
-
-  // This ZIO does nothing but count to n.
-  // It is not productive, but it uses resources.
-  val countToN: ZIO[Clock, Nothing, Unit] =
-    for _ <- ZIO.sleep(n.seconds)
-    yield ()
-
-  // This effect will create a fiber vrsion of
-  // countToN.
-  // It will then interrupt the fiber, which
-  // returns an exit object.
-  // Note: Interrupting Fibers is completely
-  // safe.
-  // Interrupt safely releases all resources, and
-  // runs the finalizers.
-  val noCounting: ZIO[Clock, Nothing, Exit[
-    Nothing,
-    Unit
-  ]] =
-    for
-      fiber <- countToN.fork
-      exit  <- fiber.interrupt
-    yield exit
-end Interrupt
-
-```
-
-
-### experiments/src/main/scala/Parallelism/Join.scala
-```scala
-package Parallelism
-
-import java.io.IOException
-import zio.{Fiber, IO, Runtime, UIO, ZIO, ZLayer}
-
-class Join:
-
-  // Joining a fiber converts it into an effect.
-  // This effect will succeed or fail depending
-  // on the fiber.
-  val joinedFib100
-      : UIO[Long] = // This function makes a fiber, then joins the fiber, and returns it as an effect
-    for
-      fiber <-
-        computation
-          .fib(100)
-          .fork // Fiber is made to find 100th value of Fib
-      output <-
-        fiber
-          .join // Fiber is converted into an effect, then returned.
-    yield output
-
-  // This object performs a computation that
-  // takes a long time. It is a recursive
-  // Fibonacci Sequence generator.
-  object computation:
-
-    def fib(n: Long): UIO[Long] =
-      ZIO
-        .succeed {
-          if (n <= 1)
-            ZIO.succeed(n)
-          else
-            fib(n - 1).zipWith(fib(n - 2))(_ + _)
-        }
-        .flatten
-end Join
-
-```
-
-
-### experiments/src/main/scala/Parallelism/JustSleep.scala
+### experiments/src/main/scala/Parallelism/ParallelSleepers.scala
 ```scala
 package Parallelism
 
@@ -314,7 +171,7 @@ import zio.{
 
 import scala.concurrent.Await
 
-object JustSleep extends ZIOAppDefault:
+object ParallelSleepers extends ZIOAppDefault:
 
   override def run =
     ZIO.collectAllPar(
@@ -323,21 +180,6 @@ object JustSleep extends ZIOAppDefault:
       ZIO.debug(
         "Finished far sooner than 10,000 seconds"
       )
-
-@main
-def ToFuture() =
-  Await.result(
-    Unsafe.unsafe { (u: Unsafe) =>
-      given Unsafe = u
-      zio
-        .Runtime
-        .default
-        .unsafe
-        .runToFuture(ZIO.sleep(1.seconds))
-//        .getOrThrowFiberFailure()
-    },
-    scala.concurrent.duration.Duration.Inf
-  )
 
 ```
 

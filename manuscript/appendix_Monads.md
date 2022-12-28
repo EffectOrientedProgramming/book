@@ -458,76 +458,6 @@ def expanded =
 ```
 
 
-### experiments/src/main/scala/monads/Diapers.scala
-```scala
-package monads
-
-import scala.util.Random
-
-enum Diaper:
-
-  def flatMap(f: String => Diaper): Diaper =
-    this match
-      case _: Empty =>
-        this
-      case s: Soiled =>
-        f(
-          s.description
-        ) // written a different way for illustrating the different syntax options
-
-  def map(f: String => String): Diaper =
-    this match
-      case _: Empty =>
-        this
-      case Soiled(description) =>
-        Soiled(f(description))
-
-  // optionally we can build this on top of
-  // flatMap
-
-  // flatMap(f.andThen(Soiled.apply))
-
-  /* flatMap { description =>
-   * Soiled(f(description)) } */
-
-  case Empty()
-  case Soiled(description: String)
-end Diaper
-
-def look: Diaper =
-  val diaper =
-    if (Random.nextBoolean())
-      Diaper.Empty()
-    else
-      Diaper.Soiled("Ewwww")
-
-  println(diaper)
-
-  diaper
-
-def change(description: String): Diaper =
-  println("changing diaper")
-  Diaper.Empty()
-
-@main
-def baby =
-  val diaper: Diaper =
-    for
-      soiled <-
-        look // When this returns Diaper.empty, we fall out and don't get to the left side
-      freshy <-
-        change(
-          soiled
-        ) // When this returns Diaper.empty, we fall out and don't get to the left side
-    yield throw new RuntimeException(
-      "This will never happen."
-    ) // TODO Alter example so we don't have a pointless yield
-
-  println(diaper)
-
-```
-
-
 ### experiments/src/main/scala/monads/Flattening.scala
 ```scala
 package monads
@@ -908,60 +838,6 @@ end failAfterSpecifiedNumber
 ```
 
 
-### experiments/src/main/scala/monads/Result.scala
-```scala
-// Monads/Result.scala
-package monads
-
-trait Result:
-  def flatMap(f: String => Result): Result =
-    println(s"flatMap() on $this")
-    this.match
-      case fail: Fail =>
-        fail
-      case Success(c) =>
-        f(c)
-
-  def map(f: String => String): Result =
-    println(s"map() on $this")
-    this.match
-      case fail: Fail =>
-        fail
-      case Success(c) =>
-        Success(f(c))
-
-case class Fail(why: String)     extends Result
-case class Success(data: String) extends Result
-
-```
-
-
-### experiments/src/main/scala/monads/ScratchResult.scala
-```scala
-package monads
-// Scratch/experimental example.
-// This doesn't work because the Either is
-// contained in Result via composition.
-// You can't inherit from Either because it's
-// sealed.
-// I think the solution is to make my own minimal
-// Result only containing map and flatMap.
-
-object ScratchResult: // Keep from polluting the 'monads' namespace
-  class Result[F, S](val either: Either[F, S])
-
-  case class Fail[F](fail: F)
-      extends Result(Left(fail))
-
-  case class Succeed[S](s: S)
-      extends Result(Right(s))
-
-@main
-def essence = println("The essence of a monad")
-
-```
-
-
 ### experiments/src/main/scala/monads/ShowGenericResult.scala
 ```scala
 // Monads/ShowGenericResult.scala
@@ -996,45 +872,6 @@ end gshow
 
 @main
 def gresults = 'a' to 'd' map gshow
-
-```
-
-
-### experiments/src/main/scala/monads/ShowResult.scala
-```scala
-// Monads/ShowResult.scala
-package monads
-
-def show(n: Char) =
-  def op(id: Char, msg: String): Result =
-    val result =
-      if n == id then
-        Fail(msg + id.toString)
-      else
-        Success(msg + id.toString)
-    println(s"$n => op($id): $result")
-    result
-
-  val compose: Result =
-    for
-      a: String <- op('a', "")
-      b: String <- op('b', a)
-      c: String <- op('c', b)
-    yield
-      println(s"Yielding: $c + 'd'")
-      c + 'd'
-
-  println(s"compose: $compose")
-  compose match
-    case Fail(why) =>
-      println(s"Error-handling for $why")
-    case Success(data) =>
-      println("Successful case: " + data)
-
-end show
-
-@main
-def results = 'a' to 'd' foreach show
 
 ```
 
