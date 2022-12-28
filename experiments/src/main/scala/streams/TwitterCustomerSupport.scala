@@ -16,57 +16,99 @@ object TwitterCustomerSupport
     "twcs_small.csv"
 //    "twcs_tiny.csv"
 
-
   def isHappy(tweet: Tweet): Boolean =
-    List("fantastic", "awesome", "great", "wonderful")
-      .exists(tweet.text.toLowerCase.contains(_))
+    List(
+      "fantastic",
+      "awesome",
+      "great",
+      "wonderful"
+    ).exists(tweet.text.toLowerCase.contains(_))
 
   def isAngry(tweet: Tweet): Boolean =
     List("stupid", "dumb", "idiot", "shit")
       .exists(tweet.text.toLowerCase.contains(_))
 
-  def trackActiveCompanies(tweets: ZStream[Any, Throwable, Tweet]) =
-    for {
+  def trackActiveCompanies(
+      tweets: ZStream[Any, Throwable, Tweet]
+  ) =
+    for
       activeCompanies <-
         Ref.make[Map[String, Int]](Map.empty)
       mostActiveCompanyAtEachMoment =
         tweets.mapZIO(tweet =>
-          for
-            companies <-
+          for companies <-
               activeCompanies.updateAndGet(
                 incrementCompanyActivity(
                   _,
                   tweet
                 )
               )
-          yield  companies.map(x=>x).toList.sortBy(x =>  - x._2)
+          yield companies
+            .map(x => x)
+            .toList
+            .sortBy(x => -x._2)
         )
-      res <- mostActiveCompanyAtEachMoment.runLast
-    } yield res.get
+      res <-
+        mostActiveCompanyAtEachMoment.runLast
+    yield res.get
 
   def run =
-    (for
-      dataset <- ZIOAppArgs.getArgs.map(_.headOption.getOrElse(fileName))
+    for
+      dataset <-
+        ZIOAppArgs
+          .getArgs
+          .map(_.headOption.getOrElse(fileName))
       tweets =
-        ZStream.fromJavaStream(
-          Files.lines(Paths.get("..", "datasets", "twcs", dataset + ".csv"))
-        ).map(l =>
-          Tweet(l)
-        ).filter(_.isRight)
+        ZStream
+          .fromJavaStream(
+            Files.lines(
+              Paths.get(
+                "..",
+                "datasets",
+                "twcs",
+                dataset + ".csv"
+              )
+            )
+          )
+          .map(l => Tweet(l))
+          .filter(_.isRight)
           .map(_.getOrElse(???))
 
-      happyTweetFilter: ZPipeline[Any, Nothing, Tweet, Tweet] = ZPipeline.filter(isHappy)
-      angryTweetFilter: ZPipeline[Any, Nothing, Tweet, Tweet] = ZPipeline.filter(isAngry)
+      happyTweetFilter: ZPipeline[
+        Any,
+        Nothing,
+        Tweet,
+        Tweet
+      ] = ZPipeline.filter(isHappy)
+      angryTweetFilter: ZPipeline[
+        Any,
+        Nothing,
+        Tweet,
+        Tweet
+      ] = ZPipeline.filter(isAngry)
 
-      gatherHappyTweets = (tweets >>> happyTweetFilter)
-        .runCount
-        .debug("Number of happy tweets")
-      gatherAngryTweets = (tweets >>> angryTweetFilter)
-        .runCount
-        .debug("Number of angry tweets")
+      gatherHappyTweets =
+        (tweets >>> happyTweetFilter)
+          .runCount
+          .debug("Number of happy tweets")
+      gatherAngryTweets =
+        (tweets >>> angryTweetFilter)
+          .runCount
+          .debug("Number of angry tweets")
 
-      _ <- gatherHappyTweets.timed.map(_._1).debug("Happy duration") <&> gatherAngryTweets <&> trackActiveCompanies(tweets).map(_.take(3).mkString(" : ")).debug("ActiveCompanies").timed.map(_._1).debug("Active Company duration")
-    yield ())
+      _ <-
+      gatherHappyTweets
+        .timed
+        .map(_._1)
+        .debug("Happy duration") <&>
+        gatherAngryTweets <&>
+        trackActiveCompanies(tweets)
+          .map(_.take(3).mkString(" : "))
+          .debug("ActiveCompanies")
+          .timed
+          .map(_._1)
+          .debug("Active Company duration")
+    yield ()
 //      .timeout(60.seconds)
 
   private def incrementCompanyActivity(

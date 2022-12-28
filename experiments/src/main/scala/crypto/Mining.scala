@@ -12,22 +12,19 @@ object Mining extends ZIOAppDefault:
     for
       chain <- Ref.make[BlockChain](BlockChain())
       _     <- raceForNextBlock(chain).repeatN(5)
-      _ <- chain.get.debug("Final")
+      _     <- chain.get.debug("Final")
     yield ()
 
   private val miners =
-    Seq(
-      "Zeb",
-      "Frop",
-      "Shtep"
-    ).flatMap(minerName =>
-      Range(1, 50)
-        .map(i => new Miner(minerName + i))
-    )
+    Seq("Zeb", "Frop", "Shtep")
+      .flatMap(minerName =>
+        Range(1, 50)
+          .map(i => new Miner(minerName + i))
+      )
 
   def raceForNextBlock(
-                        chain: Ref[BlockChain]
-                      ): ZIO[Any, Nothing, Unit] =
+      chain: Ref[BlockChain]
+  ): ZIO[Any, Nothing, Unit] =
     for
       raceResult <- findNextBlock(miners)
       (winner, winningPrime) = raceResult
@@ -55,14 +52,12 @@ object Mining extends ZIOAppDefault:
         duration <- nextIntBetween(1, 4)
         _        <- ZIO.sleep(duration.second)
       yield (name, nextPrimeAfter(num))
-  end Miner
 
   def findNextBlock(
       miners: Seq[Miner]
   ): ZIO[Any, Nothing, (String, Int)] =
     for
-      startNum <-
-        nextIntBetween(2000, 4000)
+      startNum <- nextIntBetween(2000, 4000)
       result <-
         ZIO.raceAll(
           miners.head.mine(startNum),
@@ -84,4 +79,3 @@ private def nextPrimeAfter(num: Int): Int =
     num
   else
     nextPrimeAfter(num + 1)
-
