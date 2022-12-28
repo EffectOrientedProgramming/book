@@ -1,4 +1,4 @@
-val quillVersion = "3.10.0.Beta1.6"
+val quillVersion = "3.19.0"
 
 libraryDependencies ++= Seq(
   "io.getquill" %% "quill-jdbc" % quillVersion,
