@@ -22,7 +22,7 @@ object RandomBoundedInt:
       _.nextIntBetween(
         minInclusive,
         maxExclusive
-    )
+      )
     )
 
   object RandomBoundedIntLive

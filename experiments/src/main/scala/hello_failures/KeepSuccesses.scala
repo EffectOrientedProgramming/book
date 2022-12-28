@@ -63,8 +63,7 @@ object KeepSuccesses extends zio.ZIOAppDefault:
             yield ()
     yield ()
 
-  def run =
-    moreStructuredLogic
+  def run = moreStructuredLogic
 
   def fastUnreliableNetworkCall(input: String) =
     if (input.length < 5)

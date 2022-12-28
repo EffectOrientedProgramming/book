@@ -17,14 +17,29 @@ object LunchVoteTest extends ZIOSpecDefault:
               Voter("Alice", 0.seconds, Yay),
               Voter("Bob", 0.seconds, Yay),
               Voter("Charlie", 0.seconds, Yay),
-              Voter("Dave", 1.seconds, Nay, onInterrupt = interruptedVoters.update(_ + 1)),
-              Voter("Eve", 1.seconds, Nay, onInterrupt = interruptedVoters.update(_ + 1))
+              Voter(
+                "Dave",
+                1.seconds,
+                Nay,
+                onInterrupt =
+                  interruptedVoters.update(_ + 1)
+              ),
+              Voter(
+                "Eve",
+                1.seconds,
+                Nay,
+                onInterrupt =
+                  interruptedVoters.update(_ + 1)
+              )
             )
           result <- LunchVote.run(voters)
-          totalInterrupted <- interruptedVoters.get
+          totalInterrupted <-
+            interruptedVoters.get
 //          _ <- ZIO.withClock(Clock.ClockLive)(ZIO.sleep(1.seconds))
-        yield assertTrue(result == Yay)  && assertTrue(totalInterrupted == 2)
-      } @@ flaky, // Flaky because Interruption count is not reliable
+        yield assertTrue(result == Yay) &&
+          assertTrue(totalInterrupted == 2)
+      } @@
+        flaky, // Flaky because Interruption count is not reliable
       test("3 quick nays") {
         val voters =
           List(
@@ -34,8 +49,7 @@ object LunchVoteTest extends ZIOSpecDefault:
             Voter("Dave", 1.seconds, Yay),
             Voter("Eve", 1.seconds, Yay)
           )
-        for
-          result <- LunchVote.run(voters)
+        for result <- LunchVote.run(voters)
         yield assertTrue(result == Nay)
       },
       test("slow voters") {
@@ -48,9 +62,11 @@ object LunchVoteTest extends ZIOSpecDefault:
             Voter("Eve", 10.seconds, Yay)
           )
         for
-          resultF <- LunchVote.run(voters, 1.seconds).fork
-          _ <- TestClock.adjust(2.seconds)
+          resultF <-
+            LunchVote.run(voters, 1.seconds).fork
+          _       <- TestClock.adjust(2.seconds)
           timeout <- resultF.join.flip
         yield assertTrue(timeout == None)
       }
     )
+end LunchVoteTest
