@@ -15,7 +15,7 @@ import zio.{
 
 import scala.concurrent.Await
 
-object JustSleep extends ZIOAppDefault:
+object ParallelSleepers extends ZIOAppDefault:
 
   override def run =
     ZIO.collectAllPar(
@@ -24,18 +24,3 @@ object JustSleep extends ZIOAppDefault:
       ZIO.debug(
         "Finished far sooner than 10,000 seconds"
       )
-
-@main
-def ToFuture() =
-  Await.result(
-    Unsafe.unsafe { (u: Unsafe) =>
-      given Unsafe = u
-      zio
-        .Runtime
-        .default
-        .unsafe
-        .runToFuture(ZIO.sleep(1.seconds))
-//        .getOrThrowFiberFailure()
-    },
-    scala.concurrent.duration.Duration.Inf
-  )

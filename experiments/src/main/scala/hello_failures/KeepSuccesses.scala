@@ -63,13 +63,7 @@ object KeepSuccesses extends zio.ZIOAppDefault:
             yield ()
     yield ()
 
-  val logicSpecific =
-    ZIO.collectAllWith(initialRequests)(
-      _.payload.contains("a")
-    )
-
   def run =
-//      logic
     moreStructuredLogic
 
   def fastUnreliableNetworkCall(input: String) =

@@ -325,7 +325,7 @@ object Booker extends ZIOAppDefault:
 
     for
       flatFiles <- BookerTools.orderedChapters(f)
-      result <-
+      result    <-
 //        ReorderExistingApp
         AddNewChapterApp
           .run(CliStateSimp(flatFiles))
