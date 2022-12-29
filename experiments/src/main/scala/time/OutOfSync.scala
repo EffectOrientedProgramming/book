@@ -41,31 +41,35 @@ object TimeIgnorant:
     val executionTimeStamp = Instant.now()
     for
       timeStamp <-
-        ZIO
-          .getOrFailWith(
-            "Must call summary before posts"
-          )(summaryCalledTime)
+        ZIO.getOrFailWith(
+          "Must call summary before posts"
+        )(summaryCalledTime)
       _ <-
-        ZIO.debug(
-          "Summary called: " + timeStamp
+        ZIO.debug("Summary called: " + timeStamp)
+      _ <-
+        ZIO.when(
+          Duration
+            .between(timeStamp, Instant.now)
+            .compareTo(Duration.ofSeconds(1)) > 0
+        )(
+          ZIO.debug(
+            "Significant delay between calls. Results are skewed!"
+          )
         )
-      _ <- ZIO.when(Duration.between(timeStamp, Instant.now).compareTo(Duration.ofSeconds(1)) > 0)(
-        ZIO.debug("Significant delay between calls. Results are skewed!")
-      )
       _ <-
         ZIO.debug(
           "Getting posts:  " + executionTimeStamp
         )
     yield Seq(Post("Hello!"), Post("Goodbye!"))
+    end for
   end postsBy
 end TimeIgnorant
 
 object DemoSyncIssues extends ZIOAppDefault:
   def run =
     for
-      summary <- TimeIgnorant.summaryFor()
+      summary      <- TimeIgnorant.summaryFor()
       transactions <- TimeIgnorant.postsBy()
-      uiContents =
-        UserUI(summary, transactions)
+      uiContents = UserUI(summary, transactions)
       _ <- zio.Console.printLine(uiContents)
     yield ()

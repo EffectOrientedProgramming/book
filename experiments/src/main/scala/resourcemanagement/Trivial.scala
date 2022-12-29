@@ -19,16 +19,15 @@ object Trivial extends zio.ZIOAppDefault:
 
     def release(ref: Ref[ResourceState]) =
       for
-        _ <-
-          ZIO.debug("Closing Resource")
+        _ <- ZIO.debug("Closing Resource")
         _ <- ref.set(ResourceState.Closed)
       yield ()
 
     def releaseSymbolic(
         ref: Ref[ResourceState]
     ) =
-      ZIO.debug("Closing Resource")
-        *> ref.set(ResourceState.Closed)
+      ZIO.debug("Closing Resource") *>
+        ref.set(ResourceState.Closed)
 
     // This combines creating a managed resource
     // with using it.
@@ -58,8 +57,7 @@ object Trivial extends zio.ZIOAppDefault:
           managed.flatMap { s =>
             for
               _ <- ZIO.debug(s)
-              _ <-
-                ZIO.debug("Blowing up")
+              _ <- ZIO.debug("Blowing up")
               _ <- ZIO.fail("Arggggg")
             yield ()
           }
