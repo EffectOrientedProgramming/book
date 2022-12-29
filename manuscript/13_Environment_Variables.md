@@ -225,11 +225,11 @@ val fancyLodging: ZIO[
 //     trace = "repl.MdocSession.MdocApp.HotelApiZ.cheapest(13_Environment_Variables.md:226)",
 //     first = Sync(
 //       trace = "repl.MdocSession.MdocApp.HotelApiZ.cheapest(13_Environment_Variables.md:226)",
-//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$14278/1347924600@6b5b638f
+//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$14301/1555493768@cd26fb9
 //     ),
-//     successK = zio.ZIO$$$Lambda$14250/716869985@56a9e445
+//     successK = zio.ZIO$$$Lambda$14277/1126338738@762ac71f
 //   ),
-//   successK = zio.ZIO$$Lambda$14237/616373540@90504a9
+//   successK = zio.ZIO$$Lambda$14264/654793386@5149d371
 // )
 ```
 
