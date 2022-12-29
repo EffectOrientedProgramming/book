@@ -83,8 +83,23 @@ import zio.Console.printLine
 
 import java.util.concurrent.TimeUnit
 
-trait ProgressBar
 import scala.io.AnsiColor.*
+
+val saveCursorPosition = Console.print("\u001b7")
+val loadCursorPosition = Console.print("\u001b8")
+
+def progressBar(
+    length: RuntimeFlags,
+    label: String = ""
+): IO[Any, Unit] =
+  val barColor =
+    if (length > 3)
+      GREEN_B
+    else
+      RED_B
+  Console.print(
+    s"""$label$barColor${" " * length}$RESET"""
+  )
 
 object ClockAndConsole extends ZIOAppDefault:
   val renderCurrentTime =
@@ -95,11 +110,6 @@ object ClockAndConsole extends ZIOAppDefault:
         renderRemainingTime(currentTime)
           .repeat(Schedule.recurs(10))
     yield ()
-
-  val saveCursorPosition =
-    Console.print("\u001b7")
-  val loadCursorPosition =
-    Console.print("\u001b8")
 
   def renderRemainingTime(startTime: Long) =
     for
@@ -120,70 +130,8 @@ object ClockAndConsole extends ZIOAppDefault:
       _ <- loadCursorPosition
     yield ()
 
-  def progressBar(length: Int) =
-    val color =
-      if (length > 3)
-        GREEN_B
-      else
-        RED_B
-    Console.printLine(
-      s"""${color}${" " * length}${RESET}"""
-    )
-
   def run = renderCurrentTime
 end ClockAndConsole
-
-object ClockAndConsoleDifficultEffectManagement
-    extends ZIOAppDefault:
-  val renderCurrentTime =
-    for
-      currentTime <-
-        Clock.currentTime(TimeUnit.SECONDS)
-      _ <-
-        renderRemainingTime(currentTime)
-          .repeat(Schedule.recurs(10))
-      _ <-
-        renderRemainingTime(
-          Integer.max(currentTime.toInt - 5, 0)
-        ).repeat(Schedule.recurs(10))
-    yield ()
-
-  val saveCursorPosition =
-    Console.print("\u001b7")
-  val loadCursorPosition =
-    Console.print("\u001b8")
-
-  def renderRemainingTime(startTime: Long) =
-    for
-      currentTime <-
-        Clock.currentTime(TimeUnit.SECONDS)
-      timeElapsed = (currentTime - startTime)
-        .toInt
-      // NOTE: You can only reset the cursor
-      // position once in a single SBT session
-      _ <- saveCursorPosition
-      timeRemaining = 10 - timeElapsed
-      _ <-
-        Console.print(
-          s"${BOLD}$timeRemaining seconds remaining ${RESET}"
-        )
-      _ <- progressBar(timeRemaining)
-      _ <- ZIO.sleep(1.seconds)
-      _ <- loadCursorPosition
-    yield ()
-
-  def progressBar(length: Int) =
-    val color =
-      if (length > 3)
-        GREEN_B
-      else
-        RED_B
-    Console.printLine(
-      s"""${color}${" " * length}${RESET}"""
-    )
-
-  def run = renderCurrentTime
-end ClockAndConsoleDifficultEffectManagement
 
 object ClockAndConsoleImproved
     extends ZIOAppDefault:
@@ -199,8 +147,7 @@ object ClockAndConsoleImproved
         )
       racer2 <-
         LongRunningProcess("Zeb", currentTime, 5)
-      raceFinished: Ref[Boolean] <-
-        Ref.make[Boolean](false)
+      raceFinished <- Ref.make[Boolean](false)
       winnersName <-
       raceEntities(
         racer1.run,
@@ -225,10 +172,10 @@ object ClockAndConsoleImproved
         racer1status <- racer1.status.get
         racer2status <- racer2.status.get
         _ <-
-          progressBar(racer1.name, racer1status)
+          progressBar(racer1status, racer1.name)
         _ <- printLine("")
         _ <-
-          progressBar(racer2.name, racer2status)
+          progressBar(racer2status, racer2.name)
       yield ()
     ).repeatWhileZIO(_ => raceFinished.get)
 
@@ -238,16 +185,11 @@ object ClockAndConsoleImproved
       raceFinished: Ref[Boolean]
   ): ZIO[Any, Nothing, String] =
     racer1
-      .race(racer2)
+//      .race(racer2)
       .flatMap { success =>
         raceFinished.set(true) *>
           ZIO.succeed(success)
       }
-
-  val saveCursorPosition =
-    Console.print("\u001b7")
-  val loadCursorPosition =
-    Console.print("\u001b8")
 
   def renderLoop[T](
       drawFrame: ZIO[T, Any, Unit]
@@ -299,16 +241,6 @@ object ClockAndConsoleImproved
       loopAndCheck
         .repeatUntil(_ == 0)
         .map(_ => name)
-
-  def progressBar(label: String, length: Int) =
-    val barColor =
-      if (length > 3)
-        GREEN_B
-      else
-        RED_B
-    Console.print(
-      s"""$label$barColor${" " * length}$RESET"""
-    )
 
   def run = renderCurrentTime
 end ClockAndConsoleImproved
