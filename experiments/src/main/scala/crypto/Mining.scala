@@ -69,12 +69,12 @@ end Mining
 
 // TODO Consider putting math functions somewhere else to avoid cluttering example
 
-private def isPrime(num: Int): Boolean =
+def isPrime(num: Int): Boolean =
   (2 until num)
     .forall(divisor => num % divisor != 0)
 
 @tailrec
-private def nextPrimeAfter(num: Int): Int =
+def nextPrimeAfter(num: Int): Int =
   if (isPrime(num))
     num
   else

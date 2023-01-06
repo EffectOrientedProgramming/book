@@ -1,10 +1,11 @@
 package concurrency
 
-import zio.test._
-import zio.test.TestAspect._
-import zio._
-import LunchVote._
-import LunchVote.Vote._
+import zio.test.*
+import zio.test.TestAspect.*
+import zio.test.Assertion.*
+import zio.*
+import LunchVote.*
+import LunchVote.Vote.*
 
 object LunchVoteTest extends ZIOSpecDefault:
   def spec =
@@ -63,10 +64,11 @@ object LunchVoteTest extends ZIOSpecDefault:
           )
         for
           resultF <-
-            LunchVote.run(voters, 1.seconds).fork
+            LunchVote.run(voters, maximumVoteTime = 1.seconds).fork
           _       <- TestClock.adjust(2.seconds)
           timeout <- resultF.join.flip
-        yield assertTrue(timeout == None)
+        //yield assert(timeout)(isNone)
+        yield assertTrue(timeout.isEmpty)
       }
     )
 end LunchVoteTest
