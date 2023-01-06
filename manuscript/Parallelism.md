@@ -174,12 +174,74 @@ import scala.concurrent.Await
 object ParallelSleepers extends ZIOAppDefault:
 
   override def run =
-    ZIO.collectAllPar(
-      (1 to 10000).map(_ => ZIO.sleep(1.seconds))
+    ZIO.foreachPar(1 to 10_000)(_ =>
+      ZIO.sleep(1.seconds)
     ) *>
       ZIO.debug(
         "Finished far sooner than 10,000 seconds"
       )
+
+val sleepers =
+  Seq(
+    1.seconds,
+    2.seconds,
+    3.seconds,
+    4.seconds,
+    5.seconds
+  )
+
+object ParallelSleepers2 extends ZIOAppDefault:
+  override def run =
+    ZIO
+      .foreach(sleepers)(ZIO.sleep(_))
+      .timed
+      .debug
+
+object ParallelSleepers3 extends ZIOAppDefault:
+  override def run =
+    ZIO
+      .foreachPar(sleepers)(ZIO.sleep(_))
+      .timed
+      .debug
+
+object ParallelSleepers4 extends ZIOAppDefault:
+  override def run =
+    val racers = sleepers.map(ZIO.sleep(_))
+    ZIO
+      .raceAll(racers.head, racers.tail)
+      .timed
+      .debug
+
+object ParallelSleepers5 extends ZIOAppDefault:
+  override def run =
+    ZIO.withParallelism(2) {
+      ZIO
+        .foreachPar(sleepers)(ZIO.sleep(_))
+        .timed
+        .debug
+    }
+
+```
+
+
+### experiments/src/main/scala/Parallelism/PrimeSeeker.scala
+```scala
+package Parallelism
+
+import zio.*
+
+import java.math.BigInteger
+
+object PrimeSeeker extends ZIOAppDefault:
+
+  override def run =
+    ZIO.withParallelism(1) {
+      ZIO.foreachPar(1 to 16) { _ =>
+        ZIO.succeed(
+          crypto.nextPrimeAfter(100_000_000)
+        )
+      }
+    } *> ZIO.debug("Found a bunch of primes")
 
 ```
 
