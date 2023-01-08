@@ -225,8 +225,10 @@ object FileService:
     List[String]
   ] =
     ZIO
-      .succeed(List("line1", "line2"))
-      .debug("Read from FileSystem")
+      .succeed(
+        List("viralImage1", "viralImage2")
+      )
+      .debug("Reading from FileSystem")
       .delay(2.seconds)
 
   val live =
@@ -306,21 +308,28 @@ object FileService:
                   yield activeRefreshes +
                     (name -> promise)
             }
-            .map(_(name)) // TODO Unsafe
+            .map(_(name)) // TODO Unsafe/cryptic
         finalStatus <- state.await
         finalContents <-
           finalStatus match
             case RefreshState.NewlyActive =>
               for
+                _ <-
+                  ZIO.debug(
+                    "1st herd member is going to hit the filesystem"
+                  )
                 contents <- readFile(name)
                 _ <- promise.succeed(contents)
               yield contents
             case RefreshState.AlreadyActive =>
-              promise
-                .await
-                .debug(
-                  "Got contents from promise completed by someone else"
-                )
+              ZIO.debug(
+                "Slower herd member is going to wait for the response of 1st member"
+              ) *>
+                promise
+                  .await
+                  .debug(
+                    "Slower herd member got answer from 1st member"
+                  )
       yield finalContents
   end Live
 end FileService
@@ -331,10 +340,7 @@ val herdBehavior =
   for
     fileService <- ZIO.service[FileService]
     _ <-
-      ZIO.foreachPar(users)(user =>
-        ZIO.debug(
-          s"$user wants to see popular file"
-        )
+      ZIO.foreachParDiscard(users)(user =>
         fileService
           .retrieveContents("awesomeMemes")
       )
