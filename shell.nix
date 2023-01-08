@@ -7,6 +7,8 @@ pkgs.mkShell {
     pkgs.scala
     pkgs.sbt
     pkgs.jetbrains.idea-community
+    pkgs.metals
+#    pkgs.vscode
     # Random others that might be helpful
     pkgs.vim
     pkgs.which
