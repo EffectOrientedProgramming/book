@@ -64,10 +64,15 @@ object LunchVoteTest extends ZIOSpecDefault:
           )
         for
           resultF <-
-            LunchVote.run(voters, maximumVoteTime = 1.seconds).fork
+            LunchVote
+              .run(
+                voters,
+                maximumVoteTime = 1.seconds
+              )
+              .fork
           _       <- TestClock.adjust(2.seconds)
           timeout <- resultF.join.flip
-        //yield assert(timeout)(isNone)
+        // yield assert(timeout)(isNone)
         yield assertTrue(timeout.isEmpty)
       }
     )

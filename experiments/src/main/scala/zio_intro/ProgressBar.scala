@@ -8,13 +8,13 @@ import java.util.concurrent.TimeUnit
 
 import scala.io.AnsiColor.*
 
-val saveCursorPosition =
-  Console.print("\u001b7")
-val loadCursorPosition =
-  Console.print("\u001b8")
+val saveCursorPosition = Console.print("\u001b7")
+val loadCursorPosition = Console.print("\u001b8")
 
-
-def progressBar(length: RuntimeFlags, label: String = ""): IO[Any, Unit] =
+def progressBar(
+    length: RuntimeFlags,
+    label: String = ""
+): IO[Any, Unit] =
   val barColor =
     if (length > 3)
       GREEN_B
