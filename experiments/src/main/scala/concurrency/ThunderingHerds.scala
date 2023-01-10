@@ -1,27 +1,30 @@
 package concurrency
 
 import zio.*
+import java.nio.file.Path
 
 trait FileSystem
 trait FileNotFound
 trait RetrievalFailure
 
+case class FileContents(contents: List[String])
+
 trait FileService:
-  def retrieveContents(name: String): ZIO[
+  def retrieveContents(name: Path): ZIO[
     FileSystem,
     RetrievalFailure | FileNotFound,
-    List[String]
+    FileContents
   ]
 
 object FileService:
-  def readFile(name: String): ZIO[
+  private def readFileExpensive(name: Path): ZIO[
     FileSystem,
     RetrievalFailure | FileNotFound,
-    List[String]
+    FileContents
   ] =
     ZIO
       .succeed(
-        List("viralImage1", "viralImage2")
+        FileContents(List("viralImage1", "viralImage2"))
       )
       .debug("Reading from FileSystem")
       .delay(2.seconds)
@@ -31,15 +34,15 @@ object FileService:
       for
         accessCount <- Ref.make[Int](0)
         cache <-
-          Ref.make[Map[String, List[String]]](
+          Ref.make[Map[Path, FileContents]](
             Map.empty
           )
         activeRefreshes <-
           Ref
             .Synchronized
-            .make[Map[String, Promise[
+            .make[Map[Path, Promise[
               RetrievalFailure,
-              List[String]
+              FileContents
             ]]](Map.empty)
       yield Live(
         accessCount,
@@ -48,24 +51,24 @@ object FileService:
       )
     )
 
+
   case class Live(
-      accessCount: Ref[Int],
-      cache: Ref[Map[String, List[String]]],
+      accessCount: Ref[Int], // TODO Consider removing
+      cache: Ref[Map[Path, FileContents]],
       activeRefresh: Ref.Synchronized[Map[
-        String,
-        Promise[RetrievalFailure, List[String]]
+        Path,
+        Promise[RetrievalFailure, FileContents]
       ]]
   ) extends FileService:
-    def retrieveContents(name: String): ZIO[
+    def retrieveContents(name: Path): ZIO[
       FileSystem,
       RetrievalFailure | FileNotFound,
-      List[String]
+      FileContents
     ] =
       for
-        currentCache <- cache.get
-        initialValue = currentCache.get(name)
+        cachedValue <- cache.get.map(_.get(name))
         activeValue <-
-          initialValue match
+          cachedValue match
             case Some(initValue) =>
               ZIO.succeed(initValue)
             case None =>
@@ -76,7 +79,7 @@ object FileService:
       case NewlyActive,
         AlreadyActive
 
-    def retrieveOrWaitForContents(name: String) =
+    def retrieveOrWaitForContents(name: Path) =
       for
         state <-
           Promise.make[Nothing, RefreshState]
@@ -94,7 +97,7 @@ object FileService:
                     promise <-
                       Promise.make[
                         RetrievalFailure,
-                        List[String]
+                        FileContents
                       ]
                     _ <-
                       state.succeed(
@@ -113,7 +116,7 @@ object FileService:
                   ZIO.debug(
                     "1st herd member is going to hit the filesystem"
                   )
-                contents <- readFile(name)
+                contents <- readFileExpensive(name)
                 _ <- promise.succeed(contents)
               yield contents
             case RefreshState.AlreadyActive =>
@@ -137,7 +140,7 @@ val herdBehavior =
     _ <-
       ZIO.foreachParDiscard(users)(user =>
         fileService
-          .retrieveContents("awesomeMemes")
+          .retrieveContents(Path.of("awesomeMemes"))
       )
   yield ()
 
