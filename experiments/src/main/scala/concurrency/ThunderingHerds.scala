@@ -40,10 +40,7 @@ object FileService:
         activeRefreshes <-
           Ref
             .Synchronized
-            .make[Map[Path, Promise[
-              RetrievalFailure,
-              FileContents
-            ]]](Map.empty)
+            .make[Map[Path, ActiveUpdate]](Map.empty)
       yield Live(
         accessCount,
         cache,
@@ -51,13 +48,17 @@ object FileService:
       )
     )
 
+  case class ActiveUpdate(
+      observers: Int,
+      promise: Promise[RetrievalFailure, FileContents]
+  )
 
   case class Live(
       accessCount: Ref[Int], // TODO Consider removing
       cache: Ref[Map[Path, FileContents]],
       activeRefresh: Ref.Synchronized[Map[
         Path,
-        Promise[RetrievalFailure, FileContents]
+        ActiveUpdate
       ]]
   ) extends FileService:
     def retrieveContents(name: Path): ZIO[
@@ -81,17 +82,16 @@ object FileService:
 
     def retrieveOrWaitForContents(name: Path) =
       for
-        state <-
-          Promise.make[Nothing, RefreshState]
-        promise <-
+        activeUpdate <-
           activeRefresh
             .updateAndGetZIO { activeRefreshes =>
               activeRefreshes.get(name) match
                 case Some(promise) =>
-                  state.succeed(
-                    RefreshState.AlreadyActive
-                  ) *>
-                    ZIO.succeed(activeRefreshes)
+                    ZIO.succeed(activeRefreshes.updatedWith(name) {
+                      case Some(value) => Some(value.copy(observers = value.observers + 1))
+                      case None => ??? // We know it's here. Clean this up
+                    }
+                    )
                 case None =>
                   for
                     promise <-
@@ -99,31 +99,27 @@ object FileService:
                         RetrievalFailure,
                         FileContents
                       ]
-                    _ <-
-                      state.succeed(
-                        RefreshState.NewlyActive
-                      )
                   yield activeRefreshes +
-                    (name -> promise)
+                    (name -> ActiveUpdate(0, promise))
             }
             .map(_(name)) // TODO Unsafe/cryptic
-        finalStatus <- state.await
         finalContents <-
-          finalStatus match
-            case RefreshState.NewlyActive =>
+          activeUpdate.observers match
+            case 0 =>
               for
                 _ <-
                   ZIO.debug(
                     "1st herd member is going to hit the filesystem"
                   )
                 contents <- readFileExpensive(name)
-                _ <- promise.succeed(contents)
+                _ <- activeUpdate.promise.succeed(contents)
               yield contents
-            case RefreshState.AlreadyActive =>
+            case observerCount =>
               ZIO.debug(
                 "Slower herd member is going to wait for the response of 1st member"
               ) *>
-                promise
+                activeUpdate
+                  .promise
                   .await
                   .debug(
                     "Slower herd member got answer from 1st member"
