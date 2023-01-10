@@ -4,22 +4,20 @@ import zio.*
 import java.nio.file.Path
 
 trait FileSystem
-trait FileNotFound
-trait RetrievalFailure
 
 case class FileContents(contents: List[String])
 
 trait FileService:
   def retrieveContents(name: Path): ZIO[
     FileSystem,
-    RetrievalFailure | FileNotFound,
+    Nothing,
     FileContents
   ]
 
 object FileService:
   private def readFileExpensive(name: Path): ZIO[
     FileSystem,
-    RetrievalFailure | FileNotFound,
+    Nothing,
     FileContents
   ] =
     ZIO
@@ -53,7 +51,7 @@ object FileService:
   case class ActiveUpdate(
       observers: Int,
       promise: Promise[
-        RetrievalFailure,
+        Nothing,
         FileContents
       ]
   )
@@ -67,7 +65,7 @@ object FileService:
   ) extends FileService:
     def retrieveContents(name: Path): ZIO[
       FileSystem,
-      RetrievalFailure | FileNotFound,
+      Nothing,
       FileContents
     ] =
       for
@@ -75,6 +73,7 @@ object FileService:
         activeValue <-
           cachedValue match
             case Some(initValue) =>
+              ZIO.debug("Value was cached. Easy path.") *>
               ZIO.succeed(initValue)
             case None =>
               retrieveOrWaitForContents(name)
@@ -86,7 +85,7 @@ object FileService:
       for
         promiseThatMightNotBeUsed <-
           Promise
-            .make[RetrievalFailure, FileContents]
+            .make[Nothing, FileContents]
         activeUpdate <-
           activeRefresh
             .updateAndGet { activeRefreshes =>
@@ -113,7 +112,7 @@ object FileService:
               for
                 _ <-
                   ZIO.debug(
-                    "1st herd member is going to hit the filesystem"
+                     "1st herd member will hit the filesystem"
                   )
                 contents <-
                   readFileExpensive(name)
@@ -121,10 +120,12 @@ object FileService:
                   activeUpdate
                     .promise
                     .succeed(contents)
+                _ <- activeRefresh.update(m => m - name) // Clean out "active" entry
+                _ <- cache.update(m => m.updated(name, contents)) // Update cache
               yield contents
             case observerCount =>
               ZIO.debug(
-                "Slower herd member is going to wait for the response of 1st member"
+                "Slower herd member will wait for response of 1st member"
               ) *>
                 activeUpdate
                   .promise
@@ -146,6 +147,11 @@ val herdBehavior =
         fileService.retrieveContents(
           Path.of("awesomeMemes")
         )
+      )
+    _ <- ZIO.debug("=========")
+    _ <-
+      fileService.retrieveContents(
+        Path.of("awesomeMemes")
       )
   yield ()
 
