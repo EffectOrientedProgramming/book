@@ -12,25 +12,26 @@ trait FileService:
     FileContents
   ]
 
-object FileService:
-  private def readFileExpensive(name: Path): ZIO[
+  val hits: ZIO[
     Any,
     Nothing,
-    FileContents
-  ] =
-    ZIO
-      .succeed(
-        FileContents(
-          List("viralImage1", "viralImage2")
-        )
-      )
-      .debug("Reading from FileSystem")
-      .delay(2.seconds)
+    Int
+  ]
 
+  val misses: ZIO[
+    Any,
+    Nothing,
+    Int
+  ]
+
+
+object FileService:
   val live =
     ZLayer.fromZIO(
       for
-        accessCount <- Ref.make[Int](0)
+        fs <- ZIO.service[FileSystem]
+        hit <- Ref.make[Int](0)
+        miss <- Ref.make[Int](0)
         cache <-
           Ref.make[Map[Path, FileContents]](
             Map.empty
@@ -40,9 +41,11 @@ object FileService:
             Map.empty
           )
       yield Live(
-        accessCount,
+        hit,
+        miss,
         cache,
-        activeRefreshes
+        activeRefreshes,
+        fs
       )
     )
 
@@ -55,11 +58,15 @@ object FileService:
   )
 
   case class Live(
-      accessCount: Ref[
+      hit: Ref[
         Int
-      ], // TODO Consider removing
+      ],
+      miss: Ref[
+        Int
+      ],
       cache: Ref[Map[Path, FileContents]],
-      activeRefresh: Ref[Map[Path, ActiveUpdate]]
+      activeRefresh: Ref[Map[Path, ActiveUpdate]],
+      fileSystem: FileSystem
   ) extends FileService:
     def retrieveContents(name: Path): ZIO[
       Any,
@@ -71,9 +78,11 @@ object FileService:
         activeValue <-
           cachedValue match
             case Some(initValue) =>
+              hit.update(_ + 1) *>
               ZIO.debug("Value was cached. Easy path.") *>
               ZIO.succeed(initValue)
             case None =>
+              miss.update(_ + 1) *>
               retrieveOrWaitForContents(name)
       yield activeValue
 
@@ -113,7 +122,7 @@ object FileService:
                      "1st herd member will hit the filesystem"
                   )
                 contents <-
-                  readFileExpensive(name)
+                  fileSystem.readFileExpensive(name)
                 _ <-
                   activeUpdate
                     .promise
@@ -132,6 +141,19 @@ object FileService:
                     "Slower herd member got answer from 1st member"
                   )
       yield finalContents
+
+    val hits: ZIO[
+      Any,
+      Nothing,
+      Int
+    ] = hit.get
+
+    val misses: ZIO[
+      Any,
+      Nothing,
+      Int
+    ] = miss.get
+
   end Live
 end FileService
 
@@ -156,5 +178,26 @@ val herdBehavior =
 object ThunderingHerds extends ZIOAppDefault:
   def run =
     herdBehavior.provide(
+      FileSystem.live,
       FileService.live,
     )
+
+
+trait FileSystem:
+  def readFileExpensive(name: Path): ZIO[
+    Any,
+    Nothing,
+    FileContents
+  ] =
+    ZIO
+      .succeed(
+        FileContents(
+          List("viralImage1", "viralImage2")
+        )
+      )
+      .debug("Reading from FileSystem")
+      .delay(2.seconds)
+
+object FileSystem:
+  val live =
+    ZLayer.succeed(new FileSystem {})

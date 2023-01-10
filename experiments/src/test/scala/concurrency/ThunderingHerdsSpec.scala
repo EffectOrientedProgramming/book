@@ -28,13 +28,14 @@ object ThunderingHerdsSpec extends ZIOSpecDefault:
               )
           yield ()
         for
-
-          logicFork <- herdBehavior.provide(
-          FileService.live,
-          ).fork
+          logicFork <- herdBehavior.fork
           _ <- TestClock.adjust(2.seconds)
           res <- logicFork.join
+          misses <- ZIO.serviceWithZIO[FileService](_.misses)
           _ <- ZIO.debug("Eh?")
-        yield assertCompletes
-      }
+        yield assertTrue(misses == 3)
+      }.provide(
+        FileSystem.live,
+        FileService.live,
+      )
     )
