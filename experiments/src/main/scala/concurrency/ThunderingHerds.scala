@@ -24,7 +24,9 @@ object FileService:
   ] =
     ZIO
       .succeed(
-        FileContents(List("viralImage1", "viralImage2"))
+        FileContents(
+          List("viralImage1", "viralImage2")
+        )
       )
       .debug("Reading from FileSystem")
       .delay(2.seconds)
@@ -38,8 +40,9 @@ object FileService:
             Map.empty
           )
         activeRefreshes <-
-          Ref
-            .make[Map[Path, ActiveUpdate]](Map.empty)
+          Ref.make[Map[Path, ActiveUpdate]](
+            Map.empty
+          )
       yield Live(
         accessCount,
         cache,
@@ -49,16 +52,18 @@ object FileService:
 
   case class ActiveUpdate(
       observers: Int,
-      promise: Promise[RetrievalFailure, FileContents]
+      promise: Promise[
+        RetrievalFailure,
+        FileContents
+      ]
   )
 
   case class Live(
-      accessCount: Ref[Int], // TODO Consider removing
+      accessCount: Ref[
+        Int
+      ], // TODO Consider removing
       cache: Ref[Map[Path, FileContents]],
-      activeRefresh: Ref[Map[
-        Path,
-        ActiveUpdate
-      ]]
+      activeRefresh: Ref[Map[Path, ActiveUpdate]]
   ) extends FileService:
     def retrieveContents(name: Path): ZIO[
       FileSystem,
@@ -75,29 +80,31 @@ object FileService:
               retrieveOrWaitForContents(name)
       yield activeValue
 
-    enum RefreshState:
-      case NewlyActive,
-        AlreadyActive
-
-    def retrieveOrWaitForContents(name: Path) =
+    private def retrieveOrWaitForContents(
+        name: Path
+    ) =
       for
         promiseThatMightNotBeUsed <-
-          Promise.make[
-            RetrievalFailure,
-            FileContents
-          ]
+          Promise
+            .make[RetrievalFailure, FileContents]
         activeUpdate <-
           activeRefresh
             .updateAndGet { activeRefreshes =>
-              activeRefreshes.get(name) match
+              activeRefreshes.updatedWith(name) {
                 case Some(promise) =>
-                    activeRefreshes.updatedWith(name) {
-                      case Some(value) => Some(value.copy(observers = value.observers + 1))
-                      case None => ??? // We know it's here. Clean this up
-                    }
+                  Some(
+                    promise.copy(observers =
+                      promise.observers + 1
+                    )
+                  )
                 case None =>
-                  activeRefreshes +
-                    (name -> ActiveUpdate(0, promiseThatMightNotBeUsed))
+                  Some(
+                    ActiveUpdate(
+                      0,
+                      promiseThatMightNotBeUsed
+                    )
+                  )
+              }
             }
             .map(_(name)) // TODO Unsafe/cryptic
         finalContents <-
@@ -108,8 +115,12 @@ object FileService:
                   ZIO.debug(
                     "1st herd member is going to hit the filesystem"
                   )
-                contents <- readFileExpensive(name)
-                _ <- activeUpdate.promise.succeed(contents)
+                contents <-
+                  readFileExpensive(name)
+                _ <-
+                  activeUpdate
+                    .promise
+                    .succeed(contents)
               yield contents
             case observerCount =>
               ZIO.debug(
@@ -132,8 +143,9 @@ val herdBehavior =
     fileService <- ZIO.service[FileService]
     _ <-
       ZIO.foreachParDiscard(users)(user =>
-        fileService
-          .retrieveContents(Path.of("awesomeMemes"))
+        fileService.retrieveContents(
+          Path.of("awesomeMemes")
+        )
       )
   yield ()
 
