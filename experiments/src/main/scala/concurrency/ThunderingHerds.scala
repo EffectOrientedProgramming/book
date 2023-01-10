@@ -39,7 +39,6 @@ object FileService:
           )
         activeRefreshes <-
           Ref
-            .Synchronized
             .make[Map[Path, ActiveUpdate]](Map.empty)
       yield Live(
         accessCount,
@@ -56,7 +55,7 @@ object FileService:
   case class Live(
       accessCount: Ref[Int], // TODO Consider removing
       cache: Ref[Map[Path, FileContents]],
-      activeRefresh: Ref.Synchronized[Map[
+      activeRefresh: Ref[Map[
         Path,
         ActiveUpdate
       ]]
@@ -82,25 +81,23 @@ object FileService:
 
     def retrieveOrWaitForContents(name: Path) =
       for
+        promiseThatMightNotBeUsed <-
+          Promise.make[
+            RetrievalFailure,
+            FileContents
+          ]
         activeUpdate <-
           activeRefresh
-            .updateAndGetZIO { activeRefreshes =>
+            .updateAndGet { activeRefreshes =>
               activeRefreshes.get(name) match
                 case Some(promise) =>
-                    ZIO.succeed(activeRefreshes.updatedWith(name) {
+                    activeRefreshes.updatedWith(name) {
                       case Some(value) => Some(value.copy(observers = value.observers + 1))
                       case None => ??? // We know it's here. Clean this up
                     }
-                    )
                 case None =>
-                  for
-                    promise <-
-                      Promise.make[
-                        RetrievalFailure,
-                        FileContents
-                      ]
-                  yield activeRefreshes +
-                    (name -> ActiveUpdate(0, promise))
+                  activeRefreshes +
+                    (name -> ActiveUpdate(0, promiseThatMightNotBeUsed))
             }
             .map(_(name)) // TODO Unsafe/cryptic
         finalContents <-
