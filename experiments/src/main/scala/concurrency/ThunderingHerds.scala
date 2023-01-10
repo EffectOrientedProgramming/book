@@ -3,20 +3,18 @@ package concurrency
 import zio.*
 import java.nio.file.Path
 
-trait FileSystem
-
 case class FileContents(contents: List[String])
 
 trait FileService:
   def retrieveContents(name: Path): ZIO[
-    FileSystem,
+    Any,
     Nothing,
     FileContents
   ]
 
 object FileService:
   private def readFileExpensive(name: Path): ZIO[
-    FileSystem,
+    Any,
     Nothing,
     FileContents
   ] =
@@ -64,7 +62,7 @@ object FileService:
       activeRefresh: Ref[Map[Path, ActiveUpdate]]
   ) extends FileService:
     def retrieveContents(name: Path): ZIO[
-      FileSystem,
+      Any,
       Nothing,
       FileContents
     ] =
@@ -159,5 +157,4 @@ object ThunderingHerds extends ZIOAppDefault:
   def run =
     herdBehavior.provide(
       FileService.live,
-      ZLayer.succeed(new FileSystem {})
     )
