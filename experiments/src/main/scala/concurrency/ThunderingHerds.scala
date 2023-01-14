@@ -1,36 +1,27 @@
 package concurrency
 
 import zio.*
+import zio.Console.printLine
+
 import java.nio.file.Path
 
 case class FileContents(contents: List[String])
 
 trait FileService:
-  def retrieveContents(name: Path): ZIO[
-    Any,
-    Nothing,
-    FileContents
-  ]
+  def retrieveContents(
+      name: Path
+  ): ZIO[Any, Nothing, FileContents]
 
-  val hits: ZIO[
-    Any,
-    Nothing,
-    Int
-  ]
+  val hits: ZIO[Any, Nothing, Int]
 
-  val misses: ZIO[
-    Any,
-    Nothing,
-    Int
-  ]
-
+  val misses: ZIO[Any, Nothing, Int]
 
 object FileService:
   val live =
     ZLayer.fromZIO(
       for
-        fs <- ZIO.service[FileSystem]
-        hit <- Ref.make[Int](0)
+        fs   <- ZIO.service[FileSystem]
+        hit  <- Ref.make[Int](0)
         miss <- Ref.make[Int](0)
         cache <-
           Ref.make[Map[Path, FileContents]](
@@ -51,39 +42,34 @@ object FileService:
 
   case class ActiveUpdate(
       observers: Int,
-      promise: Promise[
-        Nothing,
-        FileContents
-      ]
+      promise: Promise[Nothing, FileContents]
   )
 
   case class Live(
-      hit: Ref[
-        Int
-      ],
-      miss: Ref[
-        Int
-      ],
+      hit: Ref[Int],
+      miss: Ref[Int],
+      // TODO Consider ConcurrentMap
       cache: Ref[Map[Path, FileContents]],
-      activeRefresh: Ref[Map[Path, ActiveUpdate]],
+      activeRefresh: Ref[
+        Map[Path, ActiveUpdate]
+      ],
       fileSystem: FileSystem
   ) extends FileService:
-    def retrieveContents(name: Path): ZIO[
-      Any,
-      Nothing,
-      FileContents
-    ] =
+
+    def retrieveContents(
+        name: Path
+    ): ZIO[Any, Nothing, FileContents] =
       for
         cachedValue <- cache.get.map(_.get(name))
         activeValue <-
           cachedValue match
             case Some(initValue) =>
               hit.update(_ + 1) *>
-              ZIO.debug("Value was cached. Easy path.") *>
-              ZIO.succeed(initValue)
+                printLine(
+                  "Value was cached. Easy path."
+                ).orDie *> ZIO.succeed(initValue)
             case None =>
-              miss.update(_ + 1) *>
-              retrieveOrWaitForContents(name)
+                retrieveOrWaitForContents(name)
       yield activeValue
 
     private def retrieveOrWaitForContents(
@@ -91,16 +77,15 @@ object FileService:
     ) =
       for
         promiseThatMightNotBeUsed <-
-          Promise
-            .make[Nothing, FileContents]
-        activeUpdate <-
+          Promise.make[Nothing, FileContents]
+        activeUpdates <-
           activeRefresh
             .updateAndGet { activeRefreshes =>
               activeRefreshes.updatedWith(name) {
-                case Some(promise) =>
+                case Some(activeUpdate) =>
                   Some(
-                    promise.copy(observers =
-                      promise.observers + 1
+                    activeUpdate.copy(observers =
+                      activeUpdate.observers + 1
                     )
                   )
                 case None =>
@@ -112,52 +97,56 @@ object FileService:
                   )
               }
             }
-            .map(_(name)) // TODO Unsafe/cryptic
+
+        activeUpdate = activeUpdates(name)
         finalContents <-
           activeUpdate.observers match
             case 0 =>
               for
                 _ <-
-                  ZIO.debug(
-                     "1st herd member will hit the filesystem"
-                  )
+                  printLine(
+                    "1st herd member will hit the filesystem"
+                  ).orDie
                 contents <-
-                  fileSystem.readFileExpensive(name)
+                  fileSystem
+                    .readFileExpensive(name)
                 _ <-
                   activeUpdate
                     .promise
                     .succeed(contents)
-                _ <- activeRefresh.update(m => m - name) // Clean out "active" entry
-                _ <- cache.update(m => m.updated(name, contents)) // Update cache
+                _ <-
+                  activeRefresh.update(m =>
+                    m - name
+                  ) // Clean out "active" entry
+                _ <-
+                  cache.update(m =>
+                    m.updated(name, contents)
+                  ) // Update cache
+                _ <- miss.update(_ + 1)
               yield contents
             case observerCount =>
-              ZIO.debug(
+              printLine(
                 "Slower herd member will wait for response of 1st member"
-              ) *>
+              ).orDie *>
+                hit.update(_ + 1) *>
                 activeUpdate
                   .promise
                   .await
-                  .debug(
+                  .tap(_ => printLine(
                     "Slower herd member got answer from 1st member"
-                  )
+                  ).orDie)
       yield finalContents
 
-    val hits: ZIO[
-      Any,
-      Nothing,
-      Int
-    ] = hit.get
+    val hits: ZIO[Any, Nothing, Int] = hit.get
 
-    val misses: ZIO[
-      Any,
-      Nothing,
-      Int
-    ] = miss.get
+    val misses: ZIO[Any, Nothing, Int] = miss.get
 
   end Live
 end FileService
 
-val users = List("Bill", "Bruce", "James")
+val users =
+  (0 to 1000).toList.map("User " + _)
+//  List("Bill", "Bruce", "James")
 
 val herdBehavior =
   for
@@ -177,27 +166,23 @@ val herdBehavior =
 
 object ThunderingHerds extends ZIOAppDefault:
   def run =
-    herdBehavior.provide(
-      FileSystem.live,
-      FileService.live,
-    )
-
+    herdBehavior
+      .provide(FileSystem.live, FileService.live)
 
 trait FileSystem:
-  def readFileExpensive(name: Path): ZIO[
-    Any,
-    Nothing,
-    FileContents
-  ] =
+  def readFileExpensive(
+      name: Path
+  ): ZIO[Any, Nothing, FileContents] =
     ZIO
       .succeed(
-        FileContents(
-          List("viralImage1", "viralImage2")
-        )
+          FileSystem.hardcodedFileContents
       )
-      .debug("Reading from FileSystem")
+      .tap(_ => printLine("Reading from FileSystem").orDie)
       .delay(2.seconds)
 
 object FileSystem:
-  val live =
-    ZLayer.succeed(new FileSystem {})
+  val hardcodedFileContents =
+    FileContents(
+      List("viralImage1", "viralImage2")
+    )
+  val live = ZLayer.succeed(new FileSystem {})
