@@ -7,22 +7,19 @@ import java.nio.file.Path
 
 object ThunderingHerdsSpec
     extends ZIOSpecDefault:
-  val testInnards = {
+  val testInnards =
 
-    val users =
-      List("Bill", "Bruce", "James")
+    val users = List("Bill", "Bruce", "James")
 
     val herdBehavior =
       for
-        fileService <-
-          ZIO.service[FileService]
+        fileService <- ZIO.service[FileService]
         fileResults <-
-          ZIO
-            .foreachPar(users)(user =>
-              fileService.retrieveContents(
-                Path.of("awesomeMemes")
-              )
+          ZIO.foreachPar(users)(user =>
+            fileService.retrieveContents(
+              Path.of("awesomeMemes")
             )
+          )
         _ <- ZIO.debug("=========")
         _ <-
           fileService.retrieveContents(
@@ -31,15 +28,19 @@ object ThunderingHerdsSpec
       yield fileResults
     for
       logicFork <- herdBehavior.fork
-      _   <- TestClock.adjust(2.seconds)
-      res <- logicFork.join
+      _         <- TestClock.adjust(2.seconds)
+      res       <- logicFork.join
       misses <-
-        ZIO.serviceWithZIO[FileService](
-          _.misses
-        )
+        ZIO.serviceWithZIO[FileService](_.misses)
       _ <- ZIO.debug("Eh?")
-    yield assertTrue(misses == 2) && assertTrue(res.forall(singleResult => singleResult ==  FileSystem.hardcodedFileContents ))
-  }
+    yield assertTrue(misses == 2) &&
+      assertTrue(
+        res.forall(singleResult =>
+          singleResult ==
+            FileSystem.hardcodedFileContents
+        )
+      )
+  end testInnards
 
   override def spec =
     suite("ThunderingHerdsSpec")(
@@ -49,12 +50,15 @@ object ThunderingHerdsSpec
         FileSystem.live,
         FileService.live
       ),
-
-      test("classic happy path using zio-cache library") {
+      test(
+        "classic happy path using zio-cache library"
+      ) {
         testInnards
       }.provide(
         FileSystem.live,
-        ZLayer.fromZIO(ThunderingHerdsUsingZioCacheLib.make)
+        ZLayer.fromZIO(
+          ThunderingHerdsUsingZioCacheLib.make
+        )
       )
     )
 end ThunderingHerdsSpec

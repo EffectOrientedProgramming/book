@@ -69,7 +69,7 @@ object FileService:
                   "Value was cached. Easy path."
                 ).orDie *> ZIO.succeed(initValue)
             case None =>
-                retrieveOrWaitForContents(name)
+              retrieveOrWaitForContents(name)
       yield activeValue
 
     private def retrieveOrWaitForContents(
@@ -79,8 +79,8 @@ object FileService:
         promiseThatMightNotBeUsed <-
           Promise.make[Nothing, FileContents]
         activeUpdates <-
-          activeRefresh
-            .updateAndGet { activeRefreshes =>
+          activeRefresh.updateAndGet {
+            activeRefreshes =>
               activeRefreshes.updatedWith(name) {
                 case Some(activeUpdate) =>
                   Some(
@@ -96,7 +96,7 @@ object FileService:
                     )
                   )
               }
-            }
+          }
 
         activeUpdate = activeUpdates(name)
         finalContents <-
@@ -127,14 +127,15 @@ object FileService:
             case observerCount =>
               printLine(
                 "Slower herd member will wait for response of 1st member"
-              ).orDie *>
-                hit.update(_ + 1) *>
+              ).orDie *> hit.update(_ + 1) *>
                 activeUpdate
                   .promise
                   .await
-                  .tap(_ => printLine(
-                    "Slower herd member got answer from 1st member"
-                  ).orDie)
+                  .tap(_ =>
+                    printLine(
+                      "Slower herd member got answer from 1st member"
+                    ).orDie
+                  )
       yield finalContents
 
     val hits: ZIO[Any, Nothing, Int] = hit.get
@@ -144,8 +145,7 @@ object FileService:
   end Live
 end FileService
 
-val users =
-  (0 to 1000).toList.map("User " + _)
+val users = (0 to 1000).toList.map("User " + _)
 //  List("Bill", "Bruce", "James")
 
 val herdBehavior =
@@ -174,10 +174,11 @@ trait FileSystem:
       name: Path
   ): ZIO[Any, Nothing, FileContents] =
     ZIO
-      .succeed(
-          FileSystem.hardcodedFileContents
+      .succeed(FileSystem.hardcodedFileContents)
+      .tap(_ =>
+        printLine("Reading from FileSystem")
+          .orDie
       )
-      .tap(_ => printLine("Reading from FileSystem").orDie)
       .delay(2.seconds)
 
 object FileSystem:

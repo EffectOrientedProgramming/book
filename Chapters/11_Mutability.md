@@ -31,7 +31,8 @@ This operation can live in the companion object:
 
 ```scala mdoc
 object RefZ:
-  def make[A](a: A): ZIO[Any, Nothing, RefZ[A]] = ???
+  def make[A](a: A): ZIO[Any, Nothing, RefZ[A]] =
+    ???
 ```
 
 In order to confidently use this, we need certain guarantees about the behavior:
@@ -44,7 +45,7 @@ In order to confidently use this, we need certain guarantees about the behavior:
 ```scala mdoc
 import mdoc.unsafeRunPrettyPrint
 
-// This is lazy *purely* to silence the mdoc output. 
+// This is lazy *purely* to silence the mdoc output.
 // TODO Decide whether it's clearer to do this, or capture everything in an object
 lazy val unreliableCounting =
   var counter = 0
@@ -54,9 +55,10 @@ lazy val unreliableCounting =
     }
 
   for _ <-
-      ZIO.foreachParDiscard(Range(0, 100000))(
-        _ => increment
-      )
+      ZIO
+        .foreachParDiscard(Range(0, 100000))(_ =>
+          increment
+        )
   yield "Final count: " + counter
 
 unsafeRunPrettyPrint(unreliableCounting)
@@ -77,16 +79,17 @@ We need to fully embrace the ZIO components, utilizing `Ref` for correct mutatio
 
 ```scala mdoc
 import zio.Ref
-lazy val reliableCounting = 
+lazy val reliableCounting =
   def incrementCounter(counter: Ref[Int]) =
     counter.update(_ + 1)
 
   for
     counter <- Ref.make(0)
     _ <-
-      ZIO.foreachParDiscard(Range(0, 100000))(
-        _ => incrementCounter(counter)
-      )
+      ZIO
+        .foreachParDiscard(Range(0, 100000))(_ =>
+          incrementCounter(counter)
+        )
     finalResult <- counter.get
   yield "Final count: " + finalResult
 
@@ -169,9 +172,7 @@ lazy val sideEffectingUpdatesSync =
     finalResult <- counter.get
   yield "Final count: " + finalResult
 
-unsafeRunPrettyPrint(
-  sideEffectingUpdatesSync
-)
+unsafeRunPrettyPrint(sideEffectingUpdatesSync)
 ```
 
 Now we see exactly the number of alerts that we expected.
