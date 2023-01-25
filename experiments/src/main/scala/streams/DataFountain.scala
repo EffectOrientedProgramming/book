@@ -4,13 +4,14 @@ import zio.*
 import zio.metrics.MetricKeyType.Counter
 import zio.stream.*
 
-case class DataFountain(tweets: TweetStream, commitStream: CommitStream)
+case class DataFountain(tweets: TweetStream, commitStream: CommitStream, httpRequestStream: HttpRequestStream)
 
 object DataFountain:
   val live =
     DataFountain(
       TweetStream.Live,
-      CommitStream.Live
+      CommitStream.Live,
+      HttpRequestStream.Live
     )
 
       // TODO More throttle investigation
@@ -20,7 +21,8 @@ object DemoDataFountain extends ZIOAppDefault:
   def run =
     DataFountain.live
 //      .tweets.slowTweetStream
-      .commitStream.commits
+//      .commitStream.commits
+      .httpRequestStream.requests
       .take(5)
       .debug
       .runDrain
