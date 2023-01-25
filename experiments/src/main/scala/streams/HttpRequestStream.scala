@@ -2,6 +2,7 @@ package streams
 
 import zio.*
 import zio.stream.*
+import zio.test.Gen
 
 enum Code:
   case Ok, BadRequest, Forbidden
@@ -20,6 +21,18 @@ object Path:
         )
     yield Path(segments)
 
+  val randomGen =
+    for
+      numberOfSegments <- Random.nextIntBetween(1, 4)
+      segments <-
+        Gen.alphaNumericStringBounded(4, 8).runCollectN(numberOfSegments)
+//      segments <-
+//        ZIO.foreachPar(List.fill(numberOfSegments)(()))(
+//          _ => Random.nextString(8)
+//        )
+    yield Path(segments)
+
+
 case class Request(response: Code, path: Path)
 
 trait HttpRequestStream:
@@ -33,7 +46,8 @@ object HttpRequestStream:
   private val randomRequest =
     for
       codeIndex <- Random.nextIntBounded(Code.values.length)
-      path <- Path.random
+      path <- Path.randomGen
     yield Request(Code.fromOrdinal(codeIndex), path)
+
 
 
