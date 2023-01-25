@@ -57,11 +57,11 @@ object SecuritySystem:
         (1.seconds, Degrees(70)),
         (3.seconds, Degrees(98))
       ) // ++ s
-    ++
-    AcousticDetectorX(
-      (4.seconds, Decibels(11)),
-      (1.seconds, Decibels(20))
-    ) ++ SirenX.live
+      ++
+      AcousticDetectorX(
+        (4.seconds, Decibels(11)),
+        (1.seconds, Decibels(20))
+      ) ++ SirenX.live
   end fullServiceBuilder
 
   val accessMotionDetector: ZIO[
