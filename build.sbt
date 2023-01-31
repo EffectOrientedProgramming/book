@@ -16,7 +16,7 @@ lazy val commonSettings = Seq(
     "dev.zio" %% "zio-test-sbt" % zioVersion % Test,
     "dev.zio" %% "zio-prelude"  % "1.0.0-RC16",
   ),
-  scalaVersion := "3.2.1",
+  scalaVersion := "3.2.2",
   scalacOptions -= "-explain-types",
   scalacOptions -= "-explain",
 )
