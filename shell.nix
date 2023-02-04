@@ -12,6 +12,7 @@ pkgs.mkShell {
     #  { allowUnfree = true; }
     pkgs.vscode
     # Random others that might be helpful
+    pkgs.gource
     pkgs.vim
     pkgs.which
     pkgs.htop
