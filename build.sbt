@@ -24,7 +24,8 @@ lazy val commonSettings = Seq(
 
 lazy val booker = (project in file("booker")).dependsOn(experiments).settings(commonSettings).enablePlugins(GraalVMNativeImagePlugin)
 lazy val experiments = (project in file("experiments"))
-.settings(commonSettings).settings(fork:=true)
+.settings(commonSettings)
+//  .settings(fork:=true)
   .settings(
     libraryDependencies ++= Seq(
       "org.apache.commons" % "commons-text" % "1.10.0",
