@@ -14,11 +14,14 @@ case class Path(segments: Seq[String]):
     segments.mkString("/")
 
 object Path:
-  private val pathExamples =
+  private val genericPaths =
     List(
       "login",
       "preferences",
-      "settings"
+      "settings",
+      "home",
+      "latest",
+      "logout"
     )
 
   private val userSections =
@@ -33,23 +36,34 @@ object Path:
       idx <- Random.nextIntBounded(collection.length)
     yield collection(idx)
 
+  private val randomGeneric: ZIO[Any, Nothing, String] =
+    for
+      section <- randomElementFrom(genericPaths)
+    yield s"/$section"
 
-  private val randomUser =
+  private val randomUser: ZIO[Any, Nothing, String] =
     for
       userId <- Random.nextIntBounded(1000)
       section <- randomElementFrom(userSections)
     yield s"/user/$userId/$section"
 
+  private val generators =
+    List(
+      randomGeneric,
+      randomUser
+    )
+
   val random =
     for
-      userSection <- randomUser
+      generator <- randomElementFrom(generators)
+      path <- generator
 //      numberOfSegments <-
 //        Random.nextIntBetween(1, 4)
 //      segments <-
 //        ZIO.foreachPar(
 //          List.fill(numberOfSegments)(())
 //        )(_ => Random.nextString(8))
-    yield Path(List(userSection))
+    yield Path(List(path))
 
   val randomGen =
     for
