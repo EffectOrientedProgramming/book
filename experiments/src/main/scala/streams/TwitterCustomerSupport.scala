@@ -13,7 +13,8 @@ object TwitterCustomerSupport
   val fileName =
 //    "../datasets/sample.csv"
 //    "../datasets/twcs/twcs.csv"
-    "twcs_small.csv"
+//    "small"
+    "medium"
 //    "twcs_tiny.csv"
 
   def isHappy(tweet: Tweet): Boolean =
@@ -63,7 +64,7 @@ object TwitterCustomerSupport
           .fromJavaStream(
             Files.lines(
               Paths.get(
-                "..",
+//                "..",
                 "datasets",
                 "twcs",
                 dataset + ".csv"
@@ -97,11 +98,11 @@ object TwitterCustomerSupport
           .debug("Number of angry tweets")
 
       _ <-
-      gatherHappyTweets
-        .timed
-        .map(_._1)
-        .debug("Happy duration") <&>
-        gatherAngryTweets <&>
+//      gatherHappyTweets
+//        .timed
+//        .map(_._1)
+//        .debug("Happy duration") <&>
+//        gatherAngryTweets <&>
         trackActiveCompanies(tweets)
           .map(_.take(3).mkString(" : "))
           .debug("ActiveCompanies")
