@@ -33,38 +33,3 @@ object DataFountain:
     // TODO More throttle investigation
 //      tweets.throttleEnforce(1, 1.second, 1)(_.length)
 
-object DemoDataFountain extends ZIOAppDefault:
-  def run =
-    DataFountain
-      .live
-//        .tweets.tweets
-//        .filter(_.text.contains("best"))
-//      .commitStream.commits
-      .httpRequestStream .requests
-      .schedule(Schedule.spaced(1.second))
-      //      .filter(_.response == Code.Ok)
-//      .take(5)
-      .debug
-      .runDrain
-
-
-object DemoDataFountain2 extends ZIOAppDefault:
-  def run =
-    DataFountain.live.tweets.slowTweetStream
-      .debug
-      .runDrain
-
-
-object RecognizeBurstOfBadRequests extends ZIOAppDefault:
-  def run =
-    DataFountain.live.httpRequestStream
-        .requests
-        .groupedWithin(10, 1.second)
-      .tap( requests =>
-        ZIO.when(
-          requests.filter( r => r.response == Code.Forbidden).length > 2
-        )(ZIO.debug("Too many bad requests")))
-//        .map(_.count(_.status == 500))
-        .debug
-        .runDrain
-        .timeout(5.seconds)
