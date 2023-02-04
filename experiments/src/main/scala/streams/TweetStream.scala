@@ -14,18 +14,19 @@ trait TweetStream:
 
 object TweetStream:
   object Live extends TweetStream:
-    private val tweetsPerSecond = 6000
     private val tweetService =
-      ZLayer.fromZIO(Tweets.make)
+      ZLayer.fromZIO(TweetFactory.make)
+      
+    private val tweetsPerSecond = 6000
     private val tweetRate =
       Schedule.spaced(
         1.second.dividedBy(tweetsPerSecond)
       )
 
-    val tweets: Stream[Nothing, SimpleTweet] =
+    val tweets: ZStream[Any, Nothing, SimpleTweet] =
       ZStream
         .repeatZIO(
-          ZIO.serviceWithZIO[Tweets](
+          ZIO.serviceWithZIO[TweetFactory](
             _.randomTweet
           )
         )
