@@ -37,12 +37,12 @@ object DemoDataFountain extends ZIOAppDefault:
   def run =
     DataFountain
       .live
-        .tweets.tweets
+//        .tweets.tweets
 //        .filter(_.text.contains("best"))
-        .schedule(Schedule.spaced(1.second))
 //      .commitStream.commits
-//      .httpRequestStream .requests
-//      .filter(_.response == Code.Ok)
+      .httpRequestStream .requests
+      .schedule(Schedule.spaced(1.second))
+      //      .filter(_.response == Code.Ok)
 //      .take(5)
       .debug
       .runDrain
