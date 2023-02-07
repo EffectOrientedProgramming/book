@@ -4,18 +4,39 @@ import zio._
 
 object DemoDataFountain extends ZIOAppDefault:
   def run =
-    DataFountain
-      .live
-//        .tweets.tweets
-//        .filter(_.text.contains("best"))
-//      .commitStream.commits
-      .httpRequestStream
-      .requests
-      .schedule(Schedule.spaced(1.second))
-      //      .filter(_.response == Code.Ok)
-      .take(5)
-      .debug
-      .runDrain
+    DataFountain.live.commitStream
+      .commits
+      .take(10)
+      .foreach(ZIO.debug(_))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 object RecognizeBurstOfBadRequests extends ZIOAppDefault:
   def run =

@@ -3,26 +3,14 @@ package streams
 import zio.*
 import zio.stream.*
 
-enum ProjectName:
-  case Zio,
-    Tapir,
-    Kafka,
-    Linux
-
-enum Author:
-  case Kit,
-    Adam,
-    Bruce,
-    James,
-    Bill
-
-case class Commit(
-    project: ProjectName,
-    author: Author
-)
-
 trait CommitStream:
   def commits: Stream[Nothing, Commit]
+
+case class Commit(
+                   project: Project,
+                   author: Author,
+                   message: String
+                 )
 
 object CommitStream:
   object Live extends CommitStream:
@@ -31,14 +19,60 @@ object CommitStream:
 
   private val randomCommit =
     for
-      authorIndex <-
-        Random
-          .nextIntBounded(Author.values.length)
-      projectIndex <-
-        Random.nextIntBounded(
-          ProjectName.values.length
-        )
+      author <-
+        Author.random
+      project <-
+        Project.random
+      message <-
+        Message.random
     yield Commit(
-      ProjectName.fromOrdinal(projectIndex),
-      Author.fromOrdinal(authorIndex)
+      project,
+      author,
+      message
     )
+
+object Message:
+  private val generic =
+    List(
+      "Refactor code",
+      "Add documentation",
+      "Update dependencies",
+      "Format code",
+      "Fix bug",
+      "Add feature",
+      "Add tests",
+      "Remove unused code",
+    )
+
+  def random: ZIO[Any, Nothing, String] =
+    randomElementFrom(generic)
+
+case class Project(name: String, language: Language)
+object Project:
+  private val entries = List(
+    Project("ZIO", Language.Scala),
+    Project("Tapir", Language.Scala),
+    Project("Kafka", Language.Java),
+    Project("Flask", Language.Python),
+    Project("Linux", Language.C)
+  )
+
+  val random: ZIO[Any, Nothing, Project] =
+    randomElementFrom(
+      entries
+    )
+
+
+enum Language:
+  case Scala, Java, C, CPlusPlus, Go, Rust, Python, Unison, Ruby
+
+enum Author:
+  case Kit,
+    Adam,
+    Bruce,
+    James,
+    Bill
+
+object Author:
+  val random: ZIO[Any, Nothing, Author] =
+    randomElementFrom(Author.values.toList)
