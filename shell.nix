@@ -7,11 +7,13 @@ pkgs.mkShell {
     pkgs.scala
     pkgs.sbt
     pkgs.jetbrains.idea-community
+    # pkgs.jetbrains.idea-ultimate
     pkgs.metals
     # vscode requests you to add a line to ~/.config/nixpkgs/config.nix
     #  { allowUnfree = true; }
     pkgs.vscode
     # Random others that might be helpful
+    pkgs.gource
     pkgs.vim
     pkgs.which
     pkgs.htop
