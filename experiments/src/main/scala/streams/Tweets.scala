@@ -5,10 +5,10 @@ import zio.{Random, ZIO}
 case class Tweets(counter: Counter):
 
   val randomTweet
-      : ZIO[Any, Nothing, SimpleTweet] =
+  : ZIO[Any, Nothing, SimpleTweet] =
     for
       adjective <- Tweets.randomAdjective
-      id        <- counter.get
+      id <- counter.get
     yield SimpleTweet(
       id,
       s"ZIO is the $adjective thing ever!"
@@ -27,3 +27,5 @@ private object Tweets:
     for index <-
         Random.nextIntBounded(allAdjectives.size)
     yield allAdjectives(index)
+
+end Tweets
