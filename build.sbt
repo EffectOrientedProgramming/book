@@ -31,8 +31,8 @@ lazy val experiments = (project in file("experiments"))
       "org.apache.commons" % "commons-text" % "1.10.0",
       "io.github.scottweaver" %% "zio-2-0-testcontainers-postgresql" % "0.9.0",
       "io.github.scottweaver" %% "zio-2-0-db-migration-aspect" % "0.9.0",
-          "io.getquill" %% "quill-jdbc-zio" % "4.6.0",
-      "io.getquill" %% "quill-zio" % "4.6.0",
+          "io.getquill" %% "quill-jdbc-zio" % "4.6.0.1",
+      "io.getquill" %% "quill-zio" % "4.6.0.1",
       "dev.zio" %% "zio-process" % "0.7.1",
     )
   )
