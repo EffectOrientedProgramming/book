@@ -9,7 +9,9 @@ trait CommitStream:
 case class Commit(
                    project: Project,
                    author: Author,
-                   message: String
+                   message: String,
+                   added: Int,
+                   removed: Int
                  )
 
 object CommitStream:
@@ -25,10 +27,16 @@ object CommitStream:
         Project.random
       message <-
         Message.random
+      linesAdded <-
+        Random.nextIntBounded(500)
+      linesRemoved <-
+        Random.nextIntBounded(500)
     yield Commit(
       project,
       author,
-      message
+      message,
+      linesAdded,
+      -linesRemoved
     )
 
 object Message:
