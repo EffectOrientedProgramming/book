@@ -16,14 +16,15 @@ object TweetStream:
   object Live extends TweetStream:
     private val tweetService =
       ZLayer.fromZIO(TweetFactory.make)
-      
+
     private val tweetsPerSecond = 6000
     private val tweetRate =
       Schedule.spaced(
         1.second.dividedBy(tweetsPerSecond)
       )
 
-    val tweets: ZStream[Any, Nothing, SimpleTweet] =
+    val tweets
+        : ZStream[Any, Nothing, SimpleTweet] =
       ZStream
         .repeatZIO(
           ZIO.serviceWithZIO[TweetFactory](

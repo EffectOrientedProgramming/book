@@ -8,10 +8,14 @@ case class DataFountain(
     tweets: TweetStream,
     commitStream: CommitStream,
     httpRequestStream: HttpRequestStream,
-    rate: Schedule[Any, Nothing, Long] = Schedule.spaced(1.second)
+    rate: Schedule[Any, Nothing, Long] =
+      Schedule.spaced(1.second)
 ):
-  def withRate(newValue: Int) = copy(rate = Schedule.spaced(1.second.dividedBy(newValue)))
-
+  def withRate(newValue: Int) =
+    copy(rate =
+      Schedule
+        .spaced(1.second.dividedBy(newValue))
+    )
 
 object DataFountain:
 
@@ -32,4 +36,3 @@ object DataFountain:
 
     // TODO More throttle investigation
 //      tweets.throttleEnforce(1, 1.second, 1)(_.length)
-
