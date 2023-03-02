@@ -33,7 +33,7 @@ lazy val experiments = (project in file("experiments"))
       "io.github.scottweaver" %% "zio-2-0-db-migration-aspect" % "0.9.0",
           "io.getquill" %% "quill-jdbc-zio" % "4.6.0.1",
       "io.getquill" %% "quill-zio" % "4.6.0.1",
-      "dev.zio" %% "zio-process" % "0.7.1",
+      "dev.zio" %% "zio-process" % "0.7.2",
     )
   )
 //lazy val rube = (project in file("rube")).settings(commonSettings)
