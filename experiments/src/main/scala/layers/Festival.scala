@@ -69,7 +69,7 @@ val wires =
     )(_ => debug("WIRES: Spooling up"))
   )
 case class Fencing()
-val fencing =
+val fencing: ZLayer[Any, Nothing, Fencing] =
   ZLayer.scoped(
     ZIO.acquireRelease(
       debug("FENCING: Surrounding the area") *>
@@ -81,7 +81,7 @@ case class SoundSystem(
     amplifiers: Amplifiers,
     wires: Wires
 )
-val soundSystem =
+val soundSystem: ZLayer[Speakers with Amplifiers with Wires, Nothing, SoundSystem] =
   for
     layer <-
       ZLayer.fromFunction(SoundSystem.apply)

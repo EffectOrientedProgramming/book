@@ -16,7 +16,7 @@ object MdocHelperSpec extends ZIOSpecDefault:
       ) {
         for output <-
             ZIO.succeed(
-              unsafeRunPrettyPrint(
+              unsafeRunPrettyPrintValue(
                 ZIO.succeed(
                   throw new MatchError(
                     MdocSession
@@ -70,21 +70,24 @@ object MdocHelperSpec extends ZIOSpecDefault:
             |        at mdoc.MdocHelpers$package.unsafeRunPrettyPrint(MdocHelpers.scala:78)
             |""".stripMargin
         for result <-
-            ZIO.succeed(
-              unsafeRunPrettyPrint(
-                ZIO.succeed(badMsg)
+            ZIO
+              .attempt(
+                unsafeRunPrettyPrint(
+                  ZIO.succeed(badMsg)
+                )
               )
-            )
+              .flip
         yield assertCompletes
       },
       test("Invoke failure with stack trace") {
         for result <-
             ZIO
-              .succeed(
+              .attempt(
                 unsafeRunPrettyPrint(
                   ZIO.attempt(foo())
                 )
               )
+              .flip // TODO Better assertions around line lengths
               .debug
         yield assertCompletes
       }
