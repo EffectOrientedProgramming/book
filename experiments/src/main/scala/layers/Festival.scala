@@ -81,7 +81,11 @@ case class SoundSystem(
     amplifiers: Amplifiers,
     wires: Wires
 )
-val soundSystem: ZLayer[Speakers with Amplifiers with Wires, Nothing, SoundSystem] =
+val soundSystem: ZLayer[
+  Speakers with Amplifiers with Wires,
+  Nothing,
+  SoundSystem
+] =
   for
     layer <-
       ZLayer.fromFunction(SoundSystem.apply)
