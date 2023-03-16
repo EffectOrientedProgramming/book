@@ -206,152 +206,261 @@ end CollectAllParMassiveDemo
 package concurrency
 
 import zio.*
+import zio.Console.printLine
 
-trait FileSystem
-trait FileNotFound
-trait RetrievalFailure
+import java.nio.file.Path
+
+case class FileContents(contents: List[String])
 
 trait FileService:
-  def retrieveContents(name: String): ZIO[
-    FileSystem,
-    RetrievalFailure | FileNotFound,
-    List[String]
-  ]
+  def retrieveContents(
+      name: Path
+  ): ZIO[Any, Nothing, FileContents]
+
+  val hits: ZIO[Any, Nothing, Int]
+
+  val misses: ZIO[Any, Nothing, Int]
 
 object FileService:
-  def readFile(name: String): ZIO[
-    FileSystem,
-    RetrievalFailure | FileNotFound,
-    List[String]
-  ] =
-    ZIO
-      .succeed(
-        List("viralImage1", "viralImage2")
-      )
-      .debug("Reading from FileSystem")
-      .delay(2.seconds)
-
   val live =
     ZLayer.fromZIO(
       for
-        accessCount <- Ref.make[Int](0)
+        fs   <- ZIO.service[FileSystem]
+        hit  <- Ref.make[Int](0)
+        miss <- Ref.make[Int](0)
         cache <-
-          Ref.make[Map[String, List[String]]](
+          Ref.make[Map[Path, FileContents]](
             Map.empty
           )
         activeRefreshes <-
-          Ref
-            .Synchronized
-            .make[Map[String, Promise[
-              RetrievalFailure,
-              List[String]
-            ]]](Map.empty)
+          Ref.make[Map[Path, ActiveUpdate]](
+            Map.empty
+          )
       yield Live(
-        accessCount,
+        hit,
+        miss,
         cache,
-        activeRefreshes
+        activeRefreshes,
+        fs
       )
     )
 
+  case class ActiveUpdate(
+      observers: Int,
+      promise: Promise[Nothing, FileContents]
+  )
+
   case class Live(
-      accessCount: Ref[Int],
-      cache: Ref[Map[String, List[String]]],
-      activeRefresh: Ref.Synchronized[Map[
-        String,
-        Promise[RetrievalFailure, List[String]]
-      ]]
+      hit: Ref[Int],
+      miss: Ref[Int],
+      // TODO Consider ConcurrentMap
+      cache: Ref[Map[Path, FileContents]],
+      activeRefresh: Ref[
+        Map[Path, ActiveUpdate]
+      ],
+      fileSystem: FileSystem
   ) extends FileService:
-    def retrieveContents(name: String): ZIO[
-      FileSystem,
-      RetrievalFailure | FileNotFound,
-      List[String]
-    ] =
+
+    def retrieveContents(
+        name: Path
+    ): ZIO[Any, Nothing, FileContents] =
       for
-        currentCache <- cache.get
-        initialValue = currentCache.get(name)
+        cachedValue <- cache.get.map(_.get(name))
         activeValue <-
-          initialValue match
+          cachedValue match
             case Some(initValue) =>
-              ZIO.succeed(initValue)
+              hit.update(_ + 1) *>
+                printLine(
+                  "Value was cached. Easy path."
+                ).orDie *> ZIO.succeed(initValue)
             case None =>
               retrieveOrWaitForContents(name)
       yield activeValue
 
-    enum RefreshState:
-      case NewlyActive,
-        AlreadyActive
-
-    def retrieveOrWaitForContents(name: String) =
+    private def retrieveOrWaitForContents(
+        name: Path
+    ) =
       for
-        state <-
-          Promise.make[Nothing, RefreshState]
-        promise <-
-          activeRefresh
-            .updateAndGetZIO { activeRefreshes =>
-              activeRefreshes.get(name) match
-                case Some(promise) =>
-                  state.succeed(
-                    RefreshState.AlreadyActive
-                  ) *>
-                    ZIO.succeed(activeRefreshes)
+        promiseThatMightNotBeUsed <-
+          Promise.make[Nothing, FileContents]
+        activeUpdates <-
+          activeRefresh.updateAndGet {
+            activeRefreshes =>
+              activeRefreshes.updatedWith(name) {
+                case Some(activeUpdate) =>
+                  Some(
+                    activeUpdate.copy(observers =
+                      activeUpdate.observers + 1
+                    )
+                  )
                 case None =>
-                  for
-                    promise <-
-                      Promise.make[
-                        RetrievalFailure,
-                        List[String]
-                      ]
-                    _ <-
-                      state.succeed(
-                        RefreshState.NewlyActive
-                      )
-                  yield activeRefreshes +
-                    (name -> promise)
-            }
-            .map(_(name)) // TODO Unsafe/cryptic
-        finalStatus <- state.await
+                  Some(
+                    ActiveUpdate(
+                      0,
+                      promiseThatMightNotBeUsed
+                    )
+                  )
+              }
+          }
+
+        activeUpdate = activeUpdates(name)
         finalContents <-
-          finalStatus match
-            case RefreshState.NewlyActive =>
+          activeUpdate.observers match
+            case 0 =>
               for
                 _ <-
-                  ZIO.debug(
-                    "1st herd member is going to hit the filesystem"
-                  )
-                contents <- readFile(name)
-                _ <- promise.succeed(contents)
+                  printLine(
+                    "1st herd member will hit the filesystem"
+                  ).orDie
+                contents <-
+                  fileSystem
+                    .readFileExpensive(name)
+                _ <-
+                  activeUpdate
+                    .promise
+                    .succeed(contents)
+                _ <-
+                  activeRefresh.update(m =>
+                    m - name
+                  ) // Clean out "active" entry
+                _ <-
+                  cache.update(m =>
+                    m.updated(name, contents)
+                  ) // Update cache
+                _ <- miss.update(_ + 1)
               yield contents
-            case RefreshState.AlreadyActive =>
-              ZIO.debug(
-                "Slower herd member is going to wait for the response of 1st member"
-              ) *>
-                promise
+            case observerCount =>
+              printLine(
+                "Slower herd member will wait for response of 1st member"
+              ).orDie *> hit.update(_ + 1) *>
+                activeUpdate
+                  .promise
                   .await
-                  .debug(
-                    "Slower herd member got answer from 1st member"
+                  .tap(_ =>
+                    printLine(
+                      "Slower herd member got answer from 1st member"
+                    ).orDie
                   )
       yield finalContents
+
+    val hits: ZIO[Any, Nothing, Int] = hit.get
+
+    val misses: ZIO[Any, Nothing, Int] = miss.get
+
   end Live
 end FileService
 
-val users = List("Bill", "Bruce", "James")
+val users = (0 to 1000).toList.map("User " + _)
+//  List("Bill", "Bruce", "James")
 
 val herdBehavior =
   for
     fileService <- ZIO.service[FileService]
     _ <-
       ZIO.foreachParDiscard(users)(user =>
-        fileService
-          .retrieveContents("awesomeMemes")
+        fileService.retrieveContents(
+          Path.of("awesomeMemes")
+        )
+      )
+    _ <- ZIO.debug("=========")
+    _ <-
+      fileService.retrieveContents(
+        Path.of("awesomeMemes")
       )
   yield ()
 
 object ThunderingHerds extends ZIOAppDefault:
   def run =
-    herdBehavior.provide(
-      FileService.live,
-      ZLayer.succeed(new FileSystem {})
+    herdBehavior
+      .provide(FileSystem.live, FileService.live)
+
+trait FileSystem:
+  def readFileExpensive(
+      name: Path
+  ): ZIO[Any, Nothing, FileContents] =
+    ZIO
+      .succeed(FileSystem.hardcodedFileContents)
+      .tap(_ =>
+        printLine("Reading from FileSystem")
+          .orDie
+      )
+      .delay(2.seconds)
+
+object FileSystem:
+  val hardcodedFileContents =
+    FileContents(
+      List("viralImage1", "viralImage2")
     )
+  val live = ZLayer.succeed(new FileSystem {})
+
+```
+
+
+### experiments/src/main/scala/concurrency/ThunderingHerdsUsingZioCacheLib.scala
+```scala
+package concurrency
+
+import zio.*
+import zio.cache.{Cache, Lookup}
+
+import java.nio.file.Path
+
+case class ThunderingHerdsUsingZioCacheLib(
+    cache: Cache[Path, Nothing, FileContents]
+) extends FileService:
+  override def retrieveContents(
+      name: Path
+  ): ZIO[Any, Nothing, FileContents] =
+    cache.get(name)
+
+  override val hits: ZIO[Any, Nothing, Int] =
+    for stats <- cache.cacheStats
+    yield stats.hits.toInt
+  override val misses: ZIO[Any, Nothing, Int] =
+    for stats <- cache.cacheStats
+    yield stats.misses.toInt
+
+object ThunderingHerdsUsingZioCacheLib:
+  val make =
+    for
+      retrievalFunction <-
+        ZIO
+          .service[FileSystem]
+          .map(_.readFileExpensive)
+      cache: Cache[
+        Path,
+        Nothing,
+        FileContents
+      ] <-
+        Cache.make(
+          capacity = 100,
+          timeToLive = Duration.Infinity,
+          lookup = Lookup(retrievalFunction)
+        )
+    yield ThunderingHerdsUsingZioCacheLib(cache)
+
+```
+
+
+### experiments/src/main/scala/concurrency/WhyZio.scala
+```scala
+package concurrency
+
+import zio.{ZIO, ZIOAppDefault}
+
+import java.math.BigInteger
+
+object WhyZio extends ZIOAppDefault:
+
+  override def run =
+    val genPrime =
+      ZIO
+        .attempt {
+          crypto.nextPrimeAfter(100_000_000)
+        }
+        .timed
+
+    ZIO.raceAll(genPrime, Seq(genPrime)).debug
 
 ```
 

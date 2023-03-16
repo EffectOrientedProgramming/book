@@ -87,12 +87,8 @@ end UseComplexLayer
 ```scala
 package zio_test
 
-import zio.test.{
-  TestAspect,
-  ZIOSpec,
-  assertCompletes
-}
-import zio.{Ref, ZIO}
+import zio.test.{TestAspect, ZIOSpec, assertCompletes}
+import zio.*
 
 object UseSharedLayerA extends ZIOSpec[Ref[Int]]:
   def bootstrap = Shared.layer

@@ -18,11 +18,11 @@ Required Operations:
 These are both effectful operations.
 
 ```scala
-import zio.UIO
+import zio.ZIO
 
 trait RefZ[A]:
-  def get: UIO[A]
-  def update(a: A => A): UIO[Unit]
+  def get: ZIO[Any, Nothing, A]
+  def update(a: A => A): ZIO[Any, Nothing, Unit]
 ```
 
 Less obviously, we also need to create the Mutable reference itself.
@@ -31,7 +31,8 @@ This operation can live in the companion object:
 
 ```scala
 object RefZ:
-  def make[A](a: A): UIO[RefZ[A]] = ???
+  def make[A](a: A): ZIO[Any, Nothing, RefZ[A]] =
+    ???
 ```
 
 In order to confidently use this, we need certain guarantees about the behavior:
@@ -42,24 +43,26 @@ In order to confidently use this, we need certain guarantees about the behavior:
 ## Unreliable Counting
 
 ```scala
-import zio.{Ref, ZIO}
 import mdoc.unsafeRunPrettyPrint
 
-object UnreliableCounting:
+// This is lazy *purely* to silence the mdoc output.
+// TODO Decide whether it's clearer to do this, or capture everything in an object
+lazy val unreliableCounting =
   var counter = 0
   val increment =
     ZIO.succeed {
       counter = counter + 1
     }
 
-  val logic =
-    for _ <-
-        ZIO.foreachParDiscard(Range(0, 100000))(
-          _ => increment
+  for _ <-
+      ZIO
+        .foreachParDiscard(Range(0, 100000))(_ =>
+          increment
         )
-    yield "Final count: " + counter
+  yield "Final count: " + counter
 
-unsafeRunPrettyPrint(UnreliableCounting.logic)
+unsafeRunPrettyPrint(unreliableCounting)
+// Final count: 100000
 ```
 
 Due to the unpredictable nature of shared mutable state, we do not know exactly what the final count above is.
@@ -68,7 +71,7 @@ However, conflicts are extremely likely, so some of our writes get clobbered by 
 Ultimately, we lose information with this approach.
 
 ```
-TODO Demo/diagram parallel writes
+TODO Consider making a diagram parallel writes
 ```
 Performing our side effects inside ZIO's does not magically make them safe.
 We need to fully embrace the ZIO components, utilizing `Ref` for correct mutation.
@@ -76,21 +79,23 @@ We need to fully embrace the ZIO components, utilizing `Ref` for correct mutatio
 ## Reliable Counting
 
 ```scala
-object ReliableCounting:
+import zio.Ref
+lazy val reliableCounting =
   def incrementCounter(counter: Ref[Int]) =
     counter.update(_ + 1)
 
-  val logic =
-    for
-      counter <- Ref.make(0)
-      _ <-
-        ZIO.foreachParDiscard(Range(0, 100000))(
-          _ => incrementCounter(counter)
+  for
+    counter <- Ref.make(0)
+    _ <-
+      ZIO
+        .foreachParDiscard(Range(0, 100000))(_ =>
+          incrementCounter(counter)
         )
-      finalResult <- counter.get
-    yield "Final count: " + finalResult
+    finalResult <- counter.get
+  yield "Final count: " + finalResult
 
-unsafeRunPrettyPrint(ReliableCounting.logic)
+unsafeRunPrettyPrint(reliableCounting)
+// Final count: 100000
 ```
 Now we can say with full confidence that our final count is 100000.
 Additionally, these updates happen _without blocking_.
@@ -114,22 +119,22 @@ def sendNotification() =
 ```
 
 ```scala
-object SideEffectingUpdates:
-  val logic =
-    for
-      counter <- Ref.make(0)
-      _ <-
-        ZIO.foreachParDiscard(Range(0, 4))(_ =>
-          counter.update { previousValue =>
-            expensiveCalculation()
-            sendNotification()
-            previousValue + 1
-          }
-        )
-      finalResult <- counter.get
-    yield "Final count: " + finalResult
+lazy val sideEffectingUpdates =
+  for
+    counter <- Ref.make(0)
+    _ <-
+      ZIO.foreachParDiscard(Range(0, 4))(_ =>
+        counter.update { previousValue =>
+          expensiveCalculation()
+          sendNotification()
+          previousValue + 1
+        }
+      )
+    finalResult <- counter.get
+  yield "Final count: " + finalResult
 
-unsafeRunPrettyPrint(SideEffectingUpdates.logic)
+// Mdoc/this function is showing the notifications, but not the final result
+unsafeRunPrettyPrint(sideEffectingUpdates)
 // Alert: We have updated our count!
 // Alert: We have updated our count!
 // Alert: We have updated our count!
@@ -162,24 +167,21 @@ For these situations, we need a specialized variation of `Ref`
 The only change required is replacing `Ref.make` with `Ref.Synchronized.make`
 
 ```scala
-object SideEffectingUpdatesSync:
-  val logic =
-    for
-      counter <- Ref.Synchronized.make(0)
-      _ <-
-        ZIO.foreachParDiscard(Range(0, 4))(_ =>
-          counter.update { previousValue =>
-            expensiveCalculation()
-            sendNotification()
-            previousValue + 1
-          }
-        )
-      finalResult <- counter.get
-    yield "Final count: " + finalResult
+lazy val sideEffectingUpdatesSync =
+  for
+    counter <- Ref.Synchronized.make(0)
+    _ <-
+      ZIO.foreachParDiscard(Range(0, 4))(_ =>
+        counter.update { previousValue =>
+          expensiveCalculation()
+          sendNotification()
+          previousValue + 1
+        }
+      )
+    finalResult <- counter.get
+  yield "Final count: " + finalResult
 
-unsafeRunPrettyPrint(
-  SideEffectingUpdatesSync.logic
-)
+unsafeRunPrettyPrint(sideEffectingUpdatesSync)
 // Alert: We have updated our count!
 // Alert: We have updated our count!
 // Alert: We have updated our count!
