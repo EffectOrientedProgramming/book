@@ -1,5 +1,6 @@
 import java.io.File
 import java.nio.file.{Files, Path, Paths}
+import BuildTooling._
 
 name := "EffectOrientedProgramming"
 
@@ -98,7 +99,7 @@ lazy val genManuscript = inputKey[Unit]("Make manuscript")
 
 genManuscript := {
   cleanManuscript.value
-  val manuscript = mdocOut.value
+  val manuscript: File = mdocOut.value
 
   (Compile / scalafmt).value
   (booker / Compile / scalafmt).value
@@ -109,112 +110,68 @@ genManuscript := {
 
   import scala.jdk.CollectionConverters._
 
-  val experimentsFiles =
-    Files.walk(file("experiments/src").toPath)
+  def filesIn(p: Path) =
+    Files.walk(p)
       .iterator()
       .asScala
-      .filter(_.toFile.ext == "scala")
-
-  val groupedFiles: Map[String, List[Path]] =
-    experimentsFiles
       .toList
-      .groupBy { file => file.getParent.toString }
+
+
+  case class ExperimentFile(p: Path)
+
+  val experimentClasses: Map[String, List[ExperimentFile]] =
+    filesIn(file("experiments/src").toPath)
+      .filter(_.toFile.ext == "scala")
+      .map(ExperimentFile)
+      .groupBy { file => file.p.getParent.toString }
 
 
   val nf = manuscript / "ExperimentsSection.md"
   val experimentsHeaderContent =
     "# Experiments\n\n" +
     "These experiments are not currently attached to a chapter, but are included for previewing. Before publication, we should not have any lingering experiments here.\n\n"
-  Files.write(nf.toPath, experimentsHeaderContent.getBytes)
-
   IO.append(manuscript / "Book.txt", nf.getName + "\n")
 
-  case class ProseFile(p: Path) {
-    val cleanName = {
-      val fileNameRaw = p.toFile.getName.toLowerCase.stripSuffix(".md")
-      if (fileNameRaw.contains("_"))
-        fileNameRaw.dropWhile(_ != '_').drop(1)
-      else fileNameRaw
-    }
-
-  }
-  case class ExperimentFile()
   val proseFiles: Seq[ProseFile] =
-    Files.walk(manuscript.toPath)
-      .iterator()
-      .asScala
-      .toList
+    filesIn(manuscript.toPath)
       .filter(_.toFile.getName.endsWith(".md"))
       .sortBy(_.toFile.getName)
       .map(ProseFile)
 
-  val lines = IO.read(manuscript / "Book.txt")
-  groupedFiles.foreach {
+  experimentClasses.foreach {
     case (dir, dirFiles) =>
-      val packagedName = dir.stripPrefix("experiments/src/main/scala/")
+      val packagedName: String = dir.stripPrefix("experiments/src/main/scala/")
 
       val proseFileOnSameTopic: Option[ProseFile] =
         proseFiles.find(_.cleanName == packagedName)
 
-      def fileFence(path: Path) = {
-        val file = path.toFile
+      def fileFence(experimentFile: ExperimentFile) = {
+        val file = experimentFile.p.toFile
         val lines = IO.read(file)
-        s"""
+        FencedCode(s"""
           |
           |### ${file.toString}
           |```scala
           |$lines
           |```
           |""".stripMargin
+        )
       }
 
-      val allFences: List[String] =
-        dirFiles.sortBy(_.getFileName.toString).map(fileFence)
+
+      val allFences: List[FencedCode] =
+        dirFiles.sortBy(_.p.getFileName.toString).map(fileFence)
 
       proseFileOnSameTopic match {
-        case Some(value) => {
-          println("Should append to existing file for: " + value)
-          val chapterExperiments =
-            s"""
-                |
-                |## Automatically attached experiments.
-                | These are included at the end of this
-                | chapter because their package in the
-                | experiments directory matched the name
-                | of this chapter. Enjoy working on the
-                | code with full editor capabilities :D
-                |
-                | ${allFences.mkString}
-            """.stripMargin
-          IO.append(value.p.toFile, chapterExperiments)
-        }
+        case Some(value) =>
+          appendExperimentsToMatchingProseFile(value, allFences)
         case None => {
-          val packageMarkdownFileName = packagedName.replaceAllLiterally("/", "-") + ".md"
-
-
-          val nf = manuscript / packageMarkdownFileName
-          println("Adding standalone example to end of book: " + nf.toString)
-
-          nf.getParentFile.mkdirs()
-
-          val md =
-            s"""## ${packageMarkdownFileName.stripSuffix(".md")}
-              |
-              | ${allFences.mkString}
-              |""".stripMargin
-
-
-          Files.write(nf.toPath, md.getBytes)
-
-          IO.append(manuscript / "Book.txt", packageMarkdownFileName + "\n")
-
+          appendExperimentsToEndOfBookInNewChapter(packagedName, manuscript, allFences)
         }
       }
   }
 
 }
-
-
 
 // MdToSourcePlugin
 
