@@ -1111,4 +1111,3 @@ trait MonadCatch[F[_]]:
 
 ```
 
-            

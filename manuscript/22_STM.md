@@ -221,4 +221,3 @@ def send[A <: Resource[A], B <: Resource[B]](
 
 ```
 
-            
