@@ -98,13 +98,11 @@ lazy val genManuscript = inputKey[Unit]("Make manuscript")
 
 genManuscript := {
   val manuscript = mdocOut.value
-  // cleanManuscript.value
 
   (Compile / scalafmt).value
   (booker / Compile / scalafmt).value
   (experiments / Compile / compile).value
   (experiments / Compile / scalafmt).value
-//  (rube / Compile / scalafmt).value
 
   mdoc.evaluated
 
@@ -120,30 +118,40 @@ genManuscript := {
 
   IO.append(manuscript / "Book.txt", nf.getName + "\n")
 
-  val proseFiles =  Files.walk(manuscript.toPath).iterator().asScala.toList.filter(_.toFile.getName.endsWith(".md")).sortBy(_.toFile.getName)
-  val lastProseFile = proseFiles.last.toFile().getName().takeWhile(_ != '=')
-  println(lastProseFile)
+  case class ProseFile(p: Path) {
+    val cleanName = {
+      val fileNameRaw = p.toFile.getName.toLowerCase.stripSuffix(".md")
+      if (fileNameRaw.contains("_"))
+        fileNameRaw.dropWhile(_ != '_').drop(1)
+      else fileNameRaw
+    }
 
-  // val proseFiles =  Files.walk(manuscript.toPath).iterator().asScala.toList.filter(_.endsWith(".md"))
-
-  //  experimentsFiles.toList.foreach( file => println("Path: " + file.toAbsolutePath.toString.replaceAllLiterally("/"  + file.getFileName.toString, "")))
+  }
+  case class ExperimentFile()
+  val proseFiles: Seq[ProseFile] =
+    Files.walk(manuscript.toPath)
+      .iterator()
+      .asScala
+      .toList
+      .filter(_.toFile.getName.endsWith(".md"))
+      .sortBy(_.toFile.getName)
+      .map(ProseFile)
 
   val lines = IO.read(manuscript / "Book.txt")
   println(lines)
   val groupedFiles: Map[String, List[Path]] =
-    experimentsFiles.toList.groupBy( file => file.toString.replaceAllLiterally("/"  + file.getFileName.toString, ""))
+    experimentsFiles
+      .toList
+      .groupBy( file =>
+        file.toString.replaceAllLiterally("/"  + file.getFileName.toString, "")
+      )
   groupedFiles.foreach {
     case (dir, dirFiles) =>
       val packagedName = dir.stripPrefix("experiments/src/main/scala/")
 
-      val proseFileOnSameTopic: Option[Path] =
-      proseFiles.find{proseFile =>
-          val fileNameRaw = proseFile.toFile.getName.toLowerCase.stripSuffix(".md")
-          val fileNameClean =
-            if (fileNameRaw.contains("_"))
-              fileNameRaw.dropWhile(_ != '_').drop(1)
-            else fileNameRaw
-          fileNameClean == packagedName
+      val proseFileOnSameTopic: Option[ProseFile] =
+        proseFiles.find{proseFile =>
+          proseFile.cleanName == packagedName
         }
 
 
@@ -159,7 +167,8 @@ genManuscript := {
           |""".stripMargin
       }
 
-      val allFences: List[String] = dirFiles.sortBy(_.getFileName.toString).map(fileFence)
+      val allFences: List[String] =
+        dirFiles.sortBy(_.getFileName.toString).map(fileFence)
 
       proseFileOnSameTopic match {
         case Some(value) => {
@@ -176,14 +185,9 @@ genManuscript := {
                 |
                 | ${allFences.mkString}
             """.stripMargin
-          IO.append(value.toFile, chapterExperiments)
+          IO.append(value.p.toFile, chapterExperiments)
         }
         case None => {
-          // if (packagedName.contains("/"))
-          //   println("Subpackaged name: " + packagedName)
-          // else
-          //   println("Unpackaged name: " + packagedName)
-
           val packageMarkdownFileName = packagedName.replaceAllLiterally("/", "-") + ".md"
 
 
@@ -206,28 +210,6 @@ genManuscript := {
         }
       }
   }
-
-//  experimentsFiles.foreach { f =>
-//
-//    val newFileName = f.toString.stripPrefix("experiments/src/main/scala/").replaceAllLiterally("/", "-").stripSuffix(".scala") + ".md"
-//    val nf = manuscript / newFileName
-//
-//    val lines = IO.read(f.toFile)
-//
-//    nf.getParentFile.mkdirs()
-//
-//    val md =
-//      s"""## $newFileName
-//        |
-//        |```scala
-//        |$lines
-//        |```
-//        |""".stripMargin
-//
-//    Files.write(nf.toPath, md.getBytes)
-//
-//    IO.append(manuscript / "Book.txt", newFileName + "\n")
-//  }
 
 }
 
