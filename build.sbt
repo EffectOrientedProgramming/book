@@ -97,6 +97,7 @@ clean := clean.dependsOn(cleanManuscript).value
 lazy val genManuscript = inputKey[Unit]("Make manuscript")
 
 genManuscript := {
+  cleanManuscript.value
   val manuscript = mdocOut.value
 
   (Compile / scalafmt).value
@@ -108,7 +109,17 @@ genManuscript := {
 
   import scala.jdk.CollectionConverters._
 
-  val experimentsFiles = Files.walk(file("experiments/src").toPath).iterator().asScala.filter(_.toFile.ext == "scala")
+  val experimentsFiles =
+    Files.walk(file("experiments/src").toPath)
+      .iterator()
+      .asScala
+      .filter(_.toFile.ext == "scala")
+
+  val groupedFiles: Map[String, List[Path]] =
+    experimentsFiles
+      .toList
+      .groupBy { file => file.getParent.toString }
+
 
   val nf = manuscript / "ExperimentsSection.md"
   val experimentsHeaderContent =
@@ -138,22 +149,12 @@ genManuscript := {
       .map(ProseFile)
 
   val lines = IO.read(manuscript / "Book.txt")
-  println(lines)
-  val groupedFiles: Map[String, List[Path]] =
-    experimentsFiles
-      .toList
-      .groupBy( file =>
-        file.toString.replaceAllLiterally("/"  + file.getFileName.toString, "")
-      )
   groupedFiles.foreach {
     case (dir, dirFiles) =>
       val packagedName = dir.stripPrefix("experiments/src/main/scala/")
 
       val proseFileOnSameTopic: Option[ProseFile] =
-        proseFiles.find{proseFile =>
-          proseFile.cleanName == packagedName
-        }
-
+        proseFiles.find(_.cleanName == packagedName)
 
       def fileFence(path: Path) = {
         val file = path.toFile
