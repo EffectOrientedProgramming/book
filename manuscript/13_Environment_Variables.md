@@ -211,7 +211,9 @@ This helps us keep a flat `Error` channel when we write our domain logic.
 This was quite a process; where did it get us?
 Our fully ZIO-centric, side-effect-free logic looks like this:
 
+
 ```scala
+// TODO This produces large, wide output that does not adhere to the width of the page.
 val fancyLodging: ZIO[
   SystemStrict with HotelApiZ,
   Error,
@@ -225,11 +227,11 @@ val fancyLodging: ZIO[
 //     trace = "repl.MdocSession.MdocApp.HotelApiZ.cheapest(13_Environment_Variables.md:226)",
 //     first = Sync(
 //       trace = "repl.MdocSession.MdocApp.HotelApiZ.cheapest(13_Environment_Variables.md:226)",
-//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$16610/0x0000000104270440@c6e1962
+//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$16662/0x0000000104278c40@142bd8ca
 //     ),
-//     successK = zio.ZIO$$$Lambda$16651/0x0000000104299840@5a67fc8
+//     successK = zio.ZIO$$$Lambda$16664/0x000000010427e840@2bacbc7c
 //   ),
-//   successK = zio.ZIO$$Lambda$16754/0x00000001042fb840@752a2fc7
+//   successK = zio.ZIO$$Lambda$16706/0x00000001042ae040@1da018b3
 // )
 ```
 
