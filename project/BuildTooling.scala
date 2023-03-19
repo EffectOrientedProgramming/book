@@ -261,5 +261,34 @@ object BuildTooling {
     }
 
   }
+
+  def experimentLibrariesThatNeedToBeVettedForInclusionInBook = Seq(
+    "org.apache.commons" % "commons-text" % "1.10.0",
+    "io.github.scottweaver" %% "zio-2-0-testcontainers-postgresql" % "0.9.0",
+    "io.github.scottweaver" %% "zio-2-0-db-migration-aspect" % "0.9.0",
+    "io.getquill" %% "quill-jdbc-zio" % "4.6.0.1",
+    "io.getquill" %% "quill-zio" % "4.6.0.1",
+    "dev.zio" %% "zio-process" % "0.7.1",
+  )
+
+  // TODO Make a Versions object?
+  val zioVersion = "2.0.10"
+
+  lazy val commonSettings = Seq(
+    libraryDependencies ++= Seq(
+      "dev.zio" %% "zio"          % zioVersion,
+      "dev.zio" %% "zio-cache"  % "0.2.2",
+      "dev.zio" %% "zio-concurrent"          % zioVersion,
+      "dev.zio" %% "zio-logging"  % "2.1.8",
+      "dev.zio" %% "zio-streams"  % zioVersion,
+      "dev.zio" %% "zio-test"     % zioVersion,
+      "dev.zio" %% "zio-test-sbt" % zioVersion % Test,
+      "dev.zio" %% "zio-prelude"  % "1.0.0-RC16",
+    ),
+    scalaVersion := "3.2.2",
+    scalacOptions -= "-explain-types",
+    scalacOptions -= "-explain",
+  )
+
 }
 

@@ -1,54 +1,35 @@
-import java.io.File
-import java.nio.file.{Files, Path, Paths}
-import BuildTooling._
-
 name := "EffectOrientedProgramming"
 
-val zioVersion = "2.0.10"
+// This tells mdoc which folder to analyze
+mdocIn := file("Chapters")
+// This is where the generated markdown files will be placed,
+// after the scala blocks has been compiled/executed
+mdocOut := file("manuscript")
 
-lazy val commonSettings = Seq(
-  libraryDependencies ++= Seq(
-    "dev.zio" %% "zio"          % zioVersion,
-    "dev.zio" %% "zio-cache"  % "0.2.2",
-    "dev.zio" %% "zio-concurrent"          % zioVersion,
-    "dev.zio" %% "zio-logging"  % "2.1.8",
-    "dev.zio" %% "zio-streams"  % zioVersion,
-    "dev.zio" %% "zio-test"     % zioVersion,
-    "dev.zio" %% "zio-test-sbt" % zioVersion % Test,
-    "dev.zio" %% "zio-prelude"  % "1.0.0-RC16",
-  ),
-  scalaVersion := "3.2.2",
-  scalacOptions -= "-explain-types",
-  scalacOptions -= "-explain",
-)
+import BuildTooling._
+mdDir := file("Chapters")
+examplesDir := file("Examples/src/main/scala")
 
+lazy val booker =
+  (project in file("booker"))
+    .dependsOn(experiments)
+    .settings(commonSettings)
+    .enablePlugins(GraalVMNativeImagePlugin)
 
-lazy val booker = (project in file("booker")).dependsOn(experiments).settings(commonSettings).enablePlugins(GraalVMNativeImagePlugin)
-lazy val experiments = (project in file("experiments"))
-.settings(commonSettings)
-//  .settings(fork:=true)
+lazy val experiments =
+  (project in file("experiments"))
+  .settings(commonSettings)
   .settings(
-    libraryDependencies ++= Seq(
-      "org.apache.commons" % "commons-text" % "1.10.0",
-      "io.github.scottweaver" %% "zio-2-0-testcontainers-postgresql" % "0.9.0",
-      "io.github.scottweaver" %% "zio-2-0-db-migration-aspect" % "0.9.0",
-          "io.getquill" %% "quill-jdbc-zio" % "4.6.0.1",
-      "io.getquill" %% "quill-zio" % "4.6.0.1",
-      "dev.zio" %% "zio-process" % "0.7.1",
-    )
+    libraryDependencies ++= experimentLibrariesThatNeedToBeVettedForInclusionInBook
   )
-//lazy val rube = (project in file("rube")).settings(commonSettings)
 
 resolvers ++= Resolver.sonatypeOssRepos("snapshots")
 
-lazy val root = (project in file(".")).settings(commonSettings).enablePlugins(MdocPlugin).aggregate(booker, experiments /*, rube*/)
-
-mdocIn := file("Chapters")
-
-mdocOut := file("manuscript")
-
-// windows sometimes produces OverlappingFileLockException
-scalafmtOnCompile := (!System.getProperty("os.name").toLowerCase.contains("win"))
+lazy val root =
+  (project in file("."))
+    .settings(commonSettings)
+    .enablePlugins(MdocPlugin)
+    .aggregate(booker, experiments /*, rube*/)
 
 Compile / packageDoc / publishArtifact := false
 
@@ -58,14 +39,11 @@ lazy val bookTxt = taskKey[Unit]("Create the Book.txt")
 
 bookTxt := generateBookTxtFromNumberedChapters(mdocIn.value, mdocOut.value)
 
-
 mdoc := mdoc.dependsOn(bookTxt).evaluated
 
 lazy val cleanManuscript = taskKey[Unit]("Clean manuscript dir")
 
-cleanManuscript := {
-  IO.delete(mdocOut.value)
-}
+cleanManuscript := IO.delete(mdocOut.value)
 
 clean := clean.dependsOn(cleanManuscript).value
 
@@ -82,9 +60,7 @@ genManuscript := {
 }
 
 generateExamples := generateExamplesTask.value
-
-mdDir := file("Chapters")
-
-examplesDir := file("Examples/src/main/scala")
-
 Global / onChangedBuildSource := ReloadOnSourceChanges
+
+// windows sometimes produces OverlappingFileLockException
+scalafmtOnCompile := (!System.getProperty("os.name").toLowerCase.contains("win"))
