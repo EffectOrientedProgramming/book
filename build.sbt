@@ -47,14 +47,22 @@ cleanManuscript := IO.delete(mdocOut.value)
 
 clean := clean.dependsOn(cleanManuscript).value
 
+lazy val formatAndCompileCode = taskKey[Unit]("Make manuscript")
+
+formatAndCompileCode := formatAndCompileCode
+  .dependsOn(
+    Compile / scalafmt,
+    booker / Compile / scalafmt,
+    experiments / Compile / compile,
+    experiments / Compile / scalafmt,
+  )
+
+// TODO define inputKey entirely by depending on other inputKeys
 lazy val genManuscript = inputKey[Unit]("Make manuscript")
 
 genManuscript := {
+  formatAndCompileCode.value
   cleanManuscript.value
-  (Compile / scalafmt).value
-  (booker / Compile / scalafmt).value
-  (experiments / Compile / compile).value
-  (experiments / Compile / scalafmt).value
   mdoc.evaluated
   produceLeanpubManuscript(mdocOut.value)
 }
