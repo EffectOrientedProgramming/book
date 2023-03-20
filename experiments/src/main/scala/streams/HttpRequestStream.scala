@@ -12,25 +12,21 @@ trait HttpRequestStream:
 object HttpRequestStream:
   object Live extends HttpRequestStream:
     override def requests
-    : Stream[Nothing, Request] =
-      ZStream.repeatZIO(randomRequest)
+        : Stream[Nothing, Request] =
+      ZStream
+        .repeatZIO(randomRequest)
         .schedule(Schedule.spaced(100.millis))
 
   private val randomRequest =
     for
       code <- Code.random
       path <- Path.random
-    yield Request(
-      code,
-      path
-    )
-
+    yield Request(code, path)
 
 enum Code:
   case Ok,
     BadRequest,
     Forbidden
-
 
 object Code:
   val random =
@@ -40,11 +36,11 @@ case class Path(segments: Seq[String]):
   override def toString: String =
     segments.mkString("/")
 
-
 object Path:
   val random: ZIO[Any, Nothing, Path] =
     for
-      generator <- randomElementFrom(Random.generators)
+      generator <-
+        randomElementFrom(Random.generators)
       path <- generator
     yield path
 
@@ -52,7 +48,8 @@ object Path:
     Path(Seq(first) ++ rest)
 
   private object Random:
-    private val generic: ZIO[Any, Nothing, Path] =
+    private val generic
+        : ZIO[Any, Nothing, Path] =
       val genericPaths =
         List(
           "login",
@@ -63,8 +60,8 @@ object Path:
           "logout"
         )
 
-      for
-        section <- randomElementFrom(genericPaths)
+      for section <-
+          randomElementFrom(genericPaths)
       yield Path(s"/$section")
 
     private val user: ZIO[Any, Nothing, Path] =
@@ -77,19 +74,20 @@ object Path:
 
       for
         userId <- zio.Random.nextIntBounded(1000)
-        section <- randomElementFrom(userSections)
+        section <-
+          randomElementFrom(userSections)
       yield Path(s"/user/$userId/$section")
 
-    val generators: List[ZIO[Any, Nothing, Path]] =
-      List(
-        generic,
-        user
-      )
+    val generators
+        : List[ZIO[Any, Nothing, Path]] =
+      List(generic, user)
+  end Random
 
 end Path
 
-private[streams] def randomElementFrom[T](collection: List[T]): ZIO[Any, Nothing, T] =
-  for
-    idx <- Random.nextIntBounded(collection.length)
+private[streams] def randomElementFrom[T](
+    collection: List[T]
+): ZIO[Any, Nothing, T] =
+  for idx <-
+      Random.nextIntBounded(collection.length)
   yield collection(idx)
-

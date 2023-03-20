@@ -7,7 +7,7 @@ case class TweetFactory(counter: Counter):
   val randomTweet
       : ZIO[Any, Nothing, SimpleTweet] =
     for
-      subject <- TweetFactory.randomSubject
+      subject   <- TweetFactory.randomSubject
       adjective <- TweetFactory.randomAdjective
       id        <- counter.get
     yield SimpleTweet(
@@ -25,22 +25,23 @@ private object TweetFactory:
     List("worst", "most terrible", "most awful")
 
   val allAdjectives = superlatives ++ derogatory
-  val allSubjects = List(
-    "Ice cream",
-    "The sunrise",
-    "Rain",
-    "ZIO",
-    "PHP",
-    "Skiing",
-    "Music",
-  )
+  val allSubjects =
+    List(
+      "Ice cream",
+      "The sunrise",
+      "Rain",
+      "ZIO",
+      "PHP",
+      "Skiing",
+      "Music"
+    )
   val randomAdjective =
     for index <-
         Random.nextIntBounded(allAdjectives.size)
     yield allAdjectives(index)
 
-
   val randomSubject =
     for index <-
-          Random.nextIntBounded(allSubjects.size)
+        Random.nextIntBounded(allSubjects.size)
     yield allSubjects(index)
+end TweetFactory

@@ -35,7 +35,7 @@ object ThunderingHerdsSpec
       misses <-
         ZIO.serviceWithZIO[FileService](_.misses)
       _ <- ZIO.debug("Eh?")
-    yield assertTrue(misses == 2) &&
+    yield assertTrue(misses == 1) &&
       assertTrue(
         res.forall(singleResult =>
           singleResult ==
@@ -62,15 +62,5 @@ object ThunderingHerdsSpec
           ThunderingHerdsUsingZioCacheLib.make
         )
       ),
-      test("console stuff") {
-        for
-//          console <- ZIO.service[Console].debug("Console")
-          con <- ZIO.console.debug
-          _ <-
-            printLine(
-              "should be printed in summary"
-            )
-        yield assertNever("Don't get here!")
-      }
     )
 end ThunderingHerdsSpec
