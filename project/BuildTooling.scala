@@ -1,7 +1,5 @@
 import sbt.IO
 
-import java.io.File
-import java.nio.file.Files
 import sbt._
 import Keys._
 import java.io.File
@@ -19,26 +17,24 @@ case class ProseFile(p: Path) {
 
 }
 
-
 object BuildTooling {
 
-  def appendExperimentsToEndOfBookInNewChapter(packagedName: String, manuscript: File, experiments: List[FencedCode]): Unit = {
+  def appendExperimentsToEndOfBookInNewChapter(
+                                                packagedName: String,
+                                                manuscript: File,
+                                                experiments: List[FencedCode]
+                                              ): Unit = {
     val packageMarkdownFileName = packagedName.replaceAllLiterally("/", "-") + ".md"
 
     val nf = manuscript / packageMarkdownFileName
-    println("Adding standalone example to end of book: " + nf.toString)
 
-    nf.getParentFile.mkdirs()
-
-    val md =
+    val md: String =
       s"""## ${packageMarkdownFileName.stripSuffix(".md")}
-         |
+         | Newer stuff!
          | ${experiments.map(_.content).mkString}
          |""".stripMargin
 
-
-    Files.write(nf.toPath, md.getBytes)
-
+    FileIOBullshit.createFile(nf, Seq(md))
 
     def addChapterToLeanpubIndex(chapterName: String): Unit =
       IO.append(manuscript / "Book.txt", chapterName + "\n")
@@ -46,8 +42,11 @@ object BuildTooling {
     addChapterToLeanpubIndex(packageMarkdownFileName)
   }
 
-  def appendExperimentsToMatchingProseFile(proseFile: ProseFile, experiments: List[FencedCode]) = {
-    println("Should append to existing file for: " + proseFile)
+  def appendExperimentsToMatchingProseFile(
+                                            proseFile: ProseFile,
+                                            experiments: List[FencedCode]
+                                          ): Unit = {
+//    println("Should append to existing file for: " + proseFile)
     val chapterExperiments =
       s"""
          |
@@ -64,91 +63,64 @@ object BuildTooling {
   }
 
 
-
-  // note: these are prefixed with _root_ to avoid a conflict with the mdoc value
-  import mdoc.internal.cli.InputFile
-  import mdoc.internal.io.ConsoleReporter
-  import mdoc.internal.markdown.{CodeFence, MarkdownFile}
-
-  import java.io.{File, FilenameFilter}
+  import java.io.File
   import java.nio.charset.Charset
   import java.nio.file.{Files, Path, Paths, StandardOpenOption}
-
-  import java.util.stream.Collectors
-  import scala.collection.JavaConverters._
-  import scala.meta.inputs.Input
-  import scala.meta.internal.io.FileIO
-  import scala.meta.io.{AbsolutePath, RelativePath}
 
   lazy val mdDir = settingKey[File]("MD Source Dir")
   lazy val examplesDir = settingKey[File]("Examples Dir")
   lazy val generateExamples = taskKey[Unit]("generate examples")
 
-
-
   val generateExamplesTask = Def.task {
+    generateExamplesLogic(examplesDir.value, mdDir.value)
+  }
 
-    def deleteAllScalaFilesRecursively(file: File): Unit = {
-      val onlyScala: FilenameFilter = (_: File, name: String) => name.endsWith(".scala")
-      file.listFiles(onlyScala).toSeq.foreach(_.delete())
-      file.listFiles().foreach( file => if(file.isDirectory) deleteAllScalaFilesRecursively(file) )
-      if  (file.isDirectory && file.listFiles().isEmpty) file.delete()
-    }
+  private def generateExamplesLogic(examplesDirectory: File, markdownDir: File): Unit = {
+    if (examplesDirectory.exists())
+      FileIOBullshit.deleteAllScalaFilesRecursively(examplesDirectory)
+    else
+      examplesDirectory.mkdirs()
 
+    FileIOBullshit.copyFolder(
+      Paths.get(".")
+        .resolve("src")
+        .resolve("main")
+        .resolve("scala"),
+      examplesDirectory.toPath
+    )
 
-    if (examplesDir.value.exists()) {
-      deleteAllScalaFilesRecursively(examplesDir.value)
-    }
-
-    import java.nio.file.StandardCopyOption._
-
-    def copy(source: Path , dest: Path ): Unit = {
-      println("Source: " + source)
-      println("dest: " + dest)
-      Files.copy(source, dest, REPLACE_EXISTING)
-    }
-
-    import scala.jdk.CollectionConverters._
-    def copyFolder(src: Path , dest: Path ): Unit = {
-      import java.nio.file.{Files, Paths}
-      import scala.collection.JavaConverters._
-
-      scalaFileWalk(src).foreach(
-        source => copy(source, dest.resolve(src.relativize(source)))
-      )
-    }
-
-    def scalaFileWalk(src: Path): List[Path] = {
-      val currentLevelFiles = Files.list(src).iterator().asScala.toList
-      currentLevelFiles ++ currentLevelFiles.flatMap(file =>
-        if (file.toFile.isDirectory)
-          scalaFileWalk(file)
-        else List.empty
-      )
-    }
-
-    examplesDir.value.mkdirs()
-    copyFolder(Paths.get(".").resolve("src").resolve("main").resolve("scala"), examplesDir.value.toPath)
-
-
-    def isChapter(f: File): Boolean = {
+    def isChapter(f: File): Boolean =
       f.name.matches("^\\d\\d_.*")
-    }
 
-    mdDir.value.listFiles().filter(_.ext == "md").filter(isChapter).foreach { file =>
-      val chapterName = file.getName.stripSuffix(".md") //replaceFirst("^\\d\\d_", "")
-      val outFile = examplesDir.value / (chapterName + ".scala")
-      val inputFile = InputFile(RelativePath(file), AbsolutePath(file), AbsolutePath(outFile), AbsolutePath(mdDir.value), AbsolutePath(examplesDir.value))
+    import scala.meta.inputs.Input
+    import scala.meta.internal.io.FileIO
+    import scala.meta.io.{AbsolutePath, RelativePath}
+    import mdoc.internal.cli.InputFile
+    import mdoc.internal.io.ConsoleReporter
+    import mdoc.internal.markdown.{CodeFence, MarkdownFile}
+
+    FileIOBullshit.markdownFilesInFile(markdownDir).filter(isChapter).foreach { file =>
+      val chapterName = file.getName.stripSuffix(".md")
+      val outFile = examplesDirectory / (chapterName + ".scala")
+      val inputFile =
+        InputFile(
+          RelativePath(file),
+          AbsolutePath(file),
+          AbsolutePath(outFile),
+          AbsolutePath(markdownDir),
+          AbsolutePath(examplesDirectory)
+        )
 
       val source = FileIO.slurp(AbsolutePath(file), Charset.defaultCharset())
       val input = Input.VirtualFile(file.absolutePath, source)
 
-      val reporter = ConsoleReporter.default
-      val md = MarkdownFile.parse(input, inputFile, reporter)
-      val codeBlocks = md.parts.collect {
-        case codeFence: CodeFence if codeFence.info.value.startsWith("scala mdoc") && !codeFence.info.value.startsWith("scala mdoc:nest") =>
-          codeFence.body.value
-      }
+      val codeBlocks =
+        MarkdownFile.parse(input, inputFile, ConsoleReporter.default)
+          .parts
+          .collect {
+            case codeFence: CodeFence if codeFence.info.value.startsWith("scala mdoc") && !codeFence.info.value.startsWith("scala mdoc:nest") =>
+              codeFence.body.value
+          }
 
       if (codeBlocks.nonEmpty) {
         val header = Seq(s"package `$chapterName`", "", "@main def run() = ")
@@ -159,7 +131,7 @@ object BuildTooling {
 
         val contents = header ++ indentedBlocks
 
-        Files.write(outFile.toPath, contents.asJava, StandardOpenOption.CREATE)
+        FileIOBullshit.createFile(outFile, contents)
       }
     }
 
@@ -167,52 +139,37 @@ object BuildTooling {
 
   def generateBookTxtFromNumberedChapters(proseDirectory: File, leanPubDirectory: File): Path = {
     import scala.util.Try
-    import scala.collection.JavaConverters._
 
-    val files = Files.list(proseDirectory.toPath).iterator().asScala
+    val files =
+      FileIOBullshit.markdownFilesIn(proseDirectory.toPath)
 
-    def chapterNum(path: Path): Option[Int] = {
+    case class NumberedChapter(number: Int, content: Path)
+
+    def parseNumberedChapter(path: Path): Option[NumberedChapter] = {
       val justFile = path.toFile.getName.split(File.pathSeparator).last
       justFile.split('_').headOption.flatMap { firstPart =>
-        Try(firstPart.toInt).toOption
+        Try(NumberedChapter(firstPart.toInt, path)).toOption
       }
     }
 
-    val chapters = files.flatMap { f =>
-      if (f.toFile.ext == "md") {
-        chapterNum(f).map(_ -> f)
-      }
-      else {
-        None
-      }
-    }.toSeq
-      .sortBy(_._1)
-      .map(_._2.toFile.getName.stripPrefix(proseDirectory.getName).stripPrefix(File.pathSeparator))
+    val chapters =
+      files.flatMap(parseNumberedChapter)
+      .sortBy(chapter => chapter.number)
+      .map( chapter => chapter.content.getFileName.toString )
 
-    leanPubDirectory.mkdir()
     val bookTxtPath = leanPubDirectory / "Book.txt"
-    Files.write(bookTxtPath.toPath, chapters.asJava)
+
+    FileIOBullshit.createFile(bookTxtPath, chapters)
   }
 
-  def produceLeanpubManuscript(leanPubDirectory: File) = {
-
-    import scala.jdk.CollectionConverters._
-
-    def filesIn(p: Path) =
-      Files.walk(p)
-        .iterator()
-        .asScala
-        .toList
-
+  def produceLeanpubManuscript(leanPubDirectory: File): Unit = {
 
     case class ExperimentFile(p: Path)
 
     val experimentClasses: Map[String, List[ExperimentFile]] =
-      filesIn(file("experiments/src").toPath)
-        .filter(_.toFile.ext == "scala")
+      FileIOBullshit.scalaFilesIn(file("experiments/src").toPath)
         .map(ExperimentFile)
         .groupBy { file => file.p.getParent.toString }
-
 
     val nf = leanPubDirectory / "ExperimentsSection.md"
     val experimentsHeaderContent =
@@ -221,8 +178,7 @@ object BuildTooling {
     IO.append(leanPubDirectory / "Book.txt", nf.getName + "\n")
 
     val proseFiles: Seq[ProseFile] =
-      filesIn(leanPubDirectory.toPath)
-        .filter(_.toFile.getName.endsWith(".md"))
+      FileIOBullshit.markdownFilesIn(leanPubDirectory.toPath)
         .sortBy(_.toFile.getName)
         .map(ProseFile)
 
@@ -247,19 +203,69 @@ object BuildTooling {
           )
         }
 
-
         val allFences: List[FencedCode] =
           dirFiles.sortBy(_.p.getFileName.toString).map(fileFence)
 
         proseFileOnSameTopic match {
           case Some(value) =>
             appendExperimentsToMatchingProseFile(value, allFences)
-          case None => {
+          case None =>
             appendExperimentsToEndOfBookInNewChapter(packagedName, leanPubDirectory, allFences)
-          }
         }
     }
 
+  }
+
+  object FileIOBullshit {
+    import java.nio.file.StandardCopyOption._
+    import scala.collection.JavaConverters._
+
+    def createFile(target: File, contents: Seq[String]): Path = {
+      target.getParentFile.mkdirs()
+      Files.write(target.toPath, contents.asJava, StandardOpenOption.CREATE)
+    }
+
+    def copy(source: Path, dest: Path): Unit =
+      Files.copy(source, dest, REPLACE_EXISTING)
+
+    def copyFolder(src: Path , dest: Path ): Unit =
+      scalaFileWalk(src).foreach(
+        source => FileIOBullshit.copy(source, dest.resolve(src.relativize(source)))
+      )
+
+    def scalaFileWalk(src: Path): List[Path] = {
+      val currentLevelFiles = Files.list(src).iterator().asScala.toList
+      currentLevelFiles ++ currentLevelFiles.flatMap(file =>
+        if (file.toFile.isDirectory)
+          scalaFileWalk(file)
+        else List.empty
+      )
+    }
+
+    def deleteAllScalaFilesRecursively(file: File): Unit = {
+      import java.io.{File, FilenameFilter}
+      val onlyScala: FilenameFilter = (_: File, name: String) => name.endsWith(".scala")
+      file.listFiles(onlyScala).toSeq.foreach(_.delete())
+      file.listFiles().foreach(file => if (file.isDirectory) deleteAllScalaFilesRecursively(file))
+      if (file.isDirectory && file.listFiles().isEmpty) file.delete()
+    }
+
+    def filesIn(p: Path): List[Path] =
+      Files.walk(p)
+        .iterator()
+        .asScala
+        .toList
+
+    def markdownFilesIn(p: Path): List[Path] =
+      filesIn(p)
+        .filter(_.toFile.ext == "md")
+
+    def scalaFilesIn(p: Path): List[Path] =
+      filesIn(p)
+        .filter(_.toFile.ext == "scala")
+
+    def markdownFilesInFile(f: File) =
+      f.listFiles().filter(_.ext == "md")
   }
 
   def experimentLibrariesThatNeedToBeVettedForInclusionInBook = Seq(
@@ -291,4 +297,3 @@ object BuildTooling {
   )
 
 }
-
