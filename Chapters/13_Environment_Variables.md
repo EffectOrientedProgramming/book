@@ -253,7 +253,9 @@ This helps us keep a flat `Error` channel when we write our domain logic.
 This was quite a process; where did it get us?
 Our fully ZIO-centric, side-effect-free logic looks like this:
 
+
 ```scala mdoc
+// TODO This produces large, wide output that does not adhere to the width of the page.
 val fancyLodging: ZIO[
   SystemStrict with HotelApiZ,
   Error,
