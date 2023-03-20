@@ -7,8 +7,8 @@ libraryDependencies ++=
     "dev.zio" %% "zio"          % zioVersion,
     "dev.zio" %% "zio-test"     % zioVersion,
     "dev.zio" %% "zio-test-sbt" % zioVersion % Test,
-    "io.github.scottweaver" %% "zio-2-0-testcontainers-postgresql" % "0.10.0",
-    "io.github.scottweaver" %% "zio-2-0-db-migration-aspect" % "0.10.0",
+    "io.github.scottweaver" %% "zio-2-0-testcontainers-postgresql" % "0.9.0",
+    "io.github.scottweaver" %% "zio-2-0-db-migration-aspect" % "0.9.0",
 //    "com.softwaremill.sttp.client3" %% "circe" %
 //      "3.3.16",
 //    "com.softwaremill.sttp.client3" %% "core" %
