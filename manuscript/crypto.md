@@ -1,5 +1,5 @@
 ## crypto
-
+ Newer stuff!
  
 
 ### experiments/src/main/scala/crypto/Mining.scala
@@ -86,4 +86,5 @@ def nextPrimeAfter(num: Int): Int =
     nextPrimeAfter(num + 1)
 
 ```
+
 

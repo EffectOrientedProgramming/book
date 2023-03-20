@@ -1,5 +1,5 @@
 ## logging
-
+ Newer stuff!
  
 
 ### experiments/src/main/scala/logging/Logging.scala
@@ -68,4 +68,5 @@ class WackyGps extends Gps:
       )
 
 ```
+
 

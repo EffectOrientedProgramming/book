@@ -1,5 +1,5 @@
 ## resourcemanagement
-
+ Newer stuff!
  
 
 ### experiments/src/main/scala/resourcemanagement/ChatSlots.scala
@@ -140,4 +140,5 @@ object Trivial extends zio.ZIOAppDefault:
 end Trivial
 
 ```
+
 
