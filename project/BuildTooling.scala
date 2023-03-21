@@ -30,7 +30,7 @@ object BuildTooling {
 
     val md: String =
       s"""## ${packageMarkdownFileName.stripSuffix(".md")}
-         | Newer stuff!
+         |
          | ${experiments.map(_.content).mkString}
          |""".stripMargin
 
