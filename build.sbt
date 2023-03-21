@@ -7,15 +7,19 @@ mdocIn := file("Chapters")
 mdocOut := file("manuscript")
 
 import BuildTooling._
+// Tells our example extraction code where to find the examples
 mdDir := file("Chapters")
+// Tells our example extraction code where to put the extracted examples
 examplesDir := file("Examples/src/main/scala")
 
+// Tool that lets us re-order numbered markdown chapters
 lazy val booker =
   (project in file("booker"))
     .dependsOn(experiments)
     .settings(commonSettings)
     .enablePlugins(GraalVMNativeImagePlugin)
 
+// Sandbox where we can edit code with full editing capabilities, before committing to mdoc fences
 lazy val experiments =
   (project in file("experiments"))
   .settings(commonSettings)
@@ -43,7 +47,7 @@ mdoc := mdoc.dependsOn(bookTxt).evaluated
 
 lazy val cleanManuscript = taskKey[Unit]("Clean manuscript dir")
 
-cleanManuscript := IO.delete(mdocOut.value)
+cleanManuscript := IO.delete(mdocOut.value) // TODO Consider moving raw file IO to BuildTooling
 
 clean := clean.dependsOn(cleanManuscript).value
 

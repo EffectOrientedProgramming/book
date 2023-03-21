@@ -166,9 +166,18 @@ object BuildTooling {
 
     case class ExperimentFile(p: Path)
 
+    // Files that we have actually written content for
+    // They will be used as anchors for attaching experiments
+    val proseFiles: Seq[ProseFile] =
+      FileIOBullshit.markdownFilesIn(leanPubDirectory.toPath)
+        .sortBy(_.toFile.getName)
+        .map(ProseFile)
+
+    // These may or may not correspond to prose chapters
     val experimentClasses: Map[String, List[ExperimentFile]] =
       FileIOBullshit.scalaFilesIn(file("experiments/src").toPath)
         .map(ExperimentFile)
+        // TODO Investigate nested package behavior
         .groupBy { file => file.p.getParent.toString }
 
     val nf = leanPubDirectory / "ExperimentsSection.md"
@@ -176,11 +185,7 @@ object BuildTooling {
       "# Experiments\n\n" +
         "These experiments are not currently attached to a chapter, but are included for previewing. Before publication, we should not have any lingering experiments here.\n\n"
     IO.append(leanPubDirectory / "Book.txt", nf.getName + "\n")
-
-    val proseFiles: Seq[ProseFile] =
-      FileIOBullshit.markdownFilesIn(leanPubDirectory.toPath)
-        .sortBy(_.toFile.getName)
-        .map(ProseFile)
+    FileIOBullshit.createFile(nf, Seq(experimentsHeaderContent))
 
     experimentClasses.foreach {
       case (dir, dirFiles) =>
