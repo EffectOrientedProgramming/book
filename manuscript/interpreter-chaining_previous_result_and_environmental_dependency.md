@@ -1,5 +1,5 @@
 ## interpreter-chaining_previous_result_and_environmental_dependency
- Newer stuff!
+
  
 
 ### experiments/src/main/scala/interpreter/chaining_previous_result_and_environmental_dependency/ChainedWithPreviousResultAndEnvironmentDependency.scala

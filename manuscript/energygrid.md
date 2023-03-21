@@ -1,5 +1,5 @@
 ## energygrid
- Newer stuff!
+
  
 
 ### experiments/src/main/scala/energygrid/Grid.scala

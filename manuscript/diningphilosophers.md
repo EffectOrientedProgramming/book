@@ -1,5 +1,5 @@
 ## diningphilosophers
- Newer stuff!
+
  
 
 ### experiments/src/main/scala/diningphilosophers/Philosophers.scala
