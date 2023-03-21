@@ -163,9 +163,6 @@ object BuildTooling {
   }
 
   def produceLeanpubManuscript(leanPubDirectory: File): Unit = {
-
-    case class ExperimentFile(p: Path)
-
     // Files that we have actually written content for
     // They will be used as anchors for attaching experiments
     val proseFiles: Seq[ProseFile] =
@@ -173,12 +170,15 @@ object BuildTooling {
         .sortBy(_.toFile.getName)
         .map(ProseFile)
 
+    def packageName(experimentFile: ExperimentFile) =
+      experimentFile.p.getParent.toString.stripPrefix("experiments/src/main/scala/")
+
     // These may or may not correspond to prose chapters
     val experimentClasses: Map[String, List[ExperimentFile]] =
       FileIOBullshit.scalaFilesIn(file("experiments/src").toPath)
         .map(ExperimentFile)
         // TODO Investigate nested package behavior
-        .groupBy { file => file.p.getParent.toString }
+        .groupBy(packageName)
 
     val nf = leanPubDirectory / "ExperimentsSection.md"
     val experimentsHeaderContent =
@@ -188,38 +188,40 @@ object BuildTooling {
     FileIOBullshit.createFile(nf, Seq(experimentsHeaderContent))
 
     experimentClasses.foreach {
-      case (dir, dirFiles) =>
-        val packagedName: String = dir.stripPrefix("experiments/src/main/scala/")
+      case (packageName, experimentsInPackage) =>
 
         val proseFileOnSameTopic: Option[ProseFile] =
-          proseFiles.find(_.cleanName == packagedName)
-
-        def fileFence(experimentFile: ExperimentFile) = {
-          val file = experimentFile.p.toFile
-          val lines = IO.read(file)
-          FencedCode(
-            s"""
-               |
-               |### ${file.toString}
-               |```scala
-               |$lines
-               |```
-               |""".stripMargin
-          )
-        }
+          proseFiles.find(_.cleanName == packageName)
 
         val allFences: List[FencedCode] =
-          dirFiles.sortBy(_.p.getFileName.toString).map(fileFence)
+          experimentsInPackage.sortBy(_.p.getFileName.toString).map(fileFence)
 
         proseFileOnSameTopic match {
           case Some(value) =>
             appendExperimentsToMatchingProseFile(value, allFences)
           case None =>
-            appendExperimentsToEndOfBookInNewChapter(packagedName, leanPubDirectory, allFences)
+            appendExperimentsToEndOfBookInNewChapter(packageName, leanPubDirectory, allFences)
         }
     }
 
   }
+
+  case class ExperimentFile(p: Path)
+
+  private def fileFence(experimentFile: ExperimentFile): FencedCode = {
+    val file = experimentFile.p.toFile
+    val lines = IO.read(file)
+    FencedCode(
+      s"""
+         |
+         |### ${file.toString}
+         |```scala
+         |$lines
+         |```
+         |""".stripMargin
+    )
+  }
+
 
   object FileIOBullshit {
     import java.nio.file.StandardCopyOption._
