@@ -79,7 +79,7 @@ val zFuture =
   )
 // zFuture: ZIO[Any, Throwable, String] = Stateful(
 //   trace = "repl.MdocSession.MdocApp.zFuture(06_The_ZIO_Type.md:47)",
-//   onState = zio.ZIO$$$Lambda$14926/0x0000000103d51040@14f807f3
+//   onState = zio.ZIO$$$Lambda$14912/0x0000000103d52840@2fdaf6db
 // )
 val zFutureFailed =
   ZIO.fromFuture(implicit ec =>
@@ -87,7 +87,7 @@ val zFutureFailed =
   )
 // zFutureFailed: ZIO[Any, Throwable, Nothing] = Stateful(
 //   trace = "repl.MdocSession.MdocApp.zFutureFailed(06_The_ZIO_Type.md:54)",
-//   onState = zio.ZIO$$$Lambda$14926/0x0000000103d51040@e7f4b16
+//   onState = zio.ZIO$$$Lambda$14912/0x0000000103d52840@5c6aad61
 // )
 unsafeRunPrettyPrint(zFuture)
 // Success!
