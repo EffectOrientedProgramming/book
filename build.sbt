@@ -1,5 +1,8 @@
 name := "EffectOrientedProgramming"
 
+inThisBuild(scalaVersion := "3.2.1")
+
+
 // This tells mdoc which folder to analyze
 mdocIn := file("Chapters")
 // This is where the generated markdown files will be placed,
@@ -11,6 +14,18 @@ import BuildTooling._
 mdDir := file("Chapters")
 // Tells our example extraction code where to put the extracted examples
 examplesDir := file("Examples/src/main/scala")
+
+lazy val illustratedPrimer =
+  (project in file("illustratedPrimer"))
+    .enablePlugins(ScalaJSPlugin)
+    .settings(
+      scalaJSUseMainModuleInitializer := true,
+      libraryDependencies ++= List(
+        "com.raquo" %%% "laminar" % "15.0.0",
+        "com.raquo" %%% "waypoint" % "6.0.0"
+      )
+    )
+
 
 // Tool that lets us re-order numbered markdown chapters
 lazy val booker =
