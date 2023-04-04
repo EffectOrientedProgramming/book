@@ -6,12 +6,30 @@ import scala.concurrent.Future
 import concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
 
-case class DynamicInfo(content: String)
+enum DynamicInfo:
+  case VettedInfo(content: String)
+  case Code(content: String)
+  case ExpensiveChatInfo(content: String)
 val eventBus = new EventBus[DynamicInfo]
 
 case class Backend():
-    def getDynamicInfo(topic: String): Future[DynamicInfo] =
-        Future.successful(DynamicInfo(s"TODO Get ChatGPT info for $topic"))
+    def getVettedInfo(topic: String): Future[DynamicInfo] =
+        Future.successful(DynamicInfo.VettedInfo(s"TODO Get saved ChatGPT info for $topic"))
+
+    def codeExample(topic: String): Future[DynamicInfo] =
+      Future.successful(DynamicInfo.Code(
+        s"""object Demo extends ZIOAppDefault:
+           |  def run =
+           |     // TODO Generate code for $topic
+           |
+           |""".stripMargin
+      ))
+
+    def expensiveChatInfo(topic: String): Future[DynamicInfo] =
+      Future.successful(DynamicInfo.ExpensiveChatInfo(
+      s"TODO Hit GPT API for $topic"
+    ))
+
 
 enum ParagraphPiece:
   case KnownTopic(topic: String)

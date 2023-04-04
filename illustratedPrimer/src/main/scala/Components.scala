@@ -43,12 +43,24 @@ object Components extends HtmlProps:
           a(href := "#", cls := "dropdown-item", "Vetted information",
             onClick.flatMap(e =>
               Signal.fromFuture(
-                backend.getDynamicInfo(topic)
+                backend.getVettedInfo(topic)
               )
             ) --> infoResults,
           ),
-          a(href := "#", cls := "dropdown-item is-active", "Show example"),
-          a(href := "#", cls := "dropdown-item", "Generate new information")
+          a(href := "#", cls := "dropdown-item is-active", "Show example",
+            onClick.flatMap(e =>
+              Signal.fromFuture(
+                backend.codeExample(topic)
+              )
+            ) --> infoResults,
+          ),
+          a(href := "#", cls := "dropdown-item", "Generate new information",
+            onClick.flatMap(e =>
+              Signal.fromFuture(
+                backend.expensiveChatInfo(topic)
+              )
+            ) --> infoResults,
+          )
         )
       )
     //    val ariaControls: HtmlProp[String] = stringProp("aria-controls")
@@ -82,7 +94,7 @@ object Components extends HtmlProps:
       typ := "button",
       onClick.flatMap(e =>
         Signal.fromFuture(
-          backend.getDynamicInfo(topic.now())
+          backend.getVettedInfo(topic.now())
         )
       ) --> infoResults,
       "More info"
@@ -92,13 +104,24 @@ object Components extends HtmlProps:
       info: Signal[Option[DynamicInfo]]
   ) =
     div(
-      span("Dynamic info: "),
-      child.text <--
+      child <--
         info.map {
           case Some(value) =>
-            value.content
+            value match
+              case DynamicInfo.VettedInfo(content) =>
+                div(
+                  backgroundColor := "#90EE90",
+                  content
+                )
+              case DynamicInfo.Code(content) =>
+                pre(content)
+              case DynamicInfo.ExpensiveChatInfo(content) =>
+                div(
+                  backgroundColor := "#FF7F7F",
+                  content
+                )
           case None =>
-            "Not available yet"
+            div()
         }
     )
 end Components
