@@ -1,8 +1,10 @@
 import org.scalajs.dom
 import com.raquo.laminar.api.L.{*, given}
 
+import java.util.UUID
 import scala.concurrent.Future
 import concurrent.ExecutionContext.Implicits.global
+import scala.util.Random
 
 case class DynamicInfo(content: String)
 val eventBus = new EventBus[DynamicInfo]
@@ -11,83 +13,55 @@ case class Backend():
     def getDynamicInfo(topic: String): Future[DynamicInfo] =
         Future.successful(DynamicInfo(s"TODO Get ChatGPT info for $topic"))
 
-val backend = Backend()
-
-object Components:
-  def knownTopic(topic: String, topicSelection: Observer[String]) =
-    span(
-      cls := "known-topic",
-      onClick.mapTo(topic.toLowerCase) --> topicSelection,
-      topic + " "
-    )
-
-  def textPiece(
-    text: String,
-               ) =
-  span( text + " ")
-
-  // TODO should not be receiving a full Var here
-  def infoButton(topic: Var[String], infoResults: Observer[Option[DynamicInfo]]) =
-    button(
-      typ := "button",
-      onClick.flatMap(e =>
-        Signal.fromFuture(backend.getDynamicInfo(topic.now()))
-      ) --> infoResults,
-      "More info"
-    )
-
-  def infoDisplay(info: Signal[Option[DynamicInfo]]) =
-
-    div(
-      span("Dynamic info: "),
-      child.text <-- info.map {
-        case Some(value) => value.content
-        case None => "Not available yet"
-      }
-    )
-
 enum ParagraphPiece:
   case KnownTopic(topic: String)
   case Text(text: String)
 
 object ActionPanel:
-  def apply(topic: Var[String]) =
-    val infoVar: Var[Option[DynamicInfo]] = Var(None)
-
+  def apply(infoVar: Var[Option[DynamicInfo]], backend: Backend) =
     div(
       cls := "action-panel",
-      div(
-        child.text <-- topic
-      ),
-      Components.infoButton(topic, infoVar.writer),
       Components.infoDisplay(infoVar.signal),
-      div("Examples"),
-      div("etc")
     )
 
-val rootElement = {
-  val nameVar: Var[String] = Var(initial = "*Choose a topic*")
-  div(
+object IllustratedPrimer:
+  def apply(backend: Backend) =
+    val nameVar: Var[String] = Var(initial = "*Choose a topic*")
+    val infoVar: Var[Option[DynamicInfo]] = Var(None)
+    val activeDropDown: Var[Option[String]] = Var(None)
     div(
-      KnownTopic.recognize(
-        """This is a much more flexible approach, where every time a known topic
-          |is mentioned, it is recognized and turned into a link. So if we talk about
-          | accessing environment variables, then environment will be highlighted and
-          | interactive each time.
-    """.stripMargin
-      ).map {
-        case ParagraphPiece.KnownTopic(topic) => Components.knownTopic(topic, nameVar.writer)
-        case ParagraphPiece.Text(text) => Components.textPiece(text)
-      }
-    ),
-    ActionPanel(nameVar),
+      onClick --> { event =>
+        activeDropDown.now() match
+          case Some(value) =>
+            val clickedElement: String = event.target.asInstanceOf[dom.html.Element].id
+            println("Clicked element: " + clickedElement)
+            if (!clickedElement.contains(value)) {
+              println("Clicked outside the target element!");
+              dom.document.querySelector("#" + value)
+                .classList.toggle("is-hidden")
+              activeDropDown.writer.onNext(None)
+            }
+          case None => println("No active dropdown")
+            //.asInstanceOf[dom.html.Element].classList.remove("active
+      },
+      div(
+        KnownTopic.recognize(
+          """This is a much more flexible approach, where every time a known topic
+            |is mentioned, it is recognized and turned into a link. So if we talk about
+            | accessing environment variables, then environment will be highlighted and
+            | interactive each time.
+      """.stripMargin
+        ).map {
+          case ParagraphPiece.KnownTopic(topic) => Components.dropdownTopic(topic, infoVar.writer, backend, activeDropDown.writer)
+          case ParagraphPiece.Text(text) => Components.textPiece(text)
+        }
+      ),
+      ActionPanel(infoVar, backend),
 
-  )
-}
-
-// In most other examples, containerNode will be set to this behind the scenes
-val containerNode = dom.document.querySelector("#laminar-app")
+    )
 
 object Hello extends App {
-  render(containerNode, rootElement)
+  val backend = Backend()
+  val containerNode = dom.document.querySelector("#laminar-app")
+  render(containerNode, IllustratedPrimer(backend))
 }
