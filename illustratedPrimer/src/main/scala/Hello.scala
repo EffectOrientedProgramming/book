@@ -14,7 +14,7 @@ val eventBus = new EventBus[DynamicInfo]
 
 case class Backend():
     def getVettedInfo(topic: String): Future[DynamicInfo] =
-        Future.successful(DynamicInfo.VettedInfo(s"TODO Get saved ChatGPT info for $topic"))
+        Future.successful(DynamicInfo.VettedInfo(s"TODO Get hand-written and/or vetted info for $topic"))
 
     def codeExample(topic: String): Future[DynamicInfo] =
       Future.successful(DynamicInfo.Code(
@@ -36,15 +36,16 @@ enum ParagraphPiece:
   case Text(text: String)
 
 object ActionPanel:
-  def apply(infoVar: Var[Option[DynamicInfo]], backend: Backend) =
+  def apply(
+             info: Signal[Option[DynamicInfo]],
+             backend: Backend) =
     div(
       cls := "action-panel",
-      Components.infoDisplay(infoVar.signal),
+      Components.infoDisplay(info),
     )
 
 object IllustratedPrimer:
   def apply(backend: Backend) =
-    val nameVar: Var[String] = Var(initial = "*Choose a topic*")
     val infoVar: Var[Option[DynamicInfo]] = Var(None)
     val activeDropDown: Var[Option[String]] = Var(None)
     div(
@@ -52,29 +53,28 @@ object IllustratedPrimer:
         activeDropDown.now() match
           case Some(value) =>
             val clickedElement: String = event.target.asInstanceOf[dom.html.Element].id
-            println("Clicked element: " + clickedElement)
             if (!clickedElement.contains(value)) {
-              println("Clicked outside the target element!");
               dom.document.querySelector("#" + value)
                 .classList.toggle("is-hidden")
               activeDropDown.writer.onNext(None)
             }
-          case None => println("No active dropdown")
+          case None => ()
             //.asInstanceOf[dom.html.Element].classList.remove("active
       },
       div(
         KnownTopic.recognize(
-          """This is a much more flexible approach, where every time a known topic
+          """This is a lot of arbitrary verbiage, where every time a known topic
             |is mentioned, it is recognized and turned into a link. So if we talk about
             | accessing environment variables, then environment will be highlighted and
-            | interactive each time.
+            | interactive each time . If you talk about concurrency , then it will also
+            | be interactive. It's very rough now, but it's a start.
       """.stripMargin
         ).map {
           case ParagraphPiece.KnownTopic(topic) => Components.dropdownTopic(topic, infoVar.writer, backend, activeDropDown.writer)
           case ParagraphPiece.Text(text) => Components.textPiece(text)
         }
       ),
-      ActionPanel(infoVar, backend),
+      ActionPanel(infoVar.signal, backend),
 
     )
 

@@ -47,7 +47,7 @@ object Components extends HtmlProps:
               )
             ) --> infoResults,
           ),
-          a(href := "#", cls := "dropdown-item is-active", "Show example",
+          a(href := "#", cls := "dropdown-item", "Show example",
             onClick.flatMap(e =>
               Signal.fromFuture(
                 backend.codeExample(topic)
@@ -83,22 +83,6 @@ object Components extends HtmlProps:
   }
 
   def textPiece(text: String) = span(text + " ")
-
-  // TODO should not be receiving a full Var here
-  def infoButton(
-      topic: Var[String],
-      infoResults: Observer[Option[DynamicInfo]],
-      backend: Backend
-  ) =
-    button(
-      typ := "button",
-      onClick.flatMap(e =>
-        Signal.fromFuture(
-          backend.getVettedInfo(topic.now())
-        )
-      ) --> infoResults,
-      "More info"
-    )
 
   def infoDisplay(
       info: Signal[Option[DynamicInfo]]
