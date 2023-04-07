@@ -1,6 +1,10 @@
 package zio_test
 
-import zio.test.{TestAspect, ZIOSpec, assertCompletes}
+import zio.test.{
+  TestAspect,
+  ZIOSpec,
+  assertCompletes
+}
 import zio.*
 
 object UseSharedLayerA extends ZIOSpec[Ref[Int]]:
