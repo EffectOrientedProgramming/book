@@ -63,12 +63,9 @@ object QuizGame extends zio.ZIOAppDefault:
         val answer = answers.take.run
         val output =
             if (answer.text == correctAnswer)
-              val currentCorrectRespondents =
-                correctRespondents.get.run
-              correctRespondents.set(
-                currentCorrectRespondents :+
-                  answer.player
-              ).run
+              correctRespondents
+                .update(_ :+ answer.player)
+                .run
               "Correct response from: " +
                 answer.player
             else
