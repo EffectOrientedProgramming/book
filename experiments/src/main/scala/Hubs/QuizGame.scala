@@ -3,17 +3,8 @@ package Hubs
 import console.FakeConsole
 
 import java.io.IOException
-import zio.{
-  Clock,
-  Console,
-  Dequeue,
-  Duration,
-  Hub,
-  Ref,
-  Schedule,
-  ZIO,
-  durationInt
-}
+import zio.*
+import zio.direct.*
 import zio.Console.printLine
 
 object QuizGame extends zio.ZIOAppDefault:
@@ -68,27 +59,23 @@ object QuizGame extends zio.ZIOAppDefault:
         answers: Dequeue[Answer],
         correctRespondents: Ref[List[Player]]
     ) =
-      for // gather answers until there's a winner
-        answer <- answers.take
-        output <-
-          if (answer.text == correctAnswer)
-            for
-              currentCorrectRespondents <-
-                correctRespondents.get
-              _ <-
-                correctRespondents.set(
-                  currentCorrectRespondents :+
-                    answer.player
-                )
-            yield "Correct response from: " +
-              answer.player
-          else
-            ZIO.succeed(
+      defer { // gather answers until there's a winner
+        val answer = answers.take.run
+        val output =
+            if (answer.text == correctAnswer)
+              val currentCorrectRespondents =
+                correctRespondents.get.run
+              correctRespondents.set(
+                currentCorrectRespondents :+
+                  answer.player
+              ).run
+              "Correct response from: " +
+                answer.player
+            else
               "Incorrect response from: " +
                 answer.player
-            )
-        _ <- printLine(output)
-      yield ()
+        printLine(output).run
+      }
 
     def untilWinnersAreFound(
         correctRespondents: Ref[List[Player]]
