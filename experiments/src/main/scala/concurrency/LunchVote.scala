@@ -2,6 +2,7 @@ package concurrency
 
 import concurrency.LunchVote.Vote.Yay
 import zio.*
+import zio.direct.*
 import zio.concurrent.*
 
 object LunchVote:
@@ -23,13 +24,13 @@ object LunchVote:
       maximumVoteTime: Duration =
         Duration.Infinity
   ) =
-    for
-      resultMap <-
+    defer {
+      val resultMap =
         ConcurrentMap.make[Vote, Int](
           Vote.Yay -> 0,
           Vote.Nay -> 0
-        )
-      voteProcesses =
+        ).run
+      val voteProcesses =
         voters.map(voter =>
           getVoteFrom(
             voter,
@@ -37,16 +38,15 @@ object LunchVote:
             voters.size
           ).onInterrupt(voter.onInterrupt)
         )
-      result <-
-        ZIO
-          .raceAll(
-            voteProcesses.head,
-            voteProcesses.tail
-          )
-          .timeout(maximumVoteTime)
-          .some
-    yield result
-    end for
+      ZIO
+        .raceAll(
+          voteProcesses.head,
+          voteProcesses.tail
+        )
+        .timeout(maximumVoteTime)
+        .some
+        .run
+    }
   end run
 
   case object NotConclusive
