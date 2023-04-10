@@ -22,6 +22,7 @@
 21_Resources.md
 22_STM.md
 23_Executing_External_Programs.md
+24_zio_direct.md
 ExperimentsSection.md
 microcontrollers.md
 std_type_conversions_to_zio.md

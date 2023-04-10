@@ -17,6 +17,7 @@ package concurrency
 
 import concurrency.LunchVote.Vote.Yay
 import zio.*
+import zio.direct.*
 import zio.concurrent.*
 
 object LunchVote:
@@ -38,13 +39,13 @@ object LunchVote:
       maximumVoteTime: Duration =
         Duration.Infinity
   ) =
-    for
-      resultMap <-
+    defer {
+      val resultMap =
         ConcurrentMap.make[Vote, Int](
           Vote.Yay -> 0,
           Vote.Nay -> 0
-        )
-      voteProcesses =
+        ).run
+      val voteProcesses =
         voters.map(voter =>
           getVoteFrom(
             voter,
@@ -52,16 +53,15 @@ object LunchVote:
             voters.size
           ).onInterrupt(voter.onInterrupt)
         )
-      result <-
-        ZIO
-          .raceAll(
-            voteProcesses.head,
-            voteProcesses.tail
-          )
-          .timeout(maximumVoteTime)
-          .some
-    yield result
-    end for
+      ZIO
+        .raceAll(
+          voteProcesses.head,
+          voteProcesses.tail
+        )
+        .timeout(maximumVoteTime)
+        .some
+        .run
+    }
   end run
 
   case object NotConclusive
@@ -204,9 +204,9 @@ end CollectAllParMassiveDemo
 ### experiments/src/main/scala/concurrency/ThunderingHerds.scala
 ```scala
 package concurrency
-
 import zio.*
 import zio.Console.printLine
+import zio.direct.*
 
 import java.nio.file.Path
 
@@ -224,25 +224,26 @@ trait FileService:
 object FileService:
   val live =
     ZLayer.fromZIO(
-      for
-        fs   <- ZIO.service[FileSystem]
-        hit  <- Ref.make[Int](0)
-        miss <- Ref.make[Int](0)
-        cache <-
+      defer {
+        val fs   = ZIO.service[FileSystem].run
+        val hit  = Ref.make[Int](0).run
+        val miss = Ref.make[Int](0).run
+        val cache =
           Ref.make[Map[Path, FileContents]](
             Map.empty
-          )
-        activeRefreshes <-
+          ).run
+        val activeRefreshes =
           Ref.make[Map[Path, ActiveUpdate]](
             Map.empty
-          )
-      yield Live(
-        hit,
-        miss,
-        cache,
-        activeRefreshes,
-        fs
-      )
+          ).run
+        Live(
+          hit,
+          miss,
+          cache,
+          activeRefreshes,
+          fs
+        )
+      }
     )
 
   case class ActiveUpdate(
@@ -307,28 +308,28 @@ object FileService:
         finalContents <-
           activeUpdate.observers match
             case 0 =>
-              for
-                _ <-
-                  printLine(
-                    "1st herd member will hit the filesystem"
-                  ).orDie
-                contents <-
+              defer {
+                printLine(
+                  "1st herd member will hit the filesystem"
+                ).orDie
+                .run
+                val contents =
                   fileSystem
                     .readFileExpensive(name)
-                _ <-
-                  activeUpdate
-                    .promise
-                    .succeed(contents)
-                _ <-
-                  activeRefresh.update(m =>
-                    m - name
-                  ) // Clean out "active" entry
-                _ <-
-                  cache.update(m =>
-                    m.updated(name, contents)
-                  ) // Update cache
-                _ <- miss.update(_ + 1)
-              yield contents
+                    .run
+                activeUpdate
+                  .promise
+                  .succeed(contents)
+                  .run
+                activeRefresh.update(m =>
+                  m - name // Clean out "active" entry
+                ).run
+                cache.update(m =>
+                  m.updated(name, contents) // Update cache
+                ).run
+                miss.update(_ + 1).run
+                contents
+            }
             case observerCount =>
               printLine(
                 "Slower herd member will wait for response of 1st member"
