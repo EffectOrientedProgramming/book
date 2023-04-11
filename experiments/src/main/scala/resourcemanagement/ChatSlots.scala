@@ -31,30 +31,27 @@ object ChatSlots extends zio.ZIOAppDefault:
         ref.set(SlotState.Closed).run
       }
 
-    for
-      ref <-
-        Ref.make[SlotState](SlotState.Closed)
-      managed =
+    defer {
+      val ref = Ref.make[SlotState](SlotState.Closed).run
+      val managed =
         ZIO.acquireRelease(acquire(ref))(_ =>
           release(ref)
         )
-      reusable =
+      val reusable =
         managed.map(
           printLine(_)
         ) // note: Can't just do (Console.printLine) here
-      _ <- reusable
-      _ <- reusable
-      _ <-
-        ZIO.scoped {
-          managed.flatMap { s =>
-            for
-              _ <- printLine(s)
-              _ <- printLine("Blowing up")
-              _ <- ZIO.fail("Arggggg")
-            yield ()
+      reusable.run
+      reusable.run
+      ZIO.scoped {
+        managed.flatMap { s =>
+          defer {
+            printLine(s).run
+            printLine("Blowing up").run
+            if(true) throw new Exception("Arggggg")
           }
         }
-    yield ()
-    end for
+      }.run
+    }
   end run
 end ChatSlots
