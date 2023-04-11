@@ -2,6 +2,7 @@ package resourcemanagement
 
 import zio.Console.printLine
 import zio.{Ref, ZIO}
+import zio.direct.*
 
 case class Slot(id: String)
 case class Player(name: String, slot: Slot)
@@ -15,21 +16,20 @@ object ChatSlots extends zio.ZIOAppDefault:
   def run =
 
     def acquire(ref: Ref[SlotState]) =
-      for
-        _ <-
-          printLine {
-            "Took a speaker slot"
-          }
-        _ <- ref.set(SlotState.Open)
-      yield "Use Me"
+      defer {
+        printLine {
+          "Took a speaker slot"
+        }.run
+        ref.set(SlotState.Open).run
+        "Use Me"
+      }
 
     def release(ref: Ref[SlotState]) =
-      for
-        _ <-
-          printLine("Freed up a speaker slot")
-            .orDie
-        _ <- ref.set(SlotState.Closed)
-      yield ()
+      defer {
+        printLine("Freed up a speaker slot")
+          .orDie.run
+        ref.set(SlotState.Closed).run
+      }
 
     for
       ref <-
