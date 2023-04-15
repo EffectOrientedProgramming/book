@@ -1,13 +1,6 @@
 package scenarios
 
-import zio.{
-  Duration,
-  Schedule,
-  Unsafe,
-  ZIO,
-  ZLayer,
-  durationInt
-}
+import zio.{Duration, Schedule, Unsafe, ZIO, ZIOAppDefault, ZLayer, durationInt}
 import zio.Console.printLine
 
 import scala.concurrent.TimeoutException
@@ -199,32 +192,6 @@ trait SecurityResponse
 object Relax     extends SecurityResponse
 object LowBeep   extends SecurityResponse
 object LoudSiren extends SecurityResponse
-
-@main
-def useSecuritySystem =
-  import zio.Runtime.default.unsafe
-  println(
-    "Final result: " +
-      Unsafe.unsafe { (u: Unsafe) =>
-        given Unsafe = u
-        unsafe
-          .run(
-            SecuritySystem
-              .shouldAlertServices()
-              .provide(
-                SecuritySystem.fullServiceBuilder
-              )
-              .catchSome {
-                case _: TimeoutException =>
-                  printLine(
-                    "Invalid Scenario. Ran out of sensor data."
-                  )
-              }
-          )
-          .getOrThrowFiberFailure()
-      }
-  )
-end useSecuritySystem
 
 trait HardwareFailure
 
