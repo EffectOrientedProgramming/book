@@ -43,16 +43,13 @@ object QuizGame extends zio.ZIOAppDefault:
         answerHub: Hub[Answer],
         answers: Seq[Answer]
     ) =
-      ZIO
-        .collectAllPar(
-          answers.map { answer =>
-            for
-              _ <- ZIO.sleep(answer.delay)
-              _ <- answerHub.publish(answer)
-            yield ()
+      ZIO.foreachParDiscard(answers) {
+        answer =>
+          defer {
+            ZIO.sleep(answer.delay).run
+            answerHub.publish(answer).run
           }
-        )
-        .unit
+      }
 
     def recordCorrectAnswers(
         correctAnswer: String,
@@ -166,58 +163,53 @@ object QuizGame extends zio.ZIOAppDefault:
                 def playARound(
                     roundDescription: RoundDescription
                 ) =
-                  for
-                    _ <-
-                      printLine(
-                        "==============================="
-                      )
-                    _ <-
-                      printLine(
-                        "Question for round: " +
-                          roundDescription
-                            .question
-                            .text
-                      )
-                    _ <-
-                      correctRespondents
-                        .set(List.empty)
-                    _ <-
-                      questionHub.publish(
-                        roundDescription.question
-                      )
-                    question <- questions.take
-                    _ <-
-                      ZIO
-                        .collectAllPar(
-                          Seq(
-                            submitAnswersAfterDelay(
-                              answerHub,
-                              roundDescription
-                                .answers
-                            ),
-                            recordCorrectAnswers(
-                              roundDescription
-                                .question
-                                .correctResponse,
-                              answers,
+                  defer {
+                    printLine(
+                      "==============================="
+                    ).run
+                    printLine(
+                      "Question for round: " +
+                        roundDescription
+                          .question
+                          .text
+                    ).run
+                    correctRespondents
+                      .set(List.empty)
+                      .run
+                    questionHub.publish(
+                      roundDescription.question
+                    ).run
+                    val question = questions.take.run
+                    ZIO
+                      .collectAllPar(
+                        Seq(
+                          submitAnswersAfterDelay(
+                            answerHub,
+                            roundDescription
+                              .answers
+                          ),
+                          recordCorrectAnswers(
+                            roundDescription
+                              .question
+                              .correctResponse,
+                            answers,
+                            correctRespondents
+                          ).repeat(
+                            untilWinnersAreFound(
                               correctRespondents
-                            ).repeat(
-                              untilWinnersAreFound(
-                                correctRespondents
-                              )
                             )
                           )
                         )
-                        .timeout(4.second)
-                    winners <-
-                      correctRespondents.get
-                    _ <-
-                      printRoundResults(winners)
-                    _ <-
-                      printLine(
-                        "==============================="
                       )
-                  yield ()
+                      .timeout(4.second)
+                      .run
+                    val winners =
+                      correctRespondents.get.run
+                    printRoundResults(winners).run
+                    printLine(
+                      "==============================="
+                    ).run
+                  }
 
                 ZIO.foreach(rounds)(playARound)
             }
