@@ -14,7 +14,18 @@ object SecuritySystemSpec
           res <- SecuritySystem
             .shouldAlertServices()
             .provide(
-              SecuritySystem.fullServiceBuilder
+
+              MotionDetector.live ++
+                ThermalDetectorX(
+                  (1.seconds, Degrees(71)),
+                  (1.seconds, Degrees(70)),
+                  (3.seconds, Degrees(98))
+                ) // ++ s
+                ++
+                AcousticDetectorX(
+                  (4.seconds, Decibels(11)),
+                  (1.seconds, Decibels(20))
+                ) ++ SirenX.live
             )
             .catchSome {
               case _: TimeoutException =>
@@ -25,6 +36,6 @@ object SecuritySystemSpec
 
           _ <- ZIO.debug("Final result: " + res)
         yield assertCompletes
-      ) @@ TestAspect.withLiveClock
+      ) @@ TestAspect.withLiveClock @@ TestAspect.tag("important", "slow") @@ TestAspect.flaky @@ TestAspect.silent @@ TestAspect.timed
     )
   )

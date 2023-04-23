@@ -15,6 +15,18 @@ case class TempSense(
     ]
 )
 
+case class SecuritySystemX(
+                            motionDetector: MotionDetector,
+                            thermalDetectorX: ThermalDetectorX,
+                            acousticDetectorX: AcousticDetectorX
+                          )
+
+object SecuritySystemX:
+  val live =
+    ZLayer.fromFunction(
+      SecuritySystemX.apply _
+    )
+
 /** Situations: Security System: Should monitor
   *   - Motion
   *   - Heat/Infrared
@@ -36,26 +48,6 @@ object SecuritySystem:
       (1.seconds, Degrees(71)),
       (2.seconds, Degrees(70))
     )
-
-  val fullServiceBuilder: ZLayer[
-    Any,
-    Nothing,
-    scenarios.MotionDetector &
-      scenarios.ThermalDetectorX &
-      AcousticDetectorX & SirenX
-  ] =
-    MotionDetector.live ++
-      ThermalDetectorX(
-        (1.seconds, Degrees(71)),
-        (1.seconds, Degrees(70)),
-        (3.seconds, Degrees(98))
-      ) // ++ s
-      ++
-      AcousticDetectorX(
-        (4.seconds, Decibels(11)),
-        (1.seconds, Decibels(20))
-      ) ++ SirenX.live
-  end fullServiceBuilder
 
   val accessMotionDetector: ZIO[
     scenarios.MotionDetector,
@@ -233,6 +225,33 @@ trait ThermalDetectorX:
           scenarios.HardwareFailure,
         Degrees
       ]]
+
+trait ThermalDetectorY:
+  def heatMeasurement()
+  : ZIO[
+    Any,
+    TimeoutException |
+      scenarios.HardwareFailure,
+    Degrees
+  ]
+
+object ThermalDetectorY:
+
+  def apply(
+             value: (Duration, Degrees),
+             values: (Duration, Degrees)*
+           ): ZLayer[Any, Nothing, ThermalDetectorY] =
+    ZLayer.fromZIO(
+      for
+        thermalDetectorValues <- scheduledValues(value, values *)
+      yield new ThermalDetectorY:
+        override def heatMeasurement(): ZIO[Any,
+          TimeoutException |
+            scenarios.HardwareFailure,
+          Degrees] =
+          thermalDetectorValues
+      )
+
 
 object ThermalDetectorX:
 
