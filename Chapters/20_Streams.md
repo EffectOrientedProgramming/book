@@ -14,4 +14,10 @@ It is impossible to run a function at any point in time that returns a `List[Eve
 In addition, it's unlikely that you want to hold _all_ of UI events at one time.
 It is enough to process them individually, or in small batches, as they occur.
 
-TODO Prose
+## Trend Recognition
+Possible Scenarios:
+    - Fraud Prevention
+    - Self-harm prevention
+    - Anti-terrorism
+    - Surge pricing / smoothing
+    - Disease spread tracking
