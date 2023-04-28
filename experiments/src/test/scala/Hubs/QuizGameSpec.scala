@@ -37,8 +37,10 @@ object QuizGameSpec extends ZIOSpecDefault:
           )
 
         defer {
-          QuizGame.cahootGame(rounds, players).run
-          assertCompletes
+          val results = QuizGame.cahootGame(rounds, players).run
+          assertTrue(
+            results == List(RoundResults(List(frop, cheep)))
+          )
         }
       },
       test("roundWithOnly1CorrectAnswer") {
@@ -62,9 +64,11 @@ object QuizGameSpec extends ZIOSpecDefault:
           )
 
         defer {
-          QuizGame.cahootGame(rounds, players).run
-          assertCompletes
-        }
+            val results = QuizGame.cahootGame(rounds, players).run
+            assertTrue(
+              results == List(RoundResults(List(zeb)))
+            )
+          }
       },
       test("roundWithOnly1CorrectAnswer") {
         val roundWhereEverybodyIsWrong =
@@ -91,8 +95,10 @@ object QuizGameSpec extends ZIOSpecDefault:
           )
 
         defer {
-          QuizGame.cahootGame(rounds, players).run
-          assertCompletes
+          val results = QuizGame.cahootGame(rounds, players).run
+          assertTrue(
+            results == List(RoundResults(List()))
+          )
         }
       }
 

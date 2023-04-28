@@ -7,6 +7,8 @@ import zio.*
 import zio.direct.*
 import zio.Console.printLine
 
+
+
 case class Player(name: String)
 
 case class Question(
@@ -25,61 +27,12 @@ case class RoundDescription(
                              answers: Seq[Answer]
                            )
 
+case class RoundResults(
+                         correctRespondents: List[Player]
+                       )
 
-object QuizGame extends zio.ZIOAppDefault:
-  def run = // Use App's run function
 
-    /* Teacher --> Questions --> Student1 -->
-     * Answers --> Teacher Student2 Student3 */
-
-    val frop  = Player("Frop")
-    val zeb   = Player("Zeb")
-    val shtep = Player("Shtep")
-    val cheep = Player("Cheep")
-
-    val players: List[Player] =
-      List(frop, zeb, shtep, cheep)
-
-    val roundWithOnly1CorrectAnswer =
-      RoundDescription(
-        Question(
-          "What is the lightest element?",
-          "Hydrogen"
-        ),
-        Seq(
-          Answer(frop, "Lead", 2.seconds),
-          Answer(zeb, "Hydrogen", 1.seconds),
-          Answer(cheep, "Gold", 3.seconds),
-          Answer(shtep, "Hydrogen", 10.seconds)
-        )
-      )
-
-    val roundWhereEverybodyIsWrong =
-      RoundDescription(
-        Question(
-          "What is the average airspeed of an unladen swallow?",
-          "INSUFFICIENT DATA FOR MEANINGFUL ANSWER"
-        ),
-        Seq(
-          Answer(frop, "3.0 m/s", 1.seconds),
-          Answer(zeb, "Too fast", 1.seconds),
-          Answer(
-            cheep,
-            "Not fast enough",
-            1.seconds
-          ),
-          Answer(shtep, "Scary", 1.seconds)
-        )
-      )
-
-    val rounds =
-      Seq(
-        roundWithOnly1CorrectAnswer,
-        roundWhereEverybodyIsWrong
-      )
-
-    cahootGame(rounds, players)
-  end run
+object QuizGame:
 
   // TODO Return result that can be tested
   def cahootGame(rounds: Seq[RoundDescription], players: List[Player]) =
@@ -87,7 +40,7 @@ object QuizGame extends zio.ZIOAppDefault:
       questionHub <- Hub.bounded[Question](1)
       answerHub: Hub[Answer] <-
         Hub.bounded[Answer](players.size)
-      _ <-
+      res <-
         questionHub
           .subscribe
           .zip(answerHub.subscribe)
@@ -96,42 +49,37 @@ object QuizGame extends zio.ZIOAppDefault:
               questions: Dequeue[Question],
               answers: Dequeue[Answer]
               ) =>
-              ZIO.foreach(rounds)(roundDescription => playARound(
-                roundDescription,
-                questionHub,
-                questions,
-                answerHub,
-                answers: Dequeue[Answer]
-              )
+              ZIO.foreach(rounds)(roundDescription =>
+                questionHub.publish(
+                  roundDescription.question
+                ) *> playARound(
+                  roundDescription,
+                  questions,
+                  answerHub,
+                  answers
+                )
               )
           }
-    yield ()
+    yield res
 
 
   private[Hubs] def playARound(
                   roundDescription: RoundDescription,
-                  questionHub: Hub[Question],
                   questions: Dequeue[Question],
                   answerHub: Hub[Answer],
                   answers: Dequeue[Answer]
-                ) =
+                ): ZIO[Any, IOException, RoundResults] =
     defer {
       val correctRespondents = Ref.make[List[Player]](List.empty).run
-      printLine(
-        "==============================="
-      ).run
+
       printLine(
         "Question for round: " +
           roundDescription
             .question
             .text
       ).run
-      correctRespondents
-        .set(List.empty)
-        .run
-      questionHub.publish(
-        roundDescription.question
-      ).run
+
+      // TODO This should happen *before* playARound is invoked
       val question = questions.take.run
       ZIO
         .collectAllPar(
@@ -156,12 +104,10 @@ object QuizGame extends zio.ZIOAppDefault:
         )
         .timeout(4.second)
         .run
-      val winners =
+
+      RoundResults(
         correctRespondents.get.run
-      printRoundResults(winners).run
-      printLine(
-        "==============================="
-      ).run
+      )
     }
 
   private def untilWinnersAreFound(
@@ -183,19 +129,6 @@ object QuizGame extends zio.ZIOAppDefault:
           answerHub.publish(answer).run
         }
     }
-
-  private def printRoundResults(
-                         winners: List[Player]
-                       ) =
-    val finalOutput =
-      if (winners.isEmpty)
-        "Nobody submitted a correct response"
-      else if (winners.size == 2)
-        "Winners: " + winners.mkString(",")
-      else
-        "Winners of incomplete round: " +
-          winners.mkString(",")
-    printLine(finalOutput)
 
   private def recordCorrectAnswers(
                             correctAnswer: String,
