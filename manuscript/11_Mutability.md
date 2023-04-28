@@ -62,6 +62,7 @@ lazy val unreliableCounting =
   yield "Final count: " + counter
 
 unsafeRunPrettyPrint(unreliableCounting)
+// Final count: 100000
 ```
 
 Due to the unpredictable nature of shared mutable state, we do not know exactly what the final count above is.
@@ -205,7 +206,8 @@ Try to structure your code to minimize the coupling between effects and updates,
 ```scala
 package mutability
 
-import zio.{Ref, ZIO, ZIOAppDefault}
+import zio.*
+import zio.direct.*
 
 object ComplexRefs extends ZIOAppDefault:
 
@@ -226,17 +228,17 @@ object ComplexRefs extends ZIOAppDefault:
   case class World(sensors: List[Sensor])
 
   val readFromSensors =
-    for
-      sensors <-
+    defer {
+      val sensors =
         ZIO.foreach(List.fill(100)(0))(_ =>
           Sensor.make
-        )
-      world = World(sensors)
-      _ <-
-        ZIO
-          .foreach(world.sensors)(_.read)
-          .debug("Current data: ")
-    yield ()
+        ).run
+      val world = World(sensors)
+      ZIO
+        .foreach(world.sensors)(_.read)
+        .debug("Current data: ")
+        .run
+    }
 
   def run = readFromSensors
 

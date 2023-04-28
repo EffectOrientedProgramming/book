@@ -37,7 +37,8 @@ Example possibilities
 package time
 
 import java.time.{Duration, Instant, Period}
-import zio.{IO, UIO, ZIO, ZIOAppDefault}
+import zio.*
+import zio.direct.*
 
 // TODO Consider deduping User throughout the book
 case class Post(content: String)
@@ -75,40 +76,37 @@ object TimeIgnorant:
 
   def postsBy(): IO[String, Seq[Post]] =
     val executionTimeStamp = Instant.now()
-    for
-      timeStamp <-
+    defer {
+      val timeStamp =
         ZIO.getOrFailWith(
           "Must call summary before posts"
-        )(summaryCalledTime)
-      _ <-
-        ZIO.debug("Summary called: " + timeStamp)
-      _ <-
-        ZIO.when(
-          Duration
-            .between(timeStamp, Instant.now)
-            .compareTo(Duration.ofSeconds(1)) > 0
-        )(
-          ZIO.debug(
-            "Significant delay between calls. Results are skewed!"
-          )
-        )
-      _ <-
+        )(summaryCalledTime).run
+      ZIO.debug("Summary called: " + timeStamp).run
+      ZIO.when(
+        Duration
+          .between(timeStamp, Instant.now)
+          .compareTo(Duration.ofSeconds(1)) > 0
+      )(
         ZIO.debug(
-          "Getting posts:  " + executionTimeStamp
+          "Significant delay between calls. Results are skewed!"
         )
-    yield Seq(Post("Hello!"), Post("Goodbye!"))
-    end for
+      ).run
+      ZIO.debug(
+        "Getting posts:  " + executionTimeStamp
+      ).run
+      Seq(Post("Hello!"), Post("Goodbye!"))
+    }
   end postsBy
 end TimeIgnorant
 
 object DemoSyncIssues extends ZIOAppDefault:
   def run =
-    for
-      summary      <- TimeIgnorant.summaryFor()
-      transactions <- TimeIgnorant.postsBy()
-      uiContents = UserUI(summary, transactions)
-      _ <- zio.Console.printLine(uiContents)
-    yield ()
+    defer {
+      val summary = TimeIgnorant.summaryFor().run
+      val transactions = TimeIgnorant.postsBy().run
+      val uiContents = UserUI(summary, transactions)
+      zio.Console.printLine(uiContents).run
+    }
 
 ```
 
@@ -117,13 +115,8 @@ object DemoSyncIssues extends ZIOAppDefault:
 ```scala
 package time
 
-import zio.Duration
-import zio.Clock
-import zio.ZIO
-import zio.URIO
-import zio.Schedule
-import zio.ExitCode
-import zio.durationInt
+import zio.*
+import zio.direct.*
 
 import java.util.concurrent.TimeUnit
 import java.time.Instant
@@ -150,15 +143,16 @@ def scheduledValues[A](
     A
   ]
 ] =
-  for
-    startTime <- Clock.instant
-    timeTable =
+  defer {
+    val startTime = Clock.instant.run
+    val timeTable =
       createTimeTableX(
         startTime,
         value,
-        values* // Yay Scala3 :)
+        values * // Yay Scala3 :)
       )
-  yield accessX(timeTable)
+    accessX(timeTable)
+  }
 
 // TODO Some comments, tests, examples, etc to
 // make this function more obvious
@@ -198,17 +192,16 @@ private[time] def createTimeTableX[A](
 private[time] def accessX[A](
     timeTable: Seq[ExpiringValue[A]]
 ): ZIO[Any, TimeoutException, A] =
-  for
-    now <- Clock.instant
-    result <-
-      ZIO.getOrFailWith(
-        new TimeoutException("TOO LATE")
-      ) {
-        timeTable
-          .find(_.expirationTime.isAfter(now))
-          .map(_.value)
-      }
-  yield result
+  defer {
+    val now = Clock.instant.run
+    ZIO.getOrFailWith(
+      new TimeoutException("TOO LATE")
+    ) {
+      timeTable
+        .find(_.expirationTime.isAfter(now))
+        .map(_.value)
+    }.run
+  }
 
 private case class ExpiringValue[A](
     expirationTime: Instant,
