@@ -1,12 +1,7 @@
 package time
 
-import zio.Duration
-import zio.Clock
-import zio.ZIO
-import zio.URIO
-import zio.Schedule
-import zio.ExitCode
-import zio.durationInt
+import zio.*
+import zio.direct.*
 
 import java.util.concurrent.TimeUnit
 import java.time.Instant
@@ -33,15 +28,16 @@ def scheduledValues[A](
     A
   ]
 ] =
-  for
-    startTime <- Clock.instant
-    timeTable =
+  defer {
+    val startTime = Clock.instant.run
+    val timeTable =
       createTimeTableX(
         startTime,
         value,
-        values* // Yay Scala3 :)
+        values * // Yay Scala3 :)
       )
-  yield accessX(timeTable)
+    accessX(timeTable)
+  }
 
 // TODO Some comments, tests, examples, etc to
 // make this function more obvious
@@ -81,17 +77,16 @@ private[time] def createTimeTableX[A](
 private[time] def accessX[A](
     timeTable: Seq[ExpiringValue[A]]
 ): ZIO[Any, TimeoutException, A] =
-  for
-    now <- Clock.instant
-    result <-
-      ZIO.getOrFailWith(
-        new TimeoutException("TOO LATE")
-      ) {
-        timeTable
-          .find(_.expirationTime.isAfter(now))
-          .map(_.value)
-      }
-  yield result
+  defer {
+    val now = Clock.instant.run
+    ZIO.getOrFailWith(
+      new TimeoutException("TOO LATE")
+    ) {
+      timeTable
+        .find(_.expirationTime.isAfter(now))
+        .map(_.value)
+    }.run
+  }
 
 private case class ExpiringValue[A](
     expirationTime: Instant,
