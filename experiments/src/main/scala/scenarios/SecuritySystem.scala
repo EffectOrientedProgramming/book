@@ -1,13 +1,6 @@
 package scenarios
 
-import zio.{
-  Duration,
-  Schedule,
-  Unsafe,
-  ZIO,
-  ZLayer,
-  durationInt
-}
+import zio.{Duration, Schedule, Unsafe, ZIO, ZIOAppDefault, ZLayer, durationInt}
 import zio.Console.printLine
 
 import scala.concurrent.TimeoutException
@@ -21,6 +14,18 @@ case class TempSense(
       ZIO[Any, TimeoutException, Degrees]
     ]
 )
+
+case class SecuritySystemX(
+                            motionDetector: MotionDetector,
+                            thermalDetectorX: ThermalDetectorX,
+                            acousticDetectorX: AcousticDetectorX
+                          )
+
+object SecuritySystemX:
+  val live =
+    ZLayer.fromFunction(
+      SecuritySystemX.apply _
+    )
 
 /** Situations: Security System: Should monitor
   *   - Motion
@@ -43,26 +48,6 @@ object SecuritySystem:
       (1.seconds, Degrees(71)),
       (2.seconds, Degrees(70))
     )
-
-  val fullServiceBuilder: ZLayer[
-    Any,
-    Nothing,
-    scenarios.MotionDetector &
-      scenarios.ThermalDetectorX &
-      AcousticDetectorX & SirenX
-  ] =
-    MotionDetector.live ++
-      ThermalDetectorX(
-        (1.seconds, Degrees(71)),
-        (1.seconds, Degrees(70)),
-        (3.seconds, Degrees(98))
-      ) // ++ s
-      ++
-      AcousticDetectorX(
-        (4.seconds, Decibels(11)),
-        (1.seconds, Decibels(20))
-      ) ++ SirenX.live
-  end fullServiceBuilder
 
   val accessMotionDetector: ZIO[
     scenarios.MotionDetector,
@@ -200,32 +185,6 @@ object Relax     extends SecurityResponse
 object LowBeep   extends SecurityResponse
 object LoudSiren extends SecurityResponse
 
-@main
-def useSecuritySystem =
-  import zio.Runtime.default.unsafe
-  println(
-    "Final result: " +
-      Unsafe.unsafe { (u: Unsafe) =>
-        given Unsafe = u
-        unsafe
-          .run(
-            SecuritySystem
-              .shouldAlertServices()
-              .provide(
-                SecuritySystem.fullServiceBuilder
-              )
-              .catchSome {
-                case _: TimeoutException =>
-                  printLine(
-                    "Invalid Scenario. Ran out of sensor data."
-                  )
-              }
-          )
-          .getOrThrowFiberFailure()
-      }
-  )
-end useSecuritySystem
-
 trait HardwareFailure
 
 case class Decibels(value: Int)
@@ -266,6 +225,33 @@ trait ThermalDetectorX:
           scenarios.HardwareFailure,
         Degrees
       ]]
+
+trait ThermalDetectorY:
+  def heatMeasurement()
+  : ZIO[
+    Any,
+    TimeoutException |
+      scenarios.HardwareFailure,
+    Degrees
+  ]
+
+object ThermalDetectorY:
+
+  def apply(
+             value: (Duration, Degrees),
+             values: (Duration, Degrees)*
+           ): ZLayer[Any, Nothing, ThermalDetectorY] =
+    ZLayer.fromZIO(
+      for
+        thermalDetectorValues <- scheduledValues(value, values *)
+      yield new ThermalDetectorY:
+        override def heatMeasurement(): ZIO[Any,
+          TimeoutException |
+            scenarios.HardwareFailure,
+          Degrees] =
+          thermalDetectorValues
+      )
+
 
 object ThermalDetectorX:
 

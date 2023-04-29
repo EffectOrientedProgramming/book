@@ -7,225 +7,148 @@ import zio.*
 import zio.direct.*
 import zio.Console.printLine
 
-object QuizGame extends zio.ZIOAppDefault:
-  case class Player(name: String)
 
-  case class Question(
-      text: String,
-      correctResponse: String
-  )
 
-  case class Answer(
-      player: Player,
-      text: String,
-      delay: Duration
-  )
+case class Player(name: String)
 
-  case class RoundDescription(
-      question: Question,
-      answers: Seq[Answer]
-  )
+case class Question(
+                     text: String,
+                     correctResponse: String
+                   )
 
-  def run = // Use App's run function
+case class Answer(
+                   player: Player,
+                   text: String,
+                   delay: Duration
+                 )
 
-    /* Teacher --> Questions --> Student1 -->
-     * Answers --> Teacher Student2 Student3 */
+case class RoundDescription(
+                             question: Question,
+                             answers: Seq[Answer]
+                           )
 
-    val frop  = Player("Frop")
-    val zeb   = Player("Zeb")
-    val shtep = Player("Shtep")
-    val cheep = Player("Cheep")
+case class RoundResults(
+                         correctRespondents: List[Player]
+                       )
 
-    val students: List[Player] =
-      List(frop, zeb, shtep, cheep)
 
-    def submitAnswersAfterDelay(
-        answerHub: Hub[Answer],
-        answers: Seq[Answer]
-    ) =
+object QuizGame:
+
+  // TODO Return result that can be tested
+  def cahootGame(rounds: Seq[RoundDescription], players: List[Player]) =
+    for
+      questionHub <- Hub.bounded[Question](1)
+      answerHub: Hub[Answer] <-
+        Hub.bounded[Answer](players.size)
+      res <-
+        questionHub
+          .subscribe
+          .zip(answerHub.subscribe)
+          .flatMap {
+            case (
+              questions: Dequeue[Question],
+              answers: Dequeue[Answer]
+              ) =>
+              ZIO.foreach(rounds)(roundDescription =>
+                questionHub.publish(
+                  roundDescription.question
+                ) *> playARound(
+                  roundDescription,
+                  questions,
+                  answerHub,
+                  answers
+                )
+              )
+          }
+    yield res
+
+
+  private[Hubs] def playARound(
+                  roundDescription: RoundDescription,
+                  questions: Dequeue[Question],
+                  answerHub: Hub[Answer],
+                  answers: Dequeue[Answer]
+                ): ZIO[Any, IOException, RoundResults] =
+    defer {
+      val correctRespondents = Ref.make[List[Player]](List.empty).run
+
+      printLine(
+        "Question for round: " +
+          roundDescription
+            .question
+            .text
+      ).run
+
+      // TODO This should happen *before* playARound is invoked
+      val question = questions.take.run
       ZIO
         .collectAllPar(
-          answers.map { answer =>
-            for
-              _ <- ZIO.sleep(answer.delay)
-              _ <- answerHub.publish(answer)
-            yield ()
-          }
+          Seq(
+            submitAnswersAfterDelay(
+              answerHub,
+              roundDescription
+                .answers
+            ),
+            recordCorrectAnswers(
+              roundDescription
+                .question
+                .correctResponse,
+              answers,
+              correctRespondents
+            ).repeat(
+              untilWinnersAreFound(
+                correctRespondents
+              )
+            )
+          )
         )
-        .unit
+        .timeout(4.second)
+        .run
 
-    def recordCorrectAnswers(
-        correctAnswer: String,
-        answers: Dequeue[Answer],
-        correctRespondents: Ref[List[Player]]
-    ) =
-      defer { // gather answers until there's a winner
-        val answer = answers.take.run
-        val output =
-            if (answer.text == correctAnswer)
-              val currentCorrectRespondents =
-                correctRespondents.get.run
-              correctRespondents.set(
-                currentCorrectRespondents :+
-                  answer.player
-              ).run
-              "Correct response from: " +
-                answer.player
-            else
-              "Incorrect response from: " +
-                answer.player
-        printLine(output).run
-      }
-
-    def untilWinnersAreFound(
-        correctRespondents: Ref[List[Player]]
-    ) =
-      Schedule.recurUntilZIO(_ =>
-        correctRespondents.get.map(_.size == 2)
+      RoundResults(
+        correctRespondents.get.run
       )
+    }
 
-    def printRoundResults(
-        winners: List[Player]
-    ) =
-      val finalOutput =
-        if (winners.isEmpty)
-          "Nobody submitted a correct response"
-        else if (winners.size == 2)
-          "Winners: " + winners.mkString(",")
+  private def untilWinnersAreFound(
+                            correctRespondents: Ref[List[Player]]
+                          ) =
+    Schedule.recurUntilZIO(_ =>
+      correctRespondents.get.map(_.size == 2)
+    )
+
+
+  private def submitAnswersAfterDelay(
+                               answerHub: Hub[Answer],
+                               answers: Seq[Answer]
+                             ) =
+    ZIO.foreachParDiscard(answers) {
+      answer =>
+        defer {
+          ZIO.sleep(answer.delay).run
+          answerHub.publish(answer).run
+        }
+    }
+
+  private def recordCorrectAnswers(
+                            correctAnswer: String,
+                            answers: Dequeue[Answer],
+                            correctRespondents: Ref[List[Player]]
+                          ) =
+    defer {
+      val answer = answers.take.run
+      val output =
+        if (answer.text == correctAnswer)
+          correctRespondents
+            .update(_ :+ answer.player)
+            .run
+          "Correct response from: " +
+            answer.player
         else
-          "Winners of incomplete round: " +
-            winners.mkString(",")
-      printLine(finalOutput)
+          "Incorrect response from: " +
+            answer.player
+      printLine(output).run
+    }
 
-    val roundWithMultipleCorrectAnswers =
-      RoundDescription(
-        Question(
-          "What is the southern-most European country?",
-          "Spain"
-        ),
-        Seq(
-          Answer(zeb, "Germany", 2.seconds),
-          Answer(frop, "Spain", 1.seconds),
-          Answer(cheep, "Spain", 3.seconds),
-          Answer(shtep, "Spain", 4.seconds)
-        )
-      )
 
-    val roundWithOnly1CorrectAnswer =
-      RoundDescription(
-        Question(
-          "What is the lightest element?",
-          "Hydrogen"
-        ),
-        Seq(
-          Answer(frop, "Lead", 2.seconds),
-          Answer(zeb, "Hydrogen", 1.seconds),
-          Answer(cheep, "Gold", 3.seconds),
-          Answer(shtep, "Hydrogen", 10.seconds)
-        )
-      )
-
-    val roundWhereEverybodyIsWrong =
-      RoundDescription(
-        Question(
-          "What is the average airspeed of an unladen swallow?",
-          "INSUFFICIENT DATA FOR MEANINGFUL ANSWER"
-        ),
-        Seq(
-          Answer(frop, "3.0 m/s", 1.seconds),
-          Answer(zeb, "Too fast", 1.seconds),
-          Answer(
-            cheep,
-            "Not fast enough",
-            1.seconds
-          ),
-          Answer(shtep, "Scary", 1.seconds)
-        )
-      )
-
-    val rounds =
-      Seq(
-        roundWithMultipleCorrectAnswers,
-        roundWithOnly1CorrectAnswer,
-        roundWhereEverybodyIsWrong
-      )
-
-    val cahootSingleRound =
-      for
-        questionHub <- Hub.bounded[Question](1)
-        answerHub: Hub[Answer] <-
-          Hub.bounded[Answer](students.size)
-        correctRespondents: Ref[List[Player]] <-
-          Ref.make[List[Player]](List.empty)
-        _ <-
-          questionHub
-            .subscribe
-            .zip(answerHub.subscribe)
-            .flatMap {
-              case (
-                    questions,
-                    answers: Dequeue[Answer]
-                  ) =>
-                def playARound(
-                    roundDescription: RoundDescription
-                ) =
-                  for
-                    _ <-
-                      printLine(
-                        "==============================="
-                      )
-                    _ <-
-                      printLine(
-                        "Question for round: " +
-                          roundDescription
-                            .question
-                            .text
-                      )
-                    _ <-
-                      correctRespondents
-                        .set(List.empty)
-                    _ <-
-                      questionHub.publish(
-                        roundDescription.question
-                      )
-                    question <- questions.take
-                    _ <-
-                      ZIO
-                        .collectAllPar(
-                          Seq(
-                            submitAnswersAfterDelay(
-                              answerHub,
-                              roundDescription
-                                .answers
-                            ),
-                            recordCorrectAnswers(
-                              roundDescription
-                                .question
-                                .correctResponse,
-                              answers,
-                              correctRespondents
-                            ).repeat(
-                              untilWinnersAreFound(
-                                correctRespondents
-                              )
-                            )
-                          )
-                        )
-                        .timeout(4.second)
-                    winners <-
-                      correctRespondents.get
-                    _ <-
-                      printRoundResults(winners)
-                    _ <-
-                      printLine(
-                        "==============================="
-                      )
-                  yield ()
-
-                ZIO.foreach(rounds)(playARound)
-            }
-      yield ()
-
-    cahootSingleRound.exitCode
-  end run
 end QuizGame

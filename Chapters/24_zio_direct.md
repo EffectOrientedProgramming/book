@@ -23,3 +23,8 @@ Here are the concepts you need to understand for `zio-direct`
 
 
 After you have accomplished _that_, you have trained your student to write slightly less concise code... that most programmers will be comfortable with.
+
+*Gotchas*
+    -Something about mutable collection operations. TODO More info from James
+    - Cannot end a defer block with a `ZIO[_,_,Nothing]`
+        It currently fails with a very cryptic missing argument message
