@@ -35,13 +35,13 @@ object ThunderingHerdsSpec
       misses <-
         ZIO.serviceWithZIO[FileService](_.misses)
       _ <- ZIO.debug("Eh?")
-    yield assertTrue(misses == 1) &&
-      assertTrue(
-        res.forall(singleResult =>
-          singleResult ==
-            FileSystem.hardcodedFileContents
-        )
+    yield assertTrue(
+      misses == 1,
+      res.forall(singleResult =>
+        singleResult ==
+          FileSystem.hardcodedFileContents
       )
+    )
   end testInnards
 
   override def spec =

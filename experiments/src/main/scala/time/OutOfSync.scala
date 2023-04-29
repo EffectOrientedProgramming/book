@@ -1,7 +1,8 @@
 package time
 
 import java.time.{Duration, Instant, Period}
-import zio.{IO, UIO, ZIO, ZIOAppDefault}
+import zio.*
+import zio.direct.*
 
 // TODO Consider deduping User throughout the book
 case class Post(content: String)
@@ -39,37 +40,34 @@ object TimeIgnorant:
 
   def postsBy(): IO[String, Seq[Post]] =
     val executionTimeStamp = Instant.now()
-    for
-      timeStamp <-
+    defer {
+      val timeStamp =
         ZIO.getOrFailWith(
           "Must call summary before posts"
-        )(summaryCalledTime)
-      _ <-
-        ZIO.debug("Summary called: " + timeStamp)
-      _ <-
-        ZIO.when(
-          Duration
-            .between(timeStamp, Instant.now)
-            .compareTo(Duration.ofSeconds(1)) > 0
-        )(
-          ZIO.debug(
-            "Significant delay between calls. Results are skewed!"
-          )
-        )
-      _ <-
+        )(summaryCalledTime).run
+      ZIO.debug("Summary called: " + timeStamp).run
+      ZIO.when(
+        Duration
+          .between(timeStamp, Instant.now)
+          .compareTo(Duration.ofSeconds(1)) > 0
+      )(
         ZIO.debug(
-          "Getting posts:  " + executionTimeStamp
+          "Significant delay between calls. Results are skewed!"
         )
-    yield Seq(Post("Hello!"), Post("Goodbye!"))
-    end for
+      ).run
+      ZIO.debug(
+        "Getting posts:  " + executionTimeStamp
+      ).run
+      Seq(Post("Hello!"), Post("Goodbye!"))
+    }
   end postsBy
 end TimeIgnorant
 
 object DemoSyncIssues extends ZIOAppDefault:
   def run =
-    for
-      summary      <- TimeIgnorant.summaryFor()
-      transactions <- TimeIgnorant.postsBy()
-      uiContents = UserUI(summary, transactions)
-      _ <- zio.Console.printLine(uiContents)
-    yield ()
+    defer {
+      val summary = TimeIgnorant.summaryFor().run
+      val transactions = TimeIgnorant.postsBy().run
+      val uiContents = UserUI(summary, transactions)
+      zio.Console.printLine(uiContents).run
+    }

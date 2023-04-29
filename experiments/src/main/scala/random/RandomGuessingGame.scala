@@ -2,6 +2,7 @@ package random
 
 import console.FakeConsole
 import zio._
+import zio.direct.*
 
 val low  = 1
 val high = 10
@@ -117,12 +118,13 @@ def checkAnswerZSplit(
     .merge
 
 val sideEffectingGuessingGame =
-  for
-    _ <- Console.print(prompt)
-    answer = scala.util.Random.between(low, high)
-    guess <- Console.readLine
-    response = checkAnswer(answer, guess)
-  yield prompt + guess + "\n" + response
+  defer {
+    Console.print(prompt).run
+    val answer = scala.util.Random.between(low, high)
+    val guess = Console.readLine.run
+    val response = checkAnswer(answer, guess)
+    prompt + guess + "\n" + response
+  }
 
 object runSideEffectingGuessingGame
     extends ZIOAppDefault:
@@ -132,14 +134,16 @@ object runSideEffectingGuessingGame
       .debug("Side effecting results")
 
 val effectfulGuessingGame =
-  for
-    _ <- Console.print(prompt)
-    answer <-
-      RandomBoundedInt.nextIntBetween(low, high)
-    guess    <- Console.readLine
-    response <- checkAnswerZSplit(answer, guess)
-  yield prompt + guess + "\n" + response
+  defer {
+    Console.print(prompt).run
+    val answer =
+      RandomBoundedInt.nextIntBetween(low, high).run
+    val guess = Console.readLine.run
+    val response = checkAnswerZSplit(answer, guess).run
+    prompt + guess + "\n" + response
+  }
 
+// TODO Decide if these should be removed, since test cases exist now
 object RunEffectfulGuessingGame
     extends ZIOAppDefault:
   def run =
