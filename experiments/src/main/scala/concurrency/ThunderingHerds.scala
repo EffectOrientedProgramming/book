@@ -1,4 +1,5 @@
 package concurrency
+
 import zio.*
 import zio.Console.printLine
 import zio.direct.*
@@ -24,13 +25,17 @@ object FileService:
         val hit  = Ref.make[Int](0).run
         val miss = Ref.make[Int](0).run
         val cache =
-          Ref.make[Map[Path, FileContents]](
-            Map.empty
-          ).run
+          Ref
+            .make[Map[Path, FileContents]](
+              Map.empty
+            )
+            .run
         val activeRefreshes =
-          Ref.make[Map[Path, ActiveUpdate]](
-            Map.empty
-          ).run
+          Ref
+            .make[Map[Path, ActiveUpdate]](
+              Map.empty
+            )
+            .run
         Live(
           hit,
           miss,
@@ -106,8 +111,7 @@ object FileService:
               defer {
                 printLine(
                   "1st herd member will hit the filesystem"
-                ).orDie
-                .run
+                ).orDie.run
                 val contents =
                   fileSystem
                     .readFileExpensive(name)
@@ -116,15 +120,23 @@ object FileService:
                   .promise
                   .succeed(contents)
                   .run
-                activeRefresh.update(m =>
-                  m - name // Clean out "active" entry
-                ).run
-                cache.update(m =>
-                  m.updated(name, contents) // Update cache
-                ).run
+                activeRefresh
+                  .update(m =>
+                    m -
+                      name // Clean out "active" entry
+                  )
+                  .run
+                cache
+                  .update(m =>
+                    m.updated(
+                      name,
+                      contents
+                    ) // Update cache
+                  )
+                  .run
                 miss.update(_ + 1).run
                 contents
-            }
+              }
             case observerCount =>
               printLine(
                 "Slower herd member will wait for response of 1st member"
