@@ -250,7 +250,10 @@ object FileService:
   case class ActiveUpdate(
       observers: Int,
       promise: Promise[Nothing, FileContents]
-  )
+  ):
+    def completeWith(contents: FileContents) =
+        promise
+          .succeed(contents)
 
   case class Live(
       hit: Ref[Int],
@@ -382,9 +385,8 @@ def firstHerdMemberBehavior(
         .readFileExpensive(name)
         .run
     activeUpdate
-      .promise
-      .succeed(contents)
-      .run
+      .completeWith(contents).run
+
     activeRefresh.update(m =>
       m - name // Clean out "active" entry
     ).run
