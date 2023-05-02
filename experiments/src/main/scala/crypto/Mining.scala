@@ -1,6 +1,7 @@
 package crypto
 
 import zio._
+import zio.direct._
 import ZIO.debug
 import zio.Random.nextIntBetween
 
@@ -9,11 +10,11 @@ import scala.annotation.tailrec
 
 object Mining extends ZIOAppDefault:
   def run =
-    for
-      chain <- Ref.make[BlockChain](BlockChain())
-      _     <- raceForNextBlock(chain).repeatN(5)
-      _     <- chain.get.debug("Final")
-    yield ()
+    defer {
+      val chain = Ref.make[BlockChain](BlockChain()).run
+      raceForNextBlock(chain).repeatN(5).run
+      chain.get.debug("Final").run
+    }
 
   private val miners =
     Seq("Zeb", "Frop", "Shtep")
@@ -25,20 +26,18 @@ object Mining extends ZIOAppDefault:
   def raceForNextBlock(
       chain: Ref[BlockChain]
   ): ZIO[Any, Nothing, Unit] =
-    for
-      raceResult <- findNextBlock(miners)
-      (winner, winningPrime) = raceResult
-      _ <-
-        chain.update(chainCurrent =>
-          chainCurrent.copy(blocks =
-            chainCurrent.blocks :+ winningPrime
-          )
+    defer {
+      val raceResult = findNextBlock(miners).run
+      val (winner, winningPrime) = raceResult
+      chain.update(chainCurrent =>
+        chainCurrent.copy(blocks =
+          chainCurrent.blocks :+ winningPrime
         )
-      _ <-
-        debug(
-          s"$winner mined block: $winningPrime"
-        )
-    yield ()
+      ).run
+      debug(
+        s"$winner mined block: $winningPrime"
+      ).run
+    }
 
   case class BlockChain(
       blocks: List[Int] = List.empty
@@ -48,22 +47,24 @@ object Mining extends ZIOAppDefault:
     def mine(
         num: Int
     ): ZIO[Any, Nothing, (String, Int)] =
-      for
-        duration <- nextIntBetween(1, 4)
-        _        <- ZIO.sleep(duration.second)
-      yield (name, nextPrimeAfter(num))
+      defer {
+        val duration = nextIntBetween(1, 4).run
+        ZIO.sleep(duration.second).run
+        (name, nextPrimeAfter(num))
+      }
 
   def findNextBlock(
       miners: Seq[Miner]
   ): ZIO[Any, Nothing, (String, Int)] =
-    for
-      startNum <- nextIntBetween(2000, 4000)
-      result <-
+    defer {
+      val startNum = nextIntBetween(2000, 4000).run
+      val result =
         ZIO.raceAll(
           miners.head.mine(startNum),
           miners.tail.map(_.mine(startNum))
-        )
-    yield result
+        ).run
+      result
+    }
 
 end Mining
 
