@@ -120,9 +120,8 @@ def checkAnswerZSplit(
 val sideEffectingGuessingGame =
   defer {
     Console.print(prompt).run
-    val answer =
-      scala.util.Random.between(low, high)
-    val guess    = Console.readLine.run
+    val answer = scala.util.Random.between(low, high)
+    val guess = Console.readLine.run
     val response = checkAnswer(answer, guess)
     prompt + guess + "\n" + response
   }
@@ -138,12 +137,9 @@ val effectfulGuessingGame =
   defer {
     Console.print(prompt).run
     val answer =
-      RandomBoundedInt
-        .nextIntBetween(low, high)
-        .run
+      RandomBoundedInt.nextIntBetween(low, high).run
     val guess = Console.readLine.run
-    val response =
-      checkAnswerZSplit(answer, guess).run
+    val response = checkAnswerZSplit(answer, guess).run
     prompt + guess + "\n" + response
   }
 
