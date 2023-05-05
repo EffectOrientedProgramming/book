@@ -111,9 +111,7 @@ object Finalizers extends zio.ZIOAppDefault:
       .map {
         bufferedSource => // Use the bracket method with the finalizer defined above to define behavior on fail.
 
-          val lines =
-            for line <- bufferedSource.getLines
-            yield line
+          val lines = bufferedSource.getLines
 
           if (
             true
@@ -169,17 +167,22 @@ import zio.{
   durationInt
 }
 
+import zio.direct.*
+
 import scala.concurrent.Await
 
 object ParallelSleepers extends ZIOAppDefault:
 
   override def run =
-    ZIO.foreachPar(1 to 10_000)(_ =>
-      ZIO.sleep(1.seconds)
-    ) *>
+    defer {
+      ZIO.foreachPar(1 to 10_000)(_ =>
+        ZIO.sleep(1.seconds)
+      ).run
+
       ZIO.debug(
         "Finished far sooner than 10,000 seconds"
-      )
+      ).run
+    }
 
 val sleepers =
   Seq(

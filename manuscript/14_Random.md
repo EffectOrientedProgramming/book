@@ -53,6 +53,7 @@ def fullRound(): GameState =
 def playASingleRound() = println(fullRound())
 
 import zio.ZIO
+import zio.direct.*
 
 val rollDiceZ
     : ZIO[RandomBoundedInt, Nothing, Int] =
@@ -60,19 +61,14 @@ val rollDiceZ
 
 import zio.{ZIO, ZIOAppDefault}
 object RollTheDice extends ZIOAppDefault:
-  val logic =
-    for
-      roll <- rollDiceZ
-      _    <- ZIO.debug(roll)
-    yield ()
+  val logic = rollDiceZ.debug
 
   def run =
     logic.provideLayer(RandomBoundedInt.live)
 
 val fullRoundZ
     : ZIO[RandomBoundedInt, Nothing, GameState] =
-  for roll <- rollDiceZ
-  yield scoreRound(roll)
+  rollDiceZ.map(scoreRound)
 
 // The problem above is that you can test the winner logic completely separate from the random number generator.
 // The next example cannot be split so easily.
@@ -80,31 +76,24 @@ val fullRoundZ
 import zio.Ref
 
 val threeChances =
-  for
-    remainingChancesR <- Ref.make(3)
+  defer {
+    val remainingChancesR = Ref.make(3).run
+    val gameState = Ref.make[GameState](GameState.InProgress("Starting")).run
 
-    finalGameResult <-
-      (
-        for
-          roll <- rollDiceZ
-          remainingChances <-
-            remainingChancesR.getAndUpdate(_ - 1)
-        yield
-          if (remainingChances == 0)
-            GameState.Lose
-          else
-            scoreRound(roll)
-      ).repeatWhile {
-        case GameState.InProgress(_) =>
-          true
-        case _ =>
-          false
-      }
-    _ <-
-      ZIO.debug(
-        "Final game result: " + finalGameResult
-      )
-  yield ()
+    while (gameState.get.run == GameState.InProgress) {
+      val roll = rollDiceZ.run
+      val remainingChances = remainingChancesR.getAndUpdate(_ - 1).run
+      if (remainingChances == 0)
+        gameState.set(GameState.Lose).run
+      else
+        scoreRound(roll)
+    }
+
+    val finalGameState = gameState.get.run // note: this has to be outside the debug parameter
+    ZIO.debug(
+      "Final game result: " + finalGameState
+    ).run
+  }
 
 object ThreeChances extends ZIOAppDefault:
   def run =
