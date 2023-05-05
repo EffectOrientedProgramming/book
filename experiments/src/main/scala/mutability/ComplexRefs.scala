@@ -24,11 +24,9 @@ object ComplexRefs extends ZIOAppDefault:
   val readFromSensors =
     defer {
       val sensors =
-        ZIO
-          .foreach(List.fill(100)(0))(_ =>
-            Sensor.make
-          )
-          .run
+        ZIO.foreach(List.fill(100)(0))(_ =>
+          Sensor.make
+        ).run
       val world = World(sensors)
       ZIO
         .foreach(world.sensors)(_.read)

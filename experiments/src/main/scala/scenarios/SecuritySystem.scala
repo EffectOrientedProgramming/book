@@ -1,14 +1,6 @@
 package scenarios
 
-import zio.{
-  Duration,
-  Schedule,
-  Unsafe,
-  ZIO,
-  ZIOAppDefault,
-  ZLayer,
-  durationInt
-}
+import zio.{Duration, Schedule, Unsafe, ZIO, ZIOAppDefault, ZLayer, durationInt}
 import zio.Console.printLine
 
 import scala.concurrent.TimeoutException
@@ -24,14 +16,16 @@ case class TempSense(
 )
 
 case class SecuritySystemX(
-    motionDetector: MotionDetector,
-    thermalDetectorX: ThermalDetectorX,
-    acousticDetectorX: AcousticDetectorX
-)
+                            motionDetector: MotionDetector,
+                            thermalDetectorX: ThermalDetectorX,
+                            acousticDetectorX: AcousticDetectorX
+                          )
 
 object SecuritySystemX:
   val live =
-    ZLayer.fromFunction(SecuritySystemX.apply _)
+    ZLayer.fromFunction(
+      SecuritySystemX.apply _
+    )
 
 /** Situations: Security System: Should monitor
   *   - Motion
@@ -233,29 +227,31 @@ trait ThermalDetectorX:
       ]]
 
 trait ThermalDetectorY:
-  def heatMeasurement(): ZIO[
+  def heatMeasurement()
+  : ZIO[
     Any,
-    TimeoutException | scenarios.HardwareFailure,
+    TimeoutException |
+      scenarios.HardwareFailure,
     Degrees
   ]
 
 object ThermalDetectorY:
 
   def apply(
-      value: (Duration, Degrees),
-      values: (Duration, Degrees)*
-  ): ZLayer[Any, Nothing, ThermalDetectorY] =
+             value: (Duration, Degrees),
+             values: (Duration, Degrees)*
+           ): ZLayer[Any, Nothing, ThermalDetectorY] =
     ZLayer.fromZIO(
-      for thermalDetectorValues <-
-          scheduledValues(value, values*)
+      for
+        thermalDetectorValues <- scheduledValues(value, values *)
       yield new ThermalDetectorY:
-        override def heatMeasurement(): ZIO[
-          Any,
+        override def heatMeasurement(): ZIO[Any,
           TimeoutException |
             scenarios.HardwareFailure,
-          Degrees
-        ] = thermalDetectorValues
-    )
+          Degrees] =
+          thermalDetectorValues
+      )
+
 
 object ThermalDetectorX:
 
