@@ -25,21 +25,23 @@ object BasicHub extends zio.ZIOAppDefault:
             .zip(Hub.subscribe)
             .flatMap { case (left, right) =>
               defer {
-                Hub.publish(
-                  "Hub message"
-                ).run
+                Hub.publish("Hub message").run
 
-                val leftItem = left
-                  .take
+                val leftItem = left.take.run
+
+                Console
+                  .printLine(
+                    "Left item: " + leftItem
+                  )
                   .run
 
-                Console.printLine("Left item: " + leftItem).run
+                val rightItem = right.take.run
 
-                val rightItem = right
-                  .take
+                Console
+                  .printLine(
+                    "Right item: " + rightItem
+                  )
                   .run
-
-                Console.printLine("Right item: " + rightItem).run
               }
             }
         }
