@@ -13,17 +13,22 @@ import zio.{
   durationInt
 }
 
+import zio.direct.*
+
 import scala.concurrent.Await
 
 object ParallelSleepers extends ZIOAppDefault:
 
   override def run =
-    ZIO.foreachPar(1 to 10_000)(_ =>
-      ZIO.sleep(1.seconds)
-    ) *>
+    defer {
+      ZIO.foreachPar(1 to 10_000)(_ =>
+        ZIO.sleep(1.seconds)
+      ).run
+
       ZIO.debug(
         "Finished far sooner than 10,000 seconds"
-      )
+      ).run
+    }
 
 val sleepers =
   Seq(

@@ -49,16 +49,19 @@ object QuizGame:
               questions: Dequeue[Question],
               answers: Dequeue[Answer]
               ) =>
-              ZIO.foreach(rounds)(roundDescription =>
-                questionHub.publish(
-                  roundDescription.question
-                ) *> playARound(
-                  roundDescription,
-                  questions,
-                  answerHub,
-                  answers
-                )
-              )
+                defer {
+                  for roundDescription <- rounds do
+                    questionHub.publish(
+                      roundDescription.question
+                    ).run
+
+                    playARound(
+                      roundDescription,
+                      questions,
+                      answerHub,
+                      answers
+                    ).run
+                }
           }
     yield res
 
