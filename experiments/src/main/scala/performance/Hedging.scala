@@ -10,9 +10,10 @@ case class ErraticService() {
       case Percentile._95 => DomainDomensions.Acceptable
       case Percentile._99 => DomainDomensions.Annoying
       case Percentile._999 => DomainDomensions.BreachOfContract
-  }
+  }.tap(dimension => ZIO.sleep(dimension.duration))
 }
 
+// TODO Fix name
 enum DomainDomensions(val duration: Duration):
   case Fast extends DomainDomensions(21.millis)
   case Acceptable extends DomainDomensions(70.millis)
@@ -63,13 +64,17 @@ object Hedging extends ZIOAppDefault {
 
       )
 
-  case class RequestStats(count: Int, totalTime: Duration) {
-    val averageResponseTime = totalTime.dividedBy(count.toLong)
+  case class RequestStats(count: Int, totalTime: Duration, averageResponseTime: Duration)
+
+  object RequestStats{
+    def apply(count: Int, totalTime: Duration): RequestStats =
+      RequestStats(count, totalTime, totalTime.dividedBy(count.toLong))
   }
 
-  def run = defer {
+  def run = defer(Use.withParallelEval) {
       val timeBuckets = Ref.make[Map[Percentile, RequestStats]](Map()).run
-      hedgedRequest(timeBuckets).repeatN(100000).run
+      for _ <- Range(0, 10000) do
+        hedgedRequest(timeBuckets).run
       pprint.pprintln(timeBuckets.get.run)
     }
       .provide(ZLayer.succeed(ErraticService()))
