@@ -62,6 +62,7 @@ experiments-src-test-scala-layers.md
 experiments-src-test-scala-bigdec.md
 prelude.md
 experiments-src-test-scala-time.md
+performance.md
 game_theory.md
 testcontainers.md
 runtime.md
