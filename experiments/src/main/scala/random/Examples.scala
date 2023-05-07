@@ -56,21 +56,34 @@ import zio.Ref
 val threeChances =
   defer {
     val remainingChancesR = Ref.make(3).run
-    val gameState = Ref.make[GameState](GameState.InProgress("Starting")).run
+    val gameState =
+      Ref
+        .make[GameState](
+          GameState.InProgress("Starting")
+        )
+        .run
 
-    while (gameState.get.run == GameState.InProgress) {
+    while (
+      gameState.get.run == GameState.InProgress
+    ) {
       val roll = rollDiceZ.run
-      val remainingChances = remainingChancesR.getAndUpdate(_ - 1).run
+      val remainingChances =
+        remainingChancesR.getAndUpdate(_ - 1).run
       if (remainingChances == 0)
         gameState.set(GameState.Lose).run
       else
         scoreRound(roll)
     }
 
-    val finalGameState = gameState.get.run // note: this has to be outside the debug parameter
-    ZIO.debug(
-      "Final game result: " + finalGameState
-    ).run
+    val finalGameState =
+      gameState
+        .get
+        .run // note: this has to be outside the debug parameter
+    ZIO
+      .debug(
+        "Final game result: " + finalGameState
+      )
+      .run
   }
 
 object ThreeChances extends ZIOAppDefault:

@@ -26,10 +26,12 @@ object LunchVote:
   ) =
     defer {
       val resultMap =
-        ConcurrentMap.make[Vote, Int](
-          Vote.Yay -> 0,
-          Vote.Nay -> 0
-        ).run
+        ConcurrentMap
+          .make[Vote, Int](
+            Vote.Yay -> 0,
+            Vote.Nay -> 0
+          )
+          .run
       val voteProcesses =
         voters.map(voter =>
           getVoteFrom(
