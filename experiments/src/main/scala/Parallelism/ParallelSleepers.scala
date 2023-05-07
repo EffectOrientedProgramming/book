@@ -20,10 +20,9 @@ import scala.concurrent.Await
 object ParallelSleepers extends ZIOAppDefault:
 
   override def run =
-    defer {
-      ZIO.foreachPar(1 to 10_000)(_ =>
-        ZIO.sleep(1.seconds)
-      ).run
+    defer(Use.withParallelEval) {
+      for _ <- 1 to 10_000 do
+        ZIO.sleep(1.seconds).run
 
       ZIO.debug(
         "Finished far sooner than 10,000 seconds"
