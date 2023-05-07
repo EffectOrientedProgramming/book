@@ -19,16 +19,16 @@ object Components extends HtmlProps:
       topic + " "
     )
 
-  def dropdownTopic(
-      topic: String,
-      infoResults: Observer[Option[DynamicInfo]],
-      backend: Backend,
-      activePopover: Observer[Option[String]]
-  ) =
+  def dropdownTopic(topic: String,
+                    infoResults: Observer[Option[DynamicInfo]],
+                    backend: Backend,
+                    activePopover: Observer[Option[String]],
+                   ) = {
 
-    object UUIDGenerator:
+    object UUIDGenerator {
       def generateRandomUUID(): String =
         Random.alphanumeric.take(10).mkString
+    }
 
     val id = UUIDGenerator.generateRandomUUID()
 
@@ -36,70 +36,51 @@ object Components extends HtmlProps:
       div(
         cls := "dropdown-menu is-hidden",
 //        idAttr := "dropdown-menu",
-        role   := "menu",
+        role := "menu",
         idAttr := id,
-        div(
-          cls := "dropdown-content",
+        div(cls := "dropdown-content",
           "Actions:",
-          a(
-            href := "#",
-            cls  := "dropdown-item",
-            "Vetted information",
+          a(href := "#", cls := "dropdown-item", "Vetted information",
             onClick.flatMap(e =>
               Signal.fromFuture(
                 backend.getVettedInfo(topic)
               )
-            ) --> infoResults
+            ) --> infoResults,
           ),
-          a(
-            href := "#",
-            cls  := "dropdown-item",
-            "Show example",
+          a(href := "#", cls := "dropdown-item", "Show example",
             onClick.flatMap(e =>
               Signal.fromFuture(
                 backend.codeExample(topic)
               )
-            ) --> infoResults
+            ) --> infoResults,
           ),
-          a(
-            href := "#",
-            cls  := "dropdown-item",
-            "Generate new information",
+          a(href := "#", cls := "dropdown-item", "Generate new information",
             onClick.flatMap(e =>
               Signal.fromFuture(
                 backend.expensiveChatInfo(topic)
               )
-            ) --> infoResults
+            ) --> infoResults,
           )
         )
       )
-    // val ariaControls: HtmlProp[String] =
-    // stringProp("aria-controls")
+    //    val ariaControls: HtmlProp[String] = stringProp("aria-controls")
 
     span(
-      cls    := "popover-container",
+      cls :=  "popover-container",
       idAttr := id + "-container",
       span(
-        cls           := "known-topic",
-        idAttr        := id + "-span",
+        cls := "known-topic",
+        idAttr := id + "-span",
         aria.hasPopup := true,
         onClick -->
-          Observer[dom.MouseEvent](onNext =
-            ev =>
-              content
-                .ref
-                .classList
-                .remove("is-hidden")
-          ),
-        onClick.mapTo(Some(id)) -->
-          activePopover,
-        stringProp("aria-controls") :=
-          "dropdown-menu",
+          Observer[dom.MouseEvent](onNext = ev => content.ref.classList.remove("is-hidden")),
+        onClick.mapTo(Some(id))  --> activePopover,
+        stringProp("aria-controls") := "dropdown-menu",
         topic + " ",
-        content
+        content,
       )
     )
-  end dropdownTopic
+  }
 
   def textPiece(text: String) = span(text + " ")
 
@@ -111,17 +92,14 @@ object Components extends HtmlProps:
         info.map {
           case Some(value) =>
             value match
-              case DynamicInfo
-                    .VettedInfo(content) =>
+              case DynamicInfo.VettedInfo(content) =>
                 div(
                   backgroundColor := "#90EE90",
                   content
                 )
               case DynamicInfo.Code(content) =>
                 pre(content)
-              case DynamicInfo.ExpensiveChatInfo(
-                    content
-                  ) =>
+              case DynamicInfo.ExpensiveChatInfo(content) =>
                 div(
                   backgroundColor := "#FF7F7F",
                   content
