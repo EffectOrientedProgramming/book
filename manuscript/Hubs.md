@@ -31,21 +31,23 @@ object BasicHub extends zio.ZIOAppDefault:
             .zip(Hub.subscribe)
             .flatMap { case (left, right) =>
               defer {
-                Hub.publish(
-                  "Hub message"
-                ).run
+                Hub.publish("Hub message").run
 
-                val leftItem = left
-                  .take
+                val leftItem = left.take.run
+
+                Console
+                  .printLine(
+                    "Left item: " + leftItem
+                  )
                   .run
 
-                Console.printLine("Left item: " + leftItem).run
+                val rightItem = right.take.run
 
-                val rightItem = right
-                  .take
+                Console
+                  .printLine(
+                    "Right item: " + rightItem
+                  )
                   .run
-
-                Console.printLine("Right item: " + rightItem).run
               }
             }
         }
@@ -84,35 +86,35 @@ import zio.*
 import zio.direct.*
 import zio.Console.printLine
 
-
-
 case class Player(name: String)
 
 case class Question(
-                     text: String,
-                     correctResponse: String
-                   )
+    text: String,
+    correctResponse: String
+)
 
 case class Answer(
-                   player: Player,
-                   text: String,
-                   delay: Duration
-                 )
+    player: Player,
+    text: String,
+    delay: Duration
+)
 
 case class RoundDescription(
-                             question: Question,
-                             answers: Seq[Answer]
-                           )
+    question: Question,
+    answers: Seq[Answer]
+)
 
 case class RoundResults(
-                         correctRespondents: List[Player]
-                       )
-
+    correctRespondents: List[Player]
+)
 
 object QuizGame:
 
   // TODO Return result that can be tested
-  def cahootGame(rounds: Seq[RoundDescription], players: List[Player]) =
+  def cahootGame(
+      rounds: Seq[RoundDescription],
+      players: List[Player]
+  ) =
     for
       questionHub <- Hub.bounded[Question](1)
       answerHub: Hub[Answer] <-
@@ -123,48 +125,48 @@ object QuizGame:
           .zip(answerHub.subscribe)
           .flatMap {
             case (
-              questions: Dequeue[Question],
-              answers: Dequeue[Answer]
-              ) =>
-              ZIO.foreach(rounds)(roundDescription =>
-                questionHub.publish(
-                  roundDescription.question
-                ) *> playARound(
-                  roundDescription,
-                  questions,
-                  answerHub,
-                  answers
-                )
+                  questions: Dequeue[Question],
+                  answers: Dequeue[Answer]
+                ) =>
+              ZIO.foreach(rounds)(
+                roundDescription =>
+                  questionHub.publish(
+                    roundDescription.question
+                  ) *>
+                    playARound(
+                      roundDescription,
+                      questions,
+                      answerHub,
+                      answers
+                    )
               )
           }
     yield res
 
-
   private[Hubs] def playARound(
-                  roundDescription: RoundDescription,
-                  questions: Dequeue[Question],
-                  answerHub: Hub[Answer],
-                  answers: Dequeue[Answer]
-                ): ZIO[Any, IOException, RoundResults] =
+      roundDescription: RoundDescription,
+      questions: Dequeue[Question],
+      answerHub: Hub[Answer],
+      answers: Dequeue[Answer]
+  ): ZIO[Any, IOException, RoundResults] =
     defer {
-      val correctRespondents = Ref.make[List[Player]](List.empty).run
+      val correctRespondents =
+        Ref.make[List[Player]](List.empty).run
 
       printLine(
         "Question for round: " +
-          roundDescription
-            .question
-            .text
+          roundDescription.question.text
       ).run
 
-      // TODO This should happen *before* playARound is invoked
+      // TODO This should happen *before*
+      // playARound is invoked
       val question = questions.take.run
       ZIO
         .collectAllPar(
           Seq(
             submitAnswersAfterDelay(
               answerHub,
-              roundDescription
-                .answers
+              roundDescription.answers
             ),
             recordCorrectAnswers(
               roundDescription
@@ -182,36 +184,32 @@ object QuizGame:
         .timeout(4.second)
         .run
 
-      RoundResults(
-        correctRespondents.get.run
-      )
+      RoundResults(correctRespondents.get.run)
     }
 
   private def untilWinnersAreFound(
-                            correctRespondents: Ref[List[Player]]
-                          ) =
+      correctRespondents: Ref[List[Player]]
+  ) =
     Schedule.recurUntilZIO(_ =>
       correctRespondents.get.map(_.size == 2)
     )
 
-
   private def submitAnswersAfterDelay(
-                               answerHub: Hub[Answer],
-                               answers: Seq[Answer]
-                             ) =
-    ZIO.foreachParDiscard(answers) {
-      answer =>
-        defer {
-          ZIO.sleep(answer.delay).run
-          answerHub.publish(answer).run
-        }
+      answerHub: Hub[Answer],
+      answers: Seq[Answer]
+  ) =
+    ZIO.foreachParDiscard(answers) { answer =>
+      defer {
+        ZIO.sleep(answer.delay).run
+        answerHub.publish(answer).run
+      }
     }
 
   private def recordCorrectAnswers(
-                            correctAnswer: String,
-                            answers: Dequeue[Answer],
-                            correctRespondents: Ref[List[Player]]
-                          ) =
+      correctAnswer: String,
+      answers: Dequeue[Answer],
+      correctRespondents: Ref[List[Player]]
+  ) =
     defer {
       val answer = answers.take.run
       val output =
@@ -226,7 +224,6 @@ object QuizGame:
             answer.player
       printLine(output).run
     }
-
 
 end QuizGame
 

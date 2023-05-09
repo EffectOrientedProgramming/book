@@ -78,22 +78,30 @@ object TimeIgnorant:
     val executionTimeStamp = Instant.now()
     defer {
       val timeStamp =
-        ZIO.getOrFailWith(
-          "Must call summary before posts"
-        )(summaryCalledTime).run
-      ZIO.debug("Summary called: " + timeStamp).run
-      ZIO.when(
-        Duration
-          .between(timeStamp, Instant.now)
-          .compareTo(Duration.ofSeconds(1)) > 0
-      )(
-        ZIO.debug(
-          "Significant delay between calls. Results are skewed!"
+        ZIO
+          .getOrFailWith(
+            "Must call summary before posts"
+          )(summaryCalledTime)
+          .run
+      ZIO
+        .debug("Summary called: " + timeStamp)
+        .run
+      ZIO
+        .when(
+          Duration
+            .between(timeStamp, Instant.now)
+            .compareTo(Duration.ofSeconds(1)) > 0
+        )(
+          ZIO.debug(
+            "Significant delay between calls. Results are skewed!"
+          )
         )
-      ).run
-      ZIO.debug(
-        "Getting posts:  " + executionTimeStamp
-      ).run
+        .run
+      ZIO
+        .debug(
+          "Getting posts:  " + executionTimeStamp
+        )
+        .run
       Seq(Post("Hello!"), Post("Goodbye!"))
     }
   end postsBy
@@ -103,8 +111,10 @@ object DemoSyncIssues extends ZIOAppDefault:
   def run =
     defer {
       val summary = TimeIgnorant.summaryFor().run
-      val transactions = TimeIgnorant.postsBy().run
-      val uiContents = UserUI(summary, transactions)
+      val transactions =
+        TimeIgnorant.postsBy().run
+      val uiContents =
+        UserUI(summary, transactions)
       zio.Console.printLine(uiContents).run
     }
 
@@ -149,7 +159,7 @@ def scheduledValues[A](
       createTimeTableX(
         startTime,
         value,
-        values * // Yay Scala3 :)
+        values* // Yay Scala3 :)
       )
     accessX(timeTable)
   }
@@ -194,13 +204,15 @@ private[time] def accessX[A](
 ): ZIO[Any, TimeoutException, A] =
   defer {
     val now = Clock.instant.run
-    ZIO.getOrFailWith(
-      new TimeoutException("TOO LATE")
-    ) {
-      timeTable
-        .find(_.expirationTime.isAfter(now))
-        .map(_.value)
-    }.run
+    ZIO
+      .getOrFailWith(
+        new TimeoutException("TOO LATE")
+      ) {
+        timeTable
+          .find(_.expirationTime.isAfter(now))
+          .map(_.value)
+      }
+      .run
   }
 
 private case class ExpiringValue[A](

@@ -78,21 +78,34 @@ import zio.Ref
 val threeChances =
   defer {
     val remainingChancesR = Ref.make(3).run
-    val gameState = Ref.make[GameState](GameState.InProgress("Starting")).run
+    val gameState =
+      Ref
+        .make[GameState](
+          GameState.InProgress("Starting")
+        )
+        .run
 
-    while (gameState.get.run == GameState.InProgress) {
+    while (
+      gameState.get.run == GameState.InProgress
+    ) {
       val roll = rollDiceZ.run
-      val remainingChances = remainingChancesR.getAndUpdate(_ - 1).run
+      val remainingChances =
+        remainingChancesR.getAndUpdate(_ - 1).run
       if (remainingChances == 0)
         gameState.set(GameState.Lose).run
       else
         scoreRound(roll)
     }
 
-    val finalGameState = gameState.get.run // note: this has to be outside the debug parameter
-    ZIO.debug(
-      "Final game result: " + finalGameState
-    ).run
+    val finalGameState =
+      gameState
+        .get
+        .run // note: this has to be outside the debug parameter
+    ZIO
+      .debug(
+        "Final game result: " + finalGameState
+      )
+      .run
   }
 
 object ThreeChances extends ZIOAppDefault:
@@ -322,8 +335,9 @@ def checkAnswerZSplit(
 val sideEffectingGuessingGame =
   defer {
     Console.print(prompt).run
-    val answer = scala.util.Random.between(low, high)
-    val guess = Console.readLine.run
+    val answer =
+      scala.util.Random.between(low, high)
+    val guess    = Console.readLine.run
     val response = checkAnswer(answer, guess)
     prompt + guess + "\n" + response
   }
@@ -339,9 +353,12 @@ val effectfulGuessingGame =
   defer {
     Console.print(prompt).run
     val answer =
-      RandomBoundedInt.nextIntBetween(low, high).run
+      RandomBoundedInt
+        .nextIntBetween(low, high)
+        .run
     val guess = Console.readLine.run
-    val response = checkAnswerZSplit(answer, guess).run
+    val response =
+      checkAnswerZSplit(answer, guess).run
     prompt + guess + "\n" + response
   }
 

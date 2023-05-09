@@ -62,6 +62,7 @@ lazy val unreliableCounting =
   yield "Final count: " + counter
 
 unsafeRunPrettyPrint(unreliableCounting)
+// Final count: 99977
 ```
 
 Due to the unpredictable nature of shared mutable state, we do not know exactly what the final count above is.
@@ -229,9 +230,11 @@ object ComplexRefs extends ZIOAppDefault:
   val readFromSensors =
     defer {
       val sensors =
-        ZIO.foreach(List.fill(100)(0))(_ =>
-          Sensor.make
-        ).run
+        ZIO
+          .foreach(List.fill(100)(0))(_ =>
+            Sensor.make
+          )
+          .run
       val world = World(sensors)
       ZIO
         .foreach(world.sensors)(_.read)
