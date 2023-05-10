@@ -36,34 +36,32 @@ object Hedging extends ZIOAppDefault:
       ]
   ) =
 //    erraticRequest
-    hedgedRequest
-      .tap(requestTime =>
-        timeBuckets.update(results =>
-          results.updatedWith(
-            Percentile
-              .fromDuration(requestTime.duration)
-          ) {
-            case Some(value) =>
-              Some(
-                value.copy(
-                  count = value.count + 1,
-                  totalTime =
-                    value
-                      .totalTime
-                      .plus(requestTime.duration)
-                )
+    hedgedRequest.tap(requestTime =>
+      timeBuckets.update(results =>
+        results.updatedWith(
+          Percentile
+            .fromDuration(requestTime.duration)
+        ) {
+          case Some(value) =>
+            Some(
+              value.copy(
+                count = value.count + 1,
+                totalTime =
+                  value
+                    .totalTime
+                    .plus(requestTime.duration)
               )
-            case None =>
-              Some(
-                RequestStats(
-                  count = 1,
-                  totalTime =
-                    requestTime.duration
-                )
+            )
+          case None =>
+            Some(
+              RequestStats(
+                count = 1,
+                totalTime = requestTime.duration
               )
-          }
-        )
+            )
+        }
       )
+    )
 
   def hedgedRequest =
     erraticRequest

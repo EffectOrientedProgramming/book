@@ -48,12 +48,12 @@ object EasyMode extends ZIOAppDefault:
         Unit
       ]] =
         defer { // .info prints compile-time unraveling
-            Console.printLine("to").run
-            Console.printLine("world").run
-            Console.printLine(
-              s"r = $r"
-            ) // forgot the .run so this effect is the result of the outer ZIO
-          }
+          Console.printLine("to").run
+          Console.printLine("world").run
+          Console.printLine(
+            s"r = $r"
+          ) // forgot the .run so this effect is the result of the outer ZIO
+        }
       Console.printLine("before").run
       val z = a.run
       z.run
