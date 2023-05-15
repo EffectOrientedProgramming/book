@@ -1,9 +1,9 @@
 import sbt.IO
 
-import sbt._
-import Keys._
+import sbt.*
+import Keys.*
 import java.io.File
-import java.nio.file.{Files, Path, Paths}
+import java.nio.file.Path
 
 case class FencedCode(content: String)
 
@@ -224,8 +224,8 @@ object BuildTooling {
 
 
   object FileIOBullshit {
-    import java.nio.file.StandardCopyOption._
-    import scala.collection.JavaConverters._
+    import java.nio.file.StandardCopyOption.*
+    import scala.collection.JavaConverters.*
 
     def createFile(target: File, contents: Seq[String]): Path = {
       target.getParentFile.mkdirs()
@@ -298,7 +298,7 @@ object BuildTooling {
       "dev.zio" %% "zio"          % zioVersion,
       "dev.zio" %% "zio-cache"  % "0.2.2",
       "dev.zio" %% "zio-concurrent"          % zioVersion,
-      "dev.zio" %% "zio-logging"  % "2.1.8",
+      "dev.zio" %% "zio-logging"  % "2.1.11",
       "dev.zio" %% "zio-streams"  % zioVersion,
       "dev.zio" %% "zio-test"     % zioVersion,
       "dev.zio" %% "zio-test-sbt" % zioVersion % Test,
@@ -308,6 +308,8 @@ object BuildTooling {
     scalacOptions -= "-explain-types",
     scalacOptions -= "-explain",
     fork := true,
+    Compile / packageDoc / publishArtifact := false,
+    Compile / doc / sources := Seq.empty,
   )
 
 }

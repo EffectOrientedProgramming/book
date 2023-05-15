@@ -30,7 +30,7 @@ lazy val illustratedPrimer =
 // Tool that lets us re-order numbered markdown chapters
 lazy val booker =
   (project in file("booker"))
-    .dependsOn(experiments)
+    //.dependsOn(experiments)
     .settings(commonSettings)
     .enablePlugins(GraalVMNativeImagePlugin)
 
@@ -49,10 +49,6 @@ lazy val root =
     .settings(commonSettings)
     .enablePlugins(MdocPlugin)
     .aggregate(booker, experiments /*, rube*/)
-
-Compile / packageDoc / publishArtifact := false
-
-Compile / doc / sources := Seq.empty
 
 lazy val bookTxt = taskKey[Unit]("Create the Book.txt")
 
@@ -73,7 +69,7 @@ formatAndCompileCode := Def.sequential(
     booker / Compile / scalafmt,
     experiments / Compile / compile,
     experiments / Compile / scalafmt,
-  )
+  ).value
 
 // TODO define inputKey entirely by depending on other inputKeys
 lazy val genManuscript = inputKey[Unit]("Make manuscript")
