@@ -68,8 +68,7 @@ clean := clean.dependsOn(cleanManuscript).value
 
 lazy val formatAndCompileCode = taskKey[Unit]("Make manuscript")
 
-formatAndCompileCode := formatAndCompileCode
-  .dependsOn(
+formatAndCompileCode := Def.sequential(
     Compile / scalafmt,
     booker / Compile / scalafmt,
     experiments / Compile / compile,
