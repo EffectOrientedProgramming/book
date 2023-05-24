@@ -61,6 +61,6 @@ object ThunderingHerdsSpec
         ZLayer.fromZIO(
           ThunderingHerdsUsingZioCacheLib.make
         )
-      )
+      ),
     )
 end ThunderingHerdsSpec

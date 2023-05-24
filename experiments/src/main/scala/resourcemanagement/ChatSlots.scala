@@ -27,14 +27,12 @@ object ChatSlots extends zio.ZIOAppDefault:
     def release(ref: Ref[SlotState]) =
       defer {
         printLine("Freed up a speaker slot")
-          .orDie
-          .run
+          .orDie.run
         ref.set(SlotState.Closed).run
       }
 
     defer {
-      val ref =
-        Ref.make[SlotState](SlotState.Closed).run
+      val ref = Ref.make[SlotState](SlotState.Closed).run
       val managed =
         ZIO.acquireRelease(acquire(ref))(_ =>
           release(ref)
@@ -45,18 +43,15 @@ object ChatSlots extends zio.ZIOAppDefault:
         ) // note: Can't just do (Console.printLine) here
       reusable.run
       reusable.run
-      ZIO
-        .scoped {
-          managed.flatMap { s =>
-            defer {
-              printLine(s).run
-              printLine("Blowing up").run
-              if (true)
-                throw new Exception("Arggggg")
-            }
+      ZIO.scoped {
+        managed.flatMap { s =>
+          defer {
+            printLine(s).run
+            printLine("Blowing up").run
+            if(true) throw new Exception("Arggggg")
           }
         }
-        .run
+      }.run
     }
   end run
 end ChatSlots

@@ -34,7 +34,7 @@ def scheduledValues[A](
       createTimeTableX(
         startTime,
         value,
-        values* // Yay Scala3 :)
+        values * // Yay Scala3 :)
       )
     accessX(timeTable)
   }
@@ -79,15 +79,13 @@ private[time] def accessX[A](
 ): ZIO[Any, TimeoutException, A] =
   defer {
     val now = Clock.instant.run
-    ZIO
-      .getOrFailWith(
-        new TimeoutException("TOO LATE")
-      ) {
-        timeTable
-          .find(_.expirationTime.isAfter(now))
-          .map(_.value)
-      }
-      .run
+    ZIO.getOrFailWith(
+      new TimeoutException("TOO LATE")
+    ) {
+      timeTable
+        .find(_.expirationTime.isAfter(now))
+        .map(_.value)
+    }.run
   }
 
 private case class ExpiringValue[A](

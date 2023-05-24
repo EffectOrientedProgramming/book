@@ -23,6 +23,8 @@ object FestivalSpec extends ZIOSpec[Festival]:
 
   val spec =
     suite("Play some music")(
-      test("Good festival")(assertCompletes)
+      test("Good festival")(
+        assertCompletes
+      )
     )
 end FestivalSpec
