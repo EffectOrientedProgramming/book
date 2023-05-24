@@ -23,9 +23,12 @@ object Logging extends ZIOAppDefault:
 
   lazy val coloredLogger =
     Runtime.removeDefaultLoggers >>>
-      console(
+      consoleLogger(
+        ConsoleLoggerConfig(
 //        LogFormat.colored
-        locationLogger
+          locationLogger,
+          LogFilter.logLevel(LogLevel.Info)
+        )
       )
 
   def run = ZIO.log("Hi").provide(coloredLogger)

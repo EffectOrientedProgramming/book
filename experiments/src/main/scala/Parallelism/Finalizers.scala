@@ -49,9 +49,7 @@ object Finalizers extends zio.ZIOAppDefault:
       .map {
         bufferedSource => // Use the bracket method with the finalizer defined above to define behavior on fail.
 
-          val lines =
-            for line <- bufferedSource.getLines
-            yield line
+          val lines = bufferedSource.getLines
 
           if (
             true
