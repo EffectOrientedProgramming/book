@@ -1,9 +1,9 @@
 import sbt.IO
 
-import sbt._
-import Keys._
+import sbt.*
+import Keys.*
 import java.io.File
-import java.nio.file.{Files, Path, Paths}
+import java.nio.file.Path
 
 case class FencedCode(content: String)
 
@@ -224,8 +224,8 @@ object BuildTooling {
 
 
   object FileIOBullshit {
-    import java.nio.file.StandardCopyOption._
-    import scala.collection.JavaConverters._
+    import java.nio.file.StandardCopyOption.*
+    import scala.collection.JavaConverters.*
 
     def createFile(target: File, contents: Seq[String]): Path = {
       target.getParentFile.mkdirs()
@@ -283,6 +283,10 @@ object BuildTooling {
     "io.getquill" %% "quill-zio" % "4.6.0.1",
     "dev.zio" %% "zio-process" % "0.7.1",
     "dev.zio" %% "zio-direct" % "1.0.0-RC7",
+    "dev.zio" %% "zio-schema" % "0.4.10",
+    "dev.zio" %% "zio-schema-json" % "0.4.10",
+    "dev.zio" %% "zio-schema-derivation" % "0.4.10",
+    //"org.scala-lang" % "scala-reflect" % scalaVersion.value % "provided"
 //    "dev.zio" %% "zio-direct-streams" % "1.0.0-RC7" // TODO Enable when on the ground :(
   )
 
@@ -294,7 +298,7 @@ object BuildTooling {
       "dev.zio" %% "zio"          % zioVersion,
       "dev.zio" %% "zio-cache"  % "0.2.2",
       "dev.zio" %% "zio-concurrent"          % zioVersion,
-      "dev.zio" %% "zio-logging"  % "2.1.8",
+      "dev.zio" %% "zio-logging"  % "2.1.11",
       "dev.zio" %% "zio-streams"  % zioVersion,
       "dev.zio" %% "zio-test"     % zioVersion,
       "dev.zio" %% "zio-test-sbt" % zioVersion % Test,
@@ -303,6 +307,9 @@ object BuildTooling {
     scalaVersion := "3.2.2",
     scalacOptions -= "-explain-types",
     scalacOptions -= "-explain",
+    fork := true,
+    Compile / packageDoc / publishArtifact := false,
+    Compile / doc / sources := Seq.empty,
   )
 
 }

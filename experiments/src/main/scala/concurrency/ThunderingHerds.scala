@@ -1,4 +1,6 @@
 package concurrency
+
+import concurrency.FileService.ActiveUpdate
 import zio.*
 import zio.Console.printLine
 import zio.direct.*
@@ -24,13 +26,17 @@ object FileService:
         val hit  = Ref.make[Int](0).run
         val miss = Ref.make[Int](0).run
         val cache =
-          Ref.make[Map[Path, FileContents]](
-            Map.empty
-          ).run
+          Ref
+            .make[Map[Path, FileContents]](
+              Map.empty
+            )
+            .run
         val activeRefreshes =
-          Ref.make[Map[Path, ActiveUpdate]](
-            Map.empty
-          ).run
+          Ref
+            .make[Map[Path, ActiveUpdate]](
+              Map.empty
+            )
+            .run
         Live(
           hit,
           miss,
@@ -44,7 +50,9 @@ object FileService:
   case class ActiveUpdate(
       observers: Int,
       promise: Promise[Nothing, FileContents]
-  )
+  ):
+    def completeWith(contents: FileContents) =
+      promise.succeed(contents)
 
   case class Live(
       hit: Ref[Int],
@@ -60,84 +68,55 @@ object FileService:
     def retrieveContents(
         name: Path
     ): ZIO[Any, Nothing, FileContents] =
-      for
-        cachedValue <- cache.get.map(_.get(name))
-        activeValue <-
+      defer {
+        val cachedValue =
+          cache.get.map(_.get(name)).run
+        val activeValue =
           cachedValue match
             case Some(initValue) =>
-              hit.update(_ + 1) *>
-                printLine(
-                  "Value was cached. Easy path."
-                ).orDie *> ZIO.succeed(initValue)
+              (
+                hit.update(_ + 1) *>
+                  printLine(
+                    "Value was cached. Easy path."
+                  ).orDie *>
+                  ZIO.succeed(initValue)
+              ).run
             case None =>
-              retrieveOrWaitForContents(name)
-      yield activeValue
+              retrieveOrWaitForContents(name).run
+        activeValue
+      }
 
     private def retrieveOrWaitForContents(
         name: Path
     ) =
-      for
-        promiseThatMightNotBeUsed <-
-          Promise.make[Nothing, FileContents]
-        activeUpdates <-
-          activeRefresh.updateAndGet {
-            activeRefreshes =>
-              activeRefreshes.updatedWith(name) {
-                case Some(activeUpdate) =>
-                  Some(
-                    activeUpdate.copy(observers =
-                      activeUpdate.observers + 1
-                    )
-                  )
-                case None =>
-                  Some(
-                    ActiveUpdate(
-                      0,
-                      promiseThatMightNotBeUsed
-                    )
-                  )
-              }
-          }
-
-        activeUpdate = activeUpdates(name)
-        finalContents <-
+      defer {
+        val promiseThatMightNotBeUsed =
+          Promise.make[Nothing, FileContents].run
+        val activeUpdates =
+          calculateActiveUpdates(
+            activeRefresh,
+            name,
+            promiseThatMightNotBeUsed
+          ).run
+        val activeUpdate = activeUpdates(name)
+        val finalContents =
           activeUpdate.observers match
             case 0 =>
-              defer {
-                printLine(
-                  "1st herd member will hit the filesystem"
-                ).orDie
-                .run
-                val contents =
-                  fileSystem
-                    .readFileExpensive(name)
-                    .run
-                activeUpdate
-                  .promise
-                  .succeed(contents)
-                  .run
-                activeRefresh.update(m =>
-                  m - name // Clean out "active" entry
-                ).run
-                cache.update(m =>
-                  m.updated(name, contents) // Update cache
-                ).run
-                miss.update(_ + 1).run
-                contents
-            }
+              firstHerdMemberBehavior(
+                fileSystem,
+                activeUpdate,
+                activeRefresh,
+                miss,
+                cache,
+                name
+              ).run
             case observerCount =>
-              printLine(
-                "Slower herd member will wait for response of 1st member"
-              ).orDie *> hit.update(_ + 1) *>
+              slowHerdMemberBehavior(
+                hit,
                 activeUpdate
-                  .promise
-                  .await
-                  .tap(_ =>
-                    printLine(
-                      "Slower herd member got answer from 1st member"
-                    ).orDie
-                  )
-      yield finalContents
+              ).run
+        finalContents
+      }
 
     val hits: ZIO[Any, Nothing, Int] = hit.get
 
@@ -146,24 +125,98 @@ object FileService:
   end Live
 end FileService
 
+def slowHerdMemberBehavior(
+    hit: Ref[Int],
+    activeUpdate: ActiveUpdate
+) =
+  printLine(
+    "Slower herd member will wait for response of 1st member"
+  ).orDie *> hit.update(_ + 1) *>
+    activeUpdate
+      .promise
+      .await
+      .tap(_ =>
+        printLine(
+          "Slower herd member got answer from 1st member"
+        ).orDie
+      )
+
+def calculateActiveUpdates(
+    activeRefresh: Ref[Map[Path, ActiveUpdate]],
+    name: Path,
+    promiseThatMightNotBeUsed: Promise[
+      Nothing,
+      FileContents
+    ]
+) =
+  activeRefresh.updateAndGet { activeRefreshes =>
+    activeRefreshes.updatedWith(name) {
+      case Some(activeUpdate) =>
+        Some(
+          activeUpdate.copy(observers =
+            activeUpdate.observers + 1
+          )
+        )
+      case None =>
+        Some(
+          ActiveUpdate(
+            0,
+            promiseThatMightNotBeUsed
+          )
+        )
+    }
+  }
+
+def firstHerdMemberBehavior(
+    fileSystem: FileSystem,
+    activeUpdate: ActiveUpdate,
+    activeRefresh: Ref[Map[Path, ActiveUpdate]],
+    miss: Ref[Int],
+    // TODO Consider ConcurrentMap
+    cache: Ref[Map[Path, FileContents]],
+    name: Path
+) =
+  defer {
+    printLine(
+      "1st herd member will hit the filesystem"
+    ).orDie.run
+    val contents =
+      fileSystem.readFileExpensive(name).run
+    activeUpdate.completeWith(contents).run
+
+    activeRefresh
+      .update(m =>
+        m - name // Clean out "active" entry
+      )
+      .run
+    cache
+      .update(m =>
+        m.updated(name, contents) // Update cache
+      )
+      .run
+    miss.update(_ + 1).run
+    contents
+  }
+
 val users = (0 to 1000).toList.map("User " + _)
 //  List("Bill", "Bruce", "James")
 
 val herdBehavior =
-  for
-    fileService <- ZIO.service[FileService]
-    _ <-
-      ZIO.foreachParDiscard(users)(user =>
+  defer {
+    val fileService =
+      ZIO.service[FileService].run
+    ZIO
+      .foreachParDiscard(users)(user =>
         fileService.retrieveContents(
           Path.of("awesomeMemes")
         )
       )
-    _ <- ZIO.debug("=========")
-    _ <-
-      fileService.retrieveContents(
-        Path.of("awesomeMemes")
-      )
-  yield ()
+      .run
+    ZIO.debug("=========").run
+    fileService
+      .retrieveContents(Path.of("awesomeMemes"))
+      .run
+  }
 
 object ThunderingHerds extends ZIOAppDefault:
   def run =
