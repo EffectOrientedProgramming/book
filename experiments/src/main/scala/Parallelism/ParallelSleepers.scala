@@ -24,9 +24,11 @@ object ParallelSleepers extends ZIOAppDefault:
       for _ <- 1 to 10_000 do
         ZIO.sleep(1.seconds).run
 
-      ZIO.debug(
-        "Finished far sooner than 10,000 seconds"
-      ).run
+      ZIO
+        .debug(
+          "Finished far sooner than 10,000 seconds"
+        )
+        .run
     }
 
 val sleepers =
