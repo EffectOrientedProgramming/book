@@ -1,5 +1,7 @@
 # Network
 
+Talking to the network is an effect. It can fail. You need retries.
+
 ```scala mdoc
 import java.net.URL
 val url1 = new URL("https://www.google.com")
