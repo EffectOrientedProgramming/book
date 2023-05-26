@@ -1,3 +1,7 @@
+---
+Random notes on streams from zionomicon
+---
+
 "An Iterator is the fundamental imperative representation of collections of zero or more and potentially infinitely many values. 
 Similarly, ZStream is the fundamental functional representation of collections of one or more and potentially infinitely many effectual values."
 - Zionomicon

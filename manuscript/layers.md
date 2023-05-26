@@ -6,9 +6,15 @@
 ```scala
 package layers
 
-import zio.{ZIO, ZLayer, Duration}
+import zio.{
+  Duration,
+  Scope,
+  ZIO,
+  ZLayer,
+  durationInt
+}
 import zio.ZIO.debug
-import zio.durationInt
+import zio.direct.*
 
 case class Toilets()
 val toilets =
@@ -173,17 +179,25 @@ case class Security(
     toilets: Toilets,
     foodTruck: FoodTruck
 )
-// TODO How do we directify this?
-val security =
-  for
-    layer <- ZLayer.fromFunction(Security.apply)
-    _ <-
-      ZLayer.scoped(
-        ZIO.acquireRelease(
-          debug("SECURITY: Ready")
-        )(_ => debug("SECURITY: Going home"))
-      )
-  yield layer
+
+val security: ZLayer[
+  Toilets & FoodTruck,
+  Nothing,
+  Security
+] =
+  ZLayer.scoped {
+    ZIO.acquireRelease {
+      defer {
+        debug("SECURITY: Ready").run
+        Security(
+          ZIO.service[Toilets].run,
+          ZIO.service[FoodTruck].run
+        )
+      }
+    } { _ =>
+      debug("SECURITY: Going home")
+    }
+  }
 
 def activity(
     entity: String,

@@ -1,3 +1,6 @@
+---
+Consider deleting
+---
 # Immutable
 
 Part of the Functional Programming world is the lack of mutable variables. 
