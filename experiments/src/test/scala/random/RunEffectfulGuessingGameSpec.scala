@@ -13,10 +13,10 @@ object RunEffectfulGuessingGameSpec
         test("Untestable randomness")(
           defer {
             effectfulGuessingGame
-              .withConsole(FakeConsole.single("3"))
-              .provide(
-                RandomBoundedInt.live,
+              .withConsole(
+                FakeConsole.single("3")
               )
+              .provide(RandomBoundedInt.live)
               .run
             assertCompletes
           }
@@ -24,7 +24,9 @@ object RunEffectfulGuessingGameSpec
         test("Testable")(
           defer {
             effectfulGuessingGame
-              .withConsole(FakeConsole.single("3"))
+              .withConsole(
+                FakeConsole.single("3")
+              )
               .provide(
                 RandomBoundedIntFake(Seq(3))
               )
@@ -34,3 +36,4 @@ object RunEffectfulGuessingGameSpec
         )
       )
     )
+end RunEffectfulGuessingGameSpec
