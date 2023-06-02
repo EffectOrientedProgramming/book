@@ -227,9 +227,6 @@ object Six extends ZIOAppDefault:
 // concurrently save & send analytics
 object Seven extends ZIOAppDefault:
   override def run =
-    val sendAnalytics =
-      userSignedUp("mrsdavis").debug
-
     saveUser("mrsdavis")
       .timeoutFail(TimeoutError)(5.seconds)
       .retry(recurs(3) && spaced(1.second))
@@ -238,7 +235,7 @@ object Seven extends ZIOAppDefault:
         "ERROR: User could not be saved"
       )
       .debug
-      .zipPar(sendAnalytics)
+      .zipPar(userSignedUp("mrsdavis").debug)
 
 ```
 
