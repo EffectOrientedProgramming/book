@@ -62,6 +62,7 @@ lazy val unreliableCounting =
   yield "Final count: " + counter
 
 unsafeRunPrettyPrint(unreliableCounting)
+// Final count: 99982
 ```
 
 Due to the unpredictable nature of shared mutable state, we do not know exactly what the final count above is.
