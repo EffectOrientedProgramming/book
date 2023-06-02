@@ -1,3 +1,7 @@
+---
+We don't need to talk about monads, etc as zio-direct will just be "the way"
+so we don't need to explain why zio-direct or what it is. It just is.
+---
 We have been experimenting with the zio-direct style of writing ZIO applications.
 Our theory is that it is easier to teach this style of code to beginners.
 "Program as values" is a core concept when using ZIO. 
