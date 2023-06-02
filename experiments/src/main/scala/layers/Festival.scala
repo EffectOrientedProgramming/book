@@ -95,15 +95,19 @@ val soundSystem: ZLayer[
   ZLayer.scoped {
     ZIO.acquireRelease {
       defer {
-        debug("SOUNDSYSTEM: Hooking up speakers, amplifiers, and wires").run
+        debug(
+          "SOUNDSYSTEM: Hooking up speakers, amplifiers, and wires"
+        ).run
         SoundSystem(
           ZIO.service[Speakers].run,
           ZIO.service[Amplifiers].run,
-          ZIO.service[Wires].run,
+          ZIO.service[Wires].run
         )
       }
     } { _ =>
-      debug("SOUNDSYSTEM: Disconnecting speakers, amplifiers, and wires")
+      debug(
+        "SOUNDSYSTEM: Disconnecting speakers, amplifiers, and wires"
+      )
     }
   }
 
@@ -114,10 +118,13 @@ val soundSystemShortedOut: ZLayer[
 ] =
   ZLayer.scoped {
     ZIO.acquireRelease {
-      debug("SOUNDSYSTEM: Hooking up speakers, amplifiers, and wires") *>
-        ZIO.fail("BZZZZ")
+      debug(
+        "SOUNDSYSTEM: Hooking up speakers, amplifiers, and wires"
+      ) *> ZIO.fail("BZZZZ")
     } { _ =>
-      debug("SOUNDSYSTEM: Disconnecting speakers, amplifiers, and wires")
+      debug(
+        "SOUNDSYSTEM: Disconnecting speakers, amplifiers, and wires"
+      )
     }
   }
 
@@ -163,7 +170,9 @@ val festival =
         )
       }
     } { _ =>
-      debug("FESTIVAL: Good job, everyone. Close it down!")
+      debug(
+        "FESTIVAL: Good job, everyone. Close it down!"
+      )
     }
   }
 
