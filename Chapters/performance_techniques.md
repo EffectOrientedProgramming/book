@@ -1,3 +1,8 @@
+---
+Maybe merge into an "why effects / value of effects" chapter
+Or a "common use cases for effects" chapter
+---
+
 ### Performance
 
 ## Hedging
@@ -18,3 +23,8 @@ The cost of this is only ~3% more total requests made. *Citations needed*
 
 Further, if this is not enough to completely eliminate your extreme tail, you can employ the exact same technique once more.
 Then, you end up with `1/n^3` chance of getting that worst performance.
+
+# Caching
+
+# Racing
+
