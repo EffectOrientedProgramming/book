@@ -40,7 +40,6 @@ logging.md
 scenarios.md
 ZIOFromNothing.md
 helloworld.md
-HelloZio.md
 monads.md
 crypto.md
 bigdec.md
