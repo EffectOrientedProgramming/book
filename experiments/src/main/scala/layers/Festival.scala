@@ -92,58 +92,59 @@ val soundSystem: ZLayer[
   Nothing,
   SoundSystem
 ] =
-  for
-    layer <-
-      ZLayer.fromFunction(SoundSystem.apply)
-    scoped <-
-      ZLayer.scoped {
-        ZIO.acquireRelease(
-          debug(
-            "SOUNDSYSTEM: Hooking up speakers, amplifiers, and wires"
-          ) *> ZIO.succeed(layer.get)
-        )(_ =>
-          debug(
-            "SOUNDSYSTEM: Disconnecting speakers, amplifiers, and wires"
-          )
+  ZLayer.scoped {
+    ZIO.acquireRelease {
+      defer {
+        debug(
+          "SOUNDSYSTEM: Hooking up speakers, amplifiers, and wires"
+        ).run
+        SoundSystem(
+          ZIO.service[Speakers].run,
+          ZIO.service[Amplifiers].run,
+          ZIO.service[Wires].run
         )
       }
-  yield scoped
+    } { _ =>
+      debug(
+        "SOUNDSYSTEM: Disconnecting speakers, amplifiers, and wires"
+      )
+    }
+  }
 
 val soundSystemShortedOut: ZLayer[
   Speakers with Amplifiers with Wires,
   String,
   SoundSystem
 ] =
-  for
-    layer <-
-      ZLayer.fromFunction(SoundSystem.apply)
-    scoped <-
-      ZLayer.scoped {
-        ZIO.acquireRelease(
-          debug(
-            "SOUNDSYSTEM: Hooking up speakers, amplifiers, and wires"
-          ) *> ZIO.fail("BZZZZ") *>
-            ZIO.succeed(layer.get)
-        )(_ =>
-          debug(
-            "SOUNDSYSTEM: Disconnecting speakers, amplifiers, and wires"
-          )
-        )
-      }
-  yield scoped
+  ZLayer.scoped {
+    ZIO.acquireRelease {
+      debug(
+        "SOUNDSYSTEM: Hooking up speakers, amplifiers, and wires"
+      ) *> ZIO.fail("BZZZZ")
+    } { _ =>
+      debug(
+        "SOUNDSYSTEM: Disconnecting speakers, amplifiers, and wires"
+      )
+    }
+  }
 
 case class FoodTruck()
 val foodtruck =
-  ZLayer.scoped(
-    ZIO.acquireRelease(
-      debug("FOODTRUCK:  Driving in ") *>
+  ZLayer.scoped {
+    ZIO.acquireRelease {
+      defer {
         activity(
           "FOODTRUCK",
           "Fueling",
           2.seconds
-        ) *> ZIO.succeed(FoodTruck())
-    )(_ => debug("FOODTRUCK: Driving out "))
-  )
+        ).run
+        debug("FOODTRUCK: Driving in").run
+        FoodTruck()
+      }
+    } { _ =>
+      debug("FOODTRUCK: Going home")
+    }
+  }
 
 case class Festival(
     toilets: Toilets,
@@ -153,21 +154,27 @@ case class Festival(
     foodTruck: FoodTruck,
     security: Security
 )
+
 val festival =
-  for
-    layer <- ZLayer.fromFunction(Festival.apply)
-    scoped <-
-      ZLayer.scoped {
-        ZIO.acquireRelease(
-          debug("FESTIVAL: We are all set!") *>
-            ZIO.succeed(layer.get)
-        )(_ =>
-          debug(
-            "FESTIVAL: Good job, everyone. Close it down!"
-          )
+  ZLayer.scoped {
+    ZIO.acquireRelease {
+      defer {
+        debug("FESTIVAL: We are all set!").run
+        Festival(
+          ZIO.service[Toilets].run,
+          ZIO.service[Venue].run,
+          ZIO.service[SoundSystem].run,
+          ZIO.service[Fencing].run,
+          ZIO.service[FoodTruck].run,
+          ZIO.service[Security].run
         )
       }
-  yield scoped
+    } { _ =>
+      debug(
+        "FESTIVAL: Good job, everyone. Close it down!"
+      )
+    }
+  }
 
 case class Security(
     toilets: Toilets,

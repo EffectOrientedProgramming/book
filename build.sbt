@@ -1,6 +1,6 @@
 name := "EffectOrientedProgramming"
 
-inThisBuild(scalaVersion := "3.2.1")
+inThisBuild(scalaVersion := "3.3.0")
 
 
 // This tells mdoc which folder to analyze
