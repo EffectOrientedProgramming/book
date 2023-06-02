@@ -1,6 +1,6 @@
 name := "EffectOrientedProgramming"
 
-inThisBuild(scalaVersion := "3.2.1")
+inThisBuild(scalaVersion := "3.3.0")
 
 
 // This tells mdoc which folder to analyze
@@ -30,7 +30,7 @@ lazy val illustratedPrimer =
 // Tool that lets us re-order numbered markdown chapters
 lazy val booker =
   (project in file("booker"))
-    .dependsOn(experiments)
+    //.dependsOn(experiments)
     .settings(commonSettings)
     .enablePlugins(GraalVMNativeImagePlugin)
 
@@ -50,10 +50,6 @@ lazy val root =
     .enablePlugins(MdocPlugin)
     .aggregate(booker, experiments /*, rube*/)
 
-Compile / packageDoc / publishArtifact := false
-
-Compile / doc / sources := Seq.empty
-
 lazy val bookTxt = taskKey[Unit]("Create the Book.txt")
 
 bookTxt := generateBookTxtFromNumberedChapters(mdocIn.value, mdocOut.value)
@@ -68,13 +64,12 @@ clean := clean.dependsOn(cleanManuscript).value
 
 lazy val formatAndCompileCode = taskKey[Unit]("Make manuscript")
 
-formatAndCompileCode := formatAndCompileCode
-  .dependsOn(
+formatAndCompileCode := Def.sequential(
     Compile / scalafmt,
     booker / Compile / scalafmt,
     experiments / Compile / compile,
     experiments / Compile / scalafmt,
-  )
+  ).value
 
 // TODO define inputKey entirely by depending on other inputKeys
 lazy val genManuscript = inputKey[Unit]("Make manuscript")

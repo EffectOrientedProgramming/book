@@ -1,3 +1,7 @@
+---
+We don't need to talk about monads, etc as zio-direct will just be "the way"
+so we don't need to explain why zio-direct or what it is. It just is.
+---
 We have been experimenting with the zio-direct style of writing ZIO applications.
 Our theory is that it is easier to teach this style of code to beginners.
 "Program as values" is a core concept when using ZIO. 
@@ -23,3 +27,8 @@ Here are the concepts you need to understand for `zio-direct`
 
 
 After you have accomplished _that_, you have trained your student to write slightly less concise code... that most programmers will be comfortable with.
+
+*Gotchas*
+    -Something about mutable collection operations. TODO More info from James
+    - Cannot end a defer block with a `ZIO[_,_,Nothing]`
+        It currently fails with a very cryptic missing argument message

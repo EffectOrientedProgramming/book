@@ -1,6 +1,7 @@
 package mutability
 
-import zio.{Ref, ZIO, ZIOAppDefault}
+import zio.*
+import zio.direct.*
 
 object ComplexRefs extends ZIOAppDefault:
 
@@ -21,17 +22,19 @@ object ComplexRefs extends ZIOAppDefault:
   case class World(sensors: List[Sensor])
 
   val readFromSensors =
-    for
-      sensors <-
-        ZIO.foreach(List.fill(100)(0))(_ =>
-          Sensor.make
-        )
-      world = World(sensors)
-      _ <-
+    defer {
+      val sensors =
         ZIO
-          .foreach(world.sensors)(_.read)
-          .debug("Current data: ")
-    yield ()
+          .foreach(List.fill(100)(0))(_ =>
+            Sensor.make
+          )
+          .run
+      val world = World(sensors)
+      ZIO
+        .foreach(world.sensors)(_.read)
+        .debug("Current data: ")
+        .run
+    }
 
   def run = readFromSensors
 

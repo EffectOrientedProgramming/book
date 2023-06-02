@@ -1,6 +1,7 @@
 package Hubs
 
 import zio.*
+import zio.direct.*
 import zio.Duration
 import zio.Clock
 import zio.Console
@@ -23,24 +24,25 @@ object BasicHub extends zio.ZIOAppDefault:
             .subscribe
             .zip(Hub.subscribe)
             .flatMap { case (left, right) =>
-              for
-                _ <-
-                  Hub.publish(
-                    "This is from Hub left!"
+              defer {
+                Hub.publish("Hub message").run
+
+                val leftItem = left.take.run
+
+                Console
+                  .printLine(
+                    "Left item: " + leftItem
                   )
-                _ <-
-                  left
-                    .take
-                    .flatMap(
-                      Console.printLine(_)
-                    )
-                _ <-
-                  right
-                    .take
-                    .flatMap(
-                      Console.printLine(_)
-                    )
-              yield ()
+                  .run
+
+                val rightItem = right.take.run
+
+                Console
+                  .printLine(
+                    "Right item: " + rightItem
+                  )
+                  .run
+              }
             }
         }
       }
