@@ -95,7 +95,6 @@ lazy val reliableCounting =
   yield "Final count: " + finalResult
 
 unsafeRunPrettyPrint(reliableCounting)
-// Final count: 100000
 ```
 Now we can say with full confidence that our final count is 100000.
 Additionally, these updates happen _without blocking_.
