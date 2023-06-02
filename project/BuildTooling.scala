@@ -296,9 +296,9 @@ object BuildTooling {
   lazy val commonSettings = Seq(
     libraryDependencies ++= Seq(
       "dev.zio" %% "zio"          % zioVersion,
-      "dev.zio" %% "zio-cache"  % "0.2.2",
+      "dev.zio" %% "zio-cache"  % "0.2.3",
       "dev.zio" %% "zio-concurrent"          % zioVersion,
-      "dev.zio" %% "zio-logging"  % "2.1.11",
+      "dev.zio" %% "zio-logging"  % "2.1.12",
       "dev.zio" %% "zio-streams"  % zioVersion,
       "dev.zio" %% "zio-test"     % zioVersion,
       "dev.zio" %% "zio-test-sbt" % zioVersion % Test,
