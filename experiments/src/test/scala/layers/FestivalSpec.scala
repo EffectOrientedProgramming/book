@@ -18,11 +18,13 @@ object FestivalSpec extends ZIOSpec[Festival]:
       foodtruck,
       security,
       venue,
-      permit
+      permit,
     )
 
   val spec =
     suite("Play some music")(
-      test("Good festival")(assertCompletes)
+      test("Good festival")(
+        assertCompletes
+      )
     )
 end FestivalSpec

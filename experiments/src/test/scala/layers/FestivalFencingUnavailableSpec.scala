@@ -22,7 +22,7 @@ object FestivalFencingUnavailableSpec
       foodtruck,
       security,
       venue,
-      permit
+      permit,
     )
 
   val spec =
