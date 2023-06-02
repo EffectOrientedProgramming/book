@@ -18,7 +18,7 @@ object FestivalSpec extends ZIOSpec[Festival]:
       foodtruck,
       security,
       venue,
-      permit
+      permit,
     )
 
   val spec =

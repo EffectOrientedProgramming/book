@@ -1,3 +1,7 @@
+---
+Maybe goes into resources chapter
+---
+
 # Composability
 
 `Composability` has a diverse collection of definitions, depending on who you ask.
