@@ -20,7 +20,7 @@ object FestivalShortedOutSoundSystemSpec
       foodtruck,
       security,
       venue,
-      permit,
+      permit
     )
 
   val spec =

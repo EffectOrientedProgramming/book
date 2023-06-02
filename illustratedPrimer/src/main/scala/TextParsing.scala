@@ -1,3 +1,1 @@
-object TextParsing {
-
-}
+object TextParsing {}
