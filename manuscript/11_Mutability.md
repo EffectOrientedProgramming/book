@@ -62,6 +62,7 @@ lazy val unreliableCounting =
   yield "Final count: " + counter
 
 unsafeRunPrettyPrint(unreliableCounting)
+// Final count: 99994
 ```
 
 Due to the unpredictable nature of shared mutable state, we do not know exactly what the final count above is.
@@ -94,6 +95,7 @@ lazy val reliableCounting =
   yield "Final count: " + finalResult
 
 unsafeRunPrettyPrint(reliableCounting)
+// Final count: 100000
 ```
 Now we can say with full confidence that our final count is 100000.
 Additionally, these updates happen _without blocking_.
