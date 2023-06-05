@@ -298,7 +298,7 @@ object BuildTooling {
       "dev.zio" %% "zio"          % zioVersion,
       "dev.zio" %% "zio-cache"  % "0.2.3",
       "dev.zio" %% "zio-concurrent"          % zioVersion,
-      "dev.zio" %% "zio-logging"  % "2.1.12",
+      "dev.zio" %% "zio-logging"  % "2.1.13",
       "dev.zio" %% "zio-streams"  % zioVersion,
       "dev.zio" %% "zio-test"     % zioVersion,
       "dev.zio" %% "zio-test-sbt" % zioVersion % Test,
