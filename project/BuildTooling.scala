@@ -291,7 +291,7 @@ object BuildTooling {
   )
 
   // TODO Make a Versions object?
-  val zioVersion = "2.0.14"
+  val zioVersion = "2.0.15"
 
   lazy val commonSettings = Seq(
     libraryDependencies ++= Seq(
