@@ -2,6 +2,7 @@ package time
 
 import zio.*
 import zio.Console.*
+import zio.direct.*
 
 val longRunning =
   ZIO.sleep(5.seconds) *> printLine("done")
@@ -11,17 +12,17 @@ val runningNotifier =
     ZIO.sleep(1.seconds) *>
       printLine("Still running")
   ).onInterrupt {
-    printLine("finalized").orDie
+    printLine("interrupted").orDie
   }
 
 object TimedTapTapJames extends ZIOAppDefault:
 
   def run =
-    for
-      lr <- longRunning.fork
-      _  <- runningNotifier.fork
-      _  <- lr.join
-    yield ()
+    defer {
+      val lr = longRunning.fork.run
+      runningNotifier.fork.run
+      lr.join.run
+    }
 
 object TimedTapTapBill extends ZIOAppDefault:
   def run =

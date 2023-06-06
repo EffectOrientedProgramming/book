@@ -58,10 +58,10 @@ object LunchVote:
       results: ConcurrentMap[Vote, Int],
       voterCount: Int
   ): ZIO[Any, NotConclusive.type, Vote] =
-    for
-      _ <- ZIO.sleep(person.delay)
-      answer = person.response
-      currentTally <-
+    defer {
+      ZIO.sleep(person.delay).run
+      val answer = person.response
+      val currentTally =
         results
           .computeIfPresent(
             answer,
@@ -73,10 +73,11 @@ object LunchVote:
             )
           )
           .orDie
-      _ <-
-        ZIO.when(currentTally <= voterCount / 2)(
-          ZIO.fail(NotConclusive)
-        )
-    yield answer
+          .run
+      ZIO.when(currentTally <= voterCount / 2)(
+        ZIO.fail(NotConclusive)
+      ).run
+      answer
+    }
 
 end LunchVote

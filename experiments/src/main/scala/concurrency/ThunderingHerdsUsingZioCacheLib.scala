@@ -1,6 +1,7 @@
 package concurrency
 
 import zio.*
+import zio.direct.*
 import zio.cache.{Cache, Lookup}
 
 import java.nio.file.Path
@@ -14,27 +15,31 @@ case class ThunderingHerdsUsingZioCacheLib(
     cache.get(name)
 
   override val hits: ZIO[Any, Nothing, Int] =
-    for stats <- cache.cacheStats
-    yield stats.hits.toInt
+    defer {
+      cache.cacheStats.run.hits.toInt
+    }
   override val misses: ZIO[Any, Nothing, Int] =
-    for stats <- cache.cacheStats
-    yield stats.misses.toInt
+    defer {
+      cache.cacheStats.run.misses.toInt
+    }
 
 object ThunderingHerdsUsingZioCacheLib:
   val make =
-    for
-      retrievalFunction <-
+    defer {
+      val retrievalFunction =
         ZIO
           .service[FileSystem]
           .map(_.readFileExpensive)
-      cache: Cache[
+          .run
+      val cache: Cache[
         Path,
         Nothing,
         FileContents
-      ] <-
+      ] =
         Cache.make(
           capacity = 100,
           timeToLive = Duration.Infinity,
           lookup = Lookup(retrievalFunction)
-        )
-    yield ThunderingHerdsUsingZioCacheLib(cache)
+        ).run
+      ThunderingHerdsUsingZioCacheLib(cache)
+    }

@@ -9,6 +9,7 @@ import zio.{
   ZLayer,
   durationInt
 }
+import zio.direct.*
 import zio.Console.printLine
 
 import scala.concurrent.TimeoutException
@@ -81,28 +82,26 @@ object SecuritySystem:
       HardwareFailure,
     Unit
   ] =
-    for
-      amountOfHeat <- amountOfHeatGenerator
-      noise        <- acousticDetector
-      _ <-
-        ZIO.debug(
-          s"Heat: $amountOfHeat  Motion: $amountOfMotion  Noise: $noise"
-        )
-      securityResponse =
+    defer {
+      val amountOfHeat = amountOfHeatGenerator.run
+      val noise = acousticDetector.run
+      ZIO.debug(
+        s"Heat: $amountOfHeat  Motion: $amountOfMotion  Noise: $noise"
+      ).run
+      val securityResponse =
         determineResponse(
           amountOfMotion,
           amountOfHeat,
           noise
         )
-      _ <-
-        securityResponse match
-          case Relax =>
-            ZIO.debug("No need to panic")
-          case LowBeep =>
-            SirenX.lowBeep
-          case LoudSiren =>
-            SirenX.loudSiren
-    yield ()
+      securityResponse match
+        case Relax =>
+          ZIO.debug("No need to panic").run
+        case LowBeep =>
+          SirenX.lowBeep.run
+        case LoudSiren =>
+          SirenX.loudSiren.run
+    }
 
   def shouldAlertServices[
       T
@@ -113,25 +112,27 @@ object SecuritySystem:
     scenarios.HardwareFailure | TimeoutException,
     String
   ] =
-    for
-      amountOfMotion <-
+    defer {
+      val amountOfMotion =
         MotionDetector
           .acquireMotionMeasurementSource()
-      amountOfHeatGenerator <-
+          .run
+      val amountOfHeatGenerator =
         ThermalDetectorX
           .acquireHeatMeasurementSource
-      acousticDetector <-
-        AcousticDetectorX.acquireDetector
-      _ <-
-        securityLoop(
-          amountOfHeatGenerator,
-          amountOfMotion,
-          acousticDetector
-        ).repeat(
-          Schedule.recurs(5) &&
-            Schedule.spaced(1.seconds)
-        )
-    yield "Fin"
+          .run
+      val acousticDetector =
+        AcousticDetectorX.acquireDetector.run
+      securityLoop(
+        amountOfHeatGenerator,
+        amountOfMotion,
+        acousticDetector
+      ).repeat(
+        Schedule.recurs(5) &&
+          Schedule.spaced(1.seconds)
+      ).run
+      "Fin"
+    }
 
   def shouldTrigger(
       amountOfMotion: Pixels,
@@ -246,15 +247,18 @@ object ThermalDetectorY:
       values: (Duration, Degrees)*
   ): ZLayer[Any, Nothing, ThermalDetectorY] =
     ZLayer.fromZIO(
-      for thermalDetectorValues <-
-          scheduledValues(value, values*)
-      yield new ThermalDetectorY:
-        override def heatMeasurement(): ZIO[
-          Any,
-          TimeoutException |
-            scenarios.HardwareFailure,
-          Degrees
-        ] = thermalDetectorValues
+      defer {
+        val thermalDetectorValues =
+          scheduledValues(value, values *).run
+        ZIO.succeed(new ThermalDetectorY:
+          override def heatMeasurement(): ZIO[
+            Any,
+            TimeoutException |
+              scenarios.HardwareFailure,
+            Degrees
+          ] = thermalDetectorValues
+        ).run
+      }
     )
 
 object ThermalDetectorX:
