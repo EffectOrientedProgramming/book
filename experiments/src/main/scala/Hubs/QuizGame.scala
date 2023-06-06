@@ -36,33 +36,31 @@ object QuizGame:
       rounds: Seq[RoundDescription],
       players: List[Player]
   ) =
-    for
-      questionHub <- Hub.bounded[Question](1)
-      answerHub: Hub[Answer] <-
-        Hub.bounded[Answer](players.size)
-      res <-
+    defer {
+      val questionHub = Hub.bounded[Question](1).run
+      val answerHub: Hub[Answer] =
+        Hub.bounded[Answer](players.size).run
+      val (
+        questions: Dequeue[Question],
+        answers: Dequeue[Answer]
+        ) =
         questionHub
           .subscribe
           .zip(answerHub.subscribe)
-          .flatMap {
-            case (
-                  questions: Dequeue[Question],
-                  answers: Dequeue[Answer]
-                ) =>
-              ZIO.foreach(rounds)(
-                roundDescription =>
-                  questionHub.publish(
-                    roundDescription.question
-                  ) *>
-                    playARound(
-                      roundDescription,
-                      questions,
-                      answerHub,
-                      answers
-                    )
-              )
-          }
-    yield res
+          .run
+      ZIO.foreach(rounds)(
+        roundDescription =>
+          questionHub.publish(
+            roundDescription.question
+          ) *>
+            playARound(
+              roundDescription,
+              questions,
+              answerHub,
+              answers
+            )
+      ).run
+    }
 
   private[Hubs] def playARound(
       roundDescription: RoundDescription,
