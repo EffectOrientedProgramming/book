@@ -73,10 +73,10 @@ object LunchVote:
       results: ConcurrentMap[Vote, Int],
       voterCount: Int
   ): ZIO[Any, NotConclusive.type, Vote] =
-    for
-      _ <- ZIO.sleep(person.delay)
-      answer = person.response
-      currentTally <-
+    defer {
+      ZIO.sleep(person.delay).run
+      val answer = person.response
+      val currentTally =
         results
           .computeIfPresent(
             answer,
@@ -88,11 +88,14 @@ object LunchVote:
             )
           )
           .orDie
-      _ <-
-        ZIO.when(currentTally <= voterCount / 2)(
+          .run
+      ZIO
+        .when(currentTally <= voterCount / 2)(
           ZIO.fail(NotConclusive)
         )
-    yield answer
+        .run
+      answer
+    }
 
 end LunchVote
 
@@ -113,24 +116,25 @@ import zio.{
   ZIOAppDefault,
   Random
 }
+import zio.direct.*
 
 def sleepThenPrint(
     d: Duration
 ): ZIO[Any, java.io.IOException, Duration] =
-  for
-    _ <- ZIO.sleep(d)
-    _ <-
-      Console.printLine(s"${d.render} elapsed")
-  yield d
+  defer {
+    ZIO.sleep(d).run
+    Console.printLine(s"${d.render} elapsed").run
+    d
+  }
 
 object ForkDemo extends zio.ZIOAppDefault:
   override def run =
-    for
-      f1 <- sleepThenPrint(2.seconds).fork
-      f2 <- sleepThenPrint(1.seconds).fork
-      _  <- f1.join
-      _  <- f2.join
-    yield ()
+    defer {
+      val f1 = sleepThenPrint(2.seconds).fork.run
+      val f2 = sleepThenPrint(1.seconds).fork.run
+      f1.join.run
+      f2.join.run
+    }
 
 object ForEachDemo extends zio.ZIOAppDefault:
   override def run =
@@ -156,48 +160,59 @@ object RaceDemo extends zio.ZIOAppDefault:
 object CollectAllParDemo
     extends zio.ZIOAppDefault:
   override def run =
-    for
-      durations <-
-        ZIO.collectAllPar(
-          Seq(
-            sleepThenPrint(2.seconds),
-            sleepThenPrint(1.seconds)
+    defer {
+      val durations =
+        ZIO
+          .collectAllPar(
+            Seq(
+              sleepThenPrint(2.seconds),
+              sleepThenPrint(1.seconds)
+            )
           )
-        )
-      total =
+          .run
+      val total =
         durations
           .fold(Duration.Zero)(_ + _)
           .render
-      _ <- Console.printLine(total)
-    yield ()
+      Console.printLine(total).run
+    }
 end CollectAllParDemo
 
 object CollectAllParMassiveDemo
     extends zio.ZIOAppDefault:
   override def run =
-    for
-      durations <-
-        ZIO.collectAllSuccessesPar(
-          Seq
-            .fill(1_000_000)(1.seconds)
-            .map(duration =>
-              for
-                randInt <-
-                  Random.nextIntBetween(0, 100)
-                _ <- ZIO.sleep(duration)
-                _ <-
-                  ZIO.when(randInt < 10)(
-                    ZIO.fail("Number is too low")
-                  )
-              yield duration
-            )
-        )
-      total =
+    defer {
+      val durations =
+        ZIO
+          .collectAllSuccessesPar(
+            Seq
+              .fill(1_000_000)(1.seconds)
+              .map(duration =>
+                defer {
+                  val randInt =
+                    Random
+                      .nextIntBetween(0, 100)
+                      .run
+                  ZIO.sleep(duration).run
+                  ZIO
+                    .when(randInt < 10)(
+                      ZIO.fail(
+                        "Number is too low"
+                      )
+                    )
+                    .run
+                  duration
+                }
+              )
+          )
+          .run
+      val total =
         durations
           .fold(Duration.Zero)(_ + _)
           .render
-      _ <- Console.printLine(total)
-    yield ()
+      Console.printLine(total).run
+    }
+
 end CollectAllParMassiveDemo
 
 ```
@@ -457,6 +472,7 @@ object FileSystem:
 package concurrency
 
 import zio.*
+import zio.direct.*
 import zio.cache.{Cache, Lookup}
 
 import java.nio.file.Path
@@ -470,30 +486,34 @@ case class ThunderingHerdsUsingZioCacheLib(
     cache.get(name)
 
   override val hits: ZIO[Any, Nothing, Int] =
-    for stats <- cache.cacheStats
-    yield stats.hits.toInt
+    defer {
+      cache.cacheStats.run.hits.toInt
+    }
   override val misses: ZIO[Any, Nothing, Int] =
-    for stats <- cache.cacheStats
-    yield stats.misses.toInt
+    defer {
+      cache.cacheStats.run.misses.toInt
+    }
 
 object ThunderingHerdsUsingZioCacheLib:
   val make =
-    for
-      retrievalFunction <-
+    defer {
+      val retrievalFunction =
         ZIO
           .service[FileSystem]
           .map(_.readFileExpensive)
-      cache: Cache[
-        Path,
-        Nothing,
-        FileContents
-      ] <-
-        Cache.make(
-          capacity = 100,
-          timeToLive = Duration.Infinity,
-          lookup = Lookup(retrievalFunction)
-        )
-    yield ThunderingHerdsUsingZioCacheLib(cache)
+          .run
+      val cache
+          : Cache[Path, Nothing, FileContents] =
+        Cache
+          .make(
+            capacity = 100,
+            timeToLive = Duration.Infinity,
+            lookup = Lookup(retrievalFunction)
+          )
+          .run
+      ThunderingHerdsUsingZioCacheLib(cache)
+    }
+end ThunderingHerdsUsingZioCacheLib
 
 ```
 

@@ -7,6 +7,7 @@
 package game_theory
 
 import zio.{Ref, ZIO, ZLayer}
+import zio.direct.*
 
 trait DecisionService:
   def getDecisionsFor(
@@ -22,42 +23,49 @@ object DecisionService:
         prisoner: Prisoner,
         actionsAgainst: List[Action]
     ): ZIO[Any, String, Decision] =
-      for action <-
-          prisoner.decide(actionsAgainst)
-      yield Decision(prisoner, action)
+      defer {
+        val action =
+          prisoner.decide(actionsAgainst).run
+        Decision(prisoner, action)
+      }
 
     def getDecisionsFor(
         prisoner1: Prisoner,
         prisoner2: Prisoner
     ): ZIO[Any, String, RoundResult] =
-      for
-        prisoner1history <-
+      defer {
+        val prisoner1history =
           history
             .get
             .map(_.historyFor(prisoner1))
-        prisoner2history <-
+            .run
+        val prisoner2history =
           history
             .get
             .map(_.historyFor(prisoner2))
-        decisions <-
+            .run
+        val decisions =
           getDecisionFor(
             prisoner1,
             prisoner2history
           ).zipPar(
-            getDecisionFor(
-              prisoner2,
-              prisoner1history
+              getDecisionFor(
+                prisoner2,
+                prisoner1history
+              )
             )
-          )
-        roundResult =
+            .run
+        val roundResult =
           RoundResult(decisions._1, decisions._2)
-        _ <-
-          history.updateAndGet(oldHistory =>
+        history
+          .update(oldHistory =>
             DecisionHistory(
               roundResult :: oldHistory.results
             )
           )
-      yield roundResult
+          .run
+        roundResult
+      }
   end LiveDecisionService
 
   object LiveDecisionService:
@@ -66,9 +74,13 @@ object DecisionService:
       Nothing,
       LiveDecisionService
     ] =
-      for history <-
-          Ref.make(DecisionHistory(List.empty))
-      yield LiveDecisionService(history)
+      defer {
+        val history =
+          Ref
+            .make(DecisionHistory(List.empty))
+            .run
+        LiveDecisionService(history)
+      }
 
   val liveDecisionService: ZLayer[
     Any,

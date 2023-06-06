@@ -76,7 +76,7 @@ object QuizGameSpec extends ZIOSpecDefault:
             )
           }
       },
-      test("roundWithOnly1CorrectAnswer") {
+      test("roundWhereEverybodyIsWrong") {
         val roundWhereEverybodyIsWrong =
           RoundDescription(
             Question(

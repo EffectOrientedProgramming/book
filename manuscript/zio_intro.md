@@ -51,28 +51,6 @@ case class AuthenticatedUser(userName: UserName)
 ```
 
 
-### experiments/src/main/scala/zio_intro/FirstMeaningfulExample.scala
-```scala
-package zio_intro
-
-import zio.{Clock, ZIO, ZIOAppDefault, System}
-import zio.Console.{readLine, printLine}
-
-object HelloWorld extends ZIOAppDefault:
-  def run = printLine("Hello World")
-
-object FirstMeaningfulExample
-    extends ZIOAppDefault:
-  def run =
-    for
-      _    <- printLine("Give us your name:")
-      name <- readLine
-      _    <- printLine(s"$name")
-    yield ()
-
-```
-
-
 ### experiments/src/main/scala/zio_intro/OpeningHook.scala
 ```scala
 package zio_intro
@@ -411,6 +389,25 @@ object ClockAndConsoleImproved
 
   def run = renderCurrentTime
 end ClockAndConsoleImproved
+
+```
+
+
+### experiments/src/main/scala/zio_intro/PromptUserForName.scala
+```scala
+package zio_intro
+
+import zio.{Clock, ZIO, ZIOAppDefault, System}
+import zio.Console.{readLine, printLine}
+import zio.direct.*
+
+object PromptUserForName extends ZIOAppDefault:
+  def run =
+    defer {
+      printLine("Give us your name:").run
+      val name = readLine.run
+      printLine(s"Hello $name").run
+    }
 
 ```
 

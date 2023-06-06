@@ -115,33 +115,33 @@ object QuizGame:
       rounds: Seq[RoundDescription],
       players: List[Player]
   ) =
-    for
-      questionHub <- Hub.bounded[Question](1)
-      answerHub: Hub[Answer] <-
-        Hub.bounded[Answer](players.size)
-      res <-
+    defer {
+      val questionHub =
+        Hub.bounded[Question](1).run
+      val answerHub: Hub[Answer] =
+        Hub.bounded[Answer](players.size).run
+      val (
+        questions: Dequeue[Question],
+        answers: Dequeue[Answer]
+      ) =
         questionHub
           .subscribe
           .zip(answerHub.subscribe)
-          .flatMap {
-            case (
-                  questions: Dequeue[Question],
-                  answers: Dequeue[Answer]
-                ) =>
-              ZIO.foreach(rounds)(
-                roundDescription =>
-                  questionHub.publish(
-                    roundDescription.question
-                  ) *>
-                    playARound(
-                      roundDescription,
-                      questions,
-                      answerHub,
-                      answers
-                    )
-              )
-          }
-    yield res
+          .run
+      ZIO
+        .foreach(rounds)(roundDescription =>
+          questionHub.publish(
+            roundDescription.question
+          ) *>
+            playARound(
+              roundDescription,
+              questions,
+              answerHub,
+              answers
+            )
+        )
+        .run
+    }
 
   private[Hubs] def playARound(
       roundDescription: RoundDescription,
@@ -240,62 +240,66 @@ import zio.*
 import zio.Duration.*
 import zio.Clock.*
 import zio.Console.*
+import zio.direct.*
 
 object ReadIntAndMultiply
     extends zio.ZIOAppDefault:
 
   def run = // Use App's run function
     val logic =
-      for
-        hub <- Hub.bounded[Int](2)
-        _ <-
-          ZIO.scoped {
-            hub
-              .subscribe
-              .flatMap { hubSubscription =>
-                val getAndStoreInput =
-                  for
-                    _ <-
-                      Console.printLine(
-                        "Please provide an int"
-                      )
-                    input <- Console.readLine
-                    nextInt = input.toInt
-                    _ <- hub.publish(nextInt)
-                  yield ()
+      defer {
+        val hub = Hub.bounded[Int](2).run
+        ZIO
+          .scoped {
+            defer {
+              val hubSubscription =
+                hub.subscribe.run
+              val getAndStoreInput =
+                defer {
+                  Console
+                    .printLine(
+                      "Please provide an int"
+                    )
+                    .run
+                  val input =
+                    Console.readLine.run
+                  val nextInt = input.toInt
+                  hub.publish(nextInt).run
+                }
 
-                val processNextIntAndPrint =
-                  for
-                    nextInt <-
-                      hubSubscription.take
-                    _ <-
-                      Console.printLine(
-                        "Multiplied Int: " +
-                          nextInt * 5
-                      )
-                  yield ()
+              val processNextIntAndPrint =
+                defer {
+                  val nextInt =
+                    hubSubscription.take.run
+                  Console
+                    .printLine(
+                      "Multiplied Int: " +
+                        nextInt * 5
+                    )
+                    .run
+                }
 
-                val reps = 5
-                for _ <-
-                    ZIO
-                      .collectAllPar(
-                        Set(
-                          getAndStoreInput
-                            .repeatN(reps),
-                          processNextIntAndPrint
-                            .forever
-                        )
-                      )
-                      .timeout(5.seconds)
-                yield ()
-              }
+              val reps = 5
+              ZIO
+                .collectAllPar(
+                  Set(
+                    getAndStoreInput
+                      .repeatN(reps),
+                    processNextIntAndPrint
+                      .forever
+                  )
+                )
+                .timeout(5.seconds)
+                .run
+            }
           }
-      yield ()
+          .run
+      }
 
-    (
-      for
-        fakeConsole <-
-          FakeConsole.withInput(
+    defer {
+      val fakeConsole =
+        FakeConsole
+          .withInput(
             "3",
             "5",
             "7",
@@ -303,9 +307,9 @@ object ReadIntAndMultiply
             "11",
             "13"
           )
-        _ <- logic.withConsole(fakeConsole)
-      yield ()
-    ).exitCode
+          .run
+      logic.withConsole(fakeConsole).run
+    }
   end run
 end ReadIntAndMultiply
 
