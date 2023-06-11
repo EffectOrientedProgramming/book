@@ -1,6 +1,7 @@
 package zio_intro
 
-import zio.{Ref, *}
+import zio.*
+import zio.direct.*
 
 import zio.Console.printLine
 
@@ -26,32 +27,31 @@ def progressBar(
 
 object ClockAndConsole extends ZIOAppDefault:
   val renderCurrentTime =
-    for
-      currentTime <-
-        Clock.currentTime(TimeUnit.SECONDS)
-      _ <-
-        renderRemainingTime(currentTime)
-          .repeat(Schedule.recurs(10))
-    yield ()
+    defer {
+      val currentTime =
+        Clock.currentTime(TimeUnit.SECONDS).run
+      renderRemainingTime(currentTime)
+        .repeat(Schedule.recurs(10))
+        .run
+    }
 
   def renderRemainingTime(startTime: Long) =
-    for
-      currentTime <-
-        Clock.currentTime(TimeUnit.SECONDS)
-      timeElapsed = (currentTime - startTime)
+    defer {
+      val currentTime =
+        Clock.currentTime(TimeUnit.SECONDS).run
+      val timeElapsed = (currentTime - startTime)
         .toInt
       // NOTE: You can only reset the cursor //
       // position once in a single SBT session
-      _ <- saveCursorPosition
-      timeRemaining = 10 - timeElapsed
-      _ <-
-        Console.print(
-          s"${BOLD}$timeRemaining seconds remaining ${RESET}"
-        )
-      _ <- progressBar(timeRemaining)
-      _ <- ZIO.sleep(1.seconds)
-      _ <- loadCursorPosition
-    yield ()
+      saveCursorPosition.run
+      val timeRemaining = 10 - timeElapsed
+      Console.print(
+        s"${BOLD}$timeRemaining seconds remaining ${RESET}"
+      ).run
+      progressBar(timeRemaining).run
+      ZIO.sleep(1.seconds).run
+      loadCursorPosition.run
+    }
 
   def run = renderCurrentTime
 end ClockAndConsole
@@ -59,31 +59,31 @@ end ClockAndConsole
 object ClockAndConsoleImproved
     extends ZIOAppDefault:
   val renderCurrentTime =
-    for
-      currentTime <-
-        Clock.currentTime(TimeUnit.SECONDS)
-      racer1 <-
+    defer {
+      val currentTime =
+        Clock.currentTime(TimeUnit.SECONDS).run
+      val racer1 =
         LongRunningProcess(
           "Shtep",
           currentTime,
           3
-        )
-      racer2 <-
-        LongRunningProcess("Zeb", currentTime, 5)
-      raceFinished <- Ref.make[Boolean](false)
-      winnersName <-
-      raceEntities(
-        racer1.run,
-        racer1.run,
-        raceFinished
-      ) zipParLeft
-        monitoringLogic(
-          racer1,
-          racer2,
+        ).run
+      val racer2 =
+        LongRunningProcess("Zeb", currentTime, 5).run
+      val raceFinished = Ref.make[Boolean](false).run
+      val winnersName =
+        (raceEntities(
+          racer1.run,
+          racer1.run,
           raceFinished
-        )
-      _ <- printLine(s"\nWinner: $winnersName")
-    yield ()
+        ) zipParLeft
+          monitoringLogic(
+            racer1,
+            racer2,
+            raceFinished
+          )).run
+      printLine(s"\nWinner: $winnersName").run
+    }
 
   def monitoringLogic(
       racer1: LongRunningProcess,
@@ -91,15 +91,13 @@ object ClockAndConsoleImproved
       raceFinished: Ref[Boolean]
   ) =
     renderLoop(
-      for
-        racer1status <- racer1.status.get
-        racer2status <- racer2.status.get
-        _ <-
-          progressBar(racer1status, racer1.name)
-        _ <- printLine("")
-        _ <-
-          progressBar(racer2status, racer2.name)
-      yield ()
+      defer {
+        val racer1status = racer1.status.get.run
+        val racer2status = racer2.status.get.run
+        progressBar(racer1status, racer1.name).run
+        printLine("").run
+        progressBar(racer2status, racer2.name).run
+      }
     ).repeatWhileZIO(_ => raceFinished.get)
 
   def raceEntities(
@@ -117,21 +115,22 @@ object ClockAndConsoleImproved
   def renderLoop[T](
       drawFrame: ZIO[T, Any, Unit]
   ) =
-    for
-      _ <- saveCursorPosition
-      _ <- drawFrame
-      _ <- ZIO.sleep(1.second)
-      _ <- loadCursorPosition
-    yield ()
+    defer {
+      saveCursorPosition.run
+      drawFrame.run
+      ZIO.sleep(1.second).run
+      loadCursorPosition.run
+    }
 
   def timer(startTime: Long, secondsToRun: Int) =
-    for
-      currentTime <-
-        Clock.currentTime(TimeUnit.SECONDS)
-      timeElapsed = (currentTime - startTime)
+    defer {
+      val currentTime =
+        Clock.currentTime(TimeUnit.SECONDS).run
+      val timeElapsed = (currentTime - startTime)
         .toInt
-    yield Integer
-      .max(secondsToRun - timeElapsed, 0)
+      Integer
+        .max(secondsToRun - timeElapsed, 0)
+    }
 
   object LongRunningProcess:
     def apply(
@@ -139,13 +138,15 @@ object ClockAndConsoleImproved
         startTime: Long,
         secondsToRun: Int
     ): ZIO[Any, Nothing, LongRunningProcess] =
-      for status <- Ref.make[Int](4)
-      yield new LongRunningProcess(
-        name,
-        startTime,
-        secondsToRun,
-        status
-      )
+      defer {
+        val status = Ref.make[Int](4).run
+        new LongRunningProcess(
+          name,
+          startTime,
+          secondsToRun,
+          status
+        )
+      }
 
   class LongRunningProcess(
       val name: String,
@@ -154,11 +155,12 @@ object ClockAndConsoleImproved
       val status: Ref[Int]
   ):
     val loopAndCheck =
-      for
-        timeLeft <-
-          timer(startTime, secondsToRun)
-        _ <- status.set(timeLeft)
-      yield timeLeft
+      defer {
+        val timeLeft =
+          timer(startTime, secondsToRun).run
+        status.set(timeLeft).run
+        timeLeft
+      }
 
     val run: ZIO[Any, Nothing, String] =
       loopAndCheck

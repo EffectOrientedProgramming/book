@@ -13,6 +13,7 @@ import zio.{
   ZIO,
   ZLayer
 }
+import zio.direct.*
 
 import scala.io.Source.*
 
@@ -67,13 +68,13 @@ object Finalizers extends zio.ZIOAppDefault:
       Throwable,
       Unit
     ] = // Define the ZIO contexts
-      for
-        fileLines <- readFileContents
-        _ <-
-          printLine(
-            fileLines.mkString("\n")
-          ) // Combine the strings of the output vector into a single string, separated by \n
-      yield ()
+      defer {
+        val fileLines = readFileContents.run
+        printLine(
+          fileLines.mkString("\n")
+        ).run // Combine the strings of the output vector into a single string, separated by \n
+      }
+
     ioExample
       .catchAllDefect(exception =>
         printLine(

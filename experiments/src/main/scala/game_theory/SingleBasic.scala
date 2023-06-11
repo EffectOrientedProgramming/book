@@ -8,6 +8,7 @@ import game_theory.Outcome.{
 }
 import zio.Console.printLine
 import zio.*
+import zio.direct.*
 
 case class Decision(
     prisoner: Prisoner,
@@ -94,28 +95,28 @@ object SingleBasic extends ZIOAppDefault:
       prisoner1: Prisoner,
       prisoner2: Prisoner
   ): ZIO[DecisionService, String, Outcome] =
-    for
-      decisionService <-
-        ZIO.service[DecisionService]
-      roundResult <-
+    defer {
+      val decisionService =
+        ZIO.service[DecisionService].run
+      val roundResult =
         decisionService
           .getDecisionsFor(prisoner1, prisoner2)
           .debug("Decisions")
+          .run
 
-      outcome =
-        (
-          roundResult.prisoner1Decision.action,
-          roundResult.prisoner2Decision.action
-        ) match
-          case (Silent, Silent) =>
-            BothFree
-          case (Betray, Silent) =>
-            OnePrison(prisoner2)
-          case (Silent, Betray) =>
-            OnePrison(prisoner1)
-          case (Betray, Betray) =>
-            BothPrison
-    yield outcome
+      (
+        roundResult.prisoner1Decision.action,
+        roundResult.prisoner2Decision.action
+      ) match
+        case (Silent, Silent) =>
+          BothFree
+        case (Betray, Silent) =>
+          OnePrison(prisoner2)
+        case (Silent, Betray) =>
+          OnePrison(prisoner1)
+        case (Betray, Betray) =>
+          BothPrison
+    }
 
   val bruce =
     Prisoner(

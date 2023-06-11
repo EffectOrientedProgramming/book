@@ -3,45 +3,48 @@ package concurrency
 import zio.*
 import zio.Console.printLine
 import zio.test.*
+import zio.direct.*
 
 import java.nio.file.Path
 
 object ThunderingHerdsSpec
     extends ZIOSpecDefault:
   val testInnards =
+    defer {
+      val users = List("Bill", "Bruce", "James")
 
-    val users = List("Bill", "Bruce", "James")
-
-    val herdBehavior =
-      for
-        fileService <- ZIO.service[FileService]
-        fileResults <-
-          ZIO.foreachPar(users)(user =>
-            fileService.retrieveContents(
-              Path.of("awesomeMemes")
-            )
-          )
-        _ <- ZIO.debug("=========")
-        _ <-
+      val herdBehavior =
+        defer {
+          val fileService = ZIO.service[FileService].run
+          val fileResults =
+            ZIO.foreachPar(users)(user =>
+              fileService.retrieveContents(
+                Path.of("awesomeMemes")
+              )
+            ).run
+          ZIO.debug("=========").run
           fileService.retrieveContents(
             Path.of("awesomeMemes")
-          )
-      yield fileResults
-    for
-      _         <- printLine("Capture?")
-      logicFork <- herdBehavior.fork
-      _         <- TestClock.adjust(2.seconds)
-      res       <- logicFork.join
-      misses <-
-        ZIO.serviceWithZIO[FileService](_.misses)
-      _ <- ZIO.debug("Eh?")
-    yield assertTrue(
-      misses == 1,
-      res.forall(singleResult =>
-        singleResult ==
-          FileSystem.hardcodedFileContents
+          ).run
+          fileResults
+        }
+
+      printLine("Capture?").run
+      val logicFork = herdBehavior.fork.run
+      TestClock.adjust(2.seconds).run
+      val res       = logicFork.join.run
+      val misses =
+        ZIO.serviceWithZIO[FileService](_.misses).run
+      ZIO.debug("Eh?").run
+
+      assertTrue(
+        misses == 1,
+        res.forall(singleResult =>
+          singleResult ==
+            FileSystem.hardcodedFileContents
+        )
       )
-    )
+    }
   end testInnards
 
   override def spec =

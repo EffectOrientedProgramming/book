@@ -1,6 +1,7 @@
 package cause
 
 import zio.*
+import zio.direct.*
 
 object MalcomInTheMiddleZ extends ZIOAppDefault:
   def run =
@@ -16,25 +17,22 @@ object MalcomInTheMiddleZ extends ZIOAppDefault:
     def grabScrewDriver() =
       ZIO.fail(Exception("SqueakyDrawer"))
 
-    (
-      for
-        _ <-
-          turnOnLights()
-            .catchAllCause(originalError =>
-              getNewBulb()
-                .catchAllCause(bulbError =>
-                  grabScrewDriver()
-                    .mapErrorCause(
-                      screwDriverError =>
-                        (originalError ++
-                          bulbError) ++
-                          screwDriverError
-                    )
+    defer {
+      turnOnLights()
+        .catchAllCause(originalError =>
+          getNewBulb()
+            .catchAllCause(bulbError =>
+              grabScrewDriver()
+                .mapErrorCause(
+                  screwDriverError =>
+                    (originalError ++
+                      bulbError) ++
+                      screwDriverError
                 )
             )
-        _ <- ZIO.debug("Preserve failures!")
-      yield ()
-    ).catchAllCause(bigError =>
+        ).run
+      ZIO.debug("Preserve failures!").run
+    }.catchAllCause(bigError =>
       ZIO.debug(
         "Final error: " +
           simpleStructureAlternative(bigError)

@@ -6,30 +6,31 @@ import zio.{
   Console,
   Schedule
 }
+import zio.direct.*
 
 def inputBigDecimalValue(
     prompt: String,
     min: BigDecimal,
     max: BigDecimal
 ): ZIO[Any, Exception, BigDecimal] =
-  for
-    _     <- Console.printLine(prompt)
-    input <- Console.readLine
-    result <-
+  defer {
+    Console.printLine(prompt).run
+    val input = Console.readLine.run
+    val result =
       ZIO
         .attempt(BigDecimal(input))
         .mapError(_ =>
           Exception("Invalid input.")
-        )
-    _ <-
-      ZIO.unless(min <= result && result <= max)(
-        ZIO.fail(
-          Exception(
-            s"Input out of the range from $min to $max"
-          )
+        ).run
+    ZIO.unless(min <= result && result <= max)(
+      ZIO.fail(
+        Exception(
+          s"Input out of the range from $min to $max"
         )
       )
-  yield result
+    ).run
+    result
+  }
 
 object Main extends ZIOAppDefault:
   def run =

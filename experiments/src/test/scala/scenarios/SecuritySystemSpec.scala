@@ -2,6 +2,7 @@ package scenarios
 
 import zio.*
 import zio.test.*
+import zio.direct.*
 import zio.Console.printLine
 import scala.concurrent.TimeoutException
 
@@ -10,8 +11,8 @@ object SecuritySystemSpec
   def spec = suite("SecuritySystemSpec")(
     suite("shouldAlertServices")(
       test("runs out of data") (
-        for
-          res <- SecuritySystem
+        defer {
+          val res = SecuritySystem
             .shouldAlertServices()
             .provide(
 
@@ -32,10 +33,11 @@ object SecuritySystemSpec
                 printLine(
                   "Invalid Scenario. Ran out of sensor data."
                 )
-            }
+            }.run
 
-          _ <- ZIO.debug("Final result: " + res)
-        yield assertCompletes
+          ZIO.debug("Final result: " + res).run
+          assertCompletes
+        }
       ) @@ TestAspect.withLiveClock @@ TestAspect.tag("important", "slow") @@ TestAspect.flaky @@ TestAspect.silent @@ TestAspect.timed
     )
   )
