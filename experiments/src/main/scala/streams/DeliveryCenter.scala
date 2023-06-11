@@ -2,6 +2,7 @@ package streams
 
 import zio.*
 import zio.stream.*
+import zio.direct.*
 
 case class Order()
 
@@ -39,9 +40,10 @@ object DeliveryCenter extends ZIOAppDefault:
         staged.set(None)
 
     val loadTruck =
-      for
-        latch <- Promise.make[Nothing, Unit]
-        truck <-
+      defer {
+        val latch = Promise.make[Nothing, Unit]
+          .run
+        val truck =
           staged
             .updateAndGet(truck =>
               truck match
@@ -60,13 +62,14 @@ object DeliveryCenter extends ZIOAppDefault:
                   )
             )
             .map(_.get)
-        _ <-
-          ZIO.debug(
-            "Loading order: " +
-              truck.queued.length + "/" +
-              truck.capacity
-          )
-      yield truck
+            .run
+        ZIO.debug(
+          "Loading order: " +
+            truck.queued.length + "/" +
+            truck.capacity
+        ).run
+        truck
+      }
 
     def shipIfWaitingTooLong(truck: TruckInUse) =
       ZIO
@@ -77,35 +80,37 @@ object DeliveryCenter extends ZIOAppDefault:
         )
         .delay(4.seconds)
 
-    for
-      truck <- loadTruck
-      _ <-
-        if (truck.isFull)
-          shipIt(reason = "Truck is full.")
-        else
-          ZIO
-            .when(truck.queued.length == 1)(
-              ZIO.debug(
-                "Adding timeout daemon"
-              ) *> shipIfWaitingTooLong(truck)
-            )
-            .forkDaemon
-    yield ()
+    defer {
+      val truck = loadTruck.run
+      if (truck.isFull)
+        shipIt(reason = "Truck is full.").run
+      else
+        ZIO
+          .when(truck.queued.length == 1)(
+            ZIO.debug(
+              "Adding timeout daemon"
+            ) *> shipIfWaitingTooLong(truck)
+          )
+          .forkDaemon
+          .run
+    }
   end handle
 
   def run =
-    for
-      stagedItems <-
+    defer {
+      val stagedItems =
         Ref.make[Option[TruckInUse]](None)
-      orderStream =
+          .run
+
+      val orderStream =
         ZStream.repeatWithSchedule(
-          Order(),
-          Schedule
-            .exponential(1.second, factor = 1.8)
-        )
-      _ <-
-        orderStream
-          .foreach(handle(_, stagedItems))
-          .timeout(12.seconds)
-    yield ()
+            Order(),
+            Schedule
+              .exponential(1.second, factor = 1.8)
+          )
+      orderStream
+        .foreach(handle(_, stagedItems))
+        .timeout(12.seconds)
+        .run
+    }
 end DeliveryCenter

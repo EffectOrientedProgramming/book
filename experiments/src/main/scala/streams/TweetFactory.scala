@@ -1,19 +1,21 @@
 package streams
 
 import zio.{Random, ZIO}
+import zio.direct.*
 
 case class TweetFactory(counter: Counter):
 
   val randomTweet
       : ZIO[Any, Nothing, SimpleTweet] =
-    for
-      subject   <- TweetFactory.randomSubject
-      adjective <- TweetFactory.randomAdjective
-      id        <- counter.get
-    yield SimpleTweet(
-      id,
-      s"$subject is the $adjective thing ever!"
-    )
+    defer {
+      val subject   = TweetFactory.randomSubject.run
+      val adjective = TweetFactory.randomAdjective.run
+      val id        = counter.get.run
+      SimpleTweet(
+        id,
+        s"$subject is the $adjective thing ever!"
+      )
+    }
 
 private object TweetFactory:
   val make: ZIO[Any, Nothing, TweetFactory] =
@@ -36,12 +38,18 @@ private object TweetFactory:
       "Music"
     )
   val randomAdjective =
-    for index <-
-        Random.nextIntBounded(allAdjectives.size)
-    yield allAdjectives(index)
+    defer {
+      val index =
+            Random.nextIntBounded(allAdjectives.size)
+              .run
+      allAdjectives(index)
+    }
 
   val randomSubject =
-    for index <-
-        Random.nextIntBounded(allSubjects.size)
-    yield allSubjects(index)
+    defer {
+      val index =
+            Random.nextIntBounded(allSubjects.size)
+              .run
+      allSubjects(index)
+    }
 end TweetFactory

@@ -32,39 +32,47 @@ object TwitterCustomerSupport
   def trackActiveCompanies(
       tweets: ZStream[Any, Throwable, Tweet]
   ) =
-    for
-      activeCompanies <-
+    import zio.direct.*
+    defer {
+      val activeCompanies =
         Ref.make[Map[String, Int]](Map.empty)
-      mostActiveCompanyAtEachMoment =
+          .run
+      val mostActiveCompanyAtEachMoment =
         tweets.mapZIO(tweet =>
-          for companies <-
-              activeCompanies.updateAndGet(
-                incrementCompanyActivity(
-                  _,
-                  tweet
-                )
-              )
-          yield companies
-            .map(x => x)
-            .toList
-            .sortBy(x => -x._2)
+          defer {
+            val companies =
+                  activeCompanies.updateAndGet(
+                    incrementCompanyActivity(
+                      _,
+                      tweet
+                    )
+                  ).run
+            companies
+              .map(x => x)
+              .toList
+              .sortBy(x => -x._2)
+          }
         )
-      res <-
+      val res =
         mostActiveCompanyAtEachMoment.runLast
-    yield res.get
+          .run
+      res.get
+    }
 
   def run =
-    for
-      dataset <-
+    import zio.direct.*
+    defer {
+      val dataset =
         ZIOAppArgs
           .getArgs
           .map(_.headOption.getOrElse(fileName))
-      tweets =
+          .run
+      val tweets =
         ZStream
           .fromJavaStream(
             Files.lines(
               Paths.get(
-//                "..",
+                //                "..",
                 "datasets",
                 "twcs",
                 dataset + ".csv"
@@ -75,41 +83,43 @@ object TwitterCustomerSupport
           .filter(_.isRight)
           .map(_.getOrElse(???))
 
-      happyTweetFilter: ZPipeline[
+      val happyTweetFilter: ZPipeline[
         Any,
         Nothing,
         Tweet,
         Tweet
       ] = ZPipeline.filter(isHappy)
-      angryTweetFilter: ZPipeline[
+      val angryTweetFilter: ZPipeline[
         Any,
         Nothing,
         Tweet,
         Tweet
       ] = ZPipeline.filter(isAngry)
 
-      gatherHappyTweets =
+      val gatherHappyTweets =
         (tweets >>> happyTweetFilter)
           .runCount
           .debug("Number of happy tweets")
-      gatherAngryTweets =
+          .run
+      val gatherAngryTweets =
         (tweets >>> angryTweetFilter)
           .runCount
           .debug("Number of angry tweets")
+          .run
 
-      _ <-
-//      gatherHappyTweets
-//        .timed
-//        .map(_._1)
-//        .debug("Happy duration") <&>
-//        gatherAngryTweets <&>
+        //      gatherHappyTweets
+        //        .timed
+        //        .map(_._1)
+        //        .debug("Happy duration") <&>
+        //        gatherAngryTweets <&>
         trackActiveCompanies(tweets)
           .map(_.take(3).mkString(" : "))
           .debug("ActiveCompanies")
           .timed
           .map(_._1)
           .debug("Active Company duration")
-    yield ()
+          .run
+    }
 //      .timeout(60.seconds)
 
   private def incrementCompanyActivity(
