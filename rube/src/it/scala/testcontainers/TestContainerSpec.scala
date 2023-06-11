@@ -2,6 +2,7 @@ package testcontainers
 
 import zio.*
 import zio.test.*
+import zio.direct.*
 import zio.test.Assertion.*
 import zio.test.environment.*
 
@@ -20,12 +21,14 @@ object TestContainersSpec
       test("With managed layer") {
         // TODO
         val logicWithAssertions =
-          for people <- ContainerScenarios.logic
-          yield assert(people.head)(
-            equalTo(
-              Person("Joe", "Dimagio", 143)
+          defer {
+            val people = ContainerScenarios.logic.run
+            assert(people.head)(
+              equalTo(
+                Person("Joe", "Dimagio", 143)
+              )
             )
-          )
+          }
         val layer = ContainerScenarios.layer
 
         logicWithAssertions
@@ -34,8 +37,10 @@ object TestContainersSpec
           )
       },
       test("stream approach") {
-        for res <- ZIO.succeed(1)
-        yield assert(res)(equalTo(1))
+        defer {
+          val res = ZIO.succeed(1).run
+          assert(res)(equalTo(1))
+        }
       }
     )
 end TestContainersSpec

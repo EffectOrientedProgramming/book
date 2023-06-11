@@ -2,6 +2,7 @@ package hello_failures
 
 import zio.Console.printLine
 import zio.ZIO
+import zio.direct.*
 
 object KeepSuccesses extends zio.ZIOAppDefault:
   val allCalls =
@@ -14,54 +15,47 @@ object KeepSuccesses extends zio.ZIOAppDefault:
     allCalls.map(fastUnreliableNetworkCall)
 
   val logic =
-    for
-      results <-
-        ZIO.collectAllSuccesses(
-          initialRequests.map(
-            _.tapError(e =>
-              printLine("Error: " + e)
-            )
-          )
+    ZIO.collectAllSuccesses(
+      initialRequests.map(
+        _.tapError(e =>
+          printLine("Error: " + e)
         )
-      _ <- printLine(results)
-    yield ()
+      )
+    ).debug
 
   val moreStructuredLogic =
-    for
-      results <-
+    defer {
+      val results =
         ZIO.partition(allCalls)(
           fastUnreliableNetworkCall
-        )
-      _ <-
-        results match
-          case (failures, successes) =>
-            for
-              _ <-
-                ZIO.foreach(failures)(e =>
-                  printLine(
-                    "Error: " + e +
-                      ". Should retry on other server."
-                  )
-                )
-              recoveries <-
-                ZIO.collectAllSuccesses(
-                  failures.map(failure =>
-                    slowMoreReliableNetworkCall(
-                      failure.payload
-                    ).tapError(e =>
-                      printLine(
-                        "Giving up on: " + e
-                      )
+        ).run
+      results match
+        case (failures, successes) =>
+          defer {
+            ZIO.foreach(failures)(e =>
+              printLine(
+                "Error: " + e +
+                  ". Should retry on other server."
+              )
+            ).run
+            val recoveries =
+              ZIO.collectAllSuccesses(
+                failures.map(failure =>
+                  slowMoreReliableNetworkCall(
+                    failure.payload
+                  ).tapError(e =>
+                    printLine(
+                      "Giving up on: " + e
                     )
                   )
                 )
-              _ <-
-                printLine(
-                  "All successes: " +
-                    (successes ++ recoveries)
-                )
-            yield ()
-    yield ()
+              ).run
+            printLine(
+              "All successes: " +
+                (successes ++ recoveries)
+            ).run
+          }.run
+    }
 
   def run = moreStructuredLogic
 

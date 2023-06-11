@@ -1,5 +1,6 @@
 package monads
 
+// TODO Consider deletion, since we are reducing the scope of the book
 enum Operation:
 
   def flatMap(
