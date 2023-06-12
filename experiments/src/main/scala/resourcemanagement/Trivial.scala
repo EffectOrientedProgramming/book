@@ -2,6 +2,7 @@ package resourcemanagement
 
 import zio.Console
 import zio.{Ref, ZIO}
+import zio.direct.*
 
 object Trivial extends zio.ZIOAppDefault:
   enum ResourceState:
@@ -11,23 +12,17 @@ object Trivial extends zio.ZIOAppDefault:
   def run =
 
     def acquire(ref: Ref[ResourceState]) =
-      for
-        _ <-
-          Console.printLine("Opening Resource")
-        _ <- ref.set(ResourceState.Open)
-      yield "Use Me"
+      defer {
+        Console.printLine("Opening Resource").run
+        ref.set(ResourceState.Open).run
+        "Use Me"
+      }
 
     def release(ref: Ref[ResourceState]) =
-      for
-        _ <- ZIO.debug("Closing Resource")
-        _ <- ref.set(ResourceState.Closed)
-      yield ()
-
-    def releaseSymbolic(
-        ref: Ref[ResourceState]
-    ) =
-      ZIO.debug("Closing Resource") *>
-        ref.set(ResourceState.Closed)
+      defer {
+        ZIO.debug("Closing Resource").run
+        ref.set(ResourceState.Closed).run
+      }
 
     // This combines creating a managed resource
     // with using it.
@@ -36,33 +31,32 @@ object Trivial extends zio.ZIOAppDefault:
     // a library and so they don't have to think
     // about acquire
     // & release logic.
-    for
-      ref <-
+    defer {
+      val ref =
         Ref.make[ResourceState](
           ResourceState.Closed
-        )
-      managed =
+        ).run
+      val managed =
         ZIO.acquireRelease(acquire(ref))(_ =>
           release(ref)
         )
 
-      reusable =
+      val reusable =
         ZIO.scoped {
           managed.map(ZIO.debug(_))
         } // note: Can't just do (Console.printLine) here
-      _ <- reusable
-      _ <- reusable
-      _ <-
-        ZIO.scoped {
-          managed.flatMap { s =>
-            for
-              _ <- ZIO.debug(s)
-              _ <- ZIO.debug("Blowing up")
-              _ <- ZIO.fail("Arggggg")
-            yield ()
+      reusable.run
+      reusable.run
+      ZIO.scoped {
+        managed.flatMap { s =>
+          defer {
+            ZIO.debug(s).run
+            ZIO.debug("Blowing up").run
+            ZIO.fail("Arggggg").run
+            ()
           }
         }
-    yield ()
-    end for
+      }.run
+    }
   end run
 end Trivial

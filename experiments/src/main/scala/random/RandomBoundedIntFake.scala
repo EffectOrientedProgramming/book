@@ -1,6 +1,7 @@
 package random
 
 import zio.{Ref, UIO, ZIO, ZLayer}
+import zio.direct.*
 
 class RandomBoundedIntFake private (
     values: Ref[Seq[Int]]
@@ -9,19 +10,20 @@ class RandomBoundedIntFake private (
       minInclusive: Int,
       maxExclusive: Int
   ): UIO[Int] =
-    for
-      remainingValues <- values.get
-      nextValue <-
+    defer {
+      val remainingValues = values.get.run
+      val nextValue =
         if (remainingValues.isEmpty)
           ZIO.die(
             new Exception(
               "Did not provide enough values!"
             )
-          )
+          ).run
         else
-          ZIO.succeed(remainingValues.head)
-      _ <- values.set(remainingValues.tail)
-    yield remainingValues.head
+          ZIO.succeed(remainingValues.head).run
+      values.set(remainingValues.tail).run
+      remainingValues.head
+    }
 end RandomBoundedIntFake
 
 object RandomBoundedIntFake:
@@ -29,6 +31,8 @@ object RandomBoundedIntFake:
       values: Seq[Int]
   ): ZLayer[Any, Nothing, RandomBoundedInt] =
     ZLayer.fromZIO(
-      for valuesR <- Ref.make(values)
-      yield new RandomBoundedIntFake(valuesR)
+      defer {
+        val valuesR = Ref.make(values).run
+        new RandomBoundedIntFake(valuesR)
+      }
     )

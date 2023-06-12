@@ -1,6 +1,7 @@
 package streams
 
 import zio.*
+import zio.direct.*
 import zio.stream.*
 
 object Alphabet1 extends ZIOAppDefault:
@@ -24,14 +25,11 @@ object Alphabet3 extends ZIOAppDefault:
     ZStream
       .fromIterable('a' to 'z')
       .mapZIO { c =>
-        val z =
-          for
-            d <- Random.nextIntBounded(5)
-            _ <- ZIO.sleep(d.seconds)
-            _ <- ZIO.debug(c)
-          yield ()
-
-        z.fork
+        defer {
+          val d = Random.nextIntBounded(5).run
+          ZIO.sleep(d.seconds).run
+          ZIO.debug(c).run
+        }.fork
       }
       .runDrain // exits before all forks are completed
 

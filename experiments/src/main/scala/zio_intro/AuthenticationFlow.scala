@@ -1,6 +1,7 @@
 package zio_intro
 
 import zio.{ZIO, ZIOAppDefault}
+import zio.direct.*
 
 object AuthenticationFlow extends ZIOAppDefault:
   val activeUsers
@@ -22,12 +23,11 @@ object AuthenticationFlow extends ZIOAppDefault:
     DiskError | UnauthenticatedUser,
     AuthenticatedUser
   ] =
-    for
-      users       <- activeUsers
-      currentUser <- user
-      authenticatedUser <-
-        authenticateUser(users, currentUser)
-    yield authenticatedUser
+    defer {
+      val users       = activeUsers.run
+      val currentUser = user.run
+      authenticateUser(users, currentUser).run
+    }
 
   def run =
     fullAuthenticationProcess.orDieWith(error =>

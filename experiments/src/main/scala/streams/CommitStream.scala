@@ -1,6 +1,7 @@
 package streams
 
 import zio.*
+import zio.direct.*
 import zio.stream.*
 
 trait CommitStream:
@@ -20,19 +21,20 @@ object CommitStream:
       ZStream.repeatZIO(randomCommit)
 
   private val randomCommit =
-    for
-      author       <- Author.random
-      project      <- Project.random
-      message      <- Message.random
-      linesAdded   <- Random.nextIntBounded(500)
-      linesRemoved <- Random.nextIntBounded(500)
-    yield Commit(
-      project,
-      author,
-      message,
-      linesAdded,
-      -linesRemoved
-    )
+    defer {
+      val author       = Author.random.run
+      val project      = Project.random.run
+      val message      = Message.random.run
+      val linesAdded   = Random.nextIntBounded(500).run
+      val linesRemoved = Random.nextIntBounded(500).run
+      Commit(
+        project,
+        author,
+        message,
+        linesAdded,
+        -linesRemoved
+      )
+    }
 end CommitStream
 
 object Message:

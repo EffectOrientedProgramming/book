@@ -1,6 +1,7 @@
 package streams
 
 import zio.*
+import zio.direct.*
 import zio.stream.*
 import zio.test.Gen
 
@@ -18,10 +19,11 @@ object HttpRequestStream:
         .schedule(Schedule.spaced(100.millis))
 
   private val randomRequest =
-    for
-      code <- Code.random
-      path <- Path.random
-    yield Request(code, path)
+    defer {
+      val code = Code.random.run
+      val path = Path.random.run
+      Request(code, path)
+    }
 
 enum Code:
   case Ok,
@@ -38,11 +40,11 @@ case class Path(segments: Seq[String]):
 
 object Path:
   val random: ZIO[Any, Nothing, Path] =
-    for
-      generator <-
-        randomElementFrom(Random.generators)
-      path <- generator
-    yield path
+    defer {
+      val generator =
+        randomElementFrom(Random.generators).run
+      generator.run
+    }
 
   def apply(first: String, rest: String*): Path =
     Path(Seq(first) ++ rest)
@@ -60,9 +62,11 @@ object Path:
           "logout"
         )
 
-      for section <-
-          randomElementFrom(genericPaths)
-      yield Path(s"/$section")
+      defer {
+        val section =
+              randomElementFrom(genericPaths).run
+        Path(s"/$section")
+      }
 
     private val user: ZIO[Any, Nothing, Path] =
       val userSections =
@@ -72,11 +76,12 @@ object Path:
           "collaborators"
         )
 
-      for
-        userId <- zio.Random.nextIntBounded(1000)
-        section <-
-          randomElementFrom(userSections)
-      yield Path(s"/user/$userId/$section")
+      defer {
+        val userId = zio.Random.nextIntBounded(1000).run
+        val section =
+          randomElementFrom(userSections).run
+        Path(s"/user/$userId/$section")
+      }
 
     val generators
         : List[ZIO[Any, Nothing, Path]] =

@@ -1,13 +1,14 @@
 package hello_failures
 
 import zio.ZIO
+import zio.direct.*
 
 object BadTypeManagement
     extends zio.ZIOAppDefault:
   val logic: ZIO[Any, Exception, String] =
-    for
-      _ <- ZIO.debug("ah")
-      result <-
+    defer {
+      ZIO.debug("ah").run
+      val result =
         failable(1).catchAll {
           case ex: Exception =>
             ZIO.fail(ex)
@@ -15,9 +16,10 @@ object BadTypeManagement
             ZIO.succeed(
               "recovered string error: " + ex
             )
-        }
-      _ <- ZIO.debug(result)
-    yield result
+        }.run
+      ZIO.debug(result).run
+      result
+    }
   def run = logic
 
   def failable(

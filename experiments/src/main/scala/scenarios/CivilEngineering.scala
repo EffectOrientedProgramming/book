@@ -2,6 +2,7 @@ package scenarios
 
 import zio.ZIOAppArgs
 import zio.{ZIOAppDefault, ZIO}
+import zio.direct.*
 
 object CivilEngineering extends ZIOAppDefault:
   trait Company[T]:
@@ -68,17 +69,17 @@ object CivilEngineering extends ZIOAppDefault:
       PrivatePropertyRefusal,
     T
   ] =
-    for
-      availableCompanies <-
-        Companies.operatingIn[T](state)
-      legalRestrictions <-
-        World.legalRestrictionsFor(state)
-      politicians <- World.politiciansOf(state)
-      lowestBid =
+    defer {
+      val availableCompanies =
+        Companies.operatingIn[T](state).run
+      val legalRestrictions =
+        World.legalRestrictionsFor(state).run
+      val politicians = World.politiciansOf(state).run
+      val lowestBid =
         availableCompanies
           .lowestBid(projectSpecifications)
-      completedProject <- build(lowestBid)
-    yield completedProject
+      build(lowestBid).run
+    }
 end CivilEngineering
 
 enum State:
