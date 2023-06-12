@@ -36,6 +36,7 @@ Possible Scenarios:
 package streams
 
 import zio.*
+import zio.direct.*
 import zio.stream.*
 
 object Alphabet1 extends ZIOAppDefault:
@@ -59,14 +60,11 @@ object Alphabet3 extends ZIOAppDefault:
     ZStream
       .fromIterable('a' to 'z')
       .mapZIO { c =>
-        val z =
-          for
-            d <- Random.nextIntBounded(5)
-            _ <- ZIO.sleep(d.seconds)
-            _ <- ZIO.debug(c)
-          yield ()
-
-        z.fork
+        defer {
+          val d = Random.nextIntBounded(5).run
+          ZIO.sleep(d.seconds).run
+          ZIO.debug(c).run
+        }.fork
       }
       .runDrain // exits before all forks are completed
 
@@ -118,6 +116,7 @@ object Alphabet6 extends ZIOAppDefault:
 package streams
 
 import zio.*
+import zio.direct.*
 import zio.stream.*
 
 trait CommitStream:
@@ -137,19 +136,22 @@ object CommitStream:
       ZStream.repeatZIO(randomCommit)
 
   private val randomCommit =
-    for
-      author       <- Author.random
-      project      <- Project.random
-      message      <- Message.random
-      linesAdded   <- Random.nextIntBounded(500)
-      linesRemoved <- Random.nextIntBounded(500)
-    yield Commit(
-      project,
-      author,
-      message,
-      linesAdded,
-      -linesRemoved
-    )
+    defer {
+      val author  = Author.random.run
+      val project = Project.random.run
+      val message = Message.random.run
+      val linesAdded =
+        Random.nextIntBounded(500).run
+      val linesRemoved =
+        Random.nextIntBounded(500).run
+      Commit(
+        project,
+        author,
+        message,
+        linesAdded,
+        -linesRemoved
+      )
+    }
 end CommitStream
 
 object Message:
@@ -276,6 +278,7 @@ package streams
 
 import zio.*
 import zio.stream.*
+import zio.direct.*
 
 case class Order()
 
@@ -313,9 +316,10 @@ object DeliveryCenter extends ZIOAppDefault:
         staged.set(None)
 
     val loadTruck =
-      for
-        latch <- Promise.make[Nothing, Unit]
-        truck <-
+      defer {
+        val latch =
+          Promise.make[Nothing, Unit].run
+        val truck =
           staged
             .updateAndGet(truck =>
               truck match
@@ -334,13 +338,16 @@ object DeliveryCenter extends ZIOAppDefault:
                   )
             )
             .map(_.get)
-        _ <-
-          ZIO.debug(
+            .run
+        ZIO
+          .debug(
             "Loading order: " +
               truck.queued.length + "/" +
               truck.capacity
           )
-      yield truck
+          .run
+        truck
+      }
 
     def shipIfWaitingTooLong(truck: TruckInUse) =
       ZIO
@@ -351,37 +358,37 @@ object DeliveryCenter extends ZIOAppDefault:
         )
         .delay(4.seconds)
 
-    for
-      truck <- loadTruck
-      _ <-
-        if (truck.isFull)
-          shipIt(reason = "Truck is full.")
-        else
-          ZIO
-            .when(truck.queued.length == 1)(
-              ZIO.debug(
-                "Adding timeout daemon"
-              ) *> shipIfWaitingTooLong(truck)
-            )
-            .forkDaemon
-    yield ()
+    defer {
+      val truck = loadTruck.run
+      if (truck.isFull)
+        shipIt(reason = "Truck is full.").run
+      else
+        ZIO
+          .when(truck.queued.length == 1)(
+            ZIO.debug("Adding timeout daemon") *>
+              shipIfWaitingTooLong(truck)
+          )
+          .forkDaemon
+          .run
+    }
   end handle
 
   def run =
-    for
-      stagedItems <-
-        Ref.make[Option[TruckInUse]](None)
-      orderStream =
+    defer {
+      val stagedItems =
+        Ref.make[Option[TruckInUse]](None).run
+
+      val orderStream =
         ZStream.repeatWithSchedule(
           Order(),
           Schedule
             .exponential(1.second, factor = 1.8)
         )
-      _ <-
-        orderStream
-          .foreach(handle(_, stagedItems))
-          .timeout(12.seconds)
-    yield ()
+      orderStream
+        .foreach(handle(_, stagedItems))
+        .timeout(12.seconds)
+        .run
+    }
 end DeliveryCenter
 
 ```
@@ -466,6 +473,7 @@ end HelloStreams
 package streams
 
 import zio.*
+import zio.direct.*
 import zio.stream.*
 import zio.test.Gen
 
@@ -483,10 +491,11 @@ object HttpRequestStream:
         .schedule(Schedule.spaced(100.millis))
 
   private val randomRequest =
-    for
-      code <- Code.random
-      path <- Path.random
-    yield Request(code, path)
+    defer {
+      val code = Code.random.run
+      val path = Path.random.run
+      Request(code, path)
+    }
 
 enum Code:
   case Ok,
@@ -503,11 +512,11 @@ case class Path(segments: Seq[String]):
 
 object Path:
   val random: ZIO[Any, Nothing, Path] =
-    for
-      generator <-
-        randomElementFrom(Random.generators)
-      path <- generator
-    yield path
+    defer {
+      val generator =
+        randomElementFrom(Random.generators).run
+      generator.run
+    }
 
   def apply(first: String, rest: String*): Path =
     Path(Seq(first) ++ rest)
@@ -525,9 +534,11 @@ object Path:
           "logout"
         )
 
-      for section <-
-          randomElementFrom(genericPaths)
-      yield Path(s"/$section")
+      defer {
+        val section =
+          randomElementFrom(genericPaths).run
+        Path(s"/$section")
+      }
 
     private val user: ZIO[Any, Nothing, Path] =
       val userSections =
@@ -537,11 +548,13 @@ object Path:
           "collaborators"
         )
 
-      for
-        userId <- zio.Random.nextIntBounded(1000)
-        section <-
-          randomElementFrom(userSections)
-      yield Path(s"/user/$userId/$section")
+      defer {
+        val userId =
+          zio.Random.nextIntBounded(1000).run
+        val section =
+          randomElementFrom(userSections).run
+        Path(s"/user/$userId/$section")
+      }
 
     val generators
         : List[ZIO[Any, Nothing, Path]] =
@@ -712,19 +725,23 @@ end Scanning
 package streams
 
 import zio.{Random, ZIO}
+import zio.direct.*
 
 case class TweetFactory(counter: Counter):
 
   val randomTweet
       : ZIO[Any, Nothing, SimpleTweet] =
-    for
-      subject   <- TweetFactory.randomSubject
-      adjective <- TweetFactory.randomAdjective
-      id        <- counter.get
-    yield SimpleTweet(
-      id,
-      s"$subject is the $adjective thing ever!"
-    )
+    defer {
+      val subject =
+        TweetFactory.randomSubject.run
+      val adjective =
+        TweetFactory.randomAdjective.run
+      val id = counter.get.run
+      SimpleTweet(
+        id,
+        s"$subject is the $adjective thing ever!"
+      )
+    }
 
 private object TweetFactory:
   val make: ZIO[Any, Nothing, TweetFactory] =
@@ -747,14 +764,22 @@ private object TweetFactory:
       "Music"
     )
   val randomAdjective =
-    for index <-
-        Random.nextIntBounded(allAdjectives.size)
-    yield allAdjectives(index)
+    defer {
+      val index =
+        Random
+          .nextIntBounded(allAdjectives.size)
+          .run
+      allAdjectives(index)
+    }
 
   val randomSubject =
-    for index <-
-        Random.nextIntBounded(allSubjects.size)
-    yield allSubjects(index)
+    defer {
+      val index =
+        Random
+          .nextIntBounded(allSubjects.size)
+          .run
+      allSubjects(index)
+    }
 end TweetFactory
 
 ```
@@ -842,39 +867,48 @@ object TwitterCustomerSupport
   def trackActiveCompanies(
       tweets: ZStream[Any, Throwable, Tweet]
   ) =
-    for
-      activeCompanies <-
-        Ref.make[Map[String, Int]](Map.empty)
-      mostActiveCompanyAtEachMoment =
+    import zio.direct.*
+    defer {
+      val activeCompanies =
+        Ref.make[Map[String, Int]](Map.empty).run
+      val mostActiveCompanyAtEachMoment =
         tweets.mapZIO(tweet =>
-          for companies <-
-              activeCompanies.updateAndGet(
-                incrementCompanyActivity(
-                  _,
-                  tweet
+          defer {
+            val companies =
+              activeCompanies
+                .updateAndGet(
+                  incrementCompanyActivity(
+                    _,
+                    tweet
+                  )
                 )
-              )
-          yield companies
-            .map(x => x)
-            .toList
-            .sortBy(x => -x._2)
+                .run
+            companies
+              .map(x => x)
+              .toList
+              .sortBy(x => -x._2)
+          }
         )
-      res <-
-        mostActiveCompanyAtEachMoment.runLast
-    yield res.get
+      val res =
+        mostActiveCompanyAtEachMoment.runLast.run
+      res.get
+    }
+  end trackActiveCompanies
 
   def run =
-    for
-      dataset <-
+    import zio.direct.*
+    defer {
+      val dataset =
         ZIOAppArgs
           .getArgs
           .map(_.headOption.getOrElse(fileName))
-      tweets =
+          .run
+      val tweets =
         ZStream
           .fromJavaStream(
             Files.lines(
               Paths.get(
-//                "..",
+                //                "..",
                 "datasets",
                 "twcs",
                 dataset + ".csv"
@@ -885,41 +919,44 @@ object TwitterCustomerSupport
           .filter(_.isRight)
           .map(_.getOrElse(???))
 
-      happyTweetFilter: ZPipeline[
+      val happyTweetFilter: ZPipeline[
         Any,
         Nothing,
         Tweet,
         Tweet
       ] = ZPipeline.filter(isHappy)
-      angryTweetFilter: ZPipeline[
+      val angryTweetFilter: ZPipeline[
         Any,
         Nothing,
         Tweet,
         Tweet
       ] = ZPipeline.filter(isAngry)
 
-      gatherHappyTweets =
+      val gatherHappyTweets =
         (tweets >>> happyTweetFilter)
           .runCount
           .debug("Number of happy tweets")
-      gatherAngryTweets =
+          .run
+      val gatherAngryTweets =
         (tweets >>> angryTweetFilter)
           .runCount
           .debug("Number of angry tweets")
+          .run
 
-      _ <-
-//      gatherHappyTweets
-//        .timed
-//        .map(_._1)
-//        .debug("Happy duration") <&>
-//        gatherAngryTweets <&>
+        //      gatherHappyTweets
+        //        .timed
+        //        .map(_._1)
+        //        .debug("Happy duration") <&>
+        //        gatherAngryTweets <&>
         trackActiveCompanies(tweets)
           .map(_.take(3).mkString(" : "))
           .debug("ActiveCompanies")
           .timed
           .map(_._1)
           .debug("Active Company duration")
-    yield ()
+          .run
+    }
+  end run
 //      .timeout(60.seconds)
 
   private def incrementCompanyActivity(

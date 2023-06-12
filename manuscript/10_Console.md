@@ -259,6 +259,7 @@ package console
 import zio._
 import zio.Console
 import zio.Console._
+import zio.direct._
 
 import java.io.IOException
 
@@ -295,9 +296,11 @@ object FakeConsole:
   def withInput(
       hardcodedInput: String*
   ): ZIO[Any, Nothing, Console] =
-    for inputVariable <-
-        Ref.make(hardcodedInput.toSeq)
-    yield inputConsole(inputVariable)
+    defer {
+      val inputVariable =
+        Ref.make(hardcodedInput.toSeq).run
+      inputConsole(inputVariable)
+    }
 
   private def inputConsole(
       hardcodedInput: Ref[Seq[String]]
@@ -325,10 +328,11 @@ object FakeConsole:
       def readLine(implicit
           trace: zio.Trace
       ): zio.IO[java.io.IOException, String] =
-        for
-          curInput <- hardcodedInput.get
-          _ <- hardcodedInput.set(curInput.tail)
-        yield curInput.head
+        defer {
+          val curInput = hardcodedInput.get.run
+          hardcodedInput.set(curInput.tail).run
+          curInput.head
+        }
 
 end FakeConsole
 

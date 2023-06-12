@@ -9,6 +9,7 @@ package Parallelism
 import java.io.IOException
 import zio.Console
 import zio.{Fiber, IO, Runtime, UIO, ZIO, ZLayer}
+import zio.direct.*
 
 object BasicFiber:
 
@@ -36,8 +37,7 @@ object BasicFiber:
   // computing the 100th digit of the Fibonacci
   // Sequence.
   val fib100: UIO[Fiber[Nothing, Long]] =
-    for fiber <- computation.fib(100).fork
-    yield fiber
+    computation.fib(100).fork
 
   // Part of the power of Fibers is that many of
   // them can be described and run at once.
@@ -49,10 +49,11 @@ object BasicFiber:
 
   val fibNandM
       : UIO[Vector[Fiber[Nothing, Long]]] =
-    for
-      fiberN <- computation.fib(n).fork
-      fiberM <- computation.fib(m).fork
-    yield Vector(fiberN, fiberM)
+    defer {
+      val fiberN = computation.fib(n).fork.run
+      val fiberM = computation.fib(m).fork.run
+      Vector(fiberN, fiberM)
+    }
 end BasicFiber
 
 ```
@@ -75,6 +76,7 @@ import zio.{
   ZIO,
   ZLayer
 }
+import zio.direct.*
 
 import scala.io.Source.*
 
@@ -129,13 +131,12 @@ object Finalizers extends zio.ZIOAppDefault:
       Throwable,
       Unit
     ] = // Define the ZIO contexts
-      for
-        fileLines <- readFileContents
-        _ <-
-          printLine(
-            fileLines.mkString("\n")
-          ) // Combine the strings of the output vector into a single string, separated by \n
-      yield ()
+      defer {
+        val fileLines = readFileContents.run
+        printLine(fileLines.mkString("\n"))
+          .run // Combine the strings of the output vector into a single string, separated by \n
+      }
+
     ioExample
       .catchAllDefect(exception =>
         printLine(

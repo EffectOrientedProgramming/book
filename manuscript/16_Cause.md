@@ -50,9 +50,9 @@ val thrownLogic =
 //   trace = "repl.MdocSession.MdocApp.thrownLogic(16_Cause.md:49)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.thrownLogic(16_Cause.md:49)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$2465/0x0000000100b93c40@34ec7645
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$2465/0x0000000100b92440@37305dbd
 //   ),
-//   successK = zio.ZIO$$$Lambda$2467/0x0000000100b96840@2d85ff88
+//   successK = zio.ZIO$$$Lambda$2467/0x0000000100b96840@7fc386b5
 // )
 unsafeRunPrettyPrint(thrownLogic)
 // java.lang.Exception: Release Failed
@@ -208,6 +208,7 @@ end MalcomInTheMiddle
 package cause
 
 import zio.*
+import zio.direct.*
 
 object MalcomInTheMiddleZ extends ZIOAppDefault:
   def run =
@@ -223,25 +224,20 @@ object MalcomInTheMiddleZ extends ZIOAppDefault:
     def grabScrewDriver() =
       ZIO.fail(Exception("SqueakyDrawer"))
 
-    (
-      for
-        _ <-
-          turnOnLights()
-            .catchAllCause(originalError =>
-              getNewBulb()
-                .catchAllCause(bulbError =>
-                  grabScrewDriver()
-                    .mapErrorCause(
-                      screwDriverError =>
-                        (originalError ++
-                          bulbError) ++
-                          screwDriverError
-                    )
-                )
-            )
-        _ <- ZIO.debug("Preserve failures!")
-      yield ()
-    ).catchAllCause(bigError =>
+    defer {
+      turnOnLights()
+        .catchAllCause(originalError =>
+          getNewBulb().catchAllCause(bulbError =>
+            grabScrewDriver()
+              .mapErrorCause(screwDriverError =>
+                (originalError ++ bulbError) ++
+                  screwDriverError
+              )
+          )
+        )
+        .run
+      ZIO.debug("Preserve failures!").run
+    }.catchAllCause(bigError =>
       ZIO.debug(
         "Final error: " +
           simpleStructureAlternative(bigError)

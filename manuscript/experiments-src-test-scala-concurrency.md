@@ -6,6 +6,7 @@
 ```scala
 package concurrency
 
+import zio.direct.*
 import zio.test.*
 import zio.test.TestAspect.*
 import zio.test.Assertion.*
@@ -17,9 +18,9 @@ object LunchVoteTest extends ZIOSpecDefault:
   def spec =
     suite("voting situations")(
       test("3 quick yays") {
-        for
-          interruptedVoters <- Ref.make(0)
-          voters =
+        defer {
+          val interruptedVoters = Ref.make(0).run
+          val voters =
             List(
               Voter("Alice", 0.seconds, Yay),
               Voter("Bob", 0.seconds, Yay),
@@ -39,12 +40,13 @@ object LunchVoteTest extends ZIOSpecDefault:
                   interruptedVoters.update(_ + 1)
               )
             )
-          result <- LunchVote.run(voters)
-          totalInterrupted <-
-            interruptedVoters.get
-//          _ <- ZIO.withClock(Clock.ClockLive)(ZIO.sleep(1.seconds))
-        yield assertTrue(result == Yay) &&
-          assertTrue(totalInterrupted == 2)
+          val result = LunchVote.run(voters).run
+          val totalInterrupted =
+            interruptedVoters.get.run
+          //          _ <- ZIO.withClock(Clock.ClockLive)(ZIO.sleep(1.seconds))
+          assertTrue(result == Yay) &&
+            assertTrue(totalInterrupted == 2)
+        }
       } @@
         flaky, // Flaky because Interruption count is not reliable
       test("3 quick nays") {
@@ -56,8 +58,10 @@ object LunchVoteTest extends ZIOSpecDefault:
             Voter("Dave", 1.seconds, Yay),
             Voter("Eve", 1.seconds, Yay)
           )
-        for result <- LunchVote.run(voters)
-        yield assertTrue(result == Nay)
+        defer {
+          val result = LunchVote.run(voters).run
+          assertTrue(result == Nay)
+        }
       },
       test("slow voters") {
         val voters =
@@ -68,18 +72,19 @@ object LunchVoteTest extends ZIOSpecDefault:
             Voter("Dave", 10.seconds, Yay),
             Voter("Eve", 10.seconds, Yay)
           )
-        for
-          resultF <-
+        defer {
+          val resultF =
             LunchVote
               .run(
                 voters,
                 maximumVoteTime = 1.seconds
               )
               .fork
-          _       <- TestClock.adjust(2.seconds)
-          timeout <- resultF.join.flip
-        // yield assert(timeout)(isNone)
-        yield assertTrue(timeout.isEmpty)
+              .run
+          TestClock.adjust(2.seconds).run
+          val timeout = resultF.join.flip.run
+          assertTrue(timeout.isEmpty)
+        }
       }
     )
 end LunchVoteTest
@@ -94,45 +99,48 @@ package concurrency
 import zio.*
 import zio.Console.printLine
 import zio.test.*
+import zio.direct.*
 
 import java.nio.file.Path
 
 object ThunderingHerdsSpec
     extends ZIOSpecDefault:
   val testInnards =
+    defer {
+      val users = List("Bill", "Bruce", "James")
 
-    val users = List("Bill", "Bruce", "James")
-
-    val herdBehavior =
-      for
-        fileService <- ZIO.service[FileService]
-        fileResults <-
-          ZIO.foreachPar(users)(user =>
-            fileService.retrieveContents(
-              Path.of("awesomeMemes")
-            )
-          )
-        _ <- ZIO.debug("=========")
-        _ <-
+      val herdBehavior =
+        defer {
+          val fileService = ZIO.service[FileService].run
+          val fileResults =
+            ZIO.foreachPar(users)(user =>
+              fileService.retrieveContents(
+                Path.of("awesomeMemes")
+              )
+            ).run
+          ZIO.debug("=========").run
           fileService.retrieveContents(
             Path.of("awesomeMemes")
-          )
-      yield fileResults
-    for
-      _         <- printLine("Capture?")
-      logicFork <- herdBehavior.fork
-      _         <- TestClock.adjust(2.seconds)
-      res       <- logicFork.join
-      misses <-
-        ZIO.serviceWithZIO[FileService](_.misses)
-      _ <- ZIO.debug("Eh?")
-    yield assertTrue(
-      misses == 1,
-      res.forall(singleResult =>
-        singleResult ==
-          FileSystem.hardcodedFileContents
+          ).run
+          fileResults
+        }
+
+      printLine("Capture?").run
+      val logicFork = herdBehavior.fork.run
+      TestClock.adjust(2.seconds).run
+      val res       = logicFork.join.run
+      val misses =
+        ZIO.serviceWithZIO[FileService](_.misses).run
+      ZIO.debug("Eh?").run
+
+      assertTrue(
+        misses == 1,
+        res.forall(singleResult =>
+          singleResult ==
+            FileSystem.hardcodedFileContents
+        )
       )
-    )
+    }
   end testInnards
 
   override def spec =

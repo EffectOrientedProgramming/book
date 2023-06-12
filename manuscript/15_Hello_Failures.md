@@ -376,23 +376,27 @@ unsafeRunPrettyPrint(
 package hello_failures
 
 import zio.ZIO
+import zio.direct.*
 
 object BadTypeManagement
     extends zio.ZIOAppDefault:
   val logic: ZIO[Any, Exception, String] =
-    for
-      _ <- ZIO.debug("ah")
-      result <-
-        failable(1).catchAll {
-          case ex: Exception =>
-            ZIO.fail(ex)
-          case ex: String =>
-            ZIO.succeed(
-              "recovered string error: " + ex
-            )
-        }
-      _ <- ZIO.debug(result)
-    yield result
+    defer {
+      ZIO.debug("ah").run
+      val result =
+        failable(1)
+          .catchAll {
+            case ex: Exception =>
+              ZIO.fail(ex)
+            case ex: String =>
+              ZIO.succeed(
+                "recovered string error: " + ex
+              )
+          }
+          .run
+      ZIO.debug(result).run
+      result
+    }
   def run = logic
 
   def failable(
@@ -415,6 +419,7 @@ package hello_failures
 
 import zio.Console.printLine
 import zio.ZIO
+import zio.direct.*
 
 object KeepSuccesses extends zio.ZIOAppDefault:
   val allCalls =
@@ -427,37 +432,38 @@ object KeepSuccesses extends zio.ZIOAppDefault:
     allCalls.map(fastUnreliableNetworkCall)
 
   val logic =
-    for
-      results <-
-        ZIO.collectAllSuccesses(
-          initialRequests.map(
-            _.tapError(e =>
-              printLine("Error: " + e)
-            )
+    ZIO
+      .collectAllSuccesses(
+        initialRequests.map(
+          _.tapError(e =>
+            printLine("Error: " + e)
           )
         )
-      _ <- printLine(results)
-    yield ()
+      )
+      .debug
 
   val moreStructuredLogic =
-    for
-      results <-
-        ZIO.partition(allCalls)(
-          fastUnreliableNetworkCall
-        )
-      _ <-
-        results match
-          case (failures, successes) =>
-            for
-              _ <-
-                ZIO.foreach(failures)(e =>
-                  printLine(
-                    "Error: " + e +
-                      ". Should retry on other server."
-                  )
+    defer {
+      val results =
+        ZIO
+          .partition(allCalls)(
+            fastUnreliableNetworkCall
+          )
+          .run
+      results match
+        case (failures, successes) =>
+          defer {
+            ZIO
+              .foreach(failures)(e =>
+                printLine(
+                  "Error: " + e +
+                    ". Should retry on other server."
                 )
-              recoveries <-
-                ZIO.collectAllSuccesses(
+              )
+              .run
+            val recoveries =
+              ZIO
+                .collectAllSuccesses(
                   failures.map(failure =>
                     slowMoreReliableNetworkCall(
                       failure.payload
@@ -468,13 +474,14 @@ object KeepSuccesses extends zio.ZIOAppDefault:
                     )
                   )
                 )
-              _ <-
-                printLine(
-                  "All successes: " +
-                    (successes ++ recoveries)
-                )
-            yield ()
-    yield ()
+                .run
+            printLine(
+              "All successes: " +
+                (successes ++ recoveries)
+            ).run
+          }.run
+      end match
+    }
 
   def run = moreStructuredLogic
 

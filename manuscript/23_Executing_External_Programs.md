@@ -33,6 +33,7 @@ We could start with things like `echo` or `ls`, but those are easily done within
 package executing_external_programs
 
 import zio._
+import zio.direct._
 import zio.Console.printLine
 import zio.process.{
   Command,
@@ -62,21 +63,22 @@ object GourceDemo extends ZIOAppDefault:
     )
 
   def showActivityForAWhile(repoDir: String) =
-    for
-      run1 <- gource(repoDir).run
-      _    <- ZIO.sleep(5.seconds)
-      _    <- run1.killForcibly
-    yield ()
+    defer {
+      val run1 = gource(repoDir).run.run
+      ZIO.sleep(5.seconds).run
+      run1.killForcibly.run
+    }
 
   def randomProjectActivity =
-    for
-      idx <-
-        Random.nextIntBounded(projects.length)
-      _ <- showActivityForAWhile(projects(idx))
-    yield ()
-  def run =
-    for _ <- randomProjectActivity.repeatN(2)
-    yield ()
+    defer {
+      val idx =
+        Random
+          .nextIntBounded(projects.length)
+          .run
+      showActivityForAWhile(projects(idx)).run
+    }
+  def run = randomProjectActivity.repeatN(2)
+
 end GourceDemo
 
 ```
