@@ -1,23 +1,25 @@
 package test_aspects
 
 import zio.*
+import zio.direct.*
 import zio.test.*
 import zio.test.TestAspect.*
 
 object WithLiveSpec extends ZIOSpecDefault:
 
   def halfFlaky[A](a: A): ZIO[Any, String, A] =
-    for
-      b <- zio.Random.nextBoolean.debug
-      o <-
-        ZIO
-          .cond(b, a, "failed")
-          .tapError(ZIO.logError(_))
-    yield o
+    defer {
+      val b = zio.Random.nextBoolean.debug.run
+      ZIO
+        .cond(b, a, "failed")
+        .tapError(ZIO.logError(_)).run
+    }
 
   val song =
-    for _ <- halfFlaky("works").debug
-    yield assertCompletes
+    defer {
+      halfFlaky("works").debug.run
+      assertCompletes
+    }
 
   val song1: Spec[Any, String] =
     test("Song 1")(song)

@@ -86,8 +86,7 @@ case class User():
 
 case class Home(family: User, grid: Grid):
   val provide =
-    for _ <- family.live
-    yield ()
+    family.live
 
 sealed trait GridErrors
 
@@ -101,8 +100,7 @@ object GridSpec extends ZIOSpecDefault:
   def spec =
     suite("GridSpec")(
       test("recognizes grid input")(
-        for _ <- ZIO.unit
-        yield assertNever("Need a test!")
+        assertNever("Need a test!")
       ),
       test("runs through an energy scenario")(
         /* We start by running our dishwasher
@@ -117,8 +115,7 @@ object GridSpec extends ZIOSpecDefault:
          * 8:00 8:30 9:00 Dishwasher -1.5kw
          * -1.5kw 0kw Solar Panels 0kw +1.0kw
          * +1.0kw CityGrid +1.5kw +0.5kw -1.0kw */
-        for _ <- ZIO.unit
-        yield assertNever("Need a test!")
+        assertNever("Need a test!")
       )
     ) @@ ignore
 end GridSpec

@@ -1,6 +1,7 @@
 package testcontainers
 
 import zio.*
+import zio.direct.*
 
 import scala.jdk.CollectionConverters.*
 import zio.Console.*
@@ -24,13 +25,13 @@ case class SuspectProfile(
 )
 
 val makeAProxiedRequest =
-  for
-    result <-
+  defer {
+    val result =
       CareerHistoryService
         .citizenInfo("Zeb")
-        .tapError(reportTopLevelError)
-    _ <- printLine("Result: " + result)
-  yield ()
+        .tapError(reportTopLevelError).run
+    printLine("Result: " + result).run
+  }
 
 /* Good grief, I guess everyone would rather
  * roast you for asking the question instead of
@@ -154,11 +155,13 @@ object ContainerScenarios:
           topicName = "person_event",
           op =
             record =>
-              for location <-
+              defer {
+                val location =
                   LocationService
-                    .locationOf(record.key)
-              yield record.value +
-                s",Location:$location",
+                    .locationOf(record.key).run
+                record.value +
+                  s",Location:$location",
+              }
           outputTopicName = "housing_history",
           groupId = "housing"
         )

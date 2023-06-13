@@ -1,6 +1,7 @@
 package zio_test
 
 import zio.*
+import zio.direct.*
 import zio.test.*
 import zio_test.Shared.Scoreboard
 
@@ -16,12 +17,14 @@ object UseComplexLayer
 
   def spec =
     test("use scoreboard") {
-      for _ <-
-          ZIO
-            .serviceWithZIO[Scoreboard](
-              _.display()
-            )
-            .debug
-      yield assertCompletes
+      defer {
+        ZIO
+          .serviceWithZIO[Scoreboard](
+            _.display()
+          )
+          .debug
+          .run
+        assertCompletes
+      }
     }
 end UseComplexLayer

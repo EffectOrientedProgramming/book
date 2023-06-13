@@ -1,59 +1,51 @@
 package bigdec
 
+// TODO Determine if there is a clear reason to include these tests
+import zio.direct.*
 import zio.ZIO
-import zio.test.ZIOSpecDefault
-import zio.test.Assertion.{
-  diesWithA,
-  equalTo,
-  fails,
-  failsWithA,
-  isSubtype
-}
-import zio.test.{
-  ErrorMessage,
-  TestConsole,
-  TestResult,
-  assert,
-  assertCompletes,
-  assertTrue
-}
+import zio.test.Assertion.*
+import zio.test.*
 import zio.test.TestAspect.silent
 
 object MainSpec extends ZIOSpecDefault:
   def spec =
     suite("MainSpec")(
       test("must succeed with valid value") {
-        for
-          _ <- TestConsole.feedLines("1")
-          result <-
-            inputBigDecimalValue("Num: ", 1, 10)
-        yield assertTrue(result == BigDecimal(1))
+        defer {
+          TestConsole.feedLines("1").run
+          assertTrue(
+            inputBigDecimalValue("Num: ", 1, 10).run
+              == BigDecimal(1)
+          )
+        }
       },
       test("must fail with non-parsable input") {
-        for
-          _ <- TestConsole.feedLines("a")
-          error <-
+        defer {
+          TestConsole.feedLines("a").run
+          val error =
             inputBigDecimalValue("Num: ", 1, 10)
               .mapError(_.getMessage)
-              .exit
-        yield assert(error)(
-          fails(equalTo("Invalid input."))
-        )
+              .exit.run
+          assert(error)(
+            fails(equalTo("Invalid input."))
+          )
+        }
       },
       test("must fail with out-of-range input") {
-        for
-          _ <- TestConsole.feedLines("0")
-          error <-
+        defer {
+          TestConsole.feedLines("0").run
+          val error =
             inputBigDecimalValue("Num: ", 1, 10)
               .mapError(_.getMessage)
-              .exit
-        yield assert(error)(
-          fails(
-            equalTo(
-              "Input out of the range from 1 to 10"
+              .exit.run
+          assert(error)(
+            fails(
+              equalTo(
+                "Input out of the range from 1 to 10"
+              )
             )
           )
-        )
+        }
       }
     ) @@ silent
 end MainSpec

@@ -23,6 +23,7 @@ import testcontainers.proxy.{
 }
 import zio.ZLayer
 
+// TODO Clarify the point of this example, or ditch it
 trait CareerHistoryServiceT:
   def citizenInfo(
       person: String

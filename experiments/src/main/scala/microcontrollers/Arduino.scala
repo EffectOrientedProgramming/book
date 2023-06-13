@@ -1,20 +1,8 @@
 package microcontrollers
 
 import zio.Console.{printLine, readLine}
-import zio.{
-  Clock,
-  Console,
-  Fiber,
-  IO,
-  Ref,
-  Runtime,
-  Schedule,
-  UIO,
-  URIO,
-  ZIO,
-  ZLayer,
-  durationInt
-}
+import zio.*
+import zio.direct.*
 import zio.Clock.{currentTime, instant}
 import zio.Duration.*
 
@@ -52,41 +40,39 @@ object MicroControllerExample
       startTime: Long,
       arduino: Ref[Arduino]
   ): ZIO[Any, IOException, Unit] =
-    for
-      inSeconds <- currentTime(TimeUnit.SECONDS)
-      originalArduino <- arduino.get
-      originalLightStatus <-
-        originalArduino.passSignalToLight()
-      signalOnPin =
+    defer {
+      val inSeconds = currentTime(TimeUnit.SECONDS).run
+      val originalArduino = arduino.get.run
+      val originalLightStatus =
+        originalArduino.passSignalToLight().run
+      val signalOnPin =
         turnOnPinAtRightTime(
           inSeconds,
           startTime
         )
-      _ <- arduino.set(Arduino(signalOnPin))
-      updatedArduino <- arduino.get
-      updatedLightStatus <-
-        updatedArduino.passSignalToLight()
-      _ <-
-        if (
-          originalLightStatus !=
-            updatedLightStatus
-        )
-          printLine(updatedLightStatus)
-        else
-          ZIO.succeed(1)
-    yield ()
+      arduino.set(Arduino(signalOnPin)).run
+      val updatedArduino = arduino.get.run
+      val updatedLightStatus =
+        updatedArduino.passSignalToLight().run
+      if (
+        originalLightStatus !=
+          updatedLightStatus
+      )
+        printLine(updatedLightStatus).run
+      else
+        ZIO.unit.run
+    }
 
   def run =
-    for
-      arduino <-
-        Ref.make(Arduino(pin1 = DigitalPin.OFF))
-      inSeconds <- currentTime(TimeUnit.SECONDS)
-      _ <-
-        loopLogic(inSeconds, arduino).repeat(
-          // Can we calculate how long this is
-          // using Schedule APIs?
-          Schedule.recurs(60) &&
-            Schedule.spaced(100.milliseconds)
-        )
-    yield ()
+    defer {
+      val arduino =
+        Ref.make(Arduino(pin1 = DigitalPin.OFF)).run
+      val inSeconds = currentTime(TimeUnit.SECONDS).run
+      loopLogic(inSeconds, arduino).repeat(
+        // Can we calculate how long this is
+        // using Schedule APIs?
+        Schedule.recurs(60) &&
+          Schedule.spaced(100.milliseconds)
+      ).run
+    }
 end MicroControllerExample
