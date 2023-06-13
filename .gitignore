@@ -20,3 +20,6 @@ cs.exe
 /MdToSourcePlugin/project/target/
 /MdToSourcePlugin/project/project/
 datasets
+illustratedPrimer/src/main/resources/bulma*
+illustratedPrimer/src/main/resources/dist/
+illustratedPrimer/tailwind.config.js
