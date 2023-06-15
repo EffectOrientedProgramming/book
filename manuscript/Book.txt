@@ -38,9 +38,7 @@ energygrid.md
 experiments-src-test-scala-energrygrid.md
 logging.md
 scenarios.md
-ZIOFromNothing.md
 helloworld.md
-monads.md
 crypto.md
 bigdec.md
 experiments-src-test-scala-test_aspects.md
@@ -49,6 +47,7 @@ experiments-src-test-scala-scenarios.md
 interpreter-level1_nochaining.md
 experiments-src-test-scala-testcontainers.md
 schema.md
+cancellation.md
 environment_exploration-opaque.md
 virtual_meeting.md
 zio.md
