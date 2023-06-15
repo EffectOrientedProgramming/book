@@ -61,15 +61,14 @@ object Mining extends ZIOAppDefault:
   ): ZIO[Any, Nothing, (String, Int)] =
     defer {
       val startNum =
-        nextIntBetween(2000, 4000).run
-      val result =
-        ZIO
-          .raceAll(
-            miners.head.mine(startNum),
-            miners.tail.map(_.mine(startNum))
-          )
-          .run
-      result
+        nextIntBetween(80000000, 160000000).run
+
+      ZIO
+        .raceAll(
+          miners.head.mine(startNum),
+          miners.tail.map(_.mine(startNum))
+        )
+        .run
     }
 
 end Mining
