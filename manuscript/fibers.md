@@ -22,7 +22,7 @@ object CancellingATightLoop
     extends ZIOAppDefault:
   val scenario =
     ZIO
-      .attemptBlocking(leven(input, target))
+      .attempt(leven(input, target))
       .mapBoth(
         error => ZIO.succeed("yay!"),
         success => ZIO.fail("Oh no!")
@@ -32,9 +32,9 @@ object CancellingATightLoop
     // For timeouts, you need fibers and
     // cancellation
     scenario
-      .timeout(50.seconds)
-      .timed
-      .debug("Time:")
+      // TODO This is running for 16 seconds
+      // nomatter what.
+      .timeout(1.seconds).timed.debug("Time:")
 
 ```
 

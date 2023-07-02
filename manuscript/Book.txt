@@ -51,6 +51,7 @@ cancellation.md
 environment_exploration-opaque.md
 virtual_meeting.md
 zio.md
+rezilience.md
 interpreter-chaining_previous_result_and_environmental_dependency.md
 simulations.md
 diningphilosophers.md
