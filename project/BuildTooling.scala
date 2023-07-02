@@ -281,6 +281,8 @@ object BuildTooling {
     "io.github.scottweaver" %% "zio-2-0-db-migration-aspect" % "0.10.0",
     "io.getquill" %% "quill-jdbc-zio" % "4.6.0.1",
     "io.getquill" %% "quill-zio" % "4.6.0.1",
+    "nl.vroste" %% "rezilience" % "0.9.4",
+    "dev.zio" %% "zio-process" % "0.7.2",
     "dev.zio" %% "zio-process" % "0.7.2",
     "dev.zio" %% "zio-direct" % "1.0.0-RC7",
     "dev.zio" %% "zio-schema" % "0.4.12",
