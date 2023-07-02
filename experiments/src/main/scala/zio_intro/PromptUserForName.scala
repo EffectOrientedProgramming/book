@@ -4,8 +4,7 @@ import zio.{Clock, ZIO, ZIOAppDefault, System}
 import zio.Console.{readLine, printLine}
 import zio.direct.*
 
-object PromptUserForName
-    extends ZIOAppDefault:
+object PromptUserForName extends ZIOAppDefault:
   def run =
     defer {
       printLine("Give us your name:").run

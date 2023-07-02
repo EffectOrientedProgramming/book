@@ -43,18 +43,21 @@ object DecisionService:
             prisoner1,
             prisoner2history
           ).zipPar(
-            getDecisionFor(
-              prisoner2,
-              prisoner1history
+              getDecisionFor(
+                prisoner2,
+                prisoner1history
+              )
             )
-          ).run
+            .run
         val roundResult =
           RoundResult(decisions._1, decisions._2)
-        history.update(oldHistory =>
-          DecisionHistory(
-            roundResult :: oldHistory.results
+        history
+          .update(oldHistory =>
+            DecisionHistory(
+              roundResult :: oldHistory.results
+            )
           )
-        ).run
+          .run
         roundResult
       }
   end LiveDecisionService
@@ -67,7 +70,9 @@ object DecisionService:
     ] =
       defer {
         val history =
-              Ref.make(DecisionHistory(List.empty)).run
+          Ref
+            .make(DecisionHistory(List.empty))
+            .run
         LiveDecisionService(history)
       }
 

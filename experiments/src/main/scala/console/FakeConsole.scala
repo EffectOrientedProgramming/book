@@ -42,8 +42,7 @@ object FakeConsole:
   ): ZIO[Any, Nothing, Console] =
     defer {
       val inputVariable =
-        Ref.make(hardcodedInput.toSeq)
-          .run
+        Ref.make(hardcodedInput.toSeq).run
       inputConsole(inputVariable)
     }
 

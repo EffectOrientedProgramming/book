@@ -39,11 +39,12 @@ object GourceDemo extends ZIOAppDefault:
 
   def randomProjectActivity =
     defer {
-        val idx =
-          Random.nextIntBounded(projects.length).run
-        showActivityForAWhile(projects(idx)).run
+      val idx =
+        Random
+          .nextIntBounded(projects.length)
+          .run
+      showActivityForAWhile(projects(idx)).run
     }
-  def run =
-    randomProjectActivity.repeatN(2)
+  def run = randomProjectActivity.repeatN(2)
 
 end GourceDemo

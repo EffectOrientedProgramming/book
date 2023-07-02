@@ -41,7 +41,8 @@ object MicroControllerExample
       arduino: Ref[Arduino]
   ): ZIO[Any, IOException, Unit] =
     defer {
-      val inSeconds = currentTime(TimeUnit.SECONDS).run
+      val inSeconds =
+        currentTime(TimeUnit.SECONDS).run
       val originalArduino = arduino.get.run
       val originalLightStatus =
         originalArduino.passSignalToLight().run
@@ -55,8 +56,7 @@ object MicroControllerExample
       val updatedLightStatus =
         updatedArduino.passSignalToLight().run
       if (
-        originalLightStatus !=
-          updatedLightStatus
+        originalLightStatus != updatedLightStatus
       )
         printLine(updatedLightStatus).run
       else
@@ -66,13 +66,18 @@ object MicroControllerExample
   def run =
     defer {
       val arduino =
-        Ref.make(Arduino(pin1 = DigitalPin.OFF)).run
-      val inSeconds = currentTime(TimeUnit.SECONDS).run
-      loopLogic(inSeconds, arduino).repeat(
-        // Can we calculate how long this is
-        // using Schedule APIs?
-        Schedule.recurs(60) &&
-          Schedule.spaced(100.milliseconds)
-      ).run
+        Ref
+          .make(Arduino(pin1 = DigitalPin.OFF))
+          .run
+      val inSeconds =
+        currentTime(TimeUnit.SECONDS).run
+      loopLogic(inSeconds, arduino)
+        .repeat(
+          // Can we calculate how long this is
+          // using Schedule APIs?
+          Schedule.recurs(60) &&
+            Schedule.spaced(100.milliseconds)
+        )
+        .run
     }
 end MicroControllerExample

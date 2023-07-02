@@ -103,7 +103,7 @@ def wrapUnsafeZIOReportError[E, A](
             line
         )
         .mkString("\n")
-    // TODO Respect width limit
+      // TODO Respect width limit
     }
     .tap(finalValueToRender =>
       ZIO.debug(finalValueToRender)

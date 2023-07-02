@@ -31,14 +31,16 @@ object Shared:
     ZLayer.fromZIO {
       defer {
         val value = ZIO.service[Ref[Int]].run
-        ZIO.acquireRelease(
-          ZIO.succeed(Scoreboard(value)) <*
-            ZIO.debug(
-              "Initializing scoreboard!"
-            )
-        )(_ =>
-          ZIO.debug("Shutting down scoreboard")
-        ).run
+        ZIO
+          .acquireRelease(
+            ZIO.succeed(Scoreboard(value)) <*
+              ZIO.debug(
+                "Initializing scoreboard!"
+              )
+          )(_ =>
+            ZIO.debug("Shutting down scoreboard")
+          )
+          .run
       }
     }
 end Shared

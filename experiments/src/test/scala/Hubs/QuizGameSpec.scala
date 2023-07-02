@@ -16,7 +16,7 @@ object QuizGameSpec extends ZIOSpecDefault:
     List(frop, zeb, shtep, cheep)
   def spec =
     suite("QuizGameSpec")(
-      test("roundWithMultipleCorrectAnswers"){
+      test("roundWithMultipleCorrectAnswers") {
         val roundWithMultipleCorrectAnswers =
           RoundDescription(
             Question(
@@ -32,14 +32,18 @@ object QuizGameSpec extends ZIOSpecDefault:
           )
 
         val rounds =
-          Seq(
-            roundWithMultipleCorrectAnswers,
-          )
+          Seq(roundWithMultipleCorrectAnswers)
 
         defer {
-          val results = QuizGame.cahootGame(rounds, players).run
+          val results =
+            QuizGame
+              .cahootGame(rounds, players)
+              .run
           assertTrue(
-            results == List(RoundResults(List(frop, cheep)))
+            results ==
+              List(
+                RoundResults(List(frop, cheep))
+              )
           )
         }
       },
@@ -54,21 +58,27 @@ object QuizGameSpec extends ZIOSpecDefault:
               Answer(frop, "Lead", 2.seconds),
               Answer(zeb, "Hydrogen", 1.seconds),
               Answer(cheep, "Gold", 3.seconds),
-              Answer(shtep, "Hydrogen", 10.seconds)
+              Answer(
+                shtep,
+                "Hydrogen",
+                10.seconds
+              )
             )
           )
 
         val rounds =
-          Seq(
-            roundWithOnly1CorrectAnswer,
-          )
+          Seq(roundWithOnly1CorrectAnswer)
 
         defer {
-            val results = QuizGame.cahootGame(rounds, players).run
-            assertTrue(
-              results == List(RoundResults(List(zeb)))
-            )
-          }
+          val results =
+            QuizGame
+              .cahootGame(rounds, players)
+              .run
+          assertTrue(
+            results ==
+              List(RoundResults(List(zeb)))
+          )
+        }
       },
       test("roundWhereEverybodyIsWrong") {
         val roundWhereEverybodyIsWrong =
@@ -90,16 +100,17 @@ object QuizGameSpec extends ZIOSpecDefault:
           )
 
         val rounds =
-          Seq(
-            roundWhereEverybodyIsWrong,
-          )
+          Seq(roundWhereEverybodyIsWrong)
 
         defer {
-          val results = QuizGame.cahootGame(rounds, players).run
+          val results =
+            QuizGame
+              .cahootGame(rounds, players)
+              .run
           assertTrue(
             results == List(RoundResults(List()))
           )
         }
       }
-
     ) @@ TestAspect.withLiveClock
+end QuizGameSpec

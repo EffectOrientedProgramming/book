@@ -74,9 +74,11 @@ object LunchVote:
           )
           .orDie
           .run
-      ZIO.when(currentTally <= voterCount / 2)(
-        ZIO.fail(NotConclusive)
-      ).run
+      ZIO
+        .when(currentTally <= voterCount / 2)(
+          ZIO.fail(NotConclusive)
+        )
+        .run
       answer
     }
 

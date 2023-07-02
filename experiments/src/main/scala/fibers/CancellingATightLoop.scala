@@ -26,7 +26,6 @@ object CancellingATightLoop
     // For timeouts, you need fibers and
     // cancellation
     scenario
-      // TODO This is running for 16 seconds nomatter what.
-      .timeout(1.seconds)
-      .timed
-      .debug("Time:")
+      // TODO This is running for 16 seconds
+      // nomatter what.
+      .timeout(1.seconds).timed.debug("Time:")

@@ -85,8 +85,7 @@ case class User():
     ???
 
 case class Home(family: User, grid: Grid):
-  val provide =
-    family.live
+  val provide = family.live
 
 sealed trait GridErrors
 

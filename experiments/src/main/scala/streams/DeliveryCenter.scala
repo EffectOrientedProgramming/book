@@ -41,8 +41,8 @@ object DeliveryCenter extends ZIOAppDefault:
 
     val loadTruck =
       defer {
-        val latch = Promise.make[Nothing, Unit]
-          .run
+        val latch =
+          Promise.make[Nothing, Unit].run
         val truck =
           staged
             .updateAndGet(truck =>
@@ -63,11 +63,13 @@ object DeliveryCenter extends ZIOAppDefault:
             )
             .map(_.get)
             .run
-        ZIO.debug(
-          "Loading order: " +
-            truck.queued.length + "/" +
-            truck.capacity
-        ).run
+        ZIO
+          .debug(
+            "Loading order: " +
+              truck.queued.length + "/" +
+              truck.capacity
+          )
+          .run
         truck
       }
 
@@ -87,9 +89,8 @@ object DeliveryCenter extends ZIOAppDefault:
       else
         ZIO
           .when(truck.queued.length == 1)(
-            ZIO.debug(
-              "Adding timeout daemon"
-            ) *> shipIfWaitingTooLong(truck)
+            ZIO.debug("Adding timeout daemon") *>
+              shipIfWaitingTooLong(truck)
           )
           .forkDaemon
           .run
@@ -99,15 +100,14 @@ object DeliveryCenter extends ZIOAppDefault:
   def run =
     defer {
       val stagedItems =
-        Ref.make[Option[TruckInUse]](None)
-          .run
+        Ref.make[Option[TruckInUse]](None).run
 
       val orderStream =
         ZStream.repeatWithSchedule(
-            Order(),
-            Schedule
-              .exponential(1.second, factor = 1.8)
-          )
+          Order(),
+          Schedule
+            .exponential(1.second, factor = 1.8)
+        )
       orderStream
         .foreach(handle(_, stagedItems))
         .timeout(12.seconds)

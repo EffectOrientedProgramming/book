@@ -35,18 +35,19 @@ object TwitterCustomerSupport
     import zio.direct.*
     defer {
       val activeCompanies =
-        Ref.make[Map[String, Int]](Map.empty)
-          .run
+        Ref.make[Map[String, Int]](Map.empty).run
       val mostActiveCompanyAtEachMoment =
         tweets.mapZIO(tweet =>
           defer {
             val companies =
-                  activeCompanies.updateAndGet(
-                    incrementCompanyActivity(
-                      _,
-                      tweet
-                    )
-                  ).run
+              activeCompanies
+                .updateAndGet(
+                  incrementCompanyActivity(
+                    _,
+                    tweet
+                  )
+                )
+                .run
             companies
               .map(x => x)
               .toList
@@ -54,10 +55,10 @@ object TwitterCustomerSupport
           }
         )
       val res =
-        mostActiveCompanyAtEachMoment.runLast
-          .run
+        mostActiveCompanyAtEachMoment.runLast.run
       res.get
     }
+  end trackActiveCompanies
 
   def run =
     import zio.direct.*
@@ -120,6 +121,7 @@ object TwitterCustomerSupport
           .debug("Active Company duration")
           .run
     }
+  end run
 //      .timeout(60.seconds)
 
   private def incrementCompanyActivity(

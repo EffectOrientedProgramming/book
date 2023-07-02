@@ -9,14 +9,16 @@ object BadTypeManagement
     defer {
       ZIO.debug("ah").run
       val result =
-        failable(1).catchAll {
-          case ex: Exception =>
-            ZIO.fail(ex)
-          case ex: String =>
-            ZIO.succeed(
-              "recovered string error: " + ex
-            )
-        }.run
+        failable(1)
+          .catchAll {
+            case ex: Exception =>
+              ZIO.fail(ex)
+            case ex: String =>
+              ZIO.succeed(
+                "recovered string error: " + ex
+              )
+          }
+          .run
       ZIO.debug(result).run
       result
     }

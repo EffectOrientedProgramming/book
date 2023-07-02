@@ -20,17 +20,15 @@ object MalcomInTheMiddleZ extends ZIOAppDefault:
     defer {
       turnOnLights()
         .catchAllCause(originalError =>
-          getNewBulb()
-            .catchAllCause(bulbError =>
-              grabScrewDriver()
-                .mapErrorCause(
-                  screwDriverError =>
-                    (originalError ++
-                      bulbError) ++
-                      screwDriverError
-                )
-            )
-        ).run
+          getNewBulb().catchAllCause(bulbError =>
+            grabScrewDriver()
+              .mapErrorCause(screwDriverError =>
+                (originalError ++ bulbError) ++
+                  screwDriverError
+              )
+          )
+        )
+        .run
       ZIO.debug("Preserve failures!").run
     }.catchAllCause(bigError =>
       ZIO.debug(

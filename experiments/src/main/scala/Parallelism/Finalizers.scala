@@ -70,9 +70,8 @@ object Finalizers extends zio.ZIOAppDefault:
     ] = // Define the ZIO contexts
       defer {
         val fileLines = readFileContents.run
-        printLine(
-          fileLines.mkString("\n")
-        ).run // Combine the strings of the output vector into a single string, separated by \n
+        printLine(fileLines.mkString("\n"))
+          .run // Combine the strings of the output vector into a single string, separated by \n
       }
 
     ioExample

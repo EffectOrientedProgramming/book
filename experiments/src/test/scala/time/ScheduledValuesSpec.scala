@@ -21,7 +21,8 @@ object ScheduledValuesSpec
                 (1.seconds, "First Section")
               ).run
             assertTrue(
-              valueAccessor.run == "First Section"
+              valueAccessor.run ==
+                "First Section"
             )
           }
         ),
@@ -42,10 +43,10 @@ object ScheduledValuesSpec
         )(
           defer {
             val valueAccessor =
-            scheduledValues(
-              (1.seconds, "First Section"),
-              (2.seconds, "Second Section")
-            ).run
+              scheduledValues(
+                (1.seconds, "First Section"),
+                (2.seconds, "Second Section")
+              ).run
             TestClock.adjust(1.seconds).run
             val secondValue = valueAccessor.run
             assertTrue(

@@ -12,7 +12,8 @@ object WithLiveSpec extends ZIOSpecDefault:
       val b = zio.Random.nextBoolean.debug.run
       ZIO
         .cond(b, a, "failed")
-        .tapError(ZIO.logError(_)).run
+        .tapError(ZIO.logError(_))
+        .run
     }
 
   val song =

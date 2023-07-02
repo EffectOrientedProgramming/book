@@ -64,7 +64,7 @@ object Path:
 
       defer {
         val section =
-              randomElementFrom(genericPaths).run
+          randomElementFrom(genericPaths).run
         Path(s"/$section")
       }
 
@@ -77,7 +77,8 @@ object Path:
         )
 
       defer {
-        val userId = zio.Random.nextIntBounded(1000).run
+        val userId =
+          zio.Random.nextIntBounded(1000).run
         val section =
           randomElementFrom(userSections).run
         Path(s"/user/$userId/$section")

@@ -74,7 +74,8 @@ object CivilEngineering extends ZIOAppDefault:
         Companies.operatingIn[T](state).run
       val legalRestrictions =
         World.legalRestrictionsFor(state).run
-      val politicians = World.politiciansOf(state).run
+      val politicians =
+        World.politiciansOf(state).run
       val lowestBid =
         availableCompanies
           .lowestBid(projectSpecifications)

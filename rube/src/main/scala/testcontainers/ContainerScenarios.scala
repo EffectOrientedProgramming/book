@@ -29,7 +29,8 @@ val makeAProxiedRequest =
     val result =
       CareerHistoryService
         .citizenInfo("Zeb")
-        .tapError(reportTopLevelError).run
+        .tapError(reportTopLevelError)
+        .run
     printLine("Result: " + result).run
   }
 
@@ -158,11 +159,12 @@ object ContainerScenarios:
               defer {
                 val location =
                   LocationService
-                    .locationOf(record.key).run
+                    .locationOf(record.key)
+                    .run
                 record.value +
                   s",Location:$location",
-              }
-          outputTopicName = "housing_history",
+              } outputTopicName =
+              "housing_history",
           groupId = "housing"
         )
 

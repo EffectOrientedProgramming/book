@@ -15,26 +15,33 @@ object ThunderingHerdsSpec
 
       val herdBehavior =
         defer {
-          val fileService = ZIO.service[FileService].run
+          val fileService =
+            ZIO.service[FileService].run
           val fileResults =
-            ZIO.foreachPar(users)(user =>
-              fileService.retrieveContents(
-                Path.of("awesomeMemes")
+            ZIO
+              .foreachPar(users)(user =>
+                fileService.retrieveContents(
+                  Path.of("awesomeMemes")
+                )
               )
-            ).run
+              .run
           ZIO.debug("=========").run
-          fileService.retrieveContents(
-            Path.of("awesomeMemes")
-          ).run
+          fileService
+            .retrieveContents(
+              Path.of("awesomeMemes")
+            )
+            .run
           fileResults
         }
 
       printLine("Capture?").run
       val logicFork = herdBehavior.fork.run
       TestClock.adjust(2.seconds).run
-      val res       = logicFork.join.run
+      val res = logicFork.join.run
       val misses =
-        ZIO.serviceWithZIO[FileService](_.misses).run
+        ZIO
+          .serviceWithZIO[FileService](_.misses)
+          .run
       ZIO.debug("Eh?").run
 
       assertTrue(
@@ -64,6 +71,6 @@ object ThunderingHerdsSpec
         ZLayer.fromZIO(
           ThunderingHerdsUsingZioCacheLib.make
         )
-      ),
+      )
     )
 end ThunderingHerdsSpec

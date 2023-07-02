@@ -83,11 +83,14 @@ object SecuritySystem:
     Unit
   ] =
     defer {
-      val amountOfHeat = amountOfHeatGenerator.run
+      val amountOfHeat =
+        amountOfHeatGenerator.run
       val noise = acousticDetector.run
-      ZIO.debug(
-        s"Heat: $amountOfHeat  Motion: $amountOfMotion  Noise: $noise"
-      ).run
+      ZIO
+        .debug(
+          s"Heat: $amountOfHeat  Motion: $amountOfMotion  Noise: $noise"
+        )
+        .run
       val securityResponse =
         determineResponse(
           amountOfMotion,
@@ -128,9 +131,10 @@ object SecuritySystem:
         amountOfMotion,
         acousticDetector
       ).repeat(
-        Schedule.recurs(5) &&
-          Schedule.spaced(1.seconds)
-      ).run
+          Schedule.recurs(5) &&
+            Schedule.spaced(1.seconds)
+        )
+        .run
       "Fin"
     }
 
@@ -249,17 +253,22 @@ object ThermalDetectorY:
     ZLayer.fromZIO(
       defer {
         val thermalDetectorValues =
-          scheduledValues(value, values *).run
-        ZIO.succeed(new ThermalDetectorY:
-          override def heatMeasurement(): ZIO[
-            Any,
-            TimeoutException |
-              scenarios.HardwareFailure,
-            Degrees
-          ] = thermalDetectorValues
-        ).run
+          scheduledValues(value, values*).run
+        ZIO
+          .succeed(
+            new ThermalDetectorY:
+              override def heatMeasurement()
+                  : ZIO[
+                    Any,
+                    TimeoutException |
+                      scenarios.HardwareFailure,
+                    Degrees
+                  ] = thermalDetectorValues
+          )
+          .run
       }
     )
+end ThermalDetectorY
 
 object ThermalDetectorX:
 

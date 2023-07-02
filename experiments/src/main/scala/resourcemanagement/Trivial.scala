@@ -33,9 +33,11 @@ object Trivial extends zio.ZIOAppDefault:
     // & release logic.
     defer {
       val ref =
-        Ref.make[ResourceState](
-          ResourceState.Closed
-        ).run
+        Ref
+          .make[ResourceState](
+            ResourceState.Closed
+          )
+          .run
       val managed =
         ZIO.acquireRelease(acquire(ref))(_ =>
           release(ref)
@@ -47,16 +49,18 @@ object Trivial extends zio.ZIOAppDefault:
         } // note: Can't just do (Console.printLine) here
       reusable.run
       reusable.run
-      ZIO.scoped {
-        managed.flatMap { s =>
-          defer {
-            ZIO.debug(s).run
-            ZIO.debug("Blowing up").run
-            ZIO.fail("Arggggg").run
-            ()
+      ZIO
+        .scoped {
+          managed.flatMap { s =>
+            defer {
+              ZIO.debug(s).run
+              ZIO.debug("Blowing up").run
+              ZIO.fail("Arggggg").run
+              ()
+            }
           }
         }
-      }.run
+        .run
     }
   end run
 end Trivial

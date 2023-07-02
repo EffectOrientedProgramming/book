@@ -22,7 +22,8 @@ object TestContainersSpec
         // TODO
         val logicWithAssertions =
           defer {
-            val people = ContainerScenarios.logic.run
+            val people =
+              ContainerScenarios.logic.run
             assert(people.head)(
               equalTo(
                 Person("Joe", "Dimagio", 143)

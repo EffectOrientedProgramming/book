@@ -22,11 +22,13 @@ object CommitStream:
 
   private val randomCommit =
     defer {
-      val author       = Author.random.run
-      val project      = Project.random.run
-      val message      = Message.random.run
-      val linesAdded   = Random.nextIntBounded(500).run
-      val linesRemoved = Random.nextIntBounded(500).run
+      val author  = Author.random.run
+      val project = Project.random.run
+      val message = Message.random.run
+      val linesAdded =
+        Random.nextIntBounded(500).run
+      val linesRemoved =
+        Random.nextIntBounded(500).run
       Commit(
         project,
         author,

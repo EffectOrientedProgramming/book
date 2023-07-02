@@ -15,46 +15,55 @@ object KeepSuccesses extends zio.ZIOAppDefault:
     allCalls.map(fastUnreliableNetworkCall)
 
   val logic =
-    ZIO.collectAllSuccesses(
-      initialRequests.map(
-        _.tapError(e =>
-          printLine("Error: " + e)
+    ZIO
+      .collectAllSuccesses(
+        initialRequests.map(
+          _.tapError(e =>
+            printLine("Error: " + e)
+          )
         )
       )
-    ).debug
+      .debug
 
   val moreStructuredLogic =
     defer {
       val results =
-        ZIO.partition(allCalls)(
-          fastUnreliableNetworkCall
-        ).run
+        ZIO
+          .partition(allCalls)(
+            fastUnreliableNetworkCall
+          )
+          .run
       results match
         case (failures, successes) =>
           defer {
-            ZIO.foreach(failures)(e =>
-              printLine(
-                "Error: " + e +
-                  ". Should retry on other server."
+            ZIO
+              .foreach(failures)(e =>
+                printLine(
+                  "Error: " + e +
+                    ". Should retry on other server."
+                )
               )
-            ).run
+              .run
             val recoveries =
-              ZIO.collectAllSuccesses(
-                failures.map(failure =>
-                  slowMoreReliableNetworkCall(
-                    failure.payload
-                  ).tapError(e =>
-                    printLine(
-                      "Giving up on: " + e
+              ZIO
+                .collectAllSuccesses(
+                  failures.map(failure =>
+                    slowMoreReliableNetworkCall(
+                      failure.payload
+                    ).tapError(e =>
+                      printLine(
+                        "Giving up on: " + e
+                      )
                     )
                   )
                 )
-              ).run
+                .run
             printLine(
               "All successes: " +
                 (successes ++ recoveries)
             ).run
           }.run
+      end match
     }
 
   def run = moreStructuredLogic

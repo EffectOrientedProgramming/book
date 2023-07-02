@@ -8,9 +8,11 @@ case class TweetFactory(counter: Counter):
   val randomTweet
       : ZIO[Any, Nothing, SimpleTweet] =
     defer {
-      val subject   = TweetFactory.randomSubject.run
-      val adjective = TweetFactory.randomAdjective.run
-      val id        = counter.get.run
+      val subject =
+        TweetFactory.randomSubject.run
+      val adjective =
+        TweetFactory.randomAdjective.run
+      val id = counter.get.run
       SimpleTweet(
         id,
         s"$subject is the $adjective thing ever!"
@@ -40,16 +42,18 @@ private object TweetFactory:
   val randomAdjective =
     defer {
       val index =
-            Random.nextIntBounded(allAdjectives.size)
-              .run
+        Random
+          .nextIntBounded(allAdjectives.size)
+          .run
       allAdjectives(index)
     }
 
   val randomSubject =
     defer {
       val index =
-            Random.nextIntBounded(allSubjects.size)
-              .run
+        Random
+          .nextIntBounded(allSubjects.size)
+          .run
       allSubjects(index)
     }
 end TweetFactory

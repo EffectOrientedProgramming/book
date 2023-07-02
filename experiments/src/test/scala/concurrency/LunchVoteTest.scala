@@ -37,9 +37,10 @@ object LunchVoteTest extends ZIOSpecDefault:
           val result = LunchVote.run(voters).run
           val totalInterrupted =
             interruptedVoters.get.run
-          //          _ <- ZIO.withClock(Clock.ClockLive)(ZIO.sleep(1.seconds))
+          // _ <-
+          // ZIO.withClock(Clock.ClockLive)(ZIO.sleep(1.seconds))
           assertTrue(result == Yay) &&
-            assertTrue(totalInterrupted == 2)
+          assertTrue(totalInterrupted == 2)
         }
       } @@
         flaky, // Flaky because Interruption count is not reliable

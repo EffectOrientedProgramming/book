@@ -31,15 +31,15 @@ object ThunderingHerdsUsingZioCacheLib:
           .service[FileSystem]
           .map(_.readFileExpensive)
           .run
-      val cache: Cache[
-        Path,
-        Nothing,
-        FileContents
-      ] =
-        Cache.make(
-          capacity = 100,
-          timeToLive = Duration.Infinity,
-          lookup = Lookup(retrievalFunction)
-        ).run
+      val cache
+          : Cache[Path, Nothing, FileContents] =
+        Cache
+          .make(
+            capacity = 100,
+            timeToLive = Duration.Infinity,
+            lookup = Lookup(retrievalFunction)
+          )
+          .run
       ThunderingHerdsUsingZioCacheLib(cache)
     }
+end ThunderingHerdsUsingZioCacheLib

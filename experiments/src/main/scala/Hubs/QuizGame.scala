@@ -37,19 +37,20 @@ object QuizGame:
       players: List[Player]
   ) =
     defer {
-      val questionHub = Hub.bounded[Question](1).run
+      val questionHub =
+        Hub.bounded[Question](1).run
       val answerHub: Hub[Answer] =
         Hub.bounded[Answer](players.size).run
       val (
         questions: Dequeue[Question],
         answers: Dequeue[Answer]
-        ) =
+      ) =
         questionHub
           .subscribe
           .zip(answerHub.subscribe)
           .run
-      ZIO.foreach(rounds)(
-        roundDescription =>
+      ZIO
+        .foreach(rounds)(roundDescription =>
           questionHub.publish(
             roundDescription.question
           ) *>
@@ -59,7 +60,8 @@ object QuizGame:
               answerHub,
               answers
             )
-      ).run
+        )
+        .run
     }
 
   private[Hubs] def playARound(

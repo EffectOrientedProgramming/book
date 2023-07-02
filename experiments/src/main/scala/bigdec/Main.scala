@@ -21,14 +21,17 @@ def inputBigDecimalValue(
         .attempt(BigDecimal(input))
         .mapError(_ =>
           Exception("Invalid input.")
-        ).run
-    ZIO.unless(min <= result && result <= max)(
-      ZIO.fail(
-        Exception(
-          s"Input out of the range from $min to $max"
+        )
+        .run
+    ZIO
+      .unless(min <= result && result <= max)(
+        ZIO.fail(
+          Exception(
+            s"Input out of the range from $min to $max"
+          )
         )
       )
-    ).run
+      .run
     result
   }
 

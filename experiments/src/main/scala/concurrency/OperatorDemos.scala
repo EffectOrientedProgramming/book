@@ -56,12 +56,14 @@ object CollectAllParDemo
   override def run =
     defer {
       val durations =
-        ZIO.collectAllPar(
-          Seq(
-            sleepThenPrint(2.seconds),
-            sleepThenPrint(1.seconds)
+        ZIO
+          .collectAllPar(
+            Seq(
+              sleepThenPrint(2.seconds),
+              sleepThenPrint(1.seconds)
+            )
           )
-        ).run
+          .run
       val total =
         durations
           .fold(Duration.Zero)(_ + _)
@@ -75,21 +77,29 @@ object CollectAllParMassiveDemo
   override def run =
     defer {
       val durations =
-        ZIO.collectAllSuccessesPar(
-          Seq
-            .fill(1_000_000)(1.seconds)
-            .map(duration =>
-              defer {
-                val randInt =
-                  Random.nextIntBetween(0, 100).run
-                ZIO.sleep(duration).run
-                ZIO.when(randInt < 10)(
-                  ZIO.fail("Number is too low")
-                ).run
-                duration
-              }
-            )
-        ).run
+        ZIO
+          .collectAllSuccessesPar(
+            Seq
+              .fill(1_000_000)(1.seconds)
+              .map(duration =>
+                defer {
+                  val randInt =
+                    Random
+                      .nextIntBetween(0, 100)
+                      .run
+                  ZIO.sleep(duration).run
+                  ZIO
+                    .when(randInt < 10)(
+                      ZIO.fail(
+                        "Number is too low"
+                      )
+                    )
+                    .run
+                  duration
+                }
+              )
+          )
+          .run
       val total =
         durations
           .fold(Duration.Zero)(_ + _)

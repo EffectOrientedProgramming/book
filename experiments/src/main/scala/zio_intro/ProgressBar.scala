@@ -45,9 +45,11 @@ object ClockAndConsole extends ZIOAppDefault:
       // position once in a single SBT session
       saveCursorPosition.run
       val timeRemaining = 10 - timeElapsed
-      Console.print(
-        s"${BOLD}$timeRemaining seconds remaining ${RESET}"
-      ).run
+      Console
+        .print(
+          s"${BOLD}$timeRemaining seconds remaining ${RESET}"
+        )
+        .run
       progressBar(timeRemaining).run
       ZIO.sleep(1.seconds).run
       loadCursorPosition.run
@@ -69,19 +71,23 @@ object ClockAndConsoleImproved
           3
         ).run
       val racer2 =
-        LongRunningProcess("Zeb", currentTime, 5).run
-      val raceFinished = Ref.make[Boolean](false).run
+        LongRunningProcess("Zeb", currentTime, 5)
+          .run
+      val raceFinished =
+        Ref.make[Boolean](false).run
       val winnersName =
-        (raceEntities(
-          racer1.run,
-          racer1.run,
-          raceFinished
-        ) zipParLeft
-          monitoringLogic(
-            racer1,
-            racer2,
+        (
+          raceEntities(
+            racer1.run,
+            racer1.run,
             raceFinished
-          )).run
+          ) zipParLeft
+            monitoringLogic(
+              racer1,
+              racer2,
+              raceFinished
+            )
+        ).run
       printLine(s"\nWinner: $winnersName").run
     }
 
@@ -94,9 +100,11 @@ object ClockAndConsoleImproved
       defer {
         val racer1status = racer1.status.get.run
         val racer2status = racer2.status.get.run
-        progressBar(racer1status, racer1.name).run
+        progressBar(racer1status, racer1.name)
+          .run
         printLine("").run
-        progressBar(racer2status, racer2.name).run
+        progressBar(racer2status, racer2.name)
+          .run
       }
     ).repeatWhileZIO(_ => raceFinished.get)
 
@@ -128,8 +136,7 @@ object ClockAndConsoleImproved
         Clock.currentTime(TimeUnit.SECONDS).run
       val timeElapsed = (currentTime - startTime)
         .toInt
-      Integer
-        .max(secondsToRun - timeElapsed, 0)
+      Integer.max(secondsToRun - timeElapsed, 0)
     }
 
   object LongRunningProcess:

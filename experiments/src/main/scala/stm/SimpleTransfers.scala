@@ -11,7 +11,8 @@ def transfer(
     to: TRef[Int],
     amount: Int
 ): STM[Throwable, Unit] =
-  // TODO Figure out if/when zio-direct will handle STM
+  // TODO Figure out if/when zio-direct will
+  // handle STM
   for
     senderBalance <- from.get
     _ <-
@@ -27,14 +28,15 @@ def transfer(
 object StmDemo extends ZIOAppDefault:
   def run =
     defer {
-        val fromAccount = TRef.make(100).commit.run
-        val toAccount = TRef.make(0).commit.run
-          transfer(fromAccount, toAccount, 20)
-            .commit
-            .run
-        //      _ <- transferTransaction.commit
-        val toAccountFinal = toAccount.get.commit.run
-        printLine(
-          "toAccountFinal: " + toAccountFinal
-        ).run
+      val fromAccount = TRef.make(100).commit.run
+      val toAccount   = TRef.make(0).commit.run
+      transfer(fromAccount, toAccount, 20)
+        .commit
+        .run
+      //      _ <- transferTransaction.commit
+      val toAccountFinal =
+        toAccount.get.commit.run
+      printLine(
+        "toAccountFinal: " + toAccountFinal
+      ).run
     }

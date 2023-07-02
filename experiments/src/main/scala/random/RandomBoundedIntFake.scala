@@ -14,11 +14,13 @@ class RandomBoundedIntFake private (
       val remainingValues = values.get.run
       val nextValue =
         if (remainingValues.isEmpty)
-          ZIO.die(
-            new Exception(
-              "Did not provide enough values!"
+          ZIO
+            .die(
+              new Exception(
+                "Did not provide enough values!"
+              )
             )
-          ).run
+            .run
         else
           ZIO.succeed(remainingValues.head).run
       values.set(remainingValues.tail).run
