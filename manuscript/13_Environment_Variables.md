@@ -231,7 +231,7 @@ val fancyLodging: ZIO[
 //     ),
 //     successK = zio.ZIO$$$Lambda$2467/0x0000000100b96840@3fbb2f6d
 //   ),
-//   successK = zio.ZIO$$Lambda$2502/0x0000000100bc9840@1e17cf45
+//   successK = zio.ZIO$$Lambda$2500/0x0000000100bc8840@1e17cf45
 // )
 ```
 

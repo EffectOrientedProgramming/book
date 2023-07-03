@@ -20,8 +20,8 @@ object MainSpec extends ZIOSpecDefault:
         defer {
           TestConsole.feedLines("1").run
           assertTrue(
-            inputBigDecimalValue("Num: ", 1, 10).run
-              == BigDecimal(1)
+            inputBigDecimalValue("Num: ", 1, 10)
+              .run == BigDecimal(1)
           )
         }
       },
@@ -31,7 +31,8 @@ object MainSpec extends ZIOSpecDefault:
           val error =
             inputBigDecimalValue("Num: ", 1, 10)
               .mapError(_.getMessage)
-              .exit.run
+              .exit
+              .run
           assert(error)(
             fails(equalTo("Invalid input."))
           )
@@ -43,7 +44,8 @@ object MainSpec extends ZIOSpecDefault:
           val error =
             inputBigDecimalValue("Num: ", 1, 10)
               .mapError(_.getMessage)
-              .exit.run
+              .exit
+              .run
           assert(error)(
             fails(
               equalTo(
