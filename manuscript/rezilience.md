@@ -75,35 +75,28 @@ import nl.vroste.rezilience._
 import zio._
 import zio.direct._
 
-object CircuitBreakerDemo extends ZIOAppDefault:
-  case class ExternalSystem(requests: Ref[Int]):
-    object Scenario:
-      enum Step:
-        case Success,
-          Failure
+object Scenario:
+  enum Step:
+    case Success,
+      Failure
 
-      import Step.*
-      val steps =
-        List(Success, Failure, Failure, Success)
+import Scenario.Step
+
+object CircuitBreakerDemo extends ZIOAppDefault:
+  case class ExternalSystem(
+      requests: Ref[Int],
+      steps: List[Step]
+  ):
 
     // TODO: Better error type than Throwable
-    def call(
-        request: Int
-    ): ZIO[Any, Throwable, Int] =
+    def call(): ZIO[Any, Throwable, Int] =
       defer {
         val requestCount =
           requests.getAndUpdate(_ + 1).run
 
-        Scenario.steps.apply(requestCount) match
+        steps.apply(requestCount) match
           case Scenario.Step.Success =>
-            ZIO
-              .succeed(request)
-              .tap(result =>
-                ZIO.debug(
-                  s"External system returned $result"
-                )
-              )
-              .run
+            ZIO.succeed(requestCount).run
           case Scenario.Step.Failure =>
             ZIO
               .fail(
@@ -139,26 +132,32 @@ object CircuitBreakerDemo extends ZIOAppDefault:
     defer {
       val cb       = makeCircuitBreaker.run
       val requests = Ref.make[Int](0).run
-      val system   = ExternalSystem(requests)
-      ZIO
-        .foreach(1 to 6)(id =>
-          defer {
-            ZIO.sleep(500.millis).run
-            cb(system.call(id))
-              .catchSome {
-                case CircuitBreakerOpen =>
-                  ZIO.debug(
-                    "Circuit breaker blocked the call to our external system"
-                  )
-                case WrappedError(e) =>
-                  ZIO.debug(
-                    s"External system threw an exception: $e"
-                  )
-              }
-              .run
+      import Scenario.Step._
+
+      val steps =
+        List(Success, Failure, Failure, Success)
+      val system =
+        ExternalSystem(requests, steps)
+      defer {
+        ZIO.sleep(500.millis).run
+        cb(system.call())
+          .catchSome {
+            case CircuitBreakerOpen =>
+              ZIO.debug(
+                "Circuit breaker blocked the call to our external system"
+              )
+            case WrappedError(e) =>
+              ZIO.debug(
+                s"External system threw an exception: $e"
+              )
           }
-        )
-        .run
+          .tap(result =>
+            ZIO.debug(
+              s"External system returned $result"
+            )
+          )
+          .run
+      }.repeatN(5).run
     }
 end CircuitBreakerDemo
 
