@@ -7,7 +7,8 @@ import zio.direct._
 
 object Scenario:
   enum Step:
-    case Success, Failure
+    case Success,
+      Failure
 
 import Scenario.Step
 
@@ -19,26 +20,25 @@ object CircuitBreakerDemo extends ZIOAppDefault:
 
     // TODO: Better error type than Throwable
     def call(): ZIO[Any, Throwable, Int] =
-        defer {
-          val requestCount =
-            requests
-              .getAndUpdate(_+1)
-              .run
+      defer {
+        val requestCount =
+          requests.getAndUpdate(_ + 1).run
 
-          steps.apply(requestCount) match
-            case Scenario.Step.Success =>
-              ZIO.succeed(requestCount)
-                  .run
-            case Scenario.Step.Failure =>
-              ZIO.fail(
+        steps.apply(requestCount) match
+          case Scenario.Step.Success =>
+            ZIO.succeed(requestCount).run
+          case Scenario.Step.Failure =>
+            ZIO
+              .fail(
                 new Exception(
                   "Something went wrong"
                 )
-              ).run
+              )
+              .run
 
-        }.tapError(e =>
-          ZIO.debug(s"External failed: $e")
-        )
+      }.tapError(e =>
+        ZIO.debug(s"External failed: $e")
+      )
   end ExternalSystem
 
   val makeCircuitBreaker
@@ -60,18 +60,14 @@ object CircuitBreakerDemo extends ZIOAppDefault:
 
   def run =
     defer {
-      val cb = makeCircuitBreaker.run
-      val requests =
-        Ref.make[Int](0).run
+      val cb       = makeCircuitBreaker.run
+      val requests = Ref.make[Int](0).run
       import Scenario.Step._
 
-      val steps = List(
-        Success,
-        Failure,
-        Failure,
-        Success,
-      )
-      val system = ExternalSystem(requests, steps)
+      val steps =
+        List(Success, Failure, Failure, Success)
+      val system =
+        ExternalSystem(requests, steps)
       defer {
         ZIO.sleep(500.millis).run
         cb(system.call())
@@ -86,10 +82,10 @@ object CircuitBreakerDemo extends ZIOAppDefault:
               )
           }
           .tap(result =>
-              ZIO.debug(
-                s"External system returned $result"
-              )
+            ZIO.debug(
+              s"External system returned $result"
             )
+          )
           .run
       }.repeatN(5).run
     }
