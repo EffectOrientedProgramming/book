@@ -3,7 +3,7 @@
 Managing and wiring dependencies has been a perennial challenge in software development.
 
 ZIO provides the `ZLayer` class to solve many of the problems in this space.
-If you pay the modest, consistent cost of constructing pieces of your application as `ZLayer`s, you will get numerous benefits that scale with the complexity of your project.
+If you pay the modest, consistent cost of constructing pieces of your application as `ZLayer`s, you will get benefits that scale with the complexity of your project.
 Consistent with `ZIO` itself, `ZLayer` has 3 type parameters that represent:
 
 - What it needs from the environment
