@@ -32,10 +32,17 @@ object RateLimiterDemoWithLogging
     extends ZIOAppDefault:
 
   extension [R, E, A](z: ZIO[R, E, A])
-    def timedSecondsDebug(message: String): ZIO[R, E, A] =
-      z.timed.tap { (duration, res) =>
-        ZIO.debug(message + ": " + res + " [took " + duration.getSeconds + "s]")
-      }.map(_._2)
+    def timedSecondsDebug(
+        message: String
+    ): ZIO[R, E, A] =
+      z.timed
+        .tap { (duration, res) =>
+          ZIO.debug(
+            message + ": " + res + " [took " +
+              duration.getSeconds + "s]"
+          )
+        }
+        .map(_._2)
 
   def run =
     defer {
@@ -46,23 +53,30 @@ object RateLimiterDemoWithLogging
         // Repeat as fast as the limiter allows:
         .repeatN(5)
         // Print the last result
-        .timedSecondsDebug("Result")
-        .run
+        .timedSecondsDebug("Result").run
     }
 end RateLimiterDemoWithLogging
 
-object RateLimiterDemoGlobal extends ZIOAppDefault:
+object RateLimiterDemoGlobal
+    extends ZIOAppDefault:
   extension (z: ZIO.type)
-    def repeatNPar[R, E, A](numTimes: Int)(op: Int => ZIO[R, E, A]): ZIO[R, E, Seq[A]] =
+    def repeatNPar[R, E, A](numTimes: Int)(
+        op: Int => ZIO[R, E, A]
+    ): ZIO[R, E, Seq[A]] =
       z.foreachPar(0 until numTimes)(op)
 
   def run =
     defer {
       val rateLimiter = makeRateLimiter.run
-      ZIO.repeatNPar(4) { i =>
-        rateLimiter(rsaKeyGenerator.debug(i.toString))
-          // Repeats as fast as the limiter allows:
-          .repeatN(5)
-          .debug(s"Result $i")
-      }.run
+      ZIO
+        .repeatNPar(4) { i =>
+          rateLimiter(
+            rsaKeyGenerator.debug(i.toString)
+          )
+            // Repeats as fast as the limiter
+            // allows:
+            .repeatN(5).debug(s"Result $i")
+        }
+        .run
     }
+end RateLimiterDemoGlobal
