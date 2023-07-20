@@ -136,8 +136,6 @@ Before looking at the official ZIO implementation of `System`, we will create a 
 The real implementation is a bit more complex, to handle corner cases.
 
 ```scala mdoc
-import zio.ZIO
-
 trait System:
   def env(
       variable: String
@@ -148,8 +146,6 @@ Now, our live implementation will wrap our original, unsafe function call.
 For easier usage by the caller, we also create an accessor.
 
 ```scala mdoc
-import zio.ZLayer
-
 object System:
   object Live extends System:
     def env(
@@ -285,7 +281,6 @@ It now reports the `System` and `HotelApiZ` dependencies of our function.
 This is what it looks like in action:
 
 ```scala mdoc
-import zio.ZLayer
 import mdoc.unsafeRunPrettyPrint
 import mdoc.unsafeRunPrettyPrintValue
 ```
@@ -390,8 +385,6 @@ ZIO provides a more complete `System` API in the `zio.System`
 TODO
 
 ```scala mdoc
-import zio.System
-
 def fancyLodgingZ(): ZIO[
   zio.System,
   SecurityException,

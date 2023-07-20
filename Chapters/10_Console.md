@@ -48,8 +48,6 @@ This `trait` represents a piece of the `Environment` that our codes need to inte
 It contains the methods for effectful interactions.
 
 ```scala mdoc
-import zio.ZIO
-
 trait Console:
   def printLine(
       output: String
@@ -89,7 +87,6 @@ val logicClunky: ZIO[Console, Nothing, Unit] =
 
 ```scala mdoc
 import mdoc.unsafeRunPrettyPrint
-import zio.ZLayer
 
 unsafeRunPrettyPrint(
   logicClunky.provide(
@@ -125,7 +122,6 @@ val logic: ZIO[Console, Nothing, Unit] =
 However, providing dependencies to the logic is still tedious.
 
 ```scala mdoc
-import zio.ZLayer
 import zio.Runtime.default.unsafe
 
 unsafeRunPrettyPrint(
@@ -140,8 +136,6 @@ unsafeRunPrettyPrint(
 Rather than making each caller wrap our instance in a `Layer`, we can do that a single time in our companion.
 
 ```scala mdoc
-import zio.ZLayer
-
 object ConsoleWithLayer:
   val live: ZLayer[Any, Nothing, Console] =
     ZLayer.succeed[Console](ConsoleLive)
@@ -158,7 +152,6 @@ unsafeRunPrettyPrint(
 In real application, both of these will go in the companion object directly.
 
 ```scala // mdoc
-import zio.ZLayer
 object Console:
   def printLine(
       variable: => String

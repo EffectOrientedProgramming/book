@@ -18,8 +18,6 @@ Required Operations:
 These are both effectful operations.
 
 ```scala mdoc
-import zio.ZIO
-
 trait RefZ[A]:
   def get: ZIO[Any, Nothing, A]
   def update(a: A => A): ZIO[Any, Nothing, Unit]
@@ -78,7 +76,6 @@ We need to fully embrace the ZIO components, utilizing `Ref` for correct mutatio
 ## Reliable Counting
 
 ```scala mdoc
-import zio.Ref
 lazy val reliableCounting =
   def incrementCounter(counter: Ref[Int]) =
     counter.update(_ + 1)

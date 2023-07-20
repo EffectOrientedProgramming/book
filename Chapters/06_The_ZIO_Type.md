@@ -15,10 +15,6 @@ The `ZIO` trait is at the center of our Effect-oriented world.
 trait ZIO[R, E, A]
 ```
 
-```scala mdoc
-import zio.ZIO
-```
-
 A trait with 3 type parameters can be intimidating, but each one serves a distinct, important purpose.
 
 ## R - The Environment

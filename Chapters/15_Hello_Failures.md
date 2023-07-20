@@ -193,7 +193,6 @@ TODO {{Update verbiage now that ZIO section is first}}
 ### ZIO-First Error Handling
 
 ```scala mdoc
-import zio.ZIO
 import mdoc.unsafeRunPrettyPrint
 
 def getTemperatureZ(behavior: Scenario): ZIO[
@@ -238,10 +237,6 @@ If we are unable to re-write the fallible function, we can still wrap the call
 We are re-using the  `displayTemperature`
 
 {{TODO }}
-
-```scala mdoc
-import zio.{Task, ZIO}
-```
 
 ```scala mdoc
 def displayTemperatureZWrapped(
