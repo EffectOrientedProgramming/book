@@ -1,6 +1,5 @@
 package Hubs
 
-
 // The purpose of this example to to create a
 // very basic hub that displays small
 // capabilities.

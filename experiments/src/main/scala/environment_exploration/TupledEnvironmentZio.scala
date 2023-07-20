@@ -67,4 +67,3 @@ def demoTupledEnvironment =
     composedRes.unsafeRun((5, "Hello"))
   println(finalResult)
 end demoTupledEnvironment
-

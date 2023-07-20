@@ -30,7 +30,9 @@
 
 ```scala mdoc
 import mdoc.unsafeRunPrettyPrint
-unsafeRunPrettyPrint(defer {
-  ZIO.debug("Hi").run
-})
+unsafeRunPrettyPrint(
+  defer {
+    ZIO.debug("Hi").run
+  }
+)
 ```
