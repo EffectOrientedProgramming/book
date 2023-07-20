@@ -26,3 +26,11 @@
   - Work-stealing
 - Resource Control/Management
 - Programs as values
+
+
+```scala mdoc
+import mdoc.unsafeRunPrettyPrint
+unsafeRunPrettyPrint(defer {
+  ZIO.debug("Hi").run
+})
+```

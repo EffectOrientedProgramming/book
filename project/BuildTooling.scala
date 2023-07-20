@@ -1,7 +1,8 @@
 import sbt.IO
-
 import sbt.*
 import Keys.*
+import mdoc.internal.cli.Settings
+
 import java.io.File
 import java.nio.file.Path
 
@@ -115,7 +116,7 @@ object BuildTooling {
       val input = Input.VirtualFile(file.absolutePath, source)
 
       val codeBlocks =
-        MarkdownFile.parse(input, inputFile, ConsoleReporter.default)
+        MarkdownFile.parse(input, inputFile, ConsoleReporter.default, Settings.default(AbsolutePath.workingDirectory))
           .parts
           .collect {
             case codeFence: CodeFence if codeFence.info.value.startsWith("scala mdoc") && !codeFence.info.value.startsWith("scala mdoc:nest") =>
@@ -283,7 +284,6 @@ object BuildTooling {
     "io.getquill" %% "quill-zio" % "4.6.0.1",
     "nl.vroste" %% "rezilience" % "0.9.4",
     "dev.zio" %% "zio-process" % "0.7.2",
-    "dev.zio" %% "zio-direct" % "1.0.0-RC7",
     "dev.zio" %% "zio-schema" % "0.4.12",
     "dev.zio" %% "zio-schema-json" % "0.4.12",
     "dev.zio" %% "zio-schema-derivation" % "0.4.12",
@@ -295,8 +295,17 @@ object BuildTooling {
   val zioVersion = "2.0.15"
 
   lazy val commonSettings = Seq(
+    scalacOptions += Seq(
+      "java.lang",
+      "scala",
+      "scala.Predef",
+      "zio",
+      "zio.direct",
+    ).mkString(start = "-Yimports:", sep = ",", end = ""),
     libraryDependencies ++= Seq(
       "dev.zio" %% "zio"          % zioVersion,
+//      "dev.zio" %% "zio-direct" % "1.0.0-RC7" ,
+      "dev.zio" %% "zio-direct" % "1.0.0-RC7" excludeAll("com.geirsson", "metaconfig-typesafe-config") excludeAll("com.geirsson", "metaconfig-core") excludeAll("org.typelevel", "paiges-core"),
       "dev.zio" %% "zio-cache"  % "0.2.3",
       "dev.zio" %% "zio-concurrent"          % zioVersion,
       "dev.zio" %% "zio-logging"  % "2.1.13",

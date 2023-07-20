@@ -70,7 +70,6 @@ And even some Java types -
 - `AutoCloseable`
 
 ```scala mdoc
-import zio.{ZIO, ZIOAppDefault}
 import scala.concurrent.Future
 import mdoc.unsafeRunPrettyPrint
 val zFuture =
