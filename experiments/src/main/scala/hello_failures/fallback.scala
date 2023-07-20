@@ -1,7 +1,5 @@
 package hello_failures
 
-import zio.*
-import zio.Console
 import scala.util.Random
 // A useful way of dealing with errors is by
 // using the

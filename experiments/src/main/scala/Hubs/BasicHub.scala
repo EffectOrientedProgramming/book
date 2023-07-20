@@ -1,10 +1,5 @@
 package Hubs
 
-import zio.*
-import zio.direct.*
-import zio.Duration
-import zio.Clock
-import zio.Console
 
 // The purpose of this example to to create a
 // very basic hub that displays small

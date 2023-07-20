@@ -1,8 +1,5 @@
 package game_theory
 
-import zio.{Ref, ZIO, ZLayer}
-import zio.direct.*
-
 trait DecisionService:
   def getDecisionsFor(
       prisoner1: Prisoner,

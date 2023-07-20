@@ -2,8 +2,6 @@ package rezilience
 
 import nl.vroste.rezilience.CircuitBreaker._
 import nl.vroste.rezilience._
-import zio._
-import zio.direct._
 
 object Scenario:
   enum Step:

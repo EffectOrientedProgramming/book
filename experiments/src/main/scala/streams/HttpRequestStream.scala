@@ -1,7 +1,5 @@
 package streams
 
-import zio.*
-import zio.direct.*
 import zio.stream.*
 import zio.test.Gen
 

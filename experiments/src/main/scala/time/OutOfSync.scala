@@ -1,8 +1,6 @@
 package time
 
 import java.time.{Duration, Instant, Period}
-import zio.*
-import zio.direct.*
 
 // TODO Consider deduping User throughout the book
 case class Post(content: String)

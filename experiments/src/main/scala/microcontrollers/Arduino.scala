@@ -1,8 +1,6 @@
 package microcontrollers
 
 import zio.Console.{printLine, readLine}
-import zio.*
-import zio.direct.*
 import zio.Clock.{currentTime, instant}
 import zio.Duration.*
 

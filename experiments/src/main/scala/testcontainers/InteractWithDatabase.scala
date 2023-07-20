@@ -1,7 +1,6 @@
 package testcontainers
 
 import io.github.scottweaver.zio.testcontainers.postgres.ZPostgreSQLContainer
-import zio.*
 
 object InteractWithDatabase
     extends ZIOAppDefault:

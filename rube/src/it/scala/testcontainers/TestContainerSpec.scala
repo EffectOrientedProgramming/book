@@ -1,8 +1,6 @@
 package testcontainers
 
-import zio.*
 import zio.test.*
-import zio.direct.*
 import zio.test.Assertion.*
 import zio.test.environment.*
 

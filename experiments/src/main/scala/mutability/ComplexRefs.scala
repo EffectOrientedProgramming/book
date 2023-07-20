@@ -1,8 +1,5 @@
 package mutability
 
-import zio.*
-import zio.direct.*
-
 object ComplexRefs extends ZIOAppDefault:
 
   class Sensor(lastReading: Ref[SensorData]):

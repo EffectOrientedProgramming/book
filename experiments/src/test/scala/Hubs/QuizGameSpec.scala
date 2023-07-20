@@ -1,9 +1,7 @@
 package Hubs
 
 import Hubs.QuizGame.cahootGame
-import zio.*
 import zio.test.*
-import zio.direct.*
 
 object QuizGameSpec extends ZIOSpecDefault:
 

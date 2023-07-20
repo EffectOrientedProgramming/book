@@ -1,8 +1,6 @@
 package resourcemanagement
 
 import zio.Console.printLine
-import zio.{Ref, ZIO}
-import zio.direct.*
 
 case class Slot(id: String)
 case class Player(name: String, slot: Slot)

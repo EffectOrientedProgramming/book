@@ -1,6 +1,5 @@
 package testcontainers
 
-import zio.*
 import zio.Console.printLine
 import org.testcontainers.containers.{
   GenericContainer,

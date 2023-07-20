@@ -1,7 +1,5 @@
 package Parallelism
 
-import zio.*
-
 object MatrixExample:
 
   case class matrix2D(

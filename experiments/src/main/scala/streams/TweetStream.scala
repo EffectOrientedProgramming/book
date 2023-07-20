@@ -1,6 +1,5 @@
 package streams
 
-import zio.*
 import zio.stream.*
 
 case class SimpleTweet(id: Int, text: String)
