@@ -164,7 +164,7 @@ object ContainerScenarios:
                 record.value +
                   s",Location:$location",
               } outputTopicName =
-              "housing_history",
+                "housing_history",
           groupId = "housing"
         )
 
