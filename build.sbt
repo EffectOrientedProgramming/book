@@ -15,6 +15,8 @@ mdDir := file("Chapters")
 // Tells our example extraction code where to put the extracted examples
 examplesDir := file("Examples/src/main/scala")
 
+examplesHelperDir := file("Examples/mdoctools/src/main/scala")
+
 lazy val illustratedPrimer =
   (project in file("illustratedPrimer"))
     .enablePlugins(ScalaJSPlugin)

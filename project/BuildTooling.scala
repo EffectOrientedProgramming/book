@@ -70,26 +70,35 @@ object BuildTooling {
 
   lazy val mdDir = settingKey[File]("MD Source Dir")
   lazy val examplesDir = settingKey[File]("Examples Dir")
+  lazy val examplesHelperDir = settingKey[File]("Examples Helper Dir")
   lazy val generateExamples = taskKey[Unit]("generate examples")
 
   val generateExamplesTask = Def.task {
-    generateExamplesLogic(examplesDir.value, mdDir.value)
+    generateExamplesLogic(examplesDir.value, examplesHelperDir.value, mdDir.value)
   }
 
-  private def generateExamplesLogic(examplesDirectory: File, markdownDir: File): Unit = {
+  private def generateExamplesLogic(examplesDirectory: File, examplesHelperDirectory: File, markdownDir: File): Unit = {
     if (examplesDirectory.exists())
       FileIOBullshit.deleteAllScalaFilesRecursively(examplesDirectory)
     else
       examplesDirectory.mkdirs()
 
-//    FileIOBullshit.copyFolder(
-//      Paths.get(".")
-//        .resolve("mdoctools")
-//        .resolve("src")
-//        .resolve("main")
-//        .resolve("scala"),
-//      examplesDirectory.toPath
-//    )
+    if (examplesHelperDirectory.exists())
+      FileIOBullshit.deleteAllScalaFilesRecursively(examplesHelperDirectory)
+    else {
+      // *Very* weird hacky bit of code to get this not making the last level of the path
+      // the directory indclues "/scala" already, but this is needed??
+      examplesHelperDirectory./("scala").mkdirs()
+    }
+
+    FileIOBullshit.copyFolder(
+      Paths.get(".")
+        .resolve("mdoctools")
+        .resolve("src")
+        .resolve("main")
+        .resolve("scala"),
+      examplesHelperDirectory.toPath
+    )
 
     def isChapter(f: File): Boolean =
       f.name.matches("^\\d\\d_.*")
