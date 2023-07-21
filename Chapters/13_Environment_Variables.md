@@ -281,8 +281,7 @@ It now reports the `System` and `HotelApiZ` dependencies of our function.
 This is what it looks like in action:
 
 ```scala mdoc
-import mdoc.unsafeRunPrettyPrint
-import mdoc.unsafeRunPrettyPrintValue
+
 ```
 
 **Your Machine:**
@@ -297,7 +296,7 @@ val originalAuthor = HotelApiZ.live
 ```
 
 ```scala mdoc
-unsafeRunPrettyPrint(
+runDemo(
   fancyLodging.provideLayer(
     System.live >>> SystemStrict.live >+>
       originalAuthor
@@ -319,7 +318,7 @@ val colaboraterLayer =
 ```
 
 ```scala mdoc
-unsafeRunPrettyPrint(
+runDemo(
   fancyLodging.provideLayer(
     System.live >>> SystemStrict.live >+>
       collaborater
@@ -338,7 +337,7 @@ val ci = HotelApiZ.live
 ```
 
 ```scala mdoc
-unsafeRunPrettyPrint(
+runDemo(
   fancyLodging.provideLayer(
     System.live >>> SystemStrict.live >+> ci
   )
@@ -371,11 +370,7 @@ val testApiLayer =
 ```
 
 ```scala mdoc
-import mdoc.unsafeRunPrettyPrint
-
-unsafeRunPrettyPrint(
-  fancyLodging.provide(testApiLayer)
-)
+runDemo(fancyLodging.provide(testApiLayer))
 ```
 
 ## Official ZIO Approach
@@ -436,7 +431,7 @@ object Exercise1Solution extends Exercise1:
 
 ```scala mdoc
 val exercise1case1 =
-  unsafeRunPrettyPrintValue(
+  runDemoValue(
     Exercise1Solution
       .envOrFail("key")
       .provide(
@@ -450,7 +445,7 @@ assert(exercise1case1 == "value")
 
 ```scala mdoc
 val exercise1case2 =
-  unsafeRunPrettyPrintValue(
+  runDemoValue(
     Exercise1Solution
       .envOrFail("key")
       .catchSome {

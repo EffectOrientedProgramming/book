@@ -86,9 +86,7 @@ val logicClunky: ZIO[Console, Nothing, Unit] =
 ```
 
 ```scala mdoc
-import mdoc.unsafeRunPrettyPrint
-
-unsafeRunPrettyPrint(
+runDemo(
   logicClunky.provide(
     ZLayer.succeed[Console](ConsoleLive)
   )
@@ -124,7 +122,7 @@ However, providing dependencies to the logic is still tedious.
 ```scala mdoc
 import zio.Runtime.default.unsafe
 
-unsafeRunPrettyPrint(
+runDemo(
   logic.provide(
     ZLayer.succeed[Console](ConsoleLive)
   )
@@ -144,9 +142,7 @@ object ConsoleWithLayer:
 Now executing our code is as simple as describing it.
 
 ```scala mdoc
-unsafeRunPrettyPrint(
-  logic.provide(ConsoleWithLayer.live)
-)
+runDemo(logic.provide(ConsoleWithLayer.live))
 ```
 
 In real application, both of these will go in the companion object directly.
@@ -186,7 +182,7 @@ def crunchDebugged(a: Int, b: Int) =
 
 
 ```scala mdoc
-unsafeRunPrettyPrint(
+runDemo(
   ZIO.debug("ping") *>
     ConsoleLive.printLine("Normal logic")
 )
@@ -217,7 +213,7 @@ val leakSensitiveInfo
 ```
 
 ```scala mdoc
-unsafeRunPrettyPrint(
+runDemo(
   leakSensitiveInfo.provide(
     ZLayer.succeed[Console](ConsoleSanitized)
   )

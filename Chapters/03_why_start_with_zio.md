@@ -27,12 +27,13 @@
 - Resource Control/Management
 - Programs as values
 
+```scala mdoc
+runDemo(ZIO.debug("Hi"))
+```
 
 ```scala mdoc
-import mdoc.unsafeRunPrettyPrint
-unsafeRunPrettyPrint(
-  defer {
-    ZIO.debug("Hi").run
-  }
-)
+object Demo extends ZIOAppDefault:
+  def run = ZIO.debug("Hi")
+
+Demo.run
 ```

@@ -47,6 +47,16 @@ resolvers ++= Resolver.sonatypeOssRepos("snapshots")
 lazy val root =
   (project in file("."))
     .settings(commonSettings)
+    .settings(
+      scalacOptions +=
+        Seq(
+          "mdoc",
+        ).mkString(
+          start = "-Yimports:",
+          sep = ",",
+          end = ""
+        ),
+    )
     .enablePlugins(MdocPlugin)
     .aggregate(booker, experiments /*, rube*/)
 

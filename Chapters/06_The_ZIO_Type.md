@@ -67,7 +67,7 @@ And even some Java types -
 
 ```scala mdoc
 import scala.concurrent.Future
-import mdoc.unsafeRunPrettyPrint
+
 val zFuture =
   ZIO.fromFuture(implicit ec =>
     Future.successful("Success!")
@@ -76,6 +76,6 @@ val zFutureFailed =
   ZIO.fromFuture(implicit ec =>
     Future.failed(new Exception("Failure :("))
   )
-unsafeRunPrettyPrint(zFuture)
-unsafeRunPrettyPrint(zFutureFailed)
+runDemo(zFuture)
+runDemo(zFutureFailed)
 ```

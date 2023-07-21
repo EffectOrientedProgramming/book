@@ -35,9 +35,7 @@ object MdocHelperSpec extends ZIOSpecDefault:
         for _ <-
             ZIO
               .attempt(
-                unsafeRunPrettyPrint(
-                  ZIO.succeed("A" * 50)
-                )
+                runDemo(ZIO.succeed("A" * 50))
               )
               .flip
         yield assertCompletes
@@ -48,7 +46,7 @@ object MdocHelperSpec extends ZIOSpecDefault:
         for result <-
             ZIO
               .attempt(
-                unsafeRunPrettyPrint(
+                runDemo(
                   ZIO.attempt(
                     throw MdocSession
                       .App
@@ -71,9 +69,7 @@ object MdocHelperSpec extends ZIOSpecDefault:
         for result <-
             ZIO
               .attempt(
-                unsafeRunPrettyPrint(
-                  ZIO.succeed(badMsg)
-                )
+                runDemo(ZIO.succeed(badMsg))
               )
               .flip
         yield assertCompletes
@@ -82,9 +78,7 @@ object MdocHelperSpec extends ZIOSpecDefault:
         for result <-
             ZIO
               .attempt(
-                unsafeRunPrettyPrint(
-                  ZIO.attempt(foo())
-                )
+                runDemo(ZIO.attempt(foo()))
               )
               .flip // TODO Better assertions around line lengths
               .debug

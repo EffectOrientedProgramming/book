@@ -304,7 +304,7 @@ object BuildTooling {
         "scala",
         "scala.Predef",
         "zio",
-        "zio.direct"
+        "zio.direct",
       ).mkString(
         start = "-Yimports:",
         sep = ",",

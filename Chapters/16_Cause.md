@@ -3,7 +3,6 @@
 `Cause` will track all errors originating from a single call in an application, regardless of concurrency and parallelism.
 
 ```scala mdoc:silent
-import mdoc.unsafeRunPrettyPrint
 val logic =
   ZIO
     .die(new Exception("Connection lost"))
@@ -14,7 +13,7 @@ val logic =
     )
 ```
 ```scala mdoc
-unsafeRunPrettyPrint(logic)
+runDemo(logic)
 ```
 
 Cause allows you to aggregate multiple errors of the same type
@@ -31,7 +30,6 @@ Now we will highlight the deficiencies of throwing `Exception`s.
 The previous code might be written in this style:
 
 ```scala mdoc
-import mdoc.unsafeRunPrettyPrint
 val thrownLogic =
   ZIO.attempt(
     try
@@ -43,7 +41,7 @@ val thrownLogic =
       finally
         throw new Exception("Release Failed")
   )
-unsafeRunPrettyPrint(thrownLogic)
+runDemo(thrownLogic)
 ```
 
 We will only see the later `pool` problem.

@@ -193,8 +193,6 @@ TODO {{Update verbiage now that ZIO section is first}}
 ### ZIO-First Error Handling
 
 ```scala mdoc
-import mdoc.unsafeRunPrettyPrint
-
 def getTemperatureZ(behavior: Scenario): ZIO[
   Any,
   GpsException | NetworkException,
@@ -208,14 +206,12 @@ def getTemperatureZ(behavior: Scenario): ZIO[
   else
     ZIO.succeed("30 degrees")
 
-unsafeRunPrettyPrint(
-  getTemperatureZ(Scenario.Success)
-)
+runDemo(getTemperatureZ(Scenario.Success))
 ```
 
 ```scala mdoc:fail
 // TODO make MDoc:fail adhere to line limits?
-unsafeRunPrettyPrint(
+runDemo(
   getTemperatureZ(Scenario.Success).catchAll {
     case ex: NetworkException =>
       ZIO.succeed("Network Unavailable")
@@ -226,9 +222,7 @@ unsafeRunPrettyPrint(
 TODO Demonstrate ZIO calculating the error types without an explicit annotation being provided
 
 ```scala mdoc
-unsafeRunPrettyPrint(
-  getTemperatureZ(Scenario.GPSError)
-)
+runDemo(getTemperatureZ(Scenario.GPSError))
 ```
 
 ### Wrapping Legacy Code
@@ -253,13 +247,13 @@ def displayTemperatureZWrapped(
 ```
 
 ```scala mdoc
-unsafeRunPrettyPrint(
+runDemo(
   displayTemperatureZWrapped(Scenario.Success)
 )
 ```
 
 ```scala mdoc
-unsafeRunPrettyPrint(
+runDemo(
   displayTemperatureZWrapped(
     Scenario.NetworkError
   )
@@ -280,9 +274,7 @@ def getTemperatureZGpsGap(
 ```
 
 ```scala mdoc
-unsafeRunPrettyPrint(
-  getTemperatureZGpsGap(Scenario.GPSError)
-)
+runDemo(getTemperatureZGpsGap(Scenario.GPSError))
 ```
 
 The compiler does not catch this bug, and instead fails at runtime. 
@@ -305,7 +297,7 @@ def getTemperatureZWithFallback(
 ```
 
 ```scala mdoc
-unsafeRunPrettyPrint(
+runDemo(
   getTemperatureZWithFallback(Scenario.GPSError)
 )
 ```
@@ -325,7 +317,7 @@ def getTemperatureZAndFlagUnhandled(
 ```
 
 ```scala mdoc
-unsafeRunPrettyPrint(
+runDemo(
   getTemperatureZAndFlagUnhandled(
     Scenario.GPSError
   )
