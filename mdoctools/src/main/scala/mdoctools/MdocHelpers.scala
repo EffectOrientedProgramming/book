@@ -1,22 +1,10 @@
-package mdoc
-// TODO Move this to a new project
+package mdoctools
 
 import zio.Runtime.default.unsafe
-import zio.{Console, Unsafe, ZIO}
-
-private def foo() = bar()
-
-private def bar() =
-  Stuff
-    .WithALongName
-    .ThatWillComplicate
-    .Rendering
-    .run
 
 object Stuff:
-  object WithALongName:
-    object ThatWillComplicate:
-      object Rendering:
+    object WithALongName:
+      object ThatWillComplicate:
         def run =
           throw new Exception(
             "Boom stoinky kablooey pow pow pow"

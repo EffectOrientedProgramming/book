@@ -44,13 +44,17 @@ lazy val experiments =
 
 resolvers ++= Resolver.sonatypeOssRepos("snapshots")
 
+lazy val mdoctools = (project in file("mdoctools"))
+  .settings(commonSettings)
+
 lazy val root =
   (project in file("."))
+    .dependsOn(mdoctools)
     .settings(commonSettings)
     .settings(
       scalacOptions +=
         Seq(
-          "mdoc",
+          "mdoctools",
         ).mkString(
           start = "-Yimports:",
           sep = ",",

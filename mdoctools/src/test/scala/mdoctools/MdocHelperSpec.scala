@@ -1,14 +1,6 @@
-package mdoc
+package mdoctools
 
-import zio.Console.*
-import zio.test.*
-import zio.test.Assertion.*
-
-import java.io.IOException
-
-object MdocHelperSpec extends ZIOSpecDefault:
-
-  def spec =
+def spec =
     suite("mdoc.MdocHelperSpec")(
       test(
         "Intercept and format MatchError from unhandled RuntimeException"
@@ -87,12 +79,11 @@ object MdocHelperSpec extends ZIOSpecDefault:
     )
 end MdocHelperSpec
 
-object MdocSession:
-  object App:
-    object SuperDeeplyNested:
-      object NameThatShouldBreakRendering:
-        class CustomException()
-            extends Exception()
+object MdocHelperSpec extends ZIOSpecDefault:
+  object MdocSession:
+    object App:
+      object SuperDeeplyNested:
+        object NameThatShouldBreakRendering
 
-    case class GpsException()
-        extends RuntimeException
+    class CustomException()
+            extends Exception()
