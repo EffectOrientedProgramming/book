@@ -83,13 +83,14 @@ object BuildTooling {
     else
       examplesDirectory.mkdirs()
 
+    // Examples/mdoctools/src/main/scala/mdoctools
+
     if (examplesHelperDirectory.exists())
       FileIOBullshit.deleteAllScalaFilesRecursively(examplesHelperDirectory)
-    else {
-      // *Very* weird hacky bit of code to get this not making the last level of the path
-      // the directory indclues "/scala" already, but this is needed??
-      examplesHelperDirectory./("scala").mkdirs()
-    }
+
+    // *Very* weird hacky bit of code to get this not making the last level of the path
+    // the directory indclues "/scala" already, but this is needed??
+    examplesHelperDirectory./("scala").mkdirs()
 
     FileIOBullshit.copyFolder(
       Paths.get(".")
