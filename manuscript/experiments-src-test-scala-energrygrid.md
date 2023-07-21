@@ -6,7 +6,6 @@
 ```scala
 package energrygrid
 
-import zio.*
 import zio.test.*
 import energrygrid.GridErrors.*
 import zio.test.TestAspect.ignore

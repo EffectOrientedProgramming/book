@@ -203,9 +203,6 @@ TODO {{Update verbiage now that ZIO section is first}}
 ### ZIO-First Error Handling
 
 ```scala
-import zio.ZIO
-import mdoc.unsafeRunPrettyPrint
-
 def getTemperatureZ(behavior: Scenario): ZIO[
   Any,
   GpsException | NetworkException,
@@ -219,33 +216,31 @@ def getTemperatureZ(behavior: Scenario): ZIO[
   else
     ZIO.succeed("30 degrees")
 
-unsafeRunPrettyPrint(
-  getTemperatureZ(Scenario.Success)
-)
+runDemo(getTemperatureZ(Scenario.Success))
 // 30 degrees
 ```
 
 ```scala
 // TODO make MDoc:fail adhere to line limits?
-unsafeRunPrettyPrint(
+runDemo(
   getTemperatureZ(Scenario.Success).catchAll {
     case ex: NetworkException =>
       ZIO.succeed("Network Unavailable")
   }
 )
-// error: 
+// error:
 // match may not be exhaustive.
 // 
 // It would fail on pattern case: _: GpsException
+// 
+//     .catchSome { case ex: NetworkException =>
 //
 ```
 
 TODO Demonstrate ZIO calculating the error types without an explicit annotation being provided
 
 ```scala
-unsafeRunPrettyPrint(
-  getTemperatureZ(Scenario.GPSError)
-)
+runDemo(getTemperatureZ(Scenario.GPSError))
 // repl.MdocSession$MdocApp$GpsException
 ```
 
@@ -255,10 +250,6 @@ If we are unable to re-write the fallible function, we can still wrap the call
 We are re-using the  `displayTemperature`
 
 {{TODO }}
-
-```scala
-import zio.{Task, ZIO}
-```
 
 ```scala
 def displayTemperatureZWrapped(
@@ -275,14 +266,14 @@ def displayTemperatureZWrapped(
 ```
 
 ```scala
-unsafeRunPrettyPrint(
+runDemo(
   displayTemperatureZWrapped(Scenario.Success)
 )
 // 35 degrees
 ```
 
 ```scala
-unsafeRunPrettyPrint(
+runDemo(
   displayTemperatureZWrapped(
     Scenario.NetworkError
   )
@@ -304,9 +295,7 @@ def getTemperatureZGpsGap(
 ```
 
 ```scala
-unsafeRunPrettyPrint(
-  getTemperatureZGpsGap(Scenario.GPSError)
-)
+runDemo(getTemperatureZGpsGap(Scenario.GPSError))
 // Defect: GpsException
 ```
 
@@ -330,7 +319,7 @@ def getTemperatureZWithFallback(
 ```
 
 ```scala
-unsafeRunPrettyPrint(
+runDemo(
   getTemperatureZWithFallback(Scenario.GPSError)
 )
 // Error: repl.MdocSession$MdocApp$GpsException
@@ -351,7 +340,7 @@ def getTemperatureZAndFlagUnhandled(
 ```
 
 ```scala
-unsafeRunPrettyPrint(
+runDemo(
   getTemperatureZAndFlagUnhandled(
     Scenario.GPSError
   )
@@ -374,9 +363,6 @@ unsafeRunPrettyPrint(
 ### experiments/src/main/scala/hello_failures/BadTypeManagement.scala
 ```scala
 package hello_failures
-
-import zio.ZIO
-import zio.direct.*
 
 object BadTypeManagement
     extends zio.ZIOAppDefault:
@@ -418,8 +404,6 @@ end BadTypeManagement
 package hello_failures
 
 import zio.Console.printLine
-import zio.ZIO
-import zio.direct.*
 
 object KeepSuccesses extends zio.ZIOAppDefault:
   val allCalls =
@@ -507,8 +491,6 @@ end KeepSuccesses
 ```scala
 package hello_failures
 
-import zio.*
-import zio.Console
 import scala.util.Random
 // A useful way of dealing with errors is by
 // using the

@@ -7,8 +7,6 @@
 package prelude
 
 import zio.prelude.Newtype
-import zio.ZIOAppDefault
-import zio.ZIO
 import zio.Console.printLine
 import zio.prelude.Assertion._
 import zio.prelude.Assertion
@@ -95,8 +93,6 @@ end NewTypeDemos
 package prelude
 
 import zio.prelude.Newtype
-import zio.ZIOAppDefault
-import zio.ZIO
 import zio.Console.printLine
 import zio.prelude.Assertion._
 import zio.prelude.Assertion

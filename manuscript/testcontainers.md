@@ -7,7 +7,6 @@
 package testcontainers
 
 import io.github.scottweaver.zio.testcontainers.postgres.ZPostgreSQLContainer
-import zio.*
 
 object InteractWithDatabase
     extends ZIOAppDefault:
@@ -42,7 +41,6 @@ import io.getquill.{
   PostgresZioJdbcContext,
   SnakeCase
 }
-import zio.*
 
 import javax.sql.DataSource
 import scala.jdk.CollectionConverters.MapHasAsJava
@@ -139,7 +137,6 @@ end QuillContext
 package testcontainers
 
 import io.getquill.{Query, Quoted}
-import zio.*
 
 import java.sql.SQLException
 import java.time.{Instant, LocalDateTime}
@@ -266,7 +263,6 @@ object UserActionServiceLive:
 package testcontainers
 
 import io.getquill.{Query, Quoted}
-import zio.*
 import io.getquill._
 
 import java.sql.SQLException

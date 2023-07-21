@@ -7,9 +7,7 @@
 package random
 
 import zio.test.*
-import zio.direct.*
 import console.FakeConsole
-import zio.*
 
 object RunEffectfulGuessingGameSpec
     extends ZIOSpecDefault:

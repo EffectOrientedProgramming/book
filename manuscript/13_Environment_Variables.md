@@ -94,8 +94,6 @@ Before looking at the official ZIO implementation of `System`, we will create a 
 The real implementation is a bit more complex, to handle corner cases.
 
 ```scala
-import zio.ZIO
-
 trait System:
   def env(
       variable: String
@@ -106,8 +104,6 @@ Now, our live implementation will wrap our original, unsafe function call.
 For easier usage by the caller, we also create an accessor.
 
 ```scala
-import zio.ZLayer
-
 object System:
   object Live extends System:
     def env(
@@ -214,6 +210,7 @@ Our fully ZIO-centric, side-effect-free logic looks like this:
 
 ```scala
 // TODO This produces large, wide output that does not adhere to the width of the page.
+// TODO This has fallen out of sync with the "identical" code below
 val fancyLodging: ZIO[
   SystemStrict with HotelApiZ,
   Error,
@@ -222,16 +219,16 @@ val fancyLodging: ZIO[
   for hotel <- HotelApiZ.cheapest("90210")
   yield hotel
 // fancyLodging: ZIO[SystemStrict & HotelApiZ, Error, Hotel] = OnSuccess(
-//   trace = "repl.MdocSession.MdocApp.fancyLodging(13_Environment_Variables.md:262)",
+//   trace = "repl.MdocSession.MdocApp.fancyLodging(13_Environment_Variables.md:256)",
 //   first = OnSuccess(
-//     trace = "repl.MdocSession.MdocApp.HotelApiZ.cheapest(13_Environment_Variables.md:226)",
+//     trace = "repl.MdocSession.MdocApp.HotelApiZ.cheapest(13_Environment_Variables.md:220)",
 //     first = Sync(
-//       trace = "repl.MdocSession.MdocApp.HotelApiZ.cheapest(13_Environment_Variables.md:226)",
-//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$2465/0x0000000100b92440@6d3df64d
+//       trace = "repl.MdocSession.MdocApp.HotelApiZ.cheapest(13_Environment_Variables.md:220)",
+//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$2025/0x0000000100a3a840@6368836a
 //     ),
-//     successK = zio.ZIO$$$Lambda$2467/0x0000000100b96840@4b2371c6
+//     successK = zio.ZIO$$$Lambda$2027/0x0000000100a59040@2d88e629
 //   ),
-//   successK = zio.ZIO$$Lambda$2500/0x0000000100bbc840@2d85ff88
+//   successK = zio.ZIO$$Lambda$2036/0x0000000100a5f040@627b5a5d
 // )
 ```
 
@@ -254,9 +251,7 @@ It now reports the `System` and `HotelApiZ` dependencies of our function.
 This is what it looks like in action:
 
 ```scala
-import zio.ZLayer
-import mdoc.unsafeRunPrettyPrint
-import mdoc.unsafeRunPrettyPrintValue
+
 ```
 
 **Your Machine:**
@@ -268,7 +263,7 @@ val originalAuthor = HotelApiZ.live
 ```
 
 ```scala
-unsafeRunPrettyPrint(
+runDemo(
   fancyLodging.provideLayer(
     System.live >>> SystemStrict.live >+>
       originalAuthor
@@ -288,7 +283,7 @@ val colaboraterLayer =
 ```
 
 ```scala
-unsafeRunPrettyPrint(
+runDemo(
   fancyLodging.provideLayer(
     System.live >>> SystemStrict.live >+>
       collaborater
@@ -305,7 +300,7 @@ val ci = HotelApiZ.live
 ```
 
 ```scala
-unsafeRunPrettyPrint(
+runDemo(
   fancyLodging.provideLayer(
     System.live >>> SystemStrict.live >+> ci
   )
@@ -339,11 +334,7 @@ val testApiLayer =
 ```
 
 ```scala
-import mdoc.unsafeRunPrettyPrint
-
-unsafeRunPrettyPrint(
-  fancyLodging.provide(testApiLayer)
-)
+runDemo(fancyLodging.provide(testApiLayer))
 // Error(Invalid API Key)
 ```
 
@@ -354,8 +345,6 @@ ZIO provides a more complete `System` API in the `zio.System`
 TODO
 
 ```scala
-import zio.System
-
 def fancyLodgingZ(): ZIO[
   zio.System,
   SecurityException,
@@ -389,7 +378,7 @@ trait Exercise1:
 
 ```scala
 val exercise1case1 =
-  unsafeRunPrettyPrintValue(
+  runDemoValue(
     Exercise1Solution
       .envOrFail("key")
       .provide(
@@ -405,7 +394,7 @@ assert(exercise1case1 == "value")
 
 ```scala
 val exercise1case2 =
-  unsafeRunPrettyPrintValue(
+  runDemoValue(
     Exercise1Solution
       .envOrFail("key")
       .catchSome {

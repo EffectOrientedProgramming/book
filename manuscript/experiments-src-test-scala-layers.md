@@ -6,7 +6,6 @@
 ```scala
 package layers
 
-import zio.*
 import zio.test.*
 import zio.test.TestAspect.*
 
@@ -54,7 +53,6 @@ end FestivalFencingUnavailableSpec
 ```scala
 package layers
 
-import zio.*
 import zio.test.*
 import zio.test.TestAspect.*
 
@@ -100,7 +98,6 @@ end FestivalShortedOutSoundSystemSpec
 ```scala
 package layers
 
-import zio.*
 import zio.test.*
 import zio.test.TestAspect.*
 

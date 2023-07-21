@@ -6,11 +6,9 @@
 ```scala
 package concurrency
 
-import zio.direct.*
 import zio.test.*
 import zio.test.TestAspect.*
 import zio.test.Assertion.*
-import zio.*
 import LunchVote.*
 import LunchVote.Vote.*
 
@@ -97,10 +95,8 @@ end LunchVoteTest
 ```scala
 package concurrency
 
-import zio.*
 import zio.Console.printLine
 import zio.test.*
-import zio.direct.*
 
 import java.nio.file.Path
 

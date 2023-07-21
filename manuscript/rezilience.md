@@ -6,8 +6,6 @@
 ```scala
 package rezilience
 
-import zio._
-import zio.direct._
 import nl.vroste.rezilience._
 import nl.vroste.rezilience.Bulkhead.BulkheadError
 
@@ -72,8 +70,6 @@ package rezilience
 
 import nl.vroste.rezilience.CircuitBreaker._
 import nl.vroste.rezilience._
-import zio._
-import zio.direct._
 
 object Scenario:
   enum Step:
@@ -168,8 +164,6 @@ end CircuitBreakerDemo
 ```scala
 package rezilience
 
-import zio._
-import zio.direct._
 import nl.vroste.rezilience._
 
 /** This is useful for scenarios such as:

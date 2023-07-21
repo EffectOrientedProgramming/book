@@ -16,8 +16,6 @@ TODO Prose
 package concurrency
 
 import concurrency.LunchVote.Vote.Yay
-import zio.*
-import zio.direct.*
 import zio.concurrent.*
 
 object LunchVote:
@@ -105,18 +103,6 @@ end LunchVote
 ### experiments/src/main/scala/concurrency/OperatorDemos.scala
 ```scala
 package concurrency
-
-import zio.{
-  durationInt,
-  duration2DurationOps,
-  Clock,
-  Console,
-  Duration,
-  ZIO,
-  ZIOAppDefault,
-  Random
-}
-import zio.direct.*
 
 def sleepThenPrint(
     d: Duration
@@ -223,9 +209,7 @@ end CollectAllParMassiveDemo
 package concurrency
 
 import concurrency.FileService.ActiveUpdate
-import zio.*
 import zio.Console.printLine
-import zio.direct.*
 
 import java.nio.file.Path
 
@@ -471,8 +455,6 @@ object FileSystem:
 ```scala
 package concurrency
 
-import zio.*
-import zio.direct.*
 import zio.cache.{Cache, Lookup}
 
 import java.nio.file.Path
@@ -521,8 +503,6 @@ end ThunderingHerdsUsingZioCacheLib
 ### experiments/src/main/scala/concurrency/WhyZio.scala
 ```scala
 package concurrency
-
-import zio.{ZIO, ZIOAppDefault}
 
 import java.math.BigInteger
 

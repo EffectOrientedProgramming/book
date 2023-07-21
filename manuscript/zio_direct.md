@@ -47,9 +47,6 @@ After you have accomplished _that_, you have trained your student to write sligh
 ```scala
 package direct
 
-import zio.*
-import zio.direct.*
-
 object AutoParallel extends ZIOAppDefault:
 
   override def run =

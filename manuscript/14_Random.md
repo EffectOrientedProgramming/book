@@ -52,9 +52,6 @@ def fullRound(): GameState =
 @main
 def playASingleRound() = println(fullRound())
 
-import zio.ZIO
-import zio.direct.*
-
 val rollDiceZ
     : ZIO[RandomBoundedInt, Nothing, Int] =
   RandomBoundedInt.nextIntBetween(1, 7)
@@ -175,9 +172,6 @@ end RandomBoundedInt
 ```scala
 package random
 
-import zio.{Ref, UIO, ZIO, ZLayer}
-import zio.direct.*
-
 class RandomBoundedIntFake private (
     values: Ref[Seq[Int]]
 ) extends RandomBoundedInt:
@@ -222,8 +216,6 @@ object RandomBoundedIntFake:
 package random
 
 import console.FakeConsole
-import zio._
-import zio.direct.*
 
 val low  = 1
 val high = 10

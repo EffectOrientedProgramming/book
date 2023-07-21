@@ -6,12 +6,6 @@
 ```scala
 package Hubs
 
-import zio.*
-import zio.direct.*
-import zio.Duration
-import zio.Clock
-import zio.Console
-
 // The purpose of this example to to create a
 // very basic hub that displays small
 // capabilities.
@@ -82,8 +76,6 @@ package Hubs
 import console.FakeConsole
 
 import java.io.IOException
-import zio.*
-import zio.direct.*
 import zio.Console.printLine
 
 case class Player(name: String)
@@ -235,12 +227,9 @@ end QuizGame
 package Hubs
 
 import console.FakeConsole
-import zio.ZIO
-import zio.*
 import zio.Duration.*
 import zio.Clock.*
 import zio.Console.*
-import zio.direct.*
 
 object ReadIntAndMultiply
     extends zio.ZIOAppDefault:

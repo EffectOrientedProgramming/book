@@ -6,8 +6,6 @@
 ```scala
 package test_aspects
 
-import zio.*
-import zio.direct.*
 import zio.test.*
 import zio.test.TestAspect.*
 

@@ -35,8 +35,6 @@ Possible Scenarios:
 ```scala
 package streams
 
-import zio.*
-import zio.direct.*
 import zio.stream.*
 
 object Alphabet1 extends ZIOAppDefault:
@@ -115,8 +113,6 @@ object Alphabet6 extends ZIOAppDefault:
 ```scala
 package streams
 
-import zio.*
-import zio.direct.*
 import zio.stream.*
 
 trait CommitStream:
@@ -232,7 +228,6 @@ object Counter:
 ```scala
 package streams
 
-import zio.*
 import zio.metrics.MetricKeyType.Counter
 import zio.stream.*
 
@@ -276,9 +271,7 @@ object DataFountain:
 ```scala
 package streams
 
-import zio.*
 import zio.stream.*
-import zio.direct.*
 
 case class Order()
 
@@ -437,7 +430,6 @@ end RecognizeBurstOfBadRequests
 ```scala
 package streams
 
-import zio.*
 import zio.stream.*
 
 object HelloStreams extends ZIOAppDefault:
@@ -472,8 +464,6 @@ end HelloStreams
 ```scala
 package streams
 
-import zio.*
-import zio.direct.*
 import zio.stream.*
 import zio.test.Gen
 
@@ -577,10 +567,8 @@ private[streams] def randomElementFrom[T](
 ```scala
 package streams
 
-import zio.*
-import zio.stream.*
-
 import java.io.File
+import zio.stream.*
 
 object MultipleConcurrentStreams
     extends ZIOAppDefault:
@@ -724,9 +712,6 @@ end Scanning
 ```scala
 package streams
 
-import zio.{Random, ZIO}
-import zio.direct.*
-
 case class TweetFactory(counter: Counter):
 
   val randomTweet
@@ -789,7 +774,6 @@ end TweetFactory
 ```scala
 package streams
 
-import zio.*
 import zio.stream.*
 
 case class SimpleTweet(id: Int, text: String)
@@ -835,7 +819,6 @@ end TweetStream
 ```scala
 package streams
 
-import zio.*
 import zio.stream.*
 
 import java.time.Instant
@@ -867,7 +850,6 @@ object TwitterCustomerSupport
   def trackActiveCompanies(
       tweets: ZStream[Any, Throwable, Tweet]
   ) =
-    import zio.direct.*
     defer {
       val activeCompanies =
         Ref.make[Map[String, Int]](Map.empty).run
@@ -896,7 +878,6 @@ object TwitterCustomerSupport
   end trackActiveCompanies
 
   def run =
-    import zio.direct.*
     defer {
       val dataset =
         ZIOAppArgs

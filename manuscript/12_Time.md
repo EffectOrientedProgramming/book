@@ -37,8 +37,6 @@ Example possibilities
 package time
 
 import java.time.{Duration, Instant, Period}
-import zio.*
-import zio.direct.*
 
 // TODO Consider deduping User throughout the book
 case class Post(content: String)
@@ -124,9 +122,6 @@ object DemoSyncIssues extends ZIOAppDefault:
 ### experiments/src/main/scala/time/ScheduledValues.scala
 ```scala
 package time
-
-import zio.*
-import zio.direct.*
 
 import java.util.concurrent.TimeUnit
 import java.time.Instant
@@ -227,9 +222,7 @@ private case class ExpiringValue[A](
 ```scala
 package time
 
-import zio.*
 import zio.Console.*
-import zio.direct.*
 
 val longRunning =
   ZIO.sleep(5.seconds) *> printLine("done")

@@ -15,10 +15,6 @@ The `ZIO` trait is at the center of our Effect-oriented world.
 trait ZIO[R, E, A]
 ```
 
-```scala
-import zio.ZIO
-```
-
 A trait with 3 type parameters can be intimidating, but each one serves a distinct, important purpose.
 
 ## R - The Environment
@@ -70,27 +66,26 @@ And even some Java types -
 - `AutoCloseable`
 
 ```scala
-import zio.{ZIO, ZIOAppDefault}
 import scala.concurrent.Future
-import mdoc.unsafeRunPrettyPrint
+
 val zFuture =
   ZIO.fromFuture(implicit ec =>
     Future.successful("Success!")
   )
 // zFuture: ZIO[Any, Throwable, String] = Stateful(
-//   trace = "repl.MdocSession.MdocApp.zFuture(06_The_ZIO_Type.md:47)",
-//   onState = zio.ZIO$$$Lambda$2475/0x0000000100ba2040@4589bc66
+//   trace = "repl.MdocSession.MdocApp.zFuture(06_The_ZIO_Type.md:36)",
+//   onState = zio.ZIO$$$Lambda$2566/0x0000000100c31040@28736857
 // )
 val zFutureFailed =
   ZIO.fromFuture(implicit ec =>
     Future.failed(new Exception("Failure :("))
   )
 // zFutureFailed: ZIO[Any, Throwable, Nothing] = Stateful(
-//   trace = "repl.MdocSession.MdocApp.zFutureFailed(06_The_ZIO_Type.md:54)",
-//   onState = zio.ZIO$$$Lambda$2475/0x0000000100ba2040@5e0e97b6
+//   trace = "repl.MdocSession.MdocApp.zFutureFailed(06_The_ZIO_Type.md:43)",
+//   onState = zio.ZIO$$$Lambda$2566/0x0000000100c31040@5073b0b8
 // )
-unsafeRunPrettyPrint(zFuture)
+runDemo(zFuture)
 // Success!
-unsafeRunPrettyPrint(zFutureFailed)
+runDemo(zFutureFailed)
 // java.lang.Exception: Failure :(
 ```

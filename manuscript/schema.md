@@ -6,8 +6,6 @@
 ```scala
 package schema
 
-import zio.*
-import zio.direct.*
 import zio.schema.*
 import zio.schema.syntax.*
 import zio.schema.codec.JsonCodec.*

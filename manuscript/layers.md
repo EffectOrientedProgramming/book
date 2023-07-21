@@ -6,15 +6,7 @@
 ```scala
 package layers
 
-import zio.{
-  Duration,
-  Scope,
-  ZIO,
-  ZLayer,
-  durationInt
-}
 import zio.ZIO.debug
-import zio.direct.*
 
 case class Toilets()
 val toilets =

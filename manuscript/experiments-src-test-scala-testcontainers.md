@@ -9,7 +9,6 @@ package testcontainers
 import io.github.scottweaver.models.JdbcInfo
 import org.flywaydb.core.Flyway
 import org.flywaydb.core.api.configuration.FluentConfiguration
-import zio.*
 import zio.test.TestAspect.{before, beforeAll}
 
 object DbMigration:
@@ -104,7 +103,6 @@ import com.zaxxer.hikari.{
   HikariDataSource
 }
 import io.github.scottweaver.models.JdbcInfo
-import zio.*
 
 import java.util.Properties
 import javax.sql.DataSource
@@ -161,7 +159,6 @@ import io.github.scottweaver.zio.testcontainers.postgres.ZPostgreSQLContainer.{
   live
 }
 import org.postgresql.ds.PGSimpleDataSource
-import zio.*
 import zio.test.*
 
 import java.sql.Connection
@@ -189,7 +186,6 @@ package testcontainers
 import com.dimafeng.testcontainers.PostgreSQLContainer
 import io.github.scottweaver.models.JdbcInfo
 import zio.test.*
-import zio.*
 import io.github.scottweaver.zio.testcontainers.postgres.ZPostgreSQLContainer.live
 import io.github.scottweaver.zio.testcontainers.postgres.ZPostgreSQLContainer.Settings
 import io.github.scottweaver.zio.testcontainers.postgres.ZPostgreSQLContainer

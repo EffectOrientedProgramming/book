@@ -6,9 +6,6 @@
 ```scala
 package zio_intro
 
-import zio.{ZIO, ZIOAppDefault}
-import zio.direct.*
-
 object AuthenticationFlow extends ZIOAppDefault:
   val activeUsers
       : ZIO[Any, DiskError, List[UserName]] = ???
@@ -55,8 +52,6 @@ case class AuthenticatedUser(userName: UserName)
 ```scala
 package zio_intro
 
-import zio.*
-import zio.direct.*
 import zio.Schedule.*
 
 object DatabaseError
@@ -287,9 +282,6 @@ end Eight
 ```scala
 package zio_intro
 
-import zio.*
-import zio.direct.*
-
 import zio.Console.printLine
 
 import java.util.concurrent.TimeUnit
@@ -471,9 +463,7 @@ end ClockAndConsoleImproved
 ```scala
 package zio_intro
 
-import zio.{Clock, ZIO, ZIOAppDefault, System}
 import zio.Console.{readLine, printLine}
-import zio.direct.*
 
 object PromptUserForName extends ZIOAppDefault:
   def run =

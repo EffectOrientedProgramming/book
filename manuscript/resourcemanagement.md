@@ -7,8 +7,6 @@
 package resourcemanagement
 
 import zio.Console.printLine
-import zio.{Ref, ZIO}
-import zio.direct.*
 
 case class Slot(id: String)
 case class Player(name: String, slot: Slot)
@@ -73,10 +71,6 @@ end ChatSlots
 ### experiments/src/main/scala/resourcemanagement/Trivial.scala
 ```scala
 package resourcemanagement
-
-import zio.Console
-import zio.{Ref, ZIO}
-import zio.direct.*
 
 object Trivial extends zio.ZIOAppDefault:
   enum ResourceState:

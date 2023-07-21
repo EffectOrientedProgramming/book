@@ -7,9 +7,6 @@
 package Parallelism
 
 import java.io.IOException
-import zio.Console
-import zio.{Fiber, IO, Runtime, UIO, ZIO, ZLayer}
-import zio.direct.*
 
 object BasicFiber:
 
@@ -65,18 +62,6 @@ package Parallelism
 
 import java.io.IOException
 import zio.Console.printLine
-import zio.{
-  Console,
-  Fiber,
-  IO,
-  Runtime,
-  Scope,
-  UIO,
-  URIO,
-  ZIO,
-  ZLayer
-}
-import zio.direct.*
 
 import scala.io.Source.*
 
@@ -156,19 +141,6 @@ end Finalizers
 package Parallelism
 
 import java.io.IOException
-import zio.{
-  Fiber,
-  IO,
-  Runtime,
-  UIO,
-  Unsafe,
-  ZIO,
-  ZIOAppDefault,
-  ZLayer,
-  durationInt
-}
-
-import zio.direct.*
 
 import scala.concurrent.Await
 
@@ -233,8 +205,6 @@ object ParallelSleepers5 extends ZIOAppDefault:
 ```scala
 package Parallelism
 
-import zio.*
-
 import java.math.BigInteger
 
 object PrimeSeeker extends ZIOAppDefault:
@@ -256,8 +226,6 @@ object PrimeSeeker extends ZIOAppDefault:
 package Parallelism
 
 import java.lang.{Runtime => JavaRuntime}
-import zio.*
-import zio.direct.*
 
 /* This example was a port of Bruce's Python
  * example:

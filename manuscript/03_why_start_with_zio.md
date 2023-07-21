@@ -26,3 +26,20 @@
   - Work-stealing
 - Resource Control/Management
 - Programs as values
+
+```scala
+runDemo(ZIO.debug("Hi"))
+// Hi
+// ()
+```
+
+```scala
+object Demo extends ZIOAppDefault:
+  def run = ZIO.debug("Hi")
+
+Demo.run
+// res1: ZIO[ZIOAppArgs & Scope, Any, Any] = Sync(
+//   trace = "repl.MdocSession.MdocApp.Demo.run(03_why_start_with_zio.md:15)",
+//   eval = zio.ZIOCompanionVersionSpecific$$Lambda$2025/0x0000000100a3a840@6870e039
+// )
+```

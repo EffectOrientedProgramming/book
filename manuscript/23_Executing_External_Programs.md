@@ -32,8 +32,6 @@ We could start with things like `echo` or `ls`, but those are easily done within
 ```scala
 package executing_external_programs
 
-import zio._
-import zio.direct._
 import zio.Console.printLine
 import zio.process.{
   Command,

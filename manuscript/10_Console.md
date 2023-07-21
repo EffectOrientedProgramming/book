@@ -49,8 +49,6 @@ This `trait` represents a piece of the `Environment` that our codes need to inte
 It contains the methods for effectful interactions.
 
 ```scala
-import zio.ZIO
-
 trait Console:
   def printLine(
       output: String
@@ -89,10 +87,7 @@ val logicClunky: ZIO[Console, Nothing, Unit] =
 ```
 
 ```scala
-import mdoc.unsafeRunPrettyPrint
-import zio.ZLayer
-
-unsafeRunPrettyPrint(
+runDemo(
   logicClunky.provide(
     ZLayer.succeed[Console](ConsoleLive)
   )
@@ -129,10 +124,9 @@ val logic: ZIO[Console, Nothing, Unit] =
 However, providing dependencies to the logic is still tedious.
 
 ```scala
-import zio.ZLayer
 import zio.Runtime.default.unsafe
 
-unsafeRunPrettyPrint(
+runDemo(
   logic.provide(
     ZLayer.succeed[Console](ConsoleLive)
   )
@@ -145,8 +139,6 @@ unsafeRunPrettyPrint(
 Rather than making each caller wrap our instance in a `Layer`, we can do that a single time in our companion.
 
 ```scala
-import zio.ZLayer
-
 object ConsoleWithLayer:
   val live: ZLayer[Any, Nothing, Console] =
     ZLayer.succeed[Console](ConsoleLive)
@@ -155,16 +147,13 @@ object ConsoleWithLayer:
 Now executing our code is as simple as describing it.
 
 ```scala
-unsafeRunPrettyPrint(
-  logic.provide(ConsoleWithLayer.live)
-)
+runDemo(logic.provide(ConsoleWithLayer.live))
 // ()
 ```
 
 In real application, both of these will go in the companion object directly.
 
 ```scala // mdoc
-import zio.ZLayer
 object Console:
   def printLine(
       variable: => String
@@ -199,7 +188,7 @@ def crunchDebugged(a: Int, b: Int) =
 
 
 ```scala
-unsafeRunPrettyPrint(
+runDemo(
   ZIO.debug("ping") *>
     ConsoleLive.printLine("Normal logic")
 )
@@ -233,7 +222,7 @@ val leakSensitiveInfo
 ```
 
 ```scala
-unsafeRunPrettyPrint(
+runDemo(
   leakSensitiveInfo.provide(
     ZLayer.succeed[Console](ConsoleSanitized)
   )
@@ -256,10 +245,8 @@ unsafeRunPrettyPrint(
 ```scala
 package console
 
-import zio._
 import zio.Console
 import zio.Console._
-import zio.direct._
 
 import java.io.IOException
 

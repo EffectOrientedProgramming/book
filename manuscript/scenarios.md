@@ -6,10 +6,6 @@
 ```scala
 package scenarios
 
-import zio.ZIOAppArgs
-import zio.{ZIOAppDefault, ZIO}
-import zio.direct.*
-
 object CivilEngineering extends ZIOAppDefault:
   trait Company[T]:
     def produceBid(
@@ -145,16 +141,6 @@ end buildABridge
 ```scala
 package scenarios
 
-import zio.{
-  Duration,
-  Schedule,
-  Unsafe,
-  ZIO,
-  ZIOAppDefault,
-  ZLayer,
-  durationInt
-}
-import zio.direct.*
 import zio.Console.printLine
 
 import scala.concurrent.TimeoutException

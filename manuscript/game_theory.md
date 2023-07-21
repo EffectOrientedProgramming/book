@@ -6,9 +6,6 @@
 ```scala
 package game_theory
 
-import zio.{Ref, ZIO, ZLayer}
-import zio.direct.*
-
 trait DecisionService:
   def getDecisionsFor(
       prisoner1: Prisoner,
@@ -103,8 +100,6 @@ import game_theory.Outcome.{
   OnePrison
 }
 import zio.Console.printLine
-import zio.*
-import zio.direct.*
 
 case class Decision(
     prisoner: Prisoner,

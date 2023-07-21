@@ -6,9 +6,7 @@
 ```scala
 package scenarios
 
-import zio.*
 import zio.test.*
-import zio.direct.*
 import zio.Console.printLine
 import scala.concurrent.TimeoutException
 

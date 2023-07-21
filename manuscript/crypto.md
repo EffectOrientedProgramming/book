@@ -6,8 +6,6 @@
 ```scala
 package crypto
 
-import zio._
-import zio.direct._
 import ZIO.debug
 import zio.Random.nextIntBetween
 

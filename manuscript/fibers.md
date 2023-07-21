@@ -8,7 +8,6 @@ package fibers
 
 import org.apache.commons.lang3.RandomStringUtils
 import org.apache.commons.text.similarity.LevenshteinDistance
-import zio.*
 
 val input  = RandomStringUtils.random(70_000)
 val target = RandomStringUtils.random(70_000)
@@ -43,7 +42,6 @@ object CancellingATightLoop
 ```scala
 package fibers
 
-import zio.*
 import zio.Console.*
 
 object HowMany extends ZIOAppDefault:

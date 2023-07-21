@@ -3,8 +3,6 @@
 `Cause` will track all errors originating from a single call in an application, regardless of concurrency and parallelism.
 
 ```scala
-import zio._
-import mdoc.unsafeRunPrettyPrint
 val logic =
   ZIO
     .die(new Exception("Connection lost"))
@@ -15,7 +13,7 @@ val logic =
     )
 ```
 ```scala
-unsafeRunPrettyPrint(logic)
+runDemo(logic)
 // Defect: java.lang.Exception: Connection lost
 ```
 
@@ -33,8 +31,6 @@ Now we will highlight the deficiencies of throwing `Exception`s.
 The previous code might be written in this style:
 
 ```scala
-import zio._
-import mdoc.unsafeRunPrettyPrint
 val thrownLogic =
   ZIO.attempt(
     try
@@ -47,14 +43,14 @@ val thrownLogic =
         throw new Exception("Release Failed")
   )
 // thrownLogic: ZIO[Any, Throwable, Nothing] = OnSuccess(
-//   trace = "repl.MdocSession.MdocApp.thrownLogic(16_Cause.md:49)",
+//   trace = "repl.MdocSession.MdocApp.thrownLogic(16_Cause.md:37)",
 //   first = Sync(
-//     trace = "repl.MdocSession.MdocApp.thrownLogic(16_Cause.md:49)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$2465/0x0000000100b92440@209ed046
+//     trace = "repl.MdocSession.MdocApp.thrownLogic(16_Cause.md:37)",
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$2025/0x0000000100a3a840@6c379b55
 //   ),
-//   successK = zio.ZIO$$$Lambda$2467/0x0000000100b96840@4b2371c6
+//   successK = zio.ZIO$$$Lambda$2027/0x0000000100a59040@2d88e629
 // )
-unsafeRunPrettyPrint(thrownLogic)
+runDemo(thrownLogic)
 // java.lang.Exception: Release Failed
 ```
 
@@ -89,8 +85,6 @@ Everything must be reported linearly, even in systems that are executing on diff
 ### experiments/src/main/scala/cause/CauseBasics.scala
 ```scala
 package cause
-
-import zio._
 
 object CauseBasics extends App:
 //    ZIO.fail(Cause.fail("Blah"))
@@ -131,8 +125,6 @@ object LostInfo extends ZIOAppDefault:
 ### experiments/src/main/scala/cause/MalcomInTheMiddle.scala
 ```scala
 package cause
-
-import zio.{ZIO, ZIOAppDefault}
 
 object MalcomInTheMiddle extends ZIOAppDefault:
   def run =
@@ -206,9 +198,6 @@ end MalcomInTheMiddle
 ### experiments/src/main/scala/cause/MalcomInTheMiddleZ.scala
 ```scala
 package cause
-
-import zio.*
-import zio.direct.*
 
 object MalcomInTheMiddleZ extends ZIOAppDefault:
   def run =
@@ -287,7 +276,6 @@ def simpleStructureAlternative(
 ```scala
 package cause
 
-import zio.{Cause, IO, UIO, ZIO}
 import zio.Console.*
 
 class MutationTracking:
