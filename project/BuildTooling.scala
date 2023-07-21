@@ -84,6 +84,7 @@ object BuildTooling {
 
     FileIOBullshit.copyFolder(
       Paths.get(".")
+        .resolve("mdoctools")
         .resolve("src")
         .resolve("main")
         .resolve("scala"),
