@@ -1,7 +1,5 @@
 package rezilience
 
-import zio._
-import zio.direct._
 import nl.vroste.rezilience._
 import nl.vroste.rezilience.Bulkhead.BulkheadError
 

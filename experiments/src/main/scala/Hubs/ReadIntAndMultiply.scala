@@ -1,12 +1,9 @@
 package Hubs
 
 import console.FakeConsole
-import zio.ZIO
-import zio.*
 import zio.Duration.*
 import zio.Clock.*
 import zio.Console.*
-import zio.direct.*
 
 object ReadIntAndMultiply
     extends zio.ZIOAppDefault:

@@ -3,8 +3,6 @@ package Hubs
 import console.FakeConsole
 
 import java.io.IOException
-import zio.*
-import zio.direct.*
 import zio.Console.printLine
 
 case class Player(name: String)

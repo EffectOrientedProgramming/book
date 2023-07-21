@@ -1,8 +1,5 @@
 package testcontainers.proxy
 
-import zio.{Random, ZIO, Clock}
-import zio.durationInt
-
 val inconsistentFailuresZ =
   for
     randomInt <- Random.nextInt

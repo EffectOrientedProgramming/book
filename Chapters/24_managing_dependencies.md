@@ -24,8 +24,6 @@ Imagine a `ServiceX` that is needed by 20 diverse functions across your stack.
 Usually `ServiceX` has exactly one instance/implementation should be used throughout your application.
 
 ```scala mdoc
-import zio.ZIO
-
 trait ServiceX:
   val retrieveImportantData: ZIO[
     Any,

@@ -1,8 +1,5 @@
 package random
 
-import zio.{Ref, UIO, ZIO, ZLayer}
-import zio.direct.*
-
 class RandomBoundedIntFake private (
     values: Ref[Seq[Int]]
 ) extends RandomBoundedInt:

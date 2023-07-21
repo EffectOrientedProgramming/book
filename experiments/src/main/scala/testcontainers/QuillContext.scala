@@ -9,7 +9,6 @@ import io.getquill.{
   PostgresZioJdbcContext,
   SnakeCase
 }
-import zio.*
 
 import javax.sql.DataSource
 import scala.jdk.CollectionConverters.MapHasAsJava

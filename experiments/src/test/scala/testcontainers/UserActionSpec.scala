@@ -9,7 +9,6 @@ import io.github.scottweaver.zio.testcontainers.postgres.ZPostgreSQLContainer.{
   live
 }
 import org.postgresql.ds.PGSimpleDataSource
-import zio.*
 import zio.test.*
 
 import java.sql.Connection

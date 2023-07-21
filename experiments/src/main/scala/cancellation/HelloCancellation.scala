@@ -1,8 +1,5 @@
 package cancellation
 
-import zio.*
-import zio.direct.*
-
 val longRunning =
   defer:
     ZIO.debug("  Started longrunning").run

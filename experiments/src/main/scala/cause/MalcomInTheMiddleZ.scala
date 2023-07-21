@@ -1,8 +1,5 @@
 package cause
 
-import zio.*
-import zio.direct.*
-
 object MalcomInTheMiddleZ extends ZIOAppDefault:
   def run =
     def turnOnLights() = ZIO.fail(BurntBulb())

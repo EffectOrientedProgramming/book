@@ -1,8 +1,5 @@
 package direct
 
-import zio.*
-import zio.direct.*
-
 object AutoParallel extends ZIOAppDefault:
 
   override def run =

@@ -3,7 +3,6 @@ package testcontainers
 import io.github.scottweaver.models.JdbcInfo
 import org.flywaydb.core.Flyway
 import org.flywaydb.core.api.configuration.FluentConfiguration
-import zio.*
 import zio.test.TestAspect.{before, beforeAll}
 
 object DbMigration:

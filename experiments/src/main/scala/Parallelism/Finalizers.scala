@@ -2,18 +2,6 @@ package Parallelism
 
 import java.io.IOException
 import zio.Console.printLine
-import zio.{
-  Console,
-  Fiber,
-  IO,
-  Runtime,
-  Scope,
-  UIO,
-  URIO,
-  ZIO,
-  ZLayer
-}
-import zio.direct.*
 
 import scala.io.Source.*
 

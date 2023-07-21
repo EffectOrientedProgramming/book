@@ -1,7 +1,6 @@
 package logging
 
 import zio.logging.*
-import zio.*
 import zio.logging.LogFormat.{
   label,
   line,

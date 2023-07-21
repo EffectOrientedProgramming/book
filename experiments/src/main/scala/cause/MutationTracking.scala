@@ -1,6 +1,5 @@
 package cause
 
-import zio.{Cause, IO, UIO, ZIO}
 import zio.Console.*
 
 class MutationTracking:

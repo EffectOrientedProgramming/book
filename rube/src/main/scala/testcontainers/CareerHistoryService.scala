@@ -1,6 +1,5 @@
 package testcontainers
 
-import zio.*
 import org.testcontainers.containers.{
   GenericContainer,
   MockServerContainer,
