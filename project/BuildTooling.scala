@@ -82,14 +82,14 @@ object BuildTooling {
     else
       examplesDirectory.mkdirs()
 
-    FileIOBullshit.copyFolder(
-      Paths.get(".")
-        .resolve("mdoctools")
-        .resolve("src")
-        .resolve("main")
-        .resolve("scala"),
-      examplesDirectory.toPath
-    )
+//    FileIOBullshit.copyFolder(
+//      Paths.get(".")
+//        .resolve("mdoctools")
+//        .resolve("src")
+//        .resolve("main")
+//        .resolve("scala"),
+//      examplesDirectory.toPath
+//    )
 
     def isChapter(f: File): Boolean =
       f.name.matches("^\\d\\d_.*")
