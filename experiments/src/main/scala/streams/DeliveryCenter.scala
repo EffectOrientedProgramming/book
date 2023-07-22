@@ -1,8 +1,6 @@
 package streams
 
-import zio.*
 import zio.stream.*
-import zio.direct.*
 
 case class Order()
 

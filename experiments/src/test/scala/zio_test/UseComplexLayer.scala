@@ -1,7 +1,5 @@
 package zio_test
 
-import zio.*
-import zio.direct.*
 import zio.test.*
 import zio_test.Shared.Scoreboard
 

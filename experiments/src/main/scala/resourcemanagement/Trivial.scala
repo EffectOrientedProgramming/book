@@ -1,9 +1,5 @@
 package resourcemanagement
 
-import zio.Console
-import zio.{Ref, ZIO}
-import zio.direct.*
-
 object Trivial extends zio.ZIOAppDefault:
   enum ResourceState:
     case Closed,

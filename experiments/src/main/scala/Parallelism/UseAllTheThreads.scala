@@ -1,8 +1,6 @@
 package Parallelism
 
 import java.lang.{Runtime => JavaRuntime}
-import zio.*
-import zio.direct.*
 
 /* This example was a port of Bruce's Python
  * example:

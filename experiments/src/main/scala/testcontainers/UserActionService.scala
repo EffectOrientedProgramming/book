@@ -1,7 +1,6 @@
 package testcontainers
 
 import io.getquill.{Query, Quoted}
-import zio.*
 
 import java.sql.SQLException
 import java.time.{Instant, LocalDateTime}

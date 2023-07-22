@@ -1,7 +1,5 @@
 package rezilience
 
-import zio._
-import zio.direct._
 import nl.vroste.rezilience._
 
 /** This is useful for scenarios such as:

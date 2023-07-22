@@ -18,8 +18,6 @@ Required Operations:
 These are both effectful operations.
 
 ```scala mdoc
-import zio.ZIO
-
 trait RefZ[A]:
   def get: ZIO[Any, Nothing, A]
   def update(a: A => A): ZIO[Any, Nothing, Unit]
@@ -43,8 +41,6 @@ In order to confidently use this, we need certain guarantees about the behavior:
 ## Unreliable Counting
 
 ```scala mdoc
-import mdoc.unsafeRunPrettyPrint
-
 // This is lazy *purely* to silence the mdoc output.
 // TODO Decide whether it's clearer to do this, or capture everything in an object
 lazy val unreliableCounting =
@@ -61,7 +57,7 @@ lazy val unreliableCounting =
         )
   yield "Final count: " + counter
 
-unsafeRunPrettyPrint(unreliableCounting)
+runDemo(unreliableCounting)
 ```
 
 Due to the unpredictable nature of shared mutable state, we do not know exactly what the final count above is.
@@ -78,7 +74,6 @@ We need to fully embrace the ZIO components, utilizing `Ref` for correct mutatio
 ## Reliable Counting
 
 ```scala mdoc
-import zio.Ref
 lazy val reliableCounting =
   def incrementCounter(counter: Ref[Int]) =
     counter.update(_ + 1)
@@ -93,7 +88,7 @@ lazy val reliableCounting =
     finalResult <- counter.get
   yield "Final count: " + finalResult
 
-unsafeRunPrettyPrint(reliableCounting)
+runDemo(reliableCounting)
 ```
 Now we can say with full confidence that our final count is 100000.
 Additionally, these updates happen _without blocking_.
@@ -132,7 +127,7 @@ lazy val sideEffectingUpdates =
   yield "Final count: " + finalResult
 
 // Mdoc/this function is showing the notifications, but not the final result
-unsafeRunPrettyPrint(sideEffectingUpdates)
+runDemo(sideEffectingUpdates)
 ```
 What is going on?!
 Previously, we were losing updates because of unsafe mutability.
@@ -172,7 +167,7 @@ lazy val sideEffectingUpdatesSync =
     finalResult <- counter.get
   yield "Final count: " + finalResult
 
-unsafeRunPrettyPrint(sideEffectingUpdatesSync)
+runDemo(sideEffectingUpdatesSync)
 ```
 
 Now we see exactly the number of alerts that we expected.

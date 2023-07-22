@@ -1,17 +1,5 @@
 package concurrency
 
-import zio.{
-  durationInt,
-  duration2DurationOps,
-  Clock,
-  Console,
-  Duration,
-  ZIO,
-  ZIOAppDefault,
-  Random
-}
-import zio.direct.*
-
 def sleepThenPrint(
     d: Duration
 ): ZIO[Any, java.io.IOException, Duration] =

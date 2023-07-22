@@ -1,19 +1,6 @@
 package Parallelism
 
 import java.io.IOException
-import zio.{
-  Fiber,
-  IO,
-  Runtime,
-  UIO,
-  Unsafe,
-  ZIO,
-  ZIOAppDefault,
-  ZLayer,
-  durationInt
-}
-
-import zio.direct.*
 
 import scala.concurrent.Await
 

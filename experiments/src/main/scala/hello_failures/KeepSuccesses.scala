@@ -1,8 +1,6 @@
 package hello_failures
 
 import zio.Console.printLine
-import zio.ZIO
-import zio.direct.*
 
 object KeepSuccesses extends zio.ZIOAppDefault:
   val allCalls =

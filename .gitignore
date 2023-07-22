@@ -16,6 +16,8 @@ project/metals.sbt
 .env
 cs.exe
 /Examples/src/main/scala/*.scala
+/Examples/mdoctools/src/main/scala/*.scala
+/Examples/mdoctools/target/*
 /*/target/
 /MdToSourcePlugin/project/target/
 /MdToSourcePlugin/project/project/

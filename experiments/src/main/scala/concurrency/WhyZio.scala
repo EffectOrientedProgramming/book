@@ -1,7 +1,5 @@
 package concurrency
 
-import zio.{ZIO, ZIOAppDefault}
-
 import java.math.BigInteger
 
 object WhyZio extends ZIOAppDefault:
