@@ -1,6 +1,5 @@
 package streams
 
-import zio.*
 import zio.stream.*
 
 object HelloStreams extends ZIOAppDefault:

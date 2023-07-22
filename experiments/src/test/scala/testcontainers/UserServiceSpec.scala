@@ -3,7 +3,6 @@ package testcontainers
 import com.dimafeng.testcontainers.PostgreSQLContainer
 import io.github.scottweaver.models.JdbcInfo
 import zio.test.*
-import zio.*
 import io.github.scottweaver.zio.testcontainers.postgres.ZPostgreSQLContainer.live
 import io.github.scottweaver.zio.testcontainers.postgres.ZPostgreSQLContainer.Settings
 import io.github.scottweaver.zio.testcontainers.postgres.ZPostgreSQLContainer

@@ -1,8 +1,5 @@
 package hello_failures
 
-import zio.ZIO
-import zio.direct.*
-
 object BadTypeManagement
     extends zio.ZIOAppDefault:
   val logic: ZIO[Any, Exception, String] =

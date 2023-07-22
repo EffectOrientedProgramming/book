@@ -1,7 +1,5 @@
 package helloworld
 
-import zio.*
-
 import scala.annotation.{experimental, nowarn}
 
 @experimental

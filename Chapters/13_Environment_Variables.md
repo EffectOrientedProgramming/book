@@ -136,8 +136,6 @@ Before looking at the official ZIO implementation of `System`, we will create a 
 The real implementation is a bit more complex, to handle corner cases.
 
 ```scala mdoc
-import zio.ZIO
-
 trait System:
   def env(
       variable: String
@@ -148,8 +146,6 @@ Now, our live implementation will wrap our original, unsafe function call.
 For easier usage by the caller, we also create an accessor.
 
 ```scala mdoc
-import zio.ZLayer
-
 object System:
   object Live extends System:
     def env(
@@ -256,6 +252,7 @@ Our fully ZIO-centric, side-effect-free logic looks like this:
 
 ```scala mdoc
 // TODO This produces large, wide output that does not adhere to the width of the page.
+// TODO This has fallen out of sync with the "identical" code below
 val fancyLodging: ZIO[
   SystemStrict with HotelApiZ,
   Error,
@@ -284,9 +281,7 @@ It now reports the `System` and `HotelApiZ` dependencies of our function.
 This is what it looks like in action:
 
 ```scala mdoc
-import zio.ZLayer
-import mdoc.unsafeRunPrettyPrint
-import mdoc.unsafeRunPrettyPrintValue
+
 ```
 
 **Your Machine:**
@@ -301,7 +296,7 @@ val originalAuthor = HotelApiZ.live
 ```
 
 ```scala mdoc
-unsafeRunPrettyPrint(
+runDemo(
   fancyLodging.provideLayer(
     System.live >>> SystemStrict.live >+>
       originalAuthor
@@ -323,7 +318,7 @@ val colaboraterLayer =
 ```
 
 ```scala mdoc
-unsafeRunPrettyPrint(
+runDemo(
   fancyLodging.provideLayer(
     System.live >>> SystemStrict.live >+>
       collaborater
@@ -342,7 +337,7 @@ val ci = HotelApiZ.live
 ```
 
 ```scala mdoc
-unsafeRunPrettyPrint(
+runDemo(
   fancyLodging.provideLayer(
     System.live >>> SystemStrict.live >+> ci
   )
@@ -375,11 +370,7 @@ val testApiLayer =
 ```
 
 ```scala mdoc
-import mdoc.unsafeRunPrettyPrint
-
-unsafeRunPrettyPrint(
-  fancyLodging.provide(testApiLayer)
-)
+runDemo(fancyLodging.provide(testApiLayer))
 ```
 
 ## Official ZIO Approach
@@ -389,8 +380,6 @@ ZIO provides a more complete `System` API in the `zio.System`
 TODO
 
 ```scala mdoc
-import zio.System
-
 def fancyLodgingZ(): ZIO[
   zio.System,
   SecurityException,
@@ -442,7 +431,7 @@ object Exercise1Solution extends Exercise1:
 
 ```scala mdoc
 val exercise1case1 =
-  unsafeRunPrettyPrintValue(
+  runDemoValue(
     Exercise1Solution
       .envOrFail("key")
       .provide(
@@ -456,7 +445,7 @@ assert(exercise1case1 == "value")
 
 ```scala mdoc
 val exercise1case2 =
-  unsafeRunPrettyPrintValue(
+  runDemoValue(
     Exercise1Solution
       .envOrFail("key")
       .catchSome {

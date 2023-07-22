@@ -1,8 +1,6 @@
 package bigdec
 
 // TODO Determine if there is a clear reason to include these tests
-import zio.direct.*
-import zio.ZIO
 import zio.test.Assertion.*
 import zio.test.*
 import zio.test.TestAspect.silent

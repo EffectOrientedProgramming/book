@@ -1,7 +1,5 @@
 package cause
 
-import zio.{ZIO, ZIOAppDefault}
-
 object MalcomInTheMiddle extends ZIOAppDefault:
   def run =
 

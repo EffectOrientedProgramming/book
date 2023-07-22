@@ -1,7 +1,5 @@
 package zio_intro
 
-import zio.*
-import zio.direct.*
 import zio.Schedule.*
 
 object DatabaseError

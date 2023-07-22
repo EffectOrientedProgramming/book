@@ -1,13 +1,5 @@
 package bigdec
 
-import zio.{
-  ZIO,
-  ZIOAppDefault,
-  Console,
-  Schedule
-}
-import zio.direct.*
-
 def inputBigDecimalValue(
     prompt: String,
     min: BigDecimal,

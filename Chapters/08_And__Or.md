@@ -10,8 +10,6 @@ Functions usually transform the `Answer` from one type to another type.  Errors 
 
 
 ```scala mdoc
-import zio.ZIO
-
 trait Error1
 trait Error2
 
@@ -129,8 +127,6 @@ trait UserService
 ```
 
 ```scala mdoc
-import zio.ZIO
-
 trait Account
 trait AccountError
 

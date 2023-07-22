@@ -1,6 +1,5 @@
 package testcontainers
 
-import zio.*
 import io.getquill._
 import com.zaxxer.hikari.HikariDataSource
 import com.zaxxer.hikari.HikariConfig
