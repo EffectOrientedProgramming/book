@@ -1,6 +1,5 @@
 package testcontainers
 
-import zio.*
 import zio.test.*
 import zio.test.Assertion.*
 import org.apache.kafka.clients.consumer.ConsumerRecord

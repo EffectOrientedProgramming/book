@@ -7,10 +7,6 @@ Previously, we have examined this in terms of "Which Machine?"
 However, it is equally valid to treat this as a spatial location at which our code is executed.
 
 ```scala mdoc
-import zio.{ZIO}
-```
-
-```scala mdoc
 trait HardwareFailure
 case class GpsCoordinates(
     latitude: Double,

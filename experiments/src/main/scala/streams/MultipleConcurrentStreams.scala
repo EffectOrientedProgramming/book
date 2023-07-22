@@ -1,9 +1,7 @@
 package streams
 
-import zio.*
-import zio.stream.*
-
 import java.io.File
+import zio.stream.*
 
 object MultipleConcurrentStreams
     extends ZIOAppDefault:

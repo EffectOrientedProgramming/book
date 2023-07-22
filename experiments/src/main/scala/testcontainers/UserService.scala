@@ -1,7 +1,6 @@
 package testcontainers
 
 import io.getquill.{Query, Quoted}
-import zio.*
 import io.getquill._
 
 import java.sql.SQLException

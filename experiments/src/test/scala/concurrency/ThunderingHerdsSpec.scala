@@ -1,9 +1,7 @@
 package concurrency
 
-import zio.*
 import zio.Console.printLine
 import zio.test.*
-import zio.direct.*
 
 import java.nio.file.Path
 

@@ -30,9 +30,6 @@ def fullRound(): GameState =
 @main
 def playASingleRound() = println(fullRound())
 
-import zio.ZIO
-import zio.direct.*
-
 val rollDiceZ
     : ZIO[RandomBoundedInt, Nothing, Int] =
   RandomBoundedInt.nextIntBetween(1, 7)

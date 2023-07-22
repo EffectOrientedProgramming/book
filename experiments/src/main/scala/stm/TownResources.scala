@@ -4,7 +4,6 @@ import zio.stm.STM
 import zio.stm.TRef
 import zio.Runtime.default.unsafe
 import zio.Console.printLine
-import zio.Unsafe
 
 case class Cash(value: Int)
     extends Resource[Cash]

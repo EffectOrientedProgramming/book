@@ -15,6 +15,8 @@ mdDir := file("Chapters")
 // Tells our example extraction code where to put the extracted examples
 examplesDir := file("Examples/src/main/scala")
 
+examplesHelperDir := file("Examples/mdoctools/src/main/scala")
+
 lazy val illustratedPrimer =
   (project in file("illustratedPrimer"))
     .enablePlugins(ScalaJSPlugin)
@@ -44,9 +46,23 @@ lazy val experiments =
 
 resolvers ++= Resolver.sonatypeOssRepos("snapshots")
 
+lazy val mdoctools = (project in file("mdoctools"))
+  .settings(commonSettings)
+
 lazy val root =
   (project in file("."))
+    .dependsOn(mdoctools)
     .settings(commonSettings)
+    .settings(
+      scalacOptions +=
+        Seq(
+          "mdoctools",
+        ).mkString(
+          start = "-Yimports:",
+          sep = ",",
+          end = ""
+        ),
+    )
     .enablePlugins(MdocPlugin)
     .aggregate(booker, experiments /*, rube*/)
 

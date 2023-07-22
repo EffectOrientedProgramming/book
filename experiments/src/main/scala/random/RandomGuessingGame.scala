@@ -1,8 +1,6 @@
 package random
 
 import console.FakeConsole
-import zio._
-import zio.direct.*
 
 val low  = 1
 val high = 10

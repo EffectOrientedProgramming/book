@@ -1,15 +1,5 @@
 package scenarios
 
-import zio.{
-  Duration,
-  Schedule,
-  Unsafe,
-  ZIO,
-  ZIOAppDefault,
-  ZLayer,
-  durationInt
-}
-import zio.direct.*
 import zio.Console.printLine
 
 import scala.concurrent.TimeoutException

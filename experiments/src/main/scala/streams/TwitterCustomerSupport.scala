@@ -1,6 +1,5 @@
 package streams
 
-import zio.*
 import zio.stream.*
 
 import java.time.Instant
@@ -32,7 +31,6 @@ object TwitterCustomerSupport
   def trackActiveCompanies(
       tweets: ZStream[Any, Throwable, Tweet]
   ) =
-    import zio.direct.*
     defer {
       val activeCompanies =
         Ref.make[Map[String, Int]](Map.empty).run
@@ -61,7 +59,6 @@ object TwitterCustomerSupport
   end trackActiveCompanies
 
   def run =
-    import zio.direct.*
     defer {
       val dataset =
         ZIOAppArgs

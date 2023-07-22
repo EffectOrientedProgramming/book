@@ -1,8 +1,5 @@
 package zio_test
 
-import zio.{Ref, Scope, ZIO, ZLayer}
-import zio.direct.*
-
 object Shared:
   val layer: ZLayer[Any, Nothing, Ref[Int]] =
     ZLayer.scoped {

@@ -1,8 +1,5 @@
 package testcontainers
 
-import zio.*
-import zio.direct.*
-
 import scala.jdk.CollectionConverters.*
 import zio.Console.*
 import org.testcontainers.containers.Network

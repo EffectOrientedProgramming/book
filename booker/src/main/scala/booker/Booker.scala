@@ -2,15 +2,6 @@ package booker
 
 import tui.{TUI, TerminalApp, TerminalEvent}
 import tui.view.*
-import zio.{
-  Scope,
-  Unsafe,
-  ZEnvironment,
-  ZIO,
-  ZIOAppArgs,
-  ZIOAppDefault,
-  ZLayer
-}
 import zio.Console.*
 import zio.Runtime.unsafe
 

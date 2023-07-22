@@ -1,21 +1,10 @@
-package mdoc
+package mdoctools
 
 import zio.Runtime.default.unsafe
-import zio.{Console, Unsafe, ZIO}
-
-private def foo() = bar()
-
-private def bar() =
-  Stuff
-    .WithALongName
-    .ThatWillComplicate
-    .Rendering
-    .run
 
 object Stuff:
-  object WithALongName:
-    object ThatWillComplicate:
-      object Rendering:
+    object WithALongName:
+      object ThatWillComplicate:
         def run =
           throw new Exception(
             "Boom stoinky kablooey pow pow pow"
@@ -111,7 +100,7 @@ def wrapUnsafeZIOReportError[E, A](
 
 end wrapUnsafeZIOReportError
 
-def unsafeRunPrettyPrintValue[E, A](
+def runDemoValue[E, A](
     z: => ZIO[Any, E, A]
 ): String =
   Unsafe.unsafe { (u: Unsafe) =>
@@ -121,9 +110,7 @@ def unsafeRunPrettyPrintValue[E, A](
       .getOrThrowFiberFailure()
   }
 
-def unsafeRunPrettyPrint[E, A](
-    z: => ZIO[Any, E, A]
-): Unit =
+def runDemo[E, A](z: => ZIO[Any, E, A]): Unit =
   Unsafe.unsafe { (u: Unsafe) =>
     given Unsafe = u
     unsafe
@@ -131,3 +118,5 @@ def unsafeRunPrettyPrint[E, A](
       .getOrThrowFiberFailure()
     //      .getOrThrowFiberFailure()
   }
+
+// Should be copied!

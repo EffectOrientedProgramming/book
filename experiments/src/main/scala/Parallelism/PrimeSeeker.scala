@@ -1,7 +1,5 @@
 package Parallelism
 
-import zio.*
-
 import java.math.BigInteger
 
 object PrimeSeeker extends ZIOAppDefault:

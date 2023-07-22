@@ -1,6 +1,5 @@
 package fibers
 
-import zio.*
 import zio.Console.*
 
 object HowMany extends ZIOAppDefault:

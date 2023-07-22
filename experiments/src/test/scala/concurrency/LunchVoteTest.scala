@@ -1,10 +1,8 @@
 package concurrency
 
-import zio.direct.*
 import zio.test.*
 import zio.test.TestAspect.*
 import zio.test.Assertion.*
-import zio.*
 import LunchVote.*
 import LunchVote.Vote.*
 

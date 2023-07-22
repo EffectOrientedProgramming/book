@@ -1,8 +1,5 @@
 package zio_intro
 
-import zio.{ZIO, ZIOAppDefault}
-import zio.direct.*
-
 object AuthenticationFlow extends ZIOAppDefault:
   val activeUsers
       : ZIO[Any, DiskError, List[UserName]] = ???
