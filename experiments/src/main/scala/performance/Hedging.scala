@@ -1,8 +1,5 @@
 package performance
 
-import zio._
-import zio.direct._
-
 object Hedging extends ZIOAppDefault:
 
   val erraticRequest =

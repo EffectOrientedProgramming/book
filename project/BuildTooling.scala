@@ -1,7 +1,8 @@
 import sbt.IO
-
 import sbt.*
 import Keys.*
+import mdoc.internal.cli.Settings
+
 import java.io.File
 import java.nio.file.Path
 
@@ -69,24 +70,35 @@ object BuildTooling {
 
   lazy val mdDir = settingKey[File]("MD Source Dir")
   lazy val examplesDir = settingKey[File]("Examples Dir")
+  lazy val examplesHelperDir = settingKey[File]("Examples Helper Dir")
   lazy val generateExamples = taskKey[Unit]("generate examples")
 
   val generateExamplesTask = Def.task {
-    generateExamplesLogic(examplesDir.value, mdDir.value)
+    generateExamplesLogic(examplesDir.value, examplesHelperDir.value, mdDir.value)
   }
 
-  private def generateExamplesLogic(examplesDirectory: File, markdownDir: File): Unit = {
+  private def generateExamplesLogic(examplesDirectory: File, examplesHelperDirectory: File, markdownDir: File): Unit = {
     if (examplesDirectory.exists())
       FileIOBullshit.deleteAllScalaFilesRecursively(examplesDirectory)
     else
       examplesDirectory.mkdirs()
 
+    // Examples/mdoctools/src/main/scala/mdoctools
+
+    if (examplesHelperDirectory.exists())
+      FileIOBullshit.deleteAllScalaFilesRecursively(examplesHelperDirectory)
+
+    // *Very* weird hacky bit of code to get this not making the last level of the path
+    // the directory indclues "/scala" already, but this is needed??
+    examplesHelperDirectory./("scala").mkdirs()
+
     FileIOBullshit.copyFolder(
       Paths.get(".")
+        .resolve("mdoctools")
         .resolve("src")
         .resolve("main")
         .resolve("scala"),
-      examplesDirectory.toPath
+      examplesHelperDirectory.toPath
     )
 
     def isChapter(f: File): Boolean =
@@ -115,7 +127,9 @@ object BuildTooling {
       val input = Input.VirtualFile(file.absolutePath, source)
 
       val codeBlocks =
-        MarkdownFile.parse(input, inputFile, ConsoleReporter.default)
+        MarkdownFile.parse(input, inputFile, ConsoleReporter.default, Settings.default(
+            AbsolutePath.workingDirectory
+          ))
           .parts
           .collect {
             case codeFence: CodeFence if codeFence.info.value.startsWith("scala mdoc") && !codeFence.info.value.startsWith("scala mdoc:nest") =>
@@ -295,10 +309,34 @@ object BuildTooling {
   val zioVersion = "2.0.15"
 
   lazy val commonSettings = Seq(
+    scalacOptions +=
+      Seq(
+        "java.lang",
+        "scala",
+        "scala.Predef",
+        "zio",
+        "zio.direct",
+      ).mkString(
+        start = "-Yimports:",
+        sep = ",",
+        end = ""
+      ),
+
     libraryDependencies ++= Seq(
       "dev.zio" %% "zio"          % zioVersion,
       "dev.zio" %% "zio-cache"  % "0.2.3",
       "dev.zio" %% "zio-concurrent"          % zioVersion,
+      "dev.zio" %%
+        "zio-direct" % "1.0.0-RC7" excludeAll
+        (
+          "com.geirsson",
+          "metaconfig-typesafe-config"
+        ) excludeAll
+        (
+          "com.geirsson",
+          "metaconfig-core"
+        ) excludeAll
+        ("org.typelevel", "paiges-core"),
       "dev.zio" %% "zio-logging"  % "2.1.13",
       "dev.zio" %% "zio-streams"  % zioVersion,
       "dev.zio" %% "zio-test"     % zioVersion,

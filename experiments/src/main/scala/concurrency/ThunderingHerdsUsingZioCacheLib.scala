@@ -1,7 +1,5 @@
 package concurrency
 
-import zio.*
-import zio.direct.*
 import zio.cache.{Cache, Lookup}
 
 import java.nio.file.Path

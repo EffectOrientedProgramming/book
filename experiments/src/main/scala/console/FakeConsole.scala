@@ -1,9 +1,7 @@
 package console
 
-import zio._
 import zio.Console
 import zio.Console._
-import zio.direct._
 
 import java.io.IOException
 

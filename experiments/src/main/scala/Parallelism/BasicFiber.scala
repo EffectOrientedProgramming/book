@@ -1,9 +1,6 @@
 package Parallelism
 
 import java.io.IOException
-import zio.Console
-import zio.{Fiber, IO, Runtime, UIO, ZIO, ZLayer}
-import zio.direct.*
 
 object BasicFiber:
 

@@ -1,8 +1,5 @@
 package streams
 
-import zio.{Random, ZIO}
-import zio.direct.*
-
 case class TweetFactory(counter: Counter):
 
   val randomTweet

@@ -1,8 +1,6 @@
 package concurrency
 
 import concurrency.LunchVote.Vote.Yay
-import zio.*
-import zio.direct.*
 import zio.concurrent.*
 
 object LunchVote:

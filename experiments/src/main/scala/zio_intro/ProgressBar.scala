@@ -1,8 +1,5 @@
 package zio_intro
 
-import zio.*
-import zio.direct.*
-
 import zio.Console.printLine
 
 import java.util.concurrent.TimeUnit

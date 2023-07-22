@@ -33,8 +33,6 @@ How do we have a feedback loop as we build?  Can we run training while writing t
 Given the most basic effect:
 
 ```scala
-import zio.ZIO
-
 val app: ZIO[Any, Nothing, Unit] = ZIO.unit
 ```
 

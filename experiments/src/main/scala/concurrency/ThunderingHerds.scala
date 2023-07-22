@@ -1,9 +1,7 @@
 package concurrency
 
 import concurrency.FileService.ActiveUpdate
-import zio.*
 import zio.Console.printLine
-import zio.direct.*
 
 import java.nio.file.Path
 

@@ -1,8 +1,6 @@
 package time
 
-import zio.*
 import zio.Console.*
-import zio.direct.*
 
 val longRunning =
   ZIO.sleep(5.seconds) *> printLine("done")

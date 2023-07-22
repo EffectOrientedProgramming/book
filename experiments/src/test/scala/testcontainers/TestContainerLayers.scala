@@ -5,7 +5,6 @@ import com.zaxxer.hikari.{
   HikariDataSource
 }
 import io.github.scottweaver.models.JdbcInfo
-import zio.*
 
 import java.util.Properties
 import javax.sql.DataSource
