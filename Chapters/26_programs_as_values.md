@@ -19,19 +19,26 @@ def findUser(id: String): User = ???
 // You can augment findUser by using `.andThen` to attach new behavior
 
 def friendsOf(user: User): List[Friend] = ???
-val fullProcess: String => List[Friend] = findUser.andThen(friendsOf)
+val fullProcess: String => List[Friend] =
+  findUser.andThen(friendsOf)
 ```
 That is neat, and often used to get people interested in Functional Programming.
 However, if there are more complex types, it quickly becomes less fun
 
 ```scala mdoc:nest
 trait NotFound
-def findUser(id: String): Either[NotFound, User] = ???
+def findUser(
+    id: String
+): Either[NotFound, User] = ???
 // You can augment findUser by using `.andThen` to attach new behavior
 
 def friendsOf(user: User): List[Friend] = ???
-val fullProcess: String => Either[NotFound, List[Friend]] = findUser.andThen {
-    case Right(user) => Right(friendsOf(user))
-    case error: Left => error
-}
+val fullProcess
+    : String => Either[NotFound, List[Friend]] =
+  findUser.andThen {
+    case Right(user) =>
+      Right(friendsOf(user))
+    case error: Left =>
+      error
+  }
 ```
