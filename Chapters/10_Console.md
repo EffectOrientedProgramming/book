@@ -33,7 +33,7 @@ The pattern used here is fundamental to designing composable, ergonomic ZIO `Ser
 
 1. Create a `trait` with the needed functions.
 2. Create an implementation of the `trait`.
-4. (Optional) Provide implementation instance in a `Layer` as a `object` field - `live`.
+3. (Optional) Provide implementation instance in a `Layer` as a `object` field - `live`.
 
 We will go through each of these steps in detail in this chapter, and more concisely in the rest.
 Steps 1 and 2 steps will be familiar to many programmers.
@@ -64,11 +64,13 @@ object ConsoleLive extends Console:
 ```
 
 ```scala mdoc:silent
-def logic(console: Console): ZIO[Any, Nothing, Unit] =
-    defer {
-      console.printLine("Hello").run
-      console.printLine("World").run
-    }
+case class Logic(console: Console) {
+      val invoke: ZIO[Any, Nothing, Unit] =
+            defer {
+                  console.printLine("Hello").run
+                  console.printLine("World").run
+            }
+}
 ```
 
 However, providing dependencies to the logic is still tedious.
@@ -77,9 +79,7 @@ However, providing dependencies to the logic is still tedious.
 import zio.Runtime.default.unsafe
 
 runDemo(
-  logic.provide(
-    ZLayer.succeed[Console](ConsoleLive)
-  )
+  Logic(ConsoleLive).invoke
 )
 ```
 
@@ -87,7 +87,7 @@ runDemo(
 
 Rather than making each caller wrap our instance in a `Layer`, we can do that a single time in our companion.
 
-```scala: mdoc
+```scala mdoc
 object Console:
   val live: ZLayer[Any, Nothing, Console] =
     ZLayer.succeed[Console](ConsoleLive)
@@ -97,7 +97,15 @@ More important than removing repetition - using 1 unique Layer instance per type
 Now executing our code is as simple as describing it.
 
 ```scala mdoc
-runDemo(logic.provide(ConsoleWithLayer.live))
+
+runDemo(
+      ZIO.serviceWithZIO[Logic](
+            _.invoke
+      ).provide(
+            Console.live,
+            ZLayer.fromFunction(Logic.apply _)
+      )
+)
 ```
 
 
