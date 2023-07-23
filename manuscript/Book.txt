@@ -24,6 +24,7 @@
 23_Executing_External_Programs.md
 24_managing_dependencies.md
 25_network.md
+26_programs_as_values.md
 ExperimentsSection.md
 microcontrollers.md
 experiments-src-test-scala-Hubs.md
