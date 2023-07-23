@@ -38,7 +38,7 @@ val fullProcess
   findUser.andThen {
     case Right(user) =>
       Right(friendsOf(user))
-    case error: Left =>
-      error
+    case Left(err) =>
+      Left(err)
   }
 ```
