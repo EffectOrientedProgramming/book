@@ -50,12 +50,13 @@ lazy val unreliableCounting =
       counter = counter + 1
     }
 
-  for _ <-
-      ZIO
-        .foreachParDiscard(Range(0, 100000))(_ =>
-          increment
-        )
-  yield "Final count: " + counter
+  defer {
+    ZIO
+      .foreachParDiscard(Range(0, 100000))(_ =>
+        increment
+      ).run
+    "Final count: " + ZIO.succeed(counter).run
+  }
 
 runDemo(unreliableCounting)
 ```

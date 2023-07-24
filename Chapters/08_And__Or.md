@@ -71,10 +71,10 @@ def loginSuperUser(userId: String): ZIO[
   UserNotFound | PermissionError,
   SuperUser
 ] =
-  for
-    basicUser <- getUser(userId)
-    superUser <- getSuperUser(basicUser)
-  yield superUser
+  defer {
+    val basicUser = getUser(userId).run
+    getSuperUser(basicUser).run
+  }
 
 trait Status
 trait NetworkService
@@ -89,10 +89,10 @@ def check(userId: String): ZIO[
   UserNotFound,
   Status
 ] =
-  for
-    user   <- getUser(userId)
-    status <- statusOf(user)
-  yield status
+  defer {
+    val user = getUser(userId).run
+    statusOf(user).run
+  }
 ```
 
 
@@ -140,10 +140,10 @@ def getAccount(userId: String): ZIO[
   AccountError | UserNotFound,
   Account
 ] =
-  for
-    user    <- getUser(userId)
-    account <- userToAccount(user)
-  yield account
+  defer {
+    val user = getUser(userId).run
+    userToAccount(user).run
+  }
 ```
 
 ```
