@@ -3,7 +3,7 @@ resolvers ++=
 
 addSbtPlugin(
   "io.github.davidgregory084" % "sbt-tpolecat" %
-    "0.4.4" // Upgrading to 0.4.3 broke mdoc :(
+    "0.4.2" // Upgrading to 0.4.3 broke mdoc :(
 )
 addSbtPlugin(
   "org.scalameta" % "sbt-scalafmt" % "2.5.0"
