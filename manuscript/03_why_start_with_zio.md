@@ -40,6 +40,6 @@ object Demo extends ZIOAppDefault:
 Demo.run
 // res1: ZIO[ZIOAppArgs & Scope, Any, Any] = Sync(
 //   trace = "repl.MdocSession.MdocApp.Demo.run(03_why_start_with_zio.md:15)",
-//   eval = zio.ZIOCompanionVersionSpecific$$Lambda$2025/0x0000000100a46040@6870e039
+//   eval = zio.ZIOCompanionVersionSpecific$$Lambda$2023/0x0000000100a3c040@6870e039
 // )
 ```
