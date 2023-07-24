@@ -33,19 +33,17 @@ The pattern used here is fundamental to designing composable, ergonomic ZIO `Ser
 
 1. Create a `trait` with the needed functions.
 2. Create an implementation of the `trait`.
-3. (Optional) Put "accessor" methods in `trait` companion object.
-4. (Optional) Provide implementation instance in a `Layer` as a `object` field - `live`.
+3. (Optional) Provide implementation instance in a `Layer` as a `object` field - `live`.
 
 We will go through each of these steps in detail in this chapter, and more concisely in the rest.
 Steps 1 and 2 steps will be familiar to many programmers.
-Steps 3 and 4 are less familiar, and a bit harder to appreciate.
+Steps 3 is less familiar, and might be harder to appreciate.
 We endeavor in the following chapters to make a compelling case for them.
-If we succeed, the reader will add them when creating their own Effects.
+If we succeed, the reader will use them when creating their own Effects.
 
 ### One: Create the trait
 
-This `trait` represents a piece of the `Environment` that our codes need to interact with.
-It contains the methods for effectful interactions.
+This `trait` represents effectful code that we need to interact with.
 
 ```scala mdoc
 trait Console:
@@ -65,56 +63,14 @@ object ConsoleLive extends Console:
     ZIO.succeed(Predef.println(output))
 ```
 
-TODO{Determine how to best split the 2 pieces we need to add to the same `object` for these steps}
-
-### Three: Create Accessor Methods in Companion
-
-The first two steps are enough for us to track Effects in our system, but the ergonomics are not great.
-
 ```scala mdoc:silent
-val logicClunky: ZIO[Console, Nothing, Unit] =
-  for
-    _ <-
-      ZIO.serviceWithZIO[Console](
-        _.printLine("Hello")
-      )
-    _ <-
-      ZIO.serviceWithZIO[Console](
-        _.printLine("World")
-      )
-  yield ()
-```
-
-```scala mdoc
-runDemo(
-  logicClunky.provide(
-    ZLayer.succeed[Console](ConsoleLive)
-  )
-)
-```
-
-The caller has to handle the ZIO environment access, which is a distraction from the logic they want to implement.
-
-```scala mdoc
-// TODO Consider deleting this entirely
-
-// TODO remove alt companions and make top-level
-// functions
-object ConsoleWithAccessor:
-  def printLine(
-      variable: => String
-  ): ZIO[Console, Nothing, Unit] =
-    ZIO.serviceWith(_.printLine(variable))
-```
-
-With this function, our callers have a much nicer experience.
-
-```scala mdoc:silent
-val logic: ZIO[Console, Nothing, Unit] =
-  for
-    _ <- ConsoleWithAccessor.printLine("Hello")
-    _ <- ConsoleWithAccessor.printLine("World")
-  yield ()
+case class Logic(console: Console) {
+      val invoke: ZIO[Any, Nothing, Unit] =
+            defer {
+                  console.printLine("Hello").run
+                  console.printLine("World").run
+            }
+}
 ```
 
 However, providing dependencies to the logic is still tedious.
@@ -123,40 +79,35 @@ However, providing dependencies to the logic is still tedious.
 import zio.Runtime.default.unsafe
 
 runDemo(
-  logic.provide(
-    ZLayer.succeed[Console](ConsoleLive)
-  )
+  Logic(ConsoleLive).invoke
 )
 ```
 
-### Four: Create `object Effect.live` field
+### Three: Create `object Effect.live` field
 
 Rather than making each caller wrap our instance in a `Layer`, we can do that a single time in our companion.
 
 ```scala mdoc
-object ConsoleWithLayer:
+object Console:
   val live: ZLayer[Any, Nothing, Console] =
     ZLayer.succeed[Console](ConsoleLive)
 ```
+More important than removing repetition - using 1 unique Layer instance per type allows us to share it across our application.
 
 Now executing our code is as simple as describing it.
 
 ```scala mdoc
-runDemo(logic.provide(ConsoleWithLayer.live))
+
+runDemo(
+      ZIO.serviceWithZIO[Logic](
+            _.invoke
+      ).provide(
+            Console.live,
+            ZLayer.fromFunction(Logic.apply _)
+      )
+)
 ```
 
-In real application, both of these will go in the companion object directly.
-
-```scala // mdoc
-object Console:
-  def printLine(
-      variable: => String
-  ): ZIO[Console, Nothing, Unit] =
-    ZIO.serviceWith(_.printLine(variable))
-
-  val live: ZLayer[Any, Nothing, Console] =
-    ZLayer.succeed[Console](ConsoleLive)
-```
 
 ## Official ZIO Approach
 

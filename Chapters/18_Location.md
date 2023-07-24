@@ -67,8 +67,11 @@ trait CountryService:
 object CountryService:
   def currentCountry
       : ZIO[Location, HardwareFailure, Country] =
-    for gpsCords <- Location.gpsCoords
-    yield Country("USA")
+    defer {
+      val gpsCords = Location.gpsCoords.run
+      if (gpsCords.latitude > 0) Country("Canada")
+      else Country("USA")
+    } 
 ```
 
 ```scala mdoc
@@ -102,8 +105,8 @@ class LegalService(
     CurrentWar | HardwareFailure,
     LegalStatus
   ] =
-    for
-      country <- countryService.currentCountry
-      status <- lawLibrary.status(country, issue)
-    yield status
+    defer {
+      val country = countryService.currentCountry.run
+      lawLibrary.status(country, issue).run
+    }
 ```
