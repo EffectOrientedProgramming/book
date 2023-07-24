@@ -1,7 +1,5 @@
 package testcontainers
 
-import io.github.scottweaver.zio.testcontainers.postgres.ZPostgreSQLContainer
-
 object InteractWithDatabase
     extends ZIOAppDefault:
 //  val logic =

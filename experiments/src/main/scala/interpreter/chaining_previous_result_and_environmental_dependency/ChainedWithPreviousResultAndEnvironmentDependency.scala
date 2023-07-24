@@ -1,7 +1,6 @@
 package interpreter.chaining_previous_result_and_environmental_dependency
 
 import environment_exploration.ToyEnvironment
-import zio.{ZIO, ZIOAppDefault}
 
 import scala.reflect.{ClassTag, classTag}
 import scala.util.Random
@@ -69,6 +68,8 @@ def interpretWithEnvironment(
       case StringManipulation(action) =>
         action(acc)
   }
+
+@annotation.nowarn
 @main
 def demoInterpreter() =
 

@@ -1,8 +1,7 @@
 package std_type_conversions_to_zio
 
-import zio._
-import java.io
-import java.io.IOException
+import zio.*
+
 import scala.util.Try
 
 object TryToZio extends ZIOAppDefault:

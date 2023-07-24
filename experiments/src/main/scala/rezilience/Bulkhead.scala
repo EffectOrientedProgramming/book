@@ -1,6 +1,6 @@
 package rezilience
 
-import nl.vroste.rezilience._
+import nl.vroste.rezilience.*
 import nl.vroste.rezilience.Bulkhead.BulkheadError
 
 /** In this demo, we can visualize all the

@@ -6,7 +6,6 @@ import game_theory.Outcome.{
   BothPrison,
   OnePrison
 }
-import zio.Console.printLine
 
 case class Decision(
     prisoner: Prisoner,

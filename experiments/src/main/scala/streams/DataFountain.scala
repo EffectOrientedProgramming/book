@@ -1,8 +1,5 @@
 package streams
 
-import zio.metrics.MetricKeyType.Counter
-import zio.stream.*
-
 case class DataFountain(
     tweets: TweetStream,
     commitStream: CommitStream,

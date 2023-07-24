@@ -25,6 +25,7 @@ class ToyEnvironment[+R](
   def get[A >: R: ClassTag]: A =
     typeMap(classTag[A]).asInstanceOf[A]
 
+@annotation.nowarn
 @main
 def demoToyEnvironment =
   val env: ToyEnvironment[_] =

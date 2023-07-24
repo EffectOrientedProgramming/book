@@ -1,19 +1,5 @@
 package testcontainers
 
-import com.dimafeng.testcontainers.PostgreSQLContainer
-import io.github.scottweaver.models.JdbcInfo
-import io.github.scottweaver.zio.aspect.DbMigrationAspect
-import io.github.scottweaver.zio.testcontainers.postgres.ZPostgreSQLContainer
-import io.github.scottweaver.zio.testcontainers.postgres.ZPostgreSQLContainer.{
-  Settings,
-  live
-}
-import org.postgresql.ds.PGSimpleDataSource
-import zio.test.*
-
-import java.sql.Connection
-import javax.sql.DataSource
-
 object UserActionSpec
 /* extends ZIOSpec[DataSource & JdbcInfo]:
  * val bootstrap = SharedDbLayer.layer

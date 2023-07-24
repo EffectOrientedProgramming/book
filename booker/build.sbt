@@ -1,9 +1,8 @@
 import scala.util.Try
 
-//scalaVersion := "2.13.8"
-
 libraryDependencies := Seq(
-  "io.github.kitlangton" %% "zio-tui" % "0.2.1" // withCrossVersion CrossVersion.for3Use2_13
+  "io.github.kitlangton" %% "zio-tui" % "0.2.1",
+  "dev.zio" %% "zio-direct" % "1.0.0-RC7"
 )
 
 // for building in a docker container

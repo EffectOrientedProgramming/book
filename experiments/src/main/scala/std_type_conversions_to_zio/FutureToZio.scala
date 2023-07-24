@@ -1,6 +1,7 @@
 package std_type_conversions_to_zio
 
 import zio.{ZIO, ZIOAppDefault}
+
 import scala.concurrent.Future
 
 object FutureToZio extends ZIOAppDefault:

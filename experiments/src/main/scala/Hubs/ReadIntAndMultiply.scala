@@ -1,8 +1,6 @@
 package Hubs
 
 import console.FakeConsole
-import zio.Duration.*
-import zio.Clock.*
 import zio.Console.*
 
 object ReadIntAndMultiply

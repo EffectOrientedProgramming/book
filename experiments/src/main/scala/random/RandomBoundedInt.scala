@@ -1,6 +1,7 @@
 package random
 
-import zio.{Tag, UIO, ZIO, ZIOAppArgs}
+import zio.Tag
+
 import scala.util.Random
 
 trait RandomBoundedInt:
@@ -10,8 +11,6 @@ trait RandomBoundedInt:
   ): UIO[Int]
 
 import zio.{UIO, ZIO, ZLayer}
-
-import scala.util.Random
 
 object RandomBoundedInt:
   def nextIntBetween(

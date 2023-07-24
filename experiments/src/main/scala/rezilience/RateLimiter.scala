@@ -1,6 +1,6 @@
 package rezilience
 
-import nl.vroste.rezilience._
+import nl.vroste.rezilience.*
 
 /** This is useful for scenarios such as:
   *   - Making sure you don't suddenly spike your

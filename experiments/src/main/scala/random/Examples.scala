@@ -63,13 +63,11 @@ val threeChances =
     while (
       gameState.get.run == GameState.InProgress
     ) {
-      val roll = rollDiceZ.run
+      rollDiceZ.run
       val remainingChances =
         remainingChancesR.getAndUpdate(_ - 1).run
       if (remainingChances == 0)
         gameState.set(GameState.Lose).run
-      else
-        scoreRound(roll)
     }
 
     val finalGameState =

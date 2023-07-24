@@ -1,7 +1,6 @@
 package streams
 
 import zio.stream.*
-import zio.test.Gen
 
 case class Request(response: Code, path: Path)
 

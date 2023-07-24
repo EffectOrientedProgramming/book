@@ -1,8 +1,6 @@
 package std_type_conversions_to_zio
 
-import java.io
-import zio._
-import java.io.IOException
+import zio.*
 
 class OptionToZio extends ZIOAppDefault:
 

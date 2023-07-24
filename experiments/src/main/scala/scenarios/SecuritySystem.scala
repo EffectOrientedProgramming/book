@@ -1,10 +1,9 @@
 package scenarios
 
-import zio.Console.printLine
+import izumi.reflect.Tag
+import time.scheduledValues
 
 import scala.concurrent.TimeoutException
-import time.scheduledValues
-import izumi.reflect.Tag
 
 case class TempSense(
     z: ZIO[
@@ -96,6 +95,7 @@ object SecuritySystem:
           SirenX.loudSiren.run
     }
 
+  @annotation.nowarn
   def shouldAlertServices[
       T
         <: MotionDetector & ThermalDetectorX &
@@ -110,12 +110,15 @@ object SecuritySystem:
         MotionDetector
           .acquireMotionMeasurementSource()
           .run
+
       val amountOfHeatGenerator =
         ThermalDetectorX
           .acquireHeatMeasurementSource
           .run
+
       val acousticDetector =
         AcousticDetectorX.acquireDetector.run
+
       securityLoop(
         amountOfHeatGenerator,
         amountOfMotion,
@@ -125,6 +128,7 @@ object SecuritySystem:
             Schedule.spaced(1.seconds)
         )
         .run
+
       "Fin"
     }
 
@@ -145,7 +149,7 @@ object SecuritySystem:
         amountOfMotion.value > 50,
         amountOfHeat.value > 95,
         noise.value > 15
-      ).filter(_ == true).length
+      ).count(_ == true)
 
     if (numberOfAlerts == 0)
       Relax
@@ -385,16 +389,17 @@ object SirenX:
     SirenX,
     scenarios.HardwareFailure,
     Unit
-  ] = ZIO.serviceWith(_.lowBeep())
+  ] = ZIO.serviceWithZIO(_.lowBeep())
 
   val loudSiren: ZIO[
     SirenX,
     scenarios.HardwareFailure,
     Unit
-  ] = ZIO.serviceWith(_.loudSiren())
+  ] = ZIO.serviceWithZIO(_.loudSiren())
 
 end SirenX
 
+@annotation.nowarn
 class SensorD[T](
     z: ZIO[
       Any,

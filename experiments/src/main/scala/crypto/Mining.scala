@@ -1,9 +1,8 @@
 package crypto
 
-import ZIO.debug
 import zio.Random.nextIntBetween
+import zio.ZIO.debug
 
-import java.io.IOException
 import scala.annotation.tailrec
 
 object Mining extends ZIOAppDefault:

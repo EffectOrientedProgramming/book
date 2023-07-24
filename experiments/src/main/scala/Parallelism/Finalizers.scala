@@ -1,8 +1,8 @@
 package Parallelism
 
-import java.io.IOException
 import zio.Console.printLine
 
+import java.io.IOException
 import scala.io.Source.*
 
 object Finalizers extends zio.ZIOAppDefault:

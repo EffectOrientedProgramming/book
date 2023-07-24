@@ -68,10 +68,11 @@ object CivilEngineering extends ZIOAppDefault:
     defer {
       val availableCompanies =
         Companies.operatingIn[T](state).run
-      val legalRestrictions =
-        World.legalRestrictionsFor(state).run
-      val politicians =
-        World.politiciansOf(state).run
+
+      World.legalRestrictionsFor(state).run
+
+      World.politiciansOf(state).run
+
       val lowestBid =
         availableCompanies
           .lowestBid(projectSpecifications)
@@ -84,6 +85,7 @@ enum State:
     CO,
     CA
 
+@annotation.nowarn
 def buildABridge() =
   trait Company[T]
   trait Surveyor
@@ -122,6 +124,7 @@ def buildABridge() =
 
   trait NoValidBids
 
+  @annotation.nowarn
   def chooseConstructionFirm(
       firms: Set[ConstructionFirm]
   ): ZIO[Any, NoValidBids, ConstructionFirm] =

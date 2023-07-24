@@ -1,6 +1,7 @@
 package cause
 
 object MalcomInTheMiddle extends ZIOAppDefault:
+  @annotation.nowarn
   def run =
 
     def turnOnLights() = throw new BurntBulb()

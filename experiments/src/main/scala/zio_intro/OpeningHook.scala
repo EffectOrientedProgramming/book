@@ -121,7 +121,7 @@ object HiddenPrelude:
       .uninterruptible
 end HiddenPrelude
 
-import HiddenPrelude.*
+import zio_intro.HiddenPrelude.*
 
 // works
 object One extends ZIOAppDefault:

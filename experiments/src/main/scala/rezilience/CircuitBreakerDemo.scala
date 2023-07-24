@@ -1,14 +1,14 @@
 package rezilience
 
-import nl.vroste.rezilience.CircuitBreaker._
-import nl.vroste.rezilience._
+import nl.vroste.rezilience.*
+import nl.vroste.rezilience.CircuitBreaker.*
 
 object Scenario:
   enum Step:
     case Success,
       Failure
 
-import Scenario.Step
+import rezilience.Scenario.Step
 
 object CircuitBreakerDemo extends ZIOAppDefault:
   case class ExternalSystem(
@@ -60,7 +60,7 @@ object CircuitBreakerDemo extends ZIOAppDefault:
     defer {
       val cb       = makeCircuitBreaker.run
       val requests = Ref.make[Int](0).run
-      import Scenario.Step._
+      import Scenario.Step.*
 
       val steps =
         List(Success, Failure, Failure, Success)

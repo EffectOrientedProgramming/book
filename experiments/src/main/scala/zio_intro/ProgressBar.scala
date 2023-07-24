@@ -3,7 +3,6 @@ package zio_intro
 import zio.Console.printLine
 
 import java.util.concurrent.TimeUnit
-
 import scala.io.AnsiColor.*
 
 val saveCursorPosition = Console.print("\u001b7")

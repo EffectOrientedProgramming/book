@@ -1,7 +1,6 @@
 package testcontainers
 
 import com.typesafe.config.ConfigFactory
-import io.getquill.context.ZioJdbc.DataSourceLayer
 import io.getquill.jdbczio.Quill
 import io.getquill.{
   NamingStrategy,
