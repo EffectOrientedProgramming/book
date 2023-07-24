@@ -21,7 +21,7 @@ def findUser(id: String): User = ???
 def friendsOf(user: User): List[Friend] = ???
 val fullProcess: String => List[Friend] =
   findUser.andThen(friendsOf)
-// fullProcess: Function1[String, List[Friend]] = scala.Function1$$Lambda$2974/0x0000000100da4040@23a4d851
+// fullProcess: Function1[String, List[Friend]] = scala.Function1$$Lambda$2974/0x0000000100dac040@40807ed4
 ```
 That is neat, and often used to get people interested in Functional Programming.
 However, if there are more complex types, it quickly becomes less fun
