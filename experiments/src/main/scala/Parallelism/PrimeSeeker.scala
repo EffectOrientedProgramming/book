@@ -1,7 +1,5 @@
 package Parallelism
 
-import java.math.BigInteger
-
 object PrimeSeeker extends ZIOAppDefault:
 
   override def run =

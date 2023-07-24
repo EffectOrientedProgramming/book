@@ -1,9 +1,5 @@
 package Parallelism
 
-import java.io.IOException
-
-import scala.concurrent.Await
-
 object ParallelSleepers extends ZIOAppDefault:
 
   override def run =

@@ -2,6 +2,7 @@ package mutability
 
 object ComplexRefs extends ZIOAppDefault:
 
+  @annotation.nowarn
   class Sensor(lastReading: Ref[SensorData]):
     def read: ZIO[Any, Nothing, SensorData] =
       zio

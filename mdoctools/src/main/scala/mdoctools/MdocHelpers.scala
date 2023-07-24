@@ -110,13 +110,13 @@ def runDemoValue[E, A](
       .getOrThrowFiberFailure()
   }
 
+@annotation.nowarn
 def runDemo[E, A](z: => ZIO[Any, E, A]): Unit =
   Unsafe.unsafe { (u: Unsafe) =>
     given Unsafe = u
     unsafe
       .run(wrapUnsafeZIOReportError(z))
       .getOrThrowFiberFailure()
-    //      .getOrThrowFiberFailure()
   }
 
 // Should be copied!

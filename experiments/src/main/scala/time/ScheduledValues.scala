@@ -1,10 +1,9 @@
 package time
 
-import java.util.concurrent.TimeUnit
+import javawrappers.InstantOps.plusZ
+
 import java.time.Instant
 import scala.concurrent.TimeoutException
-
-import javawrappers.InstantOps.plusZ
 
 /* Goal: If I accessed this from:
  * 0-1 seconds, I would get "First Value" 1-4

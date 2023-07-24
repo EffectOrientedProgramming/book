@@ -1,11 +1,6 @@
 package executing_external_programs
 
-import zio.Console.printLine
-import zio.process.{
-  Command,
-  ProcessInput,
-  ProcessOutput
-}
+import zio.process.Command
 
 /* Possibilities:
  * - Show a certain time period

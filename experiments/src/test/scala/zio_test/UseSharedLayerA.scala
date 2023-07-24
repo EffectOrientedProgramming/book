@@ -1,10 +1,6 @@
 package zio_test
 
-import zio.test.{
-  TestAspect,
-  ZIOSpec,
-  assertCompletes
-}
+import zio.test.{ZIOSpec, assertCompletes}
 
 object UseSharedLayerA extends ZIOSpec[Ref[Int]]:
   def bootstrap = Shared.layer

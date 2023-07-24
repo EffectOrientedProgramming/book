@@ -1,7 +1,6 @@
 package layers
 
 import zio.test.*
-import zio.test.TestAspect.*
 
 object FestivalSpec extends ZIOSpec[Festival]:
   val bootstrap =

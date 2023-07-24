@@ -1,7 +1,7 @@
 package console
 
 import zio.Console
-import zio.Console._
+import zio.Console.*
 
 import java.io.IOException
 
@@ -17,7 +17,11 @@ object FakeConsole:
       def print(line: => Any)(implicit
           trace: zio.Trace
       ): zio.IO[java.io.IOException, Unit] =
-        ZIO.succeed(print("Hard-coded: " + line))
+        ZIO.succeed(
+          scala
+            .Console
+            .print("Hard-coded: " + line)
+        )
       def printError(line: => Any)(implicit
           trace: zio.Trace
       ): zio.IO[java.io.IOException, Unit] = ???
@@ -51,7 +55,7 @@ object FakeConsole:
       def print(line: => Any)(implicit
           trace: zio.Trace
       ): zio.IO[java.io.IOException, Unit] =
-        ZIO.succeed(print(line))
+        ZIO.succeed(scala.Console.print(line))
 
       def printError(line: => Any)(implicit
           trace: zio.Trace

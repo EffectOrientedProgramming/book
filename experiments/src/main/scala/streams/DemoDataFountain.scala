@@ -1,6 +1,6 @@
 package streams
 
-import zio._
+import zio.*
 
 object DemoDataFountain extends ZIOAppDefault:
   def run =

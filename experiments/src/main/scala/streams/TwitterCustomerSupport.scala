@@ -2,7 +2,6 @@ package streams
 
 import zio.stream.*
 
-import java.time.Instant
 import java.nio.file.{Files, Paths}
 
 // This currently runs against the dataset available here:
@@ -58,7 +57,7 @@ object TwitterCustomerSupport
     }
   end trackActiveCompanies
 
-  def run =
+  override def run =
     defer {
       val dataset =
         ZIOAppArgs
@@ -87,6 +86,7 @@ object TwitterCustomerSupport
         Tweet,
         Tweet
       ] = ZPipeline.filter(isHappy)
+
       val angryTweetFilter: ZPipeline[
         Any,
         Nothing,
@@ -94,29 +94,28 @@ object TwitterCustomerSupport
         Tweet
       ] = ZPipeline.filter(isAngry)
 
-      val gatherHappyTweets =
-        (tweets >>> happyTweetFilter)
-          .runCount
-          .debug("Number of happy tweets")
-          .run
-      val gatherAngryTweets =
-        (tweets >>> angryTweetFilter)
-          .runCount
-          .debug("Number of angry tweets")
-          .run
+      (tweets >>> happyTweetFilter)
+        .runCount
+        .debug("Number of happy tweets")
+        .run
 
-        //      gatherHappyTweets
-        //        .timed
-        //        .map(_._1)
-        //        .debug("Happy duration") <&>
-        //        gatherAngryTweets <&>
-        trackActiveCompanies(tweets)
-          .map(_.take(3).mkString(" : "))
-          .debug("ActiveCompanies")
-          .timed
-          .map(_._1)
-          .debug("Active Company duration")
-          .run
+      (tweets >>> angryTweetFilter)
+        .runCount
+        .debug("Number of angry tweets")
+        .run
+
+      //      gatherHappyTweets
+      //        .timed
+      //        .map(_._1)
+      //        .debug("Happy duration") <&>
+      //        gatherAngryTweets <&>
+      trackActiveCompanies(tweets)
+        .map(_.take(3).mkString(" : "))
+        .debug("ActiveCompanies")
+        .timed
+        .map(_._1)
+        .debug("Active Company duration")
+        .run
     }
   end run
 //      .timeout(60.seconds)
@@ -125,13 +124,12 @@ object TwitterCustomerSupport
       value1: Map[String, Int],
       tweet: Tweet
   ): Map[String, Int] =
-    value1.updatedWith(tweet.author_id)(entry =>
-      entry match
-        case Some(value) =>
-          Some(value + 1)
-        case None =>
-          Some(1)
-    )
+    value1.updatedWith(tweet.author_id) {
+      case Some(value) =>
+        Some(value + 1)
+      case None =>
+        Some(1)
+    }
 
   case class ParsingError(msg: String)
   case class Tweet(

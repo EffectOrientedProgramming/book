@@ -1,8 +1,8 @@
 package schema
 
 import zio.schema.*
-import zio.schema.syntax.*
 import zio.schema.codec.JsonCodec.*
+import zio.schema.syntax.*
 import zio.stream.ZStream
 
 object DoNotKnow extends ZIOAppDefault:

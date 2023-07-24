@@ -13,6 +13,7 @@ object ChatSlots extends zio.ZIOAppDefault:
 
   def run =
 
+    @annotation.nowarn
     def acquire(ref: Ref[SlotState]) =
       defer {
         printLine {

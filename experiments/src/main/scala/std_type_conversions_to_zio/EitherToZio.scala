@@ -3,7 +3,7 @@ package std_type_conversions_to_zio
 
 import zio.{ZIO, ZIOAppDefault}
 
-import scala.util.{Left, Right}
+import scala.util.Right
 
 case class InvalidIntegerInput(value: String)
 

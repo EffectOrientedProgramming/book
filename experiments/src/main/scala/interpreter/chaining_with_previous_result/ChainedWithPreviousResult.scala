@@ -1,9 +1,8 @@
 package interpreter.chaining_with_previous_result
 
 import environment_exploration.ToyEnvironment
-import zio.{ZIO, ZIOAppDefault}
 
-import scala.reflect.{ClassTag, classTag}
+import scala.reflect.ClassTag
 import scala.util.Random
 
 trait Operation
@@ -53,6 +52,7 @@ def interpret(program: Seq[Operation]): String =
         action(acc)
   }
 
+@annotation.nowarn
 @main
 def demoInterpreter() = interpret(program)
 

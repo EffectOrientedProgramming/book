@@ -1,11 +1,7 @@
 package executing_external_programs
 
-import zio.process.{
-  Command,
-  ProcessInput,
-  ProcessOutput
-}
-import zio._
+import zio.*
+import zio.process.Command
 
 def say(message: String) =
   Command("say", message)

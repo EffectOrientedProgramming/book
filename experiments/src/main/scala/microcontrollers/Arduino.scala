@@ -1,7 +1,7 @@
 package microcontrollers
 
-import zio.Console.{printLine, readLine}
-import zio.Clock.{currentTime, instant}
+import zio.Clock.currentTime
+import zio.Console.printLine
 import zio.Duration.*
 
 import java.io.IOException

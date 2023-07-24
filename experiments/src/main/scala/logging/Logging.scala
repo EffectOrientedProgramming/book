@@ -8,9 +8,6 @@ import zio.logging.LogFormat.{
   text
 }
 
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
-
 object Logging extends ZIOAppDefault:
 
   lazy val minimal: LogFormat =

@@ -1,6 +1,6 @@
 package zio_intro
 
-import zio.Console.{readLine, printLine}
+import zio.Console.{printLine, readLine}
 
 object PromptUserForName extends ZIOAppDefault:
   def run =

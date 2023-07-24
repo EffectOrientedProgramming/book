@@ -2,7 +2,6 @@ package stm
 
 import zio.Console.printLine
 import zio.stm.{STM, TRef}
-import zio.Runtime.default.unsafe
 
 def transfer(
     from: TRef[Int],

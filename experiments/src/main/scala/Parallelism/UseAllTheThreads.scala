@@ -1,6 +1,6 @@
 package Parallelism
 
-import java.lang.{Runtime => JavaRuntime}
+import java.lang.Runtime as JavaRuntime
 
 /* This example was a port of Bruce's Python
  * example:

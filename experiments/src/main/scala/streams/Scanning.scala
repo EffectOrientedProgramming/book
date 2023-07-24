@@ -1,7 +1,7 @@
 package streams
 
-import zio._
-import zio.stream._
+import zio.*
+import zio.stream.*
 
 object Scanning extends ZIOAppDefault:
   enum GdpDirection:
@@ -12,8 +12,8 @@ object Scanning extends ZIOAppDefault:
     case GOOD_TIMES,
       RECESSION
 
-  import GdpDirection._
-  import EconomicStatus._
+  import EconomicStatus.*
+  import GdpDirection.*
 
   case class EconomicHistory(
       quarters: Seq[GdpDirection],

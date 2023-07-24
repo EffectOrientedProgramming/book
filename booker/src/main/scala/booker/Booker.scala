@@ -44,7 +44,7 @@ object BookerTools:
         )
       )
       .unless(dir.exists() && dir.isDirectory)
-      .map(_ => ())
+      .unit
 
   def filesInDir(dir: File): Seq[File] =
     dir.listFiles().toSeq

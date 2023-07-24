@@ -1,7 +1,5 @@
 package testcontainers
 
-import io.getquill.{Query, Quoted}
-
 import java.sql.SQLException
 import java.time.{Instant, LocalDateTime}
 import javax.sql.DataSource
@@ -45,7 +43,7 @@ object UserActionService:
 final case class UserActionServiceLive(
     dataSource: DataSource
 ) extends UserActionService:
-  import io.getquill._
+  import io.getquill.*
   // SnakeCase turns firstName -> first_name
   val ctx =
     new PostgresZioJdbcContext(
@@ -54,7 +52,7 @@ final case class UserActionServiceLive(
         SnakeCase
       )
     )
-  import ctx._
+  import ctx.*
 
   inline def runWithSourceQuery[T](
       inline quoted: Quoted[Query[T]]
@@ -69,8 +67,6 @@ final case class UserActionServiceLive(
     run(quoted).provideEnvironment(
       ZEnvironment(dataSource)
     )
-
-  import java.util.UUID
 
   implicit val encodeUserAction
       : MappedEncoding[ActionType, String] =

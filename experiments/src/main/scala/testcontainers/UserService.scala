@@ -1,7 +1,6 @@
 package testcontainers
 
-import io.getquill.{Query, Quoted}
-import io.getquill._
+import io.getquill.*
 
 import java.sql.SQLException
 import javax.sql.DataSource
@@ -47,7 +46,7 @@ final case class UserServiceLive(
         SnakeCase
       )
     )
-  import ctx.{run, lift, _}
+  import ctx.{lift, run, *}
 
   def get(
       userId: String

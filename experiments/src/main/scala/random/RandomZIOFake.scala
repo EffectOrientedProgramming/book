@@ -1,20 +1,10 @@
 package random
 
-import zio.{
-  BuildFrom,
-  Chunk,
-  Console,
-  Random,
-  UIO,
-  ZIO,
-  ZLayer,
-  Trace
-}
-import zio.Console.printLine
+import zio.{BuildFrom, Chunk, Random, Trace, UIO}
 
 import java.util.UUID
 
-class RandomZIOFake(i: Int) extends Random:
+class RandomZIOFake extends Random:
   def nextUUID(implicit
       trace: Trace
   ): UIO[UUID] = ???

@@ -9,17 +9,18 @@ class RandomBoundedIntFake private (
   ): UIO[Int] =
     defer {
       val remainingValues = values.get.run
-      val nextValue =
-        if (remainingValues.isEmpty)
-          ZIO
-            .die(
-              new Exception(
-                "Did not provide enough values!"
-              )
+
+      if (remainingValues.isEmpty)
+        ZIO
+          .die(
+            new Exception(
+              "Did not provide enough values!"
             )
-            .run
-        else
-          ZIO.succeed(remainingValues.head).run
+          )
+          .run
+      else
+        ZIO.succeed(remainingValues.head).run
+
       values.set(remainingValues.tail).run
       remainingValues.head
     }

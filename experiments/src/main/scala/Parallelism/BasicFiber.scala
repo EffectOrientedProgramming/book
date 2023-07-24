@@ -1,7 +1,5 @@
 package Parallelism
 
-import java.io.IOException
-
 object BasicFiber:
 
   // Fibers model a running IO: Fiber[E,A]. They

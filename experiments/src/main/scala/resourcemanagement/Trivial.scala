@@ -5,6 +5,7 @@ object Trivial extends zio.ZIOAppDefault:
     case Closed,
       Open
 
+  @annotation.nowarn
   def run =
 
     def acquire(ref: Ref[ResourceState]) =
