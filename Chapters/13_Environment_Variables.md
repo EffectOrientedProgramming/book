@@ -44,12 +44,6 @@ val apiKey = sys.env.get("API_KEY")
 This seems rather innocuous; however, it can be an annoying source of problems as your project is built and deployed across different environments. Given this API:
 
 ```scala mdoc
-trait HotelApi:
-  def cheapest(
-      zipCode: String,
-      apiKey: String
-  ): Either[Error, Hotel]
-
 case class Hotel(name: String)
 case class Error(msg: String)
 ```
@@ -57,7 +51,7 @@ case class Error(msg: String)
 ```scala mdoc:invisible
 import scala.util.{Either, Left, Right}
 
-object HotelApiImpl extends HotelApi:
+case class HotelApi():
   def cheapest(
       zipCode: String,
       apiKey: String
@@ -99,7 +93,7 @@ When you look up an Environment Variable, you are accessing information that was
 **Your Machine:**
 
 ```scala mdoc:width=47
-fancyLodgingUnsafe(HotelApiImpl)
+fancyLodgingUnsafe(HotelApi())
 ```
 
 **Collaborator's Machine:**
@@ -109,7 +103,7 @@ sys.env.environment = NewDeveloper
 ```
 
 ```scala mdoc:width=47
-fancyLodgingUnsafe(HotelApiImpl)
+fancyLodgingUnsafe(HotelApi())
 ```
 
 **Continuous Integration Server:**
@@ -119,7 +113,7 @@ sys.env.environment = CIServer
 ```
 
 ```scala mdoc:width=47
-fancyLodgingUnsafe(HotelApiImpl)
+fancyLodgingUnsafe(HotelApi())
 ```
 
 On your own machine, everything works as expected.
@@ -132,116 +126,92 @@ Finally, the CI server has not set _any_ value, and fails at runtime.
 sys.env.environment = OriginalDeveloper
 ```
 
-Before looking at the official ZIO implementation of `System`, we will create a less-capable version. We need a `trait` that will indicate what is needed from the environment.
-The real implementation is a bit more complex, to handle corner cases.
+Before looking at the official ZIO implementation of `System`, we will create a less-capable version. 
+We need a `trait` that will indicate what is needed from the environment.
+The real implementation is more complex, to handle corner cases.
 
 ```scala mdoc
 trait System:
   def env(
       variable: String
   ): ZIO[Any, Nothing, Option[String]]
+
+case class SystemLive() extends System:
+    def env(
+             variable: String
+           ): ZIO[Any, Nothing, Option[String]] =
+      ZIO.succeed(sys.env.get("API_KEY"))
+
+object System:
+    val live: ZLayer[Any, Nothing, System] =
+      ZLayer.succeed(SystemLive())
 ```
 
 Now, our live implementation will wrap our original, unsafe function call.
-For easier usage by the caller, we also create an accessor.
-
-```scala mdoc
-object System:
-  object Live extends System:
-    def env(
-        variable: String
-    ): ZIO[Any, Nothing, Option[String]] =
-      ZIO.succeed(sys.env.get("API_KEY"))
-
-  val live: ZLayer[Any, Nothing, System] =
-    ZLayer.succeed(Live)
-
-  def env(
-      variable: => String
-  ): ZIO[System, Nothing, Option[String]] =
-    ZIO.serviceWithZIO[System](_.env(variable))
-```
 
 Now if we use this code, our caller's type tells us that it requires a `System` to execute.
 This is safe, but it is not the easiest code to use or read.
 We then build on first accessor to flatten out the function signature.
 
 ```scala mdoc
-trait SystemStrict:
-  def envRequired(
-      variable: String
-  ): ZIO[Any, Error, String]
-
 object SystemStrict:
   val live
       : ZLayer[System, Nothing, SystemStrict] =
     ZLayer
-      .fromZIO(ZIO.service[System].map(Live(_)))
+      .fromZIO(
+        defer {
+          SystemStrict(
+            ZIO.service[System].run
+          )
+        }
+      )
 
-  def envRequired(
-      variable: String
-  ): ZIO[SystemStrict, Error, String] =
-    ZIO.serviceWithZIO[SystemStrict](
-      _.envRequired(variable)
-    )
-
-  case class Live(system: System)
-      extends SystemStrict:
+case class SystemStrict(system: System):
     def envRequired(
         variable: String
     ): ZIO[Any, Error, String] =
-      for
-        variableAttempt <- system.env(variable)
-        res <-
+        defer {
+          val variableAttempt = system.env(variable).run
           ZIO
             .fromOption(variableAttempt)
             .mapError(_ =>
               Error("Unconfigured Environment")
-            )
-      yield res
-end SystemStrict
+            ).run
+        }
 ```
      
 Similarly, we wrap our API in one that leverages ZIO.
 
 ```scala mdoc
-trait HotelApiZ:
-  def cheapest(
-      zipCode: String
-  ): ZIO[Any, Error, Hotel]
+
+case class HotelApiZ(system: SystemStrict, hotelApi: HotelApi):
+    def cheapest(
+                  zipCode: String
+                ): ZIO[Any, Error, Hotel] =
+      defer {
+        val apiKey = system.envRequired("API_KEY").run
+        ZIO.fromEither(
+          hotelApi
+            .cheapest(zipCode, apiKey)
+        ).run
+      }
 
 object HotelApiZ:
-  def cheapest(zipCode: String): ZIO[
-    SystemStrict with HotelApiZ,
-    Error,
-    Hotel
-  ] =
-    ZIO.serviceWithZIO[HotelApiZ](
-      _.cheapest(zipCode)
-    )
-
-  case class Live(system: SystemStrict)
-      extends HotelApiZ:
-    def cheapest(
-        zipCode: String
-    ): ZIO[Any, Error, Hotel] =
-      for
-        apiKey <- system.envRequired("API_KEY")
-        res <-
-          ZIO.fromEither(
-            HotelApiImpl
-              .cheapest(zipCode, apiKey)
+    val live: ZLayer[
+      SystemStrict with HotelApi,
+      Nothing,
+      HotelApiZ
+    ] =
+      ZLayer.fromZIO(
+        defer {
+          HotelApiZ(
+            ZIO.service[SystemStrict].run,
+            ZIO.service[HotelApi].run,
           )
-      yield res
+        }
+      )
 
-  val live: ZLayer[
-    SystemStrict,
-    Nothing,
-    HotelApiZ
-  ] =
-    ZLayer.fromZIO(
-      ZIO.service[SystemStrict].map(Live(_))
-    )
+
 end HotelApiZ
 ```
 This helps us keep a flat `Error` channel when we write our domain logic.
@@ -253,36 +223,31 @@ Our fully ZIO-centric, side-effect-free logic looks like this:
 ```scala mdoc
 // TODO This produces large, wide output that does not adhere to the width of the page.
 // TODO This has fallen out of sync with the "identical" code below
-val fancyLodging: ZIO[
-  SystemStrict with HotelApiZ,
+// TODO Make this a case class?
+
+def fancyLodging(
+                  hotelApiZ: HotelApiZ
+                ): ZIO[
+  Any,
   Error,
   Hotel
 ] =
-  for hotel <- HotelApiZ.cheapest("90210")
-  yield hotel
+  hotelApiZ.cheapest("90210")
 ```
 
 Original, unsafe:
 
-```scala mdoc:nest
+```scala mdoc:nest:fail
 def fancyLodgingUnsafe(
     hotelApi: HotelApi
 ): Either[Error, Hotel] =
-  for
-    apiKey <- envRequiredUnsafe("API_KEY")
-    hotel  <- hotelApi.cheapest("90210", apiKey)
-  yield hotel
+    hotelApi.cheapest("90210")
 ```
 
 The logic is _identical_ to our original implementation!
 The only difference is the result type. 
-It now reports the `System` and `HotelApiZ` dependencies of our function.
 
 This is what it looks like in action:
-
-```scala mdoc
-
-```
 
 **Your Machine:**
 
@@ -292,14 +257,21 @@ sys.env.environment = OriginalDeveloper
 
 ```scala mdoc:silent
 // TODO Do this for CI environment too
+// TODO "originalAuthor" Don't know why it's called that?
 val originalAuthor = HotelApiZ.live
 ```
 
 ```scala mdoc
+val logic =
+    defer {
+      fancyLodging(ZIO.service[HotelApiZ].run)
+    }
 runDemo(
-  fancyLodging.provideLayer(
-    System.live >>> SystemStrict.live >+>
-      originalAuthor
+  logic.provide(
+    System.live,
+    SystemStrict.live,
+    ZLayer.succeed(HotelApi()),
+    originalAuthor
   )
 )
 ```
@@ -319,10 +291,14 @@ val colaboraterLayer =
 
 ```scala mdoc
 runDemo(
-  fancyLodging.provideLayer(
-    System.live >>> SystemStrict.live >+>
+    defer {
+    fancyLodging(ZIO.service[HotelApiZ].run)
+  }.provide(
+      System.live,
+      SystemStrict.live,
+      ZLayer.succeed(HotelApi()),
       collaborater
-  )
+    )
 )
 ```
 
@@ -338,8 +314,13 @@ val ci = HotelApiZ.live
 
 ```scala mdoc
 runDemo(
-  fancyLodging.provideLayer(
-    System.live >>> SystemStrict.live >+> ci
+  defer {
+    fancyLodging(ZIO.service[HotelApiZ].run)
+  }.provide(
+    System.live,
+    SystemStrict.live,
+    ZLayer.succeed(HotelApi()),
+    ci
   )
 )
 ```
@@ -362,34 +343,47 @@ We can now provide this to our logic, for testing both the success and failure c
 
 ```scala mdoc:silent
 val testApiLayer =
-  ZLayer.succeed[System](
-    SystemHardcoded(
-      Map("API_KEY" -> "Invalid Key")
-    )
-  ) >>> SystemStrict.live >+> HotelApiZ.live
+  ZLayer.make[HotelApiZ](
+    ZLayer.succeed[System](
+      SystemHardcoded(
+        Map("API_KEY" -> "Invalid Key")
+      )
+    ) ,
+    SystemStrict.live,
+    ZLayer.succeed(HotelApi()),
+    HotelApiZ.live
+  )
 ```
 
 ```scala mdoc
-runDemo(fancyLodging.provide(testApiLayer))
+runDemo(
+  defer {
+    fancyLodging(ZIO.service[HotelApiZ].run)
+  }.provide(
+    testApiLayer
+  )
+)
 ```
 
 ## Official ZIO Approach
 
-ZIO provides a more complete `System` API in the `zio.System`
+ZIO provides a more complete `System` API in the `zio.System`. 
+This is always available as a standard service from the ZIO runtime.
 
 TODO
 
 ```scala mdoc
-def fancyLodgingZ(): ZIO[
-  zio.System,
-  SecurityException,
-  Either[Error, Hotel]
+def fancyLodgingBuiltIn(hotelApiZ: HotelApiZ): ZIO[
+  Any,
+  SecurityException | Error,
+  Hotel
 ] =
-  for apiKey <- zio.System.env("API_KEY")
-  yield HotelApiImpl.cheapest(
-    "90210",
-    apiKey.get // unsafe! TODO Use either
-  )
+  defer {
+    val apiKey = zio.System.env("API_KEY").run
+    hotelApiZ.cheapest(
+      apiKey.get // unsafe! TODO Use either
+    ).run
+  }
 ```
 
 ## Exercises
@@ -418,7 +412,8 @@ object Exercise1Solution extends Exercise1:
     zio.System,
     SecurityException | NoSuchElementException,
     String
-  ] =
+  ] = {
+    // TODO Direct instead of flatmap
     zio
       .System
       .env(variable)
@@ -427,6 +422,7 @@ object Exercise1Solution extends Exercise1:
           ZIO.fail(new NoSuchElementException())
         )(ZIO.succeed(_))
       )
+  }
 ```
 
 ```scala mdoc
@@ -469,5 +465,11 @@ trait Exercise2:
     NoSuchElementException |
       NumberFormatException,
     Int
-  ]
+  ] = ???
+```
+
+
+```scala mdoc:invisible
+println(new Exercise2{})
+println(fancyLodgingBuiltIn(HotelApiZ(SystemStrict(SystemLive()),  HotelApi())))
 ```

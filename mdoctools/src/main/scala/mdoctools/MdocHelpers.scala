@@ -85,9 +85,12 @@ def wrapUnsafeZIOReportError[E, A](
         .split("\n")
         .map(line =>
           if (line.length > columnWidth)
-            throw new Exception(
-              "Line too long: \n" + line
+            println(
+              "Need to handle long line. \n" +
+                "Truncating for now: \n" +
+                line
             )
+            line.take(columnWidth)
           else
             line
         )

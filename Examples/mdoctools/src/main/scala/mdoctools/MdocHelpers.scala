@@ -24,10 +24,12 @@ private def renderThrowable(
     .split("\n")
     .map(line =>
       if (line.length > columnWidth)
-        throw new Exception(
-          "Need to handle stacktrace line: " +
+         println(
+          "Need to handle long line. \n" +
+            "Truncating for now: \n" +
             line
         )
+         line.take(columnWidth)
       else
         line
     )

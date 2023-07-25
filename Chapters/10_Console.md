@@ -8,13 +8,13 @@ It is so basic that most languages do not consider it as anything special.
 The typical first scala program is something like:
 
 ```scala mdoc
-println("Hi there.")
+Predef.println("Hi there.")
 ```
 
 Simple enough, and familiar to anyone that has programmed before.
 Take a look at the signature of this function in the Scala `Predef` object:
 
-```scala mdoc:nest
+```scala mdoc
 def println(x: Any): Unit = ???
 ```
 
@@ -76,8 +76,6 @@ case class Logic(console: Console) {
 However, providing dependencies to the logic is still tedious.
 
 ```scala mdoc
-import zio.Runtime.default.unsafe
-
 runDemo(
   Logic(ConsoleLive).invoke
 )
@@ -127,7 +125,7 @@ TODO Disclaimer that this is less compelling in a "fewer braces" world
 
 ```scala mdoc
 def crunchDebugged(a: Int, b: Int) =
-  println("")
+  Predef.println("")
   a * a
 ```
 
