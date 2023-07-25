@@ -25,3 +25,5 @@ datasets
 illustratedPrimer/src/main/resources/bulma*
 illustratedPrimer/src/main/resources/dist/
 illustratedPrimer/tailwind.config.js
+mdoctools/target/*
+mdoctools/project/target/*
