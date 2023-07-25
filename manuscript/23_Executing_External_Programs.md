@@ -32,12 +32,7 @@ We could start with things like `echo` or `ls`, but those are easily done within
 ```scala
 package executing_external_programs
 
-import zio.Console.printLine
-import zio.process.{
-  Command,
-  ProcessInput,
-  ProcessOutput
-}
+import zio.process.Command
 
 /* Possibilities:
  * - Show a certain time period
@@ -86,12 +81,8 @@ end GourceDemo
 ```scala
 package executing_external_programs
 
-import zio.process.{
-  Command,
-  ProcessInput,
-  ProcessOutput
-}
-import zio._
+import zio.*
+import zio.process.Command
 
 def say(message: String) =
   Command("say", message)

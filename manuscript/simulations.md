@@ -6,7 +6,7 @@
 ```scala
 package simulations
 
-import zio._
+import zio.*
 
 enum Action:
   case Stay

@@ -46,9 +46,9 @@ val thrownLogic =
 //   trace = "repl.MdocSession.MdocApp.thrownLogic(16_Cause.md:37)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.thrownLogic(16_Cause.md:37)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$2025/0x0000000100a3a840@ebbe156
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$2086/0x0000000100a7fc40@38274087
 //   ),
-//   successK = zio.ZIO$$$Lambda$2027/0x0000000100a59040@1b193767
+//   successK = zio.ZIO$$$Lambda$2088/0x0000000100a7d840@67f1306d
 // )
 runDemo(thrownLogic)
 // java.lang.Exception: Release Failed
@@ -127,6 +127,7 @@ object LostInfo extends ZIOAppDefault:
 package cause
 
 object MalcomInTheMiddle extends ZIOAppDefault:
+  @annotation.nowarn
   def run =
 
     def turnOnLights() = throw new BurntBulb()

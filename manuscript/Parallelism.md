@@ -6,8 +6,6 @@
 ```scala
 package Parallelism
 
-import java.io.IOException
-
 object BasicFiber:
 
   // Fibers model a running IO: Fiber[E,A]. They
@@ -60,9 +58,9 @@ end BasicFiber
 ```scala
 package Parallelism
 
-import java.io.IOException
 import zio.Console.printLine
 
+import java.io.IOException
 import scala.io.Source.*
 
 object Finalizers extends zio.ZIOAppDefault:
@@ -140,10 +138,6 @@ end Finalizers
 ```scala
 package Parallelism
 
-import java.io.IOException
-
-import scala.concurrent.Await
-
 object ParallelSleepers extends ZIOAppDefault:
 
   override def run =
@@ -205,8 +199,6 @@ object ParallelSleepers5 extends ZIOAppDefault:
 ```scala
 package Parallelism
 
-import java.math.BigInteger
-
 object PrimeSeeker extends ZIOAppDefault:
 
   override def run =
@@ -225,7 +217,7 @@ object PrimeSeeker extends ZIOAppDefault:
 ```scala
 package Parallelism
 
-import java.lang.{Runtime => JavaRuntime}
+import java.lang.Runtime as JavaRuntime
 
 /* This example was a port of Bruce's Python
  * example:

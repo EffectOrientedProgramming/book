@@ -504,8 +504,6 @@ end ThunderingHerdsUsingZioCacheLib
 ```scala
 package concurrency
 
-import java.math.BigInteger
-
 object WhyZio extends ZIOAppDefault:
 
   override def run =

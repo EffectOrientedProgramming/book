@@ -7,7 +7,6 @@
 package layers
 
 import zio.test.*
-import zio.test.TestAspect.*
 
 object FestivalFencingUnavailableSpec
     extends ZIOSpecDefault:
@@ -54,7 +53,6 @@ end FestivalFencingUnavailableSpec
 package layers
 
 import zio.test.*
-import zio.test.TestAspect.*
 
 object FestivalShortedOutSoundSystemSpec
     extends ZIOSpecDefault:
@@ -99,7 +97,6 @@ end FestivalShortedOutSoundSystemSpec
 package layers
 
 import zio.test.*
-import zio.test.TestAspect.*
 
 object FestivalSpec extends ZIOSpec[Festival]:
   val bootstrap =

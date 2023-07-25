@@ -6,11 +6,10 @@
 ```scala
 package concurrency
 
+import concurrency.LunchVote.*
+import concurrency.LunchVote.Vote.*
 import zio.test.*
 import zio.test.TestAspect.*
-import zio.test.Assertion.*
-import LunchVote.*
-import LunchVote.Vote.*
 
 object LunchVoteTest extends ZIOSpecDefault:
   def spec =

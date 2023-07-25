@@ -19,6 +19,7 @@ object ChatSlots extends zio.ZIOAppDefault:
 
   def run =
 
+    @annotation.nowarn
     def acquire(ref: Ref[SlotState]) =
       defer {
         printLine {
@@ -77,6 +78,7 @@ object Trivial extends zio.ZIOAppDefault:
     case Closed,
       Open
 
+  @annotation.nowarn
   def run =
 
     def acquire(ref: Ref[ResourceState]) =

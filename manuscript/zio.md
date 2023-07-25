@@ -6,12 +6,9 @@
 ```scala
 package zio
 
-def bah = ???
-
 import scala.annotation.{
   MainAnnotation,
-  experimental,
-  nowarn
+  experimental
 }
 import scala.util.CommandLineParser.FromString
 

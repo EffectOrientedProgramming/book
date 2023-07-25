@@ -8,7 +8,6 @@ package time
 
 import zio.test.*
 
-import java.time.Instant
 import scala.concurrent.TimeoutException
 
 object ScheduledValuesSpec

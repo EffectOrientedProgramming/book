@@ -6,8 +6,8 @@
 ```scala
 package virtual_meeting
 
-import zio._
-import zio.stream._
+import zio.*
+import zio.stream.*
 
 trait Rule
 object Rule:

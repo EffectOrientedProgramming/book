@@ -90,6 +90,7 @@ lazy val reliableCounting =
   yield "Final count: " + finalResult
 
 runDemo(reliableCounting)
+// Final count: 100000
 ```
 Now we can say with full confidence that our final count is 100000.
 Additionally, these updates happen _without blocking_.
@@ -203,6 +204,7 @@ package mutability
 
 object ComplexRefs extends ZIOAppDefault:
 
+  @annotation.nowarn
   class Sensor(lastReading: Ref[SensorData]):
     def read: ZIO[Any, Nothing, SensorData] =
       zio

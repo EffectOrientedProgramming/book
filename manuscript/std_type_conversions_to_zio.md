@@ -9,7 +9,7 @@ package std_type_conversions_to_zio
 
 import zio.{ZIO, ZIOAppDefault}
 
-import scala.util.{Left, Right}
+import scala.util.Right
 
 case class InvalidIntegerInput(value: String)
 
@@ -31,6 +31,7 @@ object EitherToZio extends ZIOAppDefault:
 package std_type_conversions_to_zio
 
 import zio.{ZIO, ZIOAppDefault}
+
 import scala.concurrent.Future
 
 object FutureToZio extends ZIOAppDefault:
@@ -55,9 +56,7 @@ object FutureToZio extends ZIOAppDefault:
 ```scala
 package std_type_conversions_to_zio
 
-import java.io
-import zio._
-import java.io.IOException
+import zio.*
 
 class OptionToZio extends ZIOAppDefault:
 
@@ -76,9 +75,8 @@ class OptionToZio extends ZIOAppDefault:
 ```scala
 package std_type_conversions_to_zio
 
-import zio._
-import java.io
-import java.io.IOException
+import zio.*
+
 import scala.util.Try
 
 object TryToZio extends ZIOAppDefault:

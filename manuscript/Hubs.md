@@ -73,10 +73,9 @@ end BasicHub
 ```scala
 package Hubs
 
-import console.FakeConsole
+import zio.Console.printLine
 
 import java.io.IOException
-import zio.Console.printLine
 
 case class Player(name: String)
 
@@ -152,7 +151,7 @@ object QuizGame:
 
       // TODO This should happen *before*
       // playARound is invoked
-      val question = questions.take.run
+      questions.take.run
       ZIO
         .collectAllPar(
           Seq(
@@ -227,8 +226,6 @@ end QuizGame
 package Hubs
 
 import console.FakeConsole
-import zio.Duration.*
-import zio.Clock.*
 import zio.Console.*
 
 object ReadIntAndMultiply

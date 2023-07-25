@@ -9,7 +9,6 @@ package testcontainers
 import io.github.scottweaver.models.JdbcInfo
 import org.flywaydb.core.Flyway
 import org.flywaydb.core.api.configuration.FluentConfiguration
-import zio.test.TestAspect.{before, beforeAll}
 
 object DbMigration:
 
@@ -150,20 +149,6 @@ end TestContainerLayers
 ```scala
 package testcontainers
 
-import com.dimafeng.testcontainers.PostgreSQLContainer
-import io.github.scottweaver.models.JdbcInfo
-import io.github.scottweaver.zio.aspect.DbMigrationAspect
-import io.github.scottweaver.zio.testcontainers.postgres.ZPostgreSQLContainer
-import io.github.scottweaver.zio.testcontainers.postgres.ZPostgreSQLContainer.{
-  Settings,
-  live
-}
-import org.postgresql.ds.PGSimpleDataSource
-import zio.test.*
-
-import java.sql.Connection
-import javax.sql.DataSource
-
 object UserActionSpec
 /* extends ZIOSpec[DataSource & JdbcInfo]:
  * val bootstrap = SharedDbLayer.layer
@@ -182,19 +167,6 @@ object UserActionSpec
 ### experiments/src/test/scala/testcontainers/UserServiceSpec.scala
 ```scala
 package testcontainers
-
-import com.dimafeng.testcontainers.PostgreSQLContainer
-import io.github.scottweaver.models.JdbcInfo
-import zio.test.*
-import io.github.scottweaver.zio.testcontainers.postgres.ZPostgreSQLContainer.live
-import io.github.scottweaver.zio.testcontainers.postgres.ZPostgreSQLContainer.Settings
-import io.github.scottweaver.zio.testcontainers.postgres.ZPostgreSQLContainer
-import io.github.scottweaver.zio.aspect.DbMigrationAspect
-import org.postgresql.ds.PGSimpleDataSource
-import zio.test.TestAspect.ignore
-
-import java.sql.Connection
-import javax.sql.DataSource
 
 object UserServiceSpec
 /* extends ZIOSpec[DataSource & JdbcInfo]:

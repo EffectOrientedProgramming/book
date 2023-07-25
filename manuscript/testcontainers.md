@@ -6,8 +6,6 @@
 ```scala
 package testcontainers
 
-import io.github.scottweaver.zio.testcontainers.postgres.ZPostgreSQLContainer
-
 object InteractWithDatabase
     extends ZIOAppDefault:
 //  val logic =
@@ -33,7 +31,6 @@ object InteractWithDatabase
 package testcontainers
 
 import com.typesafe.config.ConfigFactory
-import io.getquill.context.ZioJdbc.DataSourceLayer
 import io.getquill.jdbczio.Quill
 import io.getquill.{
   NamingStrategy,
@@ -136,8 +133,6 @@ end QuillContext
 ```scala
 package testcontainers
 
-import io.getquill.{Query, Quoted}
-
 import java.sql.SQLException
 import java.time.{Instant, LocalDateTime}
 import javax.sql.DataSource
@@ -181,7 +176,7 @@ object UserActionService:
 final case class UserActionServiceLive(
     dataSource: DataSource
 ) extends UserActionService:
-  import io.getquill._
+  import io.getquill.*
   // SnakeCase turns firstName -> first_name
   val ctx =
     new PostgresZioJdbcContext(
@@ -190,7 +185,7 @@ final case class UserActionServiceLive(
         SnakeCase
       )
     )
-  import ctx._
+  import ctx.*
 
   inline def runWithSourceQuery[T](
       inline quoted: Quoted[Query[T]]
@@ -205,8 +200,6 @@ final case class UserActionServiceLive(
     run(quoted).provideEnvironment(
       ZEnvironment(dataSource)
     )
-
-  import java.util.UUID
 
   implicit val encodeUserAction
       : MappedEncoding[ActionType, String] =
@@ -262,8 +255,7 @@ object UserActionServiceLive:
 ```scala
 package testcontainers
 
-import io.getquill.{Query, Quoted}
-import io.getquill._
+import io.getquill.*
 
 import java.sql.SQLException
 import javax.sql.DataSource
@@ -309,7 +301,7 @@ final case class UserServiceLive(
         SnakeCase
       )
     )
-  import ctx.{run, lift, _}
+  import ctx.{lift, run, *}
 
   def get(
       userId: String

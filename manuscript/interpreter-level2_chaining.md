@@ -10,7 +10,7 @@ trait Operation:
   val nextAction: String => Operation
 
 object DoNothing extends Operation:
-  override val nextAction = s => DoNothing
+  override val nextAction = _ => DoNothing
 
 case class Print(
     s: String,

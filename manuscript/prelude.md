@@ -6,10 +6,9 @@
 ```scala
 package prelude
 
-import zio.prelude.Newtype
 import zio.Console.printLine
-import zio.prelude.Assertion._
-import zio.prelude.Assertion
+import zio.prelude.Assertion.*
+import zio.prelude.{Assertion, Newtype}
 
 /* Notes: Only works for primitive types. You
  * can't get compile-time guarantees for custom
@@ -92,10 +91,8 @@ end NewTypeDemos
 ```scala
 package prelude
 
-import zio.prelude.Newtype
-import zio.Console.printLine
-import zio.prelude.Assertion._
 import zio.prelude.Assertion
+import zio.prelude.Assertion.*
 
 case class OurPrimitiveClass(
     id: String,

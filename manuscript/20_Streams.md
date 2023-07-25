@@ -228,9 +228,6 @@ object Counter:
 ```scala
 package streams
 
-import zio.metrics.MetricKeyType.Counter
-import zio.stream.*
-
 case class DataFountain(
     tweets: TweetStream,
     commitStream: CommitStream,
@@ -391,7 +388,7 @@ end DeliveryCenter
 ```scala
 package streams
 
-import zio._
+import zio.*
 
 object DemoDataFountain extends ZIOAppDefault:
   def run =
@@ -465,7 +462,6 @@ end HelloStreams
 package streams
 
 import zio.stream.*
-import zio.test.Gen
 
 case class Request(response: Code, path: Path)
 
@@ -567,8 +563,9 @@ private[streams] def randomElementFrom[T](
 ```scala
 package streams
 
-import java.io.File
 import zio.stream.*
+
+import java.io.File
 
 object MultipleConcurrentStreams
     extends ZIOAppDefault:
@@ -648,8 +645,8 @@ end MultipleConcurrentStreams
 ```scala
 package streams
 
-import zio._
-import zio.stream._
+import zio.*
+import zio.stream.*
 
 object Scanning extends ZIOAppDefault:
   enum GdpDirection:
@@ -660,8 +657,8 @@ object Scanning extends ZIOAppDefault:
     case GOOD_TIMES,
       RECESSION
 
-  import GdpDirection._
-  import EconomicStatus._
+  import EconomicStatus.*
+  import GdpDirection.*
 
   case class EconomicHistory(
       quarters: Seq[GdpDirection],
@@ -821,7 +818,6 @@ package streams
 
 import zio.stream.*
 
-import java.time.Instant
 import java.nio.file.{Files, Paths}
 
 // This currently runs against the dataset available here:
@@ -877,7 +873,7 @@ object TwitterCustomerSupport
     }
   end trackActiveCompanies
 
-  def run =
+  override def run =
     defer {
       val dataset =
         ZIOAppArgs
@@ -906,6 +902,7 @@ object TwitterCustomerSupport
         Tweet,
         Tweet
       ] = ZPipeline.filter(isHappy)
+
       val angryTweetFilter: ZPipeline[
         Any,
         Nothing,
@@ -913,29 +910,28 @@ object TwitterCustomerSupport
         Tweet
       ] = ZPipeline.filter(isAngry)
 
-      val gatherHappyTweets =
-        (tweets >>> happyTweetFilter)
-          .runCount
-          .debug("Number of happy tweets")
-          .run
-      val gatherAngryTweets =
-        (tweets >>> angryTweetFilter)
-          .runCount
-          .debug("Number of angry tweets")
-          .run
+      (tweets >>> happyTweetFilter)
+        .runCount
+        .debug("Number of happy tweets")
+        .run
 
-        //      gatherHappyTweets
-        //        .timed
-        //        .map(_._1)
-        //        .debug("Happy duration") <&>
-        //        gatherAngryTweets <&>
-        trackActiveCompanies(tweets)
-          .map(_.take(3).mkString(" : "))
-          .debug("ActiveCompanies")
-          .timed
-          .map(_._1)
-          .debug("Active Company duration")
-          .run
+      (tweets >>> angryTweetFilter)
+        .runCount
+        .debug("Number of angry tweets")
+        .run
+
+      //      gatherHappyTweets
+      //        .timed
+      //        .map(_._1)
+      //        .debug("Happy duration") <&>
+      //        gatherAngryTweets <&>
+      trackActiveCompanies(tweets)
+        .map(_.take(3).mkString(" : "))
+        .debug("ActiveCompanies")
+        .timed
+        .map(_._1)
+        .debug("Active Company duration")
+        .run
     }
   end run
 //      .timeout(60.seconds)
@@ -944,13 +940,12 @@ object TwitterCustomerSupport
       value1: Map[String, Int],
       tweet: Tweet
   ): Map[String, Int] =
-    value1.updatedWith(tweet.author_id)(entry =>
-      entry match
-        case Some(value) =>
-          Some(value + 1)
-        case None =>
-          Some(1)
-    )
+    value1.updatedWith(tweet.author_id) {
+      case Some(value) =>
+        Some(value + 1)
+      case None =>
+        Some(1)
+    }
 
   case class ParsingError(msg: String)
   case class Tweet(

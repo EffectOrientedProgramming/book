@@ -36,7 +36,7 @@ Example possibilities
 ```scala
 package time
 
-import java.time.{Duration, Instant, Period}
+import java.time.{Duration, Instant}
 
 // TODO Consider deduping User throughout the book
 case class Post(content: String)
@@ -123,11 +123,10 @@ object DemoSyncIssues extends ZIOAppDefault:
 ```scala
 package time
 
-import java.util.concurrent.TimeUnit
+import javawrappers.InstantOps.plusZ
+
 import java.time.Instant
 import scala.concurrent.TimeoutException
-
-import javawrappers.InstantOps.plusZ
 
 /* Goal: If I accessed this from:
  * 0-1 seconds, I would get "First Value" 1-4

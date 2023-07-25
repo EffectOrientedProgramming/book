@@ -21,22 +21,38 @@ def findUser(id: String): User = ???
 def friendsOf(user: User): List[Friend] = ???
 val fullProcess: String => List[Friend] =
   findUser.andThen(friendsOf)
-// fullProcess: Function1[String, List[Friend]] = scala.Function1$$Lambda$2974/0x0000000100da4040@43601037
+// error:
+// unused local definition
+//               id: String
+//               ^^
+// error:
+// unused local definition
+// def friendsOf(user: User): List[Friend] =
+//               ^^^^
+// error:
+// unused local definition
+// def fullProcess(id: String): ZIO[Any, NotFound, List[Friend]] =
+//     ^^^^^^^^^^^
 ```
 That is neat, and often used to get people interested in Functional Programming.
 However, if there are more complex types, it quickly becomes less fun
 
 ```scala
-trait NotFound
+case class NotFound()
 ```
 
+
 ```scala
+// Have to use `id` or else we get a compiler error
+// TODO Configure build/mdoc to allow unused parameters sometimes.
 def findUser(
     id: String
-): Either[NotFound, User] = ???
+): Either[NotFound, User] =
+  throw new NotImplementedError(id)
 // You can augment findUser by using `.andThen` to attach new behavior
 
-def friendsOf(user: User): List[Friend] = ???
+def friendsOf(user: User): List[Friend] =
+  throw new NotImplementedError(user.toString)
 def fullProcess(id: String): Either[NotFound, List[Friend]] =
   findUser(id) match {
     case Right(user) =>
@@ -44,6 +60,10 @@ def fullProcess(id: String): Either[NotFound, List[Friend]] =
     case Left(err) =>
       Left(err)
   }
+// error:
+// unused local definition
+// def fullProcess(id: String): Either[NotFound, List[Friend]] =
+//     ^^^^^^^^^^^
 ```
 TODO Consider: The idiomatic way to do the above is with `flatMap` which we are trying hard to avoid.
                It might not be worth showing this less-happy path, since it would open that can of worms.
@@ -51,13 +71,20 @@ TODO Consider: The idiomatic way to do the above is with `flatMap` which we are 
 ```scala
 def findUser(
               id: String
-            ): ZIO[Any, NotFound, User] = ???
+            ): ZIO[Any, NotFound, User] =
+  throw new NotImplementedError(id)
 // You can augment findUser by using `.andThen` to attach new behavior
 
-def friendsOf(user: User): List[Friend] = ???
+def friendsOf(user: User): List[Friend] =
+  throw new NotImplementedError(user.toString)
+  
 def fullProcess(id: String): ZIO[Any, NotFound, List[Friend]] =
   defer {
     val user = findUser(id).run
     friendsOf(user)
   }
+// error:
+// unused local definition
+// def fullProcess(id: String): ZIO[Any, NotFound, List[Friend]] =
+//     ^^^^^^^^^^^
 ```

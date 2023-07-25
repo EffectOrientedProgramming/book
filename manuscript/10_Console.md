@@ -8,7 +8,7 @@ It is so basic that most languages do not consider it as anything special.
 The typical first scala program is something like:
 
 ```scala
-println("Hi there.")
+Predef.println("Hi there.")
 // Hi there.
 ```
 
@@ -77,8 +77,6 @@ case class Logic(console: Console) {
 However, providing dependencies to the logic is still tedious.
 
 ```scala
-import zio.Runtime.default.unsafe
-
 runDemo(
   Logic(ConsoleLive).invoke
 )
@@ -133,7 +131,7 @@ TODO Disclaimer that this is less compelling in a "fewer braces" world
 
 ```scala
 def crunchDebugged(a: Int, b: Int) =
-  println("")
+  Predef.println("")
   a * a
 ```
 
@@ -197,7 +195,7 @@ runDemo(
 package console
 
 import zio.Console
-import zio.Console._
+import zio.Console.*
 
 import java.io.IOException
 
@@ -213,7 +211,11 @@ object FakeConsole:
       def print(line: => Any)(implicit
           trace: zio.Trace
       ): zio.IO[java.io.IOException, Unit] =
-        ZIO.succeed(print("Hard-coded: " + line))
+        ZIO.succeed(
+          scala
+            .Console
+            .print("Hard-coded: " + line)
+        )
       def printError(line: => Any)(implicit
           trace: zio.Trace
       ): zio.IO[java.io.IOException, Unit] = ???
@@ -247,7 +249,7 @@ object FakeConsole:
       def print(line: => Any)(implicit
           trace: zio.Trace
       ): zio.IO[java.io.IOException, Unit] =
-        ZIO.succeed(print(line))
+        ZIO.succeed(scala.Console.print(line))
 
       def printError(line: => Any)(implicit
           trace: zio.Trace

@@ -18,7 +18,6 @@ package stm
 
 import zio.Console.printLine
 import zio.stm.{STM, TRef}
-import zio.Runtime.default.unsafe
 
 def transfer(
     from: TRef[Int],
@@ -62,10 +61,9 @@ object StmDemo extends ZIOAppDefault:
 ```scala
 package stm
 
-import zio.stm.STM
-import zio.stm.TRef
-import zio.Runtime.default.unsafe
 import zio.Console.printLine
+import zio.Runtime.default.unsafe
+import zio.stm.{STM, TRef}
 
 case class Cash(value: Int)
     extends Resource[Cash]
@@ -203,13 +201,13 @@ def send[A <: Resource[A], B <: Resource[B]](
               resource
           )
         )
-    extraTransaction =
+    _ <-
       from.update(fResources =>
         fResources.copy(cash =
           Cash(fResources.cash.value + 1)
         )
       )
-    party2Balance <- to.get
+    _ <- to.get
   yield ()
 
 ```

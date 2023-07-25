@@ -89,11 +89,7 @@ end UseComplexLayer
 ```scala
 package zio_test
 
-import zio.test.{
-  TestAspect,
-  ZIOSpec,
-  assertCompletes
-}
+import zio.test.{ZIOSpec, assertCompletes}
 
 object UseSharedLayerA extends ZIOSpec[Ref[Int]]:
   def bootstrap = Shared.layer
@@ -114,12 +110,8 @@ object UseSharedLayerA extends ZIOSpec[Ref[Int]]:
 ```scala
 package zio_test
 
-import zio.test.{
-  TestAspect,
-  ZIOSpec,
-  assertCompletes
-}
-import zio.{Ref, Scope, ZIO, ZLayer}
+import zio.test.{ZIOSpec, assertCompletes}
+import zio.{Ref, ZIO}
 
 object UseSharedLayerB extends ZIOSpec[Ref[Int]]:
   def bootstrap = Shared.layer

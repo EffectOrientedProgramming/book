@@ -85,13 +85,11 @@ val threeChances =
     while (
       gameState.get.run == GameState.InProgress
     ) {
-      val roll = rollDiceZ.run
+      rollDiceZ.run
       val remainingChances =
         remainingChancesR.getAndUpdate(_ - 1).run
       if (remainingChances == 0)
         gameState.set(GameState.Lose).run
-      else
-        scoreRound(roll)
     }
 
     val finalGameState =
@@ -124,7 +122,8 @@ object LoseInTwoChances extends ZIOAppDefault:
 ```scala
 package random
 
-import zio.{Tag, UIO, ZIO, ZIOAppArgs}
+import zio.Tag
+
 import scala.util.Random
 
 trait RandomBoundedInt:
@@ -134,8 +133,6 @@ trait RandomBoundedInt:
   ): UIO[Int]
 
 import zio.{UIO, ZIO, ZLayer}
-
-import scala.util.Random
 
 object RandomBoundedInt:
   def nextIntBetween(
@@ -181,17 +178,18 @@ class RandomBoundedIntFake private (
   ): UIO[Int] =
     defer {
       val remainingValues = values.get.run
-      val nextValue =
-        if (remainingValues.isEmpty)
-          ZIO
-            .die(
-              new Exception(
-                "Did not provide enough values!"
-              )
+
+      if (remainingValues.isEmpty)
+        ZIO
+          .die(
+            new Exception(
+              "Did not provide enough values!"
             )
-            .run
-        else
-          ZIO.succeed(remainingValues.head).run
+          )
+          .run
+      else
+        ZIO.succeed(remainingValues.head).run
+
       values.set(remainingValues.tail).run
       remainingValues.head
     }
@@ -383,21 +381,11 @@ object RunEffectfulGuessingGameTestable
 ```scala
 package random
 
-import zio.{
-  BuildFrom,
-  Chunk,
-  Console,
-  Random,
-  UIO,
-  ZIO,
-  ZLayer,
-  Trace
-}
-import zio.Console.printLine
+import zio.{BuildFrom, Chunk, Random, Trace, UIO}
 
 import java.util.UUID
 
-class RandomZIOFake(i: Int) extends Random:
+class RandomZIOFake extends Random:
   def nextUUID(implicit
       trace: Trace
   ): UIO[UUID] = ???
