@@ -54,7 +54,8 @@ lazy val unreliableCounting =
     ZIO
       .foreachParDiscard(Range(0, 100000))(_ =>
         increment
-      ).run
+      )
+      .run
     "Final count: " + ZIO.succeed(counter).run
   }
 

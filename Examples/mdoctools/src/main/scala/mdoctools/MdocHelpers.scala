@@ -24,12 +24,11 @@ private def renderThrowable(
     .split("\n")
     .map(line =>
       if (line.length > columnWidth)
-         println(
+        println(
           "Need to handle long line. \n" +
-            "Truncating for now: \n" +
-            line
+            "Truncating for now: \n" + line
         )
-         line.take(columnWidth)
+        line.take(columnWidth)
       else
         line
     )

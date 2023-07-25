@@ -46,28 +46,31 @@ def findUser(
 
 def friendsOf(user: User): List[Friend] =
   throw new NotImplementedError(user.toString)
-def fullProcess(id: String): Either[NotFound, List[Friend]] =
-  findUser(id) match {
+def fullProcess(
+    id: String
+): Either[NotFound, List[Friend]] =
+  findUser(id) match
     case Right(user) =>
       Right(friendsOf(user))
     case Left(err) =>
       Left(err)
-  }
 ```
 TODO Consider: The idiomatic way to do the above is with `flatMap` which we are trying hard to avoid.
                It might not be worth showing this less-happy path, since it would open that can of worms.
 
 ```scala mdoc:nest:fail
 def findUser(
-              id: String
-            ): ZIO[Any, NotFound, User] =
+    id: String
+): ZIO[Any, NotFound, User] =
   throw new NotImplementedError(id)
 // You can augment findUser by using `.andThen` to attach new behavior
 
 def friendsOf(user: User): List[Friend] =
   throw new NotImplementedError(user.toString)
-  
-def fullProcess(id: String): ZIO[Any, NotFound, List[Friend]] =
+
+def fullProcess(
+    id: String
+): ZIO[Any, NotFound, List[Friend]] =
   defer {
     val user = findUser(id).run
     friendsOf(user)

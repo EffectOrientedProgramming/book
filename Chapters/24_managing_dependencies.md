@@ -25,17 +25,16 @@ Usually `ServiceX` has exactly one instance/implementation should be used throug
 
 ```scala mdoc
 case class ServiceX():
-  val retrieveImportantData: ZIO[
-    Any,
-    Nothing,
-    String
-  ] = ???
+  val retrieveImportantData
+      : ZIO[Any, Nothing, String] = ???
 ```
 {{ TODO: Should we show a class-based approach, or just go straight to functions? }}
 ```scala mdoc
 case class UserManagement(serviceX: ServiceX)
 
-case class StatisticsCalculator(serviceX: ServiceX)
+case class StatisticsCalculator(
+    serviceX: ServiceX
+)
 
 case class SecurityModule(serviceX: ServiceX)
 
@@ -55,16 +54,13 @@ case class Application(
     landingPage: LandingPage
 )
 
-def construct(): Application = {
+def construct(): Application =
   val serviceX = ServiceX()
   Application(
     UserManagement(serviceX),
     SecurityModule(serviceX),
-    LandingPage(
-      StatisticsCalculator(serviceX)
-    )
+    LandingPage(StatisticsCalculator(serviceX))
   )
-}
 ```
 
 Even in this tiny example, the downsides are already starting to show.

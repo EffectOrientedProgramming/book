@@ -101,9 +101,9 @@ def observeDefinite(
 // TODO WhereTF are `compose`, `andThen`, etc?
 def acquireAndObserve(target: Target): Unit =
   // Dumb way to get around an ignored unit error
-  assert( 
-    bookTelescope().map(observeDefinite(target, _)) 
-      != null
+  assert(
+    bookTelescope()
+      .map(observeDefinite(target, _)) != null
   )
 
 acquireAndObserve(Moon)

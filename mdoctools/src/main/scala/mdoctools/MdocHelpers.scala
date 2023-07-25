@@ -87,8 +87,7 @@ def wrapUnsafeZIOReportError[E, A](
           if (line.length > columnWidth)
             println(
               "Need to handle long line. \n" +
-                "Truncating for now: \n" +
-                line
+                "Truncating for now: \n" + line
             )
             line.take(columnWidth)
           else

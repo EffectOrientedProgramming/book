@@ -137,14 +137,14 @@ trait System:
   ): ZIO[Any, Nothing, Option[String]]
 
 case class SystemLive() extends System:
-    def env(
-             variable: String
-           ): ZIO[Any, Nothing, Option[String]] =
-      ZIO.succeed(sys.env.get("API_KEY"))
+  def env(
+      variable: String
+  ): ZIO[Any, Nothing, Option[String]] =
+    ZIO.succeed(sys.env.get("API_KEY"))
 
 object System:
-    val live: ZLayer[Any, Nothing, System] =
-      ZLayer.succeed(SystemLive())
+  val live: ZLayer[Any, Nothing, System] =
+    ZLayer.succeed(SystemLive())
 ```
 
 Now, our live implementation will wrap our original, unsafe function call.
@@ -157,62 +157,62 @@ We then build on first accessor to flatten out the function signature.
 object SystemStrict:
   val live
       : ZLayer[System, Nothing, SystemStrict] =
-    ZLayer
-      .fromZIO(
-        defer {
-          SystemStrict(
-            ZIO.service[System].run
-          )
-        }
-      )
+    ZLayer.fromZIO(
+      defer {
+        SystemStrict(ZIO.service[System].run)
+      }
+    )
 
 case class SystemStrict(system: System):
-    def envRequired(
-        variable: String
-    ): ZIO[Any, Error, String] =
-        defer {
-          val variableAttempt = system.env(variable).run
-          ZIO
-            .fromOption(variableAttempt)
-            .mapError(_ =>
-              Error("Unconfigured Environment")
-            ).run
-        }
+  def envRequired(
+      variable: String
+  ): ZIO[Any, Error, String] =
+    defer {
+      val variableAttempt =
+        system.env(variable).run
+      ZIO
+        .fromOption(variableAttempt)
+        .mapError(_ =>
+          Error("Unconfigured Environment")
+        )
+        .run
+    }
 ```
      
 Similarly, we wrap our API in one that leverages ZIO.
 
 ```scala mdoc
-
-case class HotelApiZ(system: SystemStrict, hotelApi: HotelApi):
-    def cheapest(
-                  zipCode: String
-                ): ZIO[Any, Error, Hotel] =
-      defer {
-        val apiKey = system.envRequired("API_KEY").run
-        ZIO.fromEither(
-          hotelApi
-            .cheapest(zipCode, apiKey)
-        ).run
-      }
+case class HotelApiZ(
+    system: SystemStrict,
+    hotelApi: HotelApi
+):
+  def cheapest(
+      zipCode: String
+  ): ZIO[Any, Error, Hotel] =
+    defer {
+      val apiKey =
+        system.envRequired("API_KEY").run
+      ZIO
+        .fromEither(
+          hotelApi.cheapest(zipCode, apiKey)
+        )
+        .run
+    }
 
 object HotelApiZ:
-    val live: ZLayer[
-      SystemStrict with HotelApi,
-      Nothing,
-      HotelApiZ
-    ] =
-      ZLayer.fromZIO(
-        defer {
-          HotelApiZ(
-            ZIO.service[SystemStrict].run,
-            ZIO.service[HotelApi].run,
-          )
-        }
-      )
-
-
-end HotelApiZ
+  val live: ZLayer[
+    SystemStrict with HotelApi,
+    Nothing,
+    HotelApiZ
+  ] =
+    ZLayer.fromZIO(
+      defer {
+        HotelApiZ(
+          ZIO.service[SystemStrict].run,
+          ZIO.service[HotelApi].run
+        )
+      }
+    )
 ```
 This helps us keep a flat `Error` channel when we write our domain logic.
 
@@ -226,12 +226,8 @@ Our fully ZIO-centric, side-effect-free logic looks like this:
 // TODO Make this a case class?
 
 def fancyLodging(
-                  hotelApiZ: HotelApiZ
-                ): ZIO[
-  Any,
-  Error,
-  Hotel
-] =
+    hotelApiZ: HotelApiZ
+): ZIO[Any, Error, Hotel] =
   hotelApiZ.cheapest("90210")
 ```
 
@@ -241,7 +237,7 @@ Original, unsafe:
 def fancyLodgingUnsafe(
     hotelApi: HotelApi
 ): Either[Error, Hotel] =
-    hotelApi.cheapest("90210")
+  hotelApi.cheapest("90210")
 ```
 
 The logic is _identical_ to our original implementation!
@@ -263,9 +259,9 @@ val originalAuthor = HotelApiZ.live
 
 ```scala mdoc
 val logic =
-    defer {
-      fancyLodging(ZIO.service[HotelApiZ].run)
-    }
+  defer {
+    fancyLodging(ZIO.service[HotelApiZ].run)
+  }
 runDemo(
   logic.provide(
     System.live,
@@ -291,14 +287,14 @@ val colaboraterLayer =
 
 ```scala mdoc
 runDemo(
-    defer {
+  defer {
     fancyLodging(ZIO.service[HotelApiZ].run)
   }.provide(
-      System.live,
-      SystemStrict.live,
-      ZLayer.succeed(HotelApi()),
-      collaborater
-    )
+    System.live,
+    SystemStrict.live,
+    ZLayer.succeed(HotelApi()),
+    collaborater
+  )
 )
 ```
 
@@ -348,7 +344,7 @@ val testApiLayer =
       SystemHardcoded(
         Map("API_KEY" -> "Invalid Key")
       )
-    ) ,
+    ),
     SystemStrict.live,
     ZLayer.succeed(HotelApi()),
     HotelApiZ.live
@@ -359,9 +355,7 @@ val testApiLayer =
 runDemo(
   defer {
     fancyLodging(ZIO.service[HotelApiZ].run)
-  }.provide(
-    testApiLayer
-  )
+  }.provide(testApiLayer)
 )
 ```
 
@@ -373,16 +367,16 @@ This is always available as a standard service from the ZIO runtime.
 TODO
 
 ```scala mdoc
-def fancyLodgingBuiltIn(hotelApiZ: HotelApiZ): ZIO[
-  Any,
-  SecurityException | Error,
-  Hotel
-] =
+def fancyLodgingBuiltIn(
+    hotelApiZ: HotelApiZ
+): ZIO[Any, SecurityException | Error, Hotel] =
   defer {
     val apiKey = zio.System.env("API_KEY").run
-    hotelApiZ.cheapest(
-      apiKey.get // unsafe! TODO Use either
-    ).run
+    hotelApiZ
+      .cheapest(
+        apiKey.get // unsafe! TODO Use either
+      )
+      .run
   }
 ```
 
@@ -412,7 +406,7 @@ object Exercise1Solution extends Exercise1:
     zio.System,
     SecurityException | NoSuchElementException,
     String
-  ] = {
+  ] =
     // TODO Direct instead of flatmap
     zio
       .System
@@ -422,7 +416,6 @@ object Exercise1Solution extends Exercise1:
           ZIO.fail(new NoSuchElementException())
         )(ZIO.succeed(_))
       )
-  }
 ```
 
 ```scala mdoc
@@ -470,6 +463,13 @@ trait Exercise2:
 
 
 ```scala mdoc:invisible
-println(new Exercise2{})
-println(fancyLodgingBuiltIn(HotelApiZ(SystemStrict(SystemLive()),  HotelApi())))
+println(new Exercise2 {})
+println(
+  fancyLodgingBuiltIn(
+    HotelApiZ(
+      SystemStrict(SystemLive()),
+      HotelApi()
+    )
+  )
+)
 ```
