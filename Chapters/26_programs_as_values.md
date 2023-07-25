@@ -14,7 +14,7 @@ trait User
 trait Friend
 ```
 
-```scala mdoc:nest
+```scala mdoc:nest:fail
 def findUser(id: String): User = ???
 // You can augment findUser by using `.andThen` to attach new behavior
 
@@ -26,16 +26,26 @@ That is neat, and often used to get people interested in Functional Programming.
 However, if there are more complex types, it quickly becomes less fun
 
 ```scala mdoc
-trait NotFound
+case class NotFound()
 ```
 
-```scala mdoc:nest
+```scala mdoc:invisible
+// Fixes "unused local definition"
+// since later examples fail
+println(NotFound())
+```
+
+```scala mdoc:nest:fail
+// Have to use `id` or else we get a compiler error
+// TODO Configure build/mdoc to allow unused parameters sometimes.
 def findUser(
     id: String
-): Either[NotFound, User] = ???
+): Either[NotFound, User] =
+  throw new NotImplementedError(id)
 // You can augment findUser by using `.andThen` to attach new behavior
 
-def friendsOf(user: User): List[Friend] = ???
+def friendsOf(user: User): List[Friend] =
+  throw new NotImplementedError(user.toString)
 def fullProcess(id: String): Either[NotFound, List[Friend]] =
   findUser(id) match {
     case Right(user) =>
@@ -47,13 +57,16 @@ def fullProcess(id: String): Either[NotFound, List[Friend]] =
 TODO Consider: The idiomatic way to do the above is with `flatMap` which we are trying hard to avoid.
                It might not be worth showing this less-happy path, since it would open that can of worms.
 
-```scala mdoc:nest
+```scala mdoc:nest:fail
 def findUser(
               id: String
-            ): ZIO[Any, NotFound, User] = ???
+            ): ZIO[Any, NotFound, User] =
+  throw new NotImplementedError(id)
 // You can augment findUser by using `.andThen` to attach new behavior
 
-def friendsOf(user: User): List[Friend] = ???
+def friendsOf(user: User): List[Friend] =
+  throw new NotImplementedError(user.toString)
+  
 def fullProcess(id: String): ZIO[Any, NotFound, List[Friend]] =
   defer {
     val user = findUser(id).run

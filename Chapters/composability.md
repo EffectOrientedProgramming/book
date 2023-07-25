@@ -100,7 +100,11 @@ def observeDefinite(
 ```scala mdoc:nest
 // TODO WhereTF are `compose`, `andThen`, etc?
 def acquireAndObserve(target: Target): Unit =
-  bookTelescope().map(observeDefinite(target, _))
+  // Dumb way to get around an ignored unit error
+  assert( 
+    bookTelescope().map(observeDefinite(target, _)) 
+      != null
+  )
 
 acquireAndObserve(Moon)
 ```
