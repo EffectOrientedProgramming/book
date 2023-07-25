@@ -65,21 +65,18 @@ object ConsoleLive extends Console:
 ```
 
 ```scala
-case class Logic(console: Console) {
-      val invoke: ZIO[Any, Nothing, Unit] =
-            defer {
-                  console.printLine("Hello").run
-                  console.printLine("World").run
-            }
-}
+case class Logic(console: Console):
+  val invoke: ZIO[Any, Nothing, Unit] =
+    defer {
+      console.printLine("Hello").run
+      console.printLine("World").run
+    }
 ```
 
 However, providing dependencies to the logic is still tedious.
 
 ```scala
-runDemo(
-  Logic(ConsoleLive).invoke
-)
+runDemo(Logic(ConsoleLive).invoke)
 // Hello
 // World
 // ()
@@ -100,12 +97,12 @@ Now executing our code is as simple as describing it.
 
 ```scala
 runDemo(
-      ZIO.serviceWithZIO[Logic](
-            _.invoke
-      ).provide(
-            Console.live,
-            ZLayer.fromFunction(Logic.apply _)
-      )
+  ZIO
+    .serviceWithZIO[Logic](_.invoke)
+    .provide(
+      Console.live,
+      ZLayer.fromFunction(Logic.apply _)
+    )
 )
 // Hello
 // World

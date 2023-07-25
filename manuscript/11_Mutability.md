@@ -54,11 +54,13 @@ lazy val unreliableCounting =
     ZIO
       .foreachParDiscard(Range(0, 100000))(_ =>
         increment
-      ).run
+      )
+      .run
     "Final count: " + ZIO.succeed(counter).run
   }
 
 runDemo(unreliableCounting)
+// Final count: 99997
 ```
 
 Due to the unpredictable nature of shared mutable state, we do not know exactly what the final count above is.
@@ -90,7 +92,6 @@ lazy val reliableCounting =
   yield "Final count: " + finalResult
 
 runDemo(reliableCounting)
-// Final count: 100000
 ```
 Now we can say with full confidence that our final count is 100000.
 Additionally, these updates happen _without blocking_.

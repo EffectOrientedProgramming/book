@@ -95,14 +95,14 @@ trait System:
   ): ZIO[Any, Nothing, Option[String]]
 
 case class SystemLive() extends System:
-    def env(
-             variable: String
-           ): ZIO[Any, Nothing, Option[String]] =
-      ZIO.succeed(sys.env.get("API_KEY"))
+  def env(
+      variable: String
+  ): ZIO[Any, Nothing, Option[String]] =
+    ZIO.succeed(sys.env.get("API_KEY"))
 
 object System:
-    val live: ZLayer[Any, Nothing, System] =
-      ZLayer.succeed(SystemLive())
+  val live: ZLayer[Any, Nothing, System] =
+    ZLayer.succeed(SystemLive())
 ```
 
 Now, our live implementation will wrap our original, unsafe function call.
@@ -115,61 +115,62 @@ We then build on first accessor to flatten out the function signature.
 object SystemStrict:
   val live
       : ZLayer[System, Nothing, SystemStrict] =
-    ZLayer
-      .fromZIO(
-        defer {
-          SystemStrict(
-            ZIO.service[System].run
-          )
-        }
-      )
+    ZLayer.fromZIO(
+      defer {
+        SystemStrict(ZIO.service[System].run)
+      }
+    )
 
 case class SystemStrict(system: System):
-    def envRequired(
-        variable: String
-    ): ZIO[Any, Error, String] =
-        defer {
-          val variableAttempt = system.env(variable).run
-          ZIO
-            .fromOption(variableAttempt)
-            .mapError(_ =>
-              Error("Unconfigured Environment")
-            ).run
-        }
+  def envRequired(
+      variable: String
+  ): ZIO[Any, Error, String] =
+    defer {
+      val variableAttempt =
+        system.env(variable).run
+      ZIO
+        .fromOption(variableAttempt)
+        .mapError(_ =>
+          Error("Unconfigured Environment")
+        )
+        .run
+    }
 ```
      
 Similarly, we wrap our API in one that leverages ZIO.
 
 ```scala
-case class HotelApiZ(system: SystemStrict, hotelApi: HotelApi):
-    def cheapest(
-                  zipCode: String
-                ): ZIO[Any, Error, Hotel] =
-      defer {
-        val apiKey = system.envRequired("API_KEY").run
-        ZIO.fromEither(
-          hotelApi
-            .cheapest(zipCode, apiKey)
-        ).run
-      }
+case class HotelApiZ(
+    system: SystemStrict,
+    hotelApi: HotelApi
+):
+  def cheapest(
+      zipCode: String
+  ): ZIO[Any, Error, Hotel] =
+    defer {
+      val apiKey =
+        system.envRequired("API_KEY").run
+      ZIO
+        .fromEither(
+          hotelApi.cheapest(zipCode, apiKey)
+        )
+        .run
+    }
 
 object HotelApiZ:
-    val live: ZLayer[
-      SystemStrict with HotelApi,
-      Nothing,
-      HotelApiZ
-    ] =
-      ZLayer.fromZIO(
-        defer {
-          HotelApiZ(
-            ZIO.service[SystemStrict].run,
-            ZIO.service[HotelApi].run,
-          )
-        }
-      )
-
-
-end HotelApiZ
+  val live: ZLayer[
+    SystemStrict with HotelApi,
+    Nothing,
+    HotelApiZ
+  ] =
+    ZLayer.fromZIO(
+      defer {
+        HotelApiZ(
+          ZIO.service[SystemStrict].run,
+          ZIO.service[HotelApi].run
+        )
+      }
+    )
 ```
 This helps us keep a flat `Error` channel when we write our domain logic.
 
@@ -183,12 +184,8 @@ Our fully ZIO-centric, side-effect-free logic looks like this:
 // TODO Make this a case class?
 
 def fancyLodging(
-                  hotelApiZ: HotelApiZ
-                ): ZIO[
-  Any,
-  Error,
-  Hotel
-] =
+    hotelApiZ: HotelApiZ
+): ZIO[Any, Error, Hotel] =
   hotelApiZ.cheapest("90210")
 ```
 
@@ -198,7 +195,7 @@ Original, unsafe:
 def fancyLodgingUnsafe(
     hotelApi: HotelApi
 ): Either[Error, Hotel] =
-    hotelApi.cheapest("90210")
+  hotelApi.cheapest("90210")
 // error: 
 // missing argument for parameter apiKey of method cheapest in class HotelApi: (zipCode: String, apiKey: String):
 //   Either[repl.MdocSession.MdocApp.Error, repl.MdocSession.MdocApp.Hotel]
@@ -220,20 +217,20 @@ val originalAuthor = HotelApiZ.live
 
 ```scala
 val logic =
-    defer {
-      fancyLodging(ZIO.service[HotelApiZ].run)
-    }
+  defer {
+    fancyLodging(ZIO.service[HotelApiZ].run)
+  }
 // logic: ZIO[HotelApiZ, Nothing, ZIO[Any, Error, Hotel]] = OnSuccess(
 //   trace = "zio.direct.ZioMonad.Success.$anon.map(ZioMonad.scala:18)",
 //   first = OnSuccess(
-//     trace = "repl.MdocSession.MdocApp.<local MdocApp>.logic(13_Environment_Variables.md:249)",
+//     trace = "repl.MdocSession.MdocApp.<local MdocApp>.logic(13_Environment_Variables.md:247)",
 //     first = Sync(
-//       trace = "repl.MdocSession.MdocApp.<local MdocApp>.logic(13_Environment_Variables.md:249)",
-//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$2086/0x0000000100a7fc40@2a0e0463
+//       trace = "repl.MdocSession.MdocApp.<local MdocApp>.logic(13_Environment_Variables.md:247)",
+//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$2086/0x0000000100a7fc40@752a1eed
 //     ),
-//     successK = zio.ZIO$$$Lambda$2088/0x0000000100a7d840@67f1306d
+//     successK = zio.ZIO$$$Lambda$2088/0x0000000100a7d840@4cff2aa1
 //   ),
-//   successK = zio.ZIO$$Lambda$2097/0x0000000100a92040@6cc975d6
+//   successK = zio.ZIO$$Lambda$2097/0x0000000100a92040@6fadcfb4
 // )
 runDemo(
   logic.provide(
@@ -243,6 +240,10 @@ runDemo(
     originalAuthor
   )
 )
+// Need to handle long line. 
+// Truncating for now: 
+// OnSuccess(zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19),OnSuccess(zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19),Sync(repl.MdocSession.MdocApp.SystemLive.env(13_Environment_Variables.md:144),zio.ZIOCompanionVersionSpecific$$Lambda$2086/0x0000000100a7fc40@e1eb36b),repl.MdocSession$MdocApp$SystemStrict$$Lambda$3729/0x0000000100fc8840@74397547),repl.MdocSession$MdocApp$HotelApiZ$$Lambda$3730/0x0000000100fc9840@db4425d)
+// OnSuccess(zio.direct.ZioMonad.Success.$anon.fl
 ```
 
 **Collaborator's Machine:**
@@ -257,15 +258,19 @@ val colaboraterLayer =
 
 ```scala
 runDemo(
-    defer {
+  defer {
     fancyLodging(ZIO.service[HotelApiZ].run)
   }.provide(
-      System.live,
-      SystemStrict.live,
-      ZLayer.succeed(HotelApi()),
-      collaborater
-    )
+    System.live,
+    SystemStrict.live,
+    ZLayer.succeed(HotelApi()),
+    collaborater
+  )
 )
+// Need to handle long line. 
+// Truncating for now: 
+// OnSuccess(zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19),OnSuccess(zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19),Sync(repl.MdocSession.MdocApp.SystemLive.env(13_Environment_Variables.md:144),zio.ZIOCompanionVersionSpecific$$Lambda$2086/0x0000000100a7fc40@1f4b2691),repl.MdocSession$MdocApp$SystemStrict$$Lambda$3729/0x0000000100fc8840@57f6ae6),repl.MdocSession$MdocApp$HotelApiZ$$Lambda$3730/0x0000000100fc9840@b7fc830)
+// OnSuccess(zio.direct.ZioMonad.Success.$anon.fl
 ```
 
 **Continuous Integration Server:**
@@ -286,6 +291,10 @@ runDemo(
     ci
   )
 )
+// Need to handle long line. 
+// Truncating for now: 
+// OnSuccess(zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19),OnSuccess(zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19),Sync(repl.MdocSession.MdocApp.SystemLive.env(13_Environment_Variables.md:144),zio.ZIOCompanionVersionSpecific$$Lambda$2086/0x0000000100a7fc40@770245e4),repl.MdocSession$MdocApp$SystemStrict$$Lambda$3729/0x0000000100fc8840@201f2e4e),repl.MdocSession$MdocApp$HotelApiZ$$Lambda$3730/0x0000000100fc9840@14621ec9)
+// OnSuccess(zio.direct.ZioMonad.Success.$anon.fl
 ```
 
 TODO{{The actual line looks the same, which I highlighted as a problem before. How should we indicate that the Environment is different?}}
@@ -311,7 +320,7 @@ val testApiLayer =
       SystemHardcoded(
         Map("API_KEY" -> "Invalid Key")
       )
-    ) ,
+    ),
     SystemStrict.live,
     ZLayer.succeed(HotelApi()),
     HotelApiZ.live
@@ -322,10 +331,12 @@ val testApiLayer =
 runDemo(
   defer {
     fancyLodging(ZIO.service[HotelApiZ].run)
-  }.provide(
-    testApiLayer
-  )
+  }.provide(testApiLayer)
 )
+// Need to handle long line. 
+// Truncating for now: 
+// OnSuccess(zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19),OnSuccess(zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19),Sync(repl.MdocSession.MdocApp.<local MdocApp>.SystemHardcoded.env(13_Environment_Variables.md:336),zio.ZIOCompanionVersionSpecific$$Lambda$2086/0x0000000100a7fc40@159644d3),repl.MdocSession$MdocApp$SystemStrict$$Lambda$3729/0x0000000100fc8840@1d428256),repl.MdocSession$MdocApp$HotelApiZ$$Lambda$3730/0x0000000100fc9840@1777c21a)
+// OnSuccess(zio.direct.ZioMonad.Success.$anon.fl
 ```
 
 ## Official ZIO Approach
@@ -336,16 +347,16 @@ This is always available as a standard service from the ZIO runtime.
 TODO
 
 ```scala
-def fancyLodgingBuiltIn(hotelApiZ: HotelApiZ): ZIO[
-  Any,
-  SecurityException | Error,
-  Hotel
-] =
+def fancyLodgingBuiltIn(
+    hotelApiZ: HotelApiZ
+): ZIO[Any, SecurityException | Error, Hotel] =
   defer {
     val apiKey = zio.System.env("API_KEY").run
-    hotelApiZ.cheapest(
-      apiKey.get // unsafe! TODO Use either
-    ).run
+    hotelApiZ
+      .cheapest(
+        apiKey.get // unsafe! TODO Use either
+      )
+      .run
   }
 ```
 

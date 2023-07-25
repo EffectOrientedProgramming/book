@@ -69,8 +69,10 @@ object CountryService:
       : ZIO[Location, HardwareFailure, Country] =
     defer {
       val gpsCords = Location.gpsCoords.run
-      if (gpsCords.latitude > 0) Country("Canada")
-      else Country("USA")
+      if (gpsCords.latitude > 0)
+        Country("Canada")
+      else
+        Country("USA")
     }
 ```
 
@@ -106,7 +108,8 @@ class LegalService(
     LegalStatus
   ] =
     defer {
-      val country = countryService.currentCountry.run
+      val country =
+        countryService.currentCountry.run
       lawLibrary.status(country, issue).run
     }
 ```

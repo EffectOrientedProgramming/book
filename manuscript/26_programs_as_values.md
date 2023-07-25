@@ -23,16 +23,16 @@ val fullProcess: String => List[Friend] =
   findUser.andThen(friendsOf)
 // error:
 // unused local definition
-//               id: String
-//               ^^
+//     id: String
+//     ^^
 // error:
 // unused local definition
 // def friendsOf(user: User): List[Friend] =
 //               ^^^^
 // error:
 // unused local definition
-// def fullProcess(id: String): ZIO[Any, NotFound, List[Friend]] =
-//     ^^^^^^^^^^^
+//     id: String
+//  ^
 ```
 That is neat, and often used to get people interested in Functional Programming.
 However, if there are more complex types, it quickly becomes less fun
@@ -53,16 +53,17 @@ def findUser(
 
 def friendsOf(user: User): List[Friend] =
   throw new NotImplementedError(user.toString)
-def fullProcess(id: String): Either[NotFound, List[Friend]] =
-  findUser(id) match {
+def fullProcess(
+    id: String
+): Either[NotFound, List[Friend]] =
+  findUser(id) match
     case Right(user) =>
       Right(friendsOf(user))
     case Left(err) =>
       Left(err)
-  }
 // error:
 // unused local definition
-// def fullProcess(id: String): Either[NotFound, List[Friend]] =
+// def fullProcess(
 //     ^^^^^^^^^^^
 ```
 TODO Consider: The idiomatic way to do the above is with `flatMap` which we are trying hard to avoid.
@@ -70,21 +71,23 @@ TODO Consider: The idiomatic way to do the above is with `flatMap` which we are 
 
 ```scala
 def findUser(
-              id: String
-            ): ZIO[Any, NotFound, User] =
+    id: String
+): ZIO[Any, NotFound, User] =
   throw new NotImplementedError(id)
 // You can augment findUser by using `.andThen` to attach new behavior
 
 def friendsOf(user: User): List[Friend] =
   throw new NotImplementedError(user.toString)
-  
-def fullProcess(id: String): ZIO[Any, NotFound, List[Friend]] =
+
+def fullProcess(
+    id: String
+): ZIO[Any, NotFound, List[Friend]] =
   defer {
     val user = findUser(id).run
     friendsOf(user)
   }
 // error:
 // unused local definition
-// def fullProcess(id: String): ZIO[Any, NotFound, List[Friend]] =
+// def fullProcess(
 //     ^^^^^^^^^^^
 ```
