@@ -12,4 +12,4 @@ jobs:
         java-version: '11'
         cache: 'sbt'
 
-    - run: ./bin/sbt test
+    - run: ./bin/sbt test genManuscript
