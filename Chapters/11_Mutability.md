@@ -80,15 +80,15 @@ lazy val reliableCounting =
   def incrementCounter(counter: Ref[Int]) =
     counter.update(_ + 1)
 
-  for
-    counter <- Ref.make(0)
-    _ <-
-      ZIO
-        .foreachParDiscard(Range(0, 100000))(_ =>
-          incrementCounter(counter)
-        )
-    finalResult <- counter.get
-  yield "Final count: " + finalResult
+  defer {
+    val counter = Ref.make(0).run
+    ZIO
+      .foreachParDiscard(Range(0, 100000))(_ =>
+        incrementCounter(counter)
+      ).run
+    "Final count: " + counter.get.run
+  }
+    
 
 runDemo(reliableCounting)
 ```
@@ -115,18 +115,17 @@ def sendNotification() =
 
 ```scala mdoc
 lazy val sideEffectingUpdates =
-  for
-    counter <- Ref.make(0)
-    _ <-
-      ZIO.foreachParDiscard(Range(0, 4))(_ =>
-        counter.update { previousValue =>
-          expensiveCalculation()
-          sendNotification()
-          previousValue + 1
-        }
-      )
-    finalResult <- counter.get
-  yield "Final count: " + finalResult
+  defer {
+    val counter = Ref.make(0).run
+    ZIO.foreachParDiscard(Range(0, 4))(_ =>
+      counter.update { previousValue =>
+        expensiveCalculation()
+        sendNotification()
+        previousValue + 1
+      }
+    ).run
+    "Final count: " + counter.get.run
+  }
 
 // Mdoc/this function is showing the notifications, but not the final result
 runDemo(sideEffectingUpdates)
@@ -156,18 +155,17 @@ The only change required is replacing `Ref.make` with `Ref.Synchronized.make`
 
 ```scala mdoc
 lazy val sideEffectingUpdatesSync =
-  for
-    counter <- Ref.Synchronized.make(0)
-    _ <-
-      ZIO.foreachParDiscard(Range(0, 4))(_ =>
-        counter.update { previousValue =>
-          expensiveCalculation()
-          sendNotification()
-          previousValue + 1
-        }
-      )
-    finalResult <- counter.get
-  yield "Final count: " + finalResult
+  defer {
+    val counter = Ref.Synchronized.make(0).run
+    ZIO.foreachParDiscard(Range(0, 4))(_ =>
+      counter.update { previousValue =>
+        expensiveCalculation()
+        sendNotification()
+        previousValue + 1
+      }
+    ).run
+    "Final count: " + counter.get.run
+  }
 
 runDemo(sideEffectingUpdatesSync)
 ```
