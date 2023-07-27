@@ -1,11 +1,45 @@
 ---
-Maybe goes into resources chapter
 ---
 
 # Composability
 
+Other framings/techniques and their pros/cons:
+- Plain functions that throw Exceptions
+  - We can't union these error possibilities and track them in the type system
+- Plain functions that block
+  - We can't indicate if they block or not
+  - Too many concurrent blocking operations can prevent progress of other operations
+  - Very difficult to manage
+  - Blocking performance varies wildly between environments
+- Functions that return Either/Option/Try/etc
+    - We can manage the errors in the type system, but we can't interrupt the code
+      that is producing these values
+    - All of these types must be manually transformed into the other types
+- Functions that return a Future
+    - Can be interrupted
+    - Start executing immediately
+    - Must all fail with Exception
+- Implicits
+  - Are not automatically managed by the compiler, you must explicitly add each one to your parent function
+- Try-with-resources
+  - These are statically scoped
+  - Unclear who is responsible for acquisition & cleanup
+
+Each of these approaches gives you benefits, but you can't assemble them all together.
+Instead of the best of all worlds, you get the pain of all worlds.
+eg `Closeable[Future[Either[Throwable, A]]]`
+The ordering of the nesting is significant, and not easily changed.
+
+The number of combinations is something like:
+  PairsIn(numberOfConcepts)
+
+
+
+
+
 `Composability` has a diverse collection of definitions, depending on who you ask.
 
+## {{Maybe goes into resources chapter}}
 ```scala mdoc
 enum Target:
   case Moon,

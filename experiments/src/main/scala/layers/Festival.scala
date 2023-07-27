@@ -4,40 +4,51 @@ import zio.ZIO.debug
 
 case class Toilets()
 val toilets =
-  ZLayer.scoped(
-    ZIO.acquireRelease(
-      debug("TOILETS: Setting up") *>
-        ZIO.succeed(Toilets())
-    )(_ => debug("TOILETS: Removing"))
+  activityLayer(
+    entity = Toilets(),
   )
+
 case class Stage()
 val stage =
-  ZLayer.scoped(
-    ZIO.acquireRelease(
-      activity(
-        "STAGE",
-        "Transporting",
-        2.seconds
-      ) *>
-        activity(
-          "STAGE",
-          "Building",
-          4.seconds
-        ) *> ZIO.succeed(Stage())
-    )(_ => debug("STAGE: Tearing down"))
+  activityLayer(
+    entity = Stage(),
+    setupSteps =
+      ("Transporting", 2.seconds),
+      ("Building", 4.seconds),
   )
 
 case class Permit()
 val permit =
+  activityLayer(
+    entity = Permit(),
+    setupSteps = ("Legal Request", 5.seconds)
+  )
+
+def activityLayer[T: Tag](
+    entity: T,
+    setupSteps: (String, Duration)*
+                 ) =
   ZLayer.scoped(
     ZIO.acquireRelease(
-      activity(
-        "PERMIT",
-        "Legal Request",
-        5.seconds
-      ) *> ZIO.succeed(Permit())
-    )(_ => debug("PERMIT: Relinquished"))
+      ZIO.debug(entity.toString + " ACQUIRE") *>
+        ZIO.foreach(setupSteps){
+          case (name, duration) =>
+            activity(
+              entity.toString,
+              name,
+              duration
+            )
+        } *> ZIO.succeed(entity)
+    )(_ => debug(entity.toString + " RELEASE"))
   )
+
+def activity(
+              entity: String,
+              name: String,
+              duration: Duration
+            ) =
+  debug(s"$entity: BEGIN $name") *>
+    debug(s"$entity: END $name").delay(duration)
 
 case class Venue(stage: Stage, permit: Permit)
 val venue = ZLayer.fromFunction(Venue.apply)
@@ -58,6 +69,7 @@ val amplifiers =
         ZIO.succeed(Amplifiers())
     )(_ => debug("AMPLIFIERS: Putting away"))
   )
+
 case class Wires()
 val wires =
   ZLayer.scoped(
@@ -122,21 +134,12 @@ val soundSystemShortedOut: ZLayer[
 
 case class FoodTruck()
 val foodtruck =
-  ZLayer.scoped {
-    ZIO.acquireRelease {
-      defer {
-        activity(
-          "FOODTRUCK",
-          "Fueling",
-          2.seconds
-        ).run
-        debug("FOODTRUCK: Driving in").run
-        FoodTruck()
-      }
-    } { _ =>
-      debug("FOODTRUCK: Going home")
-    }
-  }
+  activityLayer(
+    entity = FoodTruck(),
+    setupSteps =
+      ("Fueling", 2.seconds),
+      ("FOODTRUCK: Driving in", 3.seconds),
+  )
 
 case class Festival(
     toilets: Toilets,
@@ -192,10 +195,3 @@ val security: ZLayer[
     }
   }
 
-def activity(
-    entity: String,
-    name: String,
-    duration: Duration
-) =
-  debug(s"$entity: BEGIN $name") *>
-    debug(s"$entity: END $name").delay(duration)
