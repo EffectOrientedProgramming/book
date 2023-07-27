@@ -226,11 +226,11 @@ val logic =
 //     trace = "repl.MdocSession.MdocApp.<local MdocApp>.logic(13_Environment_Variables.md:247)",
 //     first = Sync(
 //       trace = "repl.MdocSession.MdocApp.<local MdocApp>.logic(13_Environment_Variables.md:247)",
-//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$2086/0x0000000100a7fc40@66d3f19a
+//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$2084/0x0000000100a78c40@59e81b13
 //     ),
-//     successK = zio.ZIO$$$Lambda$2088/0x0000000100a7d840@53cc65c3
+//     successK = zio.ZIO$$$Lambda$2088/0x0000000100a7d840@6f06027d
 //   ),
-//   successK = zio.ZIO$$Lambda$2097/0x0000000100a92040@521dd061
+//   successK = zio.ZIO$$Lambda$2097/0x0000000100a92040@3a19c5f8
 // )
 runDemo(
   logic.provide(
@@ -240,6 +240,10 @@ runDemo(
     originalAuthor
   )
 )
+// Need to handle long line. 
+// Truncating for now: 
+// OnSuccess(zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19),OnSuccess(zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19),Sync(repl.MdocSession.MdocApp.SystemLive.env(13_Environment_Variables.md:144),zio.ZIOCompanionVersionSpecific$$Lambda$2084/0x0000000100a78c40@4b971c17),repl.MdocSession$MdocApp$SystemStrict$$Lambda$3730/0x0000000100fc9040@7e859ef2),repl.MdocSession$MdocApp$HotelApiZ$$Lambda$3731/0x0000000100fc9840@16127a55)
+// OnSuccess(zio.direct.ZioMonad.Success.$anon.fl
 ```
 
 **Collaborator's Machine:**
@@ -263,6 +267,10 @@ runDemo(
     collaborater
   )
 )
+// Need to handle long line. 
+// Truncating for now: 
+// OnSuccess(zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19),OnSuccess(zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19),Sync(repl.MdocSession.MdocApp.SystemLive.env(13_Environment_Variables.md:144),zio.ZIOCompanionVersionSpecific$$Lambda$2084/0x0000000100a78c40@6853b421),repl.MdocSession$MdocApp$SystemStrict$$Lambda$3730/0x0000000100fc9040@586c051e),repl.MdocSession$MdocApp$HotelApiZ$$Lambda$3731/0x0000000100fc9840@5acf186a)
+// OnSuccess(zio.direct.ZioMonad.Success.$anon.fl
 ```
 
 **Continuous Integration Server:**
@@ -283,6 +291,10 @@ runDemo(
     ci
   )
 )
+// Need to handle long line. 
+// Truncating for now: 
+// OnSuccess(zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19),OnSuccess(zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19),Sync(repl.MdocSession.MdocApp.SystemLive.env(13_Environment_Variables.md:144),zio.ZIOCompanionVersionSpecific$$Lambda$2084/0x0000000100a78c40@14c52ac2),repl.MdocSession$MdocApp$SystemStrict$$Lambda$3730/0x0000000100fc9040@258a866f),repl.MdocSession$MdocApp$HotelApiZ$$Lambda$3731/0x0000000100fc9840@68c5febe)
+// OnSuccess(zio.direct.ZioMonad.Success.$anon.fl
 ```
 
 TODO{{The actual line looks the same, which I highlighted as a problem before. How should we indicate that the Environment is different?}}
