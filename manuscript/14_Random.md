@@ -1,13 +1,74 @@
 # Random
 
-There 
+We _need_ randomness in many domains.
 
-{{Subject Dependencies: `Console`, `ZIO.serviceWith`}}
+- Cryptography
+- Simulations
+- Adding noise to images for further processing
+- Adding jitter to processes to prevent clashes
 
-TODO All the prose to justify these hoops
+Randomness might seem antithetical to functional programming.
+We want pure functions that always give us the same output for the same input!
 
-NOTE Moved code to `experiments/src/main/scala/random` due to dependency on code not in Chapters
+This conflict highlights that Randomness is special - it is an effect.
 
+It is easy to miss the significance of Randomness when writing software in other languages and paradigms.
+We use pseudorandom algorithms to produce output that is sufficiently random for some applications.
+These are initialized with a seed value that determines all the following output.
+```scala
+class MutableRNG(var seed: Int):
+  
+  def nextInt() =
+    seed = mangleNumber(seed)
+    seed
+
+
+  private def mangleNumber(input: Int): Int =
+      // *NOT* good pseudorandom logic
+      input * 52357 % 10000
+```
+
+```scala
+val rng = MutableRNG(1)
+// rng: MutableRNG = repl.MdocSession$MdocApp$MutableRNG@707976f2
+rng.nextInt()
+// res0: Int = 2357
+rng.nextInt()
+// res1: Int = 5449
+rng.nextInt()
+// res2: Int = 3293
+```
+This is good enough for many situations, but is not random enough for security applications.
+Let's see what happens if we make a new instance with the same seed.
+
+```scala
+val rngDuplicate = MutableRNG(1)
+// rngDuplicate: MutableRNG = repl.MdocSession$MdocApp$MutableRNG@32983de8
+rngDuplicate.nextInt()
+// res3: Int = 2357
+rngDuplicate.nextInt()
+// res4: Int = 5449
+rngDuplicate.nextInt()
+// res5: Int = 3293
+```
+Exactly the same.
+If an adversary is able to determine what seed is used in your application, they can predict the future to exploit your system.
+
+## Physical RNGs
+Consider a Random Number Generator (RNG) that operates by tossing a 6-sided dice into the air and sending the result to the CPU.
+Assuming good conditions, this is actually a good source of randomness.
+
+Unfortunately, producing large numbers this way is slow and energy-consuming.
+You can produce random data more efficiently by 
+
+- monitoring voltage on a wire
+- Reading weather sensor data
+- Monitoring stock markets
+
+You can even subscribe to services that combine all of these techniques to produce random data
+
+## Predictable Randomness
+When your program treats randomness as an effect, testing unusual scenarios becomes straightforward.
 
 ## Automatically attached experiments.
  These are included at the end of this
@@ -324,7 +385,7 @@ def checkAnswerZSplit(
       if answer == i then
         "You got it!"
       else
-        s"BZZ Wrong!! Answer was $answer"
+        s"BZZ Wrong!!"
     )
     .merge
 
@@ -353,9 +414,7 @@ val effectfulGuessingGame =
         .nextIntBetween(low, high)
         .run
     val guess = Console.readLine.run
-    val response =
-      checkAnswerZSplit(answer, guess).run
-    prompt + guess + "\n" + response
+    checkAnswerZSplit(answer, guess).run
   }
 
 // TODO Decide if these should be removed, since test cases exist now

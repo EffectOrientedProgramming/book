@@ -84,54 +84,39 @@ Finally, the CI server has not set _any_ value, and fails at runtime.
 ## Building a Better Way
 
 
-Before looking at the official ZIO implementation of `System`, we will create a less-capable version. 
-We need a `trait` that will indicate what is needed from the environment.
-The real implementation is more complex, to handle corner cases.
+ZIO has a full `System` implementation of, but we will consider just 1 function for the moment.
 
 ```scala
-trait System:
-  def env(
-      variable: String
-  ): ZIO[Any, Nothing, Option[String]]
-
-case class SystemLive() extends System:
-  def env(
-      variable: String
-  ): ZIO[Any, Nothing, Option[String]] =
-    ZIO.succeed(sys.env.get("API_KEY"))
-
-object System:
-  val live: ZLayer[Any, Nothing, System] =
-    ZLayer.succeed(SystemLive())
+def envZ(
+  variable: String
+): ZIO[Any, Nothing, Option[String]] =
+  ZIO.succeed(sys.env.get("API_KEY"))
 ```
-
-Now, our live implementation will wrap our original, unsafe function call.
-
-Now if we use this code, our caller's type tells us that it requires a `System` to execute.
+This merely wraps our original function call.
 This is safe, but it is not the easiest code to use or read.
-We then build on first accessor to flatten out the function signature.
+We want to convert an empty `Option` into an error state.
 
 ```scala
 object SystemStrict:
   val live
-      : ZLayer[System, Nothing, SystemStrict] =
+      : ZLayer[Any, Nothing, SystemStrict] =
     ZLayer.fromZIO(
       defer {
-        SystemStrict(ZIO.service[System].run)
+        SystemStrict()
       }
     )
 
-case class SystemStrict(system: System):
+case class SystemStrict():
   def envRequired(
       variable: String
   ): ZIO[Any, Error, String] =
     defer {
       val variableAttempt =
-        system.env(variable).run
+        envZ(variable).run
       ZIO
         .fromOption(variableAttempt)
         .mapError(_ =>
-          Error("Unconfigured Environment")
+          Error("Missing value for: " + variable)
         )
         .run
     }
@@ -223,18 +208,17 @@ val logic =
 // logic: ZIO[HotelApiZ, Nothing, ZIO[Any, Error, Hotel]] = OnSuccess(
 //   trace = "zio.direct.ZioMonad.Success.$anon.map(ZioMonad.scala:18)",
 //   first = OnSuccess(
-//     trace = "repl.MdocSession.MdocApp.<local MdocApp>.logic(13_Environment_Variables.md:247)",
+//     trace = "repl.MdocSession.MdocApp.<local MdocApp>.logic(13_Environment_Variables.md:235)",
 //     first = Sync(
-//       trace = "repl.MdocSession.MdocApp.<local MdocApp>.logic(13_Environment_Variables.md:247)",
-//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$2086/0x0000000100a7ec40@5d729a6f
+//       trace = "repl.MdocSession.MdocApp.<local MdocApp>.logic(13_Environment_Variables.md:235)",
+//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$2086/0x0000000100a7fc40@4f2aeb97
 //     ),
-//     successK = zio.ZIO$$$Lambda$2088/0x0000000100a7c840@6bc2c936
+//     successK = zio.ZIO$$$Lambda$2088/0x0000000100a7d840@134fa5d5
 //   ),
-//   successK = zio.ZIO$$Lambda$2097/0x0000000100a92040@5176e428
+//   successK = zio.ZIO$$Lambda$2097/0x0000000100a92040@78d10e03
 // )
 runDemo(
   logic.provide(
-    System.live,
     SystemStrict.live,
     ZLayer.succeed(HotelApi()),
     originalAuthor
@@ -249,7 +233,7 @@ runDemo(
 val collaborater = HotelApiZ.live
 
 val colaboraterLayer =
-  collaborater ++ System.live
+  collaborater
 ```
 
 ```scala
@@ -257,7 +241,6 @@ runDemo(
   defer {
     fancyLodging(ZIO.service[HotelApiZ].run)
   }.provide(
-    System.live,
     SystemStrict.live,
     ZLayer.succeed(HotelApi()),
     collaborater
@@ -277,7 +260,6 @@ runDemo(
   defer {
     fancyLodging(ZIO.service[HotelApiZ].run)
   }.provide(
-    System.live,
     SystemStrict.live,
     ZLayer.succeed(HotelApi()),
     ci
@@ -287,41 +269,9 @@ runDemo(
 
 TODO{{The actual line looks the same, which I highlighted as a problem before. How should we indicate that the Environment is different?}}
 
-When constructed this way, it becomes very easy to test. We create a second implementation that accepts test values and serves them to the caller.
-
-```scala
-case class SystemHardcoded(
-    environmentVars: Map[String, String]
-) extends System:
-  def env(
-      variable: String
-  ): ZIO[Any, Nothing, Option[String]] =
-    ZIO.succeed(environmentVars.get(variable))
-```
-
-We can now provide this to our logic, for testing both the success and failure cases.
-
-```scala
-val testApiLayer =
-  ZLayer.make[HotelApiZ](
-    ZLayer.succeed[System](
-      SystemHardcoded(
-        Map("API_KEY" -> "Invalid Key")
-      )
-    ),
-    SystemStrict.live,
-    ZLayer.succeed(HotelApi()),
-    HotelApiZ.live
-  )
-```
-
-```scala
-runDemo(
-  defer {
-    fancyLodging(ZIO.service[HotelApiZ].run)
-  }.provide(testApiLayer)
-)
-```
+When constructed this way, it becomes very easy to test. 
+We create a second implementation that accepts test values and serves them to the caller.
+TODO{{Reorder things so that the official ZIO TestSystem is used.}}
 
 ## Official ZIO Approach
 
