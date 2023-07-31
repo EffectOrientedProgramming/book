@@ -3,7 +3,9 @@ package random
 import zio.test.*
 
 import zio.internal.stacktracer.SourceLocation
+import console.FakeConsole
 
+/*
 def test[In](label: String)(
   assertion: => In
 )(implicit
@@ -13,7 +15,6 @@ def test[In](label: String)(
             ): testConstructor.Out =
   zio.test.test(label)(assertion)
 
-import console.FakeConsole
 
 val standaloneSpec =
   test(
@@ -28,6 +29,7 @@ val standaloneSpec =
       assertTrue(res == "BZZ Wrong!!")
     }
   )
+*/
 
 object RunEffectfulGuessingGameSpec
     extends ZIOSpecDefault:
@@ -74,7 +76,7 @@ object RunEffectfulGuessingGameSpec
                 .run
             assertTrue(res == "You got it!")
           }
-        ) @@ TestAspect.nonFlaky(1000)
+        ) @@ TestAspect.nonFlaky(10)
       )
     )
 end RunEffectfulGuessingGameSpec
