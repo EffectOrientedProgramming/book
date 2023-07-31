@@ -111,7 +111,7 @@ def checkAnswerZSplit(
       if answer == i then
         "You got it!"
       else
-        s"BZZ Wrong!! Answer was $answer"
+        s"BZZ Wrong!!"
     )
     .merge
 
@@ -140,9 +140,7 @@ val effectfulGuessingGame =
         .nextIntBetween(low, high)
         .run
     val guess = Console.readLine.run
-    val response =
-      checkAnswerZSplit(answer, guess).run
-    prompt + guess + "\n" + response
+    checkAnswerZSplit(answer, guess).run
   }
 
 // TODO Decide if these should be removed, since test cases exist now
