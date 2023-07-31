@@ -47,7 +47,7 @@ Exactly the same.
 If an adversary is able to determine what seed is used in your application, they can predict the future to exploit your system.
 
 ## Physical RNGs
-Consider a Random Number Generator (RNG) that operates by tossing a 6-sided dice into the air and sending the result to the CPU.
+Consider a Random Number Generator (RNG) that operates by tossing a coin into the air and sending the result to the CPU.
 Assuming good conditions, this is actually a good source of randomness.
 
 Unfortunately, producing large numbers this way is slow and energy-consuming.
