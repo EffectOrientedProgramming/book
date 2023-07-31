@@ -23,9 +23,9 @@ class MutableRNG(var seed: Int):
     seed
 
 
-private def mangleNumber(input: Int): Int =
-    // *NOT* good pseudorandom logic
-    input * 52357 % 10000
+  private def mangleNumber(input: Int): Int =
+      // *NOT* good pseudorandom logic
+      input * 52357 % 10000
 ```
 
 ```scala mdoc
