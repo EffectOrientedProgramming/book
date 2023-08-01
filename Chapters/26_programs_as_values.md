@@ -41,11 +41,11 @@ println(NotFound())
 ```scala mdoc:nest:fail
 def findUser(
     id: String
-): ZIO[Any, NotFound, User] =
-  ???
+): ZIO[Any, NotFound, User] = ???
 
-def friendsOf(user: User): ZIO[Any, Nothing, List[Friend]] =
-  ???
+def friendsOf(
+    user: User
+): ZIO[Any, Nothing, List[Friend]] = ???
 
 def fullProcess(
     id: String

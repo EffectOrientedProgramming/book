@@ -130,7 +130,7 @@ ZIO has a full `System` implementation of, but we will consider just 1 function 
 
 ```scala mdoc
 def envZ(
-  variable: String
+    variable: String
 ): ZIO[Any, Nothing, Option[String]] =
   ZIO.succeed(sys.env.get("API_KEY"))
 ```
@@ -140,8 +140,7 @@ We want to convert an empty `Option` into an error state.
 
 ```scala mdoc
 object SystemStrict:
-  val live
-      : ZLayer[Any, Nothing, SystemStrict] =
+  val live: ZLayer[Any, Nothing, SystemStrict] =
     ZLayer.fromZIO(
       defer {
         SystemStrict()
@@ -153,8 +152,7 @@ case class SystemStrict():
       variable: String
   ): ZIO[Any, Error, String] =
     defer {
-      val variableAttempt =
-        envZ(variable).run
+      val variableAttempt = envZ(variable).run
       ZIO
         .fromOption(variableAttempt)
         .mapError(_ =>
@@ -265,8 +263,7 @@ sys.env.environment = NewDeveloper
 // TODO Do this for CI environment too
 val collaborater = HotelApiZ.live
 
-val colaboraterLayer =
-  collaborater
+val colaboraterLayer = collaborater
 ```
 
 ```scala mdoc
@@ -416,10 +413,7 @@ trait Exercise2:
 println(new Exercise2 {})
 println(
   fancyLodgingBuiltIn(
-    HotelApiZ(
-      SystemStrict(),
-      HotelApi()
-    )
+    HotelApiZ(SystemStrict(), HotelApi())
   )
 )
 ```

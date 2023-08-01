@@ -5,31 +5,19 @@ import zio.test.*
 import zio.internal.stacktracer.SourceLocation
 import console.FakeConsole
 
-/*
-def test[In](label: String)(
-  assertion: => In
-)(implicit
-  testConstructor: TestConstructor[Nothing, In],
-  sourceLocation: SourceLocation,
-  trace: Trace
-            ): testConstructor.Out =
-  zio.test.test(label)(assertion)
-
-
-val standaloneSpec =
-  test(
-    defer {
-      val res =
-        effectfulGuessingGame
-          .withConsole(
-            FakeConsole.single("3")
-          )
-          .provide(RandomBoundedInt.live)
-          .run
-      assertTrue(res == "BZZ Wrong!!")
-    }
-  )
-*/
+/* def test[In](label: String)( assertion: => In
+ * )(implicit testConstructor:
+ * TestConstructor[Nothing, In], sourceLocation:
+ * SourceLocation, trace: Trace ):
+ * testConstructor.Out =
+ * zio.test.test(label)(assertion)
+ *
+ * val standaloneSpec =
+ * test( defer { val res =
+ * effectfulGuessingGame .withConsole(
+ * FakeConsole.single("3") )
+ * .provide(RandomBoundedInt.live) .run
+ * assertTrue(res == "BZZ Wrong!!") } ) */
 
 object RunEffectfulGuessingGameSpec
     extends ZIOSpecDefault:
@@ -38,15 +26,14 @@ object RunEffectfulGuessingGameSpec
       defer {
         val res =
           effectfulGuessingGame
-            .withConsole(
-              FakeConsole.single("3")
-            )
+            .withConsole(FakeConsole.single("3"))
             .provide(RandomBoundedInt.live)
             .run
         assertTrue(res == "BZZ Wrong!!")
       }
     ) @@ TestAspect.flaky
-   // Highlight that we shouldn't need this TestAspect.
+  // Highlight that we shouldn't need this
+  // TestAspect.
 
   def spec =
     suite("GuessingGame")(
@@ -62,7 +49,9 @@ object RunEffectfulGuessingGameSpec
                 .run
             assertTrue(res == "BZZ Wrong!!")
           }
-        ) @@ TestAspect.flaky, // Highlight that we shouldn't need this TestAspect.
+        ) @@
+          TestAspect
+            .flaky, // Highlight that we shouldn't need this TestAspect.
         test("Testable")(
           defer {
             val res =

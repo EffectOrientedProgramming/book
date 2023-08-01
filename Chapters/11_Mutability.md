@@ -85,10 +85,10 @@ lazy val reliableCounting =
     ZIO
       .foreachParDiscard(Range(0, 100000))(_ =>
         incrementCounter(counter)
-      ).run
+      )
+      .run
     "Final count: " + counter.get.run
   }
-    
 
 runDemo(reliableCounting)
 ```
@@ -117,13 +117,15 @@ def sendNotification() =
 lazy val sideEffectingUpdates =
   defer {
     val counter = Ref.make(0).run
-    ZIO.foreachParDiscard(Range(0, 4))(_ =>
-      counter.update { previousValue =>
-        expensiveCalculation()
-        sendNotification()
-        previousValue + 1
-      }
-    ).run
+    ZIO
+      .foreachParDiscard(Range(0, 4))(_ =>
+        counter.update { previousValue =>
+          expensiveCalculation()
+          sendNotification()
+          previousValue + 1
+        }
+      )
+      .run
     "Final count: " + counter.get.run
   }
 
@@ -157,13 +159,15 @@ The only change required is replacing `Ref.make` with `Ref.Synchronized.make`
 lazy val sideEffectingUpdatesSync =
   defer {
     val counter = Ref.Synchronized.make(0).run
-    ZIO.foreachParDiscard(Range(0, 4))(_ =>
-      counter.update { previousValue =>
-        expensiveCalculation()
-        sendNotification()
-        previousValue + 1
-      }
-    ).run
+    ZIO
+      .foreachParDiscard(Range(0, 4))(_ =>
+        counter.update { previousValue =>
+          expensiveCalculation()
+          sendNotification()
+          previousValue + 1
+        }
+      )
+      .run
     "Final count: " + counter.get.run
   }
 

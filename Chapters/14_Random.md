@@ -20,15 +20,14 @@ We use pseudorandom algorithms to produce output that is sufficiently random for
 These are initialized with a seed value that determines all the following output.
 ```scala mdoc
 class MutableRNG(var seed: Int):
-  
+
   def nextInt(): Int =
     seed = mangleNumber(seed)
     seed
 
-
   private def mangleNumber(input: Int): Int =
-      // *NOT* good pseudorandom logic
-      input * 52357 % 1000
+    // *NOT* good pseudorandom logic
+    input * 52357 % 1000
 ```
 
 ```scala mdoc

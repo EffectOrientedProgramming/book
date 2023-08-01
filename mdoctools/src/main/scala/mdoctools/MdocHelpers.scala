@@ -122,4 +122,3 @@ def runDemo[E, A](z: => ZIO[Any, E, A]): Unit =
   }
 
 // TODO Make a function that will execute a ZIO test case
-
