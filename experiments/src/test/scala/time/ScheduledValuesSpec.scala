@@ -24,7 +24,7 @@ object ScheduledValuesSpec
           }
         ),
         test(
-          "querying after no time has passed fails when the duration == 0"
+          "querying when no time has passed fails when the duration == 0"
         )(
           defer {
             val valueAccessor =
