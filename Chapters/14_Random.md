@@ -71,15 +71,22 @@ ZIO gives you built-in methods to support this.
 
 ```scala mdoc:silent
 import zio.test.TestRandom
-TestRandom.feedBooleans
-TestRandom.feedBytes
-TestRandom.feedChars
-TestRandom.feedDoubles
-TestRandom.feedFloats
-TestRandom.feedInts
-TestRandom.feedLongs
-TestRandom.feedStrings
-TestRandom.feedUUIDs
+TestRandom.feedBooleans(true, false)
+TestRandom.feedBytes(Chunk(1, 2, 3))
+TestRandom.feedChars('a', 'b', 'c')
+TestRandom.feedDoubles(1.0, 2.0, 3.0)
+TestRandom.feedFloats(1.0f, 2.0f, 3.0f)
+TestRandom.feedInts(1, 2, 3)
+TestRandom.feedLongs(1L, 2L, 3L)
+TestRandom.feedStrings("a", "b", "c")
+TestRandom.feedUUIDs(
+  java.util.UUID.fromString("00000000-0000-0000-0000-000000000000"),
+  java.util.UUID.fromString("00000000-0000-0000-0000-000000000001"),
+  java.util.UUID.fromString("00000000-0000-0000-0000-000000000002")
+)
+```
+
+```scala mdoc
 ```
 
 If needed, you can also clear out these values by calling the various `clear` methods.
