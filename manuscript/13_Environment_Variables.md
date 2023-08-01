@@ -88,7 +88,7 @@ ZIO has a full `System` implementation of, but we will consider just 1 function 
 
 ```scala
 def envZ(
-  variable: String
+    variable: String
 ): ZIO[Any, Nothing, Option[String]] =
   ZIO.succeed(sys.env.get("API_KEY"))
 ```
@@ -98,8 +98,7 @@ We want to convert an empty `Option` into an error state.
 
 ```scala
 object SystemStrict:
-  val live
-      : ZLayer[Any, Nothing, SystemStrict] =
+  val live: ZLayer[Any, Nothing, SystemStrict] =
     ZLayer.fromZIO(
       defer {
         SystemStrict()
@@ -111,8 +110,7 @@ case class SystemStrict():
       variable: String
   ): ZIO[Any, Error, String] =
     defer {
-      val variableAttempt =
-        envZ(variable).run
+      val variableAttempt = envZ(variable).run
       ZIO
         .fromOption(variableAttempt)
         .mapError(_ =>
@@ -208,14 +206,14 @@ val logic =
 // logic: ZIO[HotelApiZ, Nothing, ZIO[Any, Error, Hotel]] = OnSuccess(
 //   trace = "zio.direct.ZioMonad.Success.$anon.map(ZioMonad.scala:18)",
 //   first = OnSuccess(
-//     trace = "repl.MdocSession.MdocApp.<local MdocApp>.logic(13_Environment_Variables.md:235)",
+//     trace = "repl.MdocSession.MdocApp.<local MdocApp>.logic(13_Environment_Variables.md:233)",
 //     first = Sync(
-//       trace = "repl.MdocSession.MdocApp.<local MdocApp>.logic(13_Environment_Variables.md:235)",
-//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$2086/0x0000000100a7fc40@4f2aeb97
+//       trace = "repl.MdocSession.MdocApp.<local MdocApp>.logic(13_Environment_Variables.md:233)",
+//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$2086/0x0000000100a7fc40@201bd770
 //     ),
-//     successK = zio.ZIO$$$Lambda$2088/0x0000000100a7d840@134fa5d5
+//     successK = zio.ZIO$$$Lambda$2088/0x0000000100a7d840@32d718b8
 //   ),
-//   successK = zio.ZIO$$Lambda$2097/0x0000000100a92040@78d10e03
+//   successK = zio.ZIO$$Lambda$2097/0x0000000100a92040@5d6d3efe
 // )
 runDemo(
   logic.provide(
@@ -232,8 +230,7 @@ runDemo(
 // TODO Do this for CI environment too
 val collaborater = HotelApiZ.live
 
-val colaboraterLayer =
-  collaborater
+val colaboraterLayer = collaborater
 ```
 
 ```scala

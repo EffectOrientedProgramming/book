@@ -13,62 +13,98 @@ We want pure functions that always give us the same output for the same input!
 This conflict highlights that Randomness is special - it is an effect.
 
 It is easy to miss the significance of Randomness when writing software in other languages and paradigms.
+You want a random integer? Just call the `randomInt` function and move on.
+It probably doesn't seem any more unusual than calling `squareRoot` or `sin`.
+
 We use pseudorandom algorithms to produce output that is sufficiently random for some applications.
 These are initialized with a seed value that determines all the following output.
 ```scala
 class MutableRNG(var seed: Int):
-  
-  def nextInt() =
+
+  def nextInt(): Int =
     seed = mangleNumber(seed)
     seed
 
-
   private def mangleNumber(input: Int): Int =
-      // *NOT* good pseudorandom logic
-      input * 52357 % 10000
+    // *NOT* good pseudorandom logic
+    input * 52357 % 1000
 ```
 
 ```scala
 val rng = MutableRNG(1)
-// rng: MutableRNG = repl.MdocSession$MdocApp$MutableRNG@707976f2
+// rng: MutableRNG = repl.MdocSession$MdocApp$MutableRNG@4e946dd1
 rng.nextInt()
-// res0: Int = 2357
+// res0: Int = 357
 rng.nextInt()
-// res1: Int = 5449
+// res1: Int = 449
 rng.nextInt()
-// res2: Int = 3293
+// res2: Int = 293
 ```
 This is good enough for many situations, but is not random enough for security applications.
 Let's see what happens if we make a new instance with the same seed.
 
 ```scala
 val rngDuplicate = MutableRNG(1)
-// rngDuplicate: MutableRNG = repl.MdocSession$MdocApp$MutableRNG@32983de8
+// rngDuplicate: MutableRNG = repl.MdocSession$MdocApp$MutableRNG@54f1c59c
 rngDuplicate.nextInt()
-// res3: Int = 2357
+// res3: Int = 357
 rngDuplicate.nextInt()
-// res4: Int = 5449
+// res4: Int = 449
 rngDuplicate.nextInt()
-// res5: Int = 3293
+// res5: Int = 293
 ```
 Exactly the same.
 If an adversary is able to determine what seed is used in your application, they can predict the future to exploit your system.
 
 ## Physical RNGs
-Consider a Random Number Generator (RNG) that operates by tossing a 6-sided dice into the air and sending the result to the CPU.
+Consider a Random Number Generator (RNG) that operates by tossing a coin into the air and sending the result to the CPU.
 Assuming good conditions, this is actually a good source of randomness.
 
 Unfortunately, producing large numbers this way is slow and energy-consuming.
+Optimistically you can create 1 random bit per second.
+Further, you must power and maintain your coin-flipping and reading mechanism.
+
 You can produce random data more efficiently by 
 
 - monitoring voltage on a wire
 - Reading weather sensor data
 - Monitoring stock markets
 
-You can even subscribe to services that combine all of these techniques to produce random data
+You can even subscribe to services that combine all of these techniques to produce random data.
 
 ## Predictable Randomness
 When your program treats randomness as an effect, testing unusual scenarios becomes straightforward.
+You can preload "Random" data that will result in deterministic behavior.
+ZIO gives you built-in methods to support this.
+
+```scala
+import zio.test.TestRandom
+TestRandom.feedBooleans(true, false)
+TestRandom.feedBytes(Chunk(1, 2, 3))
+TestRandom.feedChars('a', 'b', 'c')
+TestRandom.feedDoubles(1.0, 2.0, 3.0)
+TestRandom.feedFloats(1.0f, 2.0f, 3.0f)
+TestRandom.feedInts(1, 2, 3)
+TestRandom.feedLongs(1L, 2L, 3L)
+TestRandom.feedStrings("a", "b", "c")
+TestRandom.feedUUIDs(
+  java.util.UUID.fromString("00000000-0000-0000-0000-000000000000"),
+  java.util.UUID.fromString("00000000-0000-0000-0000-000000000001"),
+  java.util.UUID.fromString("00000000-0000-0000-0000-000000000002")
+)
+```
+
+```scala
+
+```
+
+If needed, you can also clear out these values by calling the various `clear` methods.
+
+```scala
+TestRandom.clearBooleans
+TestRandom.clearBytes
+// etc ...
+```
 
 ## Automatically attached experiments.
  These are included at the end of this

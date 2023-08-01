@@ -2,6 +2,79 @@
 
  
 
+### experiments/src/test/scala/random/OfficialZioRandomSpec.scala
+```scala
+package random
+
+import zio.test.*
+
+object OfficialZioRandomSpec
+    extends ZIOSpecDefault:
+  def spec =
+    suite("random")(
+      test("hello random")(
+        defer {
+          // Note: Once the test exhausts these
+          // values, it goes
+          // back to true random values.
+          TestRandom
+            .feedInts(
+              1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+            )
+            .run
+          val result =
+            Random.nextIntBounded(1000).run
+          assertTrue(result == 1)
+          val result2 =
+            Random.nextIntBounded(1000).run
+          assertTrue(result2 == 2)
+
+        }
+      ),
+      test(
+        "rosencrants and guildenstern are dead"
+      )(
+        defer {
+          val coinToss =
+            defer {
+              if (Random.nextBoolean.run)
+                ZIO
+                  .debug("ROSENCRANTZ: Heads.")
+                  .run
+              else
+                ZIO
+                  .fail(
+                    "Tails encountered. Ending performance."
+                  )
+                  .run
+            }
+          TestRandom
+            .feedBooleans(Seq.fill(100)(true)*)
+            .run
+          coinToss.repeatN(4).run
+
+          ZIO
+            .debug(
+              "GUILDENSTERN: There is an art to the building up of suspense."
+            )
+            .run
+          coinToss.run
+          ZIO
+            .debug(
+              "GUILDENSTERN: Though it can be done by luck alone."
+            )
+            .run
+          coinToss.run
+          assertCompletes
+
+        }
+      )
+    )
+end OfficialZioRandomSpec
+
+```
+
+
 ### experiments/src/test/scala/random/RunEffectfulGuessingGameSpec.scala
 ```scala
 package random
@@ -11,31 +84,19 @@ import zio.test.*
 import zio.internal.stacktracer.SourceLocation
 import console.FakeConsole
 
-/*
-def test[In](label: String)(
-  assertion: => In
-)(implicit
-  testConstructor: TestConstructor[Nothing, In],
-  sourceLocation: SourceLocation,
-  trace: Trace
-            ): testConstructor.Out =
-  zio.test.test(label)(assertion)
-
-
-val standaloneSpec =
-  test(
-    defer {
-      val res =
-        effectfulGuessingGame
-          .withConsole(
-            FakeConsole.single("3")
-          )
-          .provide(RandomBoundedInt.live)
-          .run
-      assertTrue(res == "BZZ Wrong!!")
-    }
-  )
-*/
+/* def test[In](label: String)( assertion: => In
+ * )(implicit testConstructor:
+ * TestConstructor[Nothing, In], sourceLocation:
+ * SourceLocation, trace: Trace ):
+ * testConstructor.Out =
+ * zio.test.test(label)(assertion)
+ *
+ * val standaloneSpec =
+ * test( defer { val res =
+ * effectfulGuessingGame .withConsole(
+ * FakeConsole.single("3") )
+ * .provide(RandomBoundedInt.live) .run
+ * assertTrue(res == "BZZ Wrong!!") } ) */
 
 object RunEffectfulGuessingGameSpec
     extends ZIOSpecDefault:
@@ -44,15 +105,14 @@ object RunEffectfulGuessingGameSpec
       defer {
         val res =
           effectfulGuessingGame
-            .withConsole(
-              FakeConsole.single("3")
-            )
+            .withConsole(FakeConsole.single("3"))
             .provide(RandomBoundedInt.live)
             .run
         assertTrue(res == "BZZ Wrong!!")
       }
     ) @@ TestAspect.flaky
-   // Highlight that we shouldn't need this TestAspect.
+  // Highlight that we shouldn't need this
+  // TestAspect.
 
   def spec =
     suite("GuessingGame")(
@@ -68,7 +128,9 @@ object RunEffectfulGuessingGameSpec
                 .run
             assertTrue(res == "BZZ Wrong!!")
           }
-        ) @@ TestAspect.flaky, // Highlight that we shouldn't need this TestAspect.
+        ) @@
+          TestAspect
+            .flaky, // Highlight that we shouldn't need this TestAspect.
         test("Testable")(
           defer {
             val res =

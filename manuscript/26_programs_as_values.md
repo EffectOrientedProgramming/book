@@ -29,8 +29,8 @@ val fullProcess: String => List[Friend] =
 //     ^^
 // error:
 // unused local definition
-// def friendsOf(user: User): ZIO[Any, Nothing, List[Friend]] =
-//               ^^^^
+//     user: User
+//     ^^^^
 // error: 
 // unused local definition
 ```
@@ -46,11 +46,11 @@ case class NotFound()
 ```scala
 def findUser(
     id: String
-): ZIO[Any, NotFound, User] =
-  ???
+): ZIO[Any, NotFound, User] = ???
 
-def friendsOf(user: User): ZIO[Any, Nothing, List[Friend]] =
-  ???
+def friendsOf(
+    user: User
+): ZIO[Any, Nothing, List[Friend]] = ???
 
 def fullProcess(
     id: String
@@ -65,8 +65,8 @@ def fullProcess(
 //     ^^
 // error:
 // unused local definition
-// def friendsOf(user: User): ZIO[Any, Nothing, List[Friend]] =
-//               ^^^^
+//     user: User
+//     ^^^^
 // error:
 // unused local definition
 // def fullProcess(
