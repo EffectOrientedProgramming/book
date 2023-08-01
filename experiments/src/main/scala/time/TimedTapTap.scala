@@ -33,12 +33,12 @@ object TimedTapTapBill extends ZIOAppDefault:
   def run =
     longRunning
       //      .race{ runningNotifier *> ZIO.never}
-
       .race {
         defer {
           runningNotifier.run
           ZIO.never.run
-          // TODO - Get zio-direct fixed so that it doesn't need this
+          // TODO - Get zio-direct fixed so that
+          // it doesn't need this
           ()
         }
       }

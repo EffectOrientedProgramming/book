@@ -3,18 +3,14 @@ package layers
 import zio.ZIO.debug
 
 case class Toilets()
-val toilets =
-  activityLayer(
-    entity = Toilets(),
-  )
+val toilets = activityLayer(entity = Toilets())
 
 case class Stage()
 val stage =
   activityLayer(
     entity = Stage(),
-    setupSteps =
-      ("Transporting", 2.seconds),
-      ("Building", 4.seconds),
+    setupSteps = ("Transporting", 2.seconds),
+    ("Building", 4.seconds)
   )
 
 case class Permit()
@@ -27,11 +23,11 @@ val permit =
 def activityLayer[T: Tag](
     entity: T,
     setupSteps: (String, Duration)*
-                 ) =
+) =
   ZLayer.scoped(
     ZIO.acquireRelease(
       ZIO.debug(entity.toString + " ACQUIRE") *>
-        ZIO.foreach(setupSteps){
+        ZIO.foreach(setupSteps) {
           case (name, duration) =>
             activity(
               entity.toString,
@@ -43,10 +39,10 @@ def activityLayer[T: Tag](
   )
 
 def activity(
-              entity: String,
-              name: String,
-              duration: Duration
-            ) =
+    entity: String,
+    name: String,
+    duration: Duration
+) =
   debug(s"$entity: BEGIN $name") *>
     debug(s"$entity: END $name").delay(duration)
 
@@ -136,9 +132,8 @@ case class FoodTruck()
 val foodtruck =
   activityLayer(
     entity = FoodTruck(),
-    setupSteps =
-      ("Fueling", 2.seconds),
-      ("FOODTRUCK: Driving in", 3.seconds),
+    setupSteps = ("Fueling", 2.seconds),
+    ("FOODTRUCK: Driving in", 3.seconds)
   )
 
 case class Festival(
@@ -194,4 +189,3 @@ val security: ZLayer[
       debug("SECURITY: Going home")
     }
   }
-

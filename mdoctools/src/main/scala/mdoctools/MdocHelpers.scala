@@ -121,4 +121,4 @@ def runDemo[E, A](z: => ZIO[Any, E, A]): Unit =
       .getOrThrowFiberFailure()
   }
 
-// Should be copied!
+// TODO Make a function that will execute a ZIO test case

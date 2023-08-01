@@ -316,11 +316,11 @@ object Booker extends ZIOAppDefault:
 
     for
       flatFiles <- BookerTools.orderedChapters(f)
-      result    <-
-//        ReorderExistingApp
-        AddNewChapterApp
+      result <-
+        ReorderExistingApp
+//        AddNewChapterApp
           .run(CliStateSimp(flatFiles))
-          .provide(TUI.live(false))
+          .provide(TUI.live(true))
       _ <- printLine(result)
     yield ()
 
