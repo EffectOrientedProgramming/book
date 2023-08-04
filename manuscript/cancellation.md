@@ -31,7 +31,7 @@ object HelloCancellation2 extends ZIOAppDefault:
       ZIO.debug("Interrupted Complex")
     )
 
-  def run = complex // .timeout(2.seconds)
+  def run = complex.timeout(2.seconds)
 
 object CancellationWeb extends ZIOAppDefault:
 
