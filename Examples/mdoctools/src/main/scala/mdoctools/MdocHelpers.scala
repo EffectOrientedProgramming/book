@@ -24,11 +24,10 @@ private def renderThrowable(
     .split("\n")
     .map(line =>
       if (line.length > columnWidth)
-        println(
-          "Need to handle long line. \n" +
-            "Truncating for now: \n" + line
+        throw new Exception(
+          "Need to handle stacktrace line: " +
+            line
         )
-        line.take(columnWidth)
       else
         line
     )
@@ -86,9 +85,11 @@ def wrapUnsafeZIOReportError[E, A](
         .split("\n")
         .map(line =>
           if (line.length > columnWidth)
-            throw new Exception(
-              "Line too long: \n" + line
+            println(
+              "Need to handle long line. \n" +
+                "Truncating for now: \n" + line
             )
+            line.take(columnWidth)
           else
             line
         )
@@ -111,13 +112,13 @@ def runDemoValue[E, A](
       .getOrThrowFiberFailure()
   }
 
+@annotation.nowarn
 def runDemo[E, A](z: => ZIO[Any, E, A]): Unit =
   Unsafe.unsafe { (u: Unsafe) =>
     given Unsafe = u
     unsafe
       .run(wrapUnsafeZIOReportError(z))
       .getOrThrowFiberFailure()
-    //      .getOrThrowFiberFailure()
   }
 
-// Should be copied!
+// TODO Make a function that will execute a ZIO test case

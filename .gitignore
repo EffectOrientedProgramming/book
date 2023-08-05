@@ -27,3 +27,4 @@ illustratedPrimer/src/main/resources/dist/
 illustratedPrimer/tailwind.config.js
 mdoctools/target/*
 mdoctools/project/target/*
+mdoctools/project/

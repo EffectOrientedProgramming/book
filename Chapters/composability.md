@@ -17,10 +17,12 @@ Other framings/techniques and their pros/cons:
     - All of these types must be manually transformed into the other types
 - Functions that return a Future
     - Can be interrupted
+    - Manual management of cancellation
     - Start executing immediately
     - Must all fail with Exception
 - Implicits
   - Are not automatically managed by the compiler, you must explicitly add each one to your parent function
+  - Resolving the origin of a provided implicit can be challenging
 - Try-with-resources
   - These are statically scoped
   - Unclear who is responsible for acquisition & cleanup
@@ -33,8 +35,34 @@ The ordering of the nesting is significant, and not easily changed.
 The number of combinations is something like:
   PairsIn(numberOfConcepts)
 
+Universal Composability with ZIO
 
+ZIOs compose including errors, async, blocking, resource managed, cancellation, eitherness, environmental requirements.
 
+The types expand through generic parameters. ie composing a ZIO with an error of `String` with a ZIO with an error of `Int` results in a ZIO with an error of `String | Int`.
+
+With functions there is one way to compose. `f(g(h))` will sequentially apply the functions from the inside out.  Another term for this form of composition is called `andThen` in Scala.
+
+With ZIO you can do an `andThen` to compose ZIOs sequentially with:
+```scala mdoc
+defer {
+  val asdf = ZIO.succeed("asdf").run
+  ZIO.succeed(asdf.toUpperCase).run
+}
+```
+
+There are many other ways you can compose ZIOs.  The methods for composability depend on the desired behavior.  For example, to compose a ZIO that can produce an error with a ZIO that logs the error and then produces a default value, you can use the `catchAll` like:
+
+```scala mdoc
+ZIO
+  .attempt("asdf")
+  .catchAll { e =>
+    defer {
+      ZIO.logError(e.getMessage).run
+      ZIO.succeed("default value").run
+    }
+  }
+```
 
 
 `Composability` has a diverse collection of definitions, depending on who you ask.

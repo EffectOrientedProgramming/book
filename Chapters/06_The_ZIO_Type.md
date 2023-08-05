@@ -6,8 +6,6 @@ We need an `Answer` about this scenario.  The scenario requires things and could
 trait ZIO[Requirements, Error, Answer]
 ```
 
-One downside of these type parameters 
-
 
 The `ZIO` trait is at the center of our Effect-oriented world.
 
@@ -68,14 +66,14 @@ And even some Java types -
 ```scala mdoc
 import scala.concurrent.Future
 
-val zFuture =
+runDemo(
   ZIO.fromFuture(implicit ec =>
     Future.successful("Success!")
   )
-val zFutureFailed =
+)
+runDemo(
   ZIO.fromFuture(implicit ec =>
     Future.failed(new Exception("Failure :("))
   )
-runDemo(zFuture)
-runDemo(zFutureFailed)
+)
 ```
