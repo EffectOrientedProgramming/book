@@ -80,13 +80,29 @@ TestRandom.feedInts(1, 2, 3)
 TestRandom.feedLongs(1L, 2L, 3L)
 TestRandom.feedStrings("a", "b", "c")
 TestRandom.feedUUIDs(
-  java.util.UUID.fromString("00000000-0000-0000-0000-000000000000"),
-  java.util.UUID.fromString("00000000-0000-0000-0000-000000000001"),
-  java.util.UUID.fromString("00000000-0000-0000-0000-000000000002")
+  java
+    .util
+    .UUID
+    .fromString(
+      "00000000-0000-0000-0000-000000000000"
+    ),
+  java
+    .util
+    .UUID
+    .fromString(
+      "00000000-0000-0000-0000-000000000001"
+    ),
+  java
+    .util
+    .UUID
+    .fromString(
+      "00000000-0000-0000-0000-000000000002"
+    )
 )
 ```
 
 ```scala mdoc
+
 ```
 
 If needed, you can also clear out these values by calling the various `clear` methods.
