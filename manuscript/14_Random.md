@@ -32,7 +32,7 @@ class MutableRNG(var seed: Int):
 
 ```scala
 val rng = MutableRNG(1)
-// rng: MutableRNG = repl.MdocSession$MdocApp$MutableRNG@22a36e2b
+// rng: MutableRNG = repl.MdocSession$MdocApp$MutableRNG@6541877
 rng.nextInt()
 // res0: Int = 357
 rng.nextInt()
@@ -45,7 +45,7 @@ Let's see what happens if we make a new instance with the same seed.
 
 ```scala
 val rngDuplicate = MutableRNG(1)
-// rngDuplicate: MutableRNG = repl.MdocSession$MdocApp$MutableRNG@2d7ed77c
+// rngDuplicate: MutableRNG = repl.MdocSession$MdocApp$MutableRNG@6d3fa642
 rngDuplicate.nextInt()
 // res3: Int = 357
 rngDuplicate.nextInt()
@@ -88,9 +88,24 @@ TestRandom.feedInts(1, 2, 3)
 TestRandom.feedLongs(1L, 2L, 3L)
 TestRandom.feedStrings("a", "b", "c")
 TestRandom.feedUUIDs(
-  java.util.UUID.fromString("00000000-0000-0000-0000-000000000000"),
-  java.util.UUID.fromString("00000000-0000-0000-0000-000000000001"),
-  java.util.UUID.fromString("00000000-0000-0000-0000-000000000002")
+  java
+    .util
+    .UUID
+    .fromString(
+      "00000000-0000-0000-0000-000000000000"
+    ),
+  java
+    .util
+    .UUID
+    .fromString(
+      "00000000-0000-0000-0000-000000000001"
+    ),
+  java
+    .util
+    .UUID
+    .fromString(
+      "00000000-0000-0000-0000-000000000002"
+    )
 )
 ```
 

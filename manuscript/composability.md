@@ -53,33 +53,35 @@ defer {
 //   trace = "zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res0(composability.md:8)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$2086/0x0000000100a7fc40@73557f0d
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$2086/0x0000000100a7fc40@3dee97ca
 //   ),
-//   successK = repl.MdocSession$MdocApp$$Lambda$4012/0x0000000100fa0040@495345b
+//   successK = repl.MdocSession$MdocApp$$Lambda$4012/0x0000000101099040@5305f16d
 // )
 ```
 
 There are many other ways you can compose ZIOs.  The methods for composability depend on the desired behavior.  For example, to compose a ZIO that can produce an error with a ZIO that logs the error and then produces a default value, you can use the `catchAll` like:
 
 ```scala
-ZIO.attempt("asdf").catchAll { e =>
-  defer {
-    ZIO.logError(e.getMessage).run
-    ZIO.succeed("default value").run
+ZIO
+  .attempt("asdf")
+  .catchAll { e =>
+    defer {
+      ZIO.logError(e.getMessage).run
+      ZIO.succeed("default value").run
+    }
   }
-}
 // res1: ZIO[Any, Nothing, String] = OnSuccessAndFailure(
-//   trace = "repl.MdocSession.MdocApp.res1(composability.md:23)",
+//   trace = "repl.MdocSession.MdocApp.res1(composability.md:25)",
 //   first = OnSuccess(
-//     trace = "repl.MdocSession.MdocApp.res1(composability.md:18)",
+//     trace = "repl.MdocSession.MdocApp.res1(composability.md:19)",
 //     first = Sync(
-//       trace = "repl.MdocSession.MdocApp.res1(composability.md:18)",
-//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$2086/0x0000000100a7fc40@2ed0a3b1
+//       trace = "repl.MdocSession.MdocApp.res1(composability.md:19)",
+//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$2086/0x0000000100a7fc40@55d6501a
 //     ),
-//     successK = zio.ZIO$$$Lambda$2088/0x0000000100a7d840@6ed66fe8
+//     successK = zio.ZIO$$$Lambda$2088/0x0000000100a7d840@283778be
 //   ),
-//   successK = zio.ZIO$$Lambda$2099/0x0000000100a93840@52f56ad7,
-//   failureK = zio.ZIO$$Lambda$2100/0x0000000100a94040@a80da93
+//   successK = zio.ZIO$$Lambda$2099/0x0000000100a93840@3f36dedf,
+//   failureK = zio.ZIO$$Lambda$2100/0x0000000100a94040@762f5e34
 // )
 ```
 
