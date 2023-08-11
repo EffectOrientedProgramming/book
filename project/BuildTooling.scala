@@ -453,7 +453,7 @@ object BuildTooling {
           "dev.zio"   %% "zio-test-sbt" %
             zioVersion % Test,
           "dev.zio"   %% "zio-prelude" %
-            "1.0.0-RC19"
+            "1.0.0-RC20"
         ),
       scalaVersion := "3.3.0",
       scalacOptions -= "-explain-types",
