@@ -446,7 +446,7 @@ object BuildTooling {
               "metaconfig-core"
             ) excludeAll
             ("org.typelevel", "paiges-core"),
-          "dev.zio" %% "zio-logging" % "2.1.13",
+          "dev.zio" %% "zio-logging" % "2.1.14",
           "dev.zio" %% "zio-streams" %
             zioVersion,
           "dev.zio"   %% "zio-test" % zioVersion,
