@@ -53,9 +53,9 @@ defer {
 //   trace = "zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res0(composability.md:8)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$2086/0x0000000100a7fc40@4ca3ebeb
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$2086/0x0000000100a7fc40@5d22a6b9
 //   ),
-//   successK = repl.MdocSession$MdocApp$$Lambda$4011/0x000000010107e040@4073e349
+//   successK = repl.MdocSession$MdocApp$$Lambda$4005/0x0000000100ea1840@4e694722
 // )
 ```
 
@@ -76,12 +76,12 @@ ZIO
 //     trace = "repl.MdocSession.MdocApp.res1(composability.md:19)",
 //     first = Sync(
 //       trace = "repl.MdocSession.MdocApp.res1(composability.md:19)",
-//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$2086/0x0000000100a7fc40@598bb78e
+//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$2086/0x0000000100a7fc40@740b2924
 //     ),
-//     successK = zio.ZIO$$$Lambda$2088/0x0000000100a7d840@271e60ca
+//     successK = zio.ZIO$$$Lambda$2088/0x0000000100a7d840@30d9004d
 //   ),
-//   successK = zio.ZIO$$Lambda$2099/0x0000000100a93840@5588ca1d,
-//   failureK = zio.ZIO$$Lambda$2100/0x0000000100a94040@6a79ff4
+//   successK = zio.ZIO$$Lambda$2099/0x0000000100a93840@27a7152a,
+//   failureK = zio.ZIO$$Lambda$2100/0x0000000100a94040@6f787809
 // )
 ```
 
