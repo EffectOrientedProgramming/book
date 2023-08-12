@@ -282,6 +282,7 @@ Take extra care when interacting with legacy code, since we cannot automatically
 We have 2 options in these situations.
 
 First, we can provide a fallback case that will report anything we missed:
+
 ```scala mdoc
 def getTemperatureZWithFallback(
     behavior: Scenario
@@ -303,6 +304,7 @@ runDemo(
 ```
 
 This lets us avoid the most egregious gaps in functionality, but it does not take full advantage of ZIO's type-safety.
+
 ```scala mdoc
 def getTemperatureZAndFlagUnhandled(
     behavior: Scenario
