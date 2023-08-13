@@ -305,6 +305,19 @@ object BuildTooling {
         .sortBy(_.toFile.getName)
         .map(ProseFile)
 
+    def attachEditLink(proseFile: ProseFile): Unit =
+      IO.append(
+        proseFile.p.toFile,
+        // TODO Verify this link
+        s"""
+           |## Edit This Chapter
+           |[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/${proseFile.p.getFileName.toString})
+           |""".stripMargin
+      )
+
+    proseFiles.foreach(attachEditLink)
+//    attachEditLink(value)
+
     def packageName(
         experimentFile: ExperimentFile
     ) =
@@ -357,15 +370,6 @@ object BuildTooling {
 
         proseFileOnSameTopic match {
           case Some(value) =>
-            def attachEditLink(proseFile: ProseFile): Unit =
-              IO.append(
-                proseFile.p.toFile,
-                // TODO Verify this link
-                s"\n[https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/${proseFile.p.getFileName.toString}](Edit This page)\n"
-              )
-
-            println("Attaching examples to existing prose file: " + value.cleanName)
-            attachEditLink(value)
             appendExperimentsToMatchingProseFile(
               value,
               allFences
