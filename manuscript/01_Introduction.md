@@ -214,3 +214,6 @@ As long as this book is cited, using examples from the book in most media is gen
 Kit Langton, for being a kindred spirit in software interests and inspiring contributor to the open source world.
 
 Wyett Considine, for being an enthusiastic intern and initial audience.
+
+## Edit This Chapter
+[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/01_Introduction.md)

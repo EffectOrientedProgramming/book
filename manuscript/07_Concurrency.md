@@ -1,7 +1,8 @@
 # Concurrency
 
 TODO Prose
-[https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/07_Concurrency.md](Edit This page)
+## Edit This Chapter
+[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/07_Concurrency.md)
 
 
 ## Automatically attached experiments.

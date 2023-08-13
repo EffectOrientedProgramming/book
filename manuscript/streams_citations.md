@@ -52,3 +52,6 @@ while maintaining some cursor that represents where we currently are in reading 
     } Console.printLine((x, y).toString).orDie
 This now just describes running these two streams and printing the values they produce to the console."
 - Zionomicon
+
+## Edit This Chapter
+[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/streams_citations.md)

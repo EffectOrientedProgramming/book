@@ -18,3 +18,6 @@ If we check the docs for this function, we find:
  * into the same IP addresses
  */
 ```
+
+## Edit This Chapter
+[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/25_network.md)

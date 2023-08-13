@@ -2,7 +2,8 @@
 
 This is going to be a tough one.
 
-[https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/22_STM.md](Edit This page)
+## Edit This Chapter
+[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/22_STM.md)
 
 
 ## Automatically attached experiments.

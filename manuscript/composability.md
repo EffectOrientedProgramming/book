@@ -53,9 +53,9 @@ defer {
 //   trace = "zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res0(composability.md:8)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$2086/0x0000000100a7f440@ad8c28d
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$2086/0x0000000100a7ec40@6d1538b9
 //   ),
-//   successK = repl.MdocSession$MdocApp$$Lambda$4005/0x0000000100fed840@21c60504
+//   successK = repl.MdocSession$MdocApp$$Lambda$4012/0x00000001010ac840@6a51a375
 // )
 ```
 
@@ -76,12 +76,12 @@ ZIO
 //     trace = "repl.MdocSession.MdocApp.res1(composability.md:19)",
 //     first = Sync(
 //       trace = "repl.MdocSession.MdocApp.res1(composability.md:19)",
-//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$2086/0x0000000100a7f440@6d0c1270
+//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$2086/0x0000000100a7ec40@4ef8b2da
 //     ),
-//     successK = zio.ZIO$$$Lambda$2088/0x0000000100a7d040@3eedbc30
+//     successK = zio.ZIO$$$Lambda$2088/0x0000000100a7c840@7432017d
 //   ),
-//   successK = zio.ZIO$$Lambda$2099/0x0000000100a93040@1971338d,
-//   failureK = zio.ZIO$$Lambda$2100/0x0000000100a94040@55715684
+//   successK = zio.ZIO$$Lambda$2099/0x0000000100a93840@33135373,
+//   failureK = zio.ZIO$$Lambda$2100/0x0000000100a94040@77077558
 // )
 ```
 
@@ -211,3 +211,6 @@ Our code can only use the telescope a single time before its permanently unavail
 
 // TODO Demo Try-with-resources
 // TODO Show how Try-with-resources does not cover our needs during dependency injection
+
+## Edit This Chapter
+[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/composability.md)

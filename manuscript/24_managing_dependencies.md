@@ -78,3 +78,6 @@ Pros
 Cons
 - Does not follow normal control flow or composition
 - Typically, relies on some framework-level processing that is not easily controlled by the user
+
+## Edit This Chapter
+[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/24_managing_dependencies.md)

@@ -352,7 +352,8 @@ runDemo(
 
 
 {{TODO show catchSome}}
-[https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/15_Hello_Failures.md](Edit This page)
+## Edit This Chapter
+[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/15_Hello_Failures.md)
 
 
 ## Automatically attached experiments.

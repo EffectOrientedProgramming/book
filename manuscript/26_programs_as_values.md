@@ -72,3 +72,6 @@ def fullProcess(
 // def fullProcess(
 //     ^^^^^^^^^^^
 ```
+
+## Edit This Chapter
+[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/26_programs_as_values.md)

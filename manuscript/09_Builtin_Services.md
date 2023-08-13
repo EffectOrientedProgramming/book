@@ -15,3 +15,5 @@ Late in the development of ZIO 2.0, the team decided to bake these deeper into t
 Now you can use any of these services without an impact on your method signatures.
 This reduces boilerplate, with a trade-off.
 You can no longer discern _which_ piece of the Environment/Runtime is being accessed by reading the signature.
+## Edit This Chapter
+[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/09_Builtin_Services.md)

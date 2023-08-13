@@ -269,3 +269,6 @@ Adopting some of the styles found in functional programming does not make a lang
 In this book we want to get to the heart of what it means to be functional.
 In particular, we want to show what it takes to make *reliable* functional code that can be composed without propagating or amplifying flaws in its components.
 A core way this is accomplished in ZIO is through the use of *monads*, which we gently introduce in the next chapter.
+
+## Edit This Chapter
+[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/02_Why_Functional.md)

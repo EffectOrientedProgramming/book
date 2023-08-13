@@ -21,7 +21,8 @@ Possible Scenarios:
     - Anti-terrorism
     - Surge pricing / smoothing
     - Disease spread tracking
-[https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/20_Streams.md](Edit This page)
+## Edit This Chapter
+[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/20_Streams.md)
 
 
 ## Automatically attached experiments.
