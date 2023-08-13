@@ -305,14 +305,19 @@ object BuildTooling {
         .sortBy(_.toFile.getName)
         .map(ProseFile)
 
-    def attachEditLink(proseFile: ProseFile): Unit =
+    def attachEditLink(
+        proseFile: ProseFile
+    ): Unit =
       IO.append(
         proseFile.p.toFile,
         // TODO Verify this link
         s"""
            |
            |## Edit This Chapter
-           |[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/${proseFile.p.getFileName.toString})
+           |[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/${proseFile
+            .p
+            .getFileName
+            .toString})
            |""".stripMargin
       )
 
