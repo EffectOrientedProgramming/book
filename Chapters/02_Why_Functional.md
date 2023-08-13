@@ -205,7 +205,8 @@ This OO ceremony attempts to create predictability by knowing how the data struc
 
 Functional programming abstracts common behavior into reusable functional components. 
 These components are adapted to specific needs using other functions. 
-This is why lambdas are so important, because you constantly need to adapt general code to specific purposes, often with a brief amount of code that would otherwise be awkward and intrusive to right as a standalone function.
+This is why lambdas are so important, because you constantly need to adapt general code to specific purposes, 
+They enable concise code that would otherwise be awkward and intrusive to right as a standalone function.
 
 Functions in a functional language don't need to be tied to a particular data structure.
 Thus, they can often be written for more general use and to reduce duplication.
@@ -225,10 +226,13 @@ This is why lambdas are so important, because you constantly need to adapt gener
 The two things we do with functions is compose them to make more complex functions, and adapt to them to our specific problem.
 
 We assume that many readers are attracted to this book because they have some experience with functional programming constructs in other languages such as Java (version 8 or newer), Kotlin, Python or some other language that provides a modicum of support.
-However, we also assume you have heard---or you have a sense---that there could be significantly more than, for example, a function's ability to create other functions, or putting elements into a stream and acting upon that stream with `map`, or parallelizing stream operations.
+However, we also assume you have heard---or you have a sense---that there could be significantly more than:
+
+- a function's ability to create other functions
+- transforming elemements in a collection using `map`
+
 Those are indeed important benefits, but they just dip into the possibilities.
 Adopting some of the styles found in functional programming does not make a language functional.
 
 In this book we want to get to the heart of what it means to be functional.
 In particular, we want to show what it takes to make *reliable* functional code that can be composed without propagating or amplifying flaws in its components.
-A core way this is accomplished in ZIO is through the use of *monads*, which we gently introduce in the next chapter.
