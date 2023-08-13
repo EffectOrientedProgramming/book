@@ -357,6 +357,15 @@ object BuildTooling {
 
         proseFileOnSameTopic match {
           case Some(value) =>
+            def attachEditLink(proseFile: ProseFile): Unit =
+              IO.append(
+                proseFile.p.toFile,
+                // TODO Verify this link
+                s"\n[https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/${proseFile.p.getFileName.toString}](Edit This page)\n"
+              )
+
+            println("Attaching examples to existing prose file: " + value.cleanName)
+            attachEditLink(value)
             appendExperimentsToMatchingProseFile(
               value,
               allFences
