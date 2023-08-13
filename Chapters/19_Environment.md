@@ -62,6 +62,14 @@ Now look at the `get` implementation to see how this is used.
 
 
 ## Use Cases
-- Database Connections
+
+### Database Connections
+
+Your application will manage an arbitrary number of database connections.
+By making it part of the environment, you can start manipulating the runtime behavior in powerful ways:
+
+- Batching requests
+- ???
+
 - Scope
 - ???

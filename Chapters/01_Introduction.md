@@ -58,7 +58,9 @@ There are many other examples of carefully-built software systems failing disast
   for metric but ground control software used non-metric English.
 
 The list goes on; just search for something like "Famous Software Failures" to see more.
-And consider security; all the applications you use that are constantly being updated with security patches (what about those that aren't? Are they that good, or is security being ignored?).
+And consider security- all the applications you use that are constantly being updated with security patches.
+What about those that aren't? 
+Are they that good, or is security being ignored?
 
 How did things get so bad?
 
@@ -110,7 +112,7 @@ What if we could change our thinking around the problem of building software sys
 Imagine building small pieces that can each be reasoned about and made rock-solid.
 Now suppose there is a way to combine these reliable pieces to make bigger parts that are just as reliable.
 Each time you combine smaller parts to create a bigger part, the result inherits the reliability of its components.
-Instead of multiplying unreliability, you combine reliability.
+Instead of multiplying unreliability, you maintain reliability.
 The resulting system is as reliable as any of its components.
 
 This is what *functional programming* together with *effects management* can achieve.
@@ -124,7 +126,7 @@ We then combine the smaller concepts, ensuring reliability at each step.
 A reliable system isolates parts that are always the same (pure functions) from the parts that can change (effects).
 This mathematical rigor produces a reliable system.
 
-It can seem like a painfully long process before you begin writing working programs. // TODO Discuss
+Some aspects of writing code in this style might seem onerous.
 Most of us are used to the more immediate feedback and satisfaction of getting something working, so this can be challenging.
 But would you rather create an unreliable system quickly?
 We assume you are reading this book because you do not.
