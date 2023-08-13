@@ -310,6 +310,7 @@ object BuildTooling {
         proseFile.p.toFile,
         // TODO Verify this link
         s"""
+           |
            |## Edit This Chapter
            |[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/${proseFile.p.getFileName.toString})
            |""".stripMargin
