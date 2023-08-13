@@ -2,6 +2,7 @@
 
 This is going to be a tough one.
 
+
 ## Edit This Chapter
 [Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/22_STM.md)
 

@@ -155,5 +155,6 @@ case class SomeServices(userService: UserService, accountService: AccountService
 You have the ability to handle all the possible errors from your logic without needing to create a new name that encompasses all of them.
 
 
+
 ## Edit This Chapter
 [Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/08_And__Or.md)

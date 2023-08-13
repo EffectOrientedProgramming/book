@@ -71,5 +71,6 @@ Here our simple program performs 3 very different side-effects, but everything i
 If we extrapolate this is to a production application with hundreds and thousands of functions, it is overwhelming.
 
 Ideally, we could leverage the type system and the compiler to track the requirements for arbitrarily complex pieces of code.
+
 ## Edit This Chapter
 [Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/05_Unit.md)

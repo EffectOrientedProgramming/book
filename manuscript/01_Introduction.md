@@ -215,5 +215,6 @@ Kit Langton, for being a kindred spirit in software interests and inspiring cont
 
 Wyett Considine, for being an enthusiastic intern and initial audience.
 
+
 ## Edit This Chapter
 [Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/01_Introduction.md)

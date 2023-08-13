@@ -29,5 +29,6 @@ Then, you end up with `1/n^3` chance of getting that worst performance.
 # Racing
 
 
+
 ## Edit This Chapter
 [Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/performance_techniques.md)

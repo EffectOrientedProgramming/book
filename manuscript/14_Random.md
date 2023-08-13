@@ -33,7 +33,7 @@ class MutableRNG(var seed: Int):
 
 ```scala
 val rng = MutableRNG(1)
-// rng: MutableRNG = repl.MdocSession$MdocApp$MutableRNG@12f795bb
+// rng: MutableRNG = repl.MdocSession$MdocApp$MutableRNG@31e2aec1
 rng.nextInt()
 // res0: Int = 357
 rng.nextInt()
@@ -46,7 +46,7 @@ Let's see what happens if we make a new instance with the same seed.
 
 ```scala
 val rngDuplicate = MutableRNG(1)
-// rngDuplicate: MutableRNG = repl.MdocSession$MdocApp$MutableRNG@1d13d1df
+// rngDuplicate: MutableRNG = repl.MdocSession$MdocApp$MutableRNG@78a127d0
 rngDuplicate.nextInt()
 // res3: Int = 357
 rngDuplicate.nextInt()
@@ -121,6 +121,7 @@ TestRandom.clearBooleans
 TestRandom.clearBytes
 // etc ...
 ```
+
 ## Edit This Chapter
 [Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/14_Random.md)
 

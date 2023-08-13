@@ -17,7 +17,7 @@
 16_Cause.md
 17_New_Effects.md
 18_Location.md
-19_Environment_Exploration.md
+19_Environment.md
 20_Streams.md
 21_Resources.md
 22_STM.md
@@ -35,6 +35,7 @@ javawrappers.md
 layers.md
 experiments-src-test-scala-random.md
 Hubs.md
+environment-opaque.md
 energygrid.md
 experiments-src-test-scala-energrygrid.md
 logging.md
@@ -49,7 +50,6 @@ interpreter-level1_nochaining.md
 experiments-src-test-scala-testcontainers.md
 schema.md
 cancellation.md
-environment_exploration-opaque.md
 virtual_meeting.md
 zio.md
 rezilience.md

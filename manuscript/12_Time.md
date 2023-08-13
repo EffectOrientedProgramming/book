@@ -22,6 +22,7 @@ How often it is overlooked/minimized
 Example possibilities
     - Progress bar
     - query(largeRange) followed by query(smallRange), and getting new results in the 2nd call
+
 ## Edit This Chapter
 [Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/12_Time.md)
 

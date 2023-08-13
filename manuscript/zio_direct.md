@@ -33,6 +33,7 @@ After you have accomplished _that_, you have trained your student to write sligh
     - Cannot end a defer block with a `ZIO[_,_,Nothing]`
         It currently fails with a very cryptic missing argument message
 
+
 ## Edit This Chapter
 [Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/zio_direct.md)
 

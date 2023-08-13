@@ -18,6 +18,7 @@ We could start with things like `echo` or `ls`, but those are easily done within
 ## Running other programming languages
 ### Python
 ### Scala
+
 ## Edit This Chapter
 [Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/23_Executing_External_Programs.md)
 

@@ -40,9 +40,10 @@ object Demo extends ZIOAppDefault:
 Demo.run
 // res1: ZIO[ZIOAppArgs & Scope, Any, Any] = Sync(
 //   trace = "repl.MdocSession.MdocApp.Demo.run(03_why_start_with_zio.md:15)",
-//   eval = zio.ZIOCompanionVersionSpecific$$Lambda$2086/0x0000000100a7ec40@4f3a8e3e
+//   eval = zio.ZIOCompanionVersionSpecific$$Lambda$2084/0x0000000100a7fc40@4f3a8e3e
 // )
 ```
+
 
 ## Edit This Chapter
 [Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/03_why_start_with_zio.md)

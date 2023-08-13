@@ -96,5 +96,6 @@ Side-effecting code observes or changes the world in some way that is not appare
 Effectful code signals this in the type signature.
 
 
+
 ## Edit This Chapter
 [Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/04_Effects.md)

@@ -84,7 +84,7 @@ def m4 = interpreter(program)
 ```scala
 package interpreter.level2_chaining
 
-import environment_exploration.ToyEnvironment
+import environment.ToyEnvironment
 
 def interpret(
     env: ToyEnvironment[
