@@ -46,9 +46,9 @@ val thrownLogic =
 //   trace = "repl.MdocSession.MdocApp.thrownLogic(16_Cause.md:37)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.thrownLogic(16_Cause.md:37)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$2086/0x0000000100a7fc40@142f0f23
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$2086/0x0000000100a7f440@3578b49c
 //   ),
-//   successK = zio.ZIO$$$Lambda$2088/0x0000000100a7d840@30d9004d
+//   successK = zio.ZIO$$$Lambda$2088/0x0000000100a7d040@3eedbc30
 // )
 runDemo(thrownLogic)
 // java.lang.Exception: Release Failed
@@ -71,6 +71,8 @@ Once you add `throw`, the rules are more complicated
 
 ### Linear reporting
 Everything must be reported linearly, even in systems that are executing on different fibers, across several threads, amongst multiple cores.
+
+[https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/16_Cause.md](Edit This page)
 
 
 ## Automatically attached experiments.

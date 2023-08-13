@@ -1,6 +1,8 @@
 # Concurrency
 
 TODO Prose
+[https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/07_Concurrency.md](Edit This page)
+
 
 ## Automatically attached experiments.
  These are included at the end of this

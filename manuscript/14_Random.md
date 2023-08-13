@@ -18,6 +18,7 @@ It probably doesn't seem any more unusual than calling `squareRoot` or `sin`.
 
 We use pseudorandom algorithms to produce output that is sufficiently random for some applications.
 These are initialized with a seed value that determines all the following output.
+
 ```scala
 class MutableRNG(var seed: Int):
 
@@ -32,7 +33,7 @@ class MutableRNG(var seed: Int):
 
 ```scala
 val rng = MutableRNG(1)
-// rng: MutableRNG = repl.MdocSession$MdocApp$MutableRNG@5e776a10
+// rng: MutableRNG = repl.MdocSession$MdocApp$MutableRNG@58f05f55
 rng.nextInt()
 // res0: Int = 357
 rng.nextInt()
@@ -45,7 +46,7 @@ Let's see what happens if we make a new instance with the same seed.
 
 ```scala
 val rngDuplicate = MutableRNG(1)
-// rngDuplicate: MutableRNG = repl.MdocSession$MdocApp$MutableRNG@387901cf
+// rngDuplicate: MutableRNG = repl.MdocSession$MdocApp$MutableRNG@1a5d7f2e
 rngDuplicate.nextInt()
 // res3: Int = 357
 rngDuplicate.nextInt()
@@ -120,6 +121,8 @@ TestRandom.clearBooleans
 TestRandom.clearBytes
 // etc ...
 ```
+[https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/14_Random.md](Edit This page)
+
 
 ## Automatically attached experiments.
  These are included at the end of this

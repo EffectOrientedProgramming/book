@@ -304,6 +304,7 @@ Take extra care when interacting with legacy code, since we cannot automatically
 We have 2 options in these situations.
 
 First, we can provide a fallback case that will report anything we missed:
+
 ```scala
 def getTemperatureZWithFallback(
     behavior: Scenario
@@ -326,6 +327,7 @@ runDemo(
 ```
 
 This lets us avoid the most egregious gaps in functionality, but it does not take full advantage of ZIO's type-safety.
+
 ```scala
 def getTemperatureZAndFlagUnhandled(
     behavior: Scenario
@@ -350,6 +352,8 @@ runDemo(
 
 
 {{TODO show catchSome}}
+[https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/15_Hello_Failures.md](Edit This page)
+
 
 ## Automatically attached experiments.
  These are included at the end of this

@@ -58,6 +58,8 @@ Now look at the `get` implementation to see how this is used.
 - Better Ergonomics than ZEnvironment
 - Shared by default
 
+[https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/19_Environment_Exploration.md](Edit This page)
+
 
 ## Automatically attached experiments.
  These are included at the end of this

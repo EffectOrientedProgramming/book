@@ -177,6 +177,8 @@ runDemo(
 // ()
 ```
 
+[https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/10_Console.md](Edit This page)
+
 
 ## Automatically attached experiments.
  These are included at the end of this
