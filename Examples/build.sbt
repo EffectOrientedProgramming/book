@@ -52,11 +52,11 @@ libraryDependencies ++= Seq(
       "metaconfig-core"
     ) excludeAll
     ("org.typelevel", "paiges-core"),
-  "dev.zio" %% "zio-logging" % "2.1.13",
+  "dev.zio" %% "zio-logging" % "2.1.14",
   "dev.zio" %% "zio-streams" % zioVersion,
   "dev.zio" %% "zio-test" % zioVersion,
   "dev.zio" %% "zio-test-sbt" % zioVersion % Test,
-  "dev.zio" %% "zio-prelude" % "1.0.0-RC19",
+  "dev.zio" %% "zio-prelude" % "1.0.0-RC20",
 
   "io.github.scottweaver" %% "zio-2-0-testcontainers-postgresql" % "0.9.0",
   "io.github.scottweaver" %% "zio-2-0-db-migration-aspect" % "0.9.0",

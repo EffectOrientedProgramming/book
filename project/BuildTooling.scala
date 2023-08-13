@@ -446,14 +446,14 @@ object BuildTooling {
               "metaconfig-core"
             ) excludeAll
             ("org.typelevel", "paiges-core"),
-          "dev.zio" %% "zio-logging" % "2.1.13",
+          "dev.zio" %% "zio-logging" % "2.1.14",
           "dev.zio" %% "zio-streams" %
             zioVersion,
           "dev.zio"   %% "zio-test" % zioVersion,
           "dev.zio"   %% "zio-test-sbt" %
             zioVersion % Test,
           "dev.zio"   %% "zio-prelude" %
-            "1.0.0-RC19"
+            "1.0.0-RC20"
         ),
       scalaVersion := "3.3.0",
       scalacOptions -= "-explain-types",
