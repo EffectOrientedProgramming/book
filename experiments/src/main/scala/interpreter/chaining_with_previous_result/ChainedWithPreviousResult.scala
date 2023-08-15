@@ -1,6 +1,6 @@
 package interpreter.chaining_with_previous_result
 
-import environment_exploration.ToyEnvironment
+import environment.ToyEnvironment
 
 import scala.reflect.ClassTag
 import scala.util.Random

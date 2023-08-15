@@ -1,4 +1,4 @@
-package environment_exploration.opaque
+package environment.opaque
 
 import scala.reflect.{ClassTag, classTag}
 

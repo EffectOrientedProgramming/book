@@ -10,7 +10,7 @@ Python has always allowed functions to be passed into, be created by, and be ret
 C++, especially more recent versions, has added a number of features that support functional-style programming.
 
 If, however, you are coming from an imperative programming background, these functional-style devices can seem arbitrarily complicated.
-Why go to the trouble to use something like `fold` or `reduce` when a simple `for` loop will do the job, and be much easier to understand? 
+Why go through the trouble of an effect-oriented API when plain `var`s, `for` loops, and `:Unit` exist?
 Sometimes it seems like functional programmers write code like this just to be fancy.
 
 To understand what's really behind this different way of thinking about programming, it helps to start with some history.
@@ -150,7 +150,8 @@ Functions that behave mathematically, that always produce the same results from 
 When we add the additional constraint of immutability, we produce functions that compose without introducing points of breakage.
 We can reliably reason about such functions.
 
-## Composability
+## Composability 
+TODO Reconsider this formal math style. It doesn't match our other examples, where we really stick to Scala code
 
 If functions `g` and `h` are pure, we should be able to combine them directly (assuming the types agree) to produce a new function `f`:
 
@@ -161,14 +162,13 @@ f(a) = g(h(a))
 This assumes that all functions involved are *complete*, meaning that they produce a legitimate result for every possible value of `a`.
 This is not always true.
 For example, dividing a number by zero is undefined, and so cannot produce a reasonable number as a result.
-Using a key to look up a value in a map is undefined if that key doesn't exist in the map.
+Using a key to look up a value in a map is undefined if that key doesn't exist in the map. <-- TODO Weird wording
 
 An incomplete function requires more operations when using it, to handle the problematic inputs.
 You can think of the solution as *stepwise composability*.
 Instead of calling `g(h(a))`, we break the process into steps: `x = h(a)`, then check the success of the operation.
 If successful, pass the result to `g`.
 These extra steps make composability sound like it could get tedious, and languages like Scala that provide more thorough support for functional programming provide syntax to make this kind of programming feasible.
-We will look at this support in the [Monads]{{???}} chapter.
 
 ## Effects
 
@@ -189,49 +189,12 @@ The solution is to manage these effects so they are under our control.
 
 This bridge between pure functions and practical programs with controlled and managed effects is the reason for the title of this book.
 
-## Immutability During Repetition
+## Avoiding Recursion
 
-{{ This might be moved somewhere else... }}
-
+We will deliberately avoid recursion in most examples.
 Many functional programming tutorials begin by introducing recursion.
-Such tutorials assume you will just accept that recursion is important.
-This can make the reader wonder whether the entire language will be filled with what seems like theoretical exercises.
-
-Any time you perform a repetitive task, you *could* use recursion, but why would you? 
-It's much easier to think about an ordinary looping construct.
-You just count through the elements in a sequence and perform operations upon them.
-Recursion seems to add needless complexity to an otherwise simple piece of code.
-
-The problem is that recursion is not properly motivated in such tutorials.
-You must first understand the need for immutability, then encounter the problem of repetition and see that your loop variable(s) mutate.
-How do you get rid of this mutation? 
-By *initializing* values but never changing them.
-To achieve this when you iterate through a sequence, you can create a new frame for each iteration, and what was originally a loop variable becomes a value that is initialized to the next step for each frame.
-
-The *stack frame* of a function call is already set up to hold arguments and return the result.
-Thus, by creating a stack frame for each iteration, we can initialize the next count of the loop value and never change it within that frame.
-A recursive function is an excellent solution for the problem of iterating without a mutating loop variable.
-
-This solution comes with its own problem.
-By calling itself and creating a new stack frame for each recursion, a recursive function always has the possibility that it will exhaust (overflow) the stack.
-The capacity of the stack depends on the size required for that particular function along with the hardware, operating system and often the load on the computer---all factors that make it effectively unpredictable.
-Having an unpredictable error occur during recursion does not meet our goal of reliability.
-
-The fix to this issue is a hack called *tail recursion*, which typically requires the programmer to organize their code such that the return expression for the recursive function does not perform any additional calculations, but simply returns a finished result.
-When this criterion is met, the compiler is able to rewrite the recursive code so that it becomes simple imperative code, without the function calls that can lead to a stack overflow.
-This produces code that is reliable from the safety standpoint (it doesn't overflow the stack) and from an immutability standpoint (there's no mutating loop variable).
-
-At this point you might be wondering, "Wait, are you telling me that every time I want to perform some kind of operation on a sequence, I'm supposed to write recursive code rather than just an imperative loop?" 
-Although you would certainly get better at recursion with practice, it does sound exhausting.
-Fortunately, functional programming goes one step further by implementing basic repetitive operations for you, using recursion.
-This is why you see operations like `map`, `reduce`, `fold`, etc., instead of loops, in functional languages, or even languages that support a functional style of programming.
-These operations allow you to benefit from the purity of recursion without implementing your own recursive functions except on rare occasions.
-
-There's another fascinating factor that recursion exposes.
-Under the covers, tail recursion uses mutation---which seems like a violation of functional programming's immutability goal.
-However, because tail recursion is implemented by the compiler, it can be completely (and provably) invisible.
-No other code can even know about any mutable state used to implement tail recursion, much less read or change it.
-The concept of immutability only requires that storage be *effectively immutable*---if something is mutated (often for efficiency), it's OK as long as no other part of the program can be affected by that mutation.
+While this resonates with some, it is an additional hurdle that makes the transition harder.
+We want to demonstrate powerful, functional code without user-facing recursion.
 
 ## Core Differences Between OO and Functional
 
@@ -242,7 +205,8 @@ This OO ceremony attempts to create predictability by knowing how the data struc
 
 Functional programming abstracts common behavior into reusable functional components. 
 These components are adapted to specific needs using other functions. 
-This is why lambdas are so important, because you constantly need to adapt general code to specific purposes, often with a brief amount of code that would otherwise be awkward and intrusive to right as a standalone function.
+This is why lambdas are so important, because you constantly need to adapt general code to specific purposes, 
+They enable concise code that would otherwise be awkward and intrusive to right as a standalone function.
 
 Functions in a functional language don't need to be tied to a particular data structure.
 Thus, they can often be written for more general use and to reduce duplication.
@@ -262,10 +226,13 @@ This is why lambdas are so important, because you constantly need to adapt gener
 The two things we do with functions is compose them to make more complex functions, and adapt to them to our specific problem.
 
 We assume that many readers are attracted to this book because they have some experience with functional programming constructs in other languages such as Java (version 8 or newer), Kotlin, Python or some other language that provides a modicum of support.
-However, we also assume you have heard---or you have a sense---that there could be significantly more than, for example, a function's ability to create other functions, or putting elements into a stream and acting upon that stream with `map`, or parallelizing stream operations.
+However, we also assume you have heard---or you have a sense---that there could be significantly more than:
+
+- a function's ability to create other functions
+- transforming elemements in a collection using `map`
+
 Those are indeed important benefits, but they just dip into the possibilities.
 Adopting some of the styles found in functional programming does not make a language functional.
 
 In this book we want to get to the heart of what it means to be functional.
 In particular, we want to show what it takes to make *reliable* functional code that can be composed without propagating or amplifying flaws in its components.
-A core way this is accomplished in ZIO is through the use of *monads*, which we gently introduce in the next chapter.

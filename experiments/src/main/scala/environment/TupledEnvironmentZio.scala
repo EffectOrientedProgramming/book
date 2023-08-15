@@ -1,4 +1,4 @@
-package environment_exploration
+package environment
 
 // trait TypeTag // TODO Or ClassTag?
 // trait TypeInstance

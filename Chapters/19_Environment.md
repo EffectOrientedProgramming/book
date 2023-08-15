@@ -1,5 +1,7 @@
 # Environment Exploration
 
+NOTE: Much of this content was written before realizing that normal application-wide dependencies should not be passed in the environment.
+
 The Environment type parameter distinguishes `ZIO` from most other IO monads.
 At first, it might seem like a complicated way of passing values to your ZIO instances - why can't they just be normal function arguments?
 
@@ -57,3 +59,17 @@ Now look at the `get` implementation to see how this is used.
 ## ZLayer
 - Better Ergonomics than ZEnvironment
 - Shared by default
+
+
+## Use Cases
+
+### Database Connections
+
+Your application will manage an arbitrary number of database connections.
+By making it part of the environment, you can start manipulating the runtime behavior in powerful ways:
+
+- Batching requests
+- ???
+
+- Scope
+- ???

@@ -31,9 +31,3 @@
 runDemo(ZIO.debug("Hi"))
 ```
 
-```scala mdoc
-object Demo extends ZIOAppDefault:
-  def run = ZIO.debug("Hi")
-
-Demo.run
-```

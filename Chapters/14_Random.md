@@ -18,6 +18,7 @@ It probably doesn't seem any more unusual than calling `squareRoot` or `sin`.
 
 We use pseudorandom algorithms to produce output that is sufficiently random for some applications.
 These are initialized with a seed value that determines all the following output.
+
 ```scala mdoc
 class MutableRNG(var seed: Int):
 

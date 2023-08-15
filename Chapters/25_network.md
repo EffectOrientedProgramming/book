@@ -1,6 +1,8 @@
 # Network
 
-Talking to the network is an effect. It can fail. You need retries.
+Talking to the network is an effect. 
+It can fail. 
+We must handle these situations.
 
 ```scala mdoc
 import java.net.URL
