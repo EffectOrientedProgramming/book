@@ -6,7 +6,6 @@ object FestivalSpec extends ZIOSpec[Festival]:
   val bootstrap =
     ZLayer.make[Festival](
       festival,
-      fencing,
       stage,
       speakers,
       wires,
@@ -16,7 +15,8 @@ object FestivalSpec extends ZIOSpec[Festival]:
       foodtruck,
       security,
       venue,
-      permit
+      permit,
+//      ZLayer.Debug.mermaid
     )
 
   val spec =

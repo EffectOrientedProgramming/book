@@ -8,7 +8,6 @@ object FestivalShortedOutSoundSystemSpec
       : ZLayer[Any, String, Festival] =
     ZLayer.make[Festival](
       festival,
-      fencing,
       stage,
       speakers,
       wires,
