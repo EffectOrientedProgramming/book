@@ -50,7 +50,7 @@ object UseAllTheThreads extends ZIOAppDefault:
           .availableProcessors
       ZIO
         .foreachPar(0 to numCores) { i =>
-          ZIO.succeed(cpuIntensive(i, 10))
+          ZIO.succeed(cpuIntensive(i, 50))
         }
         .debug
         .run
