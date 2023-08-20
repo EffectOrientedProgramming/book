@@ -82,13 +82,11 @@ object FileService:
         name: Path
     ) =
       defer {
-        val promiseThatMightNotBeUsed =
-          Promise.make[Nothing, FileContents].run
+        
         val activeUpdates =
           calculateActiveUpdates(
             activeRefresh,
-            name,
-            promiseThatMightNotBeUsed
+            name
           ).run
         val activeUpdate = activeUpdates(name)
         activeUpdate.observers match
@@ -135,28 +133,28 @@ def slowHerdMemberBehavior(
 def calculateActiveUpdates(
     activeRefresh: Ref[Map[Path, ActiveUpdate]],
     name: Path,
-    promiseThatMightNotBeUsed: Promise[
-      Nothing,
-      FileContents
-    ]
 ) =
-  activeRefresh.updateAndGet { activeRefreshes =>
-    activeRefreshes.updatedWith(name) {
-      case Some(activeUpdate) =>
-        Some(
-          activeUpdate.copy(observers =
-            activeUpdate.observers + 1
-          )
-        )
-      case None =>
-        Some(
-          ActiveUpdate(
-            0,
-            promiseThatMightNotBeUsed
-          )
-        )
-    }
-  }
+  defer:
+    val promiseThatMightNotBeUsed =
+          Promise.make[Nothing, FileContents].run
+    activeRefresh.updateAndGet { 
+      activeRefreshes =>
+        activeRefreshes.updatedWith(name) {
+          case Some(activeUpdate) =>
+            Some(
+              activeUpdate.copy(observers =
+                activeUpdate.observers + 1
+              )
+            )
+          case None =>
+            Some(
+              ActiveUpdate(
+                0,
+                promiseThatMightNotBeUsed
+              )
+            )
+        }
+      }
 
 def firstHerdMemberBehavior(
     fileSystem: FileSystem,
