@@ -20,9 +20,6 @@ object FileService:
   val live =
     ZLayer.fromZIO(
       defer {
-        val fs   = ZIO.service[FileSystem].run
-        val hit  = Ref.make[Int](0).run
-        val miss = Ref.make[Int](0).run
         val cache =
           Ref
             .make[Map[Path, FileContents]](
@@ -36,11 +33,11 @@ object FileService:
             )
             .run
         Live(
-          hit,
-          miss,
+          Ref.make[Int](0).run,
+          Ref.make[Int](0).run,
           cache,
           activeRefreshes,
-          fs
+          ZIO.service[FileSystem].run
         )
       }
     )
