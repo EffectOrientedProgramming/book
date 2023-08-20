@@ -73,16 +73,15 @@ object FileService:
             printLine(
               "Value was cached. Easy path."
             ).orDie.run
-            ZIO.succeed(initValue).run
+            initValue
           case None =>
             retrieveOrWaitForContents(name).run
       }
 
     private def retrieveOrWaitForContents(
         name: Path
-    ) =
+    ): ZIO[Any, Nothing, FileContents] =
       defer {
-        
         val activeUpdates =
           calculateActiveUpdates(
             activeRefresh,
@@ -117,7 +116,7 @@ def slowHerdMemberBehavior(
     hit: Ref[Int],
     activeUpdate: ActiveUpdate
 ) =
-  defer: 
+  defer:
     printLine(
       "Slower herd member will wait for response of 1st member"
     ).orDie.run
@@ -130,16 +129,17 @@ def slowHerdMemberBehavior(
           "Slower herd member got answer from 1st member"
         ).orDie
       )
+      .run
 
 def calculateActiveUpdates(
     activeRefresh: Ref[Map[Path, ActiveUpdate]],
-    name: Path,
+    name: Path
 ) =
   defer:
     val promiseThatMightNotBeUsed =
-          Promise.make[Nothing, FileContents].run
-    activeRefresh.updateAndGet { 
-      activeRefreshes =>
+      Promise.make[Nothing, FileContents].run
+    activeRefresh
+      .updateAndGet { activeRefreshes =>
         activeRefreshes.updatedWith(name) {
           case Some(activeUpdate) =>
             Some(
@@ -156,6 +156,7 @@ def calculateActiveUpdates(
             )
         }
       }
+      .run
 
 def firstHerdMemberBehavior(
     fileSystem: FileSystem,
@@ -165,7 +166,7 @@ def firstHerdMemberBehavior(
     // TODO Consider ConcurrentMap
     cache: Ref[Map[Path, FileContents]],
     name: Path
-) =
+): ZIO[Any, Nothing, FileContents] =
   defer {
     printLine(
       "1st herd member will hit the filesystem"
