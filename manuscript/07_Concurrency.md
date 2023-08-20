@@ -285,22 +285,19 @@ object FileService:
             printLine(
               "Value was cached. Easy path."
             ).orDie.run
-            ZIO.succeed(initValue).run
+            initValue
           case None =>
             retrieveOrWaitForContents(name).run
       }
 
     private def retrieveOrWaitForContents(
         name: Path
-    ) =
+    ): ZIO[Any, Nothing, FileContents] =
       defer {
-        val promiseThatMightNotBeUsed =
-          Promise.make[Nothing, FileContents].run
         val activeUpdates =
           calculateActiveUpdates(
             activeRefresh,
-            name,
-            promiseThatMightNotBeUsed
+            name
           ).run
         val activeUpdate = activeUpdates(name)
         activeUpdate.observers match
@@ -331,44 +328,47 @@ def slowHerdMemberBehavior(
     hit: Ref[Int],
     activeUpdate: ActiveUpdate
 ) =
-  printLine(
-    "Slower herd member will wait for response of 1st member"
-  ).orDie.run
-  hit.update(_ + 1).run
-  activeUpdate
-    .promise
-    .await
-    .tap(_ =>
-      printLine(
-        "Slower herd member got answer from 1st member"
-      ).orDie
-    )
+  defer:
+    printLine(
+      "Slower herd member will wait for response of 1st member"
+    ).orDie.run
+    hit.update(_ + 1).run
+    activeUpdate
+      .promise
+      .await
+      .tap(_ =>
+        printLine(
+          "Slower herd member got answer from 1st member"
+        ).orDie
+      )
+      .run
 
 def calculateActiveUpdates(
     activeRefresh: Ref[Map[Path, ActiveUpdate]],
-    name: Path,
-    promiseThatMightNotBeUsed: Promise[
-      Nothing,
-      FileContents
-    ]
+    name: Path
 ) =
-  activeRefresh.updateAndGet { activeRefreshes =>
-    activeRefreshes.updatedWith(name) {
-      case Some(activeUpdate) =>
-        Some(
-          activeUpdate.copy(observers =
-            activeUpdate.observers + 1
-          )
-        )
-      case None =>
-        Some(
-          ActiveUpdate(
-            0,
-            promiseThatMightNotBeUsed
-          )
-        )
-    }
-  }
+  defer:
+    val promiseThatMightNotBeUsed =
+      Promise.make[Nothing, FileContents].run
+    activeRefresh
+      .updateAndGet { activeRefreshes =>
+        activeRefreshes.updatedWith(name) {
+          case Some(activeUpdate) =>
+            Some(
+              activeUpdate.copy(observers =
+                activeUpdate.observers + 1
+              )
+            )
+          case None =>
+            Some(
+              ActiveUpdate(
+                0,
+                promiseThatMightNotBeUsed
+              )
+            )
+        }
+      }
+      .run
 
 def firstHerdMemberBehavior(
     fileSystem: FileSystem,
@@ -378,7 +378,7 @@ def firstHerdMemberBehavior(
     // TODO Consider ConcurrentMap
     cache: Ref[Map[Path, FileContents]],
     name: Path
-) =
+): ZIO[Any, Nothing, FileContents] =
   defer {
     printLine(
       "1st herd member will hit the filesystem"

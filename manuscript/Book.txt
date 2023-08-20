@@ -20,7 +20,6 @@
 19_Environment.md
 20_Streams.md
 21_Resources.md
-22_STM.md
 23_Executing_External_Programs.md
 24_managing_dependencies.md
 25_network.md
@@ -41,6 +40,7 @@ experiments-src-test-scala-energrygrid.md
 logging.md
 scenarios.md
 helloworld.md
+stm.md
 crypto.md
 bigdec.md
 experiments-src-test-scala-test_aspects.md
