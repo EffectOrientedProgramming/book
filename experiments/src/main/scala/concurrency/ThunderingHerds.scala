@@ -117,18 +117,19 @@ def slowHerdMemberBehavior(
     hit: Ref[Int],
     activeUpdate: ActiveUpdate
 ) =
-  printLine(
-    "Slower herd member will wait for response of 1st member"
-  ).orDie.run
-  hit.update(_ + 1).run
-  activeUpdate
-    .promise
-    .await
-    .tap(_ =>
-      printLine(
-        "Slower herd member got answer from 1st member"
-      ).orDie
-    )
+  defer: 
+    printLine(
+      "Slower herd member will wait for response of 1st member"
+    ).orDie.run
+    hit.update(_ + 1).run
+    activeUpdate
+      .promise
+      .await
+      .tap(_ =>
+        printLine(
+          "Slower herd member got answer from 1st member"
+        ).orDie
+      )
 
 def calculateActiveUpdates(
     activeRefresh: Ref[Map[Path, ActiveUpdate]],
