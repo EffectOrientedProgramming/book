@@ -58,7 +58,8 @@ val speakers: ZLayer[Any, Nothing, Speakers] =
     )(_ => debug("SPEAKERS: Packing up"))
   )
 case class Amplifiers()
-val amplifiers: ZLayer[Any, Nothing, Amplifiers] =
+val amplifiers
+    : ZLayer[Any, Nothing, Amplifiers] =
   ZLayer.scoped(
     ZIO.acquireRelease(
       debug("AMPLIFIERS: Positioning") *>
@@ -74,7 +75,7 @@ val wires =
         ZIO.succeed(Wires())
     )(_ => debug("WIRES: Spooling up"))
   )
-  
+
 case class SoundSystem(
     speakers: Speakers,
     amplifiers: Amplifiers,
