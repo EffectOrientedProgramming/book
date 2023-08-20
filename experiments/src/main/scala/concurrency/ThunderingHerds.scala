@@ -66,19 +66,16 @@ object FileService:
       defer {
         val cachedValue =
           cache.get.map(_.get(name)).run
-        val activeValue =
-          cachedValue match
-            case Some(initValue) =>
-              (
-                hit.update(_ + 1) *>
-                  printLine(
-                    "Value was cached. Easy path."
-                  ).orDie *>
-                  ZIO.succeed(initValue)
-              ).run
-            case None =>
-              retrieveOrWaitForContents(name).run
-        activeValue
+
+        cachedValue match
+          case Some(initValue) =>
+            hit.update(_ + 1).run
+            printLine(
+              "Value was cached. Easy path."
+            ).orDie.run
+            ZIO.succeed(initValue).run
+          case None =>
+            retrieveOrWaitForContents(name).run
       }
 
     private def retrieveOrWaitForContents(
@@ -94,23 +91,21 @@ object FileService:
             promiseThatMightNotBeUsed
           ).run
         val activeUpdate = activeUpdates(name)
-        val finalContents =
-          activeUpdate.observers match
-            case 0 =>
-              firstHerdMemberBehavior(
-                fileSystem,
-                activeUpdate,
-                activeRefresh,
-                miss,
-                cache,
-                name
-              ).run
-            case observerCount =>
-              slowHerdMemberBehavior(
-                hit,
-                activeUpdate
-              ).run
-        finalContents
+        activeUpdate.observers match
+          case 0 =>
+            firstHerdMemberBehavior(
+              fileSystem,
+              activeUpdate,
+              activeRefresh,
+              miss,
+              cache,
+              name
+            ).run
+          case observerCount =>
+            slowHerdMemberBehavior(
+              hit,
+              activeUpdate
+            ).run
       }
 
     val hits: ZIO[Any, Nothing, Int] = hit.get
@@ -126,15 +121,16 @@ def slowHerdMemberBehavior(
 ) =
   printLine(
     "Slower herd member will wait for response of 1st member"
-  ).orDie *> hit.update(_ + 1) *>
-    activeUpdate
-      .promise
-      .await
-      .tap(_ =>
-        printLine(
-          "Slower herd member got answer from 1st member"
-        ).orDie
-      )
+  ).orDie.run
+  hit.update(_ + 1).run
+  activeUpdate
+    .promise
+    .await
+    .tap(_ =>
+      printLine(
+        "Slower herd member got answer from 1st member"
+      ).orDie
+    )
 
 def calculateActiveUpdates(
     activeRefresh: Ref[Map[Path, ActiveUpdate]],
