@@ -15,7 +15,7 @@ object FestivalSpec extends ZIOSpec[Festival]:
       foodtruck,
       security,
       venue,
-      permit,
+      permit
 //      ZLayer.Debug.mermaid
     )
 
