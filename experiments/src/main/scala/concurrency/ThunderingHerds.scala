@@ -16,19 +16,35 @@ trait FileService:
 
   val misses: ZIO[Any, Nothing, Int]
 
+case class FileCache(
+    map: Ref[Map[Path, FileContents]]
+):
+  def saveContents(
+      name: Path,
+      contents: FileContents
+  ) =
+    map.update(m =>
+      m.updated(name, contents) // Update cache
+    )
+
+  def currentValue(name: Path) =
+    map.get.map(_.get(name))
+
+object FileCache:
+  val make =
+    defer:
+      FileCache(
+        Ref
+          .make[Map[Path, FileContents]](
+            Map.empty
+          )
+          .run
+      )
+
 object FileService:
   val live =
     ZLayer.fromZIO(
       defer {
-        val fs   = ZIO.service[FileSystem].run
-        val hit  = Ref.make[Int](0).run
-        val miss = Ref.make[Int](0).run
-        val cache =
-          Ref
-            .make[Map[Path, FileContents]](
-              Map.empty
-            )
-            .run
         val activeRefreshes =
           Ref
             .make[Map[Path, ActiveUpdate]](
@@ -36,11 +52,11 @@ object FileService:
             )
             .run
         Live(
-          hit,
-          miss,
-          cache,
+          Ref.make[Int](0).run,
+          Ref.make[Int](0).run,
+          FileCache.make.run,
           activeRefreshes,
-          fs
+          ZIO.service[FileSystem].run
         )
       }
     )
@@ -56,7 +72,7 @@ object FileService:
       hit: Ref[Int],
       miss: Ref[Int],
       // TODO Consider ConcurrentMap
-      cache: Ref[Map[Path, FileContents]],
+      cache: FileCache,
       activeRefresh: Ref[
         Map[Path, ActiveUpdate]
       ],
@@ -67,53 +83,42 @@ object FileService:
         name: Path
     ): ZIO[Any, Nothing, FileContents] =
       defer {
-        val cachedValue =
-          cache.get.map(_.get(name)).run
-        val activeValue =
-          cachedValue match
-            case Some(initValue) =>
-              (
-                hit.update(_ + 1) *>
-                  printLine(
-                    "Value was cached. Easy path."
-                  ).orDie *>
-                  ZIO.succeed(initValue)
-              ).run
-            case None =>
-              retrieveOrWaitForContents(name).run
-        activeValue
+        cache.currentValue(name).run match
+          case Some(initValue) =>
+            hit.update(_ + 1).run
+            printLine(
+              "Value was cached. Easy path."
+            ).orDie.run
+            initValue
+          case None =>
+            retrieveOrWaitForContents(name).run
       }
 
     private def retrieveOrWaitForContents(
         name: Path
-    ) =
+    ): ZIO[Any, Nothing, FileContents] =
       defer {
-        val promiseThatMightNotBeUsed =
-          Promise.make[Nothing, FileContents].run
-        val activeUpdates =
-          calculateActiveUpdates(
+        val activeUpdatesNow =
+          activeUpdates(
             activeRefresh,
-            name,
-            promiseThatMightNotBeUsed
+            name
           ).run
-        val activeUpdate = activeUpdates(name)
-        val finalContents =
-          activeUpdate.observers match
-            case 0 =>
-              firstHerdMemberBehavior(
-                fileSystem,
-                activeUpdate,
-                activeRefresh,
-                miss,
-                cache,
-                name
-              ).run
-            case observerCount =>
-              slowHerdMemberBehavior(
-                hit,
-                activeUpdate
-              ).run
-        finalContents
+        val activeUpdate = activeUpdatesNow(name)
+        activeUpdate.observers match
+          case 0 =>
+            firstHerdMemberBehavior(
+              fileSystem,
+              activeUpdate,
+              activeRefresh,
+              miss,
+              cache,
+              name
+            ).run
+          case observerCount =>
+            slowHerdMemberBehavior(
+              hit,
+              activeUpdate
+            ).run
       }
 
     val hits: ZIO[Any, Nothing, Int] = hit.get
@@ -127,9 +132,11 @@ def slowHerdMemberBehavior(
     hit: Ref[Int],
     activeUpdate: ActiveUpdate
 ) =
-  printLine(
-    "Slower herd member will wait for response of 1st member"
-  ).orDie *> hit.update(_ + 1) *>
+  defer:
+    printLine(
+      "Slower herd member will wait for response of 1st member"
+    ).orDie.run
+    hit.update(_ + 1).run
     activeUpdate
       .promise
       .await
@@ -138,32 +145,34 @@ def slowHerdMemberBehavior(
           "Slower herd member got answer from 1st member"
         ).orDie
       )
+      .run
 
-def calculateActiveUpdates(
+def activeUpdates(
     activeRefresh: Ref[Map[Path, ActiveUpdate]],
-    name: Path,
-    promiseThatMightNotBeUsed: Promise[
-      Nothing,
-      FileContents
-    ]
+    name: Path
 ) =
-  activeRefresh.updateAndGet { activeRefreshes =>
-    activeRefreshes.updatedWith(name) {
-      case Some(activeUpdate) =>
-        Some(
-          activeUpdate.copy(observers =
-            activeUpdate.observers + 1
-          )
-        )
-      case None =>
-        Some(
-          ActiveUpdate(
-            0,
-            promiseThatMightNotBeUsed
-          )
-        )
-    }
-  }
+  defer:
+    val promiseThatMightNotBeUsed =
+      Promise.make[Nothing, FileContents].run
+    activeRefresh
+      .updateAndGet { activeRefreshes =>
+        activeRefreshes.updatedWith(name) {
+          case Some(activeUpdate) =>
+            Some(
+              activeUpdate.copy(observers =
+                activeUpdate.observers + 1
+              )
+            )
+          case None =>
+            Some(
+              ActiveUpdate(
+                0,
+                promiseThatMightNotBeUsed
+              )
+            )
+        }
+      }
+      .run
 
 def firstHerdMemberBehavior(
     fileSystem: FileSystem,
@@ -171,9 +180,9 @@ def firstHerdMemberBehavior(
     activeRefresh: Ref[Map[Path, ActiveUpdate]],
     miss: Ref[Int],
     // TODO Consider ConcurrentMap
-    cache: Ref[Map[Path, FileContents]],
+    cache: FileCache,
     name: Path
-) =
+): ZIO[Any, Nothing, FileContents] =
   defer {
     printLine(
       "1st herd member will hit the filesystem"
@@ -187,11 +196,7 @@ def firstHerdMemberBehavior(
         m - name // Clean out "active" entry
       )
       .run
-    cache
-      .update(m =>
-        m.updated(name, contents) // Update cache
-      )
-      .run
+    cache.saveContents(name, contents).run
     miss.update(_ + 1).run
     contents
   }

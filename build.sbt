@@ -54,6 +54,7 @@ lazy val root =
     .dependsOn(mdoctools)
     .settings(commonSettings)
     .settings(
+      fork := false,
       scalacOptions +=
         Seq(
           "mdoctools",

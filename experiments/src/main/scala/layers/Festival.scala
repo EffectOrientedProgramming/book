@@ -6,7 +6,7 @@ case class Toilets()
 val toilets = activityLayer(entity = Toilets())
 
 case class Stage()
-val stage =
+val stage: ZLayer[Any, Nothing, Stage] =
   activityLayer(
     entity = Stage(),
     setupSteps = ("Transporting", 2.seconds),
@@ -14,7 +14,7 @@ val stage =
   )
 
 case class Permit()
-val permit =
+val permit: ZLayer[Any, Nothing, Permit] =
   activityLayer(
     entity = Permit(),
     setupSteps = ("Legal Request", 5.seconds)
@@ -50,7 +50,7 @@ case class Venue(stage: Stage, permit: Permit)
 val venue = ZLayer.fromFunction(Venue.apply)
 
 case class Speakers()
-val speakers =
+val speakers: ZLayer[Any, Nothing, Speakers] =
   ZLayer.scoped(
     ZIO.acquireRelease(
       debug("SPEAKERS: Positioning") *>
@@ -58,7 +58,8 @@ val speakers =
     )(_ => debug("SPEAKERS: Packing up"))
   )
 case class Amplifiers()
-val amplifiers =
+val amplifiers
+    : ZLayer[Any, Nothing, Amplifiers] =
   ZLayer.scoped(
     ZIO.acquireRelease(
       debug("AMPLIFIERS: Positioning") *>
@@ -74,14 +75,7 @@ val wires =
         ZIO.succeed(Wires())
     )(_ => debug("WIRES: Spooling up"))
   )
-case class Fencing()
-val fencing: ZLayer[Any, Nothing, Fencing] =
-  ZLayer.scoped(
-    ZIO.acquireRelease(
-      debug("FENCING: Surrounding the area") *>
-        ZIO.succeed(Fencing())
-    )(_ => debug("FENCING: Tearing down"))
-  )
+
 case class SoundSystem(
     speakers: Speakers,
     amplifiers: Amplifiers,
@@ -140,7 +134,6 @@ case class Festival(
     toilets: Toilets,
     venue: Venue,
     soundSystem: SoundSystem,
-    fencing: Fencing,
     foodTruck: FoodTruck,
     security: Security
 )
@@ -154,7 +147,6 @@ val festival =
           ZIO.service[Toilets].run,
           ZIO.service[Venue].run,
           ZIO.service[SoundSystem].run,
-          ZIO.service[Fencing].run,
           ZIO.service[FoodTruck].run,
           ZIO.service[Security].run
         )
