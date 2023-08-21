@@ -138,7 +138,6 @@ runDemo(sideEffectingUpdates)
 // Alert: We have updated our count!
 // Alert: We have updated our count!
 // Alert: We have updated our count!
-// Alert: We have updated our count!
 ```
 What is going on?!
 Previously, we were losing updates because of unsafe mutability.
