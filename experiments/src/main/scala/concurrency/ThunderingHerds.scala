@@ -45,7 +45,6 @@ object FileService:
   val live =
     ZLayer.fromZIO(
       defer {
-        val cache = FileCache.make.run
         val activeRefreshes =
           Ref
             .make[Map[Path, ActiveUpdate]](
@@ -55,7 +54,7 @@ object FileService:
         Live(
           Ref.make[Int](0).run,
           Ref.make[Int](0).run,
-          cache,
+          FileCache.make.run,
           activeRefreshes,
           ZIO.service[FileSystem].run
         )
@@ -99,12 +98,12 @@ object FileService:
         name: Path
     ): ZIO[Any, Nothing, FileContents] =
       defer {
-        val activeUpdates =
-          calculateActiveUpdates(
+        val activeUpdatesNow =
+          activeUpdates(
             activeRefresh,
             name
           ).run
-        val activeUpdate = activeUpdates(name)
+        val activeUpdate = activeUpdatesNow(name)
         activeUpdate.observers match
           case 0 =>
             firstHerdMemberBehavior(
@@ -148,7 +147,7 @@ def slowHerdMemberBehavior(
       )
       .run
 
-def calculateActiveUpdates(
+def activeUpdates(
     activeRefresh: Ref[Map[Path, ActiveUpdate]],
     name: Path
 ) =
