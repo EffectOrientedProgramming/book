@@ -16,16 +16,36 @@ trait FileService:
 
   val misses: ZIO[Any, Nothing, Int]
 
+case class FileCache(
+    map: Ref[Map[Path, FileContents]]
+):
+  def saveContents(
+      name: Path,
+      contents: FileContents
+  ) =
+    map.update(m =>
+      m.updated(name, contents) // Update cache
+    )
+
+  def currentValue(name: Path) =
+    map.get.map(_.get(name))
+
+object FileCache:
+  val make =
+    defer:
+      FileCache(
+        Ref
+          .make[Map[Path, FileContents]](
+            Map.empty
+          )
+          .run
+      )
+
 object FileService:
   val live =
     ZLayer.fromZIO(
       defer {
-        val cache =
-          Ref
-            .make[Map[Path, FileContents]](
-              Map.empty
-            )
-            .run
+        val cache = FileCache.make.run
         val activeRefreshes =
           Ref
             .make[Map[Path, ActiveUpdate]](
@@ -53,7 +73,7 @@ object FileService:
       hit: Ref[Int],
       miss: Ref[Int],
       // TODO Consider ConcurrentMap
-      cache: Ref[Map[Path, FileContents]],
+      cache: FileCache,
       activeRefresh: Ref[
         Map[Path, ActiveUpdate]
       ],
@@ -64,10 +84,7 @@ object FileService:
         name: Path
     ): ZIO[Any, Nothing, FileContents] =
       defer {
-        val cachedValue =
-          cache.get.map(_.get(name)).run
-
-        cachedValue match
+        cache.currentValue(name).run match
           case Some(initValue) =>
             hit.update(_ + 1).run
             printLine(
@@ -164,7 +181,7 @@ def firstHerdMemberBehavior(
     activeRefresh: Ref[Map[Path, ActiveUpdate]],
     miss: Ref[Int],
     // TODO Consider ConcurrentMap
-    cache: Ref[Map[Path, FileContents]],
+    cache: FileCache,
     name: Path
 ): ZIO[Any, Nothing, FileContents] =
   defer {
@@ -180,11 +197,7 @@ def firstHerdMemberBehavior(
         m - name // Clean out "active" entry
       )
       .run
-    cache
-      .update(m =>
-        m.updated(name, contents) // Update cache
-      )
-      .run
+    cache.saveContents(name, contents).run
     miss.update(_ + 1).run
     contents
   }
