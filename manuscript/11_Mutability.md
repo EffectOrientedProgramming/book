@@ -60,6 +60,7 @@ lazy val unreliableCounting =
   }
 
 runDemo(unreliableCounting)
+// Final count: 99996
 ```
 
 Due to the unpredictable nature of shared mutable state, we do not know exactly what the final count above is.
@@ -91,6 +92,7 @@ lazy val reliableCounting =
   }
 
 runDemo(reliableCounting)
+// Final count: 100000
 ```
 Now we can say with full confidence that our final count is 100000.
 Additionally, these updates happen _without blocking_.
@@ -131,6 +133,7 @@ lazy val sideEffectingUpdates =
 
 // Mdoc/this function is showing the notifications, but not the final result
 runDemo(sideEffectingUpdates)
+// Alert: We have updated our count!
 // Alert: We have updated our count!
 // Alert: We have updated our count!
 // Alert: We have updated our count!
