@@ -99,10 +99,7 @@ object FileService:
     ): ZIO[Any, Nothing, FileContents] =
       defer {
         val activeUpdatesNow =
-          activeUpdates(
-            activeRefresh,
-            name
-          ).run
+          activeUpdates(activeRefresh, name).run
         val activeUpdate = activeUpdatesNow(name)
         activeUpdate.observers match
           case 0 =>

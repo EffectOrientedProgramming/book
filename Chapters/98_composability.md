@@ -1,6 +1,3 @@
----
----
-
 # Composability
 
 Other framings/techniques and their pros/cons:

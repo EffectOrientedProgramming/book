@@ -119,6 +119,13 @@ object HiddenPrelude:
       .debug
       .fork
       .uninterruptible
+
+  extension [R, E, A](z: ZIO[R, E, A])
+    def fireAndForget(
+        background: ZIO[R, Nothing, Any]
+    ): ZIO[R, E, A] =
+      z.zipParLeft(background.forkDaemon)
+
 end HiddenPrelude
 
 import zio_intro.HiddenPrelude.*
@@ -191,12 +198,11 @@ object Seven extends ZIOAppDefault:
       .orElseSucceed(
         "ERROR: User could not be saved"
       )
-      // TODO We are concerned about zipParLeft +
-      // forkDaemon being introduced in the same
-      // step
-      .zipParLeft(
+      // todo: maybe this hidden extension method
+      // goes too far with functionality that
+      // doesn't really exist
+      .fireAndForget(
         userSignupInitiated("mrsdavis")
-          .forkDaemon
       ).debug
 
 // concurrently save & send analytics, ignoring analytics failures
