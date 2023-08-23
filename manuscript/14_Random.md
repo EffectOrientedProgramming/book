@@ -33,7 +33,7 @@ class MutableRNG(var seed: Int):
 
 ```scala
 val rng = MutableRNG(1)
-// rng: MutableRNG = repl.MdocSession$MdocApp$MutableRNG@455b3184
+// rng: MutableRNG = repl.MdocSession$MdocApp$MutableRNG@1182fe87
 rng.nextInt()
 // res0: Int = 357
 rng.nextInt()
@@ -46,7 +46,7 @@ Let's see what happens if we make a new instance with the same seed.
 
 ```scala
 val rngDuplicate = MutableRNG(1)
-// rngDuplicate: MutableRNG = repl.MdocSession$MdocApp$MutableRNG@4423926b
+// rngDuplicate: MutableRNG = repl.MdocSession$MdocApp$MutableRNG@22808bb4
 rngDuplicate.nextInt()
 // res3: Int = 357
 rngDuplicate.nextInt()
@@ -80,6 +80,7 @@ ZIO gives you built-in methods to support this.
 
 ```scala
 import zio.test.TestRandom
+
 TestRandom.feedBooleans(true, false)
 TestRandom.feedBytes(Chunk(1, 2, 3))
 TestRandom.feedChars('a', 'b', 'c')
@@ -121,6 +122,7 @@ TestRandom.clearBooleans
 TestRandom.clearBytes
 // etc ...
 ```
+
 
 ## Edit This Chapter
 [Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/14_Random.md)

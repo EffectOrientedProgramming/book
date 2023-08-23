@@ -46,9 +46,9 @@ val thrownLogic =
 //   trace = "repl.MdocSession.MdocApp.thrownLogic(16_Cause.md:37)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.thrownLogic(16_Cause.md:37)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14319/0x0000000103b94840@7af9487a
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14296/0x0000000103b8c840@1a26bec5
 //   ),
-//   successK = zio.ZIO$$$Lambda$14321/0x0000000103ba9040@7d7fc75f
+//   successK = zio.ZIO$$$Lambda$14298/0x0000000103ba1040@7af51326
 // )
 runDemo(thrownLogic)
 // java.lang.Exception: Release Failed
@@ -273,42 +273,6 @@ def simpleStructureAlternative(
       ???
     case _ =>
       ???
-
-```
-
-
-### experiments/src/main/scala/cause/MutationTracking.scala
-```scala
-package cause
-
-import zio.Console.*
-
-class MutationTracking:
-  enum Stage:
-    case Hominini,
-      Chimpanzee,
-      Human
-
-object TimelineFinally extends App:
-  try throw new Exception("Straightened Spine")
-  finally
-    try throw new Exception("Less Hair")
-    finally
-      throw new Exception("Fine Voice Control")
-
-object Timeline extends zio.ZIOAppDefault:
-  val mutation1: UIO[Nothing] =
-    ZIO.die(Exception("Straightened Spine"))
-  val mutation2 = ZIO.die(Exception("Less Hair"))
-  val mutation3 =
-    ZIO.die(Exception("Fine voice control"))
-
-  val timeline =
-    mutation1
-      .ensuring(mutation2)
-      .ensuring(mutation3)
-
-  def run = timeline.sandbox
 
 ```
 

@@ -24,6 +24,8 @@
 24_managing_dependencies.md
 25_network.md
 26_programs_as_values.md
+98_composability.md
+99_endnotes.md
 ExperimentsSection.md
 microcontrollers.md
 experiments-src-test-scala-Hubs.md
@@ -39,10 +41,8 @@ energygrid.md
 experiments-src-test-scala-energrygrid.md
 logging.md
 scenarios.md
-helloworld.md
 stm.md
 crypto.md
-bigdec.md
 experiments-src-test-scala-test_aspects.md
 interpreter-level2_chaining.md
 experiments-src-test-scala-scenarios.md
@@ -51,7 +51,6 @@ experiments-src-test-scala-testcontainers.md
 schema.md
 cancellation.md
 virtual_meeting.md
-zio.md
 rezilience.md
 interpreter-chaining_previous_result_and_environmental_dependency.md
 simulations.md
@@ -62,7 +61,6 @@ experiments-src-test-scala-zio_test.md
 interpreter-chaining_with_monads.md
 experiments-src-test-scala-layers.md
 interpreter.md
-experiments-src-test-scala-bigdec.md
 prelude.md
 experiments-src-test-scala-time.md
 performance.md
