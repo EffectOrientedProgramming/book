@@ -16,7 +16,7 @@ Other framings/techniques and their pros/cons:
       that is producing these values
     - All of these types must be manually transformed into the other types
 - Functions that return a Future
-    - Can be interrupted
+    - Can be interrupted [^^future_interrupted_1] [^^future_interrupted_2]
     - Manual management of cancellation
     - Start executing immediately
     - Must all fail with Exception
@@ -53,9 +53,9 @@ defer {
 //   trace = "zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res0(composability.md:8)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14311/0x0000000103b96c40@34e2fb62
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14319/0x0000000103b94840@2d080b9
 //   ),
-//   successK = repl.MdocSession$MdocApp$$Lambda$17957/0x0000000104302840@2bb30665
+//   successK = repl.MdocSession$MdocApp$$Lambda$17881/0x00000001041aa040@14213bb5
 // )
 ```
 
@@ -76,141 +76,29 @@ ZIO
 //     trace = "repl.MdocSession.MdocApp.res1(composability.md:19)",
 //     first = Sync(
 //       trace = "repl.MdocSession.MdocApp.res1(composability.md:19)",
-//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$14311/0x0000000103b96c40@3bf859d4
+//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$14319/0x0000000103b94840@11e9f8b3
 //     ),
-//     successK = zio.ZIO$$$Lambda$14313/0x0000000103b94840@6178524a
+//     successK = zio.ZIO$$$Lambda$14321/0x0000000103ba9040@7d7fc75f
 //   ),
-//   successK = zio.ZIO$$Lambda$14324/0x0000000103bac840@78006304,
-//   failureK = zio.ZIO$$Lambda$14325/0x0000000103bad040@5b1abe8d
+//   successK = zio.ZIO$$Lambda$14332/0x0000000103bb0840@3e61628c,
+//   failureK = zio.ZIO$$Lambda$14333/0x0000000103bb1840@38b2f8b1
 // )
 ```
 
+[^^future_interrupted_1]: This is an endnote
+    With multiple lines
 
-`Composability` has a diverse collection of definitions, depending on who you ask.
-
-## {{Maybe goes into resources chapter}}
-```scala
-enum Target:
-  case Moon,
-    Planet,
-    Comet,
-    Star,
-    Galaxy
-
-import Target._
-case class Telescope()
-
-var availableTelescope: Option[Telescope] =
-  Some(Telescope())
-// availableTelescope: Option[Telescope] = Some(value = Telescope())
-
-def observe(
-    target: Target,
-    scope: Option[Telescope]
-): Unit =
-  scope match
-    case Some(telescope) =>
-      println(s"Looking at $target!")
-    case None =>
-      println(
-        s"Telescope unavailable! Cannot view $target!"
-      )
-
-def bookTelescope(): Option[Telescope] =
-  availableTelescope match
-    case Some(_) =>
-      println("Acquired telescope!")
-    case None =>
-      println("Failed to acquire telescope!")
-  val result = availableTelescope
-  availableTelescope = None
-  result
-```
-
-
-Some possible meanings:
-
-### "This code calls other code"
-We consider this the weakest form of composability.
-Your function invokes other functions, without any strict sequencing or pipelining of results.
-```scala
-var scope: Option[Telescope] = None
-// scope: Option[Telescope] = None
-
-def composedLogic(): Unit =
-  scope = bookTelescope()
-  observe(Moon, scope)
-
-composedLogic()
-// Acquired telescope!
-// Looking at Moon!
-```
-In this situation, we can see that only 2 functions are being called, but this is not strict.
-We could drop additional statements/effects in our block that are not visible to callers by the signature.
-
-```scala
-// TODO Decide if this stage is actually helpful, or if we should just move straight into the other
-// definitions and more quickly highlight the resource leak here.
-
-var scope: Option[Telescope] = None
-// scope: Option[Telescope] = None
-
-def destroy(): Unit =
-  println("Whoops! We destroyed the telescope!")
-  scope = None
-
-def composedLogic(): Unit =
-  scope = bookTelescope()
-  destroy()
-  observe(Moon, scope)
-
-composedLogic()
-// Acquired telescope!
-// Whoops! We destroyed the telescope!
-// Telescope unavailable! Cannot view Moon!
-```
-
-### Mathematic definition
-"You can plug the result of 1 function directly into the input of another function"
-```scala
-def observeDefinite(
-    target: Target,
-    scope: Telescope
-): Unit = println(s"Looking at $target!")
-```
-```scala
-// TODO WhereTF are `compose`, `andThen`, etc?
-def acquireAndObserve(target: Target): Unit =
-  // Dumb way to get around an ignored unit error
-  assert(
-    bookTelescope()
-      .map(observeDefinite(target, _)) != null
-  )
-
-acquireAndObserve(Moon)
-// Acquired telescope!
-// Looking at Moon!
-```
-
-Here, there is no ability to sneak additional statements into the code.
-The functions are perfectly fused together.
-This helps prevent some surprises, but still leaves us open to some problems.
-
-```scala
-// Demonstrates leaked resource
-
-acquireAndObserve(Moon)
-// Acquired telescope!
-// Looking at Moon!
-acquireAndObserve(Comet)
-// Failed to acquire telescope!
-```
-Now we see the flaw that has been lurking in our code - we haven't been relinquishing the `Telescope` after using it!
-This is a classic, severe resource leak.
-Our code can only use the telescope a single time before its permanently unavailable.
-
-// TODO Demo Try-with-resources
-// TODO Show how Try-with-resources does not cover our needs during dependency injection
+[^^future_interrupted_2]: This is an endnote with mdoc
+    ```scala
+    ZIO
+      .attempt("asdf")
+      .catchAll { e =>
+        defer {
+          ZIO.logError(e.getMessage).run
+          ZIO.succeed("default value").run
+        }
+      }
+    ```
 
 
 ## Edit This Chapter
