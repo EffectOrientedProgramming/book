@@ -209,11 +209,11 @@ val logic =
 //     trace = "repl.MdocSession.MdocApp.<local MdocApp>.logic(13_Environment_Variables.md:233)",
 //     first = Sync(
 //       trace = "repl.MdocSession.MdocApp.<local MdocApp>.logic(13_Environment_Variables.md:233)",
-//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$14219/0x0000000103b68840@3ccb0ffe
+//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$14319/0x0000000103bb3040@3b8c1055
 //     ),
-//     successK = zio.ZIO$$$Lambda$14221/0x0000000103b6e840@5bd9241e
+//     successK = zio.ZIO$$$Lambda$14321/0x0000000103bb6840@44a7e921
 //   ),
-//   successK = zio.ZIO$$Lambda$14232/0x0000000103b79840@7f790998
+//   successK = zio.ZIO$$Lambda$14330/0x0000000103bc2840@5bddcbfd
 // )
 runDemo(
   logic.provide(
@@ -224,7 +224,7 @@ runDemo(
 )
 // Need to handle long line. 
 // Truncating for now: 
-// OnSuccess(zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19),OnSuccess(zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19),Sync(repl.MdocSession.MdocApp.envZ(13_Environment_Variables.md:137),zio.ZIOCompanionVersionSpecific$$Lambda$14219/0x0000000103b68840@75bccc5e),repl.MdocSession$MdocApp$SystemStrict$$Lambda$17012/0x0000000104494840@4e49e0d6),repl.MdocSession$MdocApp$HotelApiZ$$Lambda$17013/0x0000000104495840@1b26948d)
+// OnSuccess(zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19),OnSuccess(zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19),Sync(repl.MdocSession.MdocApp.envZ(13_Environment_Variables.md:137),zio.ZIOCompanionVersionSpecific$$Lambda$14319/0x0000000103bb3040@3890da15),repl.MdocSession$MdocApp$SystemStrict$$Lambda$17131/0x00000001044f6840@6b2d757d),repl.MdocSession$MdocApp$HotelApiZ$$Lambda$17132/0x00000001044f7840@5525cf9e)
 // OnSuccess(zio.direct.ZioMonad.Success.$anon.fl
 ```
 
@@ -247,6 +247,10 @@ runDemo(
     collaborater
   )
 )
+// Need to handle long line. 
+// Truncating for now: 
+// OnSuccess(zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19),OnSuccess(zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19),Sync(repl.MdocSession.MdocApp.envZ(13_Environment_Variables.md:137),zio.ZIOCompanionVersionSpecific$$Lambda$14319/0x0000000103bb3040@441d984),repl.MdocSession$MdocApp$SystemStrict$$Lambda$17131/0x00000001044f6840@27963b28),repl.MdocSession$MdocApp$HotelApiZ$$Lambda$17132/0x00000001044f7840@7ade0ccc)
+// OnSuccess(zio.direct.ZioMonad.Success.$anon.fl
 ```
 
 **Continuous Integration Server:**
