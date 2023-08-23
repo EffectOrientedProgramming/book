@@ -15,13 +15,14 @@ jobs:
         java-version: '11'
         cache: 'sbt'
 
-    - run: ./bin/sbt genManuscript
+    - run: |
+        ./bin/sbt genManuscript
+        mkdir manuscript/resources
+        mv manuscript/images manuscript/resources/
 
     - name: generate and test examples
       run: |
         bin/sbt generateExamples
-        mkdir manuscript/resources
-        mv manuscript/images manuscript/resources/
         cd Examples
         ../bin/sbt test
 
