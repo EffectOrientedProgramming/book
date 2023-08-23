@@ -13,7 +13,7 @@ Other framings/techniques and their pros/cons:
       that is producing these values
     - All of these types must be manually transformed into the other types
 - Functions that return a Future
-    - Can be interrupted example1[^^future_interrupted_1] two[^^future_interrupted_2]
+    - Can be interrupted example1[^^future_interrupted_1]
     - Manual management of cancellation
     - Start executing immediately
     - Must all fail with Exception
@@ -50,9 +50,9 @@ defer {
 //   trace = "zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res0(98_composability.md:8)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14321/0x0000000103badc40@fe49171
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14219/0x0000000103b68840@73d9e930
 //   ),
-//   successK = repl.MdocSession$MdocApp$$Lambda$17872/0x0000000104644040@24a768dc
+//   successK = repl.MdocSession$MdocApp$$Lambda$17764/0x0000000104557040@7fb9198e
 // )
 ```
 
@@ -73,31 +73,18 @@ ZIO
 //     trace = "repl.MdocSession.MdocApp.res1(98_composability.md:19)",
 //     first = Sync(
 //       trace = "repl.MdocSession.MdocApp.res1(98_composability.md:19)",
-//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$14321/0x0000000103badc40@5f65e496
+//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$14219/0x0000000103b68840@6da614ee
 //     ),
-//     successK = zio.ZIO$$$Lambda$14323/0x0000000103bab840@7e6c5977
+//     successK = zio.ZIO$$$Lambda$14221/0x0000000103b6e840@5bd9241e
 //   ),
-//   successK = zio.ZIO$$Lambda$14334/0x0000000103bc5040@6be99f5e,
-//   failureK = zio.ZIO$$Lambda$14335/0x0000000103bc5840@40adf44b
+//   successK = zio.ZIO$$Lambda$14234/0x0000000103b7b040@2a34f06,
+//   failureK = zio.ZIO$$Lambda$14235/0x0000000103b7c040@3e8fa60b
 // )
 ```
 
 [^^future_interrupted_1]: This is an endnote
 
     With multiple lines
-
-[^^future_interrupted_2]: This is an endnote with mdoc
-
-    ```scala
-    ZIO
-      .attempt("asdf")
-      .catchAll { e =>
-        defer {
-          ZIO.logError(e.getMessage).run
-          ZIO.succeed("default value").run
-        }
-      }
-    ```
 
 
 ## Edit This Chapter
