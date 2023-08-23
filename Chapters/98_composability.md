@@ -13,7 +13,7 @@ Other framings/techniques and their pros/cons:
       that is producing these values
     - All of these types must be manually transformed into the other types
 - Functions that return a Future
-    - Can be interrupted [^^future_interrupted_1] [^^future_interrupted_2]
+    - Can be interrupted example1[^^future_interrupted_1] two[^^future_interrupted_2]
     - Manual management of cancellation
     - Start executing immediately
     - Must all fail with Exception
@@ -62,9 +62,11 @@ ZIO
 ```
 
 [^^future_interrupted_1]: This is an endnote
+
     With multiple lines
 
 [^^future_interrupted_2]: This is an endnote with mdoc
+
     ```scala
     ZIO
       .attempt("asdf")
