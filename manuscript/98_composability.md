@@ -87,14 +87,5 @@ ZIO
 
 [^^future_interrupted_2]: This is an endnote with mdoc
 
-    ```scala
-    ZIO
-      .attempt("asdf")
-      .catchAll { e =>
-        defer {
-          ZIO.logError(e.getMessage).run
-          ZIO.succeed("default value").run
-        }
-      }
-    ```
+    no worky
 
