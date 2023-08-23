@@ -15,7 +15,10 @@ jobs:
         java-version: '11'
         cache: 'sbt'
 
-    - run: ./bin/sbt genManuscript
+    - run: |
+        ./bin/sbt genManuscript
+        mkdir manuscript/resources
+        mv manuscript/images manuscript/resources/
 
     - name: generate and test examples
       run: |
@@ -29,7 +32,7 @@ jobs:
       with:
         file-path: |
           manuscript/*
-          manuscript/images/*
+          manuscript/resources/images/*
         branch: publish
         commit-msg: Update manuscript
         github-token: ${{ secrets.GITHUB_TOKEN }}

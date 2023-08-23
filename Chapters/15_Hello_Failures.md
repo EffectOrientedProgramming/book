@@ -190,6 +190,7 @@ TODO {{Update verbiage now that ZIO section is first}}
 - [ZIO Error Handling](#zio-error-handling)
 - [Wrapping Legacy Code](#wrapping-legacy-code)
 
+{#zio-error-handling}
 ### ZIO-First Error Handling
 
 ```scala mdoc
@@ -225,6 +226,7 @@ TODO Demonstrate ZIO calculating the error types without an explicit annotation 
 runDemo(getTemperatureZ(Scenario.GPSError))
 ```
 
+{#wrapping-legacy-code}
 ### Wrapping Legacy Code
 
 If we are unable to re-write the fallible function, we can still wrap the call

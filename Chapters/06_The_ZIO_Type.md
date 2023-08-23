@@ -24,8 +24,8 @@ It indicates which pieces of the world we will be observing or changing.
 import zio.Console
 
 def print(
-    msg: String
-): ZIO[Console, Nothing, Unit] = ???
+           msg: String
+         ): ZIO[Console, Nothing, Unit] = ???
 ```
 
 This type signature tells us that `print` needs a `Console` in its environment to execute.

@@ -22,7 +22,7 @@ Monads allow us to relate unrelated functions and treat them as a single unit.
 # Data Modeling
 The types should express the reality.
 
-#Performance
+# Performance
 
 # Effects Monads
 
