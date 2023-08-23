@@ -20,6 +20,8 @@ jobs:
     - name: generate and test examples
       run: |
         bin/sbt generateExamples
+        mkdir manuscript/resources
+        mv manuscript/images manuscript/resources/
         cd Examples
         ../bin/sbt test
 
@@ -29,7 +31,7 @@ jobs:
       with:
         file-path: |
           manuscript/*
-          manuscript/images/*
+          manuscript/resources/images/*
         branch: publish
         commit-msg: Update manuscript
         github-token: ${{ secrets.GITHUB_TOKEN }}
