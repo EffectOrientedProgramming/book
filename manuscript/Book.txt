@@ -25,7 +25,6 @@
 25_network.md
 26_programs_as_values.md
 98_composability.md
-ExperimentsSection.md
 microcontrollers.md
 experiments-src-test-scala-Hubs.md
 std_type_conversions_to_zio.md
