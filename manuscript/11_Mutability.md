@@ -60,7 +60,7 @@ lazy val unreliableCounting =
   }
 
 runDemo(unreliableCounting)
-// Final count: 100000
+// Final count: 99992
 ```
 
 Due to the unpredictable nature of shared mutable state, we do not know exactly what the final count above is.
@@ -92,7 +92,6 @@ lazy val reliableCounting =
   }
 
 runDemo(reliableCounting)
-// Final count: 100000
 ```
 Now we can say with full confidence that our final count is 100000.
 Additionally, these updates happen _without blocking_.

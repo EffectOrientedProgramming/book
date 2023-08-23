@@ -13,7 +13,7 @@ Other framings/techniques and their pros/cons:
       that is producing these values
     - All of these types must be manually transformed into the other types
 - Functions that return a Future
-    - Can be interrupted [^^future_interrupted_1] [^^future_interrupted_2]
+    - Can be interrupted example1[^^future_interrupted_1] two[^^future_interrupted_2]
     - Manual management of cancellation
     - Start executing immediately
     - Must all fail with Exception
@@ -50,9 +50,9 @@ defer {
 //   trace = "zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res0(98_composability.md:8)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14296/0x0000000103b8c840@4ff7bf3
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14321/0x0000000103badc40@fe49171
 //   ),
-//   successK = repl.MdocSession$MdocApp$$Lambda$17834/0x00000001046c2040@7f543d85
+//   successK = repl.MdocSession$MdocApp$$Lambda$17872/0x0000000104644040@24a768dc
 // )
 ```
 
@@ -73,19 +73,21 @@ ZIO
 //     trace = "repl.MdocSession.MdocApp.res1(98_composability.md:19)",
 //     first = Sync(
 //       trace = "repl.MdocSession.MdocApp.res1(98_composability.md:19)",
-//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$14296/0x0000000103b8c840@276333a4
+//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$14321/0x0000000103badc40@5f65e496
 //     ),
-//     successK = zio.ZIO$$$Lambda$14298/0x0000000103ba1040@7af51326
+//     successK = zio.ZIO$$$Lambda$14323/0x0000000103bab840@7e6c5977
 //   ),
-//   successK = zio.ZIO$$Lambda$14309/0x0000000103ba8840@201460a6,
-//   failureK = zio.ZIO$$Lambda$14310/0x0000000103ba9840@5fcba7b4
+//   successK = zio.ZIO$$Lambda$14334/0x0000000103bc5040@6be99f5e,
+//   failureK = zio.ZIO$$Lambda$14335/0x0000000103bc5840@40adf44b
 // )
 ```
 
 [^^future_interrupted_1]: This is an endnote
+
     With multiple lines
 
 [^^future_interrupted_2]: This is an endnote with mdoc
+
     ```scala
     ZIO
       .attempt("asdf")
