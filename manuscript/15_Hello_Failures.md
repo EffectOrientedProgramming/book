@@ -200,6 +200,7 @@ TODO {{Update verbiage now that ZIO section is first}}
 - [ZIO Error Handling](#zio-error-handling)
 - [Wrapping Legacy Code](#wrapping-legacy-code)
 
+{#zio-error-handling}
 ### ZIO-First Error Handling
 
 ```scala
@@ -244,6 +245,7 @@ runDemo(getTemperatureZ(Scenario.GPSError))
 // repl.MdocSession$MdocApp$GpsException
 ```
 
+{#wrapping-legacy-code}
 ### Wrapping Legacy Code
 
 If we are unable to re-write the fallible function, we can still wrap the call
@@ -352,6 +354,7 @@ runDemo(
 
 
 {{TODO show catchSome}}
+
 
 ## Edit This Chapter
 [Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/15_Hello_Failures.md)

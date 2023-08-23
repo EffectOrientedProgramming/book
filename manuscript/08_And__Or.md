@@ -26,10 +26,6 @@ trait PermissionError
 In the type system, the most recent ancestor between them is `Any`.  
 Unfortunately, you cannot make any meaningful decisions based on this type.
 
-
-Hardcoded graph to test mermaid integration possibilities:
-[![](https://mermaid.ink/img/eyJjb2RlIjoiXG5ncmFwaCBURDtcbiAgVXNlck5vdEZvdW5kLS0-Tm90aGluZztcbiAgUGVybWlzc2lvbkVycm9yLS0-Tm90aGluZztcbiIsIm1lcm1haWQiOnsidGhlbWUiOiJkZWZhdWx0In19)](https://mermaid-js.github.io/mermaid-live-editor/#/edit/eyJjb2RlIjoiXG5ncmFwaCBURDtcbiAgVXNlck5vdEZvdW5kLS0-Tm90aGluZztcbiAgUGVybWlzc2lvbkVycm9yLS0-Tm90aGluZztcbiIsIm1lcm1haWQiOnsidGhlbWUiOiJkZWZhdWx0In19)
-
 ```mermaid
 graph TD;
   UserNotFound-->Nothing;
