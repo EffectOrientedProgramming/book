@@ -50,13 +50,14 @@ defer {
 //   trace = "zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res0(98_composability.md:8)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14300/0x0000000103b9dc40@7c3b22f8
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14313/0x0000000103ba5c40@40d80fec
 //   ),
-//   successK = repl.MdocSession$MdocApp$$Lambda$17859/0x00000001046dc840@1d9e359b
+//   successK = repl.MdocSession$MdocApp$$Lambda$17859/0x000000010466c840@2f7f3ad4
 // )
 ```
 
 There are many other ways you can compose ZIOs.  The methods for composability depend on the desired behavior.  For example, to compose a ZIO that can produce an error with a ZIO that logs the error and then produces a default value, you can use the `catchAll` like:
+
 ```scala
 ZIO
   .attempt("asdf")
@@ -72,12 +73,12 @@ ZIO
 //     trace = "repl.MdocSession.MdocApp.res1(98_composability.md:19)",
 //     first = Sync(
 //       trace = "repl.MdocSession.MdocApp.res1(98_composability.md:19)",
-//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$14300/0x0000000103b9dc40@5eba5f2a
+//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$14313/0x0000000103ba5c40@184ecc31
 //     ),
-//     successK = zio.ZIO$$$Lambda$14302/0x0000000103b9b840@424d71dd
+//     successK = zio.ZIO$$$Lambda$14316/0x0000000103bb8040@3a928aae
 //   ),
-//   successK = zio.ZIO$$Lambda$14313/0x0000000103bb7040@2bb625fb,
-//   failureK = zio.ZIO$$Lambda$14314/0x0000000103bb7840@e3ffe97
+//   successK = zio.ZIO$$Lambda$14327/0x0000000103bbf840@5f146006,
+//   failureK = zio.ZIO$$Lambda$14328/0x0000000103bc0840@5f33b367
 // )
 ```
 
@@ -87,5 +88,17 @@ ZIO
 
 [^^future_interrupted_2]: This is an endnote with mdoc
 
-    no worky
+    ```scala
+    ZIO
+      .attempt("asdf")
+      .catchAll { e =>
+        defer {
+          ZIO.logError(e.getMessage).run
+          ZIO.succeed("default value").run
+        }
+      }
+    ```
 
+
+## Edit This Chapter
+[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/98_composability.md)
