@@ -209,11 +209,11 @@ val logic =
 //     trace = "repl.MdocSession.MdocApp.<local MdocApp>.logic(13_Environment_Variables.md:233)",
 //     first = Sync(
 //       trace = "repl.MdocSession.MdocApp.<local MdocApp>.logic(13_Environment_Variables.md:233)",
-//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$14309/0x0000000103bb1c40@4d1d6616
+//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$14241/0x0000000103b5e440@3ffbc264
 //     ),
-//     successK = zio.ZIO$$$Lambda$14311/0x0000000103bb6840@74021f70
+//     successK = zio.ZIO$$$Lambda$14243/0x0000000103b5c040@13a969b4
 //   ),
-//   successK = zio.ZIO$$Lambda$14320/0x0000000103bc2040@3d42606f
+//   successK = zio.ZIO$$Lambda$14252/0x0000000103b74040@2b1574e9
 // )
 runDemo(
   logic.provide(
@@ -222,10 +222,6 @@ runDemo(
     originalAuthor
   )
 )
-// Need to handle long line. 
-// Truncating for now: 
-// OnSuccess(zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19),OnSuccess(zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19),Sync(repl.MdocSession.MdocApp.envZ(13_Environment_Variables.md:137),zio.ZIOCompanionVersionSpecific$$Lambda$14309/0x0000000103bb1c40@2e6cb85b),repl.MdocSession$MdocApp$SystemStrict$$Lambda$17143/0x0000000104502040@b6d0c8b),repl.MdocSession$MdocApp$HotelApiZ$$Lambda$17144/0x0000000104502840@15abe393)
-// OnSuccess(zio.direct.ZioMonad.Success.$anon.fl
 ```
 
 **Collaborator's Machine:**
@@ -249,7 +245,7 @@ runDemo(
 )
 // Need to handle long line. 
 // Truncating for now: 
-// OnSuccess(zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19),OnSuccess(zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19),Sync(repl.MdocSession.MdocApp.envZ(13_Environment_Variables.md:137),zio.ZIOCompanionVersionSpecific$$Lambda$14309/0x0000000103bb1c40@4ee4c0d1),repl.MdocSession$MdocApp$SystemStrict$$Lambda$17143/0x0000000104502040@6f9a6234),repl.MdocSession$MdocApp$HotelApiZ$$Lambda$17144/0x0000000104502840@473bdbc)
+// OnSuccess(zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19),OnSuccess(zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19),Sync(repl.MdocSession.MdocApp.envZ(13_Environment_Variables.md:137),zio.ZIOCompanionVersionSpecific$$Lambda$14241/0x0000000103b5e440@6b99186d),repl.MdocSession$MdocApp$SystemStrict$$Lambda$17080/0x00000001044bf840@469e87ce),repl.MdocSession$MdocApp$HotelApiZ$$Lambda$17082/0x00000001044c1040@4f126b91)
 // OnSuccess(zio.direct.ZioMonad.Success.$anon.fl
 ```
 
@@ -272,7 +268,7 @@ runDemo(
 )
 // Need to handle long line. 
 // Truncating for now: 
-// OnSuccess(zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19),OnSuccess(zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19),Sync(repl.MdocSession.MdocApp.envZ(13_Environment_Variables.md:137),zio.ZIOCompanionVersionSpecific$$Lambda$14309/0x0000000103bb1c40@727f93e2),repl.MdocSession$MdocApp$SystemStrict$$Lambda$17143/0x0000000104502040@d091b0),repl.MdocSession$MdocApp$HotelApiZ$$Lambda$17144/0x0000000104502840@42b8df8a)
+// OnSuccess(zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19),OnSuccess(zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19),Sync(repl.MdocSession.MdocApp.envZ(13_Environment_Variables.md:137),zio.ZIOCompanionVersionSpecific$$Lambda$14241/0x0000000103b5e440@603140f7),repl.MdocSession$MdocApp$SystemStrict$$Lambda$17080/0x00000001044bf840@25e7c27a),repl.MdocSession$MdocApp$HotelApiZ$$Lambda$17082/0x00000001044c1040@39471ea0)
 // OnSuccess(zio.direct.ZioMonad.Success.$anon.fl
 ```
 
