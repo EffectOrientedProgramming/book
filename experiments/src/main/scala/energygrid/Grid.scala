@@ -1,3 +1,0 @@
-package energygrid
-
-object Grid {}
