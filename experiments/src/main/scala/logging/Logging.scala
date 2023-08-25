@@ -29,8 +29,6 @@ object Logging extends ZIOAppDefault:
 
   def run = ZIO.log("Hi").provide(coloredLogger)
 
-//  val timestamp: LogFormat = timestamp(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-
   def location(gps: Gps): LogFormat =
     text {
       gps.currentLocation().toString
