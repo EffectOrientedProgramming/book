@@ -43,7 +43,6 @@ crypto.md
 experiments-src-test-scala-test_aspects.md
 experiments-src-test-scala-scenarios.md
 experiments-src-test-scala-testcontainers.md
-schema.md
 cancellation.md
 rezilience.md
 diningphilosophers.md
