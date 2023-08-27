@@ -18,85 +18,6 @@ def checkAnswer(
   else
     s"BZZ Wrong!! Answer was $answer"
 
-def checkAnswerTry(
-    answer: Int,
-    guess: String
-): String =
-  try
-    if answer == guess.toInt then
-      "You got it!"
-    else
-      s"BZZ Wrong!! Answer was $answer"
-  catch
-    case _ =>
-      "User did not provide an integer. Invalid input: " +
-        guess
-
-def checkAnswerZ1(
-    answer: Int,
-    guess: String
-): ZIO[Any, Nothing, String] =
-  ZIO
-    .attempt(guess.toInt)
-    .map(i =>
-      if answer == i then
-        "You got it!"
-      else
-        s"BZZ Wrong!! Answer was $answer"
-    )
-    .catchAll(_ =>
-      ZIO.succeed("Invalid input: " + guess)
-    )
-
-def checkAnswerZ2(
-    answer: Int,
-    guess: String
-): ZIO[Any, Nothing, String] =
-  ZIO
-    .attempt(guess.toInt)
-    .map(i =>
-      if answer == i then
-        "You got it!"
-      else
-        s"BZZ Wrong!! Answer was $answer"
-    )
-    .orElseSucceed("Invalid input: " + guess)
-
-def checkAnswerZ3(
-    answer: Int,
-    guess: String
-): ZIO[Any, Nothing, String] =
-  ZIO
-    .attempt(guess.toInt)
-    .orElseFail("Invalid input:  " + guess)
-    .map(i =>
-      if answer == i then
-        "You got it!"
-      else
-        s"BZZ Wrong!! Answer was $answer"
-    )
-    .merge
-
-def checkAnswerZ4(
-    answer: Int,
-    guess: String
-): ZIO[Any, Nothing, String] =
-  ZIO
-    .attempt(guess.toInt)
-    .mapBoth(
-      _ => "Invalid input:  " + guess,
-      i =>
-        if answer == i then
-          "You got it!"
-        else
-          s"BZZ Wrong!! Answer was $answer"
-    )
-    .merge
-
-// After writing so many variations of the function above,
-// I suspect that what we _really_ need to do is break up the logic.
-// Both ZIO and vanilla Scala code should get simpler
-
 def parse(guess: String) =
   ZIO
     .attempt(guess.toInt)
@@ -116,14 +37,13 @@ def checkAnswerZSplit(
     .merge
 
 val sideEffectingGuessingGame =
-  defer {
+  defer:
     Console.print(prompt).run
     val answer =
       scala.util.Random.between(low, high)
     val guess    = Console.readLine.run
     val response = checkAnswer(answer, guess)
     prompt + guess + "\n" + response
-  }
 
 object runSideEffectingGuessingGame
     extends ZIOAppDefault:
