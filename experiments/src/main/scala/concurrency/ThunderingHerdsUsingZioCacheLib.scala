@@ -23,7 +23,7 @@ case class ThunderingHerdsUsingZioCacheLib(
 
 object ThunderingHerdsUsingZioCacheLib:
   val make =
-    defer {
+    defer:
       val retrievalFunction =
         ZIO
           .service[FileSystem]
@@ -39,5 +39,4 @@ object ThunderingHerdsUsingZioCacheLib:
           )
           .run
       ThunderingHerdsUsingZioCacheLib(cache)
-    }
 end ThunderingHerdsUsingZioCacheLib
