@@ -28,5 +28,26 @@ Notes:
     1. Composability
 1. Concurrency & Async (We maybe need other words here)
     1. Safe, performant, efficient, reliable
-1. ...
+
+1. The ZIO data type
+1. Layers
+    1. Creating
+    1. Composing
+1. Errors
+    1. Creating & Handling
+    1. Error composability
+    1. Cause
+1. Concurrency - High Level
+    1. forEachPar, collectAllPar
+1. Concurrency - Mid Level
+    1. fork join
+1. Concurrency - Low Level
+    1. STM
+1. Concurrency - Interruption
+1. Concurrency - State
+1. Retries, Timeouts, etc
+1. Resource Management
+1. Logging
+1. Streams
+1. Configuration
 
