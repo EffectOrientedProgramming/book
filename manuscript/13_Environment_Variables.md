@@ -209,11 +209,11 @@ val logic =
 //     trace = "repl.MdocSession.MdocApp.<local MdocApp>.logic(13_Environment_Variables.md:233)",
 //     first = Sync(
 //       trace = "repl.MdocSession.MdocApp.<local MdocApp>.logic(13_Environment_Variables.md:233)",
-//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$14223/0x0000000103b6c840@46e402d7
+//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$14259/0x0000000103b86c40@6b3adede
 //     ),
-//     successK = zio.ZIO$$$Lambda$14225/0x0000000103b6b040@2afcccb1
+//     successK = zio.ZIO$$$Lambda$14262/0x0000000103b83840@42714832
 //   ),
-//   successK = zio.ZIO$$Lambda$14234/0x0000000103b84840@90011ec
+//   successK = zio.ZIO$$Lambda$14271/0x0000000103b9d040@260000a5
 // )
 runDemo(
   logic.provide(
@@ -243,10 +243,6 @@ runDemo(
     collaborater
   )
 )
-// Need to handle long line. 
-// Truncating for now: 
-// OnSuccess(zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19),OnSuccess(zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19),Sync(repl.MdocSession.MdocApp.envZ(13_Environment_Variables.md:137),zio.ZIOCompanionVersionSpecific$$Lambda$14223/0x0000000103b6c840@45496c02),repl.MdocSession$MdocApp$SystemStrict$$Lambda$17037/0x00000001044ba840@5bd6d9fa),repl.MdocSession$MdocApp$HotelApiZ$$Lambda$17038/0x00000001044bb840@11ef5dd2)
-// OnSuccess(zio.direct.ZioMonad.Success.$anon.fl
 ```
 
 **Continuous Integration Server:**
@@ -266,10 +262,6 @@ runDemo(
     ci
   )
 )
-// Need to handle long line. 
-// Truncating for now: 
-// OnSuccess(zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19),OnSuccess(zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19),Sync(repl.MdocSession.MdocApp.envZ(13_Environment_Variables.md:137),zio.ZIOCompanionVersionSpecific$$Lambda$14223/0x0000000103b6c840@3c5ab687),repl.MdocSession$MdocApp$SystemStrict$$Lambda$17037/0x00000001044ba840@479e4657),repl.MdocSession$MdocApp$HotelApiZ$$Lambda$17038/0x00000001044bb840@59caaa7c)
-// OnSuccess(zio.direct.ZioMonad.Success.$anon.fl
 ```
 
 TODO{{The actual line looks the same, which I highlighted as a problem before. How should we indicate that the Environment is different?}}

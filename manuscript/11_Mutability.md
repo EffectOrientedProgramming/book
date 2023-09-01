@@ -59,8 +59,7 @@ lazy val unreliableCounting =
     "Final count: " + ZIO.succeed(counter).run
   }
 
-runDemoValue(unreliableCounting)
-// res0: String = "Final count: 99967"
+runDemo(unreliableCounting)
 ```
 
 Due to the unpredictable nature of shared mutable state, we do not know exactly what the final count above is.
@@ -91,8 +90,7 @@ lazy val reliableCounting =
     "Final count: " + counter.get.run
   }
 
-runDemoValue(reliableCounting)
-// res1: String = "Final count: 100000"
+runDemo(reliableCounting)
 ```
 Now we can say with full confidence that our final count is 100000.
 Additionally, these updates happen _without blocking_.
@@ -132,7 +130,7 @@ lazy val sideEffectingUpdates =
   }
 
 // Mdoc/this function is showing the notifications, but not the final result
-runDemoValue(sideEffectingUpdates)
+runDemo(sideEffectingUpdates)
 // Alert: We have updated our count!
 // Alert: We have updated our count!
 // Alert: We have updated our count!
@@ -140,7 +138,6 @@ runDemoValue(sideEffectingUpdates)
 // Alert: We have updated our count!
 // Alert: We have updated our count!
 // Alert: We have updated our count!
-// res2: String = "Final count: 4"
 ```
 What is going on?!
 Previously, we were losing updates because of unsafe mutability.
@@ -181,12 +178,11 @@ lazy val sideEffectingUpdatesSync =
     "Final count: " + counter.get.run
   }
 
-runDemoValue(sideEffectingUpdatesSync)
+runDemo(sideEffectingUpdatesSync)
 // Alert: We have updated our count!
 // Alert: We have updated our count!
 // Alert: We have updated our count!
 // Alert: We have updated our count!
-// res3: String = "Final count: 4"
 ```
 
 Now we see exactly the number of alerts that we expected.

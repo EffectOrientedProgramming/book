@@ -1,4 +1,4 @@
-# Cause
+# Cause TODO Consider putting inside error handling
 
 `Cause` will track all errors originating from a single call in an application, regardless of concurrency and parallelism.
 
@@ -25,6 +25,22 @@ Cause allows you to aggregate multiple errors of the same type
 Cause.die will show you the line that failed, because it requires a throwable
 Cause.fail will not necessarily, because it can be any arbitrary type
 
+## Manual demonstration of these operators
+
+```scala
+runDemo(
+  Console.printLine(
+    (
+      Cause.die(Exception("1")) ++
+        (Cause.fail(Exception("2a")) &&
+          Cause.fail(Exception("2b"))) ++
+        Cause
+          .stackless(Cause.fail(Exception("3")))
+      ).prettyPrint
+  )
+)
+```
+
 ## Avoided Technique - Throwing Exceptions
 
 Now we will highlight the deficiencies of throwing `Exception`s.
@@ -43,12 +59,12 @@ val thrownLogic =
         throw new Exception("Release Failed")
   )
 // thrownLogic: ZIO[Any, Throwable, Nothing] = OnSuccess(
-//   trace = "repl.MdocSession.MdocApp.thrownLogic(16_Cause.md:37)",
+//   trace = "repl.MdocSession.MdocApp.thrownLogic(16_Cause.md:54)",
 //   first = Sync(
-//     trace = "repl.MdocSession.MdocApp.thrownLogic(16_Cause.md:37)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14223/0x0000000103b6c840@1bcc6fbf
+//     trace = "repl.MdocSession.MdocApp.thrownLogic(16_Cause.md:54)",
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14259/0x0000000103b86c40@403b4d68
 //   ),
-//   successK = zio.ZIO$$$Lambda$14225/0x0000000103b6b040@2afcccb1
+//   successK = zio.ZIO$$$Lambda$14262/0x0000000103b83840@42714832
 // )
 runDemo(thrownLogic)
 // java.lang.Exception: Release Failed
@@ -85,46 +101,6 @@ Everything must be reported linearly, even in systems that are executing on diff
  code with full editor capabilities :D
 
  
-
-### experiments/src/main/scala/cause/CauseBasics.scala
-```scala
-package cause
-
-object CauseBasics extends App:
-//    ZIO.fail(Cause.fail("Blah"))
-  println(
-    (
-      Cause.die(Exception("1")) ++
-        (Cause.fail(Exception("2a")) &&
-          Cause.fail(Exception("2b"))) ++
-        Cause
-          .stackless(Cause.fail(Exception("3")))
-    ).prettyPrint
-  )
-
-object CauseZIO extends ZIOAppDefault:
-
-  val x: ZIO[Any, Nothing, Nothing] =
-    ZIO.die(Exception("Blah"))
-  def run = ZIO.die(Exception("Blah"))
-
-object LostInfo extends ZIOAppDefault:
-  def run =
-    ZIO.attempt(
-      try
-        throw new Exception(
-          "Client connection lost"
-        )
-      finally
-        try () // Cleanup
-        finally
-          throw new Exception(
-            "Problem relinquishing to pool"
-          )
-    )
-
-```
-
 
 ### experiments/src/main/scala/cause/MalcomInTheMiddle.scala
 ```scala

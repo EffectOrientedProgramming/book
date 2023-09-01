@@ -173,8 +173,6 @@ runDemo(
     ZLayer.succeed[Console](ConsoleSanitized)
   )
 )
-// Customer SSN is 000-00-0000
-// ()
 ```
 
 
