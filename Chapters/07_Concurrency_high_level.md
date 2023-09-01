@@ -53,7 +53,7 @@ runDemoValue(
 ```
 
 
-```scala mdoc
+```scala
 // Massive example
 runDemoValue(
   defer {
