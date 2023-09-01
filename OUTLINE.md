@@ -31,9 +31,12 @@ Notes:
 
 1. The ZIO data type
 1. Running ZIOs
-1. Layers
+1. Layers / Environment
     1. Creating
     1. Composing
+1. Tests
+    1. `assertTrue`
+    1. Test layers
 1. Errors
     1. Creating & Handling
     1. Error composability

@@ -12,6 +12,10 @@
     1. End notes can't contain code
     1. We can instead do a 99_endnotes.md and use crosslinks: http://markua.com/#crosslinks-and-ids-m-
     1. This approach will work with mdoc
+1. `ZIO.debug` output in mdoc
+1. `runDemo` replacement with `mdoc:ziorun`
+1. `runTest` in mdoc
+1. `runTest` replacement with `mdoc:ziotest`
 
 ## P1
 1. ZIO Direct returning concrete values
