@@ -1,4 +1,4 @@
-# Cause
+# Cause TODO Consider putting inside error handling
 
 `Cause` will track all errors originating from a single call in an application, regardless of concurrency and parallelism.
 
@@ -23,6 +23,22 @@ Cause allows you to aggregate multiple errors of the same type
 
 Cause.die will show you the line that failed, because it requires a throwable
 Cause.fail will not necessarily, because it can be any arbitrary type
+
+## Manual demonstration of these operators
+
+```scala mdoc
+runDemo(
+  Console.printLine(
+    (
+      Cause.die(Exception("1")) ++
+        (Cause.fail(Exception("2a")) &&
+          Cause.fail(Exception("2b"))) ++
+        Cause
+          .stackless(Cause.fail(Exception("3")))
+      ).prettyPrint
+  )
+)
+```
 
 ## Avoided Technique - Throwing Exceptions
 

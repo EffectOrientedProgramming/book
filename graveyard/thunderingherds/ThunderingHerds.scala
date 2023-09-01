@@ -1,20 +1,5 @@
-package concurrency
-
 import concurrency.FileService.ActiveUpdate
 import zio.Console.printLine
-
-import java.nio.file.Path
-
-case class FileContents(contents: List[String])
-
-trait FileService:
-  def retrieveContents(
-      name: Path
-  ): ZIO[Any, Nothing, FileContents]
-
-  val hits: ZIO[Any, Nothing, Int]
-
-  val misses: ZIO[Any, Nothing, Int]
 
 class Counter(count: Ref[Int]):
   val now = count.get
@@ -25,12 +10,12 @@ object Counter:
   val make = Ref.make(0).map(Counter(_))
 
 class FileCache(
-    map: Ref[Map[Path, FileContents]]
-):
+                 map: Ref[Map[Path, FileContents]]
+               ):
   def saveContents(
-      name: Path,
-      contents: FileContents
-  ) =
+                    name: Path,
+                    contents: FileContents
+                  ) =
     map.update(m =>
       m.updated(name, contents) // Update cache
     )
@@ -67,30 +52,30 @@ object FileService:
         )
 
   case class ActiveUpdate(
-      observers: Int,
-      promise: Promise[Nothing, FileContents]
-  ):
+                           observers: Int,
+                           promise: Promise[Nothing, FileContents]
+                         ):
     def completeWith(contents: FileContents) =
       promise.succeed(contents)
 
-//case class Counter(count: Ref[Int]):
-//  val get: ZIO[Any, Nothing, Int] =
-//    count.getAndUpdate(_ + 1)
+  //case class Counter(count: Ref[Int]):
+  //  val get: ZIO[Any, Nothing, Int] =
+  //    count.getAndUpdate(_ + 1)
 
   case class Live(
-      hit: Counter,
-      miss: Counter,
-      // TODO Consider ConcurrentMap
-      cache: FileCache,
-      activeRefresh: Ref[
-        Map[Path, ActiveUpdate]
-      ],
-      fileSystem: FileSystem
-  ) extends FileService:
+                   hit: Counter,
+                   miss: Counter,
+                   // TODO Consider ConcurrentMap
+                   cache: FileCache,
+                   activeRefresh: Ref[
+                     Map[Path, ActiveUpdate]
+                   ],
+                   fileSystem: FileSystem
+                 ) extends FileService:
 
     def retrieveContents(
-        name: Path
-    ): ZIO[Any, Nothing, FileContents] =
+                          name: Path
+                        ): ZIO[Any, Nothing, FileContents] =
       defer:
         cache.currentValue(name).run match
           case Some(initValue) =>
@@ -103,8 +88,8 @@ object FileService:
             retrieveOrWaitForContents(name).run
 
     private def retrieveOrWaitForContents(
-        name: Path
-    ): ZIO[Any, Nothing, FileContents] =
+                                           name: Path
+                                         ): ZIO[Any, Nothing, FileContents] =
       defer:
         val activeUpdatesNow =
           activeUpdates(activeRefresh, name).run
@@ -133,9 +118,9 @@ object FileService:
 end FileService
 
 def slowHerdMemberBehavior(
-    hit: Counter,
-    activeUpdate: ActiveUpdate
-) =
+                            hit: Counter,
+                            activeUpdate: ActiveUpdate
+                          ) =
   defer:
     printLine(
       "Slower herd member will wait for response of 1st member"
@@ -152,9 +137,9 @@ def slowHerdMemberBehavior(
       .run
 
 def activeUpdates(
-    activeRefresh: Ref[Map[Path, ActiveUpdate]],
-    name: Path
-) =
+                   activeRefresh: Ref[Map[Path, ActiveUpdate]],
+                   name: Path
+                 ) =
   defer:
     val promiseThatMightNotBeUsed =
       Promise.make[Nothing, FileContents].run
@@ -179,14 +164,14 @@ def activeUpdates(
       .run
 
 def firstHerdMemberBehavior(
-    fileSystem: FileSystem,
-    activeUpdate: ActiveUpdate,
-    activeRefresh: Ref[Map[Path, ActiveUpdate]],
-    miss: Counter,
-    // TODO Consider ConcurrentMap
-    cache: FileCache,
-    name: Path
-): ZIO[Any, Nothing, FileContents] =
+                             fileSystem: FileSystem,
+                             activeUpdate: ActiveUpdate,
+                             activeRefresh: Ref[Map[Path, ActiveUpdate]],
+                             miss: Counter,
+                             // TODO Consider ConcurrentMap
+                             cache: FileCache,
+                             name: Path
+                           ): ZIO[Any, Nothing, FileContents] =
   defer:
     printLine(
       "1st herd member will hit the filesystem"
@@ -227,33 +212,3 @@ object ThunderingHerds extends ZIOAppDefault:
   def run =
     herdBehavior
       .provide(FileSystem.live, FileService.live)
-
-trait FileSystem:
-  def readFileExpensive(
-      name: Path
-  ): ZIO[Any, Nothing, FileContents] =
-    ZIO
-      .succeed(FileSystem.hardcodedFileContents)
-      .tap(_ =>
-        printLine("Reading from FileSystem")
-          .orDie
-      )
-      .delay(2.seconds)
-
-  def readFileExpensive2(
-                         name: Path
-                       ): ZIO[Any, Nothing, FileContents] =
-    defer:
-      printLine("Reading from FileSystem")
-        .orDie
-        .run
-
-      ZIO.sleep(2.seconds).run
-      FileSystem.hardcodedFileContents
-
-object FileSystem:
-  val hardcodedFileContents =
-    FileContents(
-      List("viralImage1", "viralImage2")
-    )
-  val live = ZLayer.succeed(new FileSystem {})

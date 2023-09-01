@@ -54,12 +54,6 @@ object ThunderingHerdsSpec
 
   override def spec =
     suite("ThunderingHerdsSpec")(
-      test("classic happy path") {
-        testInnards
-      }.provide(
-        FileSystem.live,
-        FileService.live
-      ),
       test(
         "classic happy path using zio-cache library"
       ) {
