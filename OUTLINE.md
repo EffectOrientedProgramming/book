@@ -30,6 +30,7 @@ Notes:
     1. Safe, performant, efficient, reliable
 
 1. The ZIO data type
+1. Running ZIOs
 1. Layers
     1. Creating
     1. Composing
@@ -37,15 +38,19 @@ Notes:
     1. Creating & Handling
     1. Error composability
     1. Cause
+    1. Retry
 1. Concurrency - High Level
     1. forEachPar, collectAllPar
-1. Concurrency - Mid Level
-    1. fork join
 1. Concurrency - Low Level
-    1. STM
+    1. fork join
+    2. Throwaway reference to STM
 1. Concurrency - Interruption
+    1. Timeout
+    1. Race
 1. Concurrency - State
-1. Retries, Timeouts, etc
+   1. Ref
+   1. Thundering Herds
+1. Repeats
 1. Resource Management
 1. Logging
 1. Streams
