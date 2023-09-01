@@ -53,7 +53,7 @@ runDemoValue(
 ```
 
 
-```scala
+```scala mdoc
 // Massive example
 runDemoValue(
   defer {
@@ -61,7 +61,7 @@ runDemoValue(
       ZIO
         .collectAllSuccessesPar(
           Seq
-            .fill(1_000_000)(1.seconds)
+            .fill(1_000)(1.seconds)
             .map(duration =>
               defer {
                 val randInt =
