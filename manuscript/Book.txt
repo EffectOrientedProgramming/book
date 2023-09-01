@@ -49,7 +49,6 @@ zio_intro.md
 fibers.md
 experiments-src-test-scala-zio_test.md
 experiments-src-test-scala-layers.md
-prelude.md
 experiments-src-test-scala-time.md
 performance.md
 game_theory.md
