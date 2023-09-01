@@ -60,8 +60,7 @@ lazy val unreliableCounting =
   }
 
 runDemoValue(unreliableCounting)
-// Final count: 99994
-// res0: String = "Final count: 99994"
+// res0: String = "Final count: 99967"
 ```
 
 Due to the unpredictable nature of shared mutable state, we do not know exactly what the final count above is.
@@ -93,7 +92,6 @@ lazy val reliableCounting =
   }
 
 runDemoValue(reliableCounting)
-// Final count: 100000
 // res1: String = "Final count: 100000"
 ```
 Now we can say with full confidence that our final count is 100000.
