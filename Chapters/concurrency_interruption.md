@@ -15,7 +15,7 @@ def sleepThenPrint(
 ```
 
 ```scala mdoc
-runDemoValue(
+runDemo(
   ZIO.raceAll(
     sleepThenPrint(2.seconds),
     Seq(sleepThenPrint(1.seconds))

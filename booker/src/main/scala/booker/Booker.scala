@@ -310,7 +310,20 @@ object AddNewChapterApp
             TerminalApp.Step.update(state)
 end AddNewChapterApp
 
+object HelloWorldApp
+    extends TerminalApp[Nothing, Unit, String]:
+  override def render(unit: Unit): View =
+    View.text("hello, world")
+
+  override def update(
+      state: Unit,
+      event: TerminalEvent[Nothing]
+  ) = TerminalApp.Step.exit
+
 object Booker extends ZIOAppDefault:
+  override def run =
+    HelloWorldApp.run(()).provide(TUI.live(true))
+  /*
   val program =
     val f: File = new File("Chapters")
 
@@ -329,4 +342,5 @@ object Booker extends ZIOAppDefault:
     Any,
     Any
   ] = program
-end Booker
+
+ */

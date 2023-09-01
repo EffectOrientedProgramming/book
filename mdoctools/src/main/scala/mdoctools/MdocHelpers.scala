@@ -104,16 +104,6 @@ def wrapUnsafeZIOReportError[E, A](
 
 end wrapUnsafeZIOReportError
 
-def runDemoValue[E, A](
-    z: => ZIO[Any, E, A]
-): String =
-  Unsafe.unsafe { (u: Unsafe) =>
-    given Unsafe = u
-    unsafe
-      .run(wrapUnsafeZIOReportError(z))
-      .getOrThrowFiberFailure()
-  }
-
 object OurConsole extends Console {
   override def print(line: => Any)(implicit trace: Trace): IO[IOException, Unit] = ???
 
@@ -187,7 +177,7 @@ object TestRunnerLocal {
   }
 }
 
-object ProofOfConcept:
+def runSpec(x: ZIO[Any, Nothing, TestResult]) =
 
   val liveEnvironment: Layer[Nothing, Clock with Console with System with Random] = {
     implicit val trace = Trace.empty
@@ -200,40 +190,10 @@ object ProofOfConcept:
       )
     )
   }
-  def runSpec[A](x: ZIO[Any, Nothing, TestResult]) =
-    println("In run spec")
 
-
-
-    runDemo(
-      TestRunnerLocal.runSpecAsApp(
-          zio.test.test("")(x.tap(details =>
-            println(
-              "Details: " + details
-            )
-            ZIO.succeed(
-              println(
-                "Details: " + details
-              )
-            )
-          )
-          )
-          //        .provide(
-          //          ZLayer.environment[TestEnvironment with ZIOAppArgs with Scope] +!+
-          //            (liveEnvironment >>> TestEnvironment.live +!+ TestLogger.fromConsole(Console.ConsoleLive))
-          //        )
-        )
-        .provide(
-          liveEnvironment,
-          TestEnvironment.live,
-          Scope.default
-        )
-        .map{x =>
-          scala.Console.println("Failure!")
-          println(x.failureDetails)
-          x.failureDetails
-        }
-        .tap( details =>
+  runDemo(
+    TestRunnerLocal.runSpecAsApp(
+        zio.test.test("")(x.tap(details =>
           println(
             "Details: " + details
           )
@@ -243,4 +203,30 @@ object ProofOfConcept:
             )
           )
         )
-    )
+        )
+        //        .provide(
+        //          ZLayer.environment[TestEnvironment with ZIOAppArgs with Scope] +!+
+        //            (liveEnvironment >>> TestEnvironment.live +!+ TestLogger.fromConsole(Console.ConsoleLive))
+        //        )
+      )
+      .provide(
+        liveEnvironment,
+        TestEnvironment.live,
+        Scope.default
+      )
+      .map{x =>
+        scala.Console.println("Failure!")
+        println(x.failureDetails)
+        x.failureDetails
+      }
+      .tap( details =>
+        println(
+          "Details: " + details
+        )
+        ZIO.succeed(
+          println(
+            "Details: " + details
+          )
+        )
+      )
+  )

@@ -14,7 +14,7 @@ def sleepThenPrint(
 ```
 
 ```scala mdoc
-runDemoValue(
+runDemo(
     ZIO.foreach(Seq(2, 1)) { i =>
         sleepThenPrint(i.seconds)
     }
@@ -23,7 +23,7 @@ runDemoValue(
 ```
 
 ```scala mdoc
-runDemoValue(
+runDemo(
       ZIO.foreachPar(Seq(2, 1)) { i =>
         sleepThenPrint(i.seconds)
       }
@@ -32,7 +32,7 @@ runDemoValue(
 
 
 ```scala mdoc
-runDemoValue(
+runDemo(
   defer {
     val durations =
       ZIO
@@ -55,7 +55,7 @@ runDemoValue(
 
 ```scala mdoc
 // Massive example
-runDemoValue(
+runDemo(
   defer {
     val durations =
       ZIO

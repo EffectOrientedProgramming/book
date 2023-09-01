@@ -11,18 +11,17 @@ case class FileContents(contents: List[String])
 
 trait FileService:
   def retrieveContents(
-                        name: Path
-                      ): ZIO[Any, Nothing, FileContents]
+      name: Path
+  ): ZIO[Any, Nothing, FileContents]
 
   val hits: ZIO[Any, Nothing, Int]
 
   val misses: ZIO[Any, Nothing, Int]
 
-
 trait FileSystem:
   def readFileExpensive(
-                         name: Path
-                       ): ZIO[Any, Nothing, FileContents] =
+      name: Path
+  ): ZIO[Any, Nothing, FileContents] =
     ZIO
       .succeed(FileSystem.hardcodedFileContents)
       .tap(_ =>
@@ -32,8 +31,8 @@ trait FileSystem:
       .delay(2.seconds)
 
   def readFileExpensive2(
-                          name: Path
-                        ): ZIO[Any, Nothing, FileContents] =
+      name: Path
+  ): ZIO[Any, Nothing, FileContents] =
     defer:
       printLine("Reading from FileSystem")
         .orDie
@@ -41,6 +40,7 @@ trait FileSystem:
 
       ZIO.sleep(2.seconds).run
       FileSystem.hardcodedFileContents
+end FileSystem
 
 object FileSystem:
   val hardcodedFileContents =

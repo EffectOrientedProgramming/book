@@ -11,7 +11,7 @@ def sleepThenPrint(
 ```
 
 ```scala mdoc
-runDemoValue(
+runDemo(
   defer {
     val f1 = sleepThenPrint(2.seconds).fork.run
     val f2 = sleepThenPrint(1.seconds).fork.run
@@ -19,5 +19,4 @@ runDemoValue(
     f2.join.run
   }
 )
-
 ```
