@@ -2,6 +2,8 @@ package mdoctools
 
 import zio.Runtime.default.unsafe
 
+import java.io.IOException
+
 object Stuff:
   object WithALongName:
     object ThatWillComplicate:
@@ -112,13 +114,32 @@ def runDemoValue[E, A](
       .getOrThrowFiberFailure()
   }
 
+object OurConsole extends Console {
+  override def print(line: => Any)(implicit trace: Trace): IO[IOException, Unit] = ???
+
+  override def printError(line: => Any)(implicit trace: Trace): IO[IOException, Unit] = ???
+
+  override def printLine(line: => Any)(implicit trace: Trace): IO[IOException, Unit] =
+    ZIO.succeed(println(line))
+
+  override def printLineError(line: => Any)(implicit trace: Trace): IO[IOException, Unit] = ???
+
+  override def readLine(implicit trace: Trace): IO[IOException, String] = ???
+
+}
+
 @annotation.nowarn
 def runDemo[E, A](z: => ZIO[Any, E, A]): Unit =
   Unsafe.unsafe { (u: Unsafe) =>
     given Unsafe = u
-    unsafe
-      .run(wrapUnsafeZIOReportError(z))
-      .getOrThrowFiberFailure()
+    Console.ConsoleLive.unsafe.printLine("Starting")
+    val res =
+      unsafe
+        .run(wrapUnsafeZIOReportError(z.withConsole(OurConsole)))
+        .getOrThrowFiberFailure()
+    Console.ConsoleLive.unsafe.printLine("Res: " + res)
+//    println("Res: " + res)
+    res
   }
 
 // TODO Make a function that will execute a ZIO test case
@@ -169,7 +190,7 @@ object TestRunnerLocal {
   }
 }
 
-object ProofOfConcept extends ZIOAppDefault:
+object ProofOfConcept:
 
   val liveEnvironment: Layer[Nothing, Clock with Console with System with Random] = {
     implicit val trace = Trace.empty
@@ -183,51 +204,46 @@ object ProofOfConcept extends ZIOAppDefault:
     )
   }
   def runSpec[A](x: ZIO[Any, Nothing, TestResult]) =
+    println("In run spec")
 
 
 
-    TestRunnerLocal.runSpecAsApp(
-        zio.test.test("Default label")(x)
-        //        .provide(
-        //          ZLayer.environment[TestEnvironment with ZIOAppArgs with Scope] +!+
-        //            (liveEnvironment >>> TestEnvironment.live +!+ TestLogger.fromConsole(Console.ConsoleLive))
-        //        )
-      )
-      .provide(
-        liveEnvironment,
-        TestEnvironment.live,
-        Scope.default
-      )
-
-  def run =
-    val spec: ZIO[Any, Nothing, TestResult] =
-      defer:
-        val res = ZIO.succeed(43).run
-        assertTrue(
-          res == 43
+    runDemo(
+      TestRunnerLocal.runSpecAsApp(
+          zio.test.test("")(x.tap(details =>
+            println(
+              "Details: " + details
+            )
+            ZIO.succeed(
+              println(
+                "Details: " + details
+              )
+            )
+          )
+          )
+          //        .provide(
+          //          ZLayer.environment[TestEnvironment with ZIOAppArgs with Scope] +!+
+          //            (liveEnvironment >>> TestEnvironment.live +!+ TestLogger.fromConsole(Console.ConsoleLive))
+          //        )
         )
-    runSpec(
-      spec
-    )
-
-object HelloSpec extends ZIOSpecDefault:
-  def spec =
-    test("Hello")(
-      defer:
-        ZIO.debug("hi").run
-        val res = ZIO.succeed(42).run
-        assertTrue(
-          res == 43
+        .provide(
+          liveEnvironment,
+          TestEnvironment.live,
+          Scope.default
         )
-    )
-
-object HelloSpecIndirect extends ZIOSpecDefault:
-  def spec =
-    test("Hello")(
-      for
-        _ <- ZIO.debug("hi")
-        res <- ZIO.succeed(42)
-      yield assertTrue(
-        res == 43
-      )
+        .map{x =>
+          scala.Console.println("Failure!")
+          println(x.failureDetails)
+          x.failureDetails
+        }
+        .tap( details =>
+          println(
+            "Details: " + details
+          )
+          ZIO.succeed(
+            println(
+              "Details: " + details
+            )
+          )
+        )
     )

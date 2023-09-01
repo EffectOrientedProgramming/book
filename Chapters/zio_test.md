@@ -6,10 +6,16 @@ object HelloSpec extends ZIOSpecDefault:
 ```
 
 ```scala mdoc
-runDemoValue(
-  ProofOfConcept.runSpec(
+ProofOfConcept.runSpec(
+  assertTrue(2 == 4)
+)
+```
+
+```scala mdoc
+ProofOfConcept.runSpec(
+  defer:
+    println("hi")
     assertTrue(2 == 4)
-  )
 )
 ```
 
