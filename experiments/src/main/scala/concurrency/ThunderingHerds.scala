@@ -240,6 +240,17 @@ trait FileSystem:
       )
       .delay(2.seconds)
 
+  def readFileExpensive2(
+                         name: Path
+                       ): ZIO[Any, Nothing, FileContents] =
+    defer:
+      printLine("Reading from FileSystem")
+        .orDie
+        .run
+
+      ZIO.sleep(2.seconds).run
+      FileSystem.hardcodedFileContents
+
 object FileSystem:
   val hardcodedFileContents =
     FileContents(
