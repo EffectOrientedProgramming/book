@@ -56,7 +56,7 @@ lazy val unreliableCounting =
         increment
       )
       .run
-    "Final count: " + ZIO.succeed(counter).run
+    "!Final count: " + ZIO.succeed(counter).run
   }
 
 runDemo(unreliableCounting)
@@ -168,7 +168,7 @@ lazy val sideEffectingUpdatesSync =
         }
       )
       .run
-    "!Final count: " + counter.get.run
+    "Final count: " + counter.get.run
   }
 
 runDemo(sideEffectingUpdatesSync)

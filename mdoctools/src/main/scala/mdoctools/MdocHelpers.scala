@@ -98,9 +98,9 @@ def wrapUnsafeZIOReportError[E, A](
         .mkString("\n")
       // TODO Respect width limit
     }
-    .tap(finalValueToRender =>
-      ZIO.debug(finalValueToRender)
-    )
+//    .tap(finalValueToRender =>
+//      Console.printLine(finalValueToRender)
+//    )
 
 end wrapUnsafeZIOReportError
 
@@ -132,14 +132,11 @@ object OurConsole extends Console {
 def runDemo[E, A](z: => ZIO[Any, E, A]): Unit =
   Unsafe.unsafe { (u: Unsafe) =>
     given Unsafe = u
-    Console.ConsoleLive.unsafe.printLine("Starting")
     val res =
       unsafe
         .run(wrapUnsafeZIOReportError(z.withConsole(OurConsole)))
         .getOrThrowFiberFailure()
-    Console.ConsoleLive.unsafe.printLine("Res: " + res)
-//    println("Res: " + res)
-    res
+    println(res)
   }
 
 // TODO Make a function that will execute a ZIO test case
