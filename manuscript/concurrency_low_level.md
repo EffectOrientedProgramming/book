@@ -11,7 +11,7 @@ def sleepThenPrint(
 ```
 
 ```scala
-runDemoValue(
+runDemo(
   defer {
     val f1 = sleepThenPrint(2.seconds).fork.run
     val f2 = sleepThenPrint(1.seconds).fork.run
@@ -21,8 +21,9 @@ runDemoValue(
 )
 // 1 s elapsed
 // 2 s elapsed
-// res0: String = "PT1S"
+// PT1S
 ```
+
 
 ## Edit This Chapter
 [Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/concurrency_low_level.md)

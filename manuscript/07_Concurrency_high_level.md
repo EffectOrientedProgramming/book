@@ -13,30 +13,30 @@ def sleepThenPrint(
 ```
 
 ```scala
-runDemoValue(
+runDemo(
     ZIO.foreach(Seq(2, 1)) { i =>
         sleepThenPrint(i.seconds)
     }
 )
 // 2 s elapsed
 // 1 s elapsed
-// res0: String = "List(PT2S, PT1S)"
+// List(PT2S, PT1S)
 ```
 
 ```scala
-runDemoValue(
+runDemo(
       ZIO.foreachPar(Seq(2, 1)) { i =>
         sleepThenPrint(i.seconds)
       }
 )
 // 1 s elapsed
 // 2 s elapsed
-// res1: String = "List(PT2S, PT1S)"
+// List(PT2S, PT1S)
 ```
 
 
 ```scala
-runDemoValue(
+runDemo(
   defer {
     val durations =
       ZIO
@@ -56,13 +56,13 @@ runDemoValue(
 )
 // 1 s elapsed
 // 2 s elapsed
-// res2: String = "()"
+// ()
 ```
 
 
 ```scala
 // Massive example
-runDemoValue(
+runDemo(
   defer {
     val durations =
       ZIO
@@ -95,8 +95,9 @@ runDemoValue(
     Console.printLine(total).run
   }
 )
-// res3: String = "()"
+// ()
 ```
+
 
 ## Edit This Chapter
 [Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/07_Concurrency_high_level.md)

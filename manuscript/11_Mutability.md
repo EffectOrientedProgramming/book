@@ -60,7 +60,7 @@ lazy val unreliableCounting =
   }
 
 runDemo(unreliableCounting)
-// Final count: 99096
+// Final count: 99946
 ```
 
 Due to the unpredictable nature of shared mutable state, we do not know exactly what the final count above is.
@@ -92,6 +92,7 @@ lazy val reliableCounting =
   }
 
 runDemo(reliableCounting)
+// Final count: 100000
 ```
 Now we can say with full confidence that our final count is 100000.
 Additionally, these updates happen _without blocking_.
@@ -111,7 +112,7 @@ def expensiveCalculation() = Thread.sleep(35)
 Our side effect will be a mock alert that is sent anytime our count is updated:
 ```scala
 def sendNotification() =
-  println("Alert: We have updated our count!")
+  println("Alert: We have updated our count!!")
 ```
 
 ```scala
@@ -132,13 +133,14 @@ lazy val sideEffectingUpdates =
 
 // Mdoc/this function is showing the notifications, but not the final result
 runDemo(sideEffectingUpdates)
-// Alert: We have updated our count!
-// Alert: We have updated our count!
-// Alert: We have updated our count!
-// Alert: We have updated our count!
-// Alert: We have updated our count!
-// Alert: We have updated our count!
-// Alert: We have updated our count!
+// Alert: We have updated our count!!
+// Alert: We have updated our count!!
+// Alert: We have updated our count!!
+// Alert: We have updated our count!!
+// Alert: We have updated our count!!
+// Alert: We have updated our count!!
+// Alert: We have updated our count!!
+// Final count: 4
 ```
 What is going on?!
 Previously, we were losing updates because of unsafe mutability.
@@ -176,14 +178,15 @@ lazy val sideEffectingUpdatesSync =
         }
       )
       .run
-    "Final count: " + counter.get.run
+    "!Final count: " + counter.get.run
   }
 
 runDemo(sideEffectingUpdatesSync)
-// Alert: We have updated our count!
-// Alert: We have updated our count!
-// Alert: We have updated our count!
-// Alert: We have updated our count!
+// Alert: We have updated our count!!
+// Alert: We have updated our count!!
+// Alert: We have updated our count!!
+// Alert: We have updated our count!!
+// !Final count: 4
 ```
 
 Now we see exactly the number of alerts that we expected.

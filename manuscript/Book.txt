@@ -40,6 +40,7 @@ scenarios.md
 crypto.md
 experiments-src-test-scala-test_aspects.md
 experiments-src-test-scala-scenarios.md
+zio_test_helpers.md
 experiments-src-test-scala-testcontainers.md
 cancellation.md
 concurrency.md

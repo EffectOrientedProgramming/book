@@ -209,11 +209,11 @@ val logic =
 //     trace = "repl.MdocSession.MdocApp.<local MdocApp>.logic(13_Environment_Variables.md:233)",
 //     first = Sync(
 //       trace = "repl.MdocSession.MdocApp.<local MdocApp>.logic(13_Environment_Variables.md:233)",
-//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$14263/0x0000000103b74440@5a2e89a7
+//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$15659/0x0000000103f71040@715c19ab
 //     ),
-//     successK = zio.ZIO$$$Lambda$14265/0x0000000103b72840@e059359
+//     successK = zio.ZIO$$$Lambda$15661/0x0000000103f76840@48350611
 //   ),
-//   successK = zio.ZIO$$Lambda$14274/0x0000000103b8c840@164385a1
+//   successK = zio.ZIO$$Lambda$15683/0x0000000103f8f840@79c8aa60
 // )
 runDemo(
   logic.provide(
@@ -222,6 +222,7 @@ runDemo(
     originalAuthor
   )
 )
+// OnSuccess(zio.direct.ZioMonad.Success.$anon.fl
 ```
 
 **Collaborator's Machine:**
@@ -243,6 +244,7 @@ runDemo(
     collaborater
   )
 )
+// OnSuccess(zio.direct.ZioMonad.Success.$anon.fl
 ```
 
 **Continuous Integration Server:**
@@ -262,6 +264,7 @@ runDemo(
     ci
   )
 )
+// OnSuccess(zio.direct.ZioMonad.Success.$anon.fl
 ```
 
 TODO{{The actual line looks the same, which I highlighted as a problem before. How should we indicate that the Environment is different?}}
@@ -293,14 +296,16 @@ def fancyLodgingBuiltIn(
 
 ## Exercises
 
-```scala
+```todo
 import zio.test.TestSystem
 import zio.test.TestSystem.Data
+// TODO Use real tests once Scala3 & ZIO2 are
+// updated
 ```
 
 X> **Exercise 1:** Create a function will report missing Environment Variables as `NoSuchElementException` failures, instead of an `Option` success case.
 
-```scala
+```todo
 trait Exercise1:
   def envOrFail(variable: String): ZIO[
     zio.System,
@@ -309,40 +314,64 @@ trait Exercise1:
   ]
 ```
 
+```todo
+object Exercise1Solution extends Exercise1:
+  def envOrFail(variable: String): ZIO[
+    zio.System,
+    SecurityException | NoSuchElementException,
+    String
+  ] =
+    // TODO Direct instead of flatmap
+    zio
+      .System
+      .env(variable)
+      .flatMap(
+        _.fold(
+          ZIO.fail(new NoSuchElementException())
+        )(ZIO.succeed(_))
+      )
+```
 
-```scala
-val exercise1case1 =
-  runDemoValue(
-    Exercise1Solution
+```todo
+import zio.test.*
+
+runSpec(
+  defer {
+    val res = Exercise1Solution
       .envOrFail("key")
       .provide(
         TestSystem.live(
           Data(envs = Map("key" -> "value"))
         )
       )
-  )
-// value
-// exercise1case1: String = "value"
-assert(exercise1case1 == "value")
+      .run
+    
+    assertTrue(res == "value")
+  }
+)
+
 ```
 
-```scala
-val exercise1case2 =
-  runDemoValue(
-    Exercise1Solution
-      .envOrFail("key")
-      .catchSome {
-        case _: NoSuchElementException =>
-          ZIO.succeed("Expected Error")
-      }
-      .provide(
-        TestSystem.live(Data(envs = Map()))
-      )
-  )
-// Expected Error
-// exercise1case2: String = "Expected Error"
+```todo
+import zio.test.*
 
-assert(exercise1case2 == "Expected Error")
+runSpec(
+  defer {
+    val res =
+      Exercise1Solution
+        .envOrFail("key")
+        .catchSome {
+          case _: NoSuchElementException =>
+            ZIO.succeed("Expected Error")
+        }
+        .provide(
+          TestSystem.live(Data(envs = Map()))
+        )
+        .run
+
+      assertTrue(res == "Expected Error")
+    }
+)
 ```
 
 X> **Exercise 2:** Create a function will attempt to parse a value as an Integer and report errors as a `NumberFormatException`.
