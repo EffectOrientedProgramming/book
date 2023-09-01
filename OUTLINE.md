@@ -24,17 +24,16 @@ Notes:
         1. Note: Merge chapters: composability, Unit, The_ZIO_Type
         1. Note: Avoid explicit anonymous sum & product types at this point
 1. Dependency Injection with Effects
-    1. App vs Test
-    1. Composability
-1. Concurrency & Async (We maybe need other words here)
-    1. Safe, performant, efficient, reliable
+   1. Application startup uses the same tools that you utilize for the rest of your application
+   1. App vs Test
+   1. Composability
 
 1. The ZIO data type
 1. Running ZIOs
 1. Layers / Environment
     1. Creating
     1. Composing
-1. Tests
+1. Tests -- Position depends on how concise we can make demo tests in mdoc
     1. `assertTrue`
     1. Test layers
 1. Errors
