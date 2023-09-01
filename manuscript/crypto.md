@@ -13,12 +13,11 @@ import scala.annotation.tailrec
 
 object Mining extends ZIOAppDefault:
   def run =
-    defer {
+    defer:
       val chain =
         Ref.make[BlockChain](BlockChain()).run
       raceForNextBlock(chain).repeatN(5).run
       chain.get.debug("Final").run
-    }
 
   private val miners =
     Seq("Zeb", "Frop", "Shtep")
@@ -30,7 +29,7 @@ object Mining extends ZIOAppDefault:
   def raceForNextBlock(
       chain: Ref[BlockChain]
   ): ZIO[Any, Nothing, Unit] =
-    defer {
+    defer:
       val raceResult = findNextBlock(miners).run
       val (winner, winningPrime) = raceResult
       chain
@@ -43,7 +42,6 @@ object Mining extends ZIOAppDefault:
       debug(
         s"$winner mined block: $winningPrime"
       ).run
-    }
 
   case class BlockChain(
       blocks: List[Int] = List.empty
@@ -62,7 +60,7 @@ object Mining extends ZIOAppDefault:
   def findNextBlock(
       miners: Seq[Miner]
   ): ZIO[Any, Nothing, (String, Int)] =
-    defer {
+    defer:
       val startNum =
         nextIntBetween(80000000, 160000000).run
 
@@ -72,7 +70,6 @@ object Mining extends ZIOAppDefault:
           miners.tail.map(_.mine(startNum))
         )
         .run
-    }
 
 end Mining
 
