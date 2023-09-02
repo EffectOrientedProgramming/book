@@ -18,22 +18,6 @@ val columnWidth =
     commentPrefix
       .length // TODO Pull from scalafmt config file
 
-private def renderThrowable(
-    error: Throwable
-): String =
-  error
-    .toString
-    .split("\n")
-    .map(line =>
-      if (line.length > columnWidth)
-        throw new Exception(
-          "Need to handle stacktrace line: " +
-            line
-        )
-      else
-        line
-    )
-    .mkString("\n")
 
 // Consider crashing if output is unexpectedly long
 def wrapUnsafeZIOReportError[E, A](
@@ -45,41 +29,12 @@ def wrapUnsafeZIOReportError[E, A](
   z.map(result => result.toString)
     .catchAll {
       case error: Throwable =>
-        ZIO.succeed(renderThrowable(error))
+        ZIO.succeed(Rendering.renderThrowable(error, columnWidth))
       case error: E =>
-        val extractedMessage = error.toString
-        val formattedMsg =
-          if (
-            extractedMessage.length >
-              topLineLength
-          )
-            extractedMessage.take(topLineLength)
-          else
-            extractedMessage
-
-        ZIO.succeed(formattedMsg)
+        ZIO.succeed(Rendering.renderError(error, topLineLength))
     }
     .catchAllDefect(defect =>
-      val msg = defect.toString
-      val extractedMessage =
-        if (msg != null && msg.nonEmpty)
-          if (msg.contains("$"))
-            msg
-              .split("\\$")
-              .last
-              .replace(")", "")
-          else
-            msg
-        else
-          ""
-      val formattedMsg =
-        if (
-          extractedMessage.length > topLineLength
-        )
-          extractedMessage.take(topLineLength)
-        else
-          extractedMessage
-
+      val formattedMsg = Rendering.renderThrowableDefect(defect, topLineLength)
       ZIO.succeed("Defect: " + formattedMsg)
     )
     .map { result =>
@@ -98,25 +53,9 @@ def wrapUnsafeZIOReportError[E, A](
         .mkString("\n")
       // TODO Respect width limit
     }
-//    .tap(finalValueToRender =>
-//      Console.printLine(finalValueToRender)
-//    )
 
 end wrapUnsafeZIOReportError
 
-object OurConsole extends Console {
-  override def print(line: => Any)(implicit trace: Trace): IO[IOException, Unit] = ???
-
-  override def printError(line: => Any)(implicit trace: Trace): IO[IOException, Unit] = ???
-
-  override def printLine(line: => Any)(implicit trace: Trace): IO[IOException, Unit] =
-    ZIO.succeed(println(line))
-
-  override def printLineError(line: => Any)(implicit trace: Trace): IO[IOException, Unit] = ???
-
-  override def readLine(implicit trace: Trace): IO[IOException, String] = ???
-
-}
 
 @annotation.nowarn
 def runDemo[E, A](z: => ZIO[Any, E, A]): Unit =
@@ -126,6 +65,7 @@ def runDemo[E, A](z: => ZIO[Any, E, A]): Unit =
       unsafe
         .run(wrapUnsafeZIOReportError(z.withConsole(OurConsole)))
         .getOrThrowFiberFailure()
+    // This is the *only* place we can trust to always print the final value
     println(res)
   }
 
@@ -133,49 +73,6 @@ def runDemo[E, A](z: => ZIO[Any, E, A]): Unit =
 
 import zio.System
 import zio.test.*
-import zio.test.ReporterEventRenderer.ConsoleEventRenderer
-
-object TestRunnerLocal {
-  def runSpecAsApp(
-                    spec: Spec[TestEnvironment with Scope, Any],
-                    console: Console = Console.ConsoleLive,
-                    aspects: Chunk[TestAspect[Nothing, Any, Nothing, Any]] = Chunk.empty,
-                    testEventHandler: ZTestEventHandler = ZTestEventHandler.silent
-                  )(implicit
-                    trace: Trace
-                  ): URIO[
-    TestEnvironment with Scope,
-    Summary
-  ] = {
-
-    for {
-      runtime <-
-        ZIO.runtime[
-          TestEnvironment with Scope
-        ]
-
-      scopeEnv: ZEnvironment[Scope] = runtime.environment
-      perTestLayer = (ZLayer.succeedEnvironment(scopeEnv) ++ liveEnvironment) >>>
-        (TestEnvironment.live ++ ZLayer.environment[Scope])
-
-      executionEventSinkLayer = ExecutionEventSink.live(Console.ConsoleLive, ConsoleEventRenderer)
-      environment            <- ZIO.environment[Any]
-      runner =
-        TestRunner(
-          TestExecutor
-            .default[Any, Any](
-              ZLayer.succeedEnvironment(environment),
-              perTestLayer,
-              executionEventSinkLayer,
-              testEventHandler
-            )
-        )
-      randomId <- ZIO.withRandom(Random.RandomLive)(Random.nextInt).map("test_case_" + _)
-      summary <-
-        runner.run(randomId, aspects.foldLeft(spec)(_ @@ _) @@ TestAspect.fibers)
-    } yield summary
-  }
-}
 
 def runSpec(x: ZIO[Any, Nothing, TestResult]) =
 
@@ -192,41 +89,13 @@ def runSpec(x: ZIO[Any, Nothing, TestResult]) =
   }
 
   runDemo(
-    TestRunnerLocal.runSpecAsApp(
-        zio.test.test("")(x.tap(details =>
-          println(
-            "Details: " + details
-          )
-          ZIO.succeed(
-            println(
-              "Details: " + details
-            )
-          )
-        )
-        )
-        //        .provide(
-        //          ZLayer.environment[TestEnvironment with ZIOAppArgs with Scope] +!+
-        //            (liveEnvironment >>> TestEnvironment.live +!+ TestLogger.fromConsole(Console.ConsoleLive))
-        //        )
+    ZioTestExecution.runSpecAsApp(
+        zio.test.test("")(x)
       )
       .provide(
         liveEnvironment,
         TestEnvironment.live,
         Scope.default
       )
-      .map{x =>
-        scala.Console.println("Failure!")
-        println(x.failureDetails)
-        x.failureDetails
-      }
-      .tap( details =>
-        println(
-          "Details: " + details
-        )
-        ZIO.succeed(
-          println(
-            "Details: " + details
-          )
-        )
-      )
+      .map(_.failureDetails)
   )
