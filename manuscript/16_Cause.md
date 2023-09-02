@@ -41,7 +41,7 @@ runDemo(
 )
 // Exception in thread "zio-fiber-" java.lang.Exception: 1
 // 	at repl.MdocSession$MdocApp.$init$$$anonfun$4$$anonfun$1(16_Cause.md:31)
-// 	at mdoctools.OurConsole$.printLine$$anonfun$1(MdocHelpers.scala:113)
+// 	at mdoctools.OurConsole$.printLine$$anonfun$1(OurConsole.scala:18)
 // 	at scala.runtime.function.JProcedure1.apply(JProcedure1.java:15)
 // 	at scala.runtime.function.JProcedure1.apply(JProcedure1.java:10)
 // 	at zio.UnsafeVersionSpecific.implicitFunctionIsFunction$$anonfun$1(UnsafeVersionSpecific.scala:27)
@@ -49,7 +49,7 @@ runDemo(
 // 	at zio.ZIOCompanionVersionSpecific.succeed$$anonfun$1(ZIOCompanionVersionSpecific.scala:185)
 // 	Suppressed: java.lang.Exception: 2a
 // 		at repl.MdocSession$MdocApp.$init$$$anonfun$4$$anonfun$1(16_Cause.md:32)
-// 		at mdoctools.OurConsole$.printLine$$anonfun$1(MdocHelpers.scala:113)
+// 		at mdoctools.OurConsole$.printLine$$anonfun$1(OurConsole.scala:18)
 // 		at scala.runtime.function.JProcedure1.apply(JProcedure1.java:15)
 // 		at scala.runtime.function.JProcedure1.apply(JProcedure1.java:10)
 // 		at zio.UnsafeVersionSpecific.implicitFunctionIsFunction$$anonfun$1(UnsafeVersionSpecific.scala:27)
@@ -58,7 +58,7 @@ runDemo(
 // 		Suppressed: java.lang.Exception: 3
 // Exception in thread "zio-fiber-" java.lang.Exception: 1
 // 	at repl.MdocSession$MdocApp.$init$$$anonfun$4$$anonfun$1(16_Cause.md:31)
-// 	at mdoctools.OurConsole$.printLine$$anonfun$1(MdocHelpers.scala:113)
+// 	at mdoctools.OurConsole$.printLine$$anonfun$1(OurConsole.scala:18)
 // 	at scala.runtime.function.JProcedure1.apply(JProcedure1.java:15)
 // 	at scala.runtime.function.JProcedure1.apply(JProcedure1.java:10)
 // 	at zio.UnsafeVersionSpecific.implicitFunctionIsFunction$$anonfun$1(UnsafeVersionSpecific.scala:27)
@@ -66,7 +66,7 @@ runDemo(
 // 	at zio.ZIOCompanionVersionSpecific.succeed$$anonfun$1(ZIOCompanionVersionSpecific.scala:185)
 // 	Suppressed: java.lang.Exception: 2b
 // 		at repl.MdocSession$MdocApp.$init$$$anonfun$4$$anonfun$1(16_Cause.md:33)
-// 		at mdoctools.OurConsole$.printLine$$anonfun$1(MdocHelpers.scala:113)
+// 		at mdoctools.OurConsole$.printLine$$anonfun$1(OurConsole.scala:18)
 // 		at scala.runtime.function.JProcedure1.apply(JProcedure1.java:15)
 // 		at scala.runtime.function.JProcedure1.apply(JProcedure1.java:10)
 // 		at zio.UnsafeVersionSpecific.implicitFunctionIsFunction$$anonfun$1(UnsafeVersionSpecific.scala:27)
@@ -97,9 +97,9 @@ val thrownLogic =
 //   trace = "repl.MdocSession.MdocApp.thrownLogic(16_Cause.md:54)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.thrownLogic(16_Cause.md:54)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$15659/0x0000000103f71040@39fd8904
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14519/0x0000000103bfc840@7e1127be
 //   ),
-//   successK = zio.ZIO$$$Lambda$15661/0x0000000103f76840@48350611
+//   successK = zio.ZIO$$$Lambda$14521/0x0000000103c10840@42fe3704
 // )
 runDemo(thrownLogic)
 // java.lang.Exception: Release Failed
