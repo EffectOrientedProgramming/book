@@ -1,9 +1,39 @@
 package mdoctools
 
+
+object LineLength {
+  val commentPrefix = "// "
+  val columnWidth =
+    49 -
+      commentPrefix
+        .length // TODO Pull from scalafmt config file
+
+  val defectPrefix = "Error: "
+  val topLineLength =
+    columnWidth - defectPrefix.length
+}
+
 object Rendering {
+  def renderEveryPossibleOutcomeZio[E, A](
+                                           z: => ZIO[Any, E, A]
+                                         ): ZIO[Any, java.io.IOException, String] =
+    z.map(result => result.toString)
+      .catchAll {
+        case error: Throwable =>
+          ZIO.succeed(Rendering.renderThrowable(error))
+        case error: E =>
+          ZIO.succeed(Rendering.renderError(error))
+      }
+      .catchAllDefect(defect =>
+        ZIO.succeed(Rendering.renderThrowableDefect(defect))
+      )
+      .map { result =>
+        Rendering.lastBruteForceLineLengthPhase(result)
+      }
+
+
   def renderThrowableDefect(
                              defect: Throwable,
-                             topLineLength: Int,
                            ) = {
     val msg = defect.toString
     val extractedMessage =
@@ -17,23 +47,24 @@ object Rendering {
           msg
       else
         ""
-    if (
-      extractedMessage.length > topLineLength
-    )
-      extractedMessage.take(topLineLength)
-    else
-      extractedMessage
+    "Defect: " + (
+      if (
+        extractedMessage.length > LineLength.topLineLength
+      )
+        extractedMessage.take(LineLength.topLineLength)
+      else
+        extractedMessage
+      )
 
   }
   def renderThrowable(
                        error: Throwable,
-                       columnWidth: Int,
                      ): String =
     error
       .toString
       .split("\n")
       .map(line =>
-        if (line.length > columnWidth)
+        if (line.length > LineLength.columnWidth)
           throw new Exception(
             "Need to handle stacktrace line: " +
               line
@@ -43,15 +74,29 @@ object Rendering {
       )
       .mkString("\n")
 
-  def renderError[E](error: E, topLineLength: Int): String =
+  def renderError[E](error: E): String =
     val extractedMessage = error.toString
     if (
-      extractedMessage.length > topLineLength
+      extractedMessage.length > LineLength.topLineLength
     )
-      extractedMessage.take(topLineLength)
+      extractedMessage.take(LineLength.topLineLength)
     else
       extractedMessage
 
 
 
+  def lastBruteForceLineLengthPhase(result: String) =
+    result
+      .split("\n")
+      .map(line =>
+        if (line.length > LineLength.columnWidth)
+          println(
+            "TODO Handle long line. \n" +
+              "Truncating for now: \n" + line
+          )
+          line.take(LineLength.columnWidth)
+        else
+          line
+      )
+      .mkString("\n")
 }
