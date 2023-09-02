@@ -40,5 +40,10 @@ def runSpec(x: ZIO[Any, Nothing, TestResult]) =
         TestEnvironment.live,
         Scope.default
       )
-      .map(_.failureDetails)
+      .map(result =>
+        if (result.failureDetails.isBlank)
+          "*Test Executed and passed*"
+        else
+          result.failureDetails
+      )
   )
