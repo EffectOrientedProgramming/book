@@ -1,7 +1,21 @@
 
+```scala mdoc:spec
+import zio.test.*
+
+runSpec(
+  assertTrue(1 == 2)
+)
+```
+
 ```scala mdoc
+runSpec(
+  assertTrue(1 == 2)
+)
+```
+
+```scala mdoc:run
 runDemo(
-  Console.printLine("hi!!!")
+  Console.printLine("hello!")
 )
 ```
 
