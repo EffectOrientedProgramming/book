@@ -12,17 +12,6 @@ object KeepSuccesses extends zio.ZIOAppDefault:
   val initialRequests =
     allCalls.map(fastUnreliableNetworkCall)
 
-  val logic =
-    ZIO
-      .collectAllSuccesses(
-        initialRequests.map(
-          _.tapError(e =>
-            printLine("Error: " + e)
-          )
-        )
-      )
-      .debug
-
   val moreStructuredLogic =
     defer {
       val results =
@@ -34,37 +23,40 @@ object KeepSuccesses extends zio.ZIOAppDefault:
       results match
         case (failures, successes) =>
           defer {
-            ZIO
-              .foreach(failures)(e =>
-                printLine(
-                  "Error: " + e +
-                    ". Should retry on other server."
-                )
-              )
+            printFailures(failures)
               .run
             val recoveries =
-              ZIO
-                .collectAllSuccesses(
-                  failures.map(failure =>
-                    slowMoreReliableNetworkCall(
-                      failure.payload
-                    ).tapError(e =>
-                      printLine(
-                        "Giving up on: " + e
-                      )
-                    )
-                  )
-                )
+                attemptFallbackFor(failures)
                 .run
-            printLine(
-              "All successes: " +
-                (successes ++ recoveries)
-            ).run
-          }.run
+            successes ++ recoveries
+          }.debug("All successes").run
       end match
     }
 
   def run = moreStructuredLogic
+
+  private def printFailures(failures: Iterable[BadResponse]) =
+    ZIO
+      .foreach(failures)(e =>
+        printLine(
+          "Error: " + e +
+            ". Should retry on other server."
+        )
+      )
+  private def attemptFallbackFor(failures: Iterable[BadResponse]) =
+    ZIO
+      .collectAllSuccesses(
+        failures.map(failure =>
+          slowMoreReliableNetworkCall(
+            failure.payload
+          ).tapError(e =>
+            printLine(
+              "Giving up on: " + e
+            )
+          )
+        )
+      )
+
 
   def fastUnreliableNetworkCall(input: String) =
     if (input.length < 5)

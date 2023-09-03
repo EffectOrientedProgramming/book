@@ -128,7 +128,7 @@ object QuizGame:
       answers: Dequeue[Answer],
       correctRespondents: Ref[List[Player]]
   ) =
-    defer {
+    defer:
       val answer = answers.take.run
       val output =
         if (answer.text == correctAnswer)
@@ -141,6 +141,5 @@ object QuizGame:
           "Incorrect response from: " +
             answer.player
       printLine(output).run
-    }
 
 end QuizGame

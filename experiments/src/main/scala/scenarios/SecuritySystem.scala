@@ -5,17 +5,8 @@ import time.scheduledValues
 
 import scala.concurrent.TimeoutException
 
-case class TempSense(
-    z: ZIO[
-      Any,
-      HardwareFailure,
-      ZIO[Any, TimeoutException, Degrees]
-    ]
-)
-
 case class SecuritySystemX(
     motionDetector: MotionDetector,
-    thermalDetectorX: ThermalDetectorX,
     acousticDetectorX: AcousticDetectorX
 )
 
@@ -34,16 +25,6 @@ object SecuritySystemX:
   */
 object SecuritySystem:
   // TODO Why can't I use this???
-  val s: zio.ZLayer[
-    Any,
-    Nothing,
-    scenarios.TempSense
-  ] =
-    SensorData.live[Degrees, TempSense](
-      x => TempSense(x),
-      (1.seconds, Degrees(71)),
-      (2.seconds, Degrees(70))
-    )
 
   val accessMotionDetector: ZIO[
     scenarios.MotionDetector,
@@ -52,12 +33,6 @@ object SecuritySystem:
   ] = ZIO.serviceWithZIO(_.amountOfMotion())
 
   def securityLoop(
-      amountOfHeatGenerator: ZIO[
-        Any,
-        scala.concurrent.TimeoutException |
-          scenarios.HardwareFailure,
-        scenarios.Degrees
-      ],
       amountOfMotion: Pixels,
       acousticDetector: ZIO[
         Any,
@@ -72,18 +47,15 @@ object SecuritySystem:
     Unit
   ] =
     defer {
-      val amountOfHeat =
-        amountOfHeatGenerator.run
       val noise = acousticDetector.run
       ZIO
         .debug(
-          s"Heat: $amountOfHeat  Motion: $amountOfMotion  Noise: $noise"
+          s"Motion: $amountOfMotion  Noise: $noise"
         )
         .run
       val securityResponse =
         determineResponse(
           amountOfMotion,
-          amountOfHeat,
           noise
         )
       securityResponse match
@@ -98,7 +70,7 @@ object SecuritySystem:
   @annotation.nowarn
   def shouldAlertServices[
       T
-        <: MotionDetector & ThermalDetectorX &
+        <: MotionDetector &
           SirenX & AcousticDetectorX
   ](): ZIO[
     T,
@@ -111,16 +83,10 @@ object SecuritySystem:
           .acquireMotionMeasurementSource()
           .run
 
-      val amountOfHeatGenerator =
-        ThermalDetectorX
-          .acquireHeatMeasurementSource
-          .run
-
       val acousticDetector =
         AcousticDetectorX.acquireDetector.run
 
       securityLoop(
-        amountOfHeatGenerator,
         amountOfMotion,
         acousticDetector
       ).repeat(
@@ -134,20 +100,16 @@ object SecuritySystem:
 
   def shouldTrigger(
       amountOfMotion: Pixels,
-      amountOfHeat: Degrees
   ): Boolean =
-    amountOfMotion.value > 10 &&
-      amountOfHeat.value > 95
+    amountOfMotion.value > 10
 
   def determineResponse(
       amountOfMotion: Pixels,
-      amountOfHeat: Degrees,
       noise: Decibels
   ): SecurityResponse =
     val numberOfAlerts =
       List(
         amountOfMotion.value > 50,
-        amountOfHeat.value > 95,
         noise.value > 15
       ).count(_ == true)
 
@@ -161,27 +123,18 @@ object SecuritySystem:
 
   def determineBreaches(
       amountOfMotion: Pixels,
-      amountOfHeat: Degrees,
       noise: Decibels
   ): Set[SecurityBreach] =
     List(
       Option.when(amountOfMotion.value > 50)(
         SignificantMotion
       ),
-      Option.when(
-        amountOfHeat.value > 95 &&
-          amountOfHeat.value < 200
-      )(BodyHeat),
-      Option
-        .when(amountOfHeat.value >= 200)(Fire),
       Option.when(noise.value > 15)(LoudNoise)
     ).flatten.toSet
 
 end SecuritySystem
 
 trait SecurityBreach
-object BodyHeat          extends SecurityBreach
-object Fire              extends SecurityBreach
 object LoudNoise         extends SecurityBreach
 object SignificantMotion extends SecurityBreach
 
@@ -193,7 +146,6 @@ object LoudSiren extends SecurityResponse
 trait HardwareFailure
 
 case class Decibels(value: Int)
-case class Degrees(value: Int)
 case class Pixels(value: Int)
 
 trait MotionDetector:
@@ -221,82 +173,6 @@ object MotionDetector:
       : ZLayer[Any, Nothing, MotionDetector] =
     ZLayer.succeed(LiveMotionDetector)
 end MotionDetector
-
-trait ThermalDetectorX:
-  def heatMeasurementSource()
-      : ZIO[Any, Nothing, ZIO[
-        Any,
-        TimeoutException |
-          scenarios.HardwareFailure,
-        Degrees
-      ]]
-
-trait ThermalDetectorY:
-  def heatMeasurement(): ZIO[
-    Any,
-    TimeoutException | scenarios.HardwareFailure,
-    Degrees
-  ]
-
-object ThermalDetectorY:
-
-  def apply(
-      value: (Duration, Degrees),
-      values: (Duration, Degrees)*
-  ): ZLayer[Any, Nothing, ThermalDetectorY] =
-    ZLayer.fromZIO(
-      defer {
-        val thermalDetectorValues =
-          scheduledValues(value, values*).run
-        ZIO
-          .succeed(
-            new ThermalDetectorY:
-              override def heatMeasurement()
-                  : ZIO[
-                    Any,
-                    TimeoutException |
-                      scenarios.HardwareFailure,
-                    Degrees
-                  ] = thermalDetectorValues
-          )
-          .run
-      }
-    )
-end ThermalDetectorY
-
-object ThermalDetectorX:
-
-  def apply(
-      value: (Duration, Degrees),
-      values: (Duration, Degrees)*
-  ): ZLayer[Any, Nothing, ThermalDetectorX] =
-    ZLayer.succeed(
-      // that same service we wrote above
-      new ThermalDetectorX:
-        override def heatMeasurementSource()
-            : ZIO[Any, Nothing, ZIO[
-              Any,
-              TimeoutException |
-                scenarios.HardwareFailure,
-              Degrees
-            ]] = scheduledValues(value, values*)
-    )
-
-  // This is preeeetty gnarly. How can we
-  // improve?
-  def acquireHeatMeasurementSource[
-      T <: scenarios.ThermalDetectorX: Tag
-  ]: ZIO[T, Nothing, ZIO[
-    Any,
-    scala.concurrent.TimeoutException |
-      scenarios.HardwareFailure,
-    scenarios.Degrees
-  ]] =
-    ZIO.serviceWithZIO[ThermalDetectorX](
-      _.heatMeasurementSource()
-    )
-
-end ThermalDetectorX
 
 trait AcousticDetectorX:
   def acquireDetector(): ZIO[Any, Nothing, ZIO[

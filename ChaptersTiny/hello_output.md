@@ -42,3 +42,12 @@ runSpec(
     assertTrue(1 == 2)
 )
 ```
+
+Failing test as plain demo
+```scala mdoc
+runDemo(
+  defer:
+    Console.printLine("Spec stuff!").orDie.run
+    assertTrue(1 == 2)
+)
+```

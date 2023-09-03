@@ -15,12 +15,6 @@ object SecuritySystemSpec extends ZIOSpecDefault:
                 .shouldAlertServices()
                 .provide(
                   MotionDetector.live ++
-                    ThermalDetectorX(
-                      (1.seconds, Degrees(71)),
-                      (1.seconds, Degrees(70)),
-                      (3.seconds, Degrees(98))
-                    ) // ++ s
-                    ++
                     AcousticDetectorX(
                       (4.seconds, Decibels(11)),
                       (1.seconds, Decibels(20))
