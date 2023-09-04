@@ -1,7 +1,6 @@
 package mdoctools
 
-
-object LineLength {
+object LineLength:
   val commentPrefix = "// "
   val columnWidth =
     49 -
@@ -11,55 +10,54 @@ object LineLength {
   val defectPrefix = "Error: "
   val topLineLength =
     columnWidth - defectPrefix.length
-}
 
-object Rendering {
+object Rendering:
   def renderEveryPossibleOutcomeZio[E, A](
-                                           z: => ZIO[Any, E, A]
-                                         ): ZIO[Any, java.io.IOException, String] =
+      z: => ZIO[Any, E, A]
+  ): ZIO[Any, java.io.IOException, String] =
     z.map(result => result.toString)
       .catchAll {
         case error: Throwable =>
-          ZIO.succeed(Rendering.renderThrowable(error))
+          ZIO.succeed(
+            Rendering.renderThrowable(error)
+          )
         case error: E =>
-          ZIO.succeed(Rendering.renderError(error))
+          ZIO.succeed(
+            Rendering.renderError(error)
+          )
       }
       .catchAllDefect(defect =>
-        ZIO.succeed(Rendering.renderThrowableDefect(defect))
+        ZIO.succeed(
+          Rendering.renderThrowableDefect(defect)
+        )
       )
       .map { result =>
-        Rendering.lastBruteForceLineLengthPhase(result)
+        Rendering
+          .lastBruteForceLineLengthPhase(result)
       }
 
-
-  def renderThrowableDefect(
-                             defect: Throwable,
-                           ) = {
+  def renderThrowableDefect(defect: Throwable) =
     val msg = defect.toString
     val extractedMessage =
       if (msg != null && msg.nonEmpty)
         if (msg.contains("$"))
-          msg
-            .split("\\$")
-            .last
-            .replace(")", "")
+          msg.split("\\$").last.replace(")", "")
         else
           msg
       else
         ""
-    "Defect: " + (
-      if (
-        extractedMessage.length > LineLength.topLineLength
-      )
-        extractedMessage.take(LineLength.topLineLength)
-      else
-        extractedMessage
-      )
+    "Defect: " +
+      (if (
+         extractedMessage.length >
+           LineLength.topLineLength
+       )
+         extractedMessage
+           .take(LineLength.topLineLength)
+       else
+         extractedMessage)
+  end renderThrowableDefect
 
-  }
-  def renderThrowable(
-                       error: Throwable,
-                     ): String =
+  def renderThrowable(error: Throwable): String =
     error
       .toString
       .split("\n")
@@ -77,15 +75,17 @@ object Rendering {
   def renderError[E](error: E): String =
     val extractedMessage = error.toString
     if (
-      extractedMessage.length > LineLength.topLineLength
+      extractedMessage.length >
+        LineLength.topLineLength
     )
-      extractedMessage.take(LineLength.topLineLength)
+      extractedMessage
+        .take(LineLength.topLineLength)
     else
       extractedMessage
 
-
-
-  def lastBruteForceLineLengthPhase(result: String) =
+  def lastBruteForceLineLengthPhase(
+      result: String
+  ) =
     result
       .split("\n")
       .map(line =>
@@ -99,4 +99,4 @@ object Rendering {
           line
       )
       .mkString("\n")
-}
+end Rendering

@@ -323,24 +323,15 @@ object HelloWorldApp
 object Booker extends ZIOAppDefault:
   override def run =
     HelloWorldApp.run(()).provide(TUI.live(true))
-  /*
-  val program =
-    val f: File = new File("Chapters")
-
-    for
-      flatFiles <- BookerTools.orderedChapters(f)
-      result <-
-        ReorderExistingApp
-//        AddNewChapterApp
-          .run(CliStateSimp(flatFiles))
-          .provide(TUI.live(true))
-      _ <- printLine(result)
-    yield ()
-
-  override def run: ZIO[
-    Any with ZIOAppArgs with Scope,
-    Any,
-    Any
-  ] = program
-
- */
+  /* val program =
+   * val f: File = new File("Chapters")
+   *
+   * for flatFiles <-
+   * BookerTools.orderedChapters(f) result <-
+   * ReorderExistingApp // AddNewChapterApp
+   * .run(CliStateSimp(flatFiles))
+   * .provide(TUI.live(true)) _ <-
+   * printLine(result) yield ()
+   *
+   * override def run: ZIO[ Any with ZIOAppArgs
+   * with Scope, Any, Any ] = program */

@@ -7,4 +7,3 @@ object Stuff:
         throw new Exception(
           "Boom stoinky kablooey pow pow pow"
         )
-

@@ -104,19 +104,28 @@ def wrapUnsafeZIOReportError[E, A](
 
 end wrapUnsafeZIOReportError
 
-object OurConsole extends Console {
-  override def print(line: => Any)(implicit trace: Trace): IO[IOException, Unit] = ???
+object OurConsole extends Console:
+  override def print(line: => Any)(implicit
+      trace: Trace
+  ): IO[IOException, Unit] = ???
 
-  override def printError(line: => Any)(implicit trace: Trace): IO[IOException, Unit] = ???
+  override def printError(line: => Any)(implicit
+      trace: Trace
+  ): IO[IOException, Unit] = ???
 
-  override def printLine(line: => Any)(implicit trace: Trace): IO[IOException, Unit] =
+  override def printLine(line: => Any)(implicit
+      trace: Trace
+  ): IO[IOException, Unit] =
     ZIO.succeed(println(line))
 
-  override def printLineError(line: => Any)(implicit trace: Trace): IO[IOException, Unit] = ???
+  override def printLineError(line: => Any)(
+      implicit trace: Trace
+  ): IO[IOException, Unit] = ???
 
-  override def readLine(implicit trace: Trace): IO[IOException, String] = ???
-
-}
+  override def readLine(implicit
+      trace: Trace
+  ): IO[IOException, String] = ???
+end OurConsole
 
 @annotation.nowarn
 def runDemo[E, A](z: => ZIO[Any, E, A]): Unit =
@@ -124,7 +133,11 @@ def runDemo[E, A](z: => ZIO[Any, E, A]): Unit =
     given Unsafe = u
     val res =
       unsafe
-        .run(wrapUnsafeZIOReportError(z.withConsole(OurConsole)))
+        .run(
+          wrapUnsafeZIOReportError(
+            z.withConsole(OurConsole)
+          )
+        )
         .getOrThrowFiberFailure()
     println(res)
   }
@@ -135,98 +148,121 @@ import zio.System
 import zio.test.*
 import zio.test.ReporterEventRenderer.ConsoleEventRenderer
 
-object TestRunnerLocal {
+object TestRunnerLocal:
   def runSpecAsApp(
-                    spec: Spec[TestEnvironment with Scope, Any],
-                    console: Console = Console.ConsoleLive,
-                    aspects: Chunk[TestAspect[Nothing, Any, Nothing, Any]] = Chunk.empty,
-                    testEventHandler: ZTestEventHandler = ZTestEventHandler.silent
-                  )(implicit
-                    trace: Trace
-                  ): URIO[
-    TestEnvironment with Scope,
-    Summary
-  ] = {
-
-    for {
+      spec: Spec[
+        TestEnvironment with Scope,
+        Any
+      ],
+      console: Console = Console.ConsoleLive,
+      aspects: Chunk[
+        TestAspect[Nothing, Any, Nothing, Any]
+      ] = Chunk.empty,
+      testEventHandler: ZTestEventHandler =
+        ZTestEventHandler.silent
+  )(implicit
+      trace: Trace
+  ): URIO[TestEnvironment with Scope, Summary] =
+    for
       runtime <-
-        ZIO.runtime[
-          TestEnvironment with Scope
-        ]
+        ZIO.runtime[TestEnvironment with Scope]
 
-      scopeEnv: ZEnvironment[Scope] = runtime.environment
-      perTestLayer = (ZLayer.succeedEnvironment(scopeEnv) ++ liveEnvironment) >>>
-        (TestEnvironment.live ++ ZLayer.environment[Scope])
+      scopeEnv: ZEnvironment[Scope] =
+        runtime.environment
+      perTestLayer =
+        (ZLayer.succeedEnvironment(scopeEnv) ++
+          liveEnvironment) >>>
+          (TestEnvironment.live ++
+            ZLayer.environment[Scope])
 
-      executionEventSinkLayer = ExecutionEventSink.live(Console.ConsoleLive, ConsoleEventRenderer)
-      environment            <- ZIO.environment[Any]
+      executionEventSinkLayer =
+        ExecutionEventSink.live(
+          Console.ConsoleLive,
+          ConsoleEventRenderer
+        )
+      environment <- ZIO.environment[Any]
       runner =
         TestRunner(
-          TestExecutor
-            .default[Any, Any](
-              ZLayer.succeedEnvironment(environment),
-              perTestLayer,
-              executionEventSinkLayer,
-              testEventHandler
-            )
+          TestExecutor.default[Any, Any](
+            ZLayer
+              .succeedEnvironment(environment),
+            perTestLayer,
+            executionEventSinkLayer,
+            testEventHandler
+          )
         )
-      randomId <- ZIO.withRandom(Random.RandomLive)(Random.nextInt).map("test_case_" + _)
+      randomId <-
+        ZIO
+          .withRandom(Random.RandomLive)(
+            Random.nextInt
+          )
+          .map("test_case_" + _)
       summary <-
-        runner.run(randomId, aspects.foldLeft(spec)(_ @@ _) @@ TestAspect.fibers)
-    } yield summary
-  }
-}
+        runner.run(
+          randomId,
+          aspects.foldLeft(spec)(_ @@ _) @@
+            TestAspect.fibers
+        )
+    yield summary
+end TestRunnerLocal
 
 def runSpec(x: ZIO[Any, Nothing, TestResult]) =
 
-  val liveEnvironment: Layer[Nothing, Clock with Console with System with Random] = {
+  val liveEnvironment: Layer[
+    Nothing,
+    Clock with Console with System with Random
+  ] =
     implicit val trace = Trace.empty
     ZLayer.succeedEnvironment(
-      ZEnvironment[Clock, Console, System, Random](
+      ZEnvironment[
+        Clock,
+        Console,
+        System,
+        Random
+      ](
         Clock.ClockLive,
         Console.ConsoleLive,
         System.SystemLive,
         Random.RandomLive
       )
     )
-  }
 
   runDemo(
-    TestRunnerLocal.runSpecAsApp(
-        zio.test.test("")(x.tap(details =>
-          println(
-            "Details: " + details
-          )
-          ZIO.succeed(
-            println(
-              "Details: " + details
+    TestRunnerLocal
+      .runSpecAsApp(
+        zio
+          .test
+          .test("")(
+            x.tap(details =>
+              println("Details: " + details)
+              ZIO.succeed(
+                println("Details: " + details)
+              )
             )
           )
-        )
-        )
-        //        .provide(
-        //          ZLayer.environment[TestEnvironment with ZIOAppArgs with Scope] +!+
-        //            (liveEnvironment >>> TestEnvironment.live +!+ TestLogger.fromConsole(Console.ConsoleLive))
-        //        )
+          //        .provide(
+          // ZLayer.environment[TestEnvironment
+          // with ZIOAppArgs with Scope] +!+
+          // (liveEnvironment >>>
+          // TestEnvironment.live +!+
+          // TestLogger.fromConsole(Console.ConsoleLive))
+          //        )
       )
       .provide(
         liveEnvironment,
         TestEnvironment.live,
         Scope.default
       )
-      .map{x =>
+      .map { x =>
         scala.Console.println("Failure!")
         println(x.failureDetails)
         x.failureDetails
       }
-      .tap( details =>
-        println(
-          "Details: " + details
-        )
+      .tap(details =>
+        println("Details: " + details)
         ZIO.succeed(
-          println(
-            "Details: " + details
-          )
+          println("Details: " + details)
         )
       )
   )
+end runSpec

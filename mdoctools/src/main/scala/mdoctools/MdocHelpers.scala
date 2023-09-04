@@ -8,9 +8,14 @@ def runDemo[E, A](z: => ZIO[Any, E, A]): Unit =
     given Unsafe = u
     val res =
       unsafe
-        .run(Rendering.renderEveryPossibleOutcomeZio(z).withConsole(OurConsole))
+        .run(
+          Rendering
+            .renderEveryPossibleOutcomeZio(z)
+            .withConsole(OurConsole)
+        )
         .getOrThrowFiberFailure()
-    // This is the *only* place we can trust to always print the final value
+    // This is the *only* place we can trust to
+    // always print the final value
     println(res)
   }
 
@@ -19,22 +24,30 @@ import zio.test.*
 
 def runSpec(x: ZIO[Any, Nothing, TestResult]) =
 
-  val liveEnvironment: Layer[Nothing, Clock with Console with System with Random] = {
+  val liveEnvironment: Layer[
+    Nothing,
+    Clock with Console with System with Random
+  ] =
     implicit val trace = Trace.empty
     ZLayer.succeedEnvironment(
-      ZEnvironment[Clock, Console, System, Random](
-        Clock.ClockLive, // TODO Should this be OurClock
+      ZEnvironment[
+        Clock,
+        Console,
+        System,
+        Random
+      ](
+        Clock
+          .ClockLive, // TODO Should this be OurClock
         Console.ConsoleLive,
         System.SystemLive,
         Random.RandomLive
       )
     )
-  }
+  end liveEnvironment
 
   runDemo(
-    ZioTestExecution.runSpecAsApp(
-        zio.test.test("")(x)
-      )
+    ZioTestExecution
+      .runSpecAsApp(zio.test.test("")(x))
       .provide(
         liveEnvironment,
         TestEnvironment.live,
@@ -47,3 +60,4 @@ def runSpec(x: ZIO[Any, Nothing, TestResult]) =
           result.failureDetails
       )
   )
+end runSpec
