@@ -29,7 +29,6 @@ ExperimentsSection.md
 experiments-src-test-scala-Hubs.md
 std_type_conversions_to_zio.md
 Parallelism.md
-javawrappers.md
 layers.md
 experiments-src-test-scala-random.md
 Hubs.md
@@ -45,14 +44,11 @@ experiments-src-test-scala-testcontainers.md
 cancellation.md
 concurrency.md
 rezilience.md
-diningphilosophers.md
 zio_intro.md
-fibers.md
 experiments-src-test-scala-zio_test.md
 experiments-src-test-scala-layers.md
 experiments-src-test-scala-time.md
 performance.md
-game_theory.md
 testcontainers.md
 runtime.md
 resourcemanagement.md

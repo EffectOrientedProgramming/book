@@ -60,7 +60,7 @@ lazy val unreliableCounting =
   }
 
 runDemo(unreliableCounting)
-// Final count: 99897
+// Final count: 99965
 ```
 
 Due to the unpredictable nature of shared mutable state, we do not know exactly what the final count above is.
@@ -197,58 +197,3 @@ Try to structure your code to minimize the coupling between effects and updates,
 
 ## Edit This Chapter
 [Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/11_Mutability.md)
-
-
-## Automatically attached experiments.
- These are included at the end of this
- chapter because their package in the
- experiments directory matched the name
- of this chapter. Enjoy working on the
- code with full editor capabilities :D
-
- 
-
-### experiments/src/main/scala/mutability/ComplexRefs.scala
-```scala
-package mutability
-
-object ComplexRefs extends ZIOAppDefault:
-
-  @annotation.nowarn
-  class Sensor(lastReading: Ref[SensorData]):
-    def read: ZIO[Any, Nothing, SensorData] =
-      zio
-        .Random
-        .nextIntBounded(10)
-        .map(SensorData(_))
-
-  object Sensor:
-    val make: ZIO[Any, Nothing, Sensor] =
-      for lastReading <- Ref.make(SensorData(0))
-      yield Sensor(lastReading)
-
-  case class SensorData(value: Int)
-
-  case class World(sensors: List[Sensor])
-
-  val readFromSensors =
-    defer {
-      val sensors =
-        ZIO
-          .foreach(List.fill(100)(0))(_ =>
-            Sensor.make
-          )
-          .run
-      val world = World(sensors)
-      ZIO
-        .foreach(world.sensors)(_.read)
-        .debug("Current data: ")
-        .run
-    }
-
-  def run = readFromSensors
-
-end ComplexRefs
-
-```
-

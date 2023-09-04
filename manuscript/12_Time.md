@@ -127,10 +127,16 @@ object DemoSyncIssues extends ZIOAppDefault:
 ```scala
 package time
 
-import javawrappers.InstantOps.plusZ
-
 import java.time.Instant
 import scala.concurrent.TimeoutException
+
+// TODO Consider deleting
+object InstantOps:
+  extension (i: Instant)
+    def plusZ(duration: zio.Duration): Instant =
+      i.plus(duration.asJava)
+
+import InstantOps._
 
 /* Goal: If I accessed this from:
  * 0-1 seconds, I would get "First Value" 1-4

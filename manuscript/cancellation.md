@@ -2,6 +2,42 @@
 
  
 
+### experiments/src/main/scala/cancellation/CancellingATightLoop.scala
+```scala
+package cancellation
+
+import org.apache.commons.lang3.RandomStringUtils
+import org.apache.commons.text.similarity.LevenshteinDistance
+
+val input  = RandomStringUtils.random(70_000)
+val target = RandomStringUtils.random(70_000)
+val leven =
+  LevenshteinDistance.getDefaultInstance
+
+object PlainLeven extends App:
+  leven(input, target)
+
+object CancellingATightLoop
+    extends ZIOAppDefault:
+  val scenario =
+    ZIO
+      .attempt(leven(input, target))
+      .mapBoth(
+        error => ZIO.succeed("yay!"),
+        success => ZIO.fail("Oh no!")
+      )
+
+  def run =
+    // For timeouts, you need fibers and
+    // cancellation
+    scenario
+      // TODO This is running for 16 seconds
+      // nomatter what.
+      .timeout(1.seconds).timed.debug("Time:")
+
+```
+
+
 ### experiments/src/main/scala/cancellation/FutureCancellation.scala
 ```scala
 package cancellation

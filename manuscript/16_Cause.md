@@ -36,7 +36,7 @@ runDemo(
           Cause.fail(Exception("2b"))) ++
         Cause
           .stackless(Cause.fail(Exception("3")))
-      ).prettyPrint
+    ).prettyPrint
   )
 )
 // Exception in thread "zio-fiber-" java.lang.Exception: 1
@@ -97,9 +97,9 @@ val thrownLogic =
 //   trace = "repl.MdocSession.MdocApp.thrownLogic(16_Cause.md:54)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.thrownLogic(16_Cause.md:54)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14519/0x0000000103bfc840@7e1127be
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14499/0x0000000103bf4840@6f19459f
 //   ),
-//   successK = zio.ZIO$$$Lambda$14521/0x0000000103c10840@42fe3704
+//   successK = zio.ZIO$$$Lambda$14501/0x0000000103bf3040@d0afa2b
 // )
 runDemo(thrownLogic)
 // java.lang.Exception: Release Failed
