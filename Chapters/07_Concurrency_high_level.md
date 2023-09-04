@@ -3,30 +3,28 @@
 TODO Prose
 ```scala mdoc
 def sleepThenPrint(
-                    d: Duration
-                  ): ZIO[Any, java.io.IOException, Duration] =
+    d: Duration
+): ZIO[Any, java.io.IOException, Duration] =
   defer {
     ZIO.sleep(d).run
     println(s"${d.render} elapsed")
     d
   }
-
 ```
 
 ```scala mdoc
 runDemo(
-    ZIO.foreach(Seq(2, 1)) { i =>
-        sleepThenPrint(i.seconds)
-    }
+  ZIO.foreach(Seq(2, 1)) { i =>
+    sleepThenPrint(i.seconds)
+  }
 )
-
 ```
 
 ```scala mdoc
 runDemo(
-      ZIO.foreachPar(Seq(2, 1)) { i =>
-        sleepThenPrint(i.seconds)
-      }
+  ZIO.foreachPar(Seq(2, 1)) { i =>
+    sleepThenPrint(i.seconds)
+  }
 )
 ```
 
@@ -44,9 +42,7 @@ runDemo(
         )
         .run
     val total =
-      durations
-        .fold(Duration.Zero)(_ + _)
-        .render
+      durations.fold(Duration.Zero)(_ + _).render
     Console.printLine(total).run
   }
 )
@@ -71,9 +67,7 @@ runDemo(
                 ZIO.sleep(duration).run
                 ZIO
                   .when(randInt < 10)(
-                    ZIO.fail(
-                      "Number is too low"
-                    )
+                    ZIO.fail("Number is too low")
                   )
                   .run
                 duration
@@ -82,11 +76,8 @@ runDemo(
         )
         .run
     val total =
-      durations
-        .fold(Duration.Zero)(_ + _)
-        .render
+      durations.fold(Duration.Zero)(_ + _).render
     Console.printLine(total).run
   }
 )
-
 ```

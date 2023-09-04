@@ -54,10 +54,7 @@ object SecuritySystem:
         )
         .run
       val securityResponse =
-        determineResponse(
-          amountOfMotion,
-          noise
-        )
+        determineResponse(amountOfMotion, noise)
       securityResponse match
         case Relax =>
           ZIO.debug("No need to panic").run
@@ -70,8 +67,8 @@ object SecuritySystem:
   @annotation.nowarn
   def shouldAlertServices[
       T
-        <: MotionDetector &
-          SirenX & AcousticDetectorX
+        <: MotionDetector & SirenX &
+          AcousticDetectorX
   ](): ZIO[
     T,
     scenarios.HardwareFailure | TimeoutException,
@@ -99,9 +96,8 @@ object SecuritySystem:
     }
 
   def shouldTrigger(
-      amountOfMotion: Pixels,
-  ): Boolean =
-    amountOfMotion.value > 10
+      amountOfMotion: Pixels
+  ): Boolean = amountOfMotion.value > 10
 
   def determineResponse(
       amountOfMotion: Pixels,
@@ -119,7 +115,6 @@ object SecuritySystem:
       LowBeep
     else
       LoudSiren
-  end determineResponse
 
   def determineBreaches(
       amountOfMotion: Pixels,

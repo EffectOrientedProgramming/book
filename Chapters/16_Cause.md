@@ -35,7 +35,7 @@ runDemo(
           Cause.fail(Exception("2b"))) ++
         Cause
           .stackless(Cause.fail(Exception("3")))
-      ).prettyPrint
+    ).prettyPrint
   )
 )
 ```

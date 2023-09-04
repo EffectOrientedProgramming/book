@@ -23,40 +23,36 @@ object KeepSuccesses extends zio.ZIOAppDefault:
       results match
         case (failures, successes) =>
           defer {
-            printFailures(failures)
-              .run
+            printFailures(failures).run
             val recoveries =
-                attemptFallbackFor(failures)
-                .run
+              attemptFallbackFor(failures).run
             successes ++ recoveries
           }.debug("All successes").run
-      end match
     }
 
   def run = moreStructuredLogic
 
-  private def printFailures(failures: Iterable[BadResponse]) =
-    ZIO
-      .foreach(failures)(e =>
-        printLine(
-          "Error: " + e +
-            ". Should retry on other server."
+  private def printFailures(
+      failures: Iterable[BadResponse]
+  ) =
+    ZIO.foreach(failures)(e =>
+      printLine(
+        "Error: " + e +
+          ". Should retry on other server."
+      )
+    )
+  private def attemptFallbackFor(
+      failures: Iterable[BadResponse]
+  ) =
+    ZIO.collectAllSuccesses(
+      failures.map(failure =>
+        slowMoreReliableNetworkCall(
+          failure.payload
+        ).tapError(e =>
+          printLine("Giving up on: " + e)
         )
       )
-  private def attemptFallbackFor(failures: Iterable[BadResponse]) =
-    ZIO
-      .collectAllSuccesses(
-        failures.map(failure =>
-          slowMoreReliableNetworkCall(
-            failure.payload
-          ).tapError(e =>
-            printLine(
-              "Giving up on: " + e
-            )
-          )
-        )
-      )
-
+    )
 
   def fastUnreliableNetworkCall(input: String) =
     if (input.length < 5)
