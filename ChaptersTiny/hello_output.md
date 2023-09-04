@@ -1,28 +1,23 @@
 
 ```scala mdoc
-runDemo(
-  Console.printLine("hi!!!")
-)
+runDemo(Console.printLine("hi!!!"))
 ```
 
 ```scala mdoc
-runDemo(
-  Console.printLine("hello!")
-)
+runDemo(Console.printLine("hello!"))
 ```
 
 
 ```scala mdoc
 runDemo(
-  ZIO.succeed(scala.Console.println("Failure!!!"))
+  ZIO
+    .succeed(scala.Console.println("Failure!!!"))
 )
 ```
           
 
 ```scala mdoc
-runDemo(
-  ZIO.succeed(println("hi"))
-)
+runDemo(ZIO.succeed(println("hi")))
 ```
 
 Passing test
