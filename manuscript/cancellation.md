@@ -2,42 +2,6 @@
 
  
 
-### experiments/src/main/scala/cancellation/CancellingATightLoop.scala
-```scala
-package cancellation
-
-import org.apache.commons.lang3.RandomStringUtils
-import org.apache.commons.text.similarity.LevenshteinDistance
-
-val input  = RandomStringUtils.random(70_000)
-val target = RandomStringUtils.random(70_000)
-val leven =
-  LevenshteinDistance.getDefaultInstance
-
-object PlainLeven extends App:
-  leven(input, target)
-
-object CancellingATightLoop
-    extends ZIOAppDefault:
-  val scenario =
-    ZIO
-      .attempt(leven(input, target))
-      .mapBoth(
-        error => ZIO.succeed("yay!"),
-        success => ZIO.fail("Oh no!")
-      )
-
-  def run =
-    // For timeouts, you need fibers and
-    // cancellation
-    scenario
-      // TODO This is running for 16 seconds
-      // nomatter what.
-      .timeout(1.seconds).timed.debug("Time:")
-
-```
-
-
 ### experiments/src/main/scala/cancellation/FutureCancellation.scala
 ```scala
 package cancellation
@@ -61,18 +25,25 @@ object FutureNaiveCancellation
 ```
 
 
-### experiments/src/main/scala/cancellation/HelloCancellation.scala
+### experiments/src/main/scala/cancellation/ZIOCancellation.scala
 ```scala
 package cancellation
 
 val longRunning =
-  defer:
-    ZIO.debug("  Started longrunning").run
-    ZIO.sleep(5.seconds).run
-    ZIO.debug("  Finished longrunning").run
-  .onInterrupt(
-    ZIO.debug("Interrupted LongRunning")
+  createProcess(
+    "LongRunning",
+    ZIO.sleep(5.seconds)
   )
+
+def createProcess(
+    label: String,
+    innerProcess: ZIO[Any, Nothing, Unit]
+) =
+  defer:
+    ZIO.debug(s"Started $label").run
+    innerProcess.run
+    ZIO.debug(s"Finished $label").run
+  .onInterrupt(ZIO.debug(s"Interrupted $label"))
 
 object HelloCancellation extends ZIOAppDefault:
 
@@ -80,58 +51,40 @@ object HelloCancellation extends ZIOAppDefault:
 
 object HelloCancellation2 extends ZIOAppDefault:
   val complex =
-    defer:
-      ZIO.debug("starting complex operation").run
-      longRunning.run
-      ZIO
-        .debug("finishing complex operation")
-        .run
-    .onInterrupt(
-      ZIO.debug("Interrupted Complex")
-    )
+    createProcess("Complex", longRunning)
 
   def run = complex.timeout(2.seconds)
 
 object CancellationWeb extends ZIOAppDefault:
-
-  def spawnOperations(
+  def spawnLevel(
       level: Int,
       limit: Int,
       parent: String
   ): ZIO[Any, Nothing, Unit] =
-    val indent = " " * (level * 2)
-    if (level < limit)
-      defer:
-        ZIO
-          .debug(indent + parent + " started")
-          .run
-        ZIO.sleep(level.seconds).run
-
-        ZIO
-          .foreachPar(List("L", "R"))(label =>
-            spawnOperations(
-              level + 1,
-              limit,
-              parent + s"-$label"
+    ZIO
+      .foreachPar(List("L", "R"))(label =>
+        createProcess(
+          " " *
+            (level + 1 * 2) + parent +
+            s"-$label",
+          ZIO
+            .when(level < limit)(
+              spawnLevel(
+                level + 1,
+                limit,
+                " " *
+                  (level + 1 * 2) + parent +
+                  s"-$label"
+              )
             )
-          )
-          .run
-
-        ZIO
-          .debug(indent + parent + " finished")
-          .run
-      .onInterrupt(
-        ZIO.debug(
-          indent + parent + " interrupted"
+            .unit
         )
-      ).unit
-    else
-      ZIO.unit
-  end spawnOperations
+      )
+      .delay(level.seconds)
+      .unit
 
   def run =
-    spawnOperations(0, 3, "Root")
-      .timeout(3.seconds)
+    spawnLevel(0, 3, "Root").timeout(3.seconds)
 end CancellationWeb
 
 object FailureDuringFork extends ZIOAppDefault:
@@ -162,6 +115,35 @@ object FailureDuringFork extends ZIOAppDefault:
       fiber2.join.run
     }
 end FailureDuringFork
+
+import org.apache.commons.lang3.RandomStringUtils
+import org.apache.commons.text.similarity.LevenshteinDistance
+
+val input  = RandomStringUtils.random(70_000)
+val target = RandomStringUtils.random(70_000)
+val leven =
+  LevenshteinDistance.getDefaultInstance
+
+object PlainLeven extends App:
+  leven(input, target)
+
+object CancellingATightLoop
+    extends ZIOAppDefault:
+  val scenario =
+    ZIO
+      .attempt(leven(input, target))
+      .mapBoth(
+        error => ZIO.succeed("yay!"),
+        success => ZIO.fail("Oh no!")
+      )
+
+  def run =
+    // For timeouts, you need fibers and
+    // cancellation
+    scenario
+      // TODO This is running for 16 seconds
+      // nomatter what.
+      .timeout(1.seconds).timed.debug("Time:")
 
 ```
 

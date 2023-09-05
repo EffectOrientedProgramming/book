@@ -2,7 +2,7 @@
 
  
 
-### experiments/src/main/scala/concurrency/ThunderingHerdsUsingZioCacheLib.scala
+### experiments/src/main/scala/concurrency/ServiceThatCanHandleThunderingHerds.scala
 ```scala
 package concurrency
 
@@ -20,23 +20,13 @@ trait FileService:
       name: Path
   ): ZIO[Any, Nothing, FileContents]
 
+  // These are just for demos
   val hits: ZIO[Any, Nothing, Int]
-
   val misses: ZIO[Any, Nothing, Int]
 
+// TODO Figure if these functions belong in the object instead.
 trait FileSystem:
   def readFileExpensive(
-      name: Path
-  ): ZIO[Any, Nothing, FileContents] =
-    ZIO
-      .succeed(FileSystem.hardcodedFileContents)
-      .tap(_ =>
-        printLine("Reading from FileSystem")
-          .orDie
-      )
-      .delay(2.seconds)
-
-  def readFileExpensive2(
       name: Path
   ): ZIO[Any, Nothing, FileContents] =
     defer:
@@ -46,7 +36,6 @@ trait FileSystem:
 
       ZIO.sleep(2.seconds).run
       FileSystem.hardcodedFileContents
-end FileSystem
 
 object FileSystem:
   val hardcodedFileContents =
@@ -55,7 +44,7 @@ object FileSystem:
     )
   val live = ZLayer.succeed(new FileSystem {})
 
-case class ThunderingHerdsUsingZioCacheLib(
+case class ServiceThatCanHandleThunderingHerds(
     cache: Cache[Path, Nothing, FileContents]
 ) extends FileService:
   override def retrieveContents(
@@ -71,8 +60,9 @@ case class ThunderingHerdsUsingZioCacheLib(
     defer {
       cache.cacheStats.run.misses.toInt
     }
+end ServiceThatCanHandleThunderingHerds
 
-object ThunderingHerdsUsingZioCacheLib:
+object ServiceThatCanHandleThunderingHerds:
   val make =
     defer:
       val retrievalFunction =
@@ -89,8 +79,8 @@ object ThunderingHerdsUsingZioCacheLib:
             lookup = Lookup(retrievalFunction)
           )
           .run
-      ThunderingHerdsUsingZioCacheLib(cache)
-end ThunderingHerdsUsingZioCacheLib
+      ServiceThatCanHandleThunderingHerds(cache)
+end ServiceThatCanHandleThunderingHerds
 
 ```
 

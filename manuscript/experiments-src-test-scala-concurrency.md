@@ -67,7 +67,8 @@ object ThunderingHerdsSpec
       }.provide(
         FileSystem.live,
         ZLayer.fromZIO(
-          ThunderingHerdsUsingZioCacheLib.make
+          ServiceThatCanHandleThunderingHerds
+            .make
         )
       )
     )

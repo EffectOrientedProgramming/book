@@ -97,9 +97,9 @@ val thrownLogic =
 //   trace = "repl.MdocSession.MdocApp.thrownLogic(16_Cause.md:54)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.thrownLogic(16_Cause.md:54)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14499/0x0000000103bf4840@6f19459f
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14550/0x0000000103ca0440@bf4f35d
 //   ),
-//   successK = zio.ZIO$$$Lambda$14501/0x0000000103bf3040@d0afa2b
+//   successK = zio.ZIO$$$Lambda$14552/0x0000000103ca6840@9df21b7
 // )
 runDemo(thrownLogic)
 // java.lang.Exception: Release Failed
