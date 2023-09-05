@@ -1,12 +1,15 @@
 package cancellation
 
 val longRunning =
+  createProcess("LongRunning", ZIO.sleep(5.seconds))
+
+def createProcess(label: String, innerProcess: ZIO[Any, Nothing, Unit]) =
   defer:
-    ZIO.debug("  Started longrunning").run
-    ZIO.sleep(5.seconds).run
-    ZIO.debug("  Finished longrunning").run
+    ZIO.debug(s"Started $label").run
+    innerProcess.run
+    ZIO.debug(s"Finished $label").run
   .onInterrupt(
-    ZIO.debug("Interrupted LongRunning")
+    ZIO.debug(s"Interrupted $label")
   )
 
 object HelloCancellation extends ZIOAppDefault:
@@ -15,57 +18,24 @@ object HelloCancellation extends ZIOAppDefault:
 
 object HelloCancellation2 extends ZIOAppDefault:
   val complex =
-    defer:
-      ZIO.debug("starting complex operation").run
-      longRunning.run
-      ZIO
-        .debug("finishing complex operation")
-        .run
-    .onInterrupt(
-      ZIO.debug("Interrupted Complex")
-    )
+    createProcess("Complex", longRunning)
 
   def run = complex.timeout(2.seconds)
 
 object CancellationWeb extends ZIOAppDefault:
-
-  def spawnOperations(
-      level: Int,
-      limit: Int,
-      parent: String
-  ): ZIO[Any, Nothing, Unit] =
-    val indent = " " * (level * 2)
-    if (level < limit)
-      defer:
-        ZIO
-          .debug(indent + parent + " started")
-          .run
-        ZIO.sleep(level.seconds).run
-
-        ZIO
-          .foreachPar(List("L", "R"))(label =>
-            spawnOperations(
-              level + 1,
-              limit,
-              parent + s"-$label"
-            )
+  def spawnLevel(level: Int, limit: Int, parent: String): ZIO[Any, Nothing, Unit] =
+      ZIO
+        .foreachPar(List("L", "R"))(label =>
+          createProcess(
+            " " * (level + 1 * 2) + parent + s"-$label",
+            ZIO.when(level < limit)(
+              spawnLevel(level + 1, limit, " " * (level + 1 * 2) + parent + s"-$label")
+            ).unit
           )
-          .run
-
-        ZIO
-          .debug(indent + parent + " finished")
-          .run
-      .onInterrupt(
-        ZIO.debug(
-          indent + parent + " interrupted"
-        )
-      ).unit
-    else
-      ZIO.unit
-  end spawnOperations
+      ).delay(level.seconds).unit
 
   def run =
-    spawnOperations(0, 3, "Root")
+    spawnLevel(0, 3, "Root")
       .timeout(3.seconds)
 end CancellationWeb
 
