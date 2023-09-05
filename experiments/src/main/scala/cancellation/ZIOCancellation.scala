@@ -1,16 +1,20 @@
 package cancellation
 
 val longRunning =
-  createProcess("LongRunning", ZIO.sleep(5.seconds))
+  createProcess(
+    "LongRunning",
+    ZIO.sleep(5.seconds)
+  )
 
-def createProcess(label: String, innerProcess: ZIO[Any, Nothing, Unit]) =
+def createProcess(
+    label: String,
+    innerProcess: ZIO[Any, Nothing, Unit]
+) =
   defer:
     ZIO.debug(s"Started $label").run
     innerProcess.run
     ZIO.debug(s"Finished $label").run
-  .onInterrupt(
-    ZIO.debug(s"Interrupted $label")
-  )
+  .onInterrupt(ZIO.debug(s"Interrupted $label"))
 
 object HelloCancellation extends ZIOAppDefault:
 
@@ -23,20 +27,35 @@ object HelloCancellation2 extends ZIOAppDefault:
   def run = complex.timeout(2.seconds)
 
 object CancellationWeb extends ZIOAppDefault:
-  def spawnLevel(level: Int, limit: Int, parent: String): ZIO[Any, Nothing, Unit] =
-      ZIO
-        .foreachPar(List("L", "R"))(label =>
-          createProcess(
-            " " * (level + 1 * 2) + parent + s"-$label",
-            ZIO.when(level < limit)(
-              spawnLevel(level + 1, limit, " " * (level + 1 * 2) + parent + s"-$label")
-            ).unit
-          )
-      ).delay(level.seconds).unit
+  def spawnLevel(
+      level: Int,
+      limit: Int,
+      parent: String
+  ): ZIO[Any, Nothing, Unit] =
+    ZIO
+      .foreachPar(List("L", "R"))(label =>
+        createProcess(
+          " " *
+            (level + 1 * 2) + parent +
+            s"-$label",
+          ZIO
+            .when(level < limit)(
+              spawnLevel(
+                level + 1,
+                limit,
+                " " *
+                  (level + 1 * 2) + parent +
+                  s"-$label"
+              )
+            )
+            .unit
+        )
+      )
+      .delay(level.seconds)
+      .unit
 
   def run =
-    spawnLevel(0, 3, "Root")
-      .timeout(3.seconds)
+    spawnLevel(0, 3, "Root").timeout(3.seconds)
 end CancellationWeb
 
 object FailureDuringFork extends ZIOAppDefault:
@@ -80,7 +99,7 @@ object PlainLeven extends App:
   leven(input, target)
 
 object CancellingATightLoop
-  extends ZIOAppDefault:
+    extends ZIOAppDefault:
   val scenario =
     ZIO
       .attempt(leven(input, target))
@@ -90,8 +109,8 @@ object CancellingATightLoop
       )
 
   def run =
-  // For timeouts, you need fibers and
-  // cancellation
+    // For timeouts, you need fibers and
+    // cancellation
     scenario
       // TODO This is running for 16 seconds
       // nomatter what.
