@@ -41,21 +41,5 @@ object BasicHub extends zio.ZIOAppDefault:
         }
       }
 
-  /* case class entity(name:String) case class
-   * question(ques:String) case class
-   * response(rep:String, ent:entity) val
-   * entities = List(entity("Bob"),
-   * entity("Smith")) //This example sends out a
-   * question in the form of a string. Then, two
-   * //entities respond with different reponses.
-   * val logic2 =
-   * for questHub <- Hub.bounded[question](1)
-   * repHub <-
-   * Hub.bounded[response](entities.size) _ <-
-   * questHub.subscribe.zip(repHub.subscribe).use
-   * { case ( Quest, Resp ) =
-   *
-   * } */
-
   def run = logic1.exitCode
 end BasicHub
