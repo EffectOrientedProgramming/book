@@ -51,14 +51,15 @@ defer {
 There are many other ways you can compose ZIOs.  The methods for composability depend on the desired behavior.  For example, to compose a ZIO that can produce an error with a ZIO that logs the error and then produces a default value, you can use the `catchAll` like:
 
 ```scala mdoc
-ZIO
-  .attempt("asdf")
-  .catchAll { e =>
-    defer {
-      ZIO.logError(e.getMessage).run
-      ZIO.succeed("default value").run
+runDemo(
+  ZIO
+    .attempt("asdf")
+    .catchAll { e =>
+      defer {
+        ZIO.logError(e.getMessage).run
+        ZIO.succeed("default value").run
+      }
     }
-  }
 ```
 
 [^^future_interrupted_1]: This is an endnote

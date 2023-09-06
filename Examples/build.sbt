@@ -6,6 +6,7 @@ lazy val mdoctools = (project in file("mdoctools"))
   .settings(
     libraryDependencies ++= Seq(
       "dev.zio" %% "zio" % zioVersion,
+      "dev.zio" %% "zio-test" % zioVersion,
   ),
   scalacOptions +=
     Seq(

@@ -12,6 +12,9 @@
     1. End notes can't contain code
     1. We can instead do a 99_endnotes.md and use crosslinks: http://markua.com/#crosslinks-and-ids-m-
     1. This approach will work with mdoc
+1. `runDemo` replacement with `mdoc:ziorun`
+1. `runTest` replacement with `mdoc:ziotest`
+1. Sometimes error in CI: `genManuscript` `java.nio.file.NoSuchFileException: manuscript/Book.txt`
 
 ## P1
 1. ZIO Direct returning concrete values

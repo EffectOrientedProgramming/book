@@ -59,7 +59,7 @@ lazy val unreliableCounting =
     "Final count: " + ZIO.succeed(counter).run
   }
 
-runDemoValue(unreliableCounting)
+runDemo(unreliableCounting)
 ```
 
 Due to the unpredictable nature of shared mutable state, we do not know exactly what the final count above is.
@@ -90,7 +90,7 @@ lazy val reliableCounting =
     "Final count: " + counter.get.run
   }
 
-runDemoValue(reliableCounting)
+runDemo(reliableCounting)
 ```
 Now we can say with full confidence that our final count is 100000.
 Additionally, these updates happen _without blocking_.
@@ -110,7 +110,7 @@ def expensiveCalculation() = Thread.sleep(35)
 Our side effect will be a mock alert that is sent anytime our count is updated:
 ```scala mdoc
 def sendNotification() =
-  println("Alert: We have updated our count!")
+  println("Alert: We have updated our count!!")
 ```
 
 ```scala mdoc
@@ -130,7 +130,7 @@ lazy val sideEffectingUpdates =
   }
 
 // Mdoc/this function is showing the notifications, but not the final result
-runDemoValue(sideEffectingUpdates)
+runDemo(sideEffectingUpdates)
 ```
 What is going on?!
 Previously, we were losing updates because of unsafe mutability.
@@ -168,10 +168,10 @@ lazy val sideEffectingUpdatesSync =
         }
       )
       .run
-    "Final count: " + counter.get.run
+    "!Final count: " + counter.get.run
   }
 
-runDemoValue(sideEffectingUpdatesSync)
+runDemo(sideEffectingUpdatesSync)
 ```
 
 Now we see exactly the number of alerts that we expected.

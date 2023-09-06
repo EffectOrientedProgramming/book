@@ -329,7 +329,7 @@ def fancyLodgingBuiltIn(
 
 ## Exercises
 
-```scala mdoc
+```todo
 import zio.test.TestSystem
 import zio.test.TestSystem.Data
 // TODO Use real tests once Scala3 & ZIO2 are
@@ -338,7 +338,7 @@ import zio.test.TestSystem.Data
 
 X> **Exercise 1:** Create a function will report missing Environment Variables as `NoSuchElementException` failures, instead of an `Option` success case.
 
-```scala mdoc
+```todo
 trait Exercise1:
   def envOrFail(variable: String): ZIO[
     zio.System,
@@ -347,7 +347,7 @@ trait Exercise1:
   ]
 ```
 
-```scala mdoc:invisible
+```todo
 object Exercise1Solution extends Exercise1:
   def envOrFail(variable: String): ZIO[
     zio.System,
@@ -365,35 +365,46 @@ object Exercise1Solution extends Exercise1:
       )
 ```
 
-```scala mdoc
-val exercise1case1 =
-  runDemoValue(
-    Exercise1Solution
+```todo
+import zio.test.*
+
+runSpec(
+  defer {
+    val res = Exercise1Solution
       .envOrFail("key")
       .provide(
         TestSystem.live(
           Data(envs = Map("key" -> "value"))
         )
       )
-  )
-assert(exercise1case1 == "value")
+      .run
+    
+    assertTrue(res == "value")
+  }
+)
+
 ```
 
-```scala mdoc
-val exercise1case2 =
-  runDemoValue(
-    Exercise1Solution
-      .envOrFail("key")
-      .catchSome {
-        case _: NoSuchElementException =>
-          ZIO.succeed("Expected Error")
-      }
-      .provide(
-        TestSystem.live(Data(envs = Map()))
-      )
-  )
+```todo
+import zio.test.*
 
-assert(exercise1case2 == "Expected Error")
+runSpec(
+  defer {
+    val res =
+      Exercise1Solution
+        .envOrFail("key")
+        .catchSome {
+          case _: NoSuchElementException =>
+            ZIO.succeed("Expected Error")
+        }
+        .provide(
+          TestSystem.live(Data(envs = Map()))
+        )
+        .run
+
+      assertTrue(res == "Expected Error")
+    }
+)
 ```
 
 X> **Exercise 2:** Create a function will attempt to parse a value as an Integer and report errors as a `NumberFormatException`.

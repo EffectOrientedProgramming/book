@@ -5,6 +5,7 @@ inThisBuild(scalaVersion := "3.3.0")
 
 // This tells mdoc which folder to analyze
 mdocIn := file("Chapters")
+//mdocIn := file("ChaptersTiny")
 // This is where the generated markdown files will be placed,
 // after the scala blocks has been compiled/executed
 mdocOut := file("manuscript")
