@@ -44,7 +44,7 @@ Notes:
 1. Concurrency - High Level
     1. forEachPar, collectAllPar
 1. Concurrency - Low Level
-    1. fork join
+    1. Fork join
     2. Throwaway reference to STM
 1. Concurrency - Interruption
     1. Timeout
