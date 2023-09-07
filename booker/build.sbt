@@ -2,7 +2,8 @@ import scala.util.Try
 
 libraryDependencies := Seq(
   "io.github.kitlangton" %% "zio-tui" % "0.2.1",
-  "dev.zio" %% "zio-direct" % "1.0.0-RC7"
+  "org.jline" % "jline" % "3.23.0", // override the transitive for a newer version
+  "dev.zio" %% "zio-direct" % "1.0.0-RC7",
 )
 
 // for building in a docker container
@@ -46,7 +47,9 @@ graalVMNativeImageOptions ++= (
 
 scalacOptions -= "-Wunused:imports"
 
-run / baseDirectory := file(".")
+// todo: make run work via sbt or fail
+
+// run / baseDirectory := file(".")
 
 // uncomment to run with the agent
 /*
@@ -54,7 +57,8 @@ run / fork := true
 run / javaOptions += s"-agentlib:native-image-agent=config-output-dir=booker/src/main/resources/META-INF/native-image"
 */
 
-run / connectInput := true
+
+// run / connectInput := true
 
 /*
 // todo: run task with agent

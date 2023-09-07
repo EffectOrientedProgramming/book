@@ -18,5 +18,8 @@
 
 ## P1
 1. ZIO Direct returning concrete values
+1. Booker
+    1. Implement ReorderExistingApp
+    1. Merge AddNewChapterApp & ReorderExistingApp
 1. Mermaid processing
     1. We can turn mermaid blocks into images on manuscript generation
