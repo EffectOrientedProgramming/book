@@ -50,36 +50,26 @@ defer {
 //   trace = "zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res0(98_composability.md:8)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14522/0x0000000103126c40@213f3ea5
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14664/0x0000000103c87c40@4b6c9823
 //   ),
-//   successK = repl.MdocSession$MdocApp$$Lambda$17931/0x0000000103dcc040@b26dba9
+//   successK = repl.MdocSession$MdocApp$$Lambda$17909/0x0000000103c30040@5c5cdca8
 // )
 ```
 
 There are many other ways you can compose ZIOs.  The methods for composability depend on the desired behavior.  For example, to compose a ZIO that can produce an error with a ZIO that logs the error and then produces a default value, you can use the `catchAll` like:
 
 ```scala
-ZIO
-  .attempt("asdf")
-  .catchAll { e =>
-    defer {
-      ZIO.logError(e.getMessage).run
-      ZIO.succeed("default value").run
+runDemo(
+  ZIO
+    .attempt("asdf")
+    .catchAll { e =>
+      defer {
+        ZIO.logError(e.getMessage).run
+        ZIO.succeed("default value").run
+      }
     }
-  }
-// res1: ZIO[Any, Nothing, String] = OnSuccessAndFailure(
-//   trace = "repl.MdocSession.MdocApp.res1(98_composability.md:25)",
-//   first = OnSuccess(
-//     trace = "repl.MdocSession.MdocApp.res1(98_composability.md:19)",
-//     first = Sync(
-//       trace = "repl.MdocSession.MdocApp.res1(98_composability.md:19)",
-//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$14522/0x0000000103126c40@774e28bb
-//     ),
-//     successK = zio.ZIO$$$Lambda$14526/0x0000000103123840@7f16ae66
-//   ),
-//   successK = zio.ZIO$$Lambda$14537/0x0000000103133840@7566ae07,
-//   failureK = zio.ZIO$$Lambda$14538/0x0000000103133040@2d747c18
-// )
+)
+// asdf
 ```
 
 [^^future_interrupted_1]: This is an endnote
