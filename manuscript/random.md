@@ -1,4 +1,139 @@
-## random
+# Random
+
+We _need_ randomness in many domains.
+
+- Cryptography
+- Simulations
+- Adding noise to images for further processing
+- Adding jitter to processes to prevent clashes
+
+Randomness might seem antithetical to functional programming.
+We want pure functions that always give us the same output for the same input!
+
+This conflict highlights that Randomness is special - it is an effect.
+
+It is easy to miss the significance of Randomness when writing software in other languages and paradigms.
+You want a random integer? Just call the `randomInt` function and move on.
+It probably doesn't seem any more unusual than calling `squareRoot` or `sin`.
+
+We use pseudorandom algorithms to produce output that is sufficiently random for some applications.
+These are initialized with a seed value that determines all the following output.
+
+```scala
+class MutableRNG(var seed: Int):
+
+  def nextInt(): Int =
+    seed = mangleNumber(seed)
+    seed
+
+  private def mangleNumber(input: Int): Int =
+    // *NOT* good pseudorandom logic
+    input * 52357 % 1000
+```
+
+```scala
+val rng = MutableRNG(1)
+// rng: MutableRNG = repl.MdocSession$MdocApp$MutableRNG@51fd2aad
+rng.nextInt()
+// res0: Int = 357
+rng.nextInt()
+// res1: Int = 449
+rng.nextInt()
+// res2: Int = 293
+```
+This is good enough for many situations, but is not random enough for security applications.
+Let's see what happens if we make a new instance with the same seed.
+
+```scala
+val rngDuplicate = MutableRNG(1)
+// rngDuplicate: MutableRNG = repl.MdocSession$MdocApp$MutableRNG@38b457d3
+rngDuplicate.nextInt()
+// res3: Int = 357
+rngDuplicate.nextInt()
+// res4: Int = 449
+rngDuplicate.nextInt()
+// res5: Int = 293
+```
+Exactly the same.
+If an adversary is able to determine what seed is used in your application, they can predict the future to exploit your system.
+
+## Physical RNGs
+Consider a Random Number Generator (RNG) that operates by tossing a coin into the air and sending the result to the CPU.
+Assuming good conditions, this is actually a good source of randomness.
+
+Unfortunately, producing large numbers this way is slow and energy-consuming.
+Optimistically you can create 1 random bit per second.
+Further, you must power and maintain your coin-flipping and reading mechanism.
+
+You can produce random data more efficiently by 
+
+- monitoring voltage on a wire
+- Reading weather sensor data
+- Monitoring stock markets
+
+You can even subscribe to services that combine all of these techniques to produce random data.
+
+## Predictable Randomness
+When your program treats randomness as an effect, testing unusual scenarios becomes straightforward.
+You can preload "Random" data that will result in deterministic behavior.
+ZIO gives you built-in methods to support this.
+
+```scala
+import zio.test.TestRandom
+
+TestRandom.feedBooleans(true, false)
+TestRandom.feedBytes(Chunk(1, 2, 3))
+TestRandom.feedChars('a', 'b', 'c')
+TestRandom.feedDoubles(1.0, 2.0, 3.0)
+TestRandom.feedFloats(1.0f, 2.0f, 3.0f)
+TestRandom.feedInts(1, 2, 3)
+TestRandom.feedLongs(1L, 2L, 3L)
+TestRandom.feedStrings("a", "b", "c")
+TestRandom.feedUUIDs(
+  java
+    .util
+    .UUID
+    .fromString(
+      "00000000-0000-0000-0000-000000000000"
+    ),
+  java
+    .util
+    .UUID
+    .fromString(
+      "00000000-0000-0000-0000-000000000001"
+    ),
+  java
+    .util
+    .UUID
+    .fromString(
+      "00000000-0000-0000-0000-000000000002"
+    )
+)
+```
+
+```scala
+
+```
+
+If needed, you can also clear out these values by calling the various `clear` methods.
+
+```scala
+TestRandom.clearBooleans
+TestRandom.clearBytes
+// etc ...
+```
+
+
+## Edit This Chapter
+[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/random.md)
+
+
+## Automatically attached experiments.
+ These are included at the end of this
+ chapter because their package in the
+ experiments directory matched the name
+ of this chapter. Enjoy working on the
+ code with full editor capabilities :D
 
  
 
@@ -36,27 +171,20 @@ def fullRound(): GameState =
 @main
 def playASingleRound() = println(fullRound())
 
-import zio.ZIO
-
 val rollDiceZ
     : ZIO[RandomBoundedInt, Nothing, Int] =
   RandomBoundedInt.nextIntBetween(1, 7)
 
 import zio.{ZIO, ZIOAppDefault}
 object RollTheDice extends ZIOAppDefault:
-  val logic =
-    for
-      roll <- rollDiceZ
-      _    <- ZIO.debug(roll)
-    yield ()
+  val logic = rollDiceZ.debug
 
   def run =
     logic.provideLayer(RandomBoundedInt.live)
 
 val fullRoundZ
     : ZIO[RandomBoundedInt, Nothing, GameState] =
-  for roll <- rollDiceZ
-  yield scoreRound(roll)
+  rollDiceZ.map(scoreRound)
 
 // The problem above is that you can test the winner logic completely separate from the random number generator.
 // The next example cannot be split so easily.
@@ -64,31 +192,35 @@ val fullRoundZ
 import zio.Ref
 
 val threeChances =
-  for
-    remainingChancesR <- Ref.make(3)
+  defer {
+    val remainingChancesR = Ref.make(3).run
+    val gameState =
+      Ref
+        .make[GameState](
+          GameState.InProgress("Starting")
+        )
+        .run
 
-    finalGameResult <-
-      (
-        for
-          roll <- rollDiceZ
-          remainingChances <-
-            remainingChancesR.getAndUpdate(_ - 1)
-        yield
-          if (remainingChances == 0)
-            GameState.Lose
-          else
-            scoreRound(roll)
-      ).repeatWhile {
-        case GameState.InProgress(_) =>
-          true
-        case _ =>
-          false
-      }
-    _ <-
-      ZIO.debug(
-        "Final game result: " + finalGameResult
+    while (
+      gameState.get.run == GameState.InProgress
+    ) {
+      rollDiceZ.run
+      val remainingChances =
+        remainingChancesR.getAndUpdate(_ - 1).run
+      if (remainingChances == 0)
+        gameState.set(GameState.Lose).run
+    }
+
+    val finalGameState =
+      gameState
+        .get
+        .run // note: this has to be outside the debug parameter
+    ZIO
+      .debug(
+        "Final game result: " + finalGameState
       )
-  yield ()
+      .run
+  }
 
 object ThreeChances extends ZIOAppDefault:
   def run =
@@ -109,7 +241,8 @@ object LoseInTwoChances extends ZIOAppDefault:
 ```scala
 package random
 
-import zio.{Tag, UIO, ZEnv, ZIO, ZIOAppArgs}
+import zio.Tag
+
 import scala.util.Random
 
 trait RandomBoundedInt:
@@ -119,8 +252,6 @@ trait RandomBoundedInt:
   ): UIO[Int]
 
 import zio.{UIO, ZIO, ZLayer}
-
-import scala.util.Random
 
 object RandomBoundedInt:
   def nextIntBetween(
@@ -157,8 +288,6 @@ end RandomBoundedInt
 ```scala
 package random
 
-import zio.{Ref, UIO, ZIO, ZLayer}
-
 class RandomBoundedIntFake private (
     values: Ref[Seq[Int]]
 ) extends RandomBoundedInt:
@@ -166,19 +295,23 @@ class RandomBoundedIntFake private (
       minInclusive: Int,
       maxExclusive: Int
   ): UIO[Int] =
-    for
-      remainingValues <- values.get
-      nextValue <-
-        if (remainingValues.isEmpty)
-          ZIO.die(
+    defer {
+      val remainingValues = values.get.run
+
+      if (remainingValues.isEmpty)
+        ZIO
+          .die(
             new Exception(
               "Did not provide enough values!"
             )
           )
-        else
-          ZIO.succeed(remainingValues.head)
-      _ <- values.set(remainingValues.tail)
-    yield remainingValues.head
+          .run
+      else
+        ZIO.succeed(remainingValues.head).run
+
+      values.set(remainingValues.tail).run
+      remainingValues.head
+    }
 end RandomBoundedIntFake
 
 object RandomBoundedIntFake:
@@ -186,8 +319,10 @@ object RandomBoundedIntFake:
       values: Seq[Int]
   ): ZLayer[Any, Nothing, RandomBoundedInt] =
     ZLayer.fromZIO(
-      for valuesR <- Ref.make(values)
-      yield new RandomBoundedIntFake(valuesR)
+      defer {
+        val valuesR = Ref.make(values).run
+        new RandomBoundedIntFake(valuesR)
+      }
     )
 
 ```
@@ -197,8 +332,6 @@ object RandomBoundedIntFake:
 ```scala
 package random
 
-import zio.{Console, UIO, ZIO, ZLayer}
-import zio.Runtime.default.unsafeRun
 import console.FakeConsole
 
 val low  = 1
@@ -207,8 +340,7 @@ val high = 10
 val prompt =
   s"Pick a number between $low and $high: "
 
-// TODO Determine how to handle .toInt failure
-// possibility
+// TODO Determine how to handle .toInt failure possibility
 def checkAnswer(
     answer: Int,
     guess: String
@@ -218,41 +350,66 @@ def checkAnswer(
   else
     s"BZZ Wrong!! Answer was $answer"
 
-val sideEffectingGuessingGame =
-  for
-    _ <- Console.print(prompt)
-    answer = scala.util.Random.between(low, high)
-    guess <- Console.readLine
-    response = checkAnswer(answer, guess)
-  yield prompt + guess + "\n" + response
+def parse(guess: String) =
+  ZIO
+    .attempt(guess.toInt)
+    .orElseFail("Invalid input:  " + guess)
 
-@main
-def runSideEffectingGuessingGame =
-  unsafeRun(
-    sideEffectingGuessingGame.provideLayer(
-      ZLayer.succeed(FakeConsole.single("3"))
+def checkAnswerZSplit(
+    answer: Int,
+    guess: String
+): ZIO[Any, Nothing, String] =
+  parse(guess)
+    .map(i =>
+      if answer == i then
+        "You got it!"
+      else
+        s"BZZ Wrong!!"
     )
-  )
+    .merge
 
-import zio.Console.printLine
+val sideEffectingGuessingGame =
+  defer:
+    Console.print(prompt).run
+    val answer =
+      scala.util.Random.between(low, high)
+    val guess    = Console.readLine.run
+    val response = checkAnswer(answer, guess)
+    prompt + guess + "\n" + response
+
+object runSideEffectingGuessingGame
+    extends ZIOAppDefault:
+  def run =
+    sideEffectingGuessingGame
+      .withConsole(FakeConsole.single("3"))
+      .debug("Side effecting results")
 
 val effectfulGuessingGame =
-  for
-    _ <- Console.print(prompt)
-    answer <-
-      RandomBoundedInt.nextIntBetween(low, high)
-    guess <- Console.readLine
-    response = checkAnswer(answer, guess)
-  yield prompt + guess + "\n" + response
+  defer {
+    Console.print(prompt).run
+    val answer =
+      RandomBoundedInt
+        .nextIntBetween(low, high)
+        .run
+    val guess = Console.readLine.run
+    checkAnswerZSplit(answer, guess).run
+  }
 
-@main
-def runEffectfulGuessingGame =
-  unsafeRun(
-    effectfulGuessingGame.provideLayer(
-      ZLayer.succeed(FakeConsole.single("3")) ++
-        RandomBoundedInt.live
-    )
-  )
+// TODO Decide if these should be removed, since test cases exist now
+object RunEffectfulGuessingGame
+    extends ZIOAppDefault:
+  def run =
+    effectfulGuessingGame
+      .withConsole(FakeConsole.single("3"))
+      .provideLayer(RandomBoundedInt.live)
+
+object RunEffectfulGuessingGameTestable
+    extends ZIOAppDefault:
+  def run =
+    effectfulGuessingGame
+      .debug("Result")
+      .withConsole(FakeConsole.single("3"))
+      .provideLayer(RandomBoundedIntFake(Seq(3)))
 
 ```
 
@@ -261,83 +418,69 @@ def runEffectfulGuessingGame =
 ```scala
 package random
 
-import zio.{
-  BuildFrom,
-  Chunk,
-  Console,
-  Random,
-  UIO,
-  ZIO,
-  ZLayer,
-  ZTraceElement
-}
-import zio.Console.printLine
+import zio.{BuildFrom, Chunk, Random, Trace, UIO}
 
 import java.util.UUID
 
-class RandomZIOFake(i: Int) extends Random:
+class RandomZIOFake extends Random:
   def nextUUID(implicit
-      trace: ZTraceElement
+      trace: Trace
   ): UIO[UUID] = ???
   def nextBoolean(implicit
-      trace: zio.ZTraceElement
+      trace: zio.Trace
   ): zio.UIO[Boolean] = ???
   def nextBytes(length: => Int)(implicit
-      trace: zio.ZTraceElement
+      trace: zio.Trace
   ): zio.UIO[zio.Chunk[Byte]] = ???
   def nextDouble(implicit
-      trace: zio.ZTraceElement
+      trace: zio.Trace
   ): zio.UIO[Double] = ???
   def nextDoubleBetween(
       minInclusive: => Double,
       maxExclusive: => Double
-  )(implicit
-      trace: zio.ZTraceElement
-  ): zio.UIO[Double] = ???
+  )(implicit trace: zio.Trace): zio.UIO[Double] =
+    ???
   def nextFloat(implicit
-      trace: zio.ZTraceElement
+      trace: zio.Trace
   ): zio.UIO[Float] = ???
   def nextFloatBetween(
       minInclusive: => Float,
       maxExclusive: => Float
-  )(implicit
-      trace: zio.ZTraceElement
-  ): zio.UIO[Float] = ???
+  )(implicit trace: zio.Trace): zio.UIO[Float] =
+    ???
   def nextGaussian(implicit
-      trace: zio.ZTraceElement
+      trace: zio.Trace
   ): zio.UIO[Double] = ???
   def nextInt(implicit
-      trace: zio.ZTraceElement
+      trace: zio.Trace
   ): zio.UIO[Int] = ???
   def nextIntBetween(
       minInclusive: => Int,
       maxExclusive: => Int
-  )(implicit
-      trace: zio.ZTraceElement
-  ): zio.UIO[Int] = ???
+  )(implicit trace: zio.Trace): zio.UIO[Int] =
+    ???
   def nextIntBounded(n: => Int)(implicit
-      trace: zio.ZTraceElement
+      trace: zio.Trace
   ): zio.UIO[Int] = ???
   def nextLong(implicit
-      trace: zio.ZTraceElement
+      trace: zio.Trace
   ): zio.UIO[Long] = ???
   def nextLongBetween(
       minInclusive: => Long,
       maxExclusive: => Long
-  )(implicit
-      trace: zio.ZTraceElement
-  ): zio.UIO[Long] = ???
+  )(implicit trace: zio.Trace): zio.UIO[Long] =
+    ???
   def nextLongBounded(n: => Long)(implicit
-      trace: zio.ZTraceElement
+      trace: zio.Trace
   ): zio.UIO[Long] = ???
   def nextPrintableChar(implicit
-      trace: zio.ZTraceElement
+      trace: zio.Trace
   ): zio.UIO[Char] = ???
   def nextString(length: => Int)(implicit
-      trace: zio.ZTraceElement
+      trace: zio.Trace
   ): zio.UIO[String] = ???
   def setSeed(seed: => Long)(implicit
-      trace: zio.ZTraceElement
+      trace: zio.Trace
   ): zio.UIO[Unit] = ???
   def shuffle[A, Collection[+Element]
     <: Iterable[Element]](
@@ -346,7 +489,7 @@ class RandomZIOFake(i: Int) extends Random:
       bf: BuildFrom[Collection[A], A, Collection[
         A
       ]],
-      trace: ZTraceElement
+      trace: Trace
   ): UIO[Collection[A]] = ???
 
 end RandomZIOFake

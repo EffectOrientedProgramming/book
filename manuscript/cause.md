@@ -6,27 +6,27 @@
 ```scala
 package cause
 
-import zio.{ZEnv, ZIO, ZIOAppDefault}
-
 object MalcomInTheMiddle extends ZIOAppDefault:
+  @annotation.nowarn
   def run =
 
-    def turnOnLights() = ???
+    def turnOnLights() = throw new BurntBulb()
     class BurntBulb() extends Exception
 
-    def getNewBulb() = ???
+    def getNewBulb() = throw new WobblyShelf()
     class WobblyShelf() extends Exception
 
-    def grabScrewDriver() = ???
+    def grabScrewDriver() =
+      throw new SqueakyDrawer()
     class SqueakyDrawer() extends Exception
 
-    def sprayWD40() = ???
+    def sprayWD40() = throw new EmptyCan()
     class EmptyCan() extends Exception
 
-    def driveToStore() = ???
+    def driveToStore() = throw new DeadCar()
     class DeadCar() extends Exception
 
-    def repairCar() = ???
+    def repairCar() = throw new Nagging()
     class Nagging() extends Exception
 
     try
@@ -49,18 +49,23 @@ object MalcomInTheMiddle extends ZIOAppDefault:
                       driveToStore()
                     catch
                       case deadCar: DeadCar =>
-                        try
-                          repairCar()
-                        catch
-                          case nagging: Nagging =>
-                            ZIO
-                              .succeed(
-                                println(
-                                  "What does it look like I'm doing?!"
-                                )
-                              )
-                              .exitCode
+                        try repairCar()
+                        finally
+                          ZIO
+                            .debug(
+                              "What does it look like I'm doing?!"
+                            )
+                            .exitCode
+    finally
+      println
     end try
+//    finally
+//      ZIO
+//        .debug(
+//          "What does it look like I'm doing?!"
+//        )
+//    .exitCode
+
   end run
 
 /** try { turnOnLights } catch { case
@@ -71,42 +76,80 @@ end MalcomInTheMiddle
 ```
 
 
-### experiments/src/main/scala/cause/MutationTracking.scala
+### experiments/src/main/scala/cause/MalcomInTheMiddleZ.scala
 ```scala
 package cause
 
-import zio.{ZEnv, ZIO}
-import zio.Console._
-import zio.Cause
+object MalcomInTheMiddleZ extends ZIOAppDefault:
+  def run =
+    def turnOnLights() = ZIO.fail(BurntBulb())
+    class BurntBulb()
+        extends Exception("Burnt Bulb!")
 
-class MutationTracking:
-  enum Stage:
-    case Hominini,
-      Chimpanzee,
-      Human
+    def getNewBulb() =
+      ZIO.attempt(
+        throw new Exception("Wobbly Shelf!")
+      )
 
-object Timeline extends zio.ZIOAppDefault:
-  val mutation1 = ZIO.fail("Straightened Spine")
-  val mutation2 =
-    ZIO
-      .fail("Less Hair")
-      .orDieWith(new Exception(_))
-  val mutation3 =
-    ZIO
-      .fail("Fine voice control")
-      .orDieWith(new Exception(_))
+    def grabScrewDriver() =
+      ZIO.fail(Exception("SqueakyDrawer"))
 
-  val timeline =
-    mutation1
-      .ensuring(mutation2)
-      .ensuring(mutation3)
-      .sandbox
-      .catchAll { case cause: Cause[String] =>
-        printLine(cause.defects)
-      }
+    defer {
+      turnOnLights()
+        .catchAllCause(originalError =>
+          getNewBulb().catchAllCause(bulbError =>
+            grabScrewDriver()
+              .mapErrorCause(screwDriverError =>
+                (originalError ++ bulbError) ++
+                  screwDriverError
+              )
+          )
+        )
+        .run
+      ZIO.debug("Preserve failures!").run
+    }.catchAllCause(bigError =>
+      ZIO.debug(
+        "Final error: " +
+          simpleStructureAlternative(bigError)
+      )
+    )
+  end run
+end MalcomInTheMiddleZ
 
-  def run = timeline.exitCode
-end Timeline
+def simpleStructure(
+    cause: Cause[Throwable]
+): String =
+  cause match
+    case Cause.Empty =>
+      ???
+    case Cause.Fail(value, trace) =>
+      value.getMessage
+    case Cause.Die(value, trace) =>
+      ???
+    case Cause.Interrupt(fiberId, trace) =>
+      ???
+    case Cause.Stackless(cause, stackless) =>
+      ???
+    case Cause.Then(left, right) =>
+      "Then(" + simpleStructure(left) + ", " +
+        simpleStructure(right) + ")"
+    case Cause.Both(left, right) =>
+      ???
+
+def simpleStructureAlternative(
+    cause: Cause[Throwable]
+): String =
+  cause match
+    case Cause.Fail(value, trace) =>
+      value.getMessage
+    case Cause.Then(left, right) =>
+      simpleStructureAlternative(left) + " => " +
+        simpleStructureAlternative(right)
+    case Cause.Both(left, right) =>
+      ???
+    case _ =>
+      ???
 
 ```
+
 

@@ -1,5 +1,9 @@
 # Network
 
+Talking to the network is an effect. 
+It can fail. 
+We must handle these situations.
+
 ```scala
 import java.net.URL
 val url1 = new URL("https://www.google.com")
@@ -16,3 +20,7 @@ If we check the docs for this function, we find:
  * into the same IP addresses
  */
 ```
+
+
+## Edit This Chapter
+[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/network.md)
