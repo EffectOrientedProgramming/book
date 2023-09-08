@@ -109,4 +109,10 @@ runSpec:
       Random.nextIntBounded(10).run  < 10
 ```
 
+```scala mdoc
+runSpec:
+  Random.nextIntBounded(10)
+        .map(x => assertTrue( x < 10))
+```
+
 ## 
