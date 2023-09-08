@@ -82,7 +82,7 @@ It is the standard, simplest way to start executing your recipes.
 object RunningZIOs extends ZIOAppDefault:
   def run = Console.printLine("Hello World!") 
 
-RunningZIOs.main(Array.empty)
+// RunningZIOs.main(Array.empty)  // causes mdoc crash
 ```
 You can provide arbitrary ZIO instances to the run method, as long as you have provided every piece of the environment.
 In other words, it can accept `ZIO[Any, _, _]`.
