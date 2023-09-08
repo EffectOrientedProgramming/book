@@ -60,6 +60,7 @@ runDemo(
         ZIO.succeed("default value").run
       }
     }
+)
 ```
 
 [^^future_interrupted_1]: This is an endnote

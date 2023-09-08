@@ -37,7 +37,6 @@ object FileSystem:
       List("viralImage1", "viralImage2")
     )
   val live = ZLayer.succeed(new FileSystem {})
-end FileSystem
 
 case class ServiceThatCanHandleThunderingHerds(
     cache: Cache[Path, Nothing, FileContents]
