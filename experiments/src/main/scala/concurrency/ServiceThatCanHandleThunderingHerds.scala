@@ -54,7 +54,6 @@ case class ServiceThatCanHandleThunderingHerds(
     defer {
       cache.cacheStats.run.misses.toInt
     }
-end ServiceThatCanHandleThunderingHerds
 
 object ServiceThatCanHandleThunderingHerds:
   val make =

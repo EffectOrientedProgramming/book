@@ -11,15 +11,14 @@ object HelloCancellation extends ZIOAppDefault:
   def run = longRunning.timeout(2.seconds)
 
 def createProcess(
-                   label: String,
-                   innerProcess: ZIO[Any, Nothing, Unit]
-                 ) =
+    label: String,
+    innerProcess: ZIO[Any, Nothing, Unit]
+) =
   defer:
     ZIO.debug(s"Started $label").run
     innerProcess.run
     ZIO.debug(s"Finished $label").run
   .onInterrupt(ZIO.debug(s"Interrupted $label"))
-
 
 object HelloCancellation2 extends ZIOAppDefault:
   val complex =
@@ -66,16 +65,13 @@ object FailureDuringFork extends ZIOAppDefault:
         createProcess(
           "Fiber 1",
           ZIO.sleep(5.seconds)
-        ).fork
-         .run
-
+        ).fork.run
 
       val fiber2 =
         createProcess(
           "Fiber 2",
           ZIO.sleep(5.seconds)
-        ).fork
-         .run
+        ).fork.run
 
       // Once we fail here, the fibers will be
       // interrupted.
@@ -99,8 +95,7 @@ object PlainLeven extends App:
 object CancellingATightLoop
     extends ZIOAppDefault:
   val scenario =
-    ZIO
-      .attempt(leven(input, target))
+    ZIO.attempt(leven(input, target))
 
   def run =
     // For timeouts, you need fibers and
@@ -108,5 +103,4 @@ object CancellingATightLoop
     scenario
       // TODO This is running for 16 seconds
       // nomatter what.
-      .timed.debug("Time:")
-      .timeout(2.seconds)
+      .timed.debug("Time:").timeout(2.seconds)

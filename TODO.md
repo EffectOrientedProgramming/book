@@ -23,3 +23,4 @@
     1. Merge AddNewChapterApp & ReorderExistingApp
 1. Mermaid processing
     1. We can turn mermaid blocks into images on manuscript generation
+1. sbt fail on old jdk

@@ -5,7 +5,11 @@ import tui.{TUI, TerminalApp, TerminalEvent}
 import zio.Console.*
 import zio.direct.*
 
-import java.io.{File, FileNotFoundException, IOException}
+import java.io.{
+  File,
+  FileNotFoundException,
+  IOException
+}
 import scala.io.Source
 import scala.util.Try
 
@@ -70,10 +74,16 @@ object BookerTools:
     val files = filesInDir(dir)
     files.flatMap(parseChapter)
 
-  def rename(original: File, index: Int): Boolean =
+  def rename(
+      original: File,
+      index: Int
+  ): Boolean =
     original.renameTo(renameRep(original, index))
 
-  def renameRep(original: File, index: Int): File =
+  def renameRep(
+      original: File,
+      index: Int
+  ): File =
 
     val stripped =
       original
@@ -181,7 +191,8 @@ object ReorderExistingApp
         ): _*
     )
 
-  // note this doesn't actually update anything - it just displays the files
+  // note this doesn't actually update anything -
+  // it just displays the files
   override def update(
       state: CliStateSimp,
       event: TerminalEvent[Nothing]
@@ -253,7 +264,6 @@ object AddNewChapterApp
       state: CliStateSimp,
       event: TerminalEvent[Nothing]
   ): TerminalApp.Step[CliStateSimp, String] =
-
     event match
       case TerminalEvent.UserEvent(_) =>
         ???
@@ -309,18 +319,19 @@ object AddNewChapterApp
             TerminalApp.Step.update(state)
 end AddNewChapterApp
 
-
 // note that esc doesn't work
 object Booker extends ZIOAppDefault:
   private val program =
     defer {
       val f: File = new File("Chapters")
-      val flatFiles = BookerTools.orderedChapters(f).run
-      AddNewChapterApp //ReorderExistingApp
+      val flatFiles =
+        BookerTools.orderedChapters(f).run
+      AddNewChapterApp // ReorderExistingApp
         .runOption(CliStateSimp(flatFiles))
         .provide(TUI.live(true))
         .run
       ZIO.unit.run
     }
 
-  override def run: ZIO[Any, Throwable, Unit] = program
+  override def run: ZIO[Any, Throwable, Unit] =
+    program
