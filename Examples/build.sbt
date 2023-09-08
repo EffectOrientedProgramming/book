@@ -1,4 +1,4 @@
-ThisBuild / scalaVersion := "3.3.0"
+ThisBuild / scalaVersion := "3.3.1"
 
 val zioVersion = "2.0.16"
 
