@@ -6,6 +6,10 @@ val longRunning =
     ZIO.sleep(5.seconds)
   )
 
+object HelloCancellation extends ZIOAppDefault:
+
+  def run = longRunning.timeout(2.seconds)
+
 def createProcess(
     label: String,
     innerProcess: ZIO[Any, Nothing, Unit]
@@ -15,10 +19,6 @@ def createProcess(
     innerProcess.run
     ZIO.debug(s"Finished $label").run
   .onInterrupt(ZIO.debug(s"Interrupted $label"))
-
-object HelloCancellation extends ZIOAppDefault:
-
-  def run = longRunning.timeout(2.seconds)
 
 object HelloCancellation2 extends ZIOAppDefault:
   val complex =
@@ -62,22 +62,16 @@ object FailureDuringFork extends ZIOAppDefault:
   def run =
     defer {
       val fiber1 =
-        defer:
-          ZIO.sleep(5.seconds).run
-          ZIO.debug("Complete fiber 1").run
-        .onInterrupt(
-          ZIO.debug("Interrupted fiber 1")
-        ).fork
-          .run
+        createProcess(
+          "Fiber 1",
+          ZIO.sleep(5.seconds)
+        ).fork.run
 
       val fiber2 =
-        defer:
-          ZIO.sleep(5.seconds).run
-          ZIO.debug("Complete fiber 2").run
-        .onInterrupt(
-          ZIO.debug("Interrupted fiber 2")
-        ).fork
-          .run
+        createProcess(
+          "Fiber 2",
+          ZIO.sleep(5.seconds)
+        ).fork.run
 
       // Once we fail here, the fibers will be
       // interrupted.
@@ -101,12 +95,7 @@ object PlainLeven extends App:
 object CancellingATightLoop
     extends ZIOAppDefault:
   val scenario =
-    ZIO
-      .attempt(leven(input, target))
-      .mapBoth(
-        error => ZIO.succeed("yay!"),
-        success => ZIO.fail("Oh no!")
-      )
+    ZIO.attempt(leven(input, target))
 
   def run =
     // For timeouts, you need fibers and
@@ -114,4 +103,4 @@ object CancellingATightLoop
     scenario
       // TODO This is running for 16 seconds
       // nomatter what.
-      .timeout(1.seconds).timed.debug("Time:")
+      .timed.debug("Time:").timeout(2.seconds)

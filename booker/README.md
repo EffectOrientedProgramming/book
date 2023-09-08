@@ -1,5 +1,11 @@
 # booker
 
+## Run on JVM
+Note: You can't run in the sbt shell because jline can't figure out the terminal stuff
+```
+bin/sbt booker/stage && booker/target/universal/stage/bin/booker
+```
+
 Generate GraalVM Config:
 1. Install GraalVM: https://github.com/graalvm/graalvm-ce-builds/releases
 2. Set the `JAVA_HOME` env var accordingly
