@@ -21,3 +21,17 @@ runDemo(
   )
 )
 ```
+
+We show that Future's are killed with finalizers that never run
+```scala mdoc
+import scala.concurrent.Future
+runDemo(
+  ZIO
+    .fromFuture:
+        Future:
+            try Thread.sleep(500)
+            finally println("Cleanup")
+            "Success!"
+    .timeout(25.millis)
+)
+```

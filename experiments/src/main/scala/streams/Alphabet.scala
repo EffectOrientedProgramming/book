@@ -7,7 +7,8 @@ object Alphabet1 extends ZIOAppDefault:
   override def run =
     ZStream
       .fromIterable('a' to 'z')
-      .foreach(ZIO.debug(_))
+      .debug
+      .runDrain
 
 object Alphabet2 extends ZIOAppDefault:
 
@@ -15,7 +16,8 @@ object Alphabet2 extends ZIOAppDefault:
     ZStream
       .fromIterable('a' to 'z')
       .forever
-      .foreach(ZIO.debug(_))
+      .debug
+      .runDrain
 
 object Alphabet3 extends ZIOAppDefault:
 
