@@ -1,8 +1,8 @@
 ## Outline
 
 Notes:
-- First 5 chapters are about the why - bring the wow.
-- Chapters 6 on are about the how.
+- First 4 chapters are about the why - bring the wow.
+- Chapters 5 on are about the how.
 
 1. Superpowers with Effects
     1. OpeningHook (1-6)
@@ -11,6 +11,7 @@ Notes:
         1. Race
         1. Hedge (to show the relationship to OpeningHook ie progressive enhancement)
     1. Sequential
+        1. ZIO Direct
         1. Note: Combine OpeningHook & Concurrency with ZIO Direct
     1. And so much more
         1. Note: And there are many capabilities you might want to express. In the future we will dive into these other capabilities.
@@ -45,15 +46,16 @@ Notes:
     1. forEachPar, collectAllPar
 1. Concurrency - Low Level
     1. Fork join
-    2. Throwaway reference to STM
-1. Concurrency - Interruption
+    1. Throwaway reference to STM
+1. Concurrency - Cancellation
     1. Timeout
     1. Race
 1. Concurrency - State
-   1. Ref
-   1. Thundering Herds
+    1. Ref
+    1. Thundering Herds
 1. Repeats
 1. Resource Management
+    1. Open / Close around an Effect
 1. Logging
 1. Streams
 1. Configuration
