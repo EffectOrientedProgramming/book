@@ -4,7 +4,7 @@
 03_Composability.md
 04_Dependency_Injection.md
 05_The_ZIO_Type.md
-06_Running.md
+06_Running_Effects.md
 07_Layers.md
 08_Errors.md
 09_Concurrency_High_Level.md
