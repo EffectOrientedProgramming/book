@@ -48,3 +48,65 @@ Unsafe.unsafe { implicit u: Unsafe =>
 ```
 
 If needed you can even interop to Scala Futures through `Unsafe`, transforming the output of a ZIO into a Future.
+
+
+
+
+
+# Bill
+
+A common mistake when starting with ZIO is trying to return ZIO instances themselves rather than their result.
+```scala mdoc
+println(Random.nextInt)
+```
+This is a mistake because ZIO's are not their result, they are descriptions of effects that produce the result.
+You can think of them as recipes for producing a value.
+You don't want to return a recipe from a function, you can only return a value.
+If it is your friend's birthday, they want a cake, not a list of instructions about mixing ingredients and baking.
+
+
+Different ways to run a ZIO:
+- As your main application, via `ZIOApp*` variations.
+- As a test case
+- As the handler for a web request, ala zio-http (Different enough to warrant its own bullet?)
+  - Spell out that you only ever execute a top-level ZIO, even if it branches out to multiple other ZIOs
+- Within your existing, non-ZIO application, 
+  - via `Runtime` & `Unsafe` mechanisms
+- Processing a stream of data
+
+## ZIOApp
+If you are learning ZIO, you should start your exploration with `ZIOAppDefault`.
+It is the standard, simplest way to start executing your recipes.
+
+```scala mdoc
+object RunningZIOs extends ZIOAppDefault:
+  def run = Console.printLine("Hello World!") 
+
+RunningZIOs.main(Array.empty)
+```
+You can provide arbitrary ZIO instances to the run method, as long as you have provided every piece of the environment.
+In other words, it can accept `ZIO[Any, _, _]`.
+
+There is a more flexible `ZIOApp` that facilitates sharing layers between applications, but this is advanced and not necessary for most applications.
+
+## Test
+Similar to `ZIOAppDefault`, there is a `ZIOSpecDefault` that should be your starting point for testing ZIO applications.
+
+```scala mdoc
+import zio.test._
+object TestingZIOs extends ZIOSpecDefault:
+    def spec =
+      test("Hello Tests"):
+        defer:
+          assertTrue:
+              Random.nextIntBounded(10).run  < 10
+```
+
+```scala mdoc
+runSpec:
+  defer:
+    assertTrue:
+      Random.nextIntBounded(10).run  < 10
+```
+
+## 
