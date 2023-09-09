@@ -7,7 +7,7 @@ Although Scala compiles code to JVM bytecodes, ZIO has an interpreter that steps
 
 The interpreter is also the mechanism that evaluates the various effects described in the generic type parameters for each ZIO object.
 
-The reason we have the delay directive in zio-direct is to indicate that this code will be evaluated by the interpreter.
+The reason we have the `defer` directive in zio-direct is to indicate that this code will be evaluated by the interpreter.
 
 Here's a basic example that shows a ZIO being executed by the interpreter:
 
