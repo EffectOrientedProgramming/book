@@ -7,7 +7,7 @@ Although Scala compiles code to JVM bytecodes, ZIO has an interpreter that steps
 
 The interpreter is also the mechanism that evaluates the various effects described in the generic type parameters for each ZIO object.
 
-The reason we have the delay directive in zio-direct is to indicate that this code will be evaluated by the interpreter.
+The reason we have the `defer` directive in zio-direct is to indicate that this code will be evaluated by the interpreter.
 
 Here's a basic example that shows a ZIO being executed by the interpreter:
 
@@ -19,7 +19,7 @@ If you have a ZIO Effect like:
 ZIO.debug("hello, world")
 // res0: ZIO[Any, Nothing, Unit] = Sync(
 //   trace = "repl.MdocSession.MdocApp.res0(06_Running_Effects.md:8)",
-//   eval = zio.ZIOCompanionVersionSpecific$$Lambda$15770/0x0000000103fc7040@56ba4366
+//   eval = zio.ZIOCompanionVersionSpecific$$Lambda$14619/0x0000000103c3e040@79e759c6
 // )
 ```
 
@@ -63,7 +63,7 @@ If needed you can even interop to Scala Futures through `Unsafe`, transforming t
 A common mistake when starting with ZIO is trying to return ZIO instances themselves rather than their result.
 ```scala
 println(Random.nextInt)
-// Stateful(repl.MdocSession.MdocApp.res2(06_Running_Effects.md:37),zio.FiberRef$unsafe$$anon$2$$Lambda$15803/0x0000000103ff8840@df96191)
+// Stateful(repl.MdocSession.MdocApp.res2(06_Running_Effects.md:37),zio.FiberRef$unsafe$$anon$2$$Lambda$14678/0x0000000103c83840@1eaddbb6)
 ```
 This is a mistake because ZIO's are not their result, they are descriptions of effects that produce the result.
 You can think of them as recipes for producing a value.
