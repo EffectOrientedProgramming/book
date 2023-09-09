@@ -50,14 +50,13 @@ lazy val unreliableCounting =
       counter = counter + 1
     }
 
-  defer {
+  defer:
     ZIO
       .foreachParDiscard(Range(0, 100000))(_ =>
         increment
       )
       .run
     "Final count: " + ZIO.succeed(counter).run
-  }
 
 runDemo(unreliableCounting)
 ```
@@ -80,7 +79,7 @@ lazy val reliableCounting =
   def incrementCounter(counter: Ref[Int]) =
     counter.update(_ + 1)
 
-  defer {
+  defer:
     val counter = Ref.make(0).run
     ZIO
       .foreachParDiscard(Range(0, 100000))(_ =>
@@ -88,7 +87,6 @@ lazy val reliableCounting =
       )
       .run
     "Final count: " + counter.get.run
-  }
 
 runDemo(reliableCounting)
 ```
@@ -115,7 +113,7 @@ def sendNotification() =
 
 ```scala mdoc
 lazy val sideEffectingUpdates =
-  defer {
+  defer:
     val counter = Ref.make(0).run
     ZIO
       .foreachParDiscard(Range(0, 4))(_ =>
@@ -127,7 +125,6 @@ lazy val sideEffectingUpdates =
       )
       .run
     "Final count: " + counter.get.run
-  }
 
 // Mdoc/this function is showing the notifications, but not the final result
 runDemo(sideEffectingUpdates)
@@ -157,7 +154,7 @@ The only change required is replacing `Ref.make` with `Ref.Synchronized.make`
 
 ```scala mdoc
 lazy val sideEffectingUpdatesSync =
-  defer {
+  defer:
     val counter = Ref.Synchronized.make(0).run
     ZIO
       .foreachParDiscard(Range(0, 4))(_ =>
@@ -168,8 +165,7 @@ lazy val sideEffectingUpdatesSync =
         }
       )
       .run
-    "!Final count: " + counter.get.run
-  }
+    "Final count: " + counter.get.run
 
 runDemo(sideEffectingUpdatesSync)
 ```

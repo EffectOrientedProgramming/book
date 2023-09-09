@@ -73,7 +73,7 @@ case class Festival(
 val festival =
   ZLayer.scoped {
     ZIO.acquireRelease {
-      defer {
+      defer:
         debug("FESTIVAL: We are all set!").run
         Festival(
           ZIO.service[Toilets].run,
@@ -81,7 +81,6 @@ val festival =
           ZIO.service[SoundSystem].run,
           ZIO.service[Security].run
         )
-      }
     } { _ =>
       debug(
         "FESTIVAL: Good job, everyone. Close it down!"

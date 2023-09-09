@@ -7,7 +7,7 @@ def sleepThenPrint(
 ): ZIO[Any, java.io.IOException, Duration] =
   defer {
     ZIO.sleep(d).run
-    println(s"${d.render} elapsed")
+    ZIO.debug(s"${d.render} elapsed").run
     d
   }
 ```
@@ -49,35 +49,35 @@ runDemo(
 ```
 
 
+
 ```scala mdoc
+def slowFailableRandom(duration: Duration) =
+  defer:
+    val randInt =
+      Random
+        .nextIntBetween(0, 100)
+        .run
+    ZIO.sleep(duration).run
+    ZIO
+      .when(randInt < 10)(
+        ZIO.fail("Number is too low")
+      )
+      .run
+    duration
+    
 // Massive example
 runDemo(
-  defer {
+  defer:
     val durations =
       ZIO
         .collectAllSuccessesPar(
           Seq
             .fill(1_000)(1.seconds)
             .map(duration =>
-              defer {
-                val randInt =
-                  Random
-                    .nextIntBetween(0, 100)
-                    .run
-                ZIO.sleep(duration).run
-                ZIO
-                  .when(randInt < 10)(
-                    ZIO.fail("Number is too low")
-                  )
-                  .run
-                duration
-              }
+              slowFailableRandom(duration)
             )
         )
         .run
-    val total =
-      durations.fold(Duration.Zero)(_ + _).render
-    Console.printLine(total).run
-  }
+    durations.fold(Duration.Zero)(_ + _).render
 )
 ```

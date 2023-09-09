@@ -16,8 +16,9 @@
 1. `runTest` replacement with `mdoc:ziotest`
 1. Sometimes error in CI: `genManuscript` `java.nio.file.NoSuchFileException: manuscript/Book.txt`
    1. Post-processing rules
-      1. Avoid all black-listed words (flatmap, monad, etc)
+      1. Check for FORBIDDEN_WORDS
       1. Line length
+         1. Scalafmt is great, but fails in some edge cases
 
 ## P1
 1. ZIO Direct returning concrete values
