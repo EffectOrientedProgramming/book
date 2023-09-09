@@ -26,8 +26,7 @@ One way to run ZIOs is to use a "main method" program (something you can start i
 To use it create a new `object` that extends the `ZIOAppDefault` trait and implements the `run` method.  That method returns a ZIO so you can now give it the example `ZIO.debug` data:
 ```scala mdoc
 object HelloWorld extends zio.ZIOAppDefault:
-  override def run =
-    ZIO.debug("hello, world")
+  override def run = ZIO.debug("hello, world")
 ```
 
 This can be run on the JVM in the same way as any other class that has a `static void main` method.
@@ -40,10 +39,9 @@ In some cases your ZIOs may need to be run outside of a *main* program, for exam
 import zio.Runtime.default.unsafe
 
 Unsafe.unsafe { implicit u: Unsafe =>
-  unsafe.run(
-    ZIO.debug("hello, world")
-  )
-  .getOrThrowFiberFailure()
+  unsafe
+    .run(ZIO.debug("hello, world"))
+    .getOrThrowFiberFailure()
 }
 ```
 
@@ -80,7 +78,7 @@ It is the standard, simplest way to start executing your recipes.
 
 ```scala mdoc
 object RunningZIOs extends ZIOAppDefault:
-  def run = Console.printLine("Hello World!") 
+  def run = Console.printLine("Hello World!")
 
 // RunningZIOs.main(Array.empty)  // causes mdoc crash
 ```
@@ -95,24 +93,25 @@ Similar to `ZIOAppDefault`, there is a `ZIOSpecDefault` that should be your star
 ```scala mdoc
 import zio.test._
 object TestingZIOs extends ZIOSpecDefault:
-    def spec =
-      test("Hello Tests"):
-        defer:
-          assertTrue:
-              Random.nextIntBounded(10).run  < 10
+  def spec =
+    test("Hello Tests"):
+      defer:
+        assertTrue:
+          Random.nextIntBounded(10).run < 10
 ```
 
 ```scala mdoc
 runSpec:
   defer:
     assertTrue:
-      Random.nextIntBounded(10).run  < 10
+      Random.nextIntBounded(10).run < 10
 ```
 
 ```scala mdoc
 runSpec:
-  Random.nextIntBounded(10)
-        .map(x => assertTrue( x < 10))
+  Random
+    .nextIntBounded(10)
+    .map(x => assertTrue(x < 10))
 ```
 
 ## 
