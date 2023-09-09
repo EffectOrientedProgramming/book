@@ -19,7 +19,7 @@ If you have a ZIO Effect like:
 ZIO.debug("hello, world")
 // res0: ZIO[Any, Nothing, Unit] = Sync(
 //   trace = "repl.MdocSession.MdocApp.res0(06_Running_Effects.md:8)",
-//   eval = zio.ZIOCompanionVersionSpecific$$Lambda$14619/0x0000000103c3e040@79e759c6
+//   eval = zio.ZIOCompanionVersionSpecific$$Lambda$14635/0x0000000103cee040@569eaa1f
 // )
 ```
 
@@ -30,8 +30,7 @@ One way to run ZIOs is to use a "main method" program (something you can start i
 To use it create a new `object` that extends the `ZIOAppDefault` trait and implements the `run` method.  That method returns a ZIO so you can now give it the example `ZIO.debug` data:
 ```scala
 object HelloWorld extends zio.ZIOAppDefault:
-  override def run =
-    ZIO.debug("hello, world")
+  override def run = ZIO.debug("hello, world")
 ```
 
 This can be run on the JVM in the same way as any other class that has a `static void main` method.
@@ -44,10 +43,9 @@ In some cases your ZIOs may need to be run outside of a *main* program, for exam
 import zio.Runtime.default.unsafe
 
 Unsafe.unsafe { implicit u: Unsafe =>
-  unsafe.run(
-    ZIO.debug("hello, world")
-  )
-  .getOrThrowFiberFailure()
+  unsafe
+    .run(ZIO.debug("hello, world"))
+    .getOrThrowFiberFailure()
 }
 // hello, world
 ```
@@ -63,7 +61,7 @@ If needed you can even interop to Scala Futures through `Unsafe`, transforming t
 A common mistake when starting with ZIO is trying to return ZIO instances themselves rather than their result.
 ```scala
 println(Random.nextInt)
-// Stateful(repl.MdocSession.MdocApp.res2(06_Running_Effects.md:37),zio.FiberRef$unsafe$$anon$2$$Lambda$14678/0x0000000103c83840@1eaddbb6)
+// Stateful(repl.MdocSession.MdocApp.res2(06_Running_Effects.md:35),zio.FiberRef$unsafe$$anon$2$$Lambda$14678/0x0000000103d3a040@655b1e7a)
 ```
 This is a mistake because ZIO's are not their result, they are descriptions of effects that produce the result.
 You can think of them as recipes for producing a value.
@@ -99,25 +97,26 @@ Similar to `ZIOAppDefault`, there is a `ZIOSpecDefault` that should be your star
 ```scala
 import zio.test._
 object TestingZIOs extends ZIOSpecDefault:
-    def spec =
-      test("Hello Tests"):
-        defer:
-          assertTrue:
-              Random.nextIntBounded(10).run  < 10
+  def spec =
+    test("Hello Tests"):
+      defer:
+        assertTrue:
+          Random.nextIntBounded(10).run < 10
 ```
 
 ```scala
 runSpec:
   defer:
     assertTrue:
-      Random.nextIntBounded(10).run  < 10
+      Random.nextIntBounded(10).run < 10
 // *Test Executed and passed*
 ```
 
 ```scala
 runSpec:
-  Random.nextIntBounded(10)
-        .map(x => assertTrue( x < 10))
+  Random
+    .nextIntBounded(10)
+    .map(x => assertTrue(x < 10))
 // *Test Executed and passed*
 ```
 

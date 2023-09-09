@@ -65,7 +65,7 @@ trait CountryService:
       : ZIO[Location, HardwareFailure, Country]
 
 object CountryService:
-  // TODO investigate bad formatting 
+  // TODO investigate bad formatting
   def currentCountry
       : ZIO[Location, HardwareFailure, Country] =
     defer {

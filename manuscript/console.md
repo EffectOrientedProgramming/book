@@ -135,8 +135,9 @@ def crunchDebugged(a: Int, b: Int) =
 
 ```scala
 runDemo(
-  ZIO.debug("ping") *>
-    ConsoleLive.printLine("Normal logic")
+  defer:
+    ZIO.debug("ping").run
+    ConsoleLive.printLine("Normal logic").run
 )
 // ping
 // Normal logic

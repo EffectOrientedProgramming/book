@@ -123,15 +123,21 @@ def activityLayer[T: Tag](
 ) =
   ZLayer.scoped(
     ZIO.acquireRelease(
-      ZIO.debug(entity.toString + " ACQUIRE") *>
-        ZIO.foreach(setupSteps) {
-          case (name, duration) =>
-            activity(
-              entity.toString,
-              name,
-              duration
-            )
-        } *> ZIO.succeed(entity)
+      defer:
+        ZIO
+          .debug(entity.toString + " ACQUIRE")
+          .run
+        ZIO
+          .foreach(setupSteps) {
+            case (name, duration) =>
+              activity(
+                entity.toString,
+                name,
+                duration
+              )
+          }
+          .run
+        entity
     )(_ => debug(entity.toString + " RELEASE"))
   )
 
@@ -140,8 +146,11 @@ def activity(
     name: String,
     duration: Duration
 ) =
-  debug(s"$entity: BEGIN $name") *>
-    debug(s"$entity: END $name").delay(duration)
+  defer:
+    debug(s"$entity: BEGIN $name").run
+    debug(s"$entity: END $name")
+      .delay(duration)
+      .run
 
 case class Venue(stage: Stage, permit: Permit)
 val venue = ZLayer.fromFunction(Venue.apply)
@@ -150,8 +159,9 @@ case class Speakers()
 val speakers: ZLayer[Any, Nothing, Speakers] =
   ZLayer.scoped(
     ZIO.acquireRelease(
-      debug("SPEAKERS: Positioning") *>
-        ZIO.succeed(Speakers())
+      defer:
+        debug("SPEAKERS: Positioning").run
+        Speakers()
     )(_ => debug("SPEAKERS: Packing up"))
   )
 case class Amplifiers()
@@ -159,8 +169,9 @@ val amplifiers
     : ZLayer[Any, Nothing, Amplifiers] =
   ZLayer.scoped(
     ZIO.acquireRelease(
-      debug("AMPLIFIERS: Positioning") *>
-        ZIO.succeed(Amplifiers())
+      defer:
+        debug("AMPLIFIERS: Positioning").run
+        Amplifiers()
     )(_ => debug("AMPLIFIERS: Putting away"))
   )
 
@@ -168,8 +179,9 @@ case class Wires()
 val wires =
   ZLayer.scoped(
     ZIO.acquireRelease(
-      debug("WIRES: Unrolling") *>
-        ZIO.succeed(Wires())
+      defer:
+        debug("WIRES: Unrolling").run
+        Wires()
     )(_ => debug("WIRES: Spooling up"))
   )
 
