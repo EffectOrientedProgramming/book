@@ -50,17 +50,16 @@ lazy val unreliableCounting =
       counter = counter + 1
     }
 
-  defer {
+  defer:
     ZIO
       .foreachParDiscard(Range(0, 100000))(_ =>
         increment
       )
       .run
     "Final count: " + ZIO.succeed(counter).run
-  }
 
 runDemo(unreliableCounting)
-// Final count: 99984
+// Final count: 99998
 ```
 
 Due to the unpredictable nature of shared mutable state, we do not know exactly what the final count above is.
@@ -81,7 +80,7 @@ lazy val reliableCounting =
   def incrementCounter(counter: Ref[Int]) =
     counter.update(_ + 1)
 
-  defer {
+  defer:
     val counter = Ref.make(0).run
     ZIO
       .foreachParDiscard(Range(0, 100000))(_ =>
@@ -89,7 +88,6 @@ lazy val reliableCounting =
       )
       .run
     "Final count: " + counter.get.run
-  }
 
 runDemo(reliableCounting)
 // Final count: 100000
@@ -117,7 +115,7 @@ def sendNotification() =
 
 ```scala
 lazy val sideEffectingUpdates =
-  defer {
+  defer:
     val counter = Ref.make(0).run
     ZIO
       .foreachParDiscard(Range(0, 4))(_ =>
@@ -129,7 +127,6 @@ lazy val sideEffectingUpdates =
       )
       .run
     "Final count: " + counter.get.run
-  }
 
 // Mdoc/this function is showing the notifications, but not the final result
 runDemo(sideEffectingUpdates)
@@ -167,7 +164,7 @@ The only change required is replacing `Ref.make` with `Ref.Synchronized.make`
 
 ```scala
 lazy val sideEffectingUpdatesSync =
-  defer {
+  defer:
     val counter = Ref.Synchronized.make(0).run
     ZIO
       .foreachParDiscard(Range(0, 4))(_ =>
@@ -178,15 +175,14 @@ lazy val sideEffectingUpdatesSync =
         }
       )
       .run
-    "!Final count: " + counter.get.run
-  }
+    "Final count: " + counter.get.run
 
 runDemo(sideEffectingUpdatesSync)
 // Alert: We have updated our count!!
 // Alert: We have updated our count!!
 // Alert: We have updated our count!!
 // Alert: We have updated our count!!
-// !Final count: 4
+// Final count: 4
 ```
 
 Now we see exactly the number of alerts that we expected.

@@ -20,7 +20,7 @@ val makeBulkhead: ZIO[Scope, Nothing, Bulkhead] =
 
 object BulkheadDemo extends ZIOAppDefault:
   def run =
-    defer {
+    defer:
       val currentRequests =
         Ref.make[List[Int]](List.empty).run
       val bulkhead = makeBulkhead.run
@@ -32,13 +32,12 @@ object BulkheadDemo extends ZIOAppDefault:
         )
         .debug("All requests done: ")
         .run
-    }
 
 case class StatefulResource(
     currentRequests: Ref[List[Int]]
 ):
   def request: ZIO[Any, Throwable, Int] =
-    defer {
+    defer:
       val res = Random.nextIntBounded(1000).run
       // Add the request to the list of current
       // requests
@@ -58,7 +57,6 @@ case class StatefulResource(
         .run
 
       res
-    }
 end StatefulResource
 
 ```
@@ -86,7 +84,7 @@ object CircuitBreakerDemo extends ZIOAppDefault:
 
     // TODO: Better error type than Throwable
     def call(): ZIO[Any, Throwable, Int] =
-      defer {
+      defer:
         val requestCount =
           requests.getAndUpdate(_ + 1).run
 
@@ -101,8 +99,7 @@ object CircuitBreakerDemo extends ZIOAppDefault:
                 )
               )
               .run
-
-      }.tapError(e =>
+      .tapError(e =>
         ZIO.debug(s"External failed: $e")
       )
   end ExternalSystem
@@ -124,8 +121,33 @@ object CircuitBreakerDemo extends ZIOAppDefault:
           )
     )
 
-  def run =
+  def callProtectedSystem(
+      cb: CircuitBreaker[Any],
+      system: ExternalSystem
+  ) =
     defer {
+      ZIO.sleep(500.millis).run
+      cb(system.call())
+        .catchSome {
+          case CircuitBreakerOpen =>
+            ZIO.debug(
+              "Circuit breaker blocked the call to our external system"
+            )
+          case WrappedError(e) =>
+            ZIO.debug(
+              s"External system threw an exception: $e"
+            )
+        }
+        .tap(result =>
+          ZIO.debug(
+            s"External system returned $result"
+          )
+        )
+        .run
+    }
+
+  def run =
+    defer:
       val cb       = makeCircuitBreaker.run
       val requests = Ref.make[Int](0).run
       import Scenario.Step.*
@@ -134,27 +156,9 @@ object CircuitBreakerDemo extends ZIOAppDefault:
         List(Success, Failure, Failure, Success)
       val system =
         ExternalSystem(requests, steps)
-      defer {
-        ZIO.sleep(500.millis).run
-        cb(system.call())
-          .catchSome {
-            case CircuitBreakerOpen =>
-              ZIO.debug(
-                "Circuit breaker blocked the call to our external system"
-              )
-            case WrappedError(e) =>
-              ZIO.debug(
-                s"External system threw an exception: $e"
-              )
-          }
-          .tap(result =>
-            ZIO.debug(
-              s"External system returned $result"
-            )
-          )
-          .run
-      }.repeatN(5).run
-    }
+      callProtectedSystem(cb, system)
+        .repeatN(5)
+        .run
 end CircuitBreakerDemo
 
 ```
@@ -181,18 +185,18 @@ def rsaKeyGenerator: ZIO[Any, Throwable, Int] =
 
 object RateLimiterDemo extends ZIOAppDefault:
   def run =
-    defer {
+    defer:
       val rateLimiter = makeRateLimiter.run
       rateLimiter(rsaKeyGenerator)
         .repeatN(
           5
         ) // Repeats as fast as the limiter allows
         .debug("Result").run
-    }
 
 object RateLimiterDemoWithLogging
     extends ZIOAppDefault:
 
+  // TODO Put in book-side ZIO helpers?
   extension [R, E, A](z: ZIO[R, E, A])
     def timedSecondsDebug(
         message: String
@@ -207,7 +211,7 @@ object RateLimiterDemoWithLogging
         .map(_._2)
 
   def run =
-    defer {
+    defer:
       val rateLimiter = makeRateLimiter.run
       rateLimiter(rsaKeyGenerator)
         // Print the time to generate each key:
@@ -216,11 +220,13 @@ object RateLimiterDemoWithLogging
         .repeatN(5)
         // Print the last result
         .timedSecondsDebug("Result").run
-    }
+
 end RateLimiterDemoWithLogging
 
 object RateLimiterDemoGlobal
     extends ZIOAppDefault:
+
+  // TODO Put in book-side ZIO helpers?
   extension (z: ZIO.type)
     def repeatNPar[R, E, A](numTimes: Int)(
         op: Int => ZIO[R, E, A]
@@ -228,7 +234,7 @@ object RateLimiterDemoGlobal
       z.foreachPar(0 until numTimes)(op)
 
   def run =
-    defer {
+    defer:
       val rateLimiter = makeRateLimiter.run
       ZIO
         .repeatNPar(4) { i =>
@@ -240,7 +246,6 @@ object RateLimiterDemoGlobal
             .repeatN(5).debug(s"Result $i")
         }
         .run
-    }
 end RateLimiterDemoGlobal
 
 ```

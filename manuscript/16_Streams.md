@@ -303,13 +303,15 @@ object DeliveryCenter extends ZIOAppDefault:
       staged: Ref[Option[TruckInUse]]
   ) =
     def shipIt(reason: String) =
-      ZIO.debug(reason + " Ship the orders!") *>
+      defer:
+        ZIO
+          .debug(reason + " Ship the orders!")
+          .run
         staged
           .get
-          .flatMap(_.get.fuse.succeed(())) *>
-        // TODO Should complete latch here before
-        // clearing out value
-        staged.set(None)
+          .flatMap(_.get.fuse.succeed(()))
+          .run
+        staged.set(None).run
 
     val loadTruck =
       defer {
@@ -584,7 +586,7 @@ object MultipleConcurrentStreams
       "logout",
       "post:I want to buy something expensive"
     ).mapZIO(action =>
-      ZIO.sleep(1.seconds) *> ZIO.succeed(action)
+      ZIO.succeed(action).delay(1.seconds)
     )
 //      .throttleShape(1, 1.seconds, 2)(_.length)
 

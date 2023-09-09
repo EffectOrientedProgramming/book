@@ -40,19 +40,19 @@ The types expand through generic parameters. ie composing a ZIO with an error of
 
 With functions there is one way to compose. `f(g(h))` will sequentially apply the functions from the inside out.  Another term for this form of composition is called `andThen` in Scala.
 
-With ZIO you can do an `andThen` to compose ZIOs sequentially with:
+With ZIO you can use `zio-direct` to compose ZIOs sequentially with:
 ```scala
-defer {
+// TODO Terrible example. Replace.
+defer:
   val asdf = ZIO.succeed("asdf").run
   ZIO.succeed(asdf.toUpperCase).run
-}
 // res0: ZIO[Any, Nothing, String] = OnSuccess(
 //   trace = "zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res0(03_Composability.md:8)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14702/0x0000000103c9f040@72994b03
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14726/0x0000000103d4fc40@53833ccb
 //   ),
-//   successK = repl.MdocSession$MdocApp$$Lambda$15602/0x0000000104042840@22c557e1
+//   successK = repl.MdocSession$MdocApp$$Lambda$15662/0x000000010407a040@3035f2b7
 // )
 ```
 
@@ -63,31 +63,13 @@ runDemo(
   ZIO
     .attempt("asdf")
     .catchAll { e =>
-      defer {
+      defer:
         ZIO.logError(e.getMessage).run
         ZIO.succeed("default value").run
-      }
     }
 )
 // asdf
 ```
-
-[^^future_interrupted_1]: This is an endnote
-
-    With multiple lines
-
-[^^future_interrupted_2]: This is an endnote with mdoc
-
-    ```scala
-    ZIO
-      .attempt("asdf")
-      .catchAll { e =>
-        defer {
-          ZIO.logError(e.getMessage).run
-          ZIO.succeed("default value").run
-        }
-      }
-    ```
 
 
 ## Edit This Chapter
