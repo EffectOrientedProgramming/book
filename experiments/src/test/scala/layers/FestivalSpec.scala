@@ -7,15 +7,11 @@ object FestivalSpec extends ZIOSpec[Festival]:
     ZLayer.make[Festival](
       festival,
       stage,
-      speakers,
-      wires,
-      amplifiers,
       soundSystem,
       toilets,
-      foodtruck,
       security,
       venue,
-      permit
+      permit,
 //      ZLayer.Debug.mermaid
     )
 
