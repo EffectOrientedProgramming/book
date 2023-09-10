@@ -17,18 +17,18 @@ def rsaKeyGenerator: ZIO[Any, Throwable, Int] =
 
 object RateLimiterDemo extends ZIOAppDefault:
   def run =
-    defer {
+    defer:
       val rateLimiter = makeRateLimiter.run
       rateLimiter(rsaKeyGenerator)
         .repeatN(
           5
         ) // Repeats as fast as the limiter allows
         .debug("Result").run
-    }
 
 object RateLimiterDemoWithLogging
     extends ZIOAppDefault:
 
+  // TODO Put in book-side ZIO helpers?
   extension [R, E, A](z: ZIO[R, E, A])
     def timedSecondsDebug(
         message: String
@@ -43,7 +43,7 @@ object RateLimiterDemoWithLogging
         .map(_._2)
 
   def run =
-    defer {
+    defer:
       val rateLimiter = makeRateLimiter.run
       rateLimiter(rsaKeyGenerator)
         // Print the time to generate each key:
@@ -52,11 +52,13 @@ object RateLimiterDemoWithLogging
         .repeatN(5)
         // Print the last result
         .timedSecondsDebug("Result").run
-    }
+
 end RateLimiterDemoWithLogging
 
 object RateLimiterDemoGlobal
     extends ZIOAppDefault:
+
+  // TODO Put in book-side ZIO helpers?
   extension (z: ZIO.type)
     def repeatNPar[R, E, A](numTimes: Int)(
         op: Int => ZIO[R, E, A]
@@ -64,7 +66,7 @@ object RateLimiterDemoGlobal
       z.foreachPar(0 until numTimes)(op)
 
   def run =
-    defer {
+    defer:
       val rateLimiter = makeRateLimiter.run
       ZIO
         .repeatNPar(4) { i =>
@@ -76,5 +78,4 @@ object RateLimiterDemoGlobal
             .repeatN(5).debug(s"Result $i")
         }
         .run
-    }
 end RateLimiterDemoGlobal

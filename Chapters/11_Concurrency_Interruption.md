@@ -28,10 +28,10 @@ import scala.concurrent.Future
 runDemo(
   ZIO
     .fromFuture:
-        Future:
-            try Thread.sleep(500)
-            finally println("Cleanup")
-            "Success!"
+      Future:
+        try Thread.sleep(500)
+        finally println("Cleanup")
+        "Success!"
     .timeout(25.millis)
 )
 ```

@@ -46,18 +46,16 @@ In order to confidently use this, we need certain guarantees about the behavior:
 lazy val unreliableCounting =
   var counter = 0
   val increment =
-    ZIO.succeed {
+    ZIO.succeed:
       counter = counter + 1
-    }
 
-  defer {
+  defer:
     ZIO
       .foreachParDiscard(Range(0, 100000))(_ =>
         increment
       )
       .run
     "Final count: " + ZIO.succeed(counter).run
-  }
 
 runDemo(unreliableCounting)
 ```
@@ -80,7 +78,7 @@ lazy val reliableCounting =
   def incrementCounter(counter: Ref[Int]) =
     counter.update(_ + 1)
 
-  defer {
+  defer:
     val counter = Ref.make(0).run
     ZIO
       .foreachParDiscard(Range(0, 100000))(_ =>
@@ -88,7 +86,6 @@ lazy val reliableCounting =
       )
       .run
     "Final count: " + counter.get.run
-  }
 
 runDemo(reliableCounting)
 ```
@@ -114,23 +111,21 @@ def sendNotification() =
 ```
 
 ```scala mdoc
-lazy val sideEffectingUpdates =
-  defer {
+def update(counter: Ref[Int]) =
+  counter.update:
+    previousValue =>
+      expensiveCalculation()
+      sendNotification()
+      previousValue + 1
+
+runDemo:
+  defer:
     val counter = Ref.make(0).run
     ZIO
-      .foreachParDiscard(Range(0, 4))(_ =>
-        counter.update { previousValue =>
-          expensiveCalculation()
-          sendNotification()
-          previousValue + 1
-        }
-      )
+      .foreachParDiscard(Range(0, 4)):
+        _ => update(counter)
       .run
     "Final count: " + counter.get.run
-  }
-
-// Mdoc/this function is showing the notifications, but not the final result
-runDemo(sideEffectingUpdates)
 ```
 What is going on?!
 Previously, we were losing updates because of unsafe mutability.
@@ -157,7 +152,7 @@ The only change required is replacing `Ref.make` with `Ref.Synchronized.make`
 
 ```scala mdoc
 lazy val sideEffectingUpdatesSync =
-  defer {
+  defer:
     val counter = Ref.Synchronized.make(0).run
     ZIO
       .foreachParDiscard(Range(0, 4))(_ =>
@@ -168,8 +163,7 @@ lazy val sideEffectingUpdatesSync =
         }
       )
       .run
-    "!Final count: " + counter.get.run
-  }
+    "Final count: " + counter.get.run
 
 runDemo(sideEffectingUpdatesSync)
 ```

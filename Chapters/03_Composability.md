@@ -40,12 +40,12 @@ The types expand through generic parameters. ie composing a ZIO with an error of
 
 With functions there is one way to compose. `f(g(h))` will sequentially apply the functions from the inside out.  Another term for this form of composition is called `andThen` in Scala.
 
-With ZIO you can do an `andThen` to compose ZIOs sequentially with:
+With ZIO you can use `zio-direct` to compose ZIOs sequentially with:
 ```scala mdoc
-defer {
+// TODO Terrible example. Replace.
+defer:
   val asdf = ZIO.succeed("asdf").run
   ZIO.succeed(asdf.toUpperCase).run
-}
 ```
 
 There are many other ways you can compose ZIOs.  The methods for composability depend on the desired behavior.  For example, to compose a ZIO that can produce an error with a ZIO that logs the error and then produces a default value, you can use the `catchAll` like:
@@ -55,27 +55,9 @@ runDemo(
   ZIO
     .attempt("asdf")
     .catchAll { e =>
-      defer {
+      defer:
         ZIO.logError(e.getMessage).run
         ZIO.succeed("default value").run
-      }
     }
 )
 ```
-
-[^^future_interrupted_1]: This is an endnote
-
-    With multiple lines
-
-[^^future_interrupted_2]: This is an endnote with mdoc
-
-    ```scala
-    ZIO
-      .attempt("asdf")
-      .catchAll { e =>
-        defer {
-          ZIO.logError(e.getMessage).run
-          ZIO.succeed("default value").run
-        }
-      }
-    ```

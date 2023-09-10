@@ -15,6 +15,10 @@
 1. `runDemo` replacement with `mdoc:ziorun`
 1. `runTest` replacement with `mdoc:ziotest`
 1. Sometimes error in CI: `genManuscript` `java.nio.file.NoSuchFileException: manuscript/Book.txt`
+   1. Post-processing rules
+      1. Check for FORBIDDEN_WORDS
+      1. Line length
+         1. Scalafmt is great, but fails in some edge cases
 
 ## P1
 1. ZIO Direct returning concrete values
@@ -23,5 +27,4 @@
     1. Merge AddNewChapterApp & ReorderExistingApp
 1. Mermaid processing
     1. We can turn mermaid blocks into images on manuscript generation
-1. sbt fail on old jdk
 1. Get rid of mdoc wrapping types around ZIO instances
