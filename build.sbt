@@ -1,7 +1,15 @@
+import BuildTooling.*
+
 name := "EffectOrientedProgramming"
 
-inThisBuild(scalaVersion := "3.3.0")
+inThisBuild(scalaVersion := "3.3.1")
 
+initialize := {
+  initialize.value
+  val required = VersionNumber("11")
+  val current = VersionNumber(sys.props("java.specification.version"))
+  assert(current.get(0).get >= required.get(0).get, s"Java $required or above required")
+}
 
 // This tells mdoc which folder to analyze
 mdocIn := file("Chapters")
@@ -10,7 +18,6 @@ mdocIn := file("Chapters")
 // after the scala blocks has been compiled/executed
 mdocOut := file("manuscript")
 
-import BuildTooling._
 // Tells our example extraction code where to find the examples
 mdDir := file("Chapters")
 // Tells our example extraction code where to put the extracted examples

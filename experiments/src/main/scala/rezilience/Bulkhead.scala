@@ -14,7 +14,7 @@ val makeBulkhead: ZIO[Scope, Nothing, Bulkhead] =
 
 object BulkheadDemo extends ZIOAppDefault:
   def run =
-    defer {
+    defer:
       val currentRequests =
         Ref.make[List[Int]](List.empty).run
       val bulkhead = makeBulkhead.run
@@ -26,13 +26,12 @@ object BulkheadDemo extends ZIOAppDefault:
         )
         .debug("All requests done: ")
         .run
-    }
 
 case class StatefulResource(
     currentRequests: Ref[List[Int]]
 ):
   def request: ZIO[Any, Throwable, Int] =
-    defer {
+    defer:
       val res = Random.nextIntBounded(1000).run
       // Add the request to the list of current
       // requests
@@ -52,5 +51,4 @@ case class StatefulResource(
         .run
 
       res
-    }
 end StatefulResource

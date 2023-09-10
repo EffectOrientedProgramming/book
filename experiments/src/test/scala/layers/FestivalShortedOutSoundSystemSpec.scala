@@ -2,6 +2,7 @@ package layers
 
 import zio.test.*
 
+// TODO Replace with some toilet issue?
 object FestivalShortedOutSoundSystemSpec
     extends ZIOSpecDefault:
   val brokenFestival
@@ -9,12 +10,8 @@ object FestivalShortedOutSoundSystemSpec
     ZLayer.make[Festival](
       festival,
       stage,
-      speakers,
-      wires,
-      amplifiers,
-      soundSystemShortedOut,
+      soundSystem,
       toilets,
-      foodtruck,
       security,
       venue,
       permit
