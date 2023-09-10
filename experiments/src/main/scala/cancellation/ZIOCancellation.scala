@@ -18,6 +18,7 @@ def createProcess(
     ZIO.debug(s"Started $label").run
     innerProcess.run
     ZIO.debug(s"Finished $label").run
+  // TODO Consider rewriting to avoid dot-chaining on block
   .onInterrupt(ZIO.debug(s"Interrupted $label"))
 
 object HelloCancellation2 extends ZIOAppDefault:
@@ -60,7 +61,7 @@ end CancellationWeb
 
 object FailureDuringFork extends ZIOAppDefault:
   def run =
-    defer {
+    defer:
       val fiber1 =
         createProcess(
           "Fiber 1",
@@ -78,7 +79,6 @@ object FailureDuringFork extends ZIOAppDefault:
       ZIO.fail("Youch!").run
       fiber1.join.run
       fiber2.join.run
-    }
 end FailureDuringFork
 
 import org.apache.commons.lang3.RandomStringUtils

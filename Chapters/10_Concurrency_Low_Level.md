@@ -48,40 +48,6 @@ runDemo(
 )
 ```
 
-
-```scala mdoc
-// Massive example
-runDemo(
-  defer {
-    val durations =
-      ZIO
-        .collectAllSuccessesPar(
-          Seq
-            .fill(1_000)(1.seconds)
-            .map(duration =>
-              defer {
-                val randInt =
-                  Random
-                    .nextIntBetween(0, 100)
-                    .run
-                ZIO.sleep(duration).run
-                ZIO
-                  .when(randInt < 10)(
-                    ZIO.fail("Number is too low")
-                  )
-                  .run
-                duration
-              }
-            )
-        )
-        .run
-    val total =
-      durations.fold(Duration.Zero)(_ + _).render
-    Console.printLine(total).run
-  }
-)
-```
-
 ```scala mdoc
 runDemo(
   defer {
