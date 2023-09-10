@@ -1,0 +1,5 @@
+flatmap
+monad
+applicative
+monoid
+typeclass

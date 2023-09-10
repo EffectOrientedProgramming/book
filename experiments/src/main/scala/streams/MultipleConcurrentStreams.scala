@@ -15,7 +15,7 @@ object MultipleConcurrentStreams
       "logout",
       "post:I want to buy something expensive"
     ).mapZIO(action =>
-      ZIO.sleep(1.seconds) *> ZIO.succeed(action)
+      ZIO.succeed(action).delay(1.seconds)
     )
 //      .throttleShape(1, 1.seconds, 2)(_.length)
 

@@ -7,7 +7,7 @@ Although Scala compiles code to JVM bytecodes, ZIO has an interpreter that steps
 
 The interpreter is also the mechanism that evaluates the various effects described in the generic type parameters for each ZIO object.
 
-The reason we have the delay directive in zio-direct is to indicate that this code will be evaluated by the interpreter.
+The reason we have the `defer` directive in zio-direct is to indicate that this code will be evaluated by the interpreter.
 
 Here's a basic example that shows a ZIO being executed by the interpreter:
 
@@ -26,8 +26,7 @@ One way to run ZIOs is to use a "main method" program (something you can start i
 To use it create a new `object` that extends the `ZIOAppDefault` trait and implements the `run` method.  That method returns a ZIO so you can now give it the example `ZIO.debug` data:
 ```scala mdoc
 object HelloWorld extends zio.ZIOAppDefault:
-  override def run =
-    ZIO.debug("hello, world")
+  override def run = ZIO.debug("hello, world")
 ```
 
 This can be run on the JVM in the same way as any other class that has a `static void main` method.
@@ -40,10 +39,9 @@ In some cases your ZIOs may need to be run outside of a *main* program, for exam
 import zio.Runtime.default.unsafe
 
 Unsafe.unsafe { implicit u: Unsafe =>
-  unsafe.run(
-    ZIO.debug("hello, world")
-  )
-  .getOrThrowFiberFailure()
+  unsafe
+    .run(ZIO.debug("hello, world"))
+    .getOrThrowFiberFailure()
 }
 ```
 
@@ -80,9 +78,9 @@ It is the standard, simplest way to start executing your recipes.
 
 ```scala mdoc
 object RunningZIOs extends ZIOAppDefault:
-  def run = Console.printLine("Hello World!") 
+  def run = Console.printLine("Hello World!")
 
-RunningZIOs.main(Array.empty)
+// RunningZIOs.main(Array.empty)  // causes mdoc crash
 ```
 You can provide arbitrary ZIO instances to the run method, as long as you have provided every piece of the environment.
 In other words, it can accept `ZIO[Any, _, _]`.
@@ -95,18 +93,25 @@ Similar to `ZIOAppDefault`, there is a `ZIOSpecDefault` that should be your star
 ```scala mdoc
 import zio.test._
 object TestingZIOs extends ZIOSpecDefault:
-    def spec =
-      test("Hello Tests"):
-        defer:
-          assertTrue:
-              Random.nextIntBounded(10).run  < 10
+  def spec =
+    test("Hello Tests"):
+      defer:
+        assertTrue:
+          Random.nextIntBounded(10).run < 10
 ```
 
 ```scala mdoc
 runSpec:
   defer:
     assertTrue:
-      Random.nextIntBounded(10).run  < 10
+      Random.nextIntBounded(10).run < 10
+```
+
+```scala mdoc
+runSpec:
+  Random
+    .nextIntBounded(10)
+    .map(x => assertTrue(x < 10))
 ```
 
 ## 
