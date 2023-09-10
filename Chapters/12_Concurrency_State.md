@@ -46,9 +46,8 @@ In order to confidently use this, we need certain guarantees about the behavior:
 lazy val unreliableCounting =
   var counter = 0
   val increment =
-    ZIO.succeed {
+    ZIO.succeed:
       counter = counter + 1
-    }
 
   defer:
     ZIO
@@ -112,22 +111,21 @@ def sendNotification() =
 ```
 
 ```scala mdoc
-lazy val sideEffectingUpdates =
+def update(counter: Ref[Int]) =
+  counter.update:
+    previousValue =>
+      expensiveCalculation()
+      sendNotification()
+      previousValue + 1
+
+runDemo:
   defer:
     val counter = Ref.make(0).run
     ZIO
-      .foreachParDiscard(Range(0, 4))(_ =>
-        counter.update { previousValue =>
-          expensiveCalculation()
-          sendNotification()
-          previousValue + 1
-        }
-      )
+      .foreachParDiscard(Range(0, 4)):
+        _ => update(counter)
       .run
     "Final count: " + counter.get.run
-
-// Mdoc/this function is showing the notifications, but not the final result
-runDemo(sideEffectingUpdates)
 ```
 What is going on?!
 Previously, we were losing updates because of unsafe mutability.
