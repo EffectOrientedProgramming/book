@@ -51,9 +51,8 @@ lazy val unreliableCounting =
 
   defer:
     ZIO
-      .foreachParDiscard(Range(0, 100000))(_ =>
-        increment
-      )
+      .foreachParDiscard(Range(0, 100000)):
+        _ => increment
       .run
     "Final count: " + ZIO.succeed(counter).run
 
@@ -76,18 +75,20 @@ We need to fully embrace the ZIO components, utilizing `Ref` for correct mutatio
 ```scala mdoc
 lazy val reliableCounting =
   def incrementCounter(counter: Ref[Int]) =
-    counter.update(_ + 1)
+    counter.update:
+      _ + 1
 
   defer:
     val counter = Ref.make(0).run
     ZIO
-      .foreachParDiscard(Range(0, 100000))(_ =>
-        incrementCounter(counter)
-      )
+      .foreachParDiscard(Range(0, 100000)):
+        _ => incrementCounter:
+               counter
       .run
     "Final count: " + counter.get.run
 
-runDemo(reliableCounting)
+runDemo:
+  reliableCounting
 ```
 Now we can say with full confidence that our final count is 100000.
 Additionally, these updates happen _without blocking_.
@@ -155,13 +156,13 @@ lazy val sideEffectingUpdatesSync =
   defer:
     val counter = Ref.Synchronized.make(0).run
     ZIO
-      .foreachParDiscard(Range(0, 4))(_ =>
-        counter.update { previousValue =>
-          expensiveCalculation()
-          sendNotification()
-          previousValue + 1
-        }
-      )
+      .foreachParDiscard(Range(0, 4)):
+        _ =>
+          counter.update:
+            previousValue =>
+              expensiveCalculation()
+              sendNotification()
+              previousValue + 1
       .run
     "Final count: " + counter.get.run
 
