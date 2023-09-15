@@ -11,6 +11,8 @@ Consistent with `ZIO` itself, `ZLayer` has 3 type parameters that represent:
 - What it produces when successful.
 
 With the same type parameters, and many of the same methods, you might be wondering why we even need a separate data type - why not just use `ZIO` itself for our dependencies?
+The environment type parameter for `ZLayer` maps directly to unique, singleton services in your application.
+The environment type parameter for `ZIO` might have *many* possible instances.
 `ZLayer` provides additional behaviors that are valuable specifically in this domain.
 Typically, you only want a single instance of a dependency to exist across your application.
 This may be to reduce memory/resource usage, or even to ensure basic correctness.

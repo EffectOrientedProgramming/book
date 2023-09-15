@@ -58,7 +58,7 @@ lazy val unreliableCounting =
     "Final count: " + ZIO.succeed(counter).run
 
 runDemo(unreliableCounting)
-// Final count: 99953
+// Final count: 99976
 ```
 
 Due to the unpredictable nature of shared mutable state, we do not know exactly what the final count above is.
