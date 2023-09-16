@@ -14,42 +14,6 @@ def sleepThenPrint(
 
 ```scala mdoc
 runDemo(
-  ZIO.foreach(Seq(2, 1)) { i =>
-    sleepThenPrint(i.seconds)
-  }
-)
-```
-
-```scala mdoc
-runDemo(
-  ZIO.foreachPar(Seq(2, 1)) { i =>
-    sleepThenPrint(i.seconds)
-  }
-)
-```
-
-
-```scala mdoc
-runDemo(
-  defer {
-    val durations =
-      ZIO
-        .collectAllPar(
-          Seq(
-            sleepThenPrint(2.seconds),
-            sleepThenPrint(1.seconds)
-          )
-        )
-        .run
-    val total =
-      durations.fold(Duration.Zero)(_ + _).render
-    Console.printLine(total).run
-  }
-)
-```
-
-```scala mdoc
-runDemo(
   defer {
     val f1 = sleepThenPrint(2.seconds).fork.run
     val f2 = sleepThenPrint(1.seconds).fork.run
