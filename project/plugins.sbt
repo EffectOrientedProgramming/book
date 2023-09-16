@@ -2,8 +2,8 @@ resolvers ++=
   Resolver.sonatypeOssRepos("snapshots")
 
 addSbtPlugin(
-  "io.github.davidgregory084" % "sbt-tpolecat" %
-    "0.4.4" // Upgrading to 0.4.3 broke mdoc :(
+  "org.typelevel" % "sbt-tpolecat" %
+    "0.5.0" // Upgrading to 0.4.3 broke mdoc :(
 )
 addSbtPlugin(
   "org.scalameta" % "sbt-scalafmt" % "2.5.2"
