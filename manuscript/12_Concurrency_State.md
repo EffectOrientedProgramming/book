@@ -56,7 +56,8 @@ lazy val unreliableCounting =
       .run
     "Final count: " + ZIO.succeed(counter).run
 
-runDemo(unreliableCounting)
+runDemo:
+  unreliableCounting
 // Final count: 99996
 ```
 
@@ -176,7 +177,8 @@ lazy val sideEffectingUpdatesSync =
       .run
     "Final count: " + counter.get.run
 
-runDemo(sideEffectingUpdatesSync)
+runDemo:
+  sideEffectingUpdatesSync
 // Alert: We have updated our count!!
 // Alert: We have updated our count!!
 // Alert: We have updated our count!!

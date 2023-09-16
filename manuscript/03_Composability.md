@@ -44,19 +44,26 @@ With ZIO you can use `zio-direct` to compose ZIOs sequentially with:
 ```scala
 // TODO Terrible example. Replace.
 defer:
-  val asdf = ZIO.succeed("asdf").run
-  ZIO.succeed(asdf.toUpperCase).run
+  val asdf = 
+    ZIO.succeed:
+      "asdf"
+    .run
+  ZIO.succeed:
+    asdf.toUpperCase
+  .run
 // res0: ZIO[Any, Nothing, String] = OnSuccess(
 //   trace = "zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res0(03_Composability.md:8)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14688/0x0000000103d70040@3eee966f
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14652/0x0000000103c87040@49498f69
 //   ),
-//   successK = repl.MdocSession$MdocApp$$Lambda$15589/0x00000001040e2040@69a6613
+//   successK = repl.MdocSession$MdocApp$$Lambda$15566/0x000000010403a840@29f1354b
 // )
 ```
 
-There are many other ways you can compose ZIOs.  The methods for composability depend on the desired behavior.  For example, to compose a ZIO that can produce an error with a ZIO that logs the error and then produces a default value, you can use the `catchAll` like:
+There are many other ways you can compose ZIOs.
+The methods for composability depend on the desired behavior.
+For example, to compose a ZIO that can produce an error with a ZIO that logs the error and then produces a default value, you can use the `catchAll` like:
 
 ```scala
 runDemo(
@@ -64,8 +71,12 @@ runDemo(
     .attempt("asdf")
     .catchAll { e =>
       defer:
-        ZIO.logError(e.getMessage).run
-        ZIO.succeed("default value").run
+        ZIO.logError:
+          e.getMessage
+        .run
+        ZIO.succeed:
+          "default value"
+        .run
     }
 )
 // asdf

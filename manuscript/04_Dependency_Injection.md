@@ -134,15 +134,13 @@ def acquireReleaseDebugOnly[T: Tag](
 end acquireReleaseDebugOnly
 
 def acquireReleaseDebug[T: Tag](instance: T) =
-  ZLayer
-    .fromZIO(acquireReleaseDebugOnly(instance))
+  ZLayer.fromZIO:
+    acquireReleaseDebugOnly(instance)
 
 object Wow extends ZIOAppDefault:
   def run =
     defer:
       ZIO.service[A].run
-      ZIO.service[B].run
-      ZIO.service[C].run
       ZIO.service[D].run
     .provide(
       Scope.default,

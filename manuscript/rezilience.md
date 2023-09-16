@@ -27,9 +27,8 @@ object BulkheadDemo extends ZIOAppDefault:
       val statefulResource =
         StatefulResource(currentRequests)
       ZIO
-        .foreachPar(1 to 10)(_ =>
+        .foreachPar(1 to 10): _ =>
           bulkhead(statefulResource.request)
-        )
         .debug("All requests done: ")
         .run
 
@@ -90,18 +89,18 @@ object CircuitBreakerDemo extends ZIOAppDefault:
 
         steps.apply(requestCount) match
           case Scenario.Step.Success =>
-            ZIO.succeed(requestCount).run
+            ZIO
+              .succeed:
+                requestCount
+              .run
           case Scenario.Step.Failure =>
             ZIO
-              .fail(
-                new Exception(
+              .fail:
+                Exception:
                   "Something went wrong"
-                )
-              )
               .run
-      .tapError(e =>
+      .tapError: e =>
         ZIO.debug(s"External failed: $e")
-      )
   end ExternalSystem
 
   val makeCircuitBreaker
@@ -128,21 +127,16 @@ object CircuitBreakerDemo extends ZIOAppDefault:
     defer {
       ZIO.sleep(500.millis).run
       cb(system.call())
-        .catchSome {
+        .catchSome:
           case CircuitBreakerOpen =>
-            ZIO.debug(
+            ZIO.debug:
               "Circuit breaker blocked the call to our external system"
-            )
           case WrappedError(e) =>
-            ZIO.debug(
+            ZIO.debug:
               s"External system threw an exception: $e"
-            )
-        }
-        .tap(result =>
-          ZIO.debug(
+        .tap: result =>
+          ZIO.debug:
             s"External system returned $result"
-          )
-        )
         .run
     }
 
@@ -188,10 +182,8 @@ object RateLimiterDemo extends ZIOAppDefault:
     defer:
       val rateLimiter = makeRateLimiter.run
       rateLimiter(rsaKeyGenerator)
-        .repeatN(
-          5
-        ) // Repeats as fast as the limiter allows
-        .debug("Result").run
+        // Repeats as fast as the limiter allows
+        .repeatN(5).debug("Result").run
 
 object RateLimiterDemoWithLogging
     extends ZIOAppDefault:
@@ -202,12 +194,10 @@ object RateLimiterDemoWithLogging
         message: String
     ): ZIO[R, E, A] =
       z.timed
-        .tap { (duration, res) =>
-          ZIO.debug(
+        .tap: (duration, res) =>
+          ZIO.debug:
             message + ": " + res + " [took " +
               duration.getSeconds + "s]"
-          )
-        }
         .map(_._2)
 
   def run =
@@ -237,14 +227,12 @@ object RateLimiterDemoGlobal
     defer:
       val rateLimiter = makeRateLimiter.run
       ZIO
-        .repeatNPar(4) { i =>
+        .repeatNPar(4): i =>
           rateLimiter(
             rsaKeyGenerator.debug(i.toString)
           )
-            // Repeats as fast as the limiter
-            // allows:
+            // Repeats as fast as allowed
             .repeatN(5).debug(s"Result $i")
-        }
         .run
 end RateLimiterDemoGlobal
 
