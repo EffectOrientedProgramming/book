@@ -82,26 +82,13 @@ Now we will highlight the deficiencies of throwing `Exception`s.
 The previous code might be written in this style:
 
 ```scala
-val thrownLogic =
-  ZIO.attempt(
-    try
-      throw new Exception(
-        "Client connection lost"
-      )
-    finally
-      try () // Cleanup
-      finally
-        throw new Exception("Release Failed")
-  )
-// thrownLogic: ZIO[Any, Throwable, Nothing] = OnSuccess(
-//   trace = "repl.MdocSession.MdocApp.thrownLogic(08_Errors.md:54)",
-//   first = Sync(
-//     trace = "repl.MdocSession.MdocApp.thrownLogic(08_Errors.md:54)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14642/0x0000000103c6fc40@7262647f
-//   ),
-//   successK = zio.ZIO$$$Lambda$14644/0x0000000103c6d840@3fbaf292
-// )
-runDemo(thrownLogic)
+runDemo:
+  ZIO.attempt:
+   try
+      throw Exception:
+              "Client connection lost"
+   finally
+     throw new Exception("Release Failed")
 // java.lang.Exception: Release Failed
 ```
 
@@ -176,9 +163,9 @@ If we don't make any attempt to handle our problem, the whole program blows up a
 // Note - Can't make this output prettier/simpler because it's *not* using ZIO
 currentTemperatureUnsafe(Scenario.NetworkError)
 // repl.MdocSession$MdocApp$NetworkException
-// 	at repl.MdocSession$MdocApp.displayTemperature(08_Errors.md:83)
-// 	at repl.MdocSession$MdocApp.currentTemperatureUnsafe(08_Errors.md:93)
-// 	at repl.MdocSession$MdocApp.$init$$$anonfun$7(08_Errors.md:104)
+// 	at repl.MdocSession$MdocApp.displayTemperature(08_Errors.md:75)
+// 	at repl.MdocSession$MdocApp.currentTemperatureUnsafe(08_Errors.md:85)
+// 	at repl.MdocSession$MdocApp.$init$$$anonfun$6(08_Errors.md:96)
 ```
 
 We could take the bare-minimum approach of catching the `Exception` and returning `null`:
@@ -210,10 +197,11 @@ def currentTemperature(
     "Temperature: " +
       displayTemperature(behavior)
   catch
-    case (ex: RuntimeException) =>
+    case ex: RuntimeException =>
       "Temperature: -1 degrees"
 
-currentTemperature(Scenario.NetworkError)
+currentTemperature:
+  Scenario.NetworkError
 // res5: String = "Temperature: -1 degrees"
 ```
 
@@ -228,10 +216,11 @@ def currentTemperature(
     "Temperature: " +
       displayTemperature(behavior)
   catch
-    case (ex: RuntimeException) =>
+    case ex: RuntimeException =>
       "Temperature Unavailable"
 
-currentTemperature(Scenario.NetworkError)
+currentTemperature: 
+  Scenario.NetworkError
 // res6: String = "Temperature Unavailable"
 ```
 
@@ -248,9 +237,9 @@ def currentTemperature(
     "Temperature: " +
       displayTemperature(behavior)
   catch
-    case (ex: NetworkException) =>
+    case ex: NetworkException =>
       "Network Unavailable"
-    case (ex: GpsException) =>
+    case ex: GpsException =>
       "GPS problem"
 
 currentTemperature(Scenario.NetworkError)
@@ -339,35 +328,35 @@ def getTemperatureZ(behavior: Scenario): ZIO[
     ZIO.fail(new GpsException())
   else if (behavior == Scenario.NetworkError)
     // TODO Use a non-exceptional error
-    ZIO.fail(new NetworkException())
+    ZIO.fail:
+      NetworkException()
   else
     ZIO.succeed("30 degrees")
 
-runDemo(getTemperatureZ(Scenario.Success))
+runDemo:
+  getTemperatureZ:
+    Scenario.Success
 // 30 degrees
 ```
 
 ```scala
 // TODO make MDoc:fail adhere to line limits?
-runDemo(
-  getTemperatureZ(Scenario.Success).catchAll {
+runDemo:
+  getTemperatureZ(Scenario.Success).catchAll:
     case ex: NetworkException =>
       ZIO.succeed("Network Unavailable")
-  }
-)
-// error:
+// error: 
 // match may not be exhaustive.
 // 
 // It would fail on pattern case: _: GpsException
-// 
-//     .catchSome { case ex: NetworkException =>
 //
 ```
 
 TODO Demonstrate ZIO calculating the error types without an explicit annotation being provided
 
 ```scala
-runDemo(getTemperatureZ(Scenario.GPSError))
+runDemo: 
+  getTemperatureZ(Scenario.GPSError)
 // repl.MdocSession$MdocApp$GpsException
 ```
 
@@ -384,28 +373,29 @@ def displayTemperatureZWrapped(
     behavior: Scenario
 ): ZIO[Any, Nothing, String] =
   ZIO
-    .attempt(displayTemperature(behavior))
-    .catchAll {
+    .attempt:
+      displayTemperature:
+        behavior
+    .catchAll:
       case ex: NetworkException =>
-        ZIO.succeed("Network Unavailable")
+        ZIO.succeed:
+          "Network Unavailable"
       case ex: GpsException =>
-        ZIO.succeed("GPS problem")
-    }
+        ZIO.succeed: 
+          "GPS problem"
 ```
 
 ```scala
-runDemo(
-  displayTemperatureZWrapped(Scenario.Success)
-)
+runDemo:
+  displayTemperatureZWrapped:
+    Scenario.Success
 // 35 degrees
 ```
 
 ```scala
-runDemo(
-  displayTemperatureZWrapped(
+runDemo:
+  displayTemperatureZWrapped:
     Scenario.NetworkError
-  )
-)
 // Network Unavailable
 ```
 
@@ -416,14 +406,17 @@ def getTemperatureZGpsGap(
     behavior: Scenario
 ): ZIO[Any, Nothing, String] =
   ZIO
-    .attempt(displayTemperature(behavior))
-    .catchAll { case ex: NetworkException =>
-      ZIO.succeed("Network Unavailable")
-    }
+    .attempt:
+      displayTemperature(behavior)
+    .catchAll:
+       case ex: NetworkException =>
+         ZIO.succeed("Network Unavailable")
 ```
 
 ```scala
-runDemo(getTemperatureZGpsGap(Scenario.GPSError))
+runDemo:
+  getTemperatureZGpsGap:
+    Scenario.GPSError
 // Defect: GpsException
 ```
 
@@ -448,9 +441,8 @@ def getTemperatureZWithFallback(
 ```
 
 ```scala
-runDemo(
+runDemo:
   getTemperatureZWithFallback(Scenario.GPSError)
-)
 // Error: repl.MdocSession$MdocApp$GpsException
 ```
 
@@ -470,11 +462,9 @@ def getTemperatureZAndFlagUnhandled(
 ```
 
 ```scala
-runDemo(
-  getTemperatureZAndFlagUnhandled(
+runDemo:
+  getTemperatureZAndFlagUnhandled:
     Scenario.GPSError
-  )
-)
 // repl.MdocSession$MdocApp$GpsException
 ```
 

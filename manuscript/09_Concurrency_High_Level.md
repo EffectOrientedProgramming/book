@@ -5,49 +5,45 @@ TODO Prose
 def sleepThenPrint(
     d: Duration
 ): ZIO[Any, java.io.IOException, Duration] =
-  defer {
+  defer:
     ZIO.sleep(d).run
     ZIO.debug(s"${d.render} elapsed").run
     d
-  }
 ```
 
 ```scala
-runDemo(
-  ZIO.foreach(Seq(2, 1)) { i =>
-    sleepThenPrint(i.seconds)
-  }
-)
+runDemo:
+  ZIO.foreach(Seq(2, 1)): 
+    i =>
+      sleepThenPrint(i.seconds)
 // List(PT2S, PT1S)
 ```
 
 ```scala
-runDemo(
-  ZIO.foreachPar(Seq(2, 1)) { i =>
-    sleepThenPrint(i.seconds)
-  }
-)
+runDemo:
+  ZIO.foreachPar(Seq(2, 1)): 
+    i =>
+      sleepThenPrint(i.seconds)
 // List(PT2S, PT1S)
 ```
 
 
 ```scala
-runDemo(
-  defer {
+runDemo:
+  defer:
     val durations =
       ZIO
-        .collectAllPar(
+        .collectAllPar:
           Seq(
             sleepThenPrint(2.seconds),
             sleepThenPrint(1.seconds)
           )
-        )
         .run
     val total =
       durations.fold(Duration.Zero)(_ + _).render
-    Console.printLine(total).run
-  }
-)
+    Console.printLine:
+      total
+    .run
 // ()
 ```
 
@@ -69,23 +65,20 @@ def slowFailableRandom(duration: Duration) =
     duration
     
 // Massive example
-runDemo(
+runDemo:
   defer:
     val durations =
       ZIO
-        .collectAllSuccessesPar(
+        .collectAllSuccessesPar:
           Seq
             .fill(1_000)(1.seconds)
             .map(duration =>
               slowFailableRandom(duration)
             )
-        )
         .run
     durations.fold(Duration.Zero)(_ + _).render
-)
-// 14 m 53 s
+// 15 m 15 s
 ```
-
 
 ## Edit This Chapter
 [Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/09_Concurrency_High_Level.md)

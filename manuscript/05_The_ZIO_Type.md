@@ -66,12 +66,12 @@ And even some Java types -
 ```scala
 import scala.concurrent.Future
 
-runDemo(
-  ZIO.fromFuture(implicit ec =>
-    Future.successful("Success!")
-  )
-)
+runDemo:
+  ZIO.fromFuture:
+    implicit ec =>
+      Future.successful("Success!")
 // Success!
+
 runDemo(
   ZIO.fromFuture(implicit ec =>
     Future.failed(new Exception("Failure :("))
