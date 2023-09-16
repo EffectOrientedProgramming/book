@@ -51,7 +51,7 @@ If needed you can even interop to Scala Futures through `Unsafe`, transforming t
 
 
 
-# Bill
+## Bill
 
 A common mistake when starting with ZIO is trying to return ZIO instances themselves rather than their result.
 ```scala mdoc

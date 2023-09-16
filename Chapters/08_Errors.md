@@ -46,18 +46,13 @@ Now we will highlight the deficiencies of throwing `Exception`s.
 The previous code might be written in this style:
 
 ```scala mdoc
-val thrownLogic =
-  ZIO.attempt(
-    try
-      throw new Exception(
-        "Client connection lost"
-      )
-    finally
-      try () // Cleanup
-      finally
-        throw new Exception("Release Failed")
-  )
-runDemo(thrownLogic)
+runDemo:
+  ZIO.attempt:
+   try
+      throw Exception:
+              "Client connection lost"
+   finally
+     throw new Exception("Release Failed")
 ```
 
 We will only see the later `pool` problem.
@@ -159,10 +154,11 @@ def currentTemperature(
     "Temperature: " +
       displayTemperature(behavior)
   catch
-    case (ex: RuntimeException) =>
+    case ex: RuntimeException =>
       "Temperature: -1 degrees"
 
-currentTemperature(Scenario.NetworkError)
+currentTemperature:
+  Scenario.NetworkError
 ```
 
 Clearly, this isn't acceptable, as both of these common sentinel values are valid temperatures.
@@ -176,10 +172,11 @@ def currentTemperature(
     "Temperature: " +
       displayTemperature(behavior)
   catch
-    case (ex: RuntimeException) =>
+    case ex: RuntimeException =>
       "Temperature Unavailable"
 
-currentTemperature(Scenario.NetworkError)
+currentTemperature: 
+  Scenario.NetworkError
 ```
 
 We have improved the failure behavior significantly; is it sufficient for all cases?
@@ -195,9 +192,9 @@ def currentTemperature(
     "Temperature: " +
       displayTemperature(behavior)
   catch
-    case (ex: NetworkException) =>
+    case ex: NetworkException =>
       "Network Unavailable"
-    case (ex: GpsException) =>
+    case ex: GpsException =>
       "GPS problem"
 
 currentTemperature(Scenario.NetworkError)
@@ -284,27 +281,29 @@ def getTemperatureZ(behavior: Scenario): ZIO[
     ZIO.fail(new GpsException())
   else if (behavior == Scenario.NetworkError)
     // TODO Use a non-exceptional error
-    ZIO.fail(new NetworkException())
+    ZIO.fail:
+      NetworkException()
   else
     ZIO.succeed("30 degrees")
 
-runDemo(getTemperatureZ(Scenario.Success))
+runDemo:
+  getTemperatureZ:
+    Scenario.Success
 ```
 
 ```scala mdoc:fail
 // TODO make MDoc:fail adhere to line limits?
-runDemo(
-  getTemperatureZ(Scenario.Success).catchAll {
+runDemo:
+  getTemperatureZ(Scenario.Success).catchAll:
     case ex: NetworkException =>
       ZIO.succeed("Network Unavailable")
-  }
-)
 ```
 
 TODO Demonstrate ZIO calculating the error types without an explicit annotation being provided
 
 ```scala mdoc
-runDemo(getTemperatureZ(Scenario.GPSError))
+runDemo: 
+  getTemperatureZ(Scenario.GPSError)
 ```
 
 {#wrapping-legacy-code}
@@ -320,27 +319,28 @@ def displayTemperatureZWrapped(
     behavior: Scenario
 ): ZIO[Any, Nothing, String] =
   ZIO
-    .attempt(displayTemperature(behavior))
-    .catchAll {
+    .attempt:
+      displayTemperature:
+        behavior
+    .catchAll:
       case ex: NetworkException =>
-        ZIO.succeed("Network Unavailable")
+        ZIO.succeed:
+          "Network Unavailable"
       case ex: GpsException =>
-        ZIO.succeed("GPS problem")
-    }
+        ZIO.succeed: 
+          "GPS problem"
 ```
 
 ```scala mdoc
-runDemo(
-  displayTemperatureZWrapped(Scenario.Success)
-)
+runDemo:
+  displayTemperatureZWrapped:
+    Scenario.Success
 ```
 
 ```scala mdoc
-runDemo(
-  displayTemperatureZWrapped(
+runDemo:
+  displayTemperatureZWrapped:
     Scenario.NetworkError
-  )
-)
 ```
 
 This is decent, but does not provide the maximum possible guarantees. Look at what happens if we forget to handle one of our errors.
@@ -350,14 +350,17 @@ def getTemperatureZGpsGap(
     behavior: Scenario
 ): ZIO[Any, Nothing, String] =
   ZIO
-    .attempt(displayTemperature(behavior))
-    .catchAll { case ex: NetworkException =>
-      ZIO.succeed("Network Unavailable")
-    }
+    .attempt:
+      displayTemperature(behavior)
+    .catchAll:
+       case ex: NetworkException =>
+         ZIO.succeed("Network Unavailable")
 ```
 
 ```scala mdoc
-runDemo(getTemperatureZGpsGap(Scenario.GPSError))
+runDemo:
+  getTemperatureZGpsGap:
+    Scenario.GPSError
 ```
 
 The compiler does not catch this bug, and instead fails at runtime.
@@ -381,9 +384,8 @@ def getTemperatureZWithFallback(
 ```
 
 ```scala mdoc
-runDemo(
+runDemo:
   getTemperatureZWithFallback(Scenario.GPSError)
-)
 ```
 
 This lets us avoid the most egregious gaps in functionality, but it does not take full advantage of ZIO's type-safety.
@@ -402,11 +404,9 @@ def getTemperatureZAndFlagUnhandled(
 ```
 
 ```scala mdoc
-runDemo(
-  getTemperatureZAndFlagUnhandled(
+runDemo:
+  getTemperatureZAndFlagUnhandled:
     Scenario.GPSError
-  )
-)
 ```
 
 
