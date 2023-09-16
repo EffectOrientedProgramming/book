@@ -55,9 +55,9 @@ defer:
 //   trace = "zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res0(03_Composability.md:8)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$15743/0x0000000103fb5c40@26f6333f
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$15751/0x0000000103fbfc40@53b12de7
 //   ),
-//   successK = repl.MdocSession$MdocApp$$Lambda$16351/0x000000010427d040@515ea2ff
+//   successK = repl.MdocSession$MdocApp$$Lambda$16338/0x000000010426b040@280f8892
 // )
 ```
 
