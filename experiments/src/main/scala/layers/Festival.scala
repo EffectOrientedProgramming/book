@@ -27,15 +27,17 @@ def activityLayer[T: Tag](
   ZLayer.scoped(
     ZIO.acquireRelease(
       defer:
-        ZIO.debug(entity.toString + " ACQUIRE").run
-        ZIO.foreach(setupSteps) {
+        ZIO.debug:
+          entity.toString + " ACQUIRE"
+        .run
+        ZIO.foreach(setupSteps):
           case (name, duration) =>
             activity(
               entity.toString,
               name,
               duration
             )
-        }.run
+        .run
         entity
     )(_ => debug(entity.toString + " RELEASE"))
   )
@@ -46,10 +48,13 @@ def activity(
     duration: Duration
 ) =
   defer:
-    debug(s"$entity: BEGIN $name").run
-    debug(s"$entity: END $name")
-      .delay(duration)
-      .run
+    debug:
+      s"$entity: BEGIN $name"
+    .run
+    debug:
+      s"$entity: END $name"
+    .delay(duration)
+    .run
 
 case class Venue(stage: Stage, permit: Permit)
 val venue = ZLayer.fromFunction(Venue.apply)
@@ -99,12 +104,11 @@ val security: ZLayer[
 ] =
   ZLayer.scoped {
     ZIO.acquireRelease {
-      defer {
+      defer:
         debug("SECURITY: Ready").run
         Security(
           ZIO.service[Toilets].run,
         )
-      }
     } { _ =>
       debug("SECURITY: Going home")
     }
