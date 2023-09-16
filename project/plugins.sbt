@@ -6,7 +6,7 @@ addSbtPlugin(
     "0.4.4" // Upgrading to 0.4.3 broke mdoc :(
 )
 addSbtPlugin(
-  "org.scalameta" % "sbt-scalafmt" % "2.5.0"
+  "org.scalameta" % "sbt-scalafmt" % "2.5.2"
 )
 
 addSbtPlugin(
