@@ -21,8 +21,7 @@ object RateLimiterDemo extends ZIOAppDefault:
       val rateLimiter = makeRateLimiter.run
       rateLimiter(rsaKeyGenerator)
         // Repeats as fast as the limiter allows
-        .repeatN(5)
-        .debug("Result").run
+        .repeatN(5).debug("Result").run
 
 object RateLimiterDemoWithLogging
     extends ZIOAppDefault:
@@ -66,11 +65,10 @@ object RateLimiterDemoGlobal
     defer:
       val rateLimiter = makeRateLimiter.run
       ZIO
-        .repeatNPar(4):
-          i =>
-            rateLimiter(
-              rsaKeyGenerator.debug(i.toString)
-            )
+        .repeatNPar(4): i =>
+          rateLimiter(
+            rsaKeyGenerator.debug(i.toString)
+          )
             // Repeats as fast as allowed
             .repeatN(5).debug(s"Result $i")
         .run

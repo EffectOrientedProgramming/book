@@ -22,19 +22,18 @@ object CircuitBreakerDemo extends ZIOAppDefault:
         val requestCount =
           requests.getAndUpdate(_ + 1).run
 
-        steps.apply(requestCount)
-          match
-            case Scenario.Step.Success =>
-              ZIO.succeed:
+        steps.apply(requestCount) match
+          case Scenario.Step.Success =>
+            ZIO
+              .succeed:
                 requestCount
               .run
-            case Scenario.Step.Failure =>
-              ZIO
-                .fail:
-                  Exception:
-                    "Something went wrong"
-                .run
-
+          case Scenario.Step.Failure =>
+            ZIO
+              .fail:
+                Exception:
+                  "Something went wrong"
+              .run
       .tapError: e =>
         ZIO.debug(s"External failed: $e")
   end ExternalSystem
@@ -57,11 +56,9 @@ object CircuitBreakerDemo extends ZIOAppDefault:
     )
 
   def callProtectedSystem(
-
-                           cb: CircuitBreaker[
-                             Any
-                           ],
-                           system: ExternalSystem) =
+      cb: CircuitBreaker[Any],
+      system: ExternalSystem
+  ) =
     defer {
       ZIO.sleep(500.millis).run
       cb(system.call())

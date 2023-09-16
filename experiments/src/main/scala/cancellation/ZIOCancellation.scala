@@ -18,7 +18,8 @@ def createProcess(
     ZIO.debug(s"Started $label").run
     innerProcess.run
     ZIO.debug(s"Finished $label").run
-  // TODO Consider rewriting to avoid dot-chaining on block
+    // TODO Consider rewriting to avoid
+    // dot-chaining on block
   .onInterrupt(ZIO.debug(s"Interrupted $label"))
 
 object HelloCancellation2 extends ZIOAppDefault:

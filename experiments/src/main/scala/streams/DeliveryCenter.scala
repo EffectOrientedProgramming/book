@@ -30,7 +30,9 @@ object DeliveryCenter extends ZIOAppDefault:
   ) =
     def shipIt(reason: String) =
       defer:
-        ZIO.debug(reason + " Ship the orders!").run
+        ZIO
+          .debug(reason + " Ship the orders!")
+          .run
         staged
           .get
           .flatMap(_.get.fuse.succeed(()))
