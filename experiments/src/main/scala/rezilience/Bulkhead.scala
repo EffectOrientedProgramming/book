@@ -21,9 +21,9 @@ object BulkheadDemo extends ZIOAppDefault:
       val statefulResource =
         StatefulResource(currentRequests)
       ZIO
-        .foreachPar(1 to 10)(_ =>
-          bulkhead(statefulResource.request)
-        )
+        .foreachPar(1 to 10):
+          _ =>
+            bulkhead(statefulResource.request)
         .debug("All requests done: ")
         .run
 

@@ -38,7 +38,7 @@ object Hedging extends ZIOAppDefault:
         results.updatedWith(
           Percentile
             .fromDuration(requestTime.duration)
-        ) {
+        ):
           case Some(value) =>
             Some(
               value.copy(
@@ -56,7 +56,6 @@ object Hedging extends ZIOAppDefault:
                 totalTime = requestTime.duration
               )
             )
-        }
       )
     )
 
