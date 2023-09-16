@@ -16,32 +16,29 @@ val d: ZLayer[B & C & Scope, Nothing, D] =
 
 def acquireReleaseDebugOnly[T:Tag](instance: T) =
   val rep = instance.getClass.toString.dropWhile(_ != '.').drop(1).replace("$", "")
-    ZIO.acquireRelease(
+  ZIO.acquireRelease(
+    defer:
+      val duration = Random.nextIntBounded(500).run
+      ZIO.sleep(duration.millis).run
+      ZIO.debug(s"Getting $rep").run
+      instance
+  )(
+    _ =>
       defer:
         val duration = Random.nextIntBounded(500).run
         ZIO.sleep(duration.millis).run
-        ZIO.debug(s"Getting $rep").run
-        instance
-    )(
-      _ =>
-        defer:
-          val duration = Random.nextIntBounded(500).run
-          ZIO.sleep(duration.millis).run
-          ZIO.debug(s"Releasing $rep").run
-    )
+        ZIO.debug(s"Releasing $rep").run
+  )
 
 
 def acquireReleaseDebug[T:Tag](instance: T) =
-  ZLayer.fromZIO(
+  ZLayer.fromZIO:
     acquireReleaseDebugOnly(instance)
-  )
 
 object Wow extends ZIOAppDefault {
   def run =
     defer:
       ZIO.service[A].run
-      ZIO.service[B].run
-      ZIO.service[C].run
       ZIO.service[D].run
     .provide(
       Scope.default,

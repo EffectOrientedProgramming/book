@@ -56,7 +56,8 @@ lazy val unreliableCounting =
       .run
     "Final count: " + ZIO.succeed(counter).run
 
-runDemo(unreliableCounting)
+runDemo:
+  unreliableCounting
 ```
 
 Due to the unpredictable nature of shared mutable state, we do not know exactly what the final count above is.
@@ -166,7 +167,8 @@ lazy val sideEffectingUpdatesSync =
       .run
     "Final count: " + counter.get.run
 
-runDemo(sideEffectingUpdatesSync)
+runDemo:
+  sideEffectingUpdatesSync
 ```
 
 Now we see exactly the number of alerts that we expected.
