@@ -23,6 +23,11 @@ You can also do things that simply are not possible in other approaches, such as
 
 One reason to modularize an application into "parts" is so that when those parts need other "parts", the relationship between the parts can be expressed in some way and then also changed depending on the needs for a given execution path.  Typically, this approach to breaking things into parts and expressing the other parts needed by each part, is called "Dependency Injection."
 
+... Why is it called "Dependency Injection" ?
+Avoid having to explicitly pass things down the call chain.
+
+There is one way to express dependencies.  
+
 Let's consider an example: Given a function that fetches Accounts from a database, the necessary parts might be a `DatabaseService` which provides database connections and a `UserService` which provides the access controls.  By separating these dependencies our from the functionality of fetching accounts, tests can utilize some method of "faking" or "mocking" the dependencies to simulate the actual dependency.
 
 In the world of Java these dependent parts are usually expressed through annotations (e.g. `@Autowired` in Spring).  But these approaches are "impure" (require mutability), often rely on runtime magic (e.g. reflection), and require everything that uses the annotations to be created through a Dependency Injection manager, complicating construction flow.  An alternative to this approach is to use "Constructor Injection" which avoids some of the pitfalls associated with "Field Injection" but doesn't resolve some of the underlying issues, including the ability for dependencies to be expressed at compile time.
@@ -78,6 +83,17 @@ HttpHandler.get("/accounts") {
 }.provide(LiveUserService)
 ```
 
+Values to convey:
+ - Layer Graph
+    - (Effect A needs Layer X, Effect B calls Effect A, Effect C calls Effect B)
+    - Now Effect A, B, C need Layer X unless the layer is provided somewhere in between
+    - Cycles are a compile error
+    - Attempting to provide the same layer type multiple times is a compile error
+    - Visualization with Mermaid
+ - Layer Resourcefulness
+   - Layers can have setup & teardown (open & close)
+
+
 
 ## Edit This Chapter
 [Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/04_Dependency_Injection.md)
@@ -91,6 +107,131 @@ HttpHandler.get("/accounts") {
  code with full editor capabilities :D
 
  
+
+### experiments/src/main/scala/dependency_injection/Recipe.scala
+```scala
+package dependency_injection
+
+case class Flour()
+case class Water()
+case class Yeast()
+case class Heat()
+
+case class Bread(
+    flour: Flour,
+    water: Water,
+    yeast: Yeast,
+    heat: Heat
+)
+
+val homeMadeBread: ZLayer[
+  Flour & Water & Yeast & Heat,
+  Nothing,
+  Bread
+] =
+  ZLayer.fromZIO:
+    defer:
+      Bread(
+        ZIO.service[Flour].run,
+        ZIO.service[Water].run,
+        ZIO.service[Yeast].run,
+        ZIO.service[Heat].run
+      )
+
+object MakeHomeMadeBread extends ZIOAppDefault:
+  override def run =
+    ZIO
+      .service[Bread]
+      .provide(
+        ZLayer.succeed(Flour()),
+        ZLayer.succeed(Water()),
+        ZLayer.succeed(Yeast()),
+        ZLayer.succeed(Heat()),
+        homeMadeBread
+      )
+      .debug
+
+case class BasicSandwich(bread: Bread)
+
+val basicSandwich
+    : ZLayer[Bread, Nothing, BasicSandwich] =
+  ZLayer.fromZIO:
+    defer:
+      BasicSandwich(ZIO.service[Bread].run)
+
+object MakeHomeMadeBasicSandwich
+    extends ZIOAppDefault:
+  override def run =
+    ZIO
+      .service[BasicSandwich]
+      .provide(
+        ZLayer.succeed(Flour()),
+        ZLayer.succeed(Water()),
+        ZLayer.succeed(Yeast()),
+        ZLayer.succeed(Heat()),
+        homeMadeBread,
+        basicSandwich
+      )
+
+// hidden
+val storeBread =
+  Bread(Flour(), Water(), Yeast(), Heat())
+
+val buyBread = ZLayer.succeed(storeBread)
+
+object MakeBasicSandwichFromStoreBread
+    extends ZIOAppDefault:
+  override def run =
+    ZIO
+      .service[BasicSandwich]
+      .provide(buyBread, basicSandwich)
+
+```
+
+
+### experiments/src/main/scala/dependency_injection/Simple.scala
+```scala
+package dependency_injection
+
+class Simple extends ZIOAppDefault:
+  val effect1 =
+    defer:
+      val s = ZIO.service[String].run
+      ZIO.debug(s).run
+
+  val effect2 =
+    defer:
+      val s = ZIO.service[String].run
+      ZIO.debug(s.toUpperCase).run
+
+  val effects1and2 =
+    defer:
+      effect1.run
+      effect2.run
+
+  val effect3 =
+    val e =
+      defer:
+        val i = ZIO.service[Int].run
+        ZIO.debug(i).run
+    e
+
+  val effect1and2and3 =
+    defer:
+      effects1and2.run
+      effect3.run
+
+  override def run =
+    effect1and2and3.provide(
+      ZLayer
+        .fail("asdf")
+        .catchAll(_ => ZLayer.succeed("zxcv")),
+      ZLayer.succeed(1)
+    )
+end Simple
+
+```
+
 
 ### experiments/src/main/scala/dependency_injection/Wow.scala
 ```scala
