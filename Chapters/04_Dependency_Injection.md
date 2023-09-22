@@ -23,6 +23,11 @@ You can also do things that simply are not possible in other approaches, such as
 
 One reason to modularize an application into "parts" is so that when those parts need other "parts", the relationship between the parts can be expressed in some way and then also changed depending on the needs for a given execution path.  Typically, this approach to breaking things into parts and expressing the other parts needed by each part, is called "Dependency Injection."
 
+... Why is it called "Dependency Injection" ?
+Avoid having to explicitly pass things down the call chain.
+
+There is one way to express dependencies.  
+
 Let's consider an example: Given a function that fetches Accounts from a database, the necessary parts might be a `DatabaseService` which provides database connections and a `UserService` which provides the access controls.  By separating these dependencies our from the functionality of fetching accounts, tests can utilize some method of "faking" or "mocking" the dependencies to simulate the actual dependency.
 
 In the world of Java these dependent parts are usually expressed through annotations (e.g. `@Autowired` in Spring).  But these approaches are "impure" (require mutability), often rely on runtime magic (e.g. reflection), and require everything that uses the annotations to be created through a Dependency Injection manager, complicating construction flow.  An alternative to this approach is to use "Constructor Injection" which avoids some of the pitfalls associated with "Field Injection" but doesn't resolve some of the underlying issues, including the ability for dependencies to be expressed at compile time.
@@ -77,3 +82,14 @@ HttpHandler.get("/accounts") {
   getUserAccounts(User(1)).provide(LiveDatabaseService)
 }.provide(LiveUserService)
 ```
+
+Values to convey:
+ - Layer Graph
+    - (Effect A needs Layer X, Effect B calls Effect A, Effect C calls Effect B)
+    - Now Effect A, B, C need Layer X unless the layer is provided somewhere in between
+    - Cycles are a compile error
+    - Attempting to provide the same layer type multiple times is a compile error
+    - Visualization with Mermaid
+ - Layer Resourcefulness
+   - Layers can have setup & teardown (open & close)
+
