@@ -62,6 +62,6 @@ libraryDependencies ++= Seq(
   "io.github.scottweaver" %% "zio-2-0-testcontainers-postgresql" % "0.9.0",
   "io.github.scottweaver" %% "zio-2-0-db-migration-aspect" % "0.9.0",
   "io.getquill" %% "quill-jdbc" % "3.7.2.Beta1.4",
-  "io.getquill" %% "quill-jdbc-zio" % "4.7.0",
-  "io.getquill" %% "quill-zio" % "4.7.0",
+  "io.getquill" %% "quill-jdbc-zio" % "4.6.0.1",
+  "io.getquill" %% "quill-zio" % "4.6.0.1",
 )
