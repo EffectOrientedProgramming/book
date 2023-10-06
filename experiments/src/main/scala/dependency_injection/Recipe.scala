@@ -1,87 +1,74 @@
 package dependency_injection
 
-case class Flour()
-object Flour:
-  val live = ZLayer.derive[Flour]
+case class BreadDough()
 
-case class Water()
-object Water:
-  val live = ZLayer.derive[Water]
+val letDoughRise: ZIO[BreadDough, Nothing, Unit] =
+  ZIO.unit
 
-case class Yeast()
-object Yeast:
-  val live = ZLayer.derive[Yeast]
-
-case class Heat()
-object Heat:
-  val oven = ZLayer.derive[Heat]
-  val toaster = ZLayer.derive[Heat]
-
-case class Bread()
-object Bread:
-  val live = ZLayer.derive[Bread]
-
-// hidden
-val preheatOven: ZIO[Heat, Nothing, Unit] =
-  ???
-
+// Step 1: Effects can express dependencies, effects can't be run until their
+//         dependencies have been fulfilled
 /*
-// Does not compile but shows that dependencies can be expressed
-object PreheatOvenNoHeat extends ZIOAppDefault:
+object LetDoughRiseNoDough extends ZIOAppDefault:
   override def run =
-    preheatOven
+    letDoughRise
 */
 
-// Dependencies are required to run an effect
-// When you get to `run` there can't be any dependencies left
-object PreheatOven extends ZIOAppDefault:
-  override def run =
-    preheatOven.provide(
-      Heat.oven
-    )
-
-
-case class BreadDough(flour: Flour, water: Water, yeast: Yeast)
 object BreadDough:
-  val live = ZLayer.succeed(
-    BreadDough(Flour(), Water(), Yeast())
-  )
-
-val makeBread: ZIO[Heat & BreadDough, Nothing, Bread] =
-  ???
+  val fresh: ZLayer[Any, Nothing, BreadDough] = ZLayer.derive[BreadDough]
 
 
-// Effects can require multiple dependencies
-// now we can cook something
+// Step 2: Dependencies can be provided on the effect, so that the effect can be run
+object LetDoughRise extends ZIOAppDefault:
+  override def run =
+    letDoughRise.provide:
+      BreadDough.fresh
+
+
+// note: note all of the Heat vals are used right away
+//       Do we organize differently or just introduce the kinds of heats
+case class Heat()
+object Heat:
+  val oven: ZLayer[Any, Nothing, Heat] = ZLayer.derive[Heat]
+  val toaster: ZLayer[Any, Nothing, Heat] = ZLayer.derive[Heat]
+  val broken: ZLayer[Any, String, Nothing] = ZLayer.fail("power out")
+
+
+// Step 3: Effects can require multiple dependencies
 object MakeBread extends ZIOAppDefault:
   override def run =
-    makeBread.provide(
-      BreadDough.live,
+    Bread.makeHomemade.provide(
+      BreadDough.fresh,
       Heat.oven,
     )
 
 
-case class Jelly()
-case class BreadWithJelly()
+// todo: explore a Scala 3 provideSome that doesn't need to specify the remaining types
+//
+//val boringSandwich: ZIO[Jelly, Nothing, BreadWithJelly] =
+//  makeBreadWithJelly.provideSome[Jelly](storeBread)
 
-val makeBreadWithJelly: ZIO[Bread & Jelly, Nothing, BreadWithJelly] =
-  ???
 
+case class Bread()
 
-// Provide a dependency so that it doesn't propagate
-// Dependencies can be provided at any level removing their requirement propagation
-object BreadWithJelly extends ZIOAppDefault:
-  override def run =
-    val bread = ZLayer.fromZIO(
-      makeBread.provide(
-        BreadDough.live,
-        Heat.oven,
-      )
-    )
+// note: note all of the Bread vals are used right away
+//       Do we organize differently or just introduce the kinds of bread & bread actions
+object Bread:
+  val makeHomemade: ZIO[Heat & BreadDough, Nothing, Bread] = ZIO.succeed(Bread())
+  val storeBought: ZLayer[Any, Nothing, Bread] = ZLayer.derive[Bread]
+  val homemade: ZLayer[Heat & BreadDough, Nothing, Bread] = ZLayer.fromZIO(makeHomemade)
 
-    makeBreadWithJelly.provide(
-      bread,
-      ZLayer.succeed(Jelly()),
+val eatBread: ZIO[Bread, Nothing, Unit] =
+  ZIO.unit
+
+// Step 4: Dependencies can "automatically" assemble to fulfill the needs of an effect
+//   prose comment: something around how like typical DI, the "graph" of dependencies gets
+//     resolved "for you"
+object UseBread extends ZIOAppDefault:
+  def run =
+    eatBread.provide(
+      Bread.homemade,
+      BreadDough.fresh,
+      Heat.oven
     )
 
 
@@ -89,27 +76,44 @@ object BreadWithJelly extends ZIOAppDefault:
 case class Toast()
 
 val makeToast: ZIO[Heat & Bread, Nothing, Toast] =
-  ???
+  ZIO.succeed(Toast())
 
 
-// todo: is using Heat.live the right semantics for the different kinds of heat
-//   or can we do it the wrong way (making toast in the oven) then in the next step
-//   instead make the toast in a toaster
+// Step 5: Different effects can require the same dependency
+//   The dependencies are based on the type, so in this case both
+//   makeToast and makeBread require heat, but we likely do not want to
+//   use the oven for both making bread and toast
 object MakeToast extends ZIOAppDefault:
   override def run =
     makeToast.provide(
-      BreadDough.live,
-      ZLayer.fromZIO(makeBread), // effects can provide dependencies but they also propagate their dependencies
+      Bread.homemade, // effects can provide dependencies but they also propagate their dependencies
+      BreadDough.fresh,
       Heat.oven,
     )
 
 
-// Dependencies can then reintroduce dependencies that were previously provided
+// Step 6: Dependencies are based on types and must be uniquely provided
+// Heat can't be provided twice
+// Note: show mdoc compile error
+/*
+object MakeToastConflictingHeat extends ZIOAppDefault:
+  override def run =
+    makeToast.provide(
+      BreadDough.fresh,
+      Bread.homemade, // effects can provide dependencies but they also propagate their dependencies
+      Heat.oven,
+      Heat.toaster,
+    )
+*/
+
+
+// Step 7: Effects can have their dependencies provided,
+//   enabling other effects that use them to provide their own dependencies of the same type
 object MakeToastWithToasterAndOven extends ZIOAppDefault:
   override def run =
     val bread = ZLayer.fromZIO(
-      makeBread.provide(
-        BreadDough.live,
+      Bread.makeHomemade.provide(
+        BreadDough.fresh,
         Heat.oven,
       )
     )
@@ -120,6 +124,32 @@ object MakeToastWithToasterAndOven extends ZIOAppDefault:
     )
 
 
-// todo: maybe toasted bread with jelly
+// Step 8: Dependencies can fail
+object MakeBreadWithBrokenOven extends ZIOAppDefault:
+  override def run =
+    Bread.makeHomemade.provide(
+      BreadDough.fresh,
+      Heat.broken,
+    ).flip.debug // todo: maybe could be a hidden extension method like prettyPrintError
 
-// todo: a test with different dependencies
+
+// Step 9: On dependency failure, we can fallback
+object MakeBreadWithBrokenOvenFallback extends ZIOAppDefault:
+  override def run =
+    val bread =
+      ZLayer
+        .fromZIO:
+          Bread.makeHomemade.provide(
+            BreadDough.fresh,
+            Heat.broken,
+          )
+        .orElse:
+          Bread.storeBought
+
+    makeToast.provide(
+      bread,
+      Heat.toaster,
+    )
+
+
+// Step 10: Maybe retry on the ZLayer (BreadDough.rancid, Heat.brokenFor10Seconds)
