@@ -67,9 +67,8 @@ And even some Java types -
 import scala.concurrent.Future
 
 runDemo:
-  ZIO.fromFuture:
-    implicit ec =>
-      Future.successful("Success!")
+  ZIO.fromFuture: implicit ec =>
+    Future.successful("Success!")
 
 runDemo(
   ZIO.fromFuture(implicit ec =>

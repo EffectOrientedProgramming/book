@@ -44,13 +44,15 @@ With ZIO you can use `zio-direct` to compose ZIOs sequentially with:
 ```scala mdoc
 // TODO Terrible example. Replace.
 defer:
-  val asdf = 
-    ZIO.succeed:
-      "asdf"
+  val asdf =
+    ZIO
+      .succeed:
+        "asdf"
+      .run
+  ZIO
+    .succeed:
+      asdf.toUpperCase
     .run
-  ZIO.succeed:
-    asdf.toUpperCase
-  .run
 ```
 
 There are many other ways you can compose ZIOs.
@@ -63,12 +65,14 @@ runDemo(
     .attempt("asdf")
     .catchAll { e =>
       defer:
-        ZIO.logError:
-          e.getMessage
-        .run
-        ZIO.succeed:
-          "default value"
-        .run
+        ZIO
+          .logError:
+            e.getMessage
+          .run
+        ZIO
+          .succeed:
+            "default value"
+          .run
     }
 )
 ```

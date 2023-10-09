@@ -48,11 +48,10 @@ The previous code might be written in this style:
 ```scala mdoc
 runDemo:
   ZIO.attempt:
-   try
+    try
       throw Exception:
-              "Client connection lost"
-   finally
-     throw new Exception("Release Failed")
+        "Client connection lost"
+    finally throw new Exception("Release Failed")
 ```
 
 We will only see the later `pool` problem.
@@ -175,7 +174,7 @@ def currentTemperature(
     case ex: RuntimeException =>
       "Temperature Unavailable"
 
-currentTemperature: 
+currentTemperature:
   Scenario.NetworkError
 ```
 
@@ -302,7 +301,7 @@ runDemo:
 TODO Demonstrate ZIO calculating the error types without an explicit annotation being provided
 
 ```scala mdoc
-runDemo: 
+runDemo:
   getTemperatureZ(Scenario.GPSError)
 ```
 
@@ -327,7 +326,7 @@ def displayTemperatureZWrapped(
         ZIO.succeed:
           "Network Unavailable"
       case ex: GpsException =>
-        ZIO.succeed: 
+        ZIO.succeed:
           "GPS problem"
 ```
 
@@ -353,8 +352,8 @@ def getTemperatureZGpsGap(
     .attempt:
       displayTemperature(behavior)
     .catchAll:
-       case ex: NetworkException =>
-         ZIO.succeed("Network Unavailable")
+      case ex: NetworkException =>
+        ZIO.succeed("Network Unavailable")
 ```
 
 ```scala mdoc
