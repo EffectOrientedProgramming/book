@@ -13,17 +13,15 @@ def sleepThenPrint(
 
 ```scala
 runDemo:
-  ZIO.foreach(Seq(2, 1)): 
-    i =>
-      sleepThenPrint(i.seconds)
+  ZIO.foreach(Seq(2, 1)): i =>
+    sleepThenPrint(i.seconds)
 // List(PT2S, PT1S)
 ```
 
 ```scala
 runDemo:
-  ZIO.foreachPar(Seq(2, 1)): 
-    i =>
-      sleepThenPrint(i.seconds)
+  ZIO.foreachPar(Seq(2, 1)): i =>
+    sleepThenPrint(i.seconds)
 // List(PT2S, PT1S)
 ```
 
@@ -41,9 +39,10 @@ runDemo:
         .run
     val total =
       durations.fold(Duration.Zero)(_ + _).render
-    Console.printLine:
-      total
-    .run
+    Console
+      .printLine:
+        total
+      .run
 // ()
 ```
 
@@ -53,9 +52,7 @@ runDemo:
 def slowFailableRandom(duration: Duration) =
   defer:
     val randInt =
-      Random
-        .nextIntBetween(0, 100)
-        .run
+      Random.nextIntBetween(0, 100).run
     ZIO.sleep(duration).run
     ZIO
       .when(randInt < 10)(
@@ -63,7 +60,7 @@ def slowFailableRandom(duration: Duration) =
       )
       .run
     duration
-    
+
 // Massive example
 runDemo:
   defer:
@@ -77,7 +74,7 @@ runDemo:
             )
         .run
     durations.fold(Duration.Zero)(_ + _).render
-// 15 m 2 s
+// 15 m 1 s
 ```
 
 ## Edit This Chapter

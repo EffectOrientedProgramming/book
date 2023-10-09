@@ -44,20 +44,22 @@ With ZIO you can use `zio-direct` to compose ZIOs sequentially with:
 ```scala
 // TODO Terrible example. Replace.
 defer:
-  val asdf = 
-    ZIO.succeed:
-      "asdf"
+  val asdf =
+    ZIO
+      .succeed:
+        "asdf"
+      .run
+  ZIO
+    .succeed:
+      asdf.toUpperCase
     .run
-  ZIO.succeed:
-    asdf.toUpperCase
-  .run
 // res0: ZIO[Any, Nothing, String] = OnSuccess(
 //   trace = "zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res0(03_Composability.md:8)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$15766/0x0000000103fc4840@87f7402
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14595/0x0000000103c36040@31338e1a
 //   ),
-//   successK = repl.MdocSession$MdocApp$$Lambda$16358/0x000000010427b040@5e1f473c
+//   successK = repl.MdocSession$MdocApp$$Lambda$15268/0x0000000103f34840@70f415cd
 // )
 ```
 
@@ -71,12 +73,14 @@ runDemo(
     .attempt("asdf")
     .catchAll { e =>
       defer:
-        ZIO.logError:
-          e.getMessage
-        .run
-        ZIO.succeed:
-          "default value"
-        .run
+        ZIO
+          .logError:
+            e.getMessage
+          .run
+        ZIO
+          .succeed:
+            "default value"
+          .run
     }
 )
 // asdf

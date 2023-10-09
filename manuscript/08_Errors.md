@@ -84,11 +84,10 @@ The previous code might be written in this style:
 ```scala
 runDemo:
   ZIO.attempt:
-   try
+    try
       throw Exception:
-              "Client connection lost"
-   finally
-     throw new Exception("Release Failed")
+        "Client connection lost"
+    finally throw new Exception("Release Failed")
 // java.lang.Exception: Release Failed
 ```
 
@@ -163,9 +162,9 @@ If we don't make any attempt to handle our problem, the whole program blows up a
 // Note - Can't make this output prettier/simpler because it's *not* using ZIO
 currentTemperatureUnsafe(Scenario.NetworkError)
 // repl.MdocSession$MdocApp$NetworkException
-// 	at repl.MdocSession$MdocApp.displayTemperature(08_Errors.md:75)
-// 	at repl.MdocSession$MdocApp.currentTemperatureUnsafe(08_Errors.md:85)
-// 	at repl.MdocSession$MdocApp.$init$$$anonfun$6(08_Errors.md:96)
+// 	at repl.MdocSession$MdocApp.displayTemperature(08_Errors.md:74)
+// 	at repl.MdocSession$MdocApp.currentTemperatureUnsafe(08_Errors.md:84)
+// 	at repl.MdocSession$MdocApp.$init$$$anonfun$6(08_Errors.md:95)
 ```
 
 We could take the bare-minimum approach of catching the `Exception` and returning `null`:
@@ -219,7 +218,7 @@ def currentTemperature(
     case ex: RuntimeException =>
       "Temperature Unavailable"
 
-currentTemperature: 
+currentTemperature:
   Scenario.NetworkError
 // res6: String = "Temperature Unavailable"
 ```
@@ -355,7 +354,7 @@ runDemo:
 TODO Demonstrate ZIO calculating the error types without an explicit annotation being provided
 
 ```scala
-runDemo: 
+runDemo:
   getTemperatureZ(Scenario.GPSError)
 // repl.MdocSession$MdocApp$GpsException
 ```
@@ -381,7 +380,7 @@ def displayTemperatureZWrapped(
         ZIO.succeed:
           "Network Unavailable"
       case ex: GpsException =>
-        ZIO.succeed: 
+        ZIO.succeed:
           "GPS problem"
 ```
 
@@ -409,8 +408,8 @@ def getTemperatureZGpsGap(
     .attempt:
       displayTemperature(behavior)
     .catchAll:
-       case ex: NetworkException =>
-         ZIO.succeed("Network Unavailable")
+      case ex: NetworkException =>
+        ZIO.succeed("Network Unavailable")
 ```
 
 ```scala

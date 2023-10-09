@@ -22,7 +22,7 @@ def sendMessage(msg: String) =
 
 ```scala
 sendMessage:
-  val name = "Alice"
+  val name     = "Alice"
   val greeting = "Hello"
   s"$greeting, $name"
 // Sent: Hello, Alice
@@ -36,10 +36,7 @@ However, when the function accepts:
 We use parentheses to group/collect/etc the arguments 
 
 ```scala
-multiply(
-  7,
-  6
-)
+multiply(7, 6)
 // res1: Int = 42
 ```
 
@@ -52,7 +49,7 @@ multiply:
   6
 // error:
 // A pure expression does nothing in statement position; you may be omitting necessary parentheses
-//       "Hello"
+//         "Hello"
 //      ^
 ```
 
@@ -71,12 +68,14 @@ VS
 ```scala
 runDemo:
   defer:
-    ZIO.debug:
-      "Hello"
-    .run
-    ZIO.debug:
-      "World"
-    .run
+    ZIO
+      .debug:
+        "Hello"
+      .run
+    ZIO
+      .debug:
+        "World"
+      .run
 // Hello
 // World
 // ()
