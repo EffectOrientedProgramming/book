@@ -155,6 +155,23 @@ case class Bread()
 ```
 
 ### Step 3: Effects can require multiple dependencies
+```scala mdoc
+object Bread:
+  val make: ZIO[Heat & Dough, Nothing, Bread] =
+    ZIO.succeed(Bread())
+
+  val storeBought: ZLayer[Any, Nothing, Bread] =
+    ZLayer.derive[Bread]
+
+  val homemade
+      : ZLayer[Heat & Dough, Nothing, Bread] =
+    ZLayer.fromZIO:
+      make
+
+  val eatBread: ZIO[Bread, Nothing, Unit] =
+    ZIO.unit
+```
+
 
 ```scala mdoc
 runDemo:
@@ -168,22 +185,6 @@ runDemo:
 
 // note: note all of the Bread vals are used right away
 //       Do we organize differently or just introduce the kinds of bread & bread actions
-
-```scala mdoc
-object Bread:
-  val make: ZIO[Heat & Dough, Nothing, Bread] =
-    ZIO.succeed(Bread())
-
-  val storeBought: ZLayer[Any, Nothing, Bread] =
-    ZLayer.derive[Bread]
-
-  val homemade
-      : ZLayer[Heat & Dough, Nothing, Bread] =
-    ZLayer.fromZIO(make)
-
-  val eatBread: ZIO[Bread, Nothing, Unit] =
-    ZIO.unit
-```
 
 ### Step 4: Dependencies can "automatically" assemble to fulfill the needs of an effect
 
@@ -204,7 +205,9 @@ runDemo:
 Dependencies of effects can have their own dependencies
 
 ```scala mdoc
-case class Toast()
+// Is it worth the complexity of making this private?
+// It would keep people from creating Toasts without using the make method
+case class Toast private ()
 
 object Toast:
   val make: ZIO[Heat & Bread, Nothing, Toast] =
