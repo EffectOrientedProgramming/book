@@ -97,14 +97,14 @@ Values to convey:
 # DI-Wow!
 ```scala mdoc:silent
 // Explain private constructor approach
-case class Dough private()
+case class Dough private ()
 
 object Dough:
-   val letRise: ZIO[Dough, Nothing, Unit] =
-     ZIO.debug("Dough is rising")
-     
-   val fresh: ZLayer[Any, Nothing, Dough] =
-      ZLayer.derive[Dough]
+  val letRise: ZIO[Dough, Nothing, Unit] =
+    ZIO.debug("Dough is rising")
+
+  val fresh: ZLayer[Any, Nothing, Dough] =
+    ZLayer.derive[Dough]
 ```
 
 ### Step 1: Effects can express dependencies
@@ -130,15 +130,17 @@ Then the effect can be run.
 
 ```scala mdoc
 runDemo:
-  Dough.letRise.provide:
-    Dough.fresh
+  Dough
+    .letRise
+    .provide:
+      Dough.fresh
 ```
 
 Note: not all the Heat vals are used right away
 Do we organize differently or just introduce the kinds of heats?
 
 ```scala mdoc
-case class Heat private()
+case class Heat private ()
 object Heat:
   val oven: ZLayer[Any, Nothing, Heat] =
     ZLayer.derive[Heat]
@@ -153,23 +155,29 @@ object Heat:
 
 ### Step 3: Effects can require multiple dependencies
 ```scala mdoc
-case class Bread private()
+// Restore private constructor after failure scenario is dialed in
+case class Bread()
 
 object Bread:
   val make: ZIO[Heat & Dough, Nothing, Bread] =
     ZIO.succeed(Bread())
 
-  // TODO Explain ZLayer.fromZIO in prose immediately before/after this
+  // TODO Explain ZLayer.fromZIO in prose
+  // immediately before/after this
   val homemade
-   : ZLayer[Heat & Dough, Nothing, Bread] =
-      ZLayer.fromZIO:
-              make
+      : ZLayer[Heat & Dough, Nothing, Bread] =
+    ZLayer.fromZIO:
+      make
 
   val storeBought: ZLayer[Any, Nothing, Bread] =
-       ZLayer.derive[Bread]
+    ZLayer.derive[Bread].debug("Buying Bread")
 
-  val eat: ZIO[Bread, Nothing, Unit] =
-    ZIO.debug("Eating bread!")
+  val eat: ZIO[Bread, Nothing, String] =
+    ZIO.succeed("Eating bread!")
+
+    /* defer:
+     * println("Eating bread!")
+     * ZIO.succeed(()).run */
 ```
 
 
@@ -194,7 +202,8 @@ runDemo:
   Bread
     .eat
     .provide(
-      // Highlight that homemade needs the other dependencies.
+      // Highlight that homemade needs the other
+      // dependencies.
       Bread.homemade,
       Dough.fresh,
       Heat.oven
@@ -263,42 +272,117 @@ runDemo:
 
 ### Step 8: Dependencies can fail
 
+```scala mdoc:invisible
+import zio.Runtime.default.unsafe
+object Bread2:
+  val invocations =
+    Unsafe.unsafe((u: Unsafe) =>
+      given Unsafe = u
+      unsafe
+        .run(Ref.make(0))
+        .getOrThrowFiberFailure()
+    )
+
+  def reset() =
+    Unsafe.unsafe((u: Unsafe) =>
+      given Unsafe = u
+      unsafe
+        .run(invocations.set(0))
+        .getOrThrowFiberFailure()
+    )
+
+  val forcedFailure: ZIO[Any, String, Bread] =
+    defer:
+      println("**Power out**")
+      ZIO
+        .when(true)(
+          ZIO.fail("**Power out Rez**")
+        )
+        .map(_ => ???)
+        .run
+      ZIO.succeed(Bread()).run
+
+  def attempt(
+      invocations: Ref[Int]
+  ): ZIO[Any, String, Bread] =
+    invocations
+      .updateAndGet(_ + 1)
+      .flatMap {
+        case cnt if cnt < 3 =>
+          forcedFailure
+//              ???
+        // Avoid manual Bread construction here
+        case _ =>
+          defer:
+            println("Power is on")
+            ZIO.succeed(Bread()).run
+      }
+
+  // Already constructed elsewhere, that we don't
+  // control
+  val fromFriend: ZLayer[Any, String, Bread] =
+    ZLayer.fromZIO:
+      Bread2.attempt(invocations)
+end Bread2
+```
+
+TODO Explain `.build` before using it to demo layer construction
+
 ```scala mdoc
-object Scenario:
-  // Convert to version that fails a certain number of times
-  //   Code lives in RetryLayers
-  // Then, using the same broken layer, we can either retry or fallback
-  val makeBreadWithBrokenOven =
-    Bread
-      .make
-      .provide(Dough.fresh, Heat.broken)
-
-
-  val failedBread =
-    ZLayer
-      .fromZIO:
-        Scenario.makeBreadWithBrokenOven
+Bread2.fromFriend
 ```
 
 ```scala mdoc
 runDemo:
-  Scenario.makeBreadWithBrokenOven
+  Bread.eat.provide(Bread2.fromFriend)
 ```
 
-### Step 9: On dependency failure, we can fallback
+```scala mdoc:invisible
+Bread2.reset()
+```
+
+### Step 9: Dependency Retries
 
 ```scala mdoc
 runDemo:
   val bread =
-    ZLayer
-      .fromZIO:
-        Scenario.makeBreadWithBrokenOven
+    Bread2.fromFriend.retry(Schedule.recurs(3))
+
+  Bread.eat.provide(bread)
+```
+
+### Step 10: Dependency Fallback
+
+```scala mdoc:invisible
+Bread2.reset()
+```
+
+```scala mdoc
+runDemo:
+  val bread =
+    Bread2
+      .fromFriend
       .orElse:
         Bread.storeBought
 
   Toast.make.provide(bread, Heat.toaster)
 ```
 
-### Step 10: Layer Retries?
+### Step 11: Layer Retry + Fallback?
 
-Maybe retry on the ZLayer (BreadDough.rancid, Heat.brokenFor10Seconds)
+Maybe retry on the ZLayer eg. (BreadDough.rancid, Heat.brokenFor10Seconds)
+
+```scala mdoc:invisible
+Bread2.reset()
+```
+
+```scala mdoc
+runDemo:
+  Bread2
+    .fromFriend
+    .retry(Schedule.recurs(1))
+    .orElse:
+      Bread.storeBought
+    .build
+    .debug
+```
