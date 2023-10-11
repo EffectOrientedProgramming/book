@@ -265,6 +265,9 @@ runDemo:
 
 ```scala mdoc
 object Scenario:
+  // Convert to version that fails a certain number of times
+  //   Code lives in RetryLayers
+  // Then, using the same broken layer, we can either retry or fallback
   val makeBreadWithBrokenOven =
     Bread
       .make
