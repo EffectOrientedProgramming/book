@@ -97,14 +97,14 @@ Values to convey:
 # DI-Wow!
 ```scala
 // Explain private constructor approach
-case class Dough private()
+case class Dough private ()
 
 object Dough:
-   val letRise: ZIO[Dough, Nothing, Unit] =
-     ZIO.debug("Dough is rising")
-     
-   val fresh: ZLayer[Any, Nothing, Dough] =
-      ZLayer.derive[Dough]
+  val letRise: ZIO[Dough, Nothing, Unit] =
+    ZIO.debug("Dough is rising")
+
+  val fresh: ZLayer[Any, Nothing, Dough] =
+    ZLayer.derive[Dough]
 ```
 
 ### Step 1: Effects can express dependencies
@@ -134,7 +134,7 @@ object LetDoughRiseNoDough extends ZIOAppDefault:
 // ──────────────────────────────────────────────────────────────────────
 // 
 // 
-//     ZLayer.fromZIO:
+//     defer:
 // ^
 ```
 
@@ -154,8 +154,8 @@ runDemo:
 // ──────────────────────────────────────────────────────────────────────
 // 
 // 
-//       Dough.fresh,
-//       ^
+//   Bread.eat.provide(bread)
+//             ^^^^^^^
 ```
 
 ### Step 2: Provide Dependencies to Effects
@@ -164,8 +164,10 @@ Then the effect can be run.
 
 ```scala
 runDemo:
-  Dough.letRise.provide:
-    Dough.fresh
+  Dough
+    .letRise
+    .provide:
+      Dough.fresh
 // Dough is rising
 // ()
 ```
@@ -174,7 +176,7 @@ Note: not all the Heat vals are used right away
 Do we organize differently or just introduce the kinds of heats?
 
 ```scala
-case class Heat private()
+case class Heat private ()
 object Heat:
   val oven: ZLayer[Any, Nothing, Heat] =
     ZLayer.derive[Heat]
@@ -189,23 +191,29 @@ object Heat:
 
 ### Step 3: Effects can require multiple dependencies
 ```scala
-case class Bread private()
+// Restore private constructor after failure scenario is dialed in
+case class Bread()
 
 object Bread:
   val make: ZIO[Heat & Dough, Nothing, Bread] =
     ZIO.succeed(Bread())
 
-  // TODO Explain ZLayer.fromZIO in prose immediately before/after this
+  // TODO Explain ZLayer.fromZIO in prose
+  // immediately before/after this
   val homemade
-   : ZLayer[Heat & Dough, Nothing, Bread] =
-      ZLayer.fromZIO:
-              make
+      : ZLayer[Heat & Dough, Nothing, Bread] =
+    ZLayer.fromZIO:
+      make
 
   val storeBought: ZLayer[Any, Nothing, Bread] =
-       ZLayer.derive[Bread]
+    ZLayer.derive[Bread].debug("Buying Bread")
 
-  val eat: ZIO[Bread, Nothing, Unit] =
-    ZIO.debug("Eating bread!")
+  val eat: ZIO[Bread, Nothing, String] =
+    ZIO.succeed("Eating bread!")
+
+    /* defer:
+     * println("Eating bread!")
+     * ZIO.succeed(()).run */
 ```
 
 
@@ -231,13 +239,13 @@ runDemo:
   Bread
     .eat
     .provide(
-      // Highlight that homemade needs the other dependencies.
+      // Highlight that homemade needs the other
+      // dependencies.
       Bread.homemade,
       Dough.fresh,
       Heat.oven
     )
 // Eating bread!
-// ()
 ```
 
 Dependencies of effects can have their own dependencies
@@ -270,7 +278,6 @@ runDemo:
       Dough.fresh,
       Heat.oven
     )
-// Making toast: Toast()
 // Toast()
 ```
 
@@ -320,47 +327,73 @@ runDemo:
 
 ### Step 8: Dependencies can fail
 
+
+TODO Explain `.build` before using it to demo layer construction
+
 ```scala
-object Scenario:
-  // Convert to version that fails a certain number of times
-  //   Code lives in RetryLayers
-  // Then, using the same broken layer, we can either retry or fallback
-  val makeBreadWithBrokenOven =
-    Bread
-      .make
-      .provide(Dough.fresh, Heat.broken)
-
-
-  val failedBread =
-    ZLayer
-      .fromZIO:
-        Scenario.makeBreadWithBrokenOven
+Bread2.fromFriend
+// res8: ZLayer[Any, String, Bread] = Suspend(
+//   self = zio.ZLayer$$$Lambda$14575/0x0000000103cc5840@597305f0
+// )
 ```
 
 ```scala
 runDemo:
-  Scenario.makeBreadWithBrokenOven
-// **Power Out**
+  Bread.eat.provide(Bread2.fromFriend)
+// **Power out**
+// **Power out Rez**
 ```
 
-### Step 9: On dependency failure, we can fallback
+
+### Step 9: Dependency Retries
 
 ```scala
 runDemo:
   val bread =
-    ZLayer
-      .fromZIO:
-        Scenario.makeBreadWithBrokenOven
+    Bread2.fromFriend.retry(Schedule.recurs(3))
+
+  Bread.eat.provide(bread)
+// **Power out**
+// **Power out**
+// Power is on
+// Eating bread!
+```
+
+### Step 10: Dependency Fallback
+
+
+```scala
+runDemo:
+  val bread =
+    Bread2
+      .fromFriend
       .orElse:
         Bread.storeBought
 
   Toast.make.provide(bread, Heat.toaster)
+// **Power out**
 // Toast()
 ```
 
-### Step 10: Layer Retries?
+### Step 11: Layer Retry + Fallback?
 
-Maybe retry on the ZLayer (BreadDough.rancid, Heat.brokenFor10Seconds)
+Maybe retry on the ZLayer eg. (BreadDough.rancid, Heat.brokenFor10Seconds)
+
+
+```scala
+runDemo:
+  Bread2
+    .fromFriend
+    .retry(Schedule.recurs(1))
+    .orElse:
+      Bread.storeBought
+    .build
+    .debug
+// **Power out**
+// **Power out**
+// ZEnvironment(MdocSession::MdocApp::Bread -> Br
+```
+
 
 ## Edit This Chapter
 [Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/04_Dependency_Injection.md)
@@ -432,57 +465,6 @@ object Wow extends ZIOAppDefault:
       acquireReleaseDebug(C()),
       d
     )
-
-```
-
-
-### experiments/src/main/scala/dependency_injection/RetryLayers.scala
-```scala
-package dependency_injection
-
-import zio.Runtime.default.unsafe
-
-case class Heat()
-object Heat:
-  val invocations =
-    Unsafe.unsafe((u: Unsafe) =>
-      given Unsafe = u
-      unsafe
-        .run(Ref.make(0))
-        .getOrThrowFiberFailure()
-    )
-
-  def attempt(
-      invocations: Ref[Int]
-  ): ZIO[Any, String, Heat] =
-    invocations
-      .updateAndGet(_ + 1)
-      .flatMap {
-        case cnt if cnt < 3 =>
-          ZIO.fail("Power is still out").debug
-        case _ =>
-          ZIO
-            .succeed(Heat())
-            .debug("Power is back on")
-      }
-
-  // Already constructed elsewhere, that we don't
-  // control
-  val spotty =
-    ZLayer.fromZIO(
-      defer:
-        Heat.attempt(invocations).run
-    )
-end Heat
-
-object BustedLayer extends ZIOAppDefault:
-
-  def run = Heat.spotty.build
-
-object RetryLayer extends ZIOAppDefault:
-
-  def run =
-    Heat.spotty.retry(Schedule.recurs(3)).build
 
 ```
 
