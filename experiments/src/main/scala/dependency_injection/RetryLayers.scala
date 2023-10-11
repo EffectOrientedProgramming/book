@@ -23,7 +23,13 @@ object Heat:
       Heat.attempt(invocations).run
   )
 
-object RetryLayers extends ZIOAppDefault:
+object BustedLayer extends ZIOAppDefault:
+
+  def run =
+    Heat.spotty
+      .build
+
+object RetryLayer extends ZIOAppDefault:
 
   def run =
       Heat.spotty
