@@ -51,8 +51,8 @@ lazy val unreliableCounting =
 
   defer:
     ZIO
-      .foreachParDiscard(Range(0, 100000)):
-        _ => increment
+      .foreachParDiscard(Range(0, 100000)): _ =>
+        increment
       .run
     "Final count: " + ZIO.succeed(counter).run
 
@@ -82,9 +82,9 @@ lazy val reliableCounting =
   defer:
     val counter = Ref.make(0).run
     ZIO
-      .foreachParDiscard(Range(0, 100000)):
-        _ => incrementCounter:
-               counter
+      .foreachParDiscard(Range(0, 100000)): _ =>
+        incrementCounter:
+          counter
       .run
     "Final count: " + counter.get.run
 
@@ -114,18 +114,17 @@ def sendNotification() =
 
 ```scala mdoc
 def update(counter: Ref[Int]) =
-  counter.update:
-    previousValue =>
-      expensiveCalculation()
-      sendNotification()
-      previousValue + 1
+  counter.update: previousValue =>
+    expensiveCalculation()
+    sendNotification()
+    previousValue + 1
 
 runDemo:
   defer:
     val counter = Ref.make(0).run
     ZIO
-      .foreachParDiscard(Range(0, 4)):
-        _ => update(counter)
+      .foreachParDiscard(Range(0, 4)): _ =>
+        update(counter)
       .run
     "Final count: " + counter.get.run
 ```
@@ -157,13 +156,11 @@ lazy val sideEffectingUpdatesSync =
   defer:
     val counter = Ref.Synchronized.make(0).run
     ZIO
-      .foreachParDiscard(Range(0, 4)):
-        _ =>
-          counter.update:
-            previousValue =>
-              expensiveCalculation()
-              sendNotification()
-              previousValue + 1
+      .foreachParDiscard(Range(0, 4)): _ =>
+        counter.update: previousValue =>
+          expensiveCalculation()
+          sendNotification()
+          previousValue + 1
       .run
     "Final count: " + counter.get.run
 

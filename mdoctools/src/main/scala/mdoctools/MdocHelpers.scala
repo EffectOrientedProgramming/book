@@ -3,14 +3,16 @@ package mdoctools
 import zio.Runtime.default.unsafe
 
 // Consider crashing if output is unexpectedly long
-def runDemo[E, A](z: => ZIO[Any, E, A]): Unit =
+def runDemo[E, A](z: => ZIO[Scope, E, A]): Unit =
   Unsafe.unsafe { (u: Unsafe) =>
     given Unsafe = u
     val res =
       unsafe
         .run(
           Rendering
-            .renderEveryPossibleOutcomeZio(z)
+            .renderEveryPossibleOutcomeZio(
+              z.provide(Scope.default)
+            )
             .withConsole(OurConsole)
         )
         .getOrThrowFiberFailure()
@@ -22,7 +24,7 @@ def runDemo[E, A](z: => ZIO[Any, E, A]): Unit =
 import zio.System
 import zio.test.*
 
-def runSpec(x: ZIO[Any, Nothing, TestResult]) =
+def runSpec(x: ZIO[Scope, Nothing, TestResult]) =
 
   val liveEnvironment: Layer[
     Nothing,

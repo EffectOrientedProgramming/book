@@ -22,10 +22,9 @@ def sendMessage(msg: String) =
 
 ```scala mdoc
 sendMessage:
-  val name = "Alice"
+  val name     = "Alice"
   val greeting = "Hello"
   s"$greeting, $name"
-
 ```
 
 However, when the function accepts:
@@ -35,15 +34,11 @@ However, when the function accepts:
 
 We use parentheses to group/collect/etc the arguments 
 ```scala mdoc:invisible
-def multiply(x: Int, y: Int) =
-  x * y
+def multiply(x: Int, y: Int) = x * y
 ```
 
 ```scala mdoc
-multiply(
-  7,
-  6
-)
+multiply(7, 6)
 ```
 
 This is necessary, because the alternative would just be evaluated as one block.
@@ -67,10 +62,12 @@ VS
 ```scala mdoc
 runDemo:
   defer:
-    ZIO.debug:
-      "Hello"
-    .run
-    ZIO.debug:
-      "World"
-    .run
+    ZIO
+      .debug:
+        "Hello"
+      .run
+    ZIO
+      .debug:
+        "World"
+      .run
 ```
