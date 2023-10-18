@@ -2,15 +2,16 @@
 
 ## Bill
 
-## How to Wow
-- Successful, moderately complex application startup
-- Compilation errors whenever something is missing or conflicting in the dependency graph
-- Demonstrate runtime errors during application startup
-- Swap out implementations for testing
+Cognira - Distributed Systems
+Atlanta November 9th
+Scala Spark
+Data Modelling for distributed systems
+Axon
 
-With ZIO's approach to dependencies, you get all the desirable characteristics at compile-time, using standard language features.
+With ZIO's approach to dependencies, you get many desirable characteristics at compile-time, using standard language features.
 Your services are defined as classes with constructor arguments, just as in any vanilla Scala application.
 No annotations that kick off impenetrable wiring logic outside your normal code.
+
 For any given service in your application, you define what it needs in order to execute.
 Finally, when it is time to build your application, all of these pieces can be provided in one, flat space.
 Each component will automatically find its dependencies, and make itself available to other components that need it.
@@ -21,7 +22,8 @@ You can also do things that simply are not possible in other approaches, such as
 
 ## James
 
-One reason to modularize an application into "parts" is so that when those parts need other "parts", the relationship between the parts can be expressed in some way and then also changed depending on the needs for a given execution path.  Typically, this approach to breaking things into parts and expressing the other parts needed by each part, is called "Dependency Injection."
+One reason to modularize an application into "parts" is so that when those parts need other "parts", the relationship between the parts can be expressed in some way and then also changed depending on the needs for a given execution path.  
+Typically, this approach to breaking things into parts and expressing the other parts needed by each part, is called "Dependency Injection."
 
 ... Why is it called "Dependency Injection" ?
 Avoid having to explicitly pass things down the call chain.
@@ -46,14 +48,18 @@ def getUserAccounts(user: User) = {
 }
 ```
 
-The non-magic, yet magical part of this is that to use `getUserAccounts` you have to provide the dependencies somewhere in the call chain.  Let's say you try calling `getUserAccounts` directly in an application:
+The non-magic, yet magical part of this is that to use `getUserAccounts` you have to provide the dependencies somewhere in the call chain.  
+Let's say you try calling `getUserAccounts` directly in an application:
 ```scala
 runDemo {
   getUserAccounts(User(1))
 }
 ```
 
-This results in a compile error because the required dependencies for calling `getUserAccounts` have not been satisfied anywhere in the call chain.  Similarly, if you try to call this from a test, it will also result in a compile error.  Dependencies must be fulfilled somewhere.  So you may provide the dependencies using "live" dependencies which do the real / production behavior, like:
+This results in a compile error because the required dependencies for calling `getUserAccounts` have not been satisfied anywhere in the call chain.  
+Similarly, if you try to call this from a test, it will also result in a compile error. 
+Dependencies must be fulfilled somewhere.  
+So you may provide the dependencies using "live" dependencies which do the real / production behavior, like:
 ```scala
 runDemo {
   getUserAccounts(User(1))
@@ -95,6 +101,7 @@ Values to convey:
 
 
 # DI-Wow!
+- TODO Decide where/how to demo test implementations
 ```scala mdoc:silent
 // Explain private constructor approach
 case class Dough private ()
@@ -138,6 +145,8 @@ runDemo:
 
 Note: not all the Heat vals are used right away
 Do we organize differently or just introduce the kinds of heats?
+For code organization, and legibility at call sites, we are defining several layers within the `Heat` companion object.
+They will all be used soon.
 
 ```scala mdoc
 case class Heat private ()
@@ -210,8 +219,10 @@ runDemo:
     )
 ```
 
-Dependencies of effects can have their own dependencies
 
+### Step 5: Different effects can require the same dependency
+Eventually, we grow tired of eating plain `Bread` and decide to start making `Toast`.
+Both of these processes require `Heat`.
 ```scala mdoc
 // Is it worth the complexity of making this private?
 // It would keep people from creating Toasts without using the make method
@@ -222,13 +233,13 @@ object Toast:
     ZIO.succeed(Toast()).debug("Making toast")
 ```
 
-### Step 5: Different effects can require the same dependency
+It is possible to also use the oven to provide `Heat` to make the `Toast`.
 
 The dependencies are based on the type, so in this case both
-Toast.make and Bread.make require heat, but we likely do not want to
-use the oven for both making bread and toast
+Toast.make and Bread.make require heat, but 
 
-Even though we provide the same dependencies in this example, Heat.oven is _also_ required by Toast.make
+
+Notice - Even though we provide the same dependencies in this example, Heat.oven is _also_ required by Toast.make
 ```scala mdoc
 runDemo:
   Toast
@@ -242,9 +253,10 @@ runDemo:
     )
 ```
 
-### Step 6: Dependencies are based on types and must be uniquely provided
+However, the oven uses a lot of energy to make `Toast`.
+It would be great if we can instead use our dedicated toaster!
 
-Heat can't be provided twice.
+### Step 6: Dependencies are based on types and must be uniquely provided
 
 ```scala mdoc:fail
 runDemo:
@@ -257,6 +269,8 @@ runDemo:
       Heat.toaster
     )
 ```
+Unfortunately our program is now ambiguous.
+It cannot decide if we should be making `Toast` in the oven, `Bread` in the toaster, or any other combination.
 
 ### Step 7: Providing Dependencies at Different Levels
 This enables other effects that use them to provide their own dependencies of the same type
