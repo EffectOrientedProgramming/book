@@ -1,5 +1,8 @@
 # Layers
 
+1. Creating
+1. Composing
+
 Managing and wiring dependencies has been a perennial challenge in software development.
 
 ZIO provides the `ZLayer` class to solve many of the problems in this space.

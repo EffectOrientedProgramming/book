@@ -1,5 +1,8 @@
 # Concurrency Low Level
 
+1. Fork join
+1. Throwaway reference to STM
+
 TODO Prose
 ```scala mdoc
 def sleepThenPrint(

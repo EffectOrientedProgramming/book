@@ -1,5 +1,10 @@
 # Errors
 
+1. Creating & Handling
+1. Error composability
+1. Cause
+1. Retry
+
 `Cause` will track all errors originating from a single call in an application, regardless of concurrency and parallelism.
 
 ```scala mdoc:silent

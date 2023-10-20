@@ -1,5 +1,9 @@
 # Dependency Injection
 
+1. Application startup uses the same tools that you utilize for the rest of your application
+1. App vs Test
+1. Composability
+
 ## Bill
 
 Cognira - Distributed Systems

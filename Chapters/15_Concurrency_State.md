@@ -1,5 +1,8 @@
 # Concurrency State
 
+1. Ref
+1. Thundering Herds
+
 Functional programmers often sing the praises of immutability.
 The advantages are real and numerous.
 However, it is easy to find situations that are intrinsically mutable.

@@ -1,5 +1,13 @@
 # Composability
 
+1. But Functions & Specialized Data Types Don't Compose for Effects
+  1. Composability
+    1. Limitations of Functions & SDTs
+    1. Some intro to Universal Effect Data Types ie ZIO
+    1. The ways in which ZIOs compose (contrasted to limitations)
+    1. Note: Merge chapters: composability, Unit, The_ZIO_Type
+    1. Note: Avoid explicit anonymous sum & product types at this point
+
 Other framings/techniques and their pros/cons:
 - Plain functions that throw Exceptions
   - We can't union these error possibilities and track them in the type system

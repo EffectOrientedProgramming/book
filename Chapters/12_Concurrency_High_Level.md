@@ -1,5 +1,7 @@
 # Concurrency High Level
 
+1. forEachPar, collectAllPar
+
 TODO Prose
 ```scala mdoc
 def sleepThenPrint(

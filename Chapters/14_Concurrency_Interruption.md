@@ -1,5 +1,7 @@
 # Concurrency Interruption
 
+1. Timeout
+1. Race
 
 ```scala mdoc
 // This is duplicate code
