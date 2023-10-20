@@ -115,7 +115,9 @@ object Dough:
     ZIO.debug("Dough is rising")
 
   val fresh: ZLayer[Any, Nothing, Dough] =
-    ZLayer.derive[Dough].tap( _ => ZIO.succeed(println("Making Fresh Dough")))
+    ZLayer
+      .derive[Dough]
+      .tapWithMessage("Making Fresh Dough")
 ```
 
 ### Step 1: Effects can express dependencies
@@ -154,13 +156,20 @@ They will all be used soon.
 case class Heat private ()
 object Heat:
   val oven: ZLayer[Any, Nothing, Heat] =
-    ZLayer.derive[Heat].tap( _ => ZIO.succeed(println("Heating Oven")))
+    ZLayer
+      .derive[Heat]
+      .tapWithMessage:
+        "Heating Oven"
 
   val toaster: ZLayer[Any, Nothing, Heat] =
-    ZLayer.derive[Heat]
+    ZLayer
+      .derive[Heat]
+      .tapWithMessage:
+        "Heating Toaster"
 
   val broken: ZLayer[Any, String, Nothing] =
-    ZLayer.fail("**Power Out**")
+    ZLayer.fail:
+      "**Power Out**"
 ```
 
 
@@ -171,26 +180,33 @@ case class Bread()
 
 object Bread:
   val make: ZIO[Heat & Dough, Nothing, Bread] =
-    ZIO.succeed(Bread())
+    ZIO.succeed:
+      Bread()
 
   // TODO Explain ZLayer.fromZIO in prose
   // immediately before/after this
   val homemade
       : ZLayer[Heat & Dough, Nothing, Bread] =
-    ZLayer.fromZIO:
-      make
-    .tap( _ => ZIO.succeed(println("Making Homemade Bread")))
+    ZLayer
+      .fromZIO:
+        make
+      .tapWithMessage:
+        "Making Homemade Bread"
 
   val storeBought: ZLayer[Any, Nothing, Bread] =
-    ZLayer.derive[Bread]
-      .tap( _ => ZIO.succeed(println("Buying Bread")))
+    ZLayer
+      .derive[Bread]
+      .tapWithMessage:
+        "Buying Bread"
 
   val eat: ZIO[Bread, Nothing, String] =
-    ZIO.succeed("Eating bread!")
+    ZIO.succeed:
+      "Eating bread!"
 
     /* defer:
      * println("Eating bread!")
      * ZIO.succeed(()).run */
+end Bread
 ```
 
 
@@ -236,7 +252,8 @@ case class Toast private ()
 object Toast:
   val make: ZIO[Heat & Bread, Nothing, Toast] =
     ZIO.succeed:
-      println("Making toast")
+      println:
+        "Making toast"
       Toast()
 ```
 
@@ -348,13 +365,16 @@ end Bread2
 
 TODO Explain `.build` before using it to demo layer construction
 
-```scala mdoc
-Bread2.fromFriend
+```scala mdoc:silent
+Bread2.fromFriend: ZLayer[Any, String, Bread]
 ```
 
 ```scala mdoc
 runDemo:
-  Bread.eat.provide(Bread2.fromFriend)
+  Bread
+    .eat
+    .provide:
+      Bread2.fromFriend
 ```
 
 ```scala mdoc:invisible
@@ -366,9 +386,16 @@ Bread2.reset()
 ```scala mdoc
 runDemo:
   val bread =
-    Bread2.fromFriend.retry(Schedule.recurs(3))
+    Bread2
+      .fromFriend
+      .retry:
+        Schedule.recurs:
+          3
 
-  Bread.eat.provide(bread)
+  Bread
+    .eat
+    .provide:
+      bread
 ```
 
 ### Step 10: Dependency Fallback
@@ -400,7 +427,9 @@ Bread2.reset()
 runDemo:
   Bread2
     .fromFriend
-    .retry(Schedule.recurs(1))
+    .retry:
+      Schedule.recurs:
+        1
     .orElse:
       Bread.storeBought
     .build // TODO Stop using build, if possible
