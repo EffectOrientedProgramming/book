@@ -111,7 +111,7 @@ object Dough:
     ZIO.debug("Dough is rising")
 
   val fresh: ZLayer[Any, Nothing, Dough] =
-    ZLayer.derive[Dough]
+    ZLayer.derive[Dough].tap( _ => ZIO.succeed(println("Making Fresh Dough")))
 ```
 
 ### Step 1: Effects can express dependencies
@@ -161,8 +161,8 @@ runDemo:
 // ──────────────────────────────────────────────────────────────────────
 // 
 // 
-//   Bread.eat.provide(bread)
-//             ^^^^^^^
+//       Dough.fresh,
+//       ^
 ```
 
 ### Step 2: Provide Dependencies to Effects
@@ -175,12 +175,11 @@ runDemo:
     .letRise
     .provide:
       Dough.fresh
+// Making Fresh Dough
 // Dough is rising
 // ()
 ```
 
-Note: not all the Heat vals are used right away
-Do we organize differently or just introduce the kinds of heats?
 For code organization, and legibility at call sites, we are defining several layers within the `Heat` companion object.
 They will all be used soon.
 
@@ -188,7 +187,7 @@ They will all be used soon.
 case class Heat private ()
 object Heat:
   val oven: ZLayer[Any, Nothing, Heat] =
-    ZLayer.derive[Heat]
+    ZLayer.derive[Heat].tap( _ => ZIO.succeed(println("Heating Oven")))
 
   val toaster: ZLayer[Any, Nothing, Heat] =
     ZLayer.derive[Heat]
@@ -213,9 +212,11 @@ object Bread:
       : ZLayer[Heat & Dough, Nothing, Bread] =
     ZLayer.fromZIO:
       make
+    .tap( _ => ZIO.succeed(println("Making Homemade Bread")))
 
   val storeBought: ZLayer[Any, Nothing, Bread] =
-    ZLayer.derive[Bread].debug("Buying Bread")
+    ZLayer.derive[Bread]
+      .tap( _ => ZIO.succeed(println("Buying Bread")))
 
   val eat: ZIO[Bread, Nothing, String] =
     ZIO.succeed("Eating bread!")
@@ -229,6 +230,8 @@ object Bread:
 ```scala
 runDemo:
   Bread.make.provide(Dough.fresh, Heat.oven)
+// Heating Oven
+// Making Fresh Dough
 // Bread()
 ```
 
@@ -254,6 +257,9 @@ runDemo:
       Dough.fresh,
       Heat.oven
     )
+// Making Fresh Dough
+// Heating Oven
+// Making Homemade Bread
 // Eating bread!
 ```
 
@@ -268,7 +274,9 @@ case class Toast private ()
 
 object Toast:
   val make: ZIO[Heat & Bread, Nothing, Toast] =
-    ZIO.succeed(Toast()).debug("Making toast")
+    ZIO.succeed:
+      println("Making toast")
+      Toast()
 ```
 
 It is possible to also use the oven to provide `Heat` to make the `Toast`.
@@ -289,6 +297,10 @@ runDemo:
       Dough.fresh,
       Heat.oven
     )
+// Heating Oven
+// Making Fresh Dough
+// Making Homemade Bread
+// Making toast
 // Toast()
 ```
 
@@ -336,6 +348,9 @@ runDemo:
       Bread.make.provide(Dough.fresh, Heat.oven)
 
   Toast.make.provide(bread, Heat.toaster)
+// Heating Oven
+// Making Fresh Dough
+// Making toast
 // Toast()
 ```
 
@@ -347,7 +362,7 @@ TODO Explain `.build` before using it to demo layer construction
 ```scala
 Bread2.fromFriend
 // res8: ZLayer[Any, String, Bread] = Suspend(
-//   self = zio.ZLayer$$$Lambda$14638/0x0000000103d1f040@6680321e
+//   self = zio.ZLayer$$$Lambda$14618/0x0000000103c5a440@2504d26
 // )
 ```
 
@@ -386,6 +401,8 @@ runDemo:
 
   Toast.make.provide(bread, Heat.toaster)
 // **Power out**
+// Buying Bread
+// Making toast
 // Toast()
 ```
 
@@ -401,10 +418,11 @@ runDemo:
     .retry(Schedule.recurs(1))
     .orElse:
       Bread.storeBought
-    .build
+    .build // TODO Stop using build, if possible
     .debug
 // **Power out**
 // **Power out**
+// Buying Bread
 // ZEnvironment(MdocSession::MdocApp::Bread -> Br
 ```
 
