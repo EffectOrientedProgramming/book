@@ -4,7 +4,12 @@ Notes:
 - First 4 chapters are about the why - bring the wow.
 - Chapters 5 on are about the how.
 
+1. Preface
+    1. Who the book is for
+    1. Code examples
+1. What are Effects
 1. Superpowers with Effects
+    1. The superpowers are the strategies to deal with unpredictability 
     1. OpeningHook (1-6)
         1. Note: Progressive enhancement through adding capabilities 
     1. Concurrency
