@@ -111,7 +111,7 @@ object Dough:
     ZIO.debug("Dough is rising")
 
   val fresh: ZLayer[Any, Nothing, Dough] =
-    ZLayer.derive[Dough]
+    ZLayer.derive[Dough].tap( _ => ZIO.succeed(println("Making Fresh Dough")))
 ```
 
 ### Step 1: Effects can express dependencies
@@ -143,8 +143,6 @@ runDemo:
       Dough.fresh
 ```
 
-Note: not all the Heat vals are used right away
-Do we organize differently or just introduce the kinds of heats?
 For code organization, and legibility at call sites, we are defining several layers within the `Heat` companion object.
 They will all be used soon.
 
@@ -152,7 +150,7 @@ They will all be used soon.
 case class Heat private ()
 object Heat:
   val oven: ZLayer[Any, Nothing, Heat] =
-    ZLayer.derive[Heat]
+    ZLayer.derive[Heat].tap( _ => ZIO.succeed(println("Heating Oven")))
 
   val toaster: ZLayer[Any, Nothing, Heat] =
     ZLayer.derive[Heat]
@@ -177,9 +175,11 @@ object Bread:
       : ZLayer[Heat & Dough, Nothing, Bread] =
     ZLayer.fromZIO:
       make
+    .tap( _ => ZIO.succeed(println("Making Homemade Bread")))
 
   val storeBought: ZLayer[Any, Nothing, Bread] =
-    ZLayer.derive[Bread].debug("Buying Bread")
+    ZLayer.derive[Bread]
+      .tap( _ => ZIO.succeed(println("Buying Bread")))
 
   val eat: ZIO[Bread, Nothing, String] =
     ZIO.succeed("Eating bread!")
@@ -230,7 +230,9 @@ case class Toast private ()
 
 object Toast:
   val make: ZIO[Heat & Bread, Nothing, Toast] =
-    ZIO.succeed(Toast()).debug("Making toast")
+    ZIO.succeed:
+      println("Making toast")
+      Toast()
 ```
 
 It is possible to also use the oven to provide `Heat` to make the `Toast`.
@@ -397,6 +399,6 @@ runDemo:
     .retry(Schedule.recurs(1))
     .orElse:
       Bread.storeBought
-    .build
+    .build // TODO Stop using build, if possible
     .debug
 ```
