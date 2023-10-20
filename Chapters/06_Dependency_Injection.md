@@ -104,7 +104,7 @@ Values to convey:
    - Layers can have setup & teardown (open & close)
 
 
-# DI-Wow!
+## DI-Wow!
 - TODO Decide where/how to demo test implementations
 ```scala mdoc:silent
 // Explain private constructor approach
@@ -227,6 +227,7 @@ runDemo:
 ### Step 5: Different effects can require the same dependency
 Eventually, we grow tired of eating plain `Bread` and decide to start making `Toast`.
 Both of these processes require `Heat`.
+
 ```scala mdoc
 // Is it worth the complexity of making this private?
 // It would keep people from creating Toasts without using the make method
@@ -242,17 +243,16 @@ object Toast:
 It is possible to also use the oven to provide `Heat` to make the `Toast`.
 
 The dependencies are based on the type, so in this case both
-Toast.make and Bread.make require heat, but 
+`Toast.make` and `Bread.make` require heat, but 
 
 
-Notice - Even though we provide the same dependencies in this example, Heat.oven is _also_ required by Toast.make
+Notice - Even though we provide the same dependencies in this example, Heat.oven is _also_ required by `Toast.make`
+
 ```scala mdoc
 runDemo:
   Toast
     .make
     .provide(
-      // effects can require & provide
-      // dependencies
       Bread.homemade,
       Dough.fresh,
       Heat.oven
