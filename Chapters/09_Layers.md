@@ -1,4 +1,7 @@
-# Managing Dependencies
+# Layers
+
+1. Creating
+1. Composing
 
 Managing and wiring dependencies has been a perennial challenge in software development.
 

@@ -1,5 +1,7 @@
 # Resources
 
+1. Open / Close around an Effect
+
 Resources are finite / large overhead allocatable pools of things:
  - Connections
  - File handles
