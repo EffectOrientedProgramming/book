@@ -61,7 +61,7 @@ lazy val unreliableCounting =
 
 runDemo:
   unreliableCounting
-// Final count: 99889
+// Final count: 99922
 ```
 
 Due to the unpredictable nature of shared mutable state, we do not know exactly what the final count above is.

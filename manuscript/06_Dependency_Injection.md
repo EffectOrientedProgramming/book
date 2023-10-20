@@ -104,7 +104,7 @@ Values to convey:
    - Layers can have setup & teardown (open & close)
 
 
-# DI-Wow!
+## DI-Wow!
 - TODO Decide where/how to demo test implementations
 ```scala
 // Explain private constructor approach
@@ -234,8 +234,8 @@ object Bread:
 ```scala
 runDemo:
   Bread.make.provide(Dough.fresh, Heat.oven)
-// Heating Oven
 // Making Fresh Dough
+// Heating Oven
 // Bread()
 ```
 
@@ -271,6 +271,7 @@ runDemo:
 ### Step 5: Different effects can require the same dependency
 Eventually, we grow tired of eating plain `Bread` and decide to start making `Toast`.
 Both of these processes require `Heat`.
+
 ```scala
 // Is it worth the complexity of making this private?
 // It would keep people from creating Toasts without using the make method
@@ -286,17 +287,16 @@ object Toast:
 It is possible to also use the oven to provide `Heat` to make the `Toast`.
 
 The dependencies are based on the type, so in this case both
-Toast.make and Bread.make require heat, but 
+`Toast.make` and `Bread.make` require heat, but 
 
 
-Notice - Even though we provide the same dependencies in this example, Heat.oven is _also_ required by Toast.make
+Notice - Even though we provide the same dependencies in this example, Heat.oven is _also_ required by `Toast.make`
+
 ```scala
 runDemo:
   Toast
     .make
     .provide(
-      // effects can require & provide
-      // dependencies
       Bread.homemade,
       Dough.fresh,
       Heat.oven
@@ -352,8 +352,8 @@ runDemo:
       Bread.make.provide(Dough.fresh, Heat.oven)
 
   Toast.make.provide(bread, Heat.toaster)
-// Heating Oven
 // Making Fresh Dough
+// Heating Oven
 // Making toast
 // Toast()
 ```
@@ -366,7 +366,7 @@ TODO Explain `.build` before using it to demo layer construction
 ```scala
 Bread2.fromFriend
 // res8: ZLayer[Any, String, Bread] = Suspend(
-//   self = zio.ZLayer$$$Lambda$14670/0x0000000103d5fc40@618c24b6
+//   self = zio.ZLayer$$$Lambda$14680/0x0000000103cd1840@6012d01
 // )
 ```
 
