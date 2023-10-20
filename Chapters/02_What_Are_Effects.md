@@ -20,10 +20,23 @@ These programs are unpredictable because the programmer has no control over what
 
 Effect Oriented systems allow us to apply strategies to mitigate the unpredictability of using external systems.
 
-Effects can not be un-done.
+### Effects can not be un-done.
 
 Once a program has communicated with an external system, (i.e. executed an Effect), everything that happens on that external systems is out of the program's control.
 
 (analogies on human communication)
+Imagine that a friend recently stayed in your home.
+3 days after they leave, you realize that you are missing some money that had been stored in the guestroom.
+Now you have a dilemma - do you ask them if they took the money?
+Simply by asking, you could permanently change, or even end, your relationship with this person.
+They could immediately admit fault, and ask for forgiveness.
+Now you know that they are capable of stealing from you - will you ever trust them in your home again?
+They could angrily deny the accusation, and resent you for making it.
+Or the conversation could go in a million different other ways that are impossible to predict.
+We know one thing for certain - you will never be able to un-ask that question.
+Even if you ultimately grow closer with this person after navigating this situation, you can't go back to a world where you never asked. 
+Regardless of any apology and forgiveness, your relationship is now different.
+
+
 
 The Effect is not what happens on the external system because there is no way to know the actual impact of what the program caused by the communication.
