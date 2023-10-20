@@ -1,4 +1,4 @@
-# Cause TODO Consider putting inside error handling
+# Errors
 
 `Cause` will track all errors originating from a single call in an application, regardless of concurrency and parallelism.
 

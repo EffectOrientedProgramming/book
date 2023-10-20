@@ -1,4 +1,4 @@
-# Concurrency - Interruption
+# Concurrency Interruption
 
 
 ```scala mdoc

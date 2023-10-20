@@ -1,4 +1,4 @@
-# Managing Dependencies
+# Layers
 
 Managing and wiring dependencies has been a perennial challenge in software development.
 
