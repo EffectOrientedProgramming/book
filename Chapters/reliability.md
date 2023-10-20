@@ -216,3 +216,5 @@ As long as this book is cited, using examples from the book in most media is gen
 Kit Langton, for being a kindred spirit in software interests and inspiring contributor to the open source world.
 
 Wyett Considine, for being an enthusiastic intern and initial audience.
+
+Hali Frasure, for hundreds of dinners and facilitating our book nights generally.

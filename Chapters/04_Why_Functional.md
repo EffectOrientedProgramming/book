@@ -1,4 +1,7 @@
-# Why Functional?
+# Why Functional
+
+1. Functions & Specialized Data Types Are Great
+  1. Why Functional
 
 > In your journey to this book, you have undoubtedly learned at least one way to think about programming, and possibly several.
 
