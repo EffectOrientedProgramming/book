@@ -148,12 +148,7 @@ end Bread
 
 ```scala mdoc
 runDemo:
-  Bread
-     .make
-     .provide(
-        Dough.fresh, 
-        Heat.oven
-     )
+  Bread.make.provide(Dough.fresh, Heat.oven)
 ```
 
 ### Step 4: Dependencies can "automatically" assemble to fulfill the needs of an effect
