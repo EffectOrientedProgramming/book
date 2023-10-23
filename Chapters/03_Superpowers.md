@@ -82,7 +82,7 @@ object HiddenPrelude:
     Unsafe.unsafe((u: Unsafe) =>
         given Unsafe = u
         unsafe
-          .run(invocations.set(Scenario.WorksFirstTime))
+          .run(invocations.set(scenario))
           .getOrThrowFiberFailure()
     )
 
@@ -112,9 +112,7 @@ object HiddenPrelude:
   end Scenario
 
   def saveUser(
-      username: String,
-      hiddenScenario: Scenario =
-        Scenario.WorksFirstTime
+      username: String
   ): ZIO[Any, DatabaseError.type, String] =
     val succeed = ZIO.succeed("User saved")
     val fail =
@@ -132,7 +130,7 @@ object HiddenPrelude:
         }
 
     defer {
-      hiddenScenario match
+      invocations.get.run match
         case Scenario.WorksFirstTime =>
           succeed.run
         case Scenario.NeverWorks =>
@@ -220,10 +218,14 @@ runDemo:
     "mrsdavis"
 ```
 
+```scala mdoc:invisible
+HiddenPrelude.resetScenario(Scenario.NeverWorks)
+```
+
 ```scala mdoc
 // fails
 runDemo:
-  saveUser("mrsdavis", Scenario.NeverWorks)
+  saveUser("mrsdavis")
     .orElseSucceed:
       "ERROR: User could not be saved"
 ```
@@ -234,6 +236,10 @@ runDemo:
 import zio.Schedule.*
 ```
 
+```scala mdoc:invisible
+HiddenPrelude.resetScenario(Scenario.doesNotWorkFirstTime)
+```
+
 ```scala mdoc
 val aFewTimes =
   // TODO Restore original spacing when done editing
@@ -242,23 +248,31 @@ val aFewTimes =
   
 // fails first time - with retry
 runDemo:
-  saveUser(
-    "mrsdavis",
-    Scenario.doesNotWorkFirstTime
-  ).retry:
+  saveUser:
+    "mrsdavis"
+  .retry:
     aFewTimes
   .orElseSucceed:
       "ERROR: User could not be saved"
 ```
 
+```scala mdoc:invisible
+HiddenPrelude.resetScenario(Scenario.NeverWorks)
+```
+
 ```scala mdoc
 // fails every time - with retry
 runDemo:
-  saveUser("mrsdavis", Scenario.NeverWorks)
-    .retry:
-      aFewTimes
-    .orElseSucceed:
+  saveUser:
+    "mrsdavis"
+  .retry:
+    aFewTimes
+  .orElseSucceed:
       "ERROR: User could not be saved, despite multiple attempts"
+```
+
+```scala mdoc:invisible
+HiddenPrelude.resetScenario(Scenario.firstIsSlow)
 ```
 
 ```scala mdoc
@@ -269,46 +283,60 @@ val timeLimit =
 
 // first is slow - with timeout and retry
 runDemo:
-  saveUser("mrsdavis", Scenario.firstIsSlow)
-    .timeoutFail(TimeoutError)(timeLimit)
-    .retry:
-      aFewTimes
-    .orElseSucceed(
-      "ERROR: User could not be saved"
-    )
+  saveUser:
+    "mrsdavis"
+  .timeoutFail(TimeoutError)(timeLimit)
+  .retry:
+    aFewTimes
+  .orElseSucceed:
+    "ERROR: User could not be saved"
+```
+
+```scala mdoc:invisible
+HiddenPrelude.resetScenario(Scenario.NeverWorks)
 ```
 
 ```scala mdoc
 // fails - with retry and fallback
 runDemo:
-  saveUser("mrsdavis", Scenario.NeverWorks)
-    .timeoutFail(TimeoutError)(timeLimit)
-    .retry:
-      aFewTimes
-    .orElse
-      sendToManualQueue:
-        "mrsdavis"
-    .orElseSucceed:
-      "ERROR: User could not be saved, even to the fallback system"
+  saveUser:
+    "mrsdavis"
+  .timeoutFail(TimeoutError)(timeLimit)
+  .retry:
+    aFewTimes
+  .orElse
+    sendToManualQueue:
+      "mrsdavis"
+  .orElseSucceed:
+    "ERROR: User could not be saved, even to the fallback system"
+```
+
+```scala mdoc:invisible
+HiddenPrelude.resetScenario(Scenario.WorksFirstTime)
 ```
 
 ```scala mdoc
 // concurrently save & send analytics
 runDemo:
-  saveUser("mrsdavis")
-    .timeoutFail(TimeoutError)(timeLimit)
-    .retry(aFewTimes)
-    .orElse:
-      sendToManualQueue:
-        "mrsdavis"
-    .orElseSucceed:
-      "ERROR: User could not be saved"
+  saveUser:
+    "mrsdavis"
+  .timeoutFail(TimeoutError)(timeLimit)
+  .retry(aFewTimes)
+  .orElse:
+    sendToManualQueue:
+      "mrsdavis"
+  .orElseSucceed:
+    "ERROR: User could not be saved"
     // todo: maybe this hidden extension method
     // goes too far with functionality that
     // doesn't really exist
-    .fireAndForget:
-      userSignupInitiated:
-        "mrsdavis"
+  .fireAndForget:
+    userSignupInitiated:
+      "mrsdavis"
+```
+
+```scala mdoc:invisible
+HiddenPrelude.resetScenario(Scenario.WorksFirstTime)
 ```
 
 ```scala mdoc
@@ -316,19 +344,20 @@ runDemo:
 runDemo:
   // TODO Consider ways to dedup mrsdavis
   // string
-  saveUser("mrsdavis")
-    .timeoutFail(TimeoutError)(timeLimit)
-    .retry:
-      aFewTimes
-    .orElse:
-      sendToManualQueue:
-        "mrsdavis"
-    .tapBoth(
-      error =>
-        userSignUpFailed("mrsdavis", error),
-      success =>
-        userSignupSucceeded("mrsdavis", success)
-    )
-    .orElseSucceed:
-      "ERROR: User could not be saved"
+  saveUser:
+    "mrsdavis"
+  .timeoutFail(TimeoutError)(timeLimit)
+  .retry:
+    aFewTimes
+  .orElse:
+    sendToManualQueue:
+      "mrsdavis"
+  .tapBoth(
+    error =>
+      userSignUpFailed("mrsdavis", error),
+    success =>
+      userSignupSucceeded("mrsdavis", success)
+  )
+  .orElseSucceed:
+    "ERROR: User could not be saved"
 ```
