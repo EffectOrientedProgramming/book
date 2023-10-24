@@ -2,6 +2,13 @@ package mdoctools
 
 import zio.Runtime.default.unsafe
 
+extension [R, E, A](z: ZLayer[R, E, A])
+  def tapWithMessage(
+      message: String
+  ): ZLayer[R, E, A] =
+    z.tap(_ => ZIO.succeed(println(message)))
+//    z.zipParLeft(background.forkDaemon)
+
 // Consider crashing if output is unexpectedly long
 def runDemo[E, A](z: => ZIO[Scope, E, A]): Unit =
   Unsafe.unsafe { (u: Unsafe) =>
