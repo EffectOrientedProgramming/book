@@ -40,22 +40,6 @@
 - Programs as values
 
 ```scala mdoc
-runDemo(ZIO.debug("Hi"))
-```
-
-```scala mdoc
-Unsafe.unsafe { implicit unsafe =>
-  Runtime
-    .default
-    .unsafe
-    .run(Ref.make(0))
-    .getOrThrow()
-}
-```
-
-
-
-```scala mdoc
 object DatabaseError
 object TimeoutError
 ```
@@ -68,22 +52,25 @@ object HiddenPrelude:
     case FirstIsSlow(ref: Ref[Int])
     case WorksOnTry(attempts: Int, ref: Ref[Int])
 
-
   import zio.Runtime.default.unsafe
   val invocations =
-      Unsafe.unsafe((u: Unsafe) =>
-        given Unsafe = u
-        unsafe
-        .run(Ref.make[Scenario](Scenario.WorksFirstTime))
+    Unsafe.unsafe((u: Unsafe) =>
+      given Unsafe = u
+      unsafe
+        .run(
+          Ref.make[Scenario](
+            Scenario.WorksFirstTime
+          )
+        )
         .getOrThrowFiberFailure()
     )
 
   def resetScenario(scenario: Scenario) =
     Unsafe.unsafe((u: Unsafe) =>
-        given Unsafe = u
-        unsafe
-          .run(invocations.set(scenario))
-          .getOrThrowFiberFailure()
+      given Unsafe = u
+      unsafe
+        .run(invocations.set(scenario))
+        .getOrThrowFiberFailure()
     )
 
   object Scenario:
@@ -225,9 +212,10 @@ HiddenPrelude.resetScenario(Scenario.NeverWorks)
 ```scala mdoc
 // fails
 runDemo:
-  saveUser("mrsdavis")
-    .orElseSucceed:
-      "ERROR: User could not be saved"
+  saveUser:
+    "mrsdavis"
+  .orElseSucceed:
+    "ERROR: User could not be saved"
 ```
 
 
@@ -237,23 +225,27 @@ import zio.Schedule.*
 ```
 
 ```scala mdoc:invisible
-HiddenPrelude.resetScenario(Scenario.doesNotWorkFirstTime)
+HiddenPrelude
+  .resetScenario(Scenario.doesNotWorkFirstTime)
+```
+
+```scala mdoc:silent
+val aFewTimes =
+  // TODO Restore original spacing when done
+  // editing
+  // recurs(3) && spaced(1.second)
+  recurs(3)
 ```
 
 ```scala mdoc
-val aFewTimes =
-  // TODO Restore original spacing when done editing
-  // recurs(3) && spaced(1.second)
-  recurs(3)
-  
 // fails first time - with retry
 runDemo:
   saveUser:
-    "mrsdavis"
+    "morty"
   .retry:
     aFewTimes
   .orElseSucceed:
-      "ERROR: User could not be saved"
+    "ERROR: User could not be saved"
 ```
 
 ```scala mdoc:invisible
@@ -264,11 +256,11 @@ HiddenPrelude.resetScenario(Scenario.NeverWorks)
 // fails every time - with retry
 runDemo:
   saveUser:
-    "mrsdavis"
+    "morty"
   .retry:
     aFewTimes
   .orElseSucceed:
-      "ERROR: User could not be saved, despite multiple attempts"
+    "ERROR: User could not be saved, despite multiple attempts"
 ```
 
 ```scala mdoc:invisible
@@ -277,19 +269,18 @@ HiddenPrelude.resetScenario(Scenario.firstIsSlow)
 
 ```scala mdoc
 // TODO Restore real value when done editing
-val timeLimit = 
-  5.millis
+val timeLimit = 5.millis
   //  5.seconds
 
 // first is slow - with timeout and retry
 runDemo:
   saveUser:
-    "mrsdavis"
+    "morty"
   .timeoutFail(TimeoutError)(timeLimit)
-  .retry:
-    aFewTimes
-  .orElseSucceed:
-    "ERROR: User could not be saved"
+    .retry:
+      aFewTimes
+    .orElseSucceed:
+      "ERROR: User could not be saved"
 ```
 
 ```scala mdoc:invisible
@@ -300,64 +291,66 @@ HiddenPrelude.resetScenario(Scenario.NeverWorks)
 // fails - with retry and fallback
 runDemo:
   saveUser:
-    "mrsdavis"
+    "morty"
   .timeoutFail(TimeoutError)(timeLimit)
-  .retry:
-    aFewTimes
-  .orElse
-    sendToManualQueue:
-      "mrsdavis"
+    .retry:
+      aFewTimes
+    .orElse
+  sendToManualQueue:
+    "morty"
   .orElseSucceed:
     "ERROR: User could not be saved, even to the fallback system"
 ```
 
 ```scala mdoc:invisible
-HiddenPrelude.resetScenario(Scenario.WorksFirstTime)
+HiddenPrelude
+  .resetScenario(Scenario.WorksFirstTime)
 ```
 
 ```scala mdoc
 // concurrently save & send analytics
 runDemo:
   saveUser:
-    "mrsdavis"
+    "morty"
   .timeoutFail(TimeoutError)(timeLimit)
-  .retry(aFewTimes)
-  .orElse:
-    sendToManualQueue:
-      "mrsdavis"
-  .orElseSucceed:
-    "ERROR: User could not be saved"
-    // todo: maybe this hidden extension method
-    // goes too far with functionality that
-    // doesn't really exist
-  .fireAndForget:
-    userSignupInitiated:
-      "mrsdavis"
+    .retry(aFewTimes)
+    .orElse:
+      sendToManualQueue:
+        "morty"
+    .orElseSucceed:
+      "ERROR: User could not be saved"
+      // todo: maybe this hidden extension method
+      // goes too far with functionality that
+      // doesn't really exist
+    .fireAndForget:
+      userSignupInitiated:
+        "morty"
 ```
 
 ```scala mdoc:invisible
-HiddenPrelude.resetScenario(Scenario.WorksFirstTime)
+HiddenPrelude
+  .resetScenario(Scenario.WorksFirstTime)
 ```
 
 ```scala mdoc
 // concurrently save & send analytics, ignoring analytics failures
 runDemo:
-  // TODO Consider ways to dedup mrsdavis
+  // TODO Consider ways to dedup morty
   // string
   saveUser:
     "mrsdavis"
   .timeoutFail(TimeoutError)(timeLimit)
-  .retry:
-    aFewTimes
-  .orElse:
-    sendToManualQueue:
-      "mrsdavis"
-  .tapBoth(
-    error =>
-      userSignUpFailed("mrsdavis", error),
-    success =>
-      userSignupSucceeded("mrsdavis", success)
-  )
-  .orElseSucceed:
-    "ERROR: User could not be saved"
+    .retry:
+      aFewTimes
+    .orElse:
+      sendToManualQueue:
+        "mrsdavis"
+    .tapBoth(
+      error =>
+        userSignUpFailed("mrsdavis", error),
+      success =>
+        userSignupSucceeded("mrsdavis", success)
+    )
+    .orElseSucceed:
+      "ERROR: User could not be saved"
 ```
