@@ -8,32 +8,61 @@
 def sleepThenPrint(
     d: Duration
 ): ZIO[Any, java.io.IOException, Duration] =
-  defer {
-    ZIO.sleep(d).run
-    println(s"${d.render} elapsed")
+  defer:
+    ZIO
+      .sleep:
+        d
+      .run
+    println:
+      s"${d.render} elapsed"
     d
-  }
 ```
 
 ```scala mdoc
-runDemo(
-  ZIO.raceAll(
-    sleepThenPrint(2.seconds),
-    Seq(sleepThenPrint(1.seconds))
-  )
-)
+runDemo:
+  sleepThenPrint:
+    2.seconds
+  .race:
+    sleepThenPrint:
+      1.seconds
 ```
 
 We show that Future's are killed with finalizers that never run
+A:
+
 ```scala mdoc
 import scala.concurrent.Future
-runDemo(
+runDemo:
   ZIO
     .fromFuture:
       Future:
-        try Thread.sleep(500)
-        finally println("Cleanup")
-        "Success!"
-    .timeout(25.millis)
-)
+        try
+          println("Starting operation")
+          Thread.sleep(500)
+          println("Ending operation")
+        finally
+          println("Cleanup")
+    .timeout:
+      25.millis
+```
+
+B:
+
+```scala mdoc
+runDemo:
+  ZIO
+    .fromFuture:
+      Future:
+        try
+          println:
+            "Starting operation"
+          Thread.sleep:
+            500
+          println:
+            "Ending operation"
+        finally
+          println:
+            "Cleanup"
+    .timeout:
+      25.millis
 ```

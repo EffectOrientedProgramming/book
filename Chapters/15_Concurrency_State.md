@@ -43,10 +43,8 @@ In order to confidently use this, we need certain guarantees about the behavior:
 
 ## Unreliable Counting
 
-```scala mdoc
-// This is lazy *purely* to silence the mdoc output.
-// TODO Decide whether it's clearer to do this, or capture everything in an object
-lazy val unreliableCounting =
+```scala mdoc:silent
+val unreliableCounting =
   var counter = 0
   val increment =
     ZIO.succeed:
@@ -54,11 +52,14 @@ lazy val unreliableCounting =
 
   defer:
     ZIO
+      // TODO Get scalafmt to put `_ =>` on a new line
       .foreachParDiscard(Range(0, 100000)): _ =>
         increment
       .run
     "Final count: " + ZIO.succeed(counter).run
+```
 
+```scala mdoc
 runDemo:
   unreliableCounting
 ```
@@ -106,13 +107,16 @@ To demonstrate why this restriction exists, we will deliberately undermine the s
 First, we will create a helper function that imitates a long-running calculation.
 
 ```scala mdoc
-def expensiveCalculation() = Thread.sleep(35)
+def expensiveCalculation() = 
+  Thread.sleep:
+    35
 ```
 
 Our side effect will be a mock alert that is sent anytime our count is updated:
 ```scala mdoc
 def sendNotification() =
-  println("Alert: We have updated our count!!")
+  println:
+    "Alert: updating count!"
 ```
 
 ```scala mdoc
@@ -154,10 +158,14 @@ For these situations, we need a specialized variation of `Ref`
 `Ref.Synchronized` guarantees only a single execution of the `update` body and any of the effects contained inside.
 The only change required is replacing `Ref.make` with `Ref.Synchronized.make`
 
-```scala mdoc
-lazy val sideEffectingUpdatesSync =
+```scala mdoc:silent
+val sideEffectingUpdatesSync =
   defer:
-    val counter = Ref.Synchronized.make(0).run
+    val counter = 
+      Ref
+        .Synchronized
+        .make(0)
+        .run
     ZIO
       .foreachParDiscard(Range(0, 4)): _ =>
         counter.update: previousValue =>
@@ -166,7 +174,9 @@ lazy val sideEffectingUpdatesSync =
           previousValue + 1
       .run
     "Final count: " + counter.get.run
+```
 
+```scala mdoc
 runDemo:
   sideEffectingUpdatesSync
 ```
