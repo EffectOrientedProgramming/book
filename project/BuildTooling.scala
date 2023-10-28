@@ -422,10 +422,10 @@ object BuildTooling {
       "nl.vroste"   %% "rezilience"  % "0.9.4",
       "dev.zio"     %% "zio-process" % "0.7.2",
       "dev.zio" %% "zio-direct" % "1.0.0-RC7",
-      "dev.zio" %% "zio-schema" % "0.4.14",
-      "dev.zio" %% "zio-schema-json" % "0.4.14",
+      "dev.zio" %% "zio-schema" % "0.4.15",
+      "dev.zio" %% "zio-schema-json" % "0.4.15",
       "dev.zio" %% "zio-schema-derivation" %
-        "0.4.14"
+        "0.4.15"
       // "org.scala-lang" % "scala-reflect" %
       // scalaVersion.value % "provided"
 //    "dev.zio" %% "zio-direct-streams" % "1.0.0-RC7" // TODO Enable when on the ground :(
