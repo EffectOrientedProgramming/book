@@ -64,9 +64,9 @@ def runSpec(x: ZIO[Scope, Nothing, TestResult]) =
       )
       .map(result =>
         if (result.failureDetails.isBlank)
-          "*Test Executed and passed*"
+          "Test: PASSED*"
         else
-          result.failureDetails
+          "Test: FAILED"
       )
   )
 end runSpec
