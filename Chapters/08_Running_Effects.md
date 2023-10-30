@@ -111,7 +111,33 @@ runSpec:
 runSpec:
   Random
     .nextIntBounded(10)
-    .map(x => assertTrue(x < 10))
+    .map(x => assertTrue(x > 10))
+```
+
+TODO Justify defer syntax over for-comp for multi-statement assertions
+ I think this example completes the objective
+ TODO Change this to a Console app, where the logic & testing is more visceral
+```scala mdoc
+runSpec:
+  defer:
+    assertTrue:
+      Random.nextIntBetween(0, 10).run <= 10 &&
+      Random.nextIntBetween(10, 20).run <= 20 &&
+      Random.nextIntBetween(20, 30).run <= 30
+    
+```
+```scala mdoc
+runSpec:
+  for
+    res1 <- Random.nextIntBetween(0, 10)
+    res2 <- Random.nextIntBetween(10, 20)
+    res3 <- Random.nextIntBetween(20, 30)
+  yield 
+    assertTrue:
+      res1 <= 10 &&
+      res2 <= 20 &&
+      res3 <= 30
+
 ```
 
 ## 
