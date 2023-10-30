@@ -19,7 +19,7 @@ If you have a ZIO Effect like:
 ZIO.debug("hello, world")
 // res0: ZIO[Any, Nothing, Unit] = Sync(
 //   trace = "repl.MdocSession.MdocApp.res0(08_Running_Effects.md:8)",
-//   eval = zio.ZIOCompanionVersionSpecific$$Lambda$15927/0x000000010406cc40@76b731d
+//   eval = zio.ZIOCompanionVersionSpecific$$Lambda$16310/0x00000001041fb840@7d118b8
 // )
 ```
 
@@ -61,7 +61,7 @@ If needed you can even interop to Scala Futures through `Unsafe`, transforming t
 A common mistake when starting with ZIO is trying to return ZIO instances themselves rather than their result.
 ```scala
 println(Random.nextInt)
-// Stateful(repl.MdocSession.MdocApp.res2(08_Running_Effects.md:35),zio.FiberRef$unsafe$$anon$2$$Lambda$15969/0x00000001040af840@7f095165)
+// Stateful(repl.MdocSession.MdocApp.res2(08_Running_Effects.md:35),zio.FiberRef$unsafe$$anon$2$$Lambda$16379/0x0000000104272840@b672f1d)
 ```
 This is a mistake because ZIO's are not their result, they are descriptions of effects that produce the result.
 You can think of them as recipes for producing a value.
@@ -109,15 +109,41 @@ runSpec:
   defer:
     assertTrue:
       Random.nextIntBounded(10).run < 10
-// *Test Executed and passed*
+// Test: PASSED*
 ```
 
 ```scala
 runSpec:
   Random
     .nextIntBounded(10)
-    .map(x => assertTrue(x < 10))
-// *Test Executed and passed*
+    .map(x => assertTrue(x > 10))
+// Test: FAILED
+```
+
+TODO Justify defer syntax over for-comp for multi-statement assertions
+ I think this example completes the objective
+ TODO Change this to a Console app, where the logic & testing is more visceral
+```scala
+runSpec:
+  defer:
+    assertTrue:
+      Random.nextIntBetween(0, 10).run <= 10 &&
+      Random.nextIntBetween(10, 20).run <= 20 &&
+      Random.nextIntBetween(20, 30).run <= 30
+// Test: PASSED*
+```
+```scala
+runSpec:
+  for
+    res1 <- Random.nextIntBetween(0, 10)
+    res2 <- Random.nextIntBetween(10, 20)
+    res3 <- Random.nextIntBetween(20, 30)
+  yield 
+    assertTrue:
+      res1 <= 10 &&
+      res2 <= 20 &&
+      res3 <= 30
+// Test: PASSED*
 ```
 
 ## 

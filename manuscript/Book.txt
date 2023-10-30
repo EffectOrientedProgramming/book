@@ -27,6 +27,7 @@ experiments-src-test-scala-random.md
 Hubs.md
 environment-opaque.md
 executing_external_programs.md
+experiments-src-test-scala-running_effects.md
 experiments-src-test-scala-energrygrid.md
 hello_failures.md
 scenarios.md

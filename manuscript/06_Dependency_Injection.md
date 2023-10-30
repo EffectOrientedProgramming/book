@@ -185,12 +185,7 @@ end Bread
 
 ```scala
 runDemo:
-  Bread
-     .make
-     .provide(
-        Dough.fresh, 
-        Heat.oven
-     )
+  Bread.make.provide(Dough.fresh, Heat.oven)
 // Bread()
 ```
 

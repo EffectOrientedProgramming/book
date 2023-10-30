@@ -44,9 +44,7 @@ In order to confidently use this, we need certain guarantees about the behavior:
 ## Unreliable Counting
 
 ```scala
-// This is lazy *purely* to silence the mdoc output.
-// TODO Decide whether it's clearer to do this, or capture everything in an object
-lazy val unreliableCounting =
+val unreliableCounting =
   var counter = 0
   val increment =
     ZIO.succeed:
@@ -54,14 +52,17 @@ lazy val unreliableCounting =
 
   defer:
     ZIO
+      // TODO Get scalafmt to put `_ =>` on a new line
       .foreachParDiscard(Range(0, 100000)): _ =>
         increment
       .run
     "Final count: " + ZIO.succeed(counter).run
+```
 
+```scala
 runDemo:
   unreliableCounting
-// Final count: 99981
+// Final count: 99875
 ```
 
 Due to the unpredictable nature of shared mutable state, we do not know exactly what the final count above is.
@@ -108,13 +109,16 @@ To demonstrate why this restriction exists, we will deliberately undermine the s
 First, we will create a helper function that imitates a long-running calculation.
 
 ```scala
-def expensiveCalculation() = Thread.sleep(35)
+def expensiveCalculation() = 
+  Thread.sleep:
+    35
 ```
 
 Our side effect will be a mock alert that is sent anytime our count is updated:
 ```scala
 def sendNotification() =
-  println("Alert: We have updated our count!!")
+  println:
+    "Alert: updating count!"
 ```
 
 ```scala
@@ -132,13 +136,13 @@ runDemo:
         update(counter)
       .run
     "Final count: " + counter.get.run
-// Alert: We have updated our count!!
-// Alert: We have updated our count!!
-// Alert: We have updated our count!!
-// Alert: We have updated our count!!
-// Alert: We have updated our count!!
-// Alert: We have updated our count!!
-// Alert: We have updated our count!!
+// Alert: updating count!
+// Alert: updating count!
+// Alert: updating count!
+// Alert: updating count!
+// Alert: updating count!
+// Alert: updating count!
+// Alert: updating count!
 // Final count: 4
 ```
 What is going on?!
@@ -165,9 +169,13 @@ For these situations, we need a specialized variation of `Ref`
 The only change required is replacing `Ref.make` with `Ref.Synchronized.make`
 
 ```scala
-lazy val sideEffectingUpdatesSync =
+val sideEffectingUpdatesSync =
   defer:
-    val counter = Ref.Synchronized.make(0).run
+    val counter = 
+      Ref
+        .Synchronized
+        .make(0)
+        .run
     ZIO
       .foreachParDiscard(Range(0, 4)): _ =>
         counter.update: previousValue =>
@@ -176,13 +184,15 @@ lazy val sideEffectingUpdatesSync =
           previousValue + 1
       .run
     "Final count: " + counter.get.run
+```
 
+```scala
 runDemo:
   sideEffectingUpdatesSync
-// Alert: We have updated our count!!
-// Alert: We have updated our count!!
-// Alert: We have updated our count!!
-// Alert: We have updated our count!!
+// Alert: updating count!
+// Alert: updating count!
+// Alert: updating count!
+// Alert: updating count!
 // Final count: 4
 ```
 
