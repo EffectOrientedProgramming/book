@@ -2,7 +2,7 @@
 
 ### The bare minimum of effect tracking
 
-Consider a simple function
+Consider a function
 
 ```scala mdoc
 def saveInformation(info: Any): Unit = ???
@@ -12,10 +12,10 @@ If we consider only the types, this function is an `Any=>Unit`.
 `Unit` is the single, blunt tool to indicate effectful functions in plain Scala.
 When we see it, we know that *some* type of side-effect is being performed, but without any specificity.
 
-When a function returns `Unit`, we know that the result *is* an effect.
+When a function returns `Unit`, we know that the only reason we are calling the function is to perform an effect.
 Alternatively, if there are no arguments to the function, then the input is `Unit`, indicating that an effect is used to _produce_ the result.
 
-Consider a simple `WeatherService` API:
+Consider a `WeatherService` API:
 
 ```scala mdoc
 trait WeatherService:
@@ -42,20 +42,21 @@ It is possible that we are using entirely open-source or in-house code throughou
 That means that we could theoretically dig into every function involved in a complex path and note every effect.
 
 In practice this quickly becomes impossible.
+Note - We flag the external system that we are interacting with by printing the all-caps value.
 
 ```scala mdoc
-object OpenSourceLibrary:
-  def sendToService(payload: String): Unit =
-    println(s"NETWORK: Sending payload")
-    save(payload)
-
-  private def save(userData: String): Unit =
-    Analytics.demographicsFrom(userData)
-    println(s"DATABASE: Saving data")
-
 object Analytics:
   def demographicsFrom(userData: String): Unit =
-    println(s"LOGGER: Key demographic found")
+    println("LOGGER: Key demographic found")
+
+object OpenSourceLibrary:
+  private def save(userData: String): Unit =
+    Analytics.demographicsFrom(userData)
+    println("DATABASE: Saving data")
+
+  def sendToService(payload: String): Unit =
+    println("NETWORK: Sending payload")
+    save(payload)
 ```
 
 
@@ -64,12 +65,12 @@ def logic(): Unit =
   // ...Other calls...
   OpenSourceLibrary
     .sendToService("Network Payload")
-// ...Other calls...
+  // ...Other calls...
 
 logic()
 ```
 
-Here our simple program performs 3 very different side-effects, but everything is boiled down to the same `Unit` type.
-If we extrapolate this is to a production application with hundreds and thousands of functions, it is overwhelming.
+Here our program performs 3 very different side-effects, but everything is boiled down to the same `Unit` type.
+If we extrapolate this to a production application with hundreds and thousands of functions, it becomes overwhelming.
 
 Ideally, we could leverage the type system and the compiler to track the requirements for arbitrarily complex pieces of code.
