@@ -410,7 +410,7 @@ object BuildTooling {
   def experimentLibrariesThatNeedToBeVettedForInclusionInBook =
     Seq(
       "org.apache.commons" % "commons-text" %
-        "1.10.0",
+        "1.11.0",
       "io.github.scottweaver" %%
         "zio-2-0-testcontainers-postgresql" %
         "0.10.0",
