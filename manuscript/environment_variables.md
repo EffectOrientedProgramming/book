@@ -209,11 +209,11 @@ val logic =
 //     trace = "repl.MdocSession.MdocApp.<local MdocApp>.logic(environment_variables.md:233)",
 //     first = Sync(
 //       trace = "repl.MdocSession.MdocApp.<local MdocApp>.logic(environment_variables.md:233)",
-//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$17460/0x0000000104579c40@2334039e
+//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$17437/0x00000001044cb040@36bfb6b1
 //     ),
-//     successK = zio.ZIO$$$Lambda$17462/0x000000010457e840@60f7213d
+//     successK = zio.ZIO$$$Lambda$17439/0x00000001044e9040@777232cf
 //   ),
-//   successK = zio.ZIO$$Lambda$17508/0x00000001045e9040@6334fac9
+//   successK = zio.ZIO$$Lambda$17485/0x000000010454e840@30f1bc69
 // )
 runDemo(
   logic.provide(
@@ -222,6 +222,9 @@ runDemo(
     originalAuthor
   )
 )
+// TODO Handle long line. 
+// Truncating for now: 
+// OnSuccess(zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19),OnSuccess(zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19),Sync(repl.MdocSession.MdocApp.envZ(environment_variables.md:137),zio.ZIOCompanionVersionSpecific$$Lambda$17437/0x00000001044cb040@398c58af),repl.MdocSession$MdocApp$SystemStrict$$Lambda$20278/0x000000010496d040@8ddb586),repl.MdocSession$MdocApp$HotelApiZ$$Lambda$20279/0x000000010496d840@62cdd308)
 // OnSuccess(zio.direct.ZioMonad.Success.$anon.fl
 ```
 
@@ -244,6 +247,9 @@ runDemo(
     collaborater
   )
 )
+// TODO Handle long line. 
+// Truncating for now: 
+// OnSuccess(zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19),OnSuccess(zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19),Sync(repl.MdocSession.MdocApp.envZ(environment_variables.md:137),zio.ZIOCompanionVersionSpecific$$Lambda$17437/0x00000001044cb040@67cb266d),repl.MdocSession$MdocApp$SystemStrict$$Lambda$20278/0x000000010496d040@6da626b0),repl.MdocSession$MdocApp$HotelApiZ$$Lambda$20279/0x000000010496d840@7eb24d49)
 // OnSuccess(zio.direct.ZioMonad.Success.$anon.fl
 ```
 
@@ -264,6 +270,9 @@ runDemo(
     ci
   )
 )
+// TODO Handle long line. 
+// Truncating for now: 
+// OnSuccess(zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19),OnSuccess(zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19),Sync(repl.MdocSession.MdocApp.envZ(environment_variables.md:137),zio.ZIOCompanionVersionSpecific$$Lambda$17437/0x00000001044cb040@686947ba),repl.MdocSession$MdocApp$SystemStrict$$Lambda$20278/0x000000010496d040@2715661b),repl.MdocSession$MdocApp$HotelApiZ$$Lambda$20279/0x000000010496d840@61089d70)
 // OnSuccess(zio.direct.ZioMonad.Success.$anon.fl
 ```
 
