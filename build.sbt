@@ -49,6 +49,8 @@ lazy val experiments =
   (project in file("experiments"))
   .settings(commonSettings)
   .settings(
+    // TODO I put this in because a valid test is being flagged otherwise.
+    scalacOptions -= "-Wunused:locals",
     libraryDependencies ++= experimentLibrariesThatNeedToBeVettedForInclusionInBook
   )
 

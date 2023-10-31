@@ -26,7 +26,7 @@ One way to run ZIOs is to use a "main method" program (something you can start i
 To use it create a new `object` that extends the `ZIOAppDefault` trait and implements the `run` method.  That method returns a ZIO so you can now give it the example `ZIO.debug` data:
 ```scala mdoc
 object HelloWorld extends zio.ZIOAppDefault:
-  override def run = ZIO.debug("hello, world")
+  def run = ZIO.debug("hello, world")
 ```
 
 This can be run on the JVM in the same way as any other class that has a `static void main` method.
@@ -53,11 +53,16 @@ If needed you can even interop to Scala Futures through `Unsafe`, transforming t
 
 ## Bill
 
+
 A common mistake when starting with ZIO is trying to return ZIO instances themselves rather than their result.
 ```scala mdoc
 println(Random.nextInt)
 ```
 This is a mistake because ZIO's are not their result, they are descriptions of effects that produce the result.
+
+An `Option` that _might_ have a value inside of it, but you can't safely assume that it does.
+Similarly, a `ZIO` _might_ produce a value, but you have to run it to find out.
+
 You can think of them as recipes for producing a value.
 You don't want to return a recipe from a function, you can only return a value.
 If it is your friend's birthday, they want a cake, not a list of instructions about mixing ingredients and baking.
