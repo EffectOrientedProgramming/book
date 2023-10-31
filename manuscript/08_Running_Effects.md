@@ -19,7 +19,7 @@ If you have a ZIO Effect like:
 ZIO.debug("hello, world")
 // res0: ZIO[Any, Nothing, Unit] = Sync(
 //   trace = "repl.MdocSession.MdocApp.res0(08_Running_Effects.md:8)",
-//   eval = zio.ZIOCompanionVersionSpecific$$Lambda$17437/0x00000001044cb040@118a13e
+//   eval = zio.ZIOCompanionVersionSpecific$$Lambda$17445/0x000000010457a040@15094da4
 // )
 ```
 
@@ -30,7 +30,7 @@ One way to run ZIOs is to use a "main method" program (something you can start i
 To use it create a new `object` that extends the `ZIOAppDefault` trait and implements the `run` method.  That method returns a ZIO so you can now give it the example `ZIO.debug` data:
 ```scala
 object HelloWorld extends zio.ZIOAppDefault:
-  override def run = ZIO.debug("hello, world")
+  def run = ZIO.debug("hello, world")
 ```
 
 This can be run on the JVM in the same way as any other class that has a `static void main` method.
@@ -58,12 +58,17 @@ If needed you can even interop to Scala Futures through `Unsafe`, transforming t
 
 ## Bill
 
+
 A common mistake when starting with ZIO is trying to return ZIO instances themselves rather than their result.
 ```scala
 println(Random.nextInt)
-// Stateful(repl.MdocSession.MdocApp.res2(08_Running_Effects.md:35),zio.FiberRef$unsafe$$anon$2$$Lambda$17506/0x0000000104562840@50354117)
+// Stateful(repl.MdocSession.MdocApp.res2(08_Running_Effects.md:35),zio.FiberRef$unsafe$$anon$2$$Lambda$17512/0x00000001045f4040@da31a57)
 ```
 This is a mistake because ZIO's are not their result, they are descriptions of effects that produce the result.
+
+An `Option` that _might_ have a value inside of it, but you can't safely assume that it does.
+Similarly, a `ZIO` _might_ produce a value, but you have to run it to find out.
+
 You can think of them as recipes for producing a value.
 You don't want to return a recipe from a function, you can only return a value.
 If it is your friend's birthday, they want a cake, not a list of instructions about mixing ingredients and baking.
