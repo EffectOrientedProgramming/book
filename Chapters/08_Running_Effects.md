@@ -132,6 +132,7 @@ runSpec:
         20 &&
         Random.nextIntBetween(20, 30).run <= 30
 ```
+
 ```scala mdoc
 runSpec:
   for
@@ -142,11 +143,13 @@ runSpec:
     res1 <= 10 && res2 <= 20 && res3 <= 30
 ```
 
-```scala mdoc
-val promptForUsername = ZIO.succeed("Zeb")
+```scala mdoc:invisible
+// TODO Consider behavior for other values
 def notificationFor(username: String) =
   ZIO.succeed("Meeting @ 9")
-  
+```
+
+```scala mdoc:silent
 val logic =
   import zio.Console.{printLine, readLine}
   defer:
@@ -164,6 +167,9 @@ val logic =
     printLine:
       notification
     .run
+```
+
+```scala mdoc
 
 runSpec:
   defer:
