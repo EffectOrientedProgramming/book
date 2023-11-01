@@ -19,7 +19,7 @@ If you have a ZIO Effect like:
 ZIO.debug("hello, world")
 // res0: ZIO[Any, Nothing, Unit] = Sync(
 //   trace = "repl.MdocSession.MdocApp.res0(08_Running_Effects.md:8)",
-//   eval = zio.ZIOCompanionVersionSpecific$$Lambda$17445/0x000000010457a040@15094da4
+//   eval = zio.ZIOCompanionVersionSpecific$$Lambda$16432/0x0000000804209c40@257511dd
 // )
 ```
 
@@ -62,7 +62,7 @@ If needed you can even interop to Scala Futures through `Unsafe`, transforming t
 A common mistake when starting with ZIO is trying to return ZIO instances themselves rather than their result.
 ```scala
 println(Random.nextInt)
-// Stateful(repl.MdocSession.MdocApp.res2(08_Running_Effects.md:35),zio.FiberRef$unsafe$$anon$2$$Lambda$17512/0x00000001045f4040@da31a57)
+// Stateful(repl.MdocSession.MdocApp.res2(08_Running_Effects.md:35),zio.FiberRef$unsafe$$anon$2$$Lambda$16547/0x00000008042ad840@30c0f246)
 ```
 This is a mistake because ZIO's are not their result, they are descriptions of effects that produce the result.
 
@@ -121,7 +121,8 @@ runSpec:
 runSpec:
   Random
     .nextIntBounded(10)
-    .map(x => assertTrue(x > 10))
+    .map:
+      x => assertTrue(x > 10)
 // Test: FAILED
 ```
 
@@ -133,8 +134,9 @@ runSpec:
   defer:
     assertTrue:
       Random.nextIntBetween(0, 10).run <= 10 &&
-      Random.nextIntBetween(10, 20).run <= 20 &&
-      Random.nextIntBetween(20, 30).run <= 30
+        Random.nextIntBetween(10, 20).run <=
+        20 &&
+        Random.nextIntBetween(20, 30).run <= 30
 // Test: PASSED*
 ```
 ```scala
@@ -143,14 +145,66 @@ runSpec:
     res1 <- Random.nextIntBetween(0, 10)
     res2 <- Random.nextIntBetween(10, 20)
     res3 <- Random.nextIntBetween(20, 30)
-  yield 
-    assertTrue:
-      res1 <= 10 &&
-      res2 <= 20 &&
-      res3 <= 30
+  yield assertTrue:
+    res1 <= 10 && res2 <= 20 && res3 <= 30
 // Test: PASSED*
 ```
 
+```scala
+val promptForUsername = ZIO.succeed("Zeb")
+// promptForUsername: ZIO[Any, Nothing, String] = Sync(
+//   trace = "repl.MdocSession.MdocApp.promptForUsername(08_Running_Effects.md:107)",
+//   eval = zio.ZIOCompanionVersionSpecific$$Lambda$16432/0x0000000804209c40@7047f935
+// )
+def notificationFor(username: String) =
+  ZIO.succeed("Meeting @ 9")
+  
+val logic =
+  import zio.Console.{printLine, readLine}
+  defer:
+    val username =
+      readLine:
+        "Enter your name\n"
+      .run
+    printLine:
+      s"Hello $username"
+    .run
+    val notification =
+      notificationFor:
+        username
+      .run
+    printLine:
+      notification
+    .run
+// logic: ZIO[Any, IOException, Unit] = OnSuccess(
+//   trace = "zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19)",
+//   first = Stateful(
+//     trace = "repl.MdocSession.MdocApp.logic(08_Running_Effects.md:117)",
+//     onState = zio.FiberRef$unsafe$$anon$2$$Lambda$16547/0x00000008042ad840@47925233
+//   ),
+//   successK = repl.MdocSession$MdocApp$$Lambda$18760/0x0000000803c07840@351dd237
+// )
+
+runSpec:
+  defer:
+    TestConsole
+      .feedLines:
+        "Zeb"
+      .run
+    logic.run
+    val capturedOutput: Vector[String] =
+      TestConsole.output.run
+    val expectedOutput =
+      s"""|Enter your name
+          |Hello Zeb
+          |Meeting @ 9
+          |""".stripMargin
+    assertTrue:
+      capturedOutput.mkString("") ==
+        expectedOutput
+  .orDie
+// Test: PASSED*
+```
 ## 
 
 

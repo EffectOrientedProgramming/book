@@ -118,7 +118,7 @@ runDemo:
 // TODO Restore real value when done editing
 val timeLimit = 5.millis
 // timeLimit: Duration = PT0.005S
-  //  5.seconds
+//  5.seconds
 
 // first is slow - with timeout and retry
 runDemo:

@@ -52,7 +52,8 @@ val unreliableCounting =
 
   defer:
     ZIO
-      // TODO Get scalafmt to put `_ =>` on a new line
+      // TODO Get scalafmt to put `_ =>` on a new
+      // line
       .foreachParDiscard(Range(0, 100000)): _ =>
         increment
       .run
@@ -62,7 +63,7 @@ val unreliableCounting =
 ```scala
 runDemo:
   unreliableCounting
-// Final count: 99995
+// Final count: 99124
 ```
 
 Due to the unpredictable nature of shared mutable state, we do not know exactly what the final count above is.
@@ -109,7 +110,7 @@ To demonstrate why this restriction exists, we will deliberately undermine the s
 First, we will create a helper function that imitates a long-running calculation.
 
 ```scala
-def expensiveCalculation() = 
+def expensiveCalculation() =
   Thread.sleep:
     35
 ```
@@ -136,6 +137,9 @@ runDemo:
         update(counter)
       .run
     "Final count: " + counter.get.run
+// Alert: updating count!
+// Alert: updating count!
+// Alert: updating count!
 // Alert: updating count!
 // Alert: updating count!
 // Alert: updating count!
@@ -171,11 +175,7 @@ The only change required is replacing `Ref.make` with `Ref.Synchronized.make`
 ```scala
 val sideEffectingUpdatesSync =
   defer:
-    val counter = 
-      Ref
-        .Synchronized
-        .make(0)
-        .run
+    val counter = Ref.Synchronized.make(0).run
     ZIO
       .foreachParDiscard(Range(0, 4)): _ =>
         counter.update: previousValue =>
