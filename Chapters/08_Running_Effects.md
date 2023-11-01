@@ -1,6 +1,6 @@
 # Running Effects
 
-## Main ideas to convey
+## Main ideas to convey.
 
 ### ZIOs are not their result. They are something that can be executed, that _might_ produce that result.
 
