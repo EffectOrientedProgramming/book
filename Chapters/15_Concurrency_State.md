@@ -52,7 +52,8 @@ val unreliableCounting =
 
   defer:
     ZIO
-      // TODO Get scalafmt to put `_ =>` on a new line
+      // TODO Get scalafmt to put `_ =>` on a new
+      // line
       .foreachParDiscard(Range(0, 100000)): _ =>
         increment
       .run
@@ -107,7 +108,7 @@ To demonstrate why this restriction exists, we will deliberately undermine the s
 First, we will create a helper function that imitates a long-running calculation.
 
 ```scala mdoc
-def expensiveCalculation() = 
+def expensiveCalculation() =
   Thread.sleep:
     35
 ```
@@ -161,11 +162,7 @@ The only change required is replacing `Ref.make` with `Ref.Synchronized.make`
 ```scala mdoc:silent
 val sideEffectingUpdatesSync =
   defer:
-    val counter = 
-      Ref
-        .Synchronized
-        .make(0)
-        .run
+    val counter = Ref.Synchronized.make(0).run
     ZIO
       .foreachParDiscard(Range(0, 4)): _ =>
         counter.update: previousValue =>

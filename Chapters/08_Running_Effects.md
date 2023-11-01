@@ -116,7 +116,8 @@ runSpec:
 runSpec:
   Random
     .nextIntBounded(10)
-    .map(x => assertTrue(x > 10))
+    .map:
+      x => assertTrue(x > 10)
 ```
 
 TODO Justify defer syntax over for-comp for multi-statement assertions
@@ -127,9 +128,9 @@ runSpec:
   defer:
     assertTrue:
       Random.nextIntBetween(0, 10).run <= 10 &&
-      Random.nextIntBetween(10, 20).run <= 20 &&
-      Random.nextIntBetween(20, 30).run <= 30
-    
+        Random.nextIntBetween(10, 20).run <=
+        20 &&
+        Random.nextIntBetween(20, 30).run <= 30
 ```
 ```scala mdoc
 runSpec:
@@ -137,12 +138,50 @@ runSpec:
     res1 <- Random.nextIntBetween(0, 10)
     res2 <- Random.nextIntBetween(10, 20)
     res3 <- Random.nextIntBetween(20, 30)
-  yield 
-    assertTrue:
-      res1 <= 10 &&
-      res2 <= 20 &&
-      res3 <= 30
-
+  yield assertTrue:
+    res1 <= 10 && res2 <= 20 && res3 <= 30
 ```
 
+```scala mdoc
+val promptForUsername = ZIO.succeed("Zeb")
+def notificationFor(username: String) =
+  ZIO.succeed("Meeting @ 9")
+  
+val logic =
+  import zio.Console.{printLine, readLine}
+  defer:
+    val username =
+      readLine:
+        "Enter your name\n"
+      .run
+    printLine:
+      s"Hello $username"
+    .run
+    val notification =
+      notificationFor:
+        username
+      .run
+    printLine:
+      notification
+    .run
+
+runSpec:
+  defer:
+    TestConsole
+      .feedLines:
+        "Zeb"
+      .run
+    logic.run
+    val capturedOutput: Vector[String] =
+      TestConsole.output.run
+    val expectedOutput =
+      s"""|Enter your name
+          |Hello Zeb
+          |Meeting @ 9
+          |""".stripMargin
+    assertTrue:
+      capturedOutput.mkString("") ==
+        expectedOutput
+  .orDie
+```
 ## 

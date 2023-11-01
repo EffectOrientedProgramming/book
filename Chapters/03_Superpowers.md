@@ -270,7 +270,7 @@ HiddenPrelude.resetScenario(Scenario.firstIsSlow)
 ```scala mdoc
 // TODO Restore real value when done editing
 val timeLimit = 5.millis
-  //  5.seconds
+//  5.seconds
 
 // first is slow - with timeout and retry
 runDemo:
