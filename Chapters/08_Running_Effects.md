@@ -1,16 +1,38 @@
 # Running Effects
 
-## Bruce
-You've got a zio that describes something. How do you actually run it?
+## Main ideas to convey
 
-Although Scala compiles code to JVM bytecodes, ZIO has an interpreter that steps through your code, much like the JVM interprets JVM bytecodes. The Zio interpreter is the hidden piece that allows Zio to understand so much more about the meaning of your code, including the ability to decide what to run concurrently and how to invisibly tune that concurrency--all at runtime. The interpreter is responsible for deciding when to context-switch between tasks, and is able to do this because it understands the ZIO code that it's executing.
+### ZIOs are not their result. They are something that can be executed, that _might_ produce that result.
+
+### ZIOs are not automatically executed. The user must determine when/where that happens.
+  - The `defer`/direct syntax makes this more explicit
+  - 
+### There is an interpreter that provides the ZIO superpowers
+
+### Building applications from scratch
+    - `ZIOAppDefault`
+    - `runDemo` ?
+
+### Testing code
+    - `ZIOSpecDefault`
+    - `runSpec` ?
+
+### Interop with existing/legacy code via Unsafe
+
+
+## Bruce
+You've got a zio that describes some logic. 
+How do you actually run it?
+
+Scala compiles code to JVM bytecodes, 
+Similarly ZIO has an interpreter that steps through and executes your code, much like the JVM interprets JVM bytecodes. 
+The Zio interpreter is the hidden piece that allows Zio to understand so much more about the meaning of your code.
+This includes the ability to decide what to run concurrently and how to invisibly tune that concurrency--all at runtime. 
+The interpreter is responsible for deciding when to context-switch between tasks, and is able to do this because it understands the ZIO code that it's executing.
 
 The interpreter is also the mechanism that evaluates the various effects described in the generic type parameters for each ZIO object.
 
-The reason we have the `defer` directive in zio-direct is to indicate that this code will be evaluated by the interpreter.
-
-Here's a basic example that shows a ZIO being executed by the interpreter:
-
+The reason we have the `defer` directive(method?) in zio-direct is to indicate that this code will be evaluated by the interpreter later.
 
 ## James
 
@@ -19,28 +41,36 @@ If you have a ZIO Effect like:
 ZIO.debug("hello, world")
 ```
 
-This doesn't actually do anything.  It only describes something *to be* done.  It is only data (in the ZIO data type), not instructions.  To actually run a ZIO you need to wrap the ZIO in a program that will take the data types and interpret / run them, transforming the descriptions into something that executes.
+This doesn't actually do anything.
+It only describes something *to be* done.
+It is only data (in the ZIO data type), not instructions.
+To actually run a ZIO you need to wrap the ZIO in a program that will take the data types and interpret / run them, transforming the descriptions into something that executes.
 
-One way to run ZIOs is to use a "main method" program (something you can start in the JVM) but setting up the pieces needed for this is a bit cumbersome if done without helpers so ZIO provides an easy way to do this with the `ZIOAppDefault` trait.
+One way to run ZIOs is to use a "main method" program (something you can start in the JVM).
+However, setting up the pieces needed for this is a bit cumbersome if done without helpers so ZIO provides an easy way to do this with the `ZIOAppDefault` trait.
 
 To use it create a new `object` that extends the `ZIOAppDefault` trait and implements the `run` method.  That method returns a ZIO so you can now give it the example `ZIO.debug` data:
 ```scala mdoc
 object HelloWorld extends zio.ZIOAppDefault:
-  def run = ZIO.debug("hello, world")
+  def run = 
+    ZIO.debug:
+      "hello, world"
 ```
 
 This can be run on the JVM in the same way as any other class that has a `static void main` method.
 
 The `ZIOAppDefault` trait sets up the ZIO runtime which interprets ZIOs and provides some out-of-the-box functionality, and then runs the provided data in that runtime.
 
-In some cases your ZIOs may need to be run outside of a *main* program, for example when embedded into other programs.  In this case you can use ZIO's `Unsafe` utility which is called `Unsafe` to indicate that the code may perform side effects.  To do the same `ZIO.debug` with `Unsafe` do:
+In some cases your ZIOs may need to be run outside a *main* program, for example when embedded into other programs.
+In this case you can use ZIO's `Unsafe` utility which is called `Unsafe` to indicate that the code may perform side effects.  
+To do the same `ZIO.debug` with `Unsafe` do:
 
 ```scala mdoc
-import zio.Runtime.default.unsafe
-
 Unsafe.unsafe { implicit u: Unsafe =>
-  unsafe
-    .run(ZIO.debug("hello, world"))
+  Runtime.default.unsafe
+    .run:
+      ZIO.debug:
+        "hello, world"
     .getOrThrowFiberFailure()
 }
 ```
@@ -60,7 +90,7 @@ println(Random.nextInt)
 ```
 This is a mistake because ZIO's are not their result, they are descriptions of effects that produce the result.
 
-An `Option` that _might_ have a value inside of it, but you can't safely assume that it does.
+An `Option` _might_ have a value inside of it, but you can't safely assume that it does.
 Similarly, a `ZIO` _might_ produce a value, but you have to run it to find out.
 
 You can think of them as recipes for producing a value.
@@ -83,7 +113,9 @@ It is the standard, simplest way to start executing your recipes.
 
 ```scala mdoc
 object RunningZIOs extends ZIOAppDefault:
-  def run = Console.printLine("Hello World!")
+  def run = 
+    Console.printLine:
+      "Hello World!"
 
 // RunningZIOs.main(Array.empty)  // causes mdoc crash
 ```
@@ -143,31 +175,28 @@ runSpec:
     res1 <= 10 && res2 <= 20 && res3 <= 30
 ```
 
-```scala mdoc:invisible
-// TODO Consider behavior for other values
-def notificationFor(username: String) =
-  ZIO.succeed("Meeting @ 9")
-```
-
+Consider a `Console` application:
 ```scala mdoc:silent
 val logic =
-  import zio.Console.{printLine, readLine}
   defer:
     val username =
-      readLine:
+      Console.readLine:
         "Enter your name\n"
       .run
-    printLine:
+    Console.printLine:
       s"Hello $username"
     .run
-    val notification =
-      notificationFor:
-        username
-      .run
-    printLine:
-      notification
-    .run
+  .orDie
 ```
+If we try to run this code in the same way as most of the examples in this book, we encounter a problem.
+```scala mdoc
+runDemo:
+  logic
+    .timeout(1.second)
+```
+We cannot execute this code and render the results for the book because it requires interaction with a user.
+However, even if you are not trying to write demo code for a book, it is very limiting to need a user at the keyboard for your program to execute.
+Even for the smallest programs, it is slow, error-prone, and boring.
 
 ```scala mdoc
 
@@ -177,17 +206,20 @@ runSpec:
       .feedLines:
         "Zeb"
       .run
+
     logic.run
-    val capturedOutput: Vector[String] =
-      TestConsole.output.run
+
+    val capturedOutput: String =
+      TestConsole
+        .output
+        .run
+        .mkString
     val expectedOutput =
       s"""|Enter your name
           |Hello Zeb
-          |Meeting @ 9
           |""".stripMargin
     assertTrue:
-      capturedOutput.mkString("") ==
+      capturedOutput ==
         expectedOutput
-  .orDie
 ```
 ## 
