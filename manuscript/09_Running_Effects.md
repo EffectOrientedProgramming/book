@@ -41,7 +41,7 @@ If you have a ZIO Effect like:
 ZIO.debug("hello, world")
 // res0: ZIO[Any, Nothing, Unit] = Sync(
 //   trace = "repl.MdocSession.MdocApp.res0(09_Running_Effects.md:8)",
-//   eval = zio.ZIOCompanionVersionSpecific$$Lambda$16515/0x0000000804224040@5887f1b2
+//   eval = zio.ZIOCompanionVersionSpecific$$Lambda$16293/0x00000001041f9040@7b5d2c57
 // )
 ```
 
@@ -94,7 +94,7 @@ If needed you can even interop to Scala Futures through `Unsafe`, transforming t
 A common mistake when starting with ZIO is trying to return ZIO instances themselves rather than their result.
 ```scala
 println(Random.nextInt)
-// Stateful(repl.MdocSession.MdocApp.res2(09_Running_Effects.md:38),zio.FiberRef$unsafe$$anon$2$$Lambda$16591/0x00000008042b3040@7f4c6aa7)
+// Stateful(repl.MdocSession.MdocApp.res2(09_Running_Effects.md:38),zio.FiberRef$unsafe$$anon$2$$Lambda$16360/0x000000010427b840@18540781)
 ```
 This is a mistake because ZIO's are not their result, they are descriptions of effects that produce the result.
 
