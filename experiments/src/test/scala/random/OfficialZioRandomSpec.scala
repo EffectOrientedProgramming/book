@@ -68,7 +68,7 @@ object OfficialZioRandomSpec
           TestRandom.feedInts(1, 2).run
           val result1 = Random.nextInt.run
           val result2 = Random.nextInt.run
-          //val result3 = Random.nextInt.run
+          //val result3 = Random.nextInt.run // this falls back to system Random
           assertTrue(
             result1 == 1,
             result2 == 2,
@@ -80,10 +80,13 @@ object OfficialZioRandomSpec
           ZIO.sleep(2.seconds)
 
         defer:
-          val result =
+          val fork =
             thingThatTakesTime
               .timeout(1.second)
+              .fork
               .run
+          TestClock.adjust(2.seconds).run
+          val result = fork.join.run
           assertTrue(result.isEmpty)
       ,
       //test("failure"):
