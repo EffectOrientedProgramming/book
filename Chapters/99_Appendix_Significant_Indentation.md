@@ -1,4 +1,4 @@
-# Significant Indentation
+# Appendix: Significant Indentation
 We have taken a bit of a risk with the style used in this book.
 We are embracing significant indentation nearly to the max.
 These syntastic features were some of the most contentious changes from Scala 3
@@ -32,7 +32,7 @@ However, when the function accepts:
 - Multiple parameters
 - Multiple lists of parameters
 
-We use parentheses to group/collect/etc the arguments 
+We use parentheses to group/collect/etc the arguments
 ```scala mdoc:invisible
 def multiply(x: Int, y: Int) = x * y
 ```
