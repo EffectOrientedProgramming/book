@@ -106,8 +106,8 @@ runDemo:
 // ──────────────────────────────────────────────────────────────────────
 // 
 // 
-//   Toast.make.provide(bread, Heat.toaster)
-//              ^^^^^^^
+//       Bread.make.provide(Dough.fresh, Heat.oven)
+//                          ^
 ```
 
 ### Step 2: Provide Dependencies to Effects
@@ -149,7 +149,34 @@ object Heat:
 ```
 
 
+
 ### Step 3: Effects can require multiple dependencies
+
+> Note: The following is copy&pasted and might just need a slight diversion to &'d typed parameters
+
+## Intersections AKA Products AKA Case Classes AKA Ands
+
+```mermaid
+graph TD;
+  Any-->User;
+  Any-->Account;
+   
+```
+
+```scala
+trait Piece1
+trait Piece2
+
+def needyFunction()
+    : ZIO[Piece1 & Piece1, Nothing, Unit] = ???
+```
+
+For your `Answer`, it can be desirable to give a clear name that is relevant to your domain.
+
+The requirements for each ZIO are combined as an anonymous product type denoted by the `&` symbol.
+
+
+
 ```scala
 // Restore private constructor after failure scenario is dialed in
 case class Bread()

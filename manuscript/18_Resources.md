@@ -1,5 +1,7 @@
 # Resources
 
+1. Open / Close around an Effect
+
 Resources are finite / large overhead allocatable pools of things:
  - Connections
  - File handles
@@ -10,10 +12,10 @@ Connection with dining philosophers
 
 Externalizes the resource management so that the logic that acts on the resource can be reused, refactored, composed.
 
-Assembly of resources works the same as a single resource. If a resource is more than 1 resource, the logic acting on any / all resources doesn't have to know what cleanup.  Similarly, the logic is unconcerned with the ability for all needed resources to be available.  Logic is only ever to be applied when all resources are available.
+Assembly of resources works the same as a single resource.
+If a resource is more than 1 resource, the logic acting on any / all resources doesn't have to know what cleanup.
+Similarly, the logic is unconcerned with the ability for all needed resources to be available.
+Logic is only ever to be applied when all resources are available.
 
-
-```scala
-println("hi")
-// hi
-```
+## Edit This Chapter
+[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/18_Resources.md)
