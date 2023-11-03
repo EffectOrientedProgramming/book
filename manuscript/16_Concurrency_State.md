@@ -63,7 +63,7 @@ val unreliableCounting =
 ```scala
 runDemo:
   unreliableCounting
-// Final count: 99988
+// Final count: 99996
 ```
 
 Due to the unpredictable nature of shared mutable state, we do not know exactly what the final count above is.
