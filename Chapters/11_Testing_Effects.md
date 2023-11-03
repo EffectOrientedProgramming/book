@@ -64,7 +64,7 @@ Using real-world time also can be error prone because effects may have unexpecte
 
 ## `assertTrue`
 
-Side note: In this example we utilize ZIO Test's `assertTrue` which provides a non-DSL approach to writing assertions while preserving the negative condition error messages.  Typically using `assertTrue` doesn't give helpful errors, ie `true != false`, but ZIO Test provides helpful details for why the assertion was false.
+In this example we utilize ZIO Test's `assertTrue` which provides a non-DSL approach to writing assertions while preserving the negative condition error messages.  Typically using `assertTrue` doesn't give helpful errors, ie `true != false`, but ZIO Test provides helpful details for why the assertion was false.
 
 > Todo: Can we display with mdoc the nice assertTrue fail message?
 > Todo: More compelling assertTrue failure
@@ -73,3 +73,5 @@ Side note: In this example we utilize ZIO Test's `assertTrue` which provides a n
 runSpec:
   assertTrue(Some("asdf") == None)
 ```
+
+## Overriding Builtin Services with Test Aspects

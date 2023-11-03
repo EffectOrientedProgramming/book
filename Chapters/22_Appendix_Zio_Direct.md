@@ -1,3 +1,7 @@
+# Appendix: ZIO Direct
+
+## How does defer, etc relate to flatmaps, for comprehensions, etc
+
 ---
 We don't need to talk about monads, etc as zio-direct will just be "the way"
 so we don't need to explain why zio-direct or what it is. It just is.
