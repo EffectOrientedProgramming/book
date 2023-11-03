@@ -260,7 +260,7 @@ runDemo:
   .retry:
     aFewTimes
   .orElseSucceed:
-    "ERROR: User could not be saved, despite multiple attempts"
+    "ERROR: User could not be saved"
 ```
 
 ```scala mdoc:invisible

@@ -1,11 +1,13 @@
 # Unit
 
+Note - This is a little long to be absorbed into the Composability chapter...
+
 ### The bare minimum of effect tracking
 
 Consider a function
 
 ```scala mdoc
-def saveInformation(info: Any): Unit = ???
+def saveInformation(info: String): Unit = ???
 ```
 
 If we consider only the types, this function is an `Any=>Unit`.
@@ -42,7 +44,7 @@ It is possible that we are using entirely open-source or in-house code throughou
 That means that we could theoretically dig into every function involved in a complex path and note every effect.
 
 In practice this quickly becomes impossible.
-Note - We flag the external system that we are interacting with by printing the all-caps value.
+Note - We indicate the external system that we are interacting with by printing the all-caps value.
 
 ```scala mdoc
 object Analytics:
