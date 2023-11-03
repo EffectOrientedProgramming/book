@@ -41,7 +41,7 @@ If you have a ZIO Effect like:
 ZIO.debug("hello, world")
 // res0: ZIO[Any, Nothing, Unit] = Sync(
 //   trace = "repl.MdocSession.MdocApp.res0(08_Running_Effects.md:8)",
-//   eval = zio.ZIOCompanionVersionSpecific$$Lambda$16296/0x00000001041f8440@6546bc9c
+//   eval = zio.ZIOCompanionVersionSpecific$$Lambda$16430/0x00000008041fb040@34f24c95
 // )
 ```
 
@@ -56,7 +56,7 @@ However, setting up the pieces needed for this is a bit cumbersome if done witho
 To use it create a new `object` that extends the `ZIOAppDefault` trait and implements the `run` method.  That method returns a ZIO so you can now give it the example `ZIO.debug` data:
 ```scala
 object HelloWorld extends zio.ZIOAppDefault:
-  def run = 
+  def run =
     ZIO.debug:
       "hello, world"
 ```
@@ -71,7 +71,9 @@ To do the same `ZIO.debug` with `Unsafe` do:
 
 ```scala
 Unsafe.unsafe { implicit u: Unsafe =>
-  Runtime.default.unsafe
+  Runtime
+    .default
+    .unsafe
     .run:
       ZIO.debug:
         "hello, world"
@@ -92,7 +94,7 @@ If needed you can even interop to Scala Futures through `Unsafe`, transforming t
 A common mistake when starting with ZIO is trying to return ZIO instances themselves rather than their result.
 ```scala
 println(Random.nextInt)
-// Stateful(repl.MdocSession.MdocApp.res2(08_Running_Effects.md:36),zio.FiberRef$unsafe$$anon$2$$Lambda$16363/0x000000010427b840@4d34d4b)
+// Stateful(repl.MdocSession.MdocApp.res2(08_Running_Effects.md:38),zio.FiberRef$unsafe$$anon$2$$Lambda$16534/0x0000000804298040@75292804)
 ```
 This is a mistake because ZIO's are not their result, they are descriptions of effects that produce the result.
 
@@ -119,7 +121,7 @@ It is the standard, simplest way to start executing your recipes.
 
 ```scala
 object RunningZIOs extends ZIOAppDefault:
-  def run = 
+  def run =
     Console.printLine:
       "Hello World!"
 ```
@@ -153,8 +155,8 @@ runSpec:
 runSpec:
   Random
     .nextIntBounded(10)
-    .map:
-      x => assertTrue(x > 10)
+    .map: x =>
+      assertTrue(x > 10)
 // Test: FAILED
 ```
 
@@ -188,19 +190,20 @@ Consider a `Console` application:
 val logic =
   defer:
     val username =
-      Console.readLine:
-        "Enter your name\n"
+      Console
+        .readLine:
+          "Enter your name\n"
+        .run
+    Console
+      .printLine:
+        s"Hello $username"
       .run
-    Console.printLine:
-      s"Hello $username"
-    .run
   .orDie
 ```
 If we try to run this code in the same way as most of the examples in this book, we encounter a problem.
 ```scala
 runDemo:
-  logic
-    .timeout(1.second)
+  logic.timeout(1.second)
 // Defect: scala.NotImplementedError: an implemen
 ```
 We cannot execute this code and render the results for the book because it requires interaction with a user.
@@ -218,17 +221,13 @@ runSpec:
     logic.run
 
     val capturedOutput: String =
-      TestConsole
-        .output
-        .run
-        .mkString
+      TestConsole.output.run.mkString
     val expectedOutput =
       s"""|Enter your name
           |Hello Zeb
           |""".stripMargin
     assertTrue:
-      capturedOutput ==
-        expectedOutput
+      capturedOutput == expectedOutput
 // Test: PASSED*
 ```
 ## 
