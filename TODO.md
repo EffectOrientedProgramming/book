@@ -3,7 +3,6 @@
 ## P0
 1. DI Chapter empty `.provide()` to invoke macro - can we do it in `runDemo`
 1. ZIO Direct `ZIO[_, _, Nothing]`
-1. Final chapter list
 1. Prose and code in each chapter
     1. All code in markdown
 1. Example repo

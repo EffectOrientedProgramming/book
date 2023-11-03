@@ -52,7 +52,7 @@ However, setting up the pieces needed for this is a bit cumbersome if done witho
 To use it create a new `object` that extends the `ZIOAppDefault` trait and implements the `run` method.  That method returns a ZIO so you can now give it the example `ZIO.debug` data:
 ```scala mdoc
 object HelloWorld extends zio.ZIOAppDefault:
-  def run = 
+  def run =
     ZIO.debug:
       "hello, world"
 ```
@@ -67,7 +67,9 @@ To do the same `ZIO.debug` with `Unsafe` do:
 
 ```scala mdoc
 Unsafe.unsafe { implicit u: Unsafe =>
-  Runtime.default.unsafe
+  Runtime
+    .default
+    .unsafe
     .run:
       ZIO.debug:
         "hello, world"
@@ -113,7 +115,7 @@ It is the standard, simplest way to start executing your recipes.
 
 ```scala mdoc
 object RunningZIOs extends ZIOAppDefault:
-  def run = 
+  def run =
     Console.printLine:
       "Hello World!"
 
@@ -148,8 +150,8 @@ runSpec:
 runSpec:
   Random
     .nextIntBounded(10)
-    .map:
-      x => assertTrue(x > 10)
+    .map: x =>
+      assertTrue(x > 10)
 ```
 
 TODO Justify defer syntax over for-comp for multi-statement assertions
@@ -180,26 +182,26 @@ Consider a `Console` application:
 val logic =
   defer:
     val username =
-      Console.readLine:
-        "Enter your name\n"
+      Console
+        .readLine:
+          "Enter your name\n"
+        .run
+    Console
+      .printLine:
+        s"Hello $username"
       .run
-    Console.printLine:
-      s"Hello $username"
-    .run
   .orDie
 ```
 If we try to run this code in the same way as most of the examples in this book, we encounter a problem.
 ```scala mdoc
 runDemo:
-  logic
-    .timeout(1.second)
+  logic.timeout(1.second)
 ```
 We cannot execute this code and render the results for the book because it requires interaction with a user.
 However, even if you are not trying to write demo code for a book, it is very limiting to need a user at the keyboard for your program to execute.
 Even for the smallest programs, it is slow, error-prone, and boring.
 
 ```scala mdoc
-
 runSpec:
   defer:
     TestConsole
@@ -210,16 +212,12 @@ runSpec:
     logic.run
 
     val capturedOutput: String =
-      TestConsole
-        .output
-        .run
-        .mkString
+      TestConsole.output.run.mkString
     val expectedOutput =
       s"""|Enter your name
           |Hello Zeb
           |""".stripMargin
     assertTrue:
-      capturedOutput ==
-        expectedOutput
+      capturedOutput == expectedOutput
 ```
 ## 

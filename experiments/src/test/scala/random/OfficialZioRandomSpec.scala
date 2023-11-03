@@ -62,6 +62,32 @@ object OfficialZioRandomSpec
           assertCompletes
 
         }
-      )
+      ),
+      test("asdf")(
+        defer:
+          TestRandom.feedInts(1, 2).run
+          val result1 = Random.nextInt.run
+          val result2 = Random.nextInt.run
+          val result3 = Random.nextInt.run
+          assertTrue(
+            result1 == 1,
+            result2 == 2,
+            result3 == 5
+          )
+      ),
+      test("timeout"):
+        val thingThatTakesTime =
+          ZIO.sleep(2.seconds)
+
+        defer:
+          val result =
+            thingThatTakesTime
+              .timeout(1.second)
+              .run
+          assertTrue(result.isEmpty)
+      ,
+      test("failure"):
+        assertTrue(Some("asdf") == None)
     )
+
 end OfficialZioRandomSpec
