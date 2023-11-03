@@ -14,11 +14,6 @@
 
 - Racing
 - Timeout
-- Error-handling
-  - Fallback
-  - Retry
-- Repeat
-- Parallelism
 - Resource Safety
 - Mutability that you can trust
 - Human-readable
@@ -28,16 +23,12 @@
   - debug
   - logging
 
-# Underlying
-- Composability
-- Success VS failure
 - Interruption/Cancellation
 - Fibers
 - Processor Utilization
   - Fairness
   - Work-stealing
 - Resource Control/Management
-- Programs as values
 
 ```scala mdoc
 object DatabaseError
@@ -85,10 +76,10 @@ object HiddenPrelude:
         )
       }
 
-    val doesNotWorkFirstTime =
+    val doesNotWorkInitially =
       Unsafe.unsafe { implicit unsafe =>
         WorksOnTry(
-          1,
+          2,
           Runtime
             .default
             .unsafe
@@ -179,9 +170,8 @@ object HiddenPrelude:
       error: Any
   ) =
     ZIO
-      .succeed(
+      .succeed:
         "Analytics sent for signup failure"
-      )
       .delay(1.millis)
       .debug
       .fork
@@ -198,6 +188,10 @@ end HiddenPrelude
 import HiddenPrelude.*
 ```
 
+## Building a Resilient Process in stages
+
+### Successful Code
+
 ```scala mdoc
 // works
 runDemo:
@@ -209,6 +203,8 @@ runDemo:
 HiddenPrelude.resetScenario(Scenario.NeverWorks)
 ```
 
+### Error Fallback Value
+
 ```scala mdoc
 // fails
 runDemo:
@@ -218,27 +214,23 @@ runDemo:
     "ERROR: User could not be saved"
 ```
 
-
-
-```scala mdoc
-import zio.Schedule.*
-```
+### Retry Upon Failure
 
 ```scala mdoc:invisible
 HiddenPrelude
-  .resetScenario(Scenario.doesNotWorkFirstTime)
+  .resetScenario(Scenario.doesNotWorkInitially)
 ```
 
 ```scala mdoc:silent
+import zio.Schedule.{recurs, spaced}
 val aFewTimes =
   // TODO Restore original spacing when done
   // editing
   // recurs(3) && spaced(1.second)
-  recurs(3)
+  recurs(3) && spaced(1.millis)
 ```
 
 ```scala mdoc
-// fails first time - with retry
 runDemo:
   saveUser:
     "morty"
@@ -247,6 +239,8 @@ runDemo:
   .orElseSucceed:
     "ERROR: User could not be saved"
 ```
+
+### Fallback after multiple failures
 
 ```scala mdoc:invisible
 HiddenPrelude.resetScenario(Scenario.NeverWorks)
@@ -262,6 +256,9 @@ runDemo:
   .orElseSucceed:
     "ERROR: User could not be saved"
 ```
+
+### Timeouts
+
 
 ```scala mdoc:invisible
 HiddenPrelude.resetScenario(Scenario.firstIsSlow)
@@ -283,6 +280,8 @@ runDemo:
       "ERROR: User could not be saved"
 ```
 
+### Fallback Effect
+
 ```scala mdoc:invisible
 HiddenPrelude.resetScenario(Scenario.NeverWorks)
 ```
@@ -301,6 +300,8 @@ runDemo:
   .orElseSucceed:
     "ERROR: User could not be saved, even to the fallback system"
 ```
+
+### Concurrently Execute Effect 
 
 ```scala mdoc:invisible
 HiddenPrelude
@@ -322,6 +323,7 @@ runDemo:
       // todo: maybe this hidden extension method
       // goes too far with functionality that
       // doesn't really exist
+      // TODO Should we fireAndForget before the retries/fallbacks?
     .fireAndForget:
       userSignupInitiated:
         "morty"
@@ -331,6 +333,10 @@ runDemo:
 HiddenPrelude
   .resetScenario(Scenario.WorksFirstTime)
 ```
+
+### Ignore failures in Concurrent Effect 
+
+Feeling a bit "meh" about this step.
 
 ```scala mdoc
 // concurrently save & send analytics, ignoring analytics failures
