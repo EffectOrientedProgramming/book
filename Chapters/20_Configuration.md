@@ -1,4 +1,14 @@
-# Environment Variables
+# Configuration
+
+Changing things based on the running environment.
+
+## CLI Params
+
+## Config Files
+
+## ZIO Config
+
+## Environment Variables
 
 ## Historic Approach
 
@@ -161,7 +171,7 @@ case class SystemStrict():
         .run
     }
 ```
-     
+
 Similarly, we wrap our API in one that leverages ZIO.
 
 ```scala mdoc
@@ -224,7 +234,7 @@ def fancyLodgingUnsafe(
 ```
 
 The logic is _identical_ to our original implementation!
-The only difference is the result type. 
+The only difference is the result type.
 
 This is what it looks like in action:
 
@@ -302,13 +312,13 @@ runDemo(
 
 TODO{{The actual line looks the same, which I highlighted as a problem before. How should we indicate that the Environment is different?}}
 
-When constructed this way, it becomes very easy to test. 
+When constructed this way, it becomes very easy to test.
 We create a second implementation that accepts test values and serves them to the caller.
 TODO{{Reorder things so that the official ZIO TestSystem is used.}}
 
 ## Official ZIO Approach
 
-ZIO provides a more complete `System` API in the `zio.System`. 
+ZIO provides a more complete `System` API in the `zio.System`.
 This is always available as a standard service from the ZIO runtime.
 
 TODO
