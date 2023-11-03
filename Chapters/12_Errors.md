@@ -427,7 +427,7 @@ Scala 3 automatically aggregates the error types by synthesizing an anonymous su
 Functions usually transform the `Answer` from one type to another type.  Errors often aggregate.
 
 
-```scala mdoc
+```scala
 trait Error1
 trait Error2
 
@@ -436,7 +436,7 @@ def failableFunction()
 ```
 Consider 2 error types
 
-```scala mdoc
+```scala
 trait UserNotFound
 trait PermissionError
 ```
@@ -472,7 +472,11 @@ graph TD;
   PermissionError-->UserNotFound_OR_PermissionError;
 ```
 
-```scala mdoc
+```scala
+case class UserService()
+```
+
+```scala
 trait User
 trait SuperUser
 
