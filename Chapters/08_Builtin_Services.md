@@ -29,7 +29,9 @@ You can no longer discern _which_ piece of the Environment/Runtime is being acce
 
 ## Overriding Builtin Services
 
-```scala mdoc
+> Note: This doesn't work in ZIO 2
+
+```scala
 object ConsoleSanitized extends Console:
   private val socialSecurity =
     "\\d{3}-\\d{2}-\\d{4}"
@@ -53,7 +55,7 @@ val leakSensitiveInfo
     .printLine("Customer SSN is 000-00-0000")
 ```
 
-```scala mdoc
+```scala
 runDemo(
   leakSensitiveInfo.provide(
     ZLayer.succeed[Console](ConsoleSanitized)
