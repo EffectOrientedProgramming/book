@@ -14,11 +14,6 @@
 
 - Racing
 - Timeout
-- Error-handling
-  - Fallback
-  - Retry
-- Repeat
-- Parallelism
 - Resource Safety
 - Mutability that you can trust
 - Human-readable
@@ -28,22 +23,22 @@
   - debug
   - logging
 
-# Underlying
-- Composability
-- Success VS failure
 - Interruption/Cancellation
 - Fibers
 - Processor Utilization
   - Fairness
   - Work-stealing
 - Resource Control/Management
-- Programs as values
 
 ```scala
 object DatabaseError
 object TimeoutError
 ```
 
+
+## Building a Resilient Process in stages
+
+### Successful Code
 
 ```scala
 // works
@@ -53,6 +48,8 @@ runDemo:
 // User saved
 ```
 
+
+### Error Fallback Value
 
 ```scala
 // fails
@@ -65,23 +62,19 @@ runDemo:
 // ERROR: User could not be saved
 ```
 
+### Retry Upon Failure
 
 
 ```scala
-import zio.Schedule.*
-```
-
-
-```scala
+import zio.Schedule.{recurs, spaced}
 val aFewTimes =
   // TODO Restore original spacing when done
   // editing
   // recurs(3) && spaced(1.second)
-  recurs(3)
+  recurs(3) && spaced(1.millis)
 ```
 
 ```scala
-// fails first time - with retry
 runDemo:
   saveUser:
     "morty"
@@ -90,8 +83,11 @@ runDemo:
   .orElseSucceed:
     "ERROR: User could not be saved"
 // DatabaseError
+// DatabaseError
 // User saved
 ```
+
+### Fallback after multiple failures
 
 
 ```scala
@@ -102,16 +98,16 @@ runDemo:
   .retry:
     aFewTimes
   .orElseSucceed:
-    "ERROR: User could not be saved, despite multiple attempts"
+    "ERROR: User could not be saved"
 // DatabaseError
 // DatabaseError
 // DatabaseError
 // DatabaseError
-// TODO Handle long line. 
-// Truncating for now: 
-// ERROR: User could not be saved, despite multiple attempts
-// ERROR: User could not be saved, despite multip
+// ERROR: User could not be saved
 ```
+
+### Timeouts
+
 
 
 ```scala
@@ -134,6 +130,8 @@ runDemo:
 // User saved
 ```
 
+### Fallback Effect
+
 
 ```scala
 // fails - with retry and fallback
@@ -151,6 +149,8 @@ runDemo:
 // User sent to manual setup queue
 ```
 
+### Concurrently Execute Effect 
+
 
 ```scala
 // concurrently save & send analytics
@@ -167,12 +167,17 @@ runDemo:
       // todo: maybe this hidden extension method
       // goes too far with functionality that
       // doesn't really exist
+      // TODO Should we fireAndForget before the retries/fallbacks?
     .fireAndForget:
       userSignupInitiated:
         "morty"
 // User saved
 ```
 
+
+### Ignore failures in Concurrent Effect 
+
+Feeling a bit "meh" about this step.
 
 ```scala
 // concurrently save & send analytics, ignoring analytics failures

@@ -1,47 +1,13 @@
 # Running Effects
 
-## Main ideas to convey.
-
-### ZIOs are not their result. They are something that can be executed, that _might_ produce that result.
-
-### ZIOs are not automatically executed. The user must determine when/where that happens.
-  - The `defer`/direct syntax makes this more explicit
-  - 
-### There is an interpreter that provides the ZIO superpowers
-
-### Building applications from scratch
-    - `ZIOAppDefault`
-    - `runDemo` ?
-
-### Testing code
-    - `ZIOSpecDefault`
-    - `runSpec` ?
-
-### Interop with existing/legacy code via Unsafe
-
-
-## Bruce
-You've got a zio that describes some logic. 
-How do you actually run it?
-
-Scala compiles code to JVM bytecodes, 
-Similarly ZIO has an interpreter that steps through and executes your code, much like the JVM interprets JVM bytecodes. 
-The Zio interpreter is the hidden piece that allows Zio to understand so much more about the meaning of your code.
-This includes the ability to decide what to run concurrently and how to invisibly tune that concurrency--all at runtime. 
-The interpreter is responsible for deciding when to context-switch between tasks, and is able to do this because it understands the ZIO code that it's executing.
-
-The interpreter is also the mechanism that evaluates the various effects described in the generic type parameters for each ZIO object.
-
-The reason we have the `defer` directive(method?) in zio-direct is to indicate that this code will be evaluated by the interpreter later.
-
-## James
-
+## ZIOs are not their result. They are something that can be executed, that _might_ produce that result.
 If you have a ZIO Effect like:
+
 ```scala
 ZIO.debug("hello, world")
 // res0: ZIO[Any, Nothing, Unit] = Sync(
 //   trace = "repl.MdocSession.MdocApp.res0(09_Running_Effects.md:8)",
-//   eval = zio.ZIOCompanionVersionSpecific$$Lambda$16260/0x00000001041f8440@61e6196c
+//   eval = zio.ZIOCompanionVersionSpecific$$Lambda$16427/0x0000000804225040@698a5ba2
 // )
 ```
 
@@ -49,6 +15,41 @@ This doesn't actually do anything.
 It only describes something *to be* done.
 It is only data (in the ZIO data type), not instructions.
 To actually run a ZIO you need to wrap the ZIO in a program that will take the data types and interpret / run them, transforming the descriptions into something that executes.
+
+
+A common mistake when starting with ZIO is trying to return ZIO instances themselves rather than their result.
+```scala
+println(Random.nextInt)
+// Stateful(repl.MdocSession.MdocApp.res1(09_Running_Effects.md:15),zio.FiberRef$unsafe$$anon$2$$Lambda$16503/0x00000008042a2840@49a24bca)
+```
+This is a mistake because ZIO's are not their result, they are descriptions of effects that produce the result.
+
+ZIOs are not automatically executed. The user must determine when/where that happens.
+
+An `Option` _might_ have a value inside of it, but you can't safely assume that it does.
+Similarly, a `ZIO` _might_ produce a value, but you have to run it to find out.
+
+You can think of them as recipes for producing a value.
+You don't want to return a recipe from a function, you can only return a value.
+If it is your friend's birthday, they want a cake, not a list of instructions about mixing ingredients and baking.
+
+
+### The `defer`/direct syntax makes this more explicit
+
+
+## There is an interpreter that provides the ZIO superpowers
+
+Scala compiles code to JVM bytecodes,
+Similarly ZIO has an interpreter that steps through and executes your code, much like the JVM interprets JVM bytecodes.
+The Zio interpreter is the hidden piece that allows Zio to understand so much more about the meaning of your code.
+This includes the ability to decide what to run concurrently and how to invisibly tune that concurrency--all at runtime.
+The interpreter is responsible for deciding when to context-switch between tasks, and is able to do this because it understands the ZIO code that it's executing.
+
+The interpreter is also the mechanism that evaluates the various effects described in the generic type parameters for each ZIO object.
+
+The reason we have the `defer` directive(method?) in zio-direct is to indicate that this code will be evaluated by the interpreter later.
+
+## Building applications from scratch
 
 One way to run ZIOs is to use a "main method" program (something you can start in the JVM).
 However, setting up the pieces needed for this is a bit cumbersome if done without helpers so ZIO provides an easy way to do this with the `ZIOAppDefault` trait.
@@ -64,6 +65,22 @@ object HelloWorld extends zio.ZIOAppDefault:
 This can be run on the JVM in the same way as any other class that has a `static void main` method.
 
 The `ZIOAppDefault` trait sets up the ZIO runtime which interprets ZIOs and provides some out-of-the-box functionality, and then runs the provided data in that runtime.
+
+### runDemo ?
+
+## Testing code
+    - `ZIOSpecDefault`
+    - `runSpec` ?
+
+## Interop with existing/legacy code via Unsafe
+
+
+## Bruce
+You've got a zio that describes some logic. 
+How do you actually run it?
+
+
+## James
 
 In some cases your ZIOs may need to be run outside a *main* program, for example when embedded into other programs.
 In this case you can use ZIO's `Unsafe` utility which is called `Unsafe` to indicate that the code may perform side effects.  
@@ -89,21 +106,6 @@ If needed you can even interop to Scala Futures through `Unsafe`, transforming t
 
 
 ## Bill
-
-
-A common mistake when starting with ZIO is trying to return ZIO instances themselves rather than their result.
-```scala
-println(Random.nextInt)
-// Stateful(repl.MdocSession.MdocApp.res2(09_Running_Effects.md:38),zio.FiberRef$unsafe$$anon$2$$Lambda$16327/0x000000010427b840@42204293)
-```
-This is a mistake because ZIO's are not their result, they are descriptions of effects that produce the result.
-
-An `Option` _might_ have a value inside of it, but you can't safely assume that it does.
-Similarly, a `ZIO` _might_ produce a value, but you have to run it to find out.
-
-You can think of them as recipes for producing a value.
-You don't want to return a recipe from a function, you can only return a value.
-If it is your friend's birthday, they want a cake, not a list of instructions about mixing ingredients and baking.
 
 
 Different ways to run a ZIO:
