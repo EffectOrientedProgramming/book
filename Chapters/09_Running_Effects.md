@@ -4,22 +4,27 @@
 If you have a ZIO Effect like:
 
 ```scala mdoc
-ZIO.debug("hello, world")
+println("A")
+ZIO.debug("B")
+println("C")
 ```
 
-This doesn't actually do anything.
+We will not see the `ZIO.debug` output.
+
 It only describes something *to be* done.
 It is only data (in the ZIO data type), not instructions.
-To actually run a ZIO you need to wrap the ZIO in a program that will take the data types and interpret / run them, transforming the descriptions into something that executes.
-
+To actually run a ZIO, your program must take the data types and interpret / run them, executing the logic .
 
 A common mistake when starting with ZIO is trying to return ZIO instances themselves rather than their result.
+
 ```scala mdoc
 println(Random.nextInt)
 ```
+
 This is a mistake because ZIO's are not their result, they are descriptions of effects that produce the result.
 
-ZIOs are not automatically executed. The user must determine when/where that happens.
+ZIOs are not automatically executed. 
+The user must determine when/where that happens.
 
 An `Option` _might_ have a value inside of it, but you can't safely assume that it does.
 Similarly, a `ZIO` _might_ produce a value, but you have to run it to find out.
@@ -61,57 +66,6 @@ This can be run on the JVM in the same way as any other class that has a `static
 
 The `ZIOAppDefault` trait sets up the ZIO runtime which interprets ZIOs and provides some out-of-the-box functionality, and then runs the provided data in that runtime.
 
-### runDemo ?
-
-## Testing code
-    - `ZIOSpecDefault`
-    - `runSpec` ?
-
-## Interop with existing/legacy code via Unsafe
-
-
-## Bruce
-You've got a zio that describes some logic. 
-How do you actually run it?
-
-
-## James
-
-In some cases your ZIOs may need to be run outside a *main* program, for example when embedded into other programs.
-In this case you can use ZIO's `Unsafe` utility which is called `Unsafe` to indicate that the code may perform side effects.  
-To do the same `ZIO.debug` with `Unsafe` do:
-
-```scala mdoc
-Unsafe.unsafe { implicit u: Unsafe =>
-  Runtime
-    .default
-    .unsafe
-    .run:
-      ZIO.debug:
-        "hello, world"
-    .getOrThrowFiberFailure()
-}
-```
-
-If needed you can even interop to Scala Futures through `Unsafe`, transforming the output of a ZIO into a Future.
-
-
-
-
-
-## Bill
-
-
-Different ways to run a ZIO:
-- As your main application, via `ZIOApp*` variations.
-- As a test case
-- As the handler for a web request, ala zio-http (Different enough to warrant its own bullet?)
-  - Spell out that you only ever execute a top-level ZIO, even if it branches out to multiple other ZIOs
-- Within your existing, non-ZIO application, 
-  - via `Runtime` & `Unsafe` mechanisms
-- Processing a stream of data
-
-## ZIOApp
 If you are learning ZIO, you should start your exploration with `ZIOAppDefault`.
 It is the standard, simplest way to start executing your recipes.
 
@@ -128,8 +82,16 @@ In other words, it can accept `ZIO[Any, _, _]`.
 
 There is a more flexible `ZIOApp` that facilitates sharing layers between applications, but this is advanced and not necessary for most applications.
 
-## Test
+### runDemo ?
+
+## Testing code
+    - `runSpec` ?
+
+### ZIOSpecDefault
+
 Similar to `ZIOAppDefault`, there is a `ZIOSpecDefault` that should be your starting point for testing ZIO applications.
+
+> TODO - Decide which scenario to test
 
 ```scala mdoc
 import zio.test._
@@ -141,6 +103,8 @@ object TestingZIOs extends ZIOSpecDefault:
           Random.nextIntBounded(10).run < 10
 ```
 
+### runSpec
+
 ```scala mdoc
 runSpec:
   defer:
@@ -148,17 +112,9 @@ runSpec:
       Random.nextIntBounded(10).run < 10
 ```
 
-```scala mdoc
-runSpec:
-  Random
-    .nextIntBounded(10)
-    .map: x =>
-      assertTrue(x > 10)
-```
-
 TODO Justify defer syntax over for-comp for multi-statement assertions
- I think this example completes the objective
- TODO Change this to a Console app, where the logic & testing is more visceral
+I think this example completes the objective
+TODO Change this to a Console app, where the logic & testing is more visceral
 ```scala mdoc
 runSpec:
   defer:
@@ -222,4 +178,29 @@ runSpec:
     assertTrue:
       capturedOutput == expectedOutput
 ```
-## 
+
+## Interop with existing/legacy code via Unsafe
+
+In some cases your ZIOs may need to be run outside a *main* program, for example when embedded into other programs.
+In this case you can use ZIO's `Unsafe` utility which is called `Unsafe` to indicate that the code may perform side effects.  
+To do the same `ZIO.debug` with `Unsafe` do:
+
+```scala mdoc
+Unsafe.unsafe { implicit u: Unsafe =>
+  Runtime
+    .default
+    .unsafe
+    .run:
+      ZIO.debug:
+        "hello, world"
+    .getOrThrowFiberFailure()
+}
+```
+
+If needed you can even interop to Scala Futures through `Unsafe`, transforming the output of a ZIO into a Future.
+
+## Web Request Handler
+Different enough to warrant its own section?
+You only ever execute a top-level ZIO, even if it branches out to multiple other ZIOs
+
+## Processing streams of data
