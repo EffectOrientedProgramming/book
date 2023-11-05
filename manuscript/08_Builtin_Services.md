@@ -1,7 +1,5 @@
 # Built-in Services
 
-## System Effects
-
 Why are Console, Clock, Random, System Built-in?
 
 `ZIO[Any, _, _]` - System effects are not included in `E`
@@ -22,7 +20,7 @@ you needed a `ZIO[Random with Clock with System with Console, _, _].
 This is maximally informative, but it is also a lot of boilerplate code.
 
 ### 2.x
-Late in the development of ZIO 2.0, the team decided to bake these deeper into the runtime.
+For ZIO 2.0, the team decided to bake these deeper into the runtime.
 Now you can use any of these services without an impact on your method signatures.
 This reduces boilerplate, with a trade-off.
 You can no longer discern _which_ piece of the Environment/Runtime is being accessed by reading the signature.

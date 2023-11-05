@@ -21,11 +21,10 @@ trait Location:
   def timezone: ZIO[Any, Nothing, TimeZone]
 
 object Location:
-  def gpsCoords: ZIO[
-    Location,
-    HardwareFailure,
-    GpsCoordinates
-  ] = ZIO.service[Location].flatMap(_.gpsCoords)
+  case class Live() extends Location:
+    def gpsCoords
+    : ZIO[Any, HardwareFailure, GpsCoordinates] = ???
+    def timezone: ZIO[Any, Nothing, TimeZone] = ???
 ```
 
 Now that we have basic `Location`-awareness, we can build more domain-specific logic on top of it.
@@ -60,21 +59,17 @@ trait Almanac:
 ```scala
 case class Country(name: String)
 
-trait CountryService:
-  def currentCountry
-      : ZIO[Location, HardwareFailure, Country]
-
-object CountryService:
-  // TODO investigate bad formatting
-  def currentCountry
-      : ZIO[Location, HardwareFailure, Country] =
-    defer {
-      val gpsCords = Location.gpsCoords.run
-      if (gpsCords.latitude > 0)
-        Country("Canada")
-      else
-        Country("USA")
-    }
+case class CountryService(
+  location: Location
+):
+    def currentCountry
+    : ZIO[Any, HardwareFailure, Country] =
+      defer:
+        val gpsCords = location.gpsCoords.run
+        if (gpsCords.latitude > 0)
+          Country("Canada")
+        else
+          Country("USA")
 ```
 
 ```scala
@@ -104,15 +99,14 @@ class LegalService(
     lawLibrary: LawLibrary
 ):
   def status(issue: Issue): ZIO[
-    Location & GeoPolitcalState,
+    GeoPolitcalState,
     CurrentWar | HardwareFailure,
     LegalStatus
   ] =
-    defer {
+    defer:
       val country =
         countryService.currentCountry.run
       lawLibrary.status(country, issue).run
-    }
 ```
 
 
