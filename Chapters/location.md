@@ -60,24 +60,17 @@ trait Almanac:
 ```scala mdoc
 case class Country(name: String)
 
-trait CountryService:
-  def currentCountry
-      : ZIO[Any, HardwareFailure, Country]
-      
-
-
-object CountryService:
-  case class Live(
-      location: Location
-                 ) extends CountryService:
-        def currentCountry
-        : ZIO[Any, HardwareFailure, Country] =
-          defer:
-            val gpsCords = location.gpsCoords.run
-            if (gpsCords.latitude > 0)
-              Country("Canada")
-            else
-              Country("USA")
+case class CountryService(
+  location: Location
+):
+    def currentCountry
+    : ZIO[Any, HardwareFailure, Country] =
+      defer:
+        val gpsCords = location.gpsCoords.run
+        if (gpsCords.latitude > 0)
+          Country("Canada")
+        else
+          Country("USA")
           
 
 
