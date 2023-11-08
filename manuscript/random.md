@@ -33,7 +33,7 @@ class MutableRNG(var seed: Int):
 
 ```scala
 val rng = MutableRNG(1)
-// rng: MutableRNG = repl.MdocSession$MdocApp$MutableRNG@769b1e61
+// rng: MutableRNG = repl.MdocSession$MdocApp$MutableRNG@62fc26e9
 rng.nextInt()
 // res0: Int = 357
 rng.nextInt()
@@ -46,7 +46,7 @@ Let's see what happens if we make a new instance with the same seed.
 
 ```scala
 val rngDuplicate = MutableRNG(1)
-// rngDuplicate: MutableRNG = repl.MdocSession$MdocApp$MutableRNG@1ef3505c
+// rngDuplicate: MutableRNG = repl.MdocSession$MdocApp$MutableRNG@ba9753
 rngDuplicate.nextInt()
 // res3: Int = 357
 rngDuplicate.nextInt()
@@ -239,8 +239,6 @@ val threeChances =
 ```scala
 package random
 
-import console.FakeConsole
-
 val low  = 1
 val high = 10
 
@@ -252,6 +250,9 @@ def checkAnswer(
     answer: Int,
     guess: String
 ): String =
+  println(
+    "Comparing: " + answer + " VS " + guess.toInt
+  )
   if answer == guess.toInt then
     "You got it!"
   else
@@ -280,16 +281,9 @@ val sideEffectingGuessingGame =
     Console.print(prompt).run
     val answer =
       scala.util.Random.between(low, high)
-    val guess    = Console.readLine.run
-    val response = checkAnswer(answer, guess)
-    prompt + guess + "\n" + response
-
-object runSideEffectingGuessingGame
-    extends ZIOAppDefault:
-  def run =
-    sideEffectingGuessingGame
-      .withConsole(FakeConsole.single("3"))
-      .debug("Side effecting results")
+    println("Side effecting random #: " + answer)
+    val guess = Console.readLine.run
+    checkAnswer(answer, guess)
 
 val effectfulGuessingGame =
   defer {

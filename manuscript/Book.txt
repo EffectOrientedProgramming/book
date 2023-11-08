@@ -28,7 +28,6 @@ std_type_conversions_to_zio.md
 Parallelism.md
 experiments-src-test-scala-random.md
 Hubs.md
-environment-opaque.md
 executing_external_programs.md
 experiments-src-test-scala-running_effects.md
 experiments-src-test-scala-energrygrid.md
@@ -46,7 +45,6 @@ environment.md
 experiments-src-test-scala-zio_test.md
 experiments-src-test-scala-layers.md
 experiments-src-test-scala-time.md
-console.md
 performance.md
 testcontainers.md
 resourcemanagement.md
