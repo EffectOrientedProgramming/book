@@ -56,25 +56,9 @@ val effectfulGuessingGame =
   defer {
     Console.print(prompt).run
     val answer =
-      RandomBoundedInt
+      Random
         .nextIntBetween(low, high)
         .run
     val guess = Console.readLine.run
     checkAnswerZSplit(answer, guess).run
   }
-
-// TODO Decide if these should be removed, since test cases exist now
-object RunEffectfulGuessingGame
-    extends ZIOAppDefault:
-  def run =
-    effectfulGuessingGame
-      .withConsole(FakeConsole.single("3"))
-      .provideLayer(RandomBoundedInt.live)
-
-object RunEffectfulGuessingGameTestable
-    extends ZIOAppDefault:
-  def run =
-    effectfulGuessingGame
-      .debug("Result")
-      .withConsole(FakeConsole.single("3"))
-      .provideLayer(RandomBoundedIntFake(Seq(3)))

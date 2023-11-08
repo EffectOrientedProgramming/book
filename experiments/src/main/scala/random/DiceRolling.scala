@@ -31,18 +31,18 @@ def fullRound(): GameState =
 def playASingleRound() = println(fullRound())
 
 val rollDiceZ
-    : ZIO[RandomBoundedInt, Nothing, Int] =
-  RandomBoundedInt.nextIntBetween(1, 7)
+    : ZIO[Any, Nothing, Int] =
+  zio.Random.nextIntBetween(1, 7)
 
 import zio.{ZIO, ZIOAppDefault}
 object RollTheDice extends ZIOAppDefault:
   val logic = rollDiceZ.debug
 
   def run =
-    logic.provideLayer(RandomBoundedInt.live)
+    logic
 
 val fullRoundZ
-    : ZIO[RandomBoundedInt, Nothing, GameState] =
+    : ZIO[Any, Nothing, GameState] =
   rollDiceZ.map(scoreRound)
 
 // The problem above is that you can test the winner logic completely separate from the random number generator.
@@ -81,6 +81,9 @@ val threeChances =
       .run
   }
 
+/*
+Rewrite these as test cases using the standard zio.Random
+
 object ThreeChances extends ZIOAppDefault:
   def run =
     threeChances.provide(
@@ -92,3 +95,5 @@ object LoseInTwoChances extends ZIOAppDefault:
     threeChances.provide(
       RandomBoundedIntFake.apply(Seq(2, 1))
     )
+
+ */
