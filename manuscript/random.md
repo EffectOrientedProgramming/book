@@ -33,7 +33,7 @@ class MutableRNG(var seed: Int):
 
 ```scala
 val rng = MutableRNG(1)
-// rng: MutableRNG = repl.MdocSession$MdocApp$MutableRNG@55d2378b
+// rng: MutableRNG = repl.MdocSession$MdocApp$MutableRNG@769b1e61
 rng.nextInt()
 // res0: Int = 357
 rng.nextInt()
@@ -46,7 +46,7 @@ Let's see what happens if we make a new instance with the same seed.
 
 ```scala
 val rngDuplicate = MutableRNG(1)
-// rngDuplicate: MutableRNG = repl.MdocSession$MdocApp$MutableRNG@3cd7984e
+// rngDuplicate: MutableRNG = repl.MdocSession$MdocApp$MutableRNG@1ef3505c
 rngDuplicate.nextInt()
 // res3: Int = 357
 rngDuplicate.nextInt()
@@ -137,7 +137,7 @@ TestRandom.clearBytes
 
  
 
-### experiments/src/main/scala/random/Examples.scala
+### experiments/src/main/scala/random/DiceRolling.scala
 ```scala
 package random
 
@@ -171,19 +171,16 @@ def fullRound(): GameState =
 @main
 def playASingleRound() = println(fullRound())
 
-val rollDiceZ
-    : ZIO[RandomBoundedInt, Nothing, Int] =
-  RandomBoundedInt.nextIntBetween(1, 7)
+val rollDiceZ: ZIO[Any, Nothing, Int] =
+  zio.Random.nextIntBetween(1, 7)
 
 import zio.{ZIO, ZIOAppDefault}
 object RollTheDice extends ZIOAppDefault:
   val logic = rollDiceZ.debug
 
-  def run =
-    logic.provideLayer(RandomBoundedInt.live)
+  def run = logic
 
-val fullRoundZ
-    : ZIO[RandomBoundedInt, Nothing, GameState] =
+val fullRoundZ: ZIO[Any, Nothing, GameState] =
   rollDiceZ.map(scoreRound)
 
 // The problem above is that you can test the winner logic completely separate from the random number generator.
@@ -222,108 +219,18 @@ val threeChances =
       .run
   }
 
-object ThreeChances extends ZIOAppDefault:
-  def run =
-    threeChances.provide(
-      RandomBoundedIntFake.apply(Seq(2, 5, 6))
-    )
-
-object LoseInTwoChances extends ZIOAppDefault:
-  def run =
-    threeChances.provide(
-      RandomBoundedIntFake.apply(Seq(2, 1))
-    )
-
-```
-
-
-### experiments/src/main/scala/random/RandomBoundedInt.scala
-```scala
-package random
-
-import zio.Tag
-
-import scala.util.Random
-
-trait RandomBoundedInt:
-  def nextIntBetween(
-      minInclusive: Int,
-      maxExclusive: Int
-  ): UIO[Int]
-
-import zio.{UIO, ZIO, ZLayer}
-
-object RandomBoundedInt:
-  def nextIntBetween(
-      minInclusive: Int,
-      maxExclusive: Int
-  ): ZIO[RandomBoundedInt, Nothing, Int] =
-    ZIO.serviceWithZIO[RandomBoundedInt](
-      _.nextIntBetween(
-        minInclusive,
-        maxExclusive
-      )
-    )
-
-  object RandomBoundedIntLive
-      extends RandomBoundedInt:
-    override def nextIntBetween(
-        minInclusive: Int,
-        maxExclusive: Int
-    ): UIO[Int] =
-      ZIO.succeed(
-        Random
-          .between(minInclusive, maxExclusive)
-      )
-
-  val live
-      : ZLayer[Any, Nothing, RandomBoundedInt] =
-    ZLayer.succeed(RandomBoundedIntLive)
-end RandomBoundedInt
-
-```
-
-
-### experiments/src/main/scala/random/RandomBoundedIntFake.scala
-```scala
-package random
-
-class RandomBoundedIntFake private (
-    values: Ref[Seq[Int]]
-) extends RandomBoundedInt:
-  def nextIntBetween(
-      minInclusive: Int,
-      maxExclusive: Int
-  ): UIO[Int] =
-    defer {
-      val remainingValues = values.get.run
-
-      if (remainingValues.isEmpty)
-        ZIO
-          .die(
-            new Exception(
-              "Did not provide enough values!"
-            )
-          )
-          .run
-      else
-        ZIO.succeed(remainingValues.head).run
-
-      values.set(remainingValues.tail).run
-      remainingValues.head
-    }
-end RandomBoundedIntFake
-
-object RandomBoundedIntFake:
-  def apply(
-      values: Seq[Int]
-  ): ZLayer[Any, Nothing, RandomBoundedInt] =
-    ZLayer.fromZIO(
-      defer {
-        val valuesR = Ref.make(values).run
-        new RandomBoundedIntFake(valuesR)
-      }
-    )
+/* Rewrite these as test cases using the standard
+ * zio.Random
+ *
+ * object ThreeChances extends ZIOAppDefault:
+ * def run =
+ * threeChances.provide(
+ * RandomBoundedIntFake.apply(Seq(2, 5, 6)) )
+ *
+ * object LoseInTwoChances extends ZIOAppDefault:
+ * def run =
+ * threeChances.provide(
+ * RandomBoundedIntFake.apply(Seq(2, 1)) ) */
 
 ```
 
@@ -388,111 +295,10 @@ val effectfulGuessingGame =
   defer {
     Console.print(prompt).run
     val answer =
-      RandomBoundedInt
-        .nextIntBetween(low, high)
-        .run
+      Random.nextIntBetween(low, high).run
     val guess = Console.readLine.run
     checkAnswerZSplit(answer, guess).run
   }
-
-// TODO Decide if these should be removed, since test cases exist now
-object RunEffectfulGuessingGame
-    extends ZIOAppDefault:
-  def run =
-    effectfulGuessingGame
-      .withConsole(FakeConsole.single("3"))
-      .provideLayer(RandomBoundedInt.live)
-
-object RunEffectfulGuessingGameTestable
-    extends ZIOAppDefault:
-  def run =
-    effectfulGuessingGame
-      .debug("Result")
-      .withConsole(FakeConsole.single("3"))
-      .provideLayer(RandomBoundedIntFake(Seq(3)))
-
-```
-
-
-### experiments/src/main/scala/random/RandomZIOFake.scala
-```scala
-package random
-
-import zio.{BuildFrom, Chunk, Random, Trace, UIO}
-
-import java.util.UUID
-
-class RandomZIOFake extends Random:
-  def nextUUID(implicit
-      trace: Trace
-  ): UIO[UUID] = ???
-  def nextBoolean(implicit
-      trace: zio.Trace
-  ): zio.UIO[Boolean] = ???
-  def nextBytes(length: => Int)(implicit
-      trace: zio.Trace
-  ): zio.UIO[zio.Chunk[Byte]] = ???
-  def nextDouble(implicit
-      trace: zio.Trace
-  ): zio.UIO[Double] = ???
-  def nextDoubleBetween(
-      minInclusive: => Double,
-      maxExclusive: => Double
-  )(implicit trace: zio.Trace): zio.UIO[Double] =
-    ???
-  def nextFloat(implicit
-      trace: zio.Trace
-  ): zio.UIO[Float] = ???
-  def nextFloatBetween(
-      minInclusive: => Float,
-      maxExclusive: => Float
-  )(implicit trace: zio.Trace): zio.UIO[Float] =
-    ???
-  def nextGaussian(implicit
-      trace: zio.Trace
-  ): zio.UIO[Double] = ???
-  def nextInt(implicit
-      trace: zio.Trace
-  ): zio.UIO[Int] = ???
-  def nextIntBetween(
-      minInclusive: => Int,
-      maxExclusive: => Int
-  )(implicit trace: zio.Trace): zio.UIO[Int] =
-    ???
-  def nextIntBounded(n: => Int)(implicit
-      trace: zio.Trace
-  ): zio.UIO[Int] = ???
-  def nextLong(implicit
-      trace: zio.Trace
-  ): zio.UIO[Long] = ???
-  def nextLongBetween(
-      minInclusive: => Long,
-      maxExclusive: => Long
-  )(implicit trace: zio.Trace): zio.UIO[Long] =
-    ???
-  def nextLongBounded(n: => Long)(implicit
-      trace: zio.Trace
-  ): zio.UIO[Long] = ???
-  def nextPrintableChar(implicit
-      trace: zio.Trace
-  ): zio.UIO[Char] = ???
-  def nextString(length: => Int)(implicit
-      trace: zio.Trace
-  ): zio.UIO[String] = ???
-  def setSeed(seed: => Long)(implicit
-      trace: zio.Trace
-  ): zio.UIO[Unit] = ???
-  def shuffle[A, Collection[+Element]
-    <: Iterable[Element]](
-      collection: => Collection[A]
-  )(implicit
-      bf: BuildFrom[Collection[A], A, Collection[
-        A
-      ]],
-      trace: Trace
-  ): UIO[Collection[A]] = ???
-
-end RandomZIOFake
 
 ```
 
