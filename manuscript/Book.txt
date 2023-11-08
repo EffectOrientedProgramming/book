@@ -43,7 +43,6 @@ concurrency.md
 rezilience.md
 cause.md
 environment.md
-zio_intro.md
 experiments-src-test-scala-zio_test.md
 experiments-src-test-scala-layers.md
 experiments-src-test-scala-time.md
