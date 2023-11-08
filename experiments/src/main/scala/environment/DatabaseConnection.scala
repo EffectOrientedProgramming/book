@@ -58,35 +58,6 @@ object DatabaseConnectionSimple
         .run
     }
 
-  // I prefer this version when there is only 1
-  // Service needed from the environment
-  // But if you need more, the first approach
-  // needs to change less.
-  def executeUserQueries2(
-      userId: UserId
-  ): ZIO[DbConnection, Nothing, Unit] =
-    // TODO Consider alternative version of this
-    // where the defer happens inside of a
-    // serviceWithZIO call
-    ZIO
-      .serviceWithZIO[DbConnection](connection =>
-        defer {
-          connection
-            .execute(
-              s"QUERY for $userId preferences"
-                .stripMargin
-            )
-            .run
-          ZIO.sleep(1.second).run
-          connection
-            .execute(
-              s"QUERY for $userId accountHistory"
-                .stripMargin
-            )
-            .run
-        }
-      )
-
   def run =
     defer {
       executeUserQueries(UserId("Alice")).run
@@ -120,35 +91,6 @@ object DatabaseConnectionInterleavedQueries
         )
         .run
     }
-
-  // I prefer this version when there is only 1
-  // Service needed from the environment
-  // But if you need more, the first approach
-  // needs to change less.
-  def executeUserQueries2(
-      userId: UserId
-  ): ZIO[DbConnection, Nothing, Unit] =
-    // TODO Consider alternative version of this
-    // where the defer happens inside of a
-    // serviceWithZIO call
-    ZIO
-      .serviceWithZIO[DbConnection](connection =>
-        defer {
-          connection
-            .execute(
-              s"QUERY for $userId preferences"
-                .stripMargin
-            )
-            .run
-          ZIO.sleep(1.second).run
-          connection
-            .execute(
-              s"QUERY for $userId accountHistory"
-                .stripMargin
-            )
-            .run
-        }
-      )
 
   def run =
     ZIO

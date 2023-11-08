@@ -3,7 +3,6 @@ package random
 import zio.test.*
 
 import zio.internal.stacktracer.SourceLocation
-import console.FakeConsole
 
 object RunEffectfulGuessingGameSpec
     extends ZIOSpecDefault:
@@ -13,28 +12,21 @@ object RunEffectfulGuessingGameSpec
       suite("Effectful")(
         test("Untestable randomness")(
           defer {
+            TestConsole.feedLines(Seq.fill(100)("3")*).run
             val res =
-              effectfulGuessingGame
-                .withConsole(
-                  FakeConsole.single("3")
-                )
+              sideEffectingGuessingGame
                 .run
-            assertTrue(res == "BZZ Wrong!!")
+            assertTrue(res == "You got it!")
           }
-        ) @@ TestAspect.withLiveRandom @@
+        ) @@
           TestAspect
             .flaky, // Highlight that we shouldn't need this TestAspect.
         test("Testable")(
           defer {
+            TestConsole.feedLines("3").run
             TestRandom.feedInts(3).run
             val res =
               effectfulGuessingGame
-                .withConsole(
-                  FakeConsole.single("3")
-                )
-//                .provide(
-//                  RandomBoundedIntFake(Seq(3))
-//                )
                 .run
             assertTrue(res == "You got it!")
           }
