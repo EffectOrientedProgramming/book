@@ -1,15 +1,32 @@
 package streams
 
 import zio.*
+import zio.stream.*
 
-object DemoDataFountain extends ZIOAppDefault:
+
+def specifyStream[A](f: DataFountain => Stream[Nothing, A]) =
+    f(
+      DataFountain
+        .live
+    )
+    .take(10)
+    .foreach(ZIO.debug(_))
+
+
+object DemoDataFountainTweets extends ZIOAppDefault:
   def run =
-    DataFountain
-      .live
-      .commitStream
-      .commits
-      .take(10)
-      .foreach(ZIO.debug(_))
+    specifyStream:
+      _.tweets.tweets
+
+object DemoDataFountainHttpRequests extends ZIOAppDefault:
+  def run =
+    specifyStream:
+      _.httpRequestStream.requests
+
+object DemoDataFountainCommits extends ZIOAppDefault:
+  def run =
+    specifyStream:
+      _.commitStream.commits
 
 object RecognizeBurstOfBadRequests
     extends ZIOAppDefault:
@@ -23,11 +40,11 @@ object RecognizeBurstOfBadRequests
       .foreach(requests =>
         ZIO.when(
           requests
-            .filter(r =>
+            .filter: r =>
               r.response == Code.Forbidden
-            )
             .length > 2
         )(ZIO.debug("Too many bad requests"))
       )
-      .timeout(5.seconds)
+      .timeout:
+        5.seconds
 end RecognizeBurstOfBadRequests

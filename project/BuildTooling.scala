@@ -432,7 +432,7 @@ object BuildTooling {
     )
 
   // TODO Make a Versions object?
-  val zioVersion = "2.0.18"
+  val zioVersion = "2.0.19"
 
   lazy val commonSettings =
     Seq(
@@ -465,7 +465,7 @@ object BuildTooling {
               "metaconfig-core"
             ) excludeAll
             ("org.typelevel", "paiges-core"),
-          "dev.zio" %% "zio-logging" % "2.1.14",
+          "dev.zio" %% "zio-logging" % "2.1.15",
           "dev.zio" %% "zio-streams" %
             zioVersion,
           "dev.zio"   %% "zio-test" % zioVersion,

@@ -4,7 +4,6 @@ import zio.Console.printLine
 
 case class Slot(id: String)
 case class Player(name: String, slot: Slot)
-case class Game(a: Player, b: Player)
 
 object ChatSlots extends zio.ZIOAppDefault:
   enum SlotState:
@@ -15,46 +14,54 @@ object ChatSlots extends zio.ZIOAppDefault:
 
     @annotation.nowarn
     def acquire(ref: Ref[SlotState]) =
-      defer {
-        printLine {
+      defer:
+        printLine:
           "Took a speaker slot"
-        }.run
-        ref.set(SlotState.Open).run
+        .run
+        ref.set:
+          SlotState.Open
+        .run
         "Use Me"
-      }
 
     def release(ref: Ref[SlotState]) =
-      defer {
-        printLine("Freed up a speaker slot")
-          .orDie
-          .run
-        ref.set(SlotState.Closed).run
-      }
+      defer:
+        printLine:
+          "Freed up a speaker slot"
+        .orDie
+        .run
+        ref.set:
+          SlotState.Closed
+        .run
 
     defer {
       val ref =
-        Ref.make[SlotState](SlotState.Closed).run
+        Ref.make[SlotState]:
+          SlotState.Closed
+        .run
       val managed =
         ZIO.acquireRelease(acquire(ref))(_ =>
-          release(ref)
+          release:
+            ref
         )
       val reusable =
-        managed.map(
+        managed.map:
           printLine(_)
-        ) // note: Can't just do (Console.printLine) here
       reusable.run
       reusable.run
       ZIO
-        .scoped {
-          managed.flatMap { s =>
-            defer {
-              printLine(s).run
-              printLine("Blowing up").run
+        .scoped:
+          // TODO Get rid of flatmap if possible...
+          managed.flatMap: s =>
+            defer:
+              printLine:
+                s
+              .run
+              printLine:
+                "Blowing up"
+              .run
               if (true)
-                throw new Exception("Arggggg")
-            }
-          }
-        }
+                throw Exception:
+                  "Arggggg"
         .run
     }
   end run
