@@ -1,18 +1,35 @@
 package Parallelism
 
-object ParallelSleepers extends ZIOAppDefault:
+val sleepNow =
+  defer:
+    ZIO.debug:
+      "Yawn, going to sleep"
+    .run
+    ZIO.sleep:
+      1.seconds
+    .run
+    ZIO.debug:
+      "Okay, I am awake!"
+    .run
+
+import zio_helpers.timedSecondsDebug
+
+object SerialSleepers extends ZIOAppDefault:
 
   override def run =
-    defer(Use.withParallelEval) {
-      for _ <- 1 to 10_000 do
-        ZIO.sleep(1.seconds).run
+    defer:
+      for _ <- 1 to 3 do
+        sleepNow.run
+    .timedSecondsDebug("Serial Sleepers")
 
-      ZIO
-        .debug(
-          "Finished far sooner than 10,000 seconds"
-        )
-        .run
-    }
+
+object ParallelSleepers extends ZIOAppDefault:
+  override def run =
+    defer(Use.withParallelEval):
+      for _ <- 1 to 3 do
+        sleepNow.run
+    .timedSecondsDebug("AllSleepers")
+
 
 val sleepers =
   Seq(
