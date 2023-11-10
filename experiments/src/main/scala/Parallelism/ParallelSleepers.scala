@@ -14,8 +14,14 @@ val sleepNow =
 
 import zio_helpers.timedSecondsDebug
 
-object SerialSleepers extends ZIOAppDefault:
+@main def quick =
+  runDemo:
+    defer:
+      for _ <- 1 to 3 do
+        sleepNow.run
+    .timedSecondsDebug("Serial Sleepers")
 
+object SerialSleepers extends ZIOAppDefault:
   override def run =
     defer:
       for _ <- 1 to 3 do
