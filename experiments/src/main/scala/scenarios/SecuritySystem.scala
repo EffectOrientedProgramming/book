@@ -15,23 +15,25 @@ case class SecuritySystemX(
     scala.concurrent.TimeoutException,
     Unit
   ] =
-    defer {
+    defer:
       // TODO Get noiseDetector in a proper way *before* looping
       val noise = acousticDetectorX.monitorNoise.run
       val motion = motionDetector.amountOfMotion.run
       ZIO
-        .debug(
+        .debug:
           s"Motion: $motion  Noise: $noise"
-        )
         .run
       val securityResponse =
         determineResponse(motion, noise)
       securityResponse match
         case Relax =>
-          ZIO.debug("No need to panic").run
+          ZIO.debug:
+            "No need to panic"
+          .run
         case LoudSiren =>
-          SirenX.loudSiren.run
-    }
+          ZIO.debug:
+            "WOOOO EEEE WOOOOO EEEE"
+          .run
 
   @annotation.nowarn
   def shouldAlertServices(): ZIO[
@@ -39,15 +41,13 @@ case class SecuritySystemX(
     TimeoutException,
     String
   ] =
-    defer {
-      securityLoop.repeat(
+    defer:
+      securityLoop.repeat:
           Schedule.recurs(5) &&
             Schedule.spaced(1.seconds)
-        )
         .run
 
       "Fin"
-    }
 
   def determineResponse(
                          amountOfMotion: Pixels,
@@ -114,22 +114,17 @@ object MotionDetector:
     ZLayer.succeed(LiveMotionDetector)
 end MotionDetector
 
-trait AcousticDetectorX:
+case class AcousticDetectorX(
+                 valueProducer: ZIO[Any, TimeoutException, Decibels]
+               ):
   val monitorNoise: ZIO[
     Any,
     TimeoutException,
     Decibels
-  ]
+  ] = valueProducer
+
 
 object AcousticDetectorX:
-  case class Live(
-                   valueProducer: ZIO[Any, TimeoutException, Decibels]
-                 ) extends AcousticDetectorX:
-    val monitorNoise: ZIO[
-      Any,
-      TimeoutException,
-      Decibels
-    ] = valueProducer
 
   def apply(
       value: (Duration, Decibels),
@@ -141,30 +136,6 @@ object AcousticDetectorX:
           scheduledValues(value, values*).run
 
         // that same service we wrote above
-        Live(valueProducer)
+        AcousticDetectorX(valueProducer)
 
 end AcousticDetectorX
-
-trait SirenX:
-  def loudSiren()
-      : ZIO[Any, Nothing, Unit]
-
-object SirenX:
-  object SirenXLive extends SirenX:
-
-    def loudSiren(): ZIO[
-      Any,
-      Nothing,
-      Unit
-    ] = ZIO.debug("WOOOO EEEE WOOOOO EEEE")
-
-  val live: ZLayer[Any, Nothing, SirenX] =
-    ZLayer.succeed(SirenXLive)
-
-  val loudSiren: ZIO[
-    Any,
-    Nothing,
-    Unit
-  ] = SirenXLive.loudSiren()
-
-end SirenX

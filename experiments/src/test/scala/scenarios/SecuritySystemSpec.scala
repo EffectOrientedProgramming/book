@@ -29,9 +29,9 @@ object SecuritySystemSpec extends ZIOSpecDefault:
         ).provide(SecuritySystemX.live,
           MotionDetector.live ++
             AcousticDetectorX(
-              (4.seconds, Decibels(11)),
+              (2.seconds, Decibels(11)),
               (1.seconds, Decibels(20))
-            ) ++ SirenX.live
+            )
         ) @@ TestAspect.withLiveClock @@
           TestAspect.tag("important", "slow") @@
           TestAspect.flaky @@
