@@ -12,10 +12,11 @@ object RunEffectfulGuessingGameSpec
       suite("Effectful")(
         test("Untestable randomness")(
           defer {
-            TestConsole.feedLines(Seq.fill(100)("3")*).run
+            TestConsole
+              .feedLines(Seq.fill(100)("3")*)
+              .run
             val res =
-              sideEffectingGuessingGame
-                .run
+              sideEffectingGuessingGame.run
             assertTrue(res == "You got it!")
           }
         ) @@
@@ -25,9 +26,7 @@ object RunEffectfulGuessingGameSpec
           defer {
             TestConsole.feedLines("3").run
             TestRandom.feedInts(3).run
-            val res =
-              effectfulGuessingGame
-                .run
+            val res = effectfulGuessingGame.run
             assertTrue(res == "You got it!")
           }
         ) @@ TestAspect.nonFlaky(10)

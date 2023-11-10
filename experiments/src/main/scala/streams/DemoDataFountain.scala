@@ -3,27 +3,27 @@ package streams
 import zio.*
 import zio.stream.*
 
-
-def specifyStream[A](f: DataFountain => Stream[Nothing, A]) =
-    f(
-      DataFountain
-        .live
-    )
+def specifyStream[A](
+    f: DataFountain => Stream[Nothing, A]
+) =
+  f(DataFountain.live)
     .take(10)
     .foreach(ZIO.debug(_))
 
-
-object DemoDataFountainTweets extends ZIOAppDefault:
+object DemoDataFountainTweets
+    extends ZIOAppDefault:
   def run =
     specifyStream:
       _.tweets.tweets
 
-object DemoDataFountainHttpRequests extends ZIOAppDefault:
+object DemoDataFountainHttpRequests
+    extends ZIOAppDefault:
   def run =
     specifyStream:
       _.httpRequestStream.requests
 
-object DemoDataFountainCommits extends ZIOAppDefault:
+object DemoDataFountainCommits
+    extends ZIOAppDefault:
   def run =
     specifyStream:
       _.commitStream.commits

@@ -7,11 +7,11 @@ import scala.concurrent.TimeoutException
 object SecuritySystemSpec extends ZIOSpecDefault:
   def spec =
     suite("SecuritySystemSpec")(
-
       suite("Module pattern version")(
         test("runs out of data")(
           defer {
-            val system = ZIO.service[SecuritySystemX].run
+            val system =
+              ZIO.service[SecuritySystemX].run
             val res =
               system
                 .shouldAlertServices()
@@ -26,7 +26,8 @@ object SecuritySystemSpec extends ZIOSpecDefault:
             ZIO.debug("Final result: " + res).run
             assertCompletes
           }
-        ).provide(SecuritySystemX.live,
+        ).provide(
+          SecuritySystemX.live,
           MotionDetector.live ++
             AcousticDetectorX(
               (2.seconds, Decibels(11)),

@@ -11,7 +11,9 @@ def checkAnswer(
     answer: Int,
     guess: String
 ): String =
-  println("Comparing: " + answer + " VS " + guess.toInt)
+  println(
+    "Comparing: " + answer + " VS " + guess.toInt
+  )
   if answer == guess.toInt then
     "You got it!"
   else
@@ -41,16 +43,14 @@ val sideEffectingGuessingGame =
     val answer =
       scala.util.Random.between(low, high)
     println("Side effecting random #: " + answer)
-    val guess    = Console.readLine.run
+    val guess = Console.readLine.run
     checkAnswer(answer, guess)
 
 val effectfulGuessingGame =
   defer {
     Console.print(prompt).run
     val answer =
-      Random
-        .nextIntBetween(low, high)
-        .run
+      Random.nextIntBetween(low, high).run
     val guess = Console.readLine.run
     checkAnswerZSplit(answer, guess).run
   }

@@ -16,9 +16,10 @@ case class SecuritySystemX(
     Unit
   ] =
     defer:
-      // TODO Get noiseDetector in a proper way *before* looping
-      val noise = acousticDetectorX.monitorNoise.run
-      val motion = motionDetector.amountOfMotion.run
+      val noise =
+        acousticDetectorX.monitorNoise.run
+      val motion =
+        motionDetector.amountOfMotion.run
       ZIO
         .debug:
           s"Motion: $motion  Noise: $noise"
@@ -27,22 +28,22 @@ case class SecuritySystemX(
         determineResponse(motion, noise)
       securityResponse match
         case Relax =>
-          ZIO.debug:
-            "No need to panic"
-          .run
+          ZIO
+            .debug:
+              "No need to panic"
+            .run
         case LoudSiren =>
-          ZIO.debug:
-            "WOOOO EEEE WOOOOO EEEE"
-          .run
+          ZIO
+            .debug:
+              "WOOOO EEEE WOOOOO EEEE"
+            .run
 
   @annotation.nowarn
-  def shouldAlertServices(): ZIO[
-    Any,
-    TimeoutException,
-    String
-  ] =
+  def shouldAlertServices()
+      : ZIO[Any, TimeoutException, String] =
     defer:
-      securityLoop.repeat:
+      securityLoop
+        .repeat:
           Schedule.recurs(5) &&
             Schedule.spaced(1.seconds)
         .run
@@ -50,9 +51,9 @@ case class SecuritySystemX(
       "Fin"
 
   def determineResponse(
-                         amountOfMotion: Pixels,
-                         noise: Decibels
-                       ): SecurityResponse =
+      amountOfMotion: Pixels,
+      noise: Decibels
+  ): SecurityResponse =
     val numberOfAlerts =
       determineBreaches(amountOfMotion, noise)
         .size
@@ -63,15 +64,16 @@ case class SecuritySystemX(
       LoudSiren
 
   def determineBreaches(
-                         amountOfMotion: Pixels,
-                         noise: Decibels
-                       ): Set[SecurityBreach] =
+      amountOfMotion: Pixels,
+      noise: Decibels
+  ): Set[SecurityBreach] =
     List(
       Option.when(amountOfMotion.value > 50)(
         SignificantMotion
       ),
       Option.when(noise.value > 15)(LoudNoise)
     ).flatten.toSet
+end SecuritySystemX
 
 object SecuritySystemX:
   val live =
@@ -89,8 +91,7 @@ case class Decibels(value: Int)
 case class Pixels(value: Int)
 
 trait MotionDetector:
-  val amountOfMotion
-      : ZIO[Any, Nothing, Pixels]
+  val amountOfMotion: ZIO[Any, Nothing, Pixels]
 
 object MotionDetector:
 
@@ -100,11 +101,8 @@ object MotionDetector:
         : ZIO[Any, Nothing, Pixels] =
       ZIO.succeed(Pixels(30))
 
-  val amountOfMotion: ZIO[
-    MotionDetector,
-    Nothing,
-    Pixels
-  ] =
+  val amountOfMotion
+      : ZIO[MotionDetector, Nothing, Pixels] =
     ZIO
       .service[MotionDetector]
       .flatMap(_.amountOfMotion)
@@ -112,17 +110,18 @@ object MotionDetector:
   val live
       : ZLayer[Any, Nothing, MotionDetector] =
     ZLayer.succeed(LiveMotionDetector)
-end MotionDetector
 
 case class AcousticDetectorX(
-                 valueProducer: ZIO[Any, TimeoutException, Decibels]
-               ):
-  val monitorNoise: ZIO[
-    Any,
-    TimeoutException,
-    Decibels
-  ] = valueProducer
-
+    valueProducer: ZIO[
+      Any,
+      TimeoutException,
+      Decibels
+    ]
+):
+  val monitorNoise
+      : ZIO[Any, TimeoutException, Decibels] =
+    valueProducer
+end AcousticDetectorX
 
 object AcousticDetectorX:
 
@@ -132,10 +131,11 @@ object AcousticDetectorX:
   ): ZLayer[Any, Nothing, AcousticDetectorX] =
     ZLayer.fromZIO:
       defer:
-        val valueProducer: ZIO[Any, TimeoutException, Decibels] =
-          scheduledValues(value, values*).run
+        val valueProducer: ZIO[
+          Any,
+          TimeoutException,
+          Decibels
+        ] = scheduledValues(value, values*).run
 
         // that same service we wrote above
         AcousticDetectorX(valueProducer)
-
-end AcousticDetectorX

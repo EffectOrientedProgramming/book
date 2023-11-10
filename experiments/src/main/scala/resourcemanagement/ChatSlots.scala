@@ -18,9 +18,10 @@ object ChatSlots extends zio.ZIOAppDefault:
         printLine:
           "Took a speaker slot"
         .run
-        ref.set:
-          SlotState.Open
-        .run
+        ref
+          .set:
+            SlotState.Open
+          .run
         "Use Me"
 
     def release(ref: Ref[SlotState]) =
@@ -28,16 +29,18 @@ object ChatSlots extends zio.ZIOAppDefault:
         printLine:
           "Freed up a speaker slot"
         .orDie
-        .run
-        ref.set:
-          SlotState.Closed
-        .run
+          .run
+        ref
+          .set:
+            SlotState.Closed
+          .run
 
     defer {
       val ref =
-        Ref.make[SlotState]:
-          SlotState.Closed
-        .run
+        Ref
+          .make[SlotState]:
+            SlotState.Closed
+          .run
       val managed =
         ZIO.acquireRelease(acquire(ref))(_ =>
           release:
@@ -50,7 +53,8 @@ object ChatSlots extends zio.ZIOAppDefault:
       reusable.run
       ZIO
         .scoped:
-          // TODO Get rid of flatmap if possible...
+          // TODO Get rid of flatmap if
+          // possible...
           managed.flatMap: s =>
             defer:
               printLine:

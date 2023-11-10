@@ -68,11 +68,12 @@ object OfficialZioRandomSpec
           TestRandom.feedInts(1, 2).run
           val result1 = Random.nextInt.run
           val result2 = Random.nextInt.run
-          //val result3 = Random.nextInt.run // this falls back to system Random
+          // val result3 = Random.nextInt.run //
+          // this falls back to system Random
           assertTrue(
             result1 == 1,
-            result2 == 2,
-            //result3 == 5
+            result2 == 2
+            // result3 == 5
           )
       ),
       test("timeout"):
@@ -88,9 +89,8 @@ object OfficialZioRandomSpec
           TestClock.adjust(2.seconds).run
           val result = fork.join.run
           assertTrue(result.isEmpty)
-      ,
-      //test("failure"):
-        //assertTrue(Some("asdf") == None)
+      // test("failure"):
+      // assertTrue(Some("asdf") == None)
     )
 
 end OfficialZioRandomSpec

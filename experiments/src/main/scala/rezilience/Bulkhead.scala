@@ -41,15 +41,11 @@ case class StatefulResource(
 
       // Simulate a long-running request
       ZIO.sleep(1.second).run
-      removeRequest(res)
-        .run
+      removeRequest(res).run
 
       res
 
   private def removeRequest(i: Int) =
-    currentRequests
-      .update(
-        _ diff List(i)
-      )
+    currentRequests.update(_ diff List(i))
 
 end StatefulResource
