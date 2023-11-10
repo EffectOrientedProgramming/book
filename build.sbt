@@ -47,11 +47,22 @@ lazy val booker =
 // Sandbox where we can edit code with full editing capabilities, before committing to mdoc fences
 lazy val experiments =
   (project in file("experiments"))
+  .dependsOn(mdoctools)
   .settings(commonSettings)
   .settings(
     // TODO I put this in because a valid test is being flagged otherwise.
     scalacOptions -= "-Wunused:locals",
     libraryDependencies ++= experimentLibrariesThatNeedToBeVettedForInclusionInBook
+  )
+  .settings(
+    scalacOptions +=
+      Seq(
+        "mdoctools",
+      ).mkString(
+        start = "-Yimports:",
+        sep = ",",
+        end = ""
+      ),
   )
 
 resolvers ++= Resolver.sonatypeOssRepos("snapshots")
