@@ -31,6 +31,7 @@ executing_external_programs.md
 experiments-src-test-scala-running_effects.md
 hello_failures.md
 scenarios.md
+zio_helpers.md
 crypto.md
 experiments-src-test-scala-test_aspects.md
 experiments-src-test-scala-scenarios.md

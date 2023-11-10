@@ -138,19 +138,44 @@ end Finalizers
 ```scala
 package Parallelism
 
-object ParallelSleepers extends ZIOAppDefault:
+val sleepNow =
+  defer:
+    ZIO
+      .debug:
+        "Yawn, going to sleep"
+      .run
+    ZIO
+      .sleep:
+        1.seconds
+      .run
+    ZIO
+      .debug:
+        "Okay, I am awake!"
+      .run
 
+import zio_helpers.timedSecondsDebug
+
+@main
+def quick =
+  runDemo:
+    defer:
+      for _ <- 1 to 3 do
+        sleepNow.run
+    .timedSecondsDebug("Serial Sleepers")
+
+object SerialSleepers extends ZIOAppDefault:
   override def run =
-    defer(Use.withParallelEval) {
-      for _ <- 1 to 10_000 do
-        ZIO.sleep(1.seconds).run
+    defer:
+      for _ <- 1 to 3 do
+        sleepNow.run
+    .timedSecondsDebug("Serial Sleepers")
 
-      ZIO
-        .debug(
-          "Finished far sooner than 10,000 seconds"
-        )
-        .run
-    }
+object ParallelSleepers extends ZIOAppDefault:
+  override def run =
+    defer(Use.withParallelEval):
+      for _ <- 1 to 3 do
+        sleepNow.run
+    .timedSecondsDebug("AllSleepers")
 
 val sleepers =
   Seq(
@@ -202,82 +227,18 @@ package Parallelism
 object PrimeSeeker extends ZIOAppDefault:
 
   override def run =
+//    ZIO
+//      .withParallelism(1) {
     ZIO
-      .withParallelism(1) {
-        ZIO.foreachPar(1 to 16) { _ =>
-          ZIO
-            .succeed(
-              crypto.nextPrimeAfter(100_000_000)
-            )
-            .debug("Found prime:")
-        }
-      }
-      .timed
-      .debug("Found a bunch of primes")
-
-```
-
-
-### experiments/src/main/scala/Parallelism/UseAllTheThreads.scala
-```scala
-package Parallelism
-
-import java.lang.Runtime as JavaRuntime
-
-/* This example was a port of Bruce's Python
- * example:
- * https://github.com/BruceEckel/python-experiments/blob/main/parallelism/cpu_intensive.py
- *
- * We did this port to explore some very basic
- * parallelism.
- * We learned how in ZIO we generally shouldn't
- * base concurrency on the number of system cores
- * because ZIO takes care of that for us. */
-object UseAllTheThreads extends ZIOAppDefault:
-
-  def cpuIntensive(
-      n: Int,
-      multiplier: Int
-  ): Double =
-    /* // mutable is fast var result: Double = 0
-     * for (i <- 0 until 10_000_000 * multiplier)
-     * { result += Math.sqrt(Math.pow(i, 3) +
-     * Math.pow(i, 2) + i * n) } result */
-    /* // this is very slow due to massive
-     * allocations (0 until 10_000_000 *
-     * multiplier).map { i =>
-     * Math.sqrt(Math.pow(i, 3) + Math.pow(i, 2)
-     * + i * n) }.sum */
-    // pretty fast and immutable
-    (0 until 10_000_000 * multiplier)
-      .foldLeft(0d) { (result, i) =>
-        result +
-          Math.sqrt(
-            Math.pow(i, 3) + Math.pow(i, 2d) +
-              i * n
+      .foreachPar(1 to 16) { _ =>
+        ZIO
+          .succeed(
+            crypto.nextPrimeAfter(100_000_000)
           )
+          .debug("Found prime:")
       }
-
-  override def run =
-    defer {
-      // note that we used numCores to show how
-      // we can saturate all of them
-      // but it turns out that even with a number
-      // less than the number of cores
-      // we can still saturate all of them
-      // because the ZIO scheduler time slices
-      val numCores =
-        JavaRuntime
-          .getRuntime
-          .availableProcessors
-      ZIO
-        .foreachPar(0 to numCores) { i =>
-          ZIO.succeed(cpuIntensive(i, 50))
-        }
-        .debug
-        .run
-    }
-end UseAllTheThreads
+//      }
+      .timed.debug("Found a bunch of primes")
 
 ```
 
