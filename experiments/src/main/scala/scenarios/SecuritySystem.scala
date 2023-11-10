@@ -8,43 +8,24 @@ import scala.concurrent.TimeoutException
 case class SecuritySystemX(
     motionDetector: MotionDetector,
     acousticDetectorX: AcousticDetectorX
-)
+):
 
-object SecuritySystemX:
-  val live =
-    ZLayer.fromFunction(SecuritySystemX.apply _)
-
-/** Situations: Security System: Should monitor
-  *   - Motion
-  *   - Sound Should alert by:
-  *   - Quiet, local beep
-  *   - Loud Local Siren
-  *   - Ping security company
-  *   - Notify police
-  */
-object SecuritySystem:
-
-  def securityLoop(
-      amountOfMotion: Pixels,
-      acousticDetector: ZIO[
-        Any,
-        scala.concurrent.TimeoutException,
-        scenarios.Decibels
-      ]
-  ): ZIO[
-    SirenX,
+  val securityLoop: ZIO[
+    Any,
     scala.concurrent.TimeoutException,
     Unit
   ] =
     defer {
-      val noise = acousticDetector.run
+      // TODO Get noiseDetector in a proper way *before* looping
+      val noise = acousticDetectorX.monitorNoise.run
+      val motion = motionDetector.amountOfMotion.run
       ZIO
         .debug(
-          s"Motion: $amountOfMotion  Noise: $noise"
+          s"Motion: $motion  Noise: $noise"
         )
         .run
       val securityResponse =
-        determineResponse(amountOfMotion, noise)
+        determineResponse(motion, noise)
       securityResponse match
         case Relax =>
           ZIO.debug("No need to panic").run
@@ -53,28 +34,13 @@ object SecuritySystem:
     }
 
   @annotation.nowarn
-  def shouldAlertServices[
-      T
-        <: MotionDetector & SirenX &
-          AcousticDetectorX
-  ](): ZIO[
-    T,
+  def shouldAlertServices(): ZIO[
+    Any,
     TimeoutException,
     String
   ] =
     defer {
-      val amountOfMotion =
-        MotionDetector
-          .amountOfMotion
-          .run
-
-      val acousticDetector =
-        AcousticDetectorX.acquireDetector.run
-
-      securityLoop(
-        amountOfMotion,
-        acousticDetector
-      ).repeat(
+      securityLoop.repeat(
           Schedule.recurs(5) &&
             Schedule.spaced(1.seconds)
         )
@@ -84,9 +50,9 @@ object SecuritySystem:
     }
 
   def determineResponse(
-      amountOfMotion: Pixels,
-      noise: Decibels
-  ): SecurityResponse =
+                         amountOfMotion: Pixels,
+                         noise: Decibels
+                       ): SecurityResponse =
     val numberOfAlerts =
       determineBreaches(amountOfMotion, noise)
         .size
@@ -97,9 +63,9 @@ object SecuritySystem:
       LoudSiren
 
   def determineBreaches(
-      amountOfMotion: Pixels,
-      noise: Decibels
-  ): Set[SecurityBreach] =
+                         amountOfMotion: Pixels,
+                         noise: Decibels
+                       ): Set[SecurityBreach] =
     List(
       Option.when(amountOfMotion.value > 50)(
         SignificantMotion
@@ -107,7 +73,9 @@ object SecuritySystem:
       Option.when(noise.value > 15)(LoudNoise)
     ).flatten.toSet
 
-end SecuritySystem
+object SecuritySystemX:
+  val live =
+    ZLayer.fromFunction(SecuritySystemX.apply _)
 
 trait SecurityBreach
 object LoudNoise         extends SecurityBreach
@@ -147,41 +115,33 @@ object MotionDetector:
 end MotionDetector
 
 trait AcousticDetectorX:
-  def acquireDetector(): ZIO[Any, Nothing, ZIO[
+  val monitorNoise: ZIO[
     Any,
     TimeoutException,
     Decibels
-  ]]
+  ]
 
 object AcousticDetectorX:
+  case class Live(
+                   valueProducer: ZIO[Any, TimeoutException, Decibels]
+                 ) extends AcousticDetectorX:
+    val monitorNoise: ZIO[
+      Any,
+      TimeoutException,
+      Decibels
+    ] = valueProducer
 
   def apply(
       value: (Duration, Decibels),
       values: (Duration, Decibels)*
   ): ZLayer[Any, Nothing, AcousticDetectorX] =
-    ZLayer.succeed(
-      // that same service we wrote above
-      new AcousticDetectorX:
-        override def acquireDetector()
-            : ZIO[Any, Nothing, ZIO[
-              Any,
-              TimeoutException,
-              Decibels
-            ]] = scheduledValues(value, values*)
-    )
+    ZLayer.fromZIO:
+      defer:
+        val valueProducer: ZIO[Any, TimeoutException, Decibels] =
+          scheduledValues(value, values*).run
 
-  // This is preeeetty gnarly. How can we
-  // improve?
-  def acquireDetector[
-      T <: scenarios.AcousticDetectorX: Tag
-  ]: ZIO[T, Nothing, ZIO[
-    Any,
-    scala.concurrent.TimeoutException,
-    scenarios.Decibels
-  ]] =
-    ZIO.serviceWithZIO[
-      scenarios.AcousticDetectorX
-    ](_.acquireDetector())
+        // that same service we wrote above
+        Live(valueProducer)
 
 end AcousticDetectorX
 
@@ -202,9 +162,9 @@ object SirenX:
     ZLayer.succeed(SirenXLive)
 
   val loudSiren: ZIO[
-    SirenX,
+    Any,
     Nothing,
     Unit
-  ] = ZIO.serviceWithZIO(_.loudSiren())
+  ] = SirenXLive.loudSiren()
 
 end SirenX
