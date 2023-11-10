@@ -76,7 +76,7 @@ runDemo:
             )
         .run
     durations.fold(Duration.Zero)(_ + _).render
-// 14 m 57 s
+// 15 m 2 s
 ```
 
 ## Edit This Chapter

@@ -167,7 +167,8 @@ runDemo:
       // todo: maybe this hidden extension method
       // goes too far with functionality that
       // doesn't really exist
-      // TODO Should we fireAndForget before the retries/fallbacks?
+      // TODO Should we fireAndForget before the
+      // retries/fallbacks?
     .fireAndForget:
       userSignupInitiated:
         "morty"

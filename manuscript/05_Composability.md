@@ -81,9 +81,9 @@ defer:
 //   trace = "zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res0(05_Composability.md:8)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$16169/0x000000080409d440@3724dd5a
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$16179/0x0000000803ff4840@60e1e7ca
 //   ),
-//   successK = repl.MdocSession$MdocApp$$Lambda$16826/0x0000000803a99840@c5d38d6
+//   successK = repl.MdocSession$MdocApp$$Lambda$16808/0x00000008041ff840@4a1506a
 // )
 ```
 
@@ -93,7 +93,6 @@ For example, to compose a ZIO that can produce an error with a ZIO that logs the
 
 ```scala
 def logAndProvideDefault(e: Throwable) =
-
   defer:
     Console
       .printLine:
