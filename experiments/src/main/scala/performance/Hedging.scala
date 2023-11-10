@@ -6,10 +6,8 @@ object Hedging extends ZIOAppDefault:
 
 
   extension[R, E, A] (z: ZIO[R, E, A])
-    def hedge(wait: zio.Duration): ZIO[R, E, A] =
-      z.race(z.delay(wait))
 
-    def hedgeAdvanced(wait: zio.Duration, depth: Int = 1): ZIO[R, E, A] =
+    def hedge(wait: zio.Duration, depth: Int = 1): ZIO[R, E, A] =
       depth match
         case 0 => z
         case other =>
@@ -17,7 +15,7 @@ object Hedging extends ZIOAppDefault:
             .delay:
               wait
             .race:
-              hedgeAdvanced(wait, depth - 1)
+              hedge(wait, depth - 1)
 
   def hedgedRequestNarrow =
         handleRequest
@@ -28,12 +26,6 @@ object Hedging extends ZIOAppDefault:
   def hedgedRequestGeneral =
     handleRequest
       .hedgeAdvanced(25.millis, 3)
-//      .hedge(25.millis)
-//      .hedge(25.millis)
-//    handleRequest
-//      .race(handleRequest.delay(25.millis))
-//        .race(handleRequest.delay(25.millis))
-//          .race(handleRequest.delay(25.millis))
 
   def run =
     defer:
