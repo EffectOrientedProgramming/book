@@ -21,10 +21,9 @@ object Hedging extends ZIOAppDefault:
         .foreachPar(Range(0, 50000))(_ =>
           demoRequest(timeBuckets)
         )
-        .repeat(Schedule.recurs(150))
         .run
 
-      pprint.pprintln(timeBuckets.get.run)
+      pprint.pprintln(timeBuckets.get.run, width = 47)
     }.provide(ZLayer.succeed(ErraticService()))
 
   def demoRequest(
@@ -74,8 +73,6 @@ case class ErraticService():
         case Percentile._95 =>
           ResponseTimeCutoffs.Acceptable
         case Percentile._99 =>
-          ResponseTimeCutoffs.Annoying
-        case Percentile._999 =>
           ResponseTimeCutoffs.BreachOfContract
     }.tap(dimension =>
       ZIO.sleep(dimension.duration)
@@ -87,67 +84,37 @@ enum ResponseTimeCutoffs(val duration: Duration):
       extends ResponseTimeCutoffs(21.millis)
   case Acceptable
       extends ResponseTimeCutoffs(70.millis)
-  case Annoying
-      extends ResponseTimeCutoffs(140.millis)
   case BreachOfContract
       extends ResponseTimeCutoffs(1800.millis)
 
 enum Percentile:
   case _50,
     _95,
-    _99,
-    _999
+    _99
 
 object Percentile:
   def random =
-    defer {
-      val int = Random.nextIntBounded(10_000).run
-      if (int < 9_500)
+    defer:
+      val int = Random.nextIntBounded(100).run
+      if (int < 95)
         Percentile._50
-      else if (int < 9_900)
+      else if (int < 99)
         Percentile._95
-      else if (int < 9_999)
-        Percentile._99
       else
-        Percentile._999
-    }
+        Percentile._99
 
   def fromDuration(d: Duration) =
-    if (d == ResponseTimeCutoffs.Fast.duration)
-      Percentile._50
-    else if (
-      d ==
-        ResponseTimeCutoffs.Acceptable.duration
-    )
-      Percentile._95
-    else if (
-      d == ResponseTimeCutoffs.Annoying.duration
-    )
-      Percentile._99
-    else if (
-      d ==
-        ResponseTimeCutoffs
-          .BreachOfContract
-          .duration
-    )
-      Percentile._999
-    else
-      ???
+    d match
+      case ResponseTimeCutoffs.Fast.duration =>
+        Percentile._50
+      case ResponseTimeCutoffs.Acceptable.duration =>
+        Percentile._95
+      case ResponseTimeCutoffs.BreachOfContract.duration =>
+        Percentile._99
+      case _ => ???
 end Percentile
 
 case class RequestStats(
     count: Int,
     totalTime: Duration,
-    averageResponseTime: Duration
 )
-
-object RequestStats:
-  def apply(
-      count: Int,
-      totalTime: Duration
-  ): RequestStats =
-    RequestStats(
-      count,
-      totalTime,
-      totalTime.dividedBy(count.toLong)
-    )
