@@ -25,7 +25,7 @@ object Hedging extends ZIOAppDefault:
 
   def hedgedRequestGeneral =
     handleRequest
-      .hedgeAdvanced(25.millis, 3)
+      .hedge(25.millis, 3)
 
   def run =
     defer:
