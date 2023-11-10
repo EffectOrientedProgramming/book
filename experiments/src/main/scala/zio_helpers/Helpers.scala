@@ -1,7 +1,13 @@
 package zio_helpers
 
+extension (z: ZIO.type)
+  def repeatNPar[R, E, A](numTimes: Int)(
+    op: ZIO[R, E, A]
+  ): ZIO[R, E, Seq[A]] =
+    z.foreachPar(0 until numTimes)((_: Int) => op)
 
 extension[R, E, A] (z: ZIO[R, E, A])
+
   def timedSecondsDebug(
                          message: String
                        ): ZIO[R, E, A] =

@@ -1,38 +1,61 @@
 package performance
 
+import zio_helpers.repeatNPar
+
 object Hedging extends ZIOAppDefault:
 
-  val erraticRequest =
-    ZIO.serviceWithZIO[ErraticService](
-      _.handleRequest
-    )
+
+  extension[R, E, A] (z: ZIO[R, E, A])
+    def hedge(wait: zio.Duration): ZIO[R, E, A] =
+      z.race(z.delay(wait))
+
+    def hedgeAdvanced(wait: zio.Duration, depth: Int = 1): ZIO[R, E, A] =
+      depth match
+        case 0 => z
+        case other =>
+          z
+            .delay:
+              wait
+            .race:
+              hedgeAdvanced(wait, depth - 1)
+
+  def hedgedRequestNarrow =
+        handleRequest
+          .race(handleRequest.delay(25.millis))
+            .race(handleRequest.delay(25.millis))
+              .race(handleRequest.delay(25.millis))
+
+  def hedgedRequestGeneral =
+    handleRequest
+      .hedgeAdvanced(25.millis, 3)
+//      .hedge(25.millis)
+//      .hedge(25.millis)
+//    handleRequest
+//      .race(handleRequest.delay(25.millis))
+//        .race(handleRequest.delay(25.millis))
+//          .race(handleRequest.delay(25.millis))
 
   def run =
-    defer(Use.withParallelEval) {
-
+    defer:
       val timeBuckets =
         Ref
-          .make[Map[Percentile, RequestStats]](
+          .make[Map[Percentile, RequestStats]]:
             Map()
-          )
           .run
 
-      ZIO
-        .foreachPar(Range(0, 50000))(_ =>
-          demoRequest(timeBuckets)
-        )
-        .run
+      ZIO.repeatNPar(50_000):
+        demoRequest:
+          timeBuckets
+      .run
 
       pprint.pprintln(timeBuckets.get.run, width = 47)
-    }.provide(ZLayer.succeed(ErraticService()))
 
   def demoRequest(
       timeBuckets: Ref[
         Map[Percentile, RequestStats]
       ]
   ) =
-//    erraticRequest
-    hedgedRequest.tap(requestTime =>
+    hedgedRequestGeneral.tap(requestTime =>
       timeBuckets.update(results =>
         results.updatedWith(
           Percentile
@@ -58,25 +81,20 @@ object Hedging extends ZIOAppDefault:
       )
     )
 
-  def hedgedRequest =
-    erraticRequest
-      .race(erraticRequest.delay(25.millis))
-
 end Hedging
 
-case class ErraticService():
-  val handleRequest =
-    defer {
-      Percentile.random.run match
-        case Percentile._50 =>
-          ResponseTimeCutoffs.Fast
-        case Percentile._95 =>
-          ResponseTimeCutoffs.Acceptable
-        case Percentile._99 =>
-          ResponseTimeCutoffs.BreachOfContract
-    }.tap(dimension =>
-      ZIO.sleep(dimension.duration)
-    )
+val handleRequest =
+  defer {
+    Percentile.random.run match
+      case Percentile._50 =>
+        ResponseTimeCutoffs.Fast
+      case Percentile._95 =>
+        ResponseTimeCutoffs.Acceptable
+      case Percentile._999 =>
+        ResponseTimeCutoffs.BreachOfContract
+  }.tap(dimension =>
+    ZIO.sleep(dimension.duration)
+  )
 
 // TODO Fix name
 enum ResponseTimeCutoffs(val duration: Duration):
@@ -90,18 +108,18 @@ enum ResponseTimeCutoffs(val duration: Duration):
 enum Percentile:
   case _50,
     _95,
-    _99
+    _999
 
 object Percentile:
   def random =
     defer:
-      val int = Random.nextIntBounded(100).run
-      if (int < 95)
+      val int = Random.nextIntBounded(1_000).run
+      if (int < 950)
         Percentile._50
-      else if (int < 99)
+      else if (int < 999)
         Percentile._95
       else
-        Percentile._99
+        Percentile._999
 
   def fromDuration(d: Duration) =
     d match
@@ -110,7 +128,7 @@ object Percentile:
       case ResponseTimeCutoffs.Acceptable.duration =>
         Percentile._95
       case ResponseTimeCutoffs.BreachOfContract.duration =>
-        Percentile._99
+        Percentile._999
       case _ => ???
 end Percentile
 
