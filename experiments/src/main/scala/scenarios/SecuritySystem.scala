@@ -121,7 +121,6 @@ case class AcousticDetectorX(
   val monitorNoise
       : ZIO[Any, TimeoutException, Decibels] =
     valueProducer
-end AcousticDetectorX
 
 object AcousticDetectorX:
 

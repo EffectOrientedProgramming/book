@@ -1,16 +1,17 @@
 package zio_helpers
 
 extension (z: ZIO.type)
-  def repeatNPar[R, E, A](numTimes: Int)(
-    op: ZIO[R, E, A]
-  ): ZIO[R, E, Seq[A]] =
-    z.foreachPar(0 until numTimes)((_: Int) => op)
+  def repeatNPar[R, E, A](
+      numTimes: Int
+  )(op: ZIO[R, E, A]): ZIO[R, E, Seq[A]] =
+    z.foreachPar(0 until numTimes)((_: Int) =>
+      op
+    )
 
-extension[R, E, A] (z: ZIO[R, E, A])
-
+extension [R, E, A](z: ZIO[R, E, A])
   def timedSecondsDebug(
-                         message: String
-                       ): ZIO[R, E, A] =
+      message: String
+  ): ZIO[R, E, A] =
     z.timed
       .tap: (duration, res) =>
         res match

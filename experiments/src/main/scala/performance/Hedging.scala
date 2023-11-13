@@ -4,28 +4,28 @@ import zio_helpers.repeatNPar
 
 object Hedging extends ZIOAppDefault:
 
-
-  extension[R, E, A] (z: ZIO[R, E, A])
-
-    def hedge(wait: zio.Duration, depth: Int = 1): ZIO[R, E, A] =
+  extension [R, E, A](z: ZIO[R, E, A])
+    def hedge(
+        wait: zio.Duration,
+        depth: Int = 1
+    ): ZIO[R, E, A] =
       depth match
-        case 0 => z
-        case other =>
+        case 0 =>
           z
-            .delay:
+        case other =>
+          z.delay:
               wait
             .race:
               hedge(wait, depth - 1)
 
   def hedgedRequestNarrow =
-        handleRequest
-          .race(handleRequest.delay(25.millis))
-            .race(handleRequest.delay(25.millis))
-              .race(handleRequest.delay(25.millis))
+    handleRequest
+      .race(handleRequest.delay(25.millis))
+      .race(handleRequest.delay(25.millis))
+      .race(handleRequest.delay(25.millis))
 
   def hedgedRequestGeneral =
-    handleRequest
-      .hedge(25.millis, 3)
+    handleRequest.hedge(25.millis, 3)
 
   def run =
     defer:
@@ -35,12 +35,16 @@ object Hedging extends ZIOAppDefault:
             Map()
           .run
 
-      ZIO.repeatNPar(50_000):
-        demoRequest:
-          timeBuckets
-      .run
+      ZIO
+        .repeatNPar(50_000):
+          demoRequest:
+            timeBuckets
+        .run
 
-      pprint.pprintln(timeBuckets.get.run, width = 47)
+      pprint.pprintln(
+        timeBuckets.get.run,
+        width = 47
+      )
 
   def demoRequest(
       timeBuckets: Ref[
@@ -117,14 +121,19 @@ object Percentile:
     d match
       case ResponseTimeCutoffs.Fast.duration =>
         Percentile._50
-      case ResponseTimeCutoffs.Acceptable.duration =>
+      case ResponseTimeCutoffs
+            .Acceptable
+            .duration =>
         Percentile._95
-      case ResponseTimeCutoffs.BreachOfContract.duration =>
+      case ResponseTimeCutoffs
+            .BreachOfContract
+            .duration =>
         Percentile._999
-      case _ => ???
+      case _ =>
+        ???
 end Percentile
 
 case class RequestStats(
     count: Int,
-    totalTime: Duration,
+    totalTime: Duration
 )

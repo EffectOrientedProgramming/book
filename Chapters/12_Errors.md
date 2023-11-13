@@ -10,12 +10,13 @@
 ```scala mdoc:silent
 val logic =
   ZIO
-    .die(new Exception("Connection lost"))
-    .ensuring(
-      ZIO.die(
-        throw new Exception("Release Failed")
-      )
-    )
+    .die:
+      Exception:
+        "Connection lost"
+    .ensuring:
+      ZIO.die:
+        throw Exception:
+          "Release Failed"
 ```
 ```scala mdoc
 runDemo(logic)
@@ -56,7 +57,9 @@ runDemo:
     try
       throw Exception:
         "Client connection lost"
-    finally throw new Exception("Release Failed")
+    finally
+      throw Exception:
+        "Release Failed"
 ```
 
 We will only see the later `pool` problem.
@@ -103,12 +106,13 @@ enum Scenario:
 def displayTemperature(
     behavior: Scenario
 ): String =
-  if (behavior == Scenario.GPSError)
-    throw new GpsException()
-  else if (behavior == Scenario.NetworkError)
-    throw new NetworkException()
-  else
-    "35 degrees"
+  behavior match
+    case Scenario.GPSError =>
+      throw GpsException()
+    case Scenario.NetworkError =>
+      throw NetworkException()
+    case Scenario.Success =>
+      "35 degrees"
 ```
 
 ```scala mdoc
@@ -201,8 +205,10 @@ def currentTemperature(
     case ex: GpsException =>
       "GPS problem"
 
-currentTemperature(Scenario.NetworkError)
-currentTemperature(Scenario.GPSError)
+currentTemperature:
+  Scenario.NetworkError
+currentTemperature:
+  Scenario.GPSError
 ```
 
 Wonderful!
@@ -281,14 +287,17 @@ def getTemperatureZ(behavior: Scenario): ZIO[
   GpsException | NetworkException,
   String
 ] =
-  if (behavior == Scenario.GPSError)
-    ZIO.fail(new GpsException())
-  else if (behavior == Scenario.NetworkError)
-    // TODO Use a non-exceptional error
-    ZIO.fail:
-      NetworkException()
-  else
-    ZIO.succeed("30 degrees")
+  behavior match
+    case Scenario.GPSError =>
+      ZIO.fail:
+        GpsException()
+    case Scenario.NetworkError =>
+      // TODO Use a non-exceptional error
+      ZIO.fail:
+        NetworkException()
+    case Scenario.Success =>
+      ZIO.succeed:
+        "35 degrees"
 
 runDemo:
   getTemperatureZ:
@@ -298,9 +307,12 @@ runDemo:
 ```scala mdoc:fail
 // TODO make MDoc:fail adhere to line limits?
 runDemo:
-  getTemperatureZ(Scenario.Success).catchAll:
+  getTemperatureZ:
+    Scenario.Success
+  .catchAll:
     case ex: NetworkException =>
-      ZIO.succeed("Network Unavailable")
+      ZIO.succeed:
+        "Network Unavailable"
 ```
 
 TODO Demonstrate ZIO calculating the error types without an explicit annotation being provided
@@ -358,7 +370,8 @@ def getTemperatureZGpsGap(
       displayTemperature(behavior)
     .catchAll:
       case ex: NetworkException =>
-        ZIO.succeed("Network Unavailable")
+        ZIO.succeed:
+          "Network Unavailable"
 ```
 
 ```scala mdoc
@@ -378,18 +391,22 @@ def getTemperatureZWithFallback(
     behavior: Scenario
 ): ZIO[Any, Nothing, String] =
   ZIO
-    .attempt(displayTemperature(behavior))
-    .catchAll {
+    .attempt:
+      displayTemperature:
+        behavior
+    .catchAll:
       case ex: NetworkException =>
-        ZIO.succeed("Network Unavailable")
+        ZIO.succeed:
+          "Network Unavailable"
       case other =>
-        ZIO.succeed("Error: " + other)
-    }
+        ZIO.succeed:
+          "Error: " + other
 ```
 
 ```scala mdoc
 runDemo:
-  getTemperatureZWithFallback(Scenario.GPSError)
+  getTemperatureZWithFallback:
+    Scenario.GPSError
 ```
 
 This lets us avoid the most egregious gaps in functionality, but it does not take full advantage of ZIO's type-safety.
@@ -399,10 +416,13 @@ def getTemperatureZAndFlagUnhandled(
     behavior: Scenario
 ): ZIO[Any, GpsException, String] =
   ZIO
-    .attempt(displayTemperature(behavior))
-    .catchSome { case ex: NetworkException =>
-      ZIO.succeed("Network Unavailable")
-    }
+    .attempt:
+      displayTemperature:
+        behavior
+    .catchSome:
+      case ex: NetworkException =>
+        ZIO.succeed:
+          "Network Unavailable"
     // TODO Eh, find a better version of this.
     .mapError(_.asInstanceOf[GpsException])
 ```
@@ -493,10 +513,9 @@ def loginSuperUser(userId: String): ZIO[
   UserNotFound | PermissionError,
   SuperUser
 ] =
-  defer {
+  defer:
     val basicUser = getUser(userId).run
     getSuperUser(basicUser).run
-  }
 
 trait Status
 trait NetworkService
@@ -511,8 +530,7 @@ def check(userId: String): ZIO[
   UserNotFound,
   Status
 ] =
-  defer {
+  defer:
     val user = getUser(userId).run
     statusOf(user).run
-  }
 ```

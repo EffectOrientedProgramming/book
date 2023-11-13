@@ -210,7 +210,7 @@ HiddenPrelude.resetScenario(Scenario.NeverWorks)
 runDemo:
   saveUser:
     "mrsdavis"
-  .orElseSucceed:
+  .orElseFail:
     "ERROR: User could not be saved"
 ```
 
@@ -274,10 +274,10 @@ runDemo:
   saveUser:
     "morty"
   .timeoutFail(TimeoutError)(timeLimit)
-    .retry:
-      aFewTimes
-    .orElseSucceed:
-      "ERROR: User could not be saved"
+  .retry:
+    aFewTimes
+  .orElseSucceed:
+    "ERROR: User could not be saved"
 ```
 
 ### Fallback Effect
@@ -292,11 +292,11 @@ runDemo:
   saveUser:
     "morty"
   .timeoutFail(TimeoutError)(timeLimit)
-    .retry:
-      aFewTimes
-    .orElse
-  sendToManualQueue:
-    "morty"
+  .retry:
+    aFewTimes
+  .orElse:
+    sendToManualQueue:
+      "morty"
   .orElseSucceed:
     "ERROR: User could not be saved, even to the fallback system"
 ```
@@ -313,21 +313,22 @@ HiddenPrelude
 runDemo:
   saveUser:
     "morty"
+  // todo: maybe this hidden extension method
+  // goes too far with functionality that
+  // doesn't really exist
+  // TODO Should we fireAndForget before the
+  // retries/fallbacks?
+  .fireAndForget:
+    userSignupInitiated:
+      "morty"
   .timeoutFail(TimeoutError)(timeLimit)
-    .retry(aFewTimes)
-    .orElse:
-      sendToManualQueue:
-        "morty"
-    .orElseSucceed:
-      "ERROR: User could not be saved"
-      // todo: maybe this hidden extension method
-      // goes too far with functionality that
-      // doesn't really exist
-      // TODO Should we fireAndForget before the
-      // retries/fallbacks?
-    .fireAndForget:
-      userSignupInitiated:
-        "morty"
+  .retry:
+    aFewTimes
+  .orElse:
+    sendToManualQueue:
+      "morty"
+  .orElseSucceed:
+    "ERROR: User could not be saved"
 ```
 
 ```scala mdoc:invisible
@@ -347,17 +348,17 @@ runDemo:
   saveUser:
     "mrsdavis"
   .timeoutFail(TimeoutError)(timeLimit)
-    .retry:
-      aFewTimes
-    .orElse:
-      sendToManualQueue:
-        "mrsdavis"
-    .tapBoth(
-      error =>
-        userSignUpFailed("mrsdavis", error),
-      success =>
-        userSignupSucceeded("mrsdavis", success)
-    )
-    .orElseSucceed:
-      "ERROR: User could not be saved"
+  .retry:
+    aFewTimes
+  .orElse:
+    sendToManualQueue:
+      "mrsdavis"
+  .tapBoth(
+    error =>
+      userSignUpFailed("mrsdavis", error),
+    success =>
+      userSignupSucceeded("mrsdavis", success)
+  )
+  .orElseSucceed:
+    "ERROR: User could not be saved"
 ```
