@@ -74,4 +74,61 @@ runSpec:
   assertTrue(Some("asdf") == None)
 ```
 
-## Overriding Builtin Services with Test Aspects
+
+## Test Aspects
+We have seen how to add capabilities and behaviors `ZIO`'s enabled by manipulating them as values.
+We can add behaviors to `ZSpec`s that are more specific to testing.
+
+### Overriding Builtin Services
+
+### Injecting Behavior before/after/around
+
+### Flakiness
+Commonly, as a project grows, the supporting tests become more and more flaky.
+This can be caused by a number of factors:
+
+- The code is using shared, live services
+  Shared resources, such as a database or a file system, might be altered by other processes.
+  These could be other tests in the project, or even unrelated processes running on the same machine.
+
+- The code is not thread safe
+  Other processes running simultaneously might alter the expected state of the system.
+
+- Resource limitations
+A team of engineers might be able to successfully run the entire test suite on their personal machines.
+However, the CI/CD system might not have enough resources to run the tests triggered by everyone pushing to the repository.
+Your tests might be occasionally failing due to timeouts or lack of memory.
+
+#### Forbidding
+- `nonflaky`
+
+We might have sections of the code that absolutely must be reliable, and we want to express that in our tests.
+By using `nonFlaky` we can ensure that the test will fail if it is flaky, by hammering it with repeated executions.
+You can dial up the number of iterations to match your reliability expectations.
+
+#### Tolerating/Flagging
+
+In a perfect world, we would fix the underlying issues immediately.
+However, under real world constraints, we may need to tolerate flakiness for a time.
+ZIO Test provides a few ways to do this.
+
+- `flaky`
+This is your goto, easily-applied solution for accommodating legacy flakiness in your codebase.
+For the average, undiagnosed "This test fails sometimes" circumstance, this is the right starting point.
+
+- `eventually`
+When you have a test that is flaky, but you don't know what a reasonable retry behavior is, use `eventually`.
+It's tolerant of any number of failures.
+
+
+### Platform concerns
+
+### Configuration / Environment
+- TestAspect.ifEnv/ifProp
+
+### Time
+- Measuring
+- Restricting
+
+### What should run?
+- Ignore

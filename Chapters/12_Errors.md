@@ -37,9 +37,10 @@ enum Scenario:
     NetworkError,
     GPSError
 
-def displayTemperature(
-    behavior: Scenario
-): String =
+def render(value: String) =
+  s"Temperature: $value"
+
+def calculateTemp(behavior: Scenario): String =
   behavior match
     case Scenario.GPSError =>
       throw GpsException()
@@ -53,7 +54,9 @@ def displayTemperature(
 def currentTemperatureUnsafe(
     behavior: Scenario
 ): String =
-  "Temperature: " + displayTemperature(behavior)
+  render:
+    calculateTemp:
+      behavior
 
 currentTemperatureUnsafe:
   Scenario.Success
@@ -76,12 +79,13 @@ We could take the bare-minimum approach of catching the `Exception` and returnin
 def currentTemperatureNull(
     behavior: Scenario
 ): String =
-  try
-    "Temperature: " +
-      displayTemperature(behavior)
-  catch
-    case ex: RuntimeException =>
-      "Temperature: " + null
+  val temp =
+    try
+      calculateTemp(behavior)
+    catch
+      case ex: RuntimeException =>
+        null
+  s"Temperature: $temp"
 
 currentTemperatureNull:
   Scenario.NetworkError
@@ -96,8 +100,7 @@ def currentTemperature(
     behavior: Scenario
 ): String =
   try
-    "Temperature: " +
-      displayTemperature(behavior)
+    "Temperature: " + calculateTemp(behavior)
   catch
     case ex: RuntimeException =>
       "Temperature: -1 degrees"
@@ -113,12 +116,13 @@ We can take a more honest and accurate approach in this situation.
 def currentTemperature(
     behavior: Scenario
 ): String =
-  try
-    "Temperature: " +
-      displayTemperature(behavior)
-  catch
-    case ex: RuntimeException =>
-      "Temperature Unavailable"
+  render:
+    try
+      calculateTemp:
+        behavior
+    catch
+      case ex: RuntimeException =>
+        "Unavailable"
 
 currentTemperature:
   Scenario.NetworkError
@@ -134,8 +138,9 @@ def currentTemperature(
     behavior: Scenario
 ): String =
   try
-    "Temperature: " +
-      displayTemperature(behavior)
+    render:
+      calculateTemp:
+        behavior
   catch
     case ex: NetworkException =>
       "Network Unavailable"
@@ -144,6 +149,7 @@ def currentTemperature(
 
 currentTemperature:
   Scenario.NetworkError
+
 currentTemperature:
   Scenario.GPSError
 ```
@@ -256,32 +262,42 @@ TODO Demonstrate ZIO calculating the error types without an explicit annotation 
 
 ```scala mdoc
 runDemo:
-  getTemperatureZ(Scenario.GPSError)
+  getTemperatureZ:
+    Scenario.GPSError
 ```
 
 {#wrapping-legacy-code}
 ### Wrapping Legacy Code
 
 If we are unable to re-write the fallible function, we can still wrap the call
-We are re-using the  `displayTemperature`
+We are re-using the  `calculateTemp`
 
 {{TODO }}
 
 ```scala mdoc
+def calculateTempWrapped(
+  behavior: Scenario
+): ZIO[Any, Throwable, String] =
+  ZIO.attempt:
+    calculateTemp:
+      behavior
+```
+
+
+
+```scala mdoc
 def displayTemperatureZWrapped(
     behavior: Scenario
-): ZIO[Any, Nothing, String] =
-  ZIO
-    .attempt:
-      displayTemperature:
-        behavior
-    .catchAll:
-      case ex: NetworkException =>
-        ZIO.succeed:
-          "Network Unavailable"
-      case ex: GpsException =>
-        ZIO.succeed:
-          "GPS problem"
+): ZIO[Any, Nothing, String] = 
+  calculateTempWrapped:
+    behavior
+  .catchAll:
+    case ex: NetworkException =>
+      ZIO.succeed:
+        "Network Unavailable"
+    case ex: GpsException =>
+      ZIO.succeed:
+        "GPS problem"
 ```
 
 ```scala mdoc
@@ -302,13 +318,12 @@ This is decent, but does not provide the maximum possible guarantees. Look at wh
 def getTemperatureZGpsGap(
     behavior: Scenario
 ): ZIO[Any, Nothing, String] =
-  ZIO
-    .attempt:
-      displayTemperature(behavior)
-    .catchAll:
-      case ex: NetworkException =>
-        ZIO.succeed:
-          "Network Unavailable"
+  calculateTempWrapped:
+    behavior
+  .catchAll:
+    case ex: NetworkException =>
+      ZIO.succeed:
+        "Network Unavailable"
 ```
 
 ```scala mdoc
@@ -327,17 +342,15 @@ First, we can provide a fallback case that will report anything we missed:
 def getTemperatureZWithFallback(
     behavior: Scenario
 ): ZIO[Any, Nothing, String] =
-  ZIO
-    .attempt:
-      displayTemperature:
-        behavior
-    .catchAll:
-      case ex: NetworkException =>
-        ZIO.succeed:
-          "Network Unavailable"
-      case other =>
-        ZIO.succeed:
-          "Error: " + other
+  calculateTempWrapped:
+    behavior
+  .catchAll:
+    case ex: NetworkException =>
+      ZIO.succeed:
+        "Network Unavailable"
+    case other =>
+      ZIO.succeed:
+        "Error: " + other
 ```
 
 ```scala mdoc
@@ -352,16 +365,14 @@ This lets us avoid the most egregious gaps in functionality, but it does not tak
 def getTemperatureZAndFlagUnhandled(
     behavior: Scenario
 ): ZIO[Any, GpsException, String] =
-  ZIO
-    .attempt:
-      displayTemperature:
-        behavior
-    .catchSome:
-      case ex: NetworkException =>
-        ZIO.succeed:
-          "Network Unavailable"
-    // TODO Eh, find a better version of this.
-    .mapError(_.asInstanceOf[GpsException])
+  calculateTempWrapped:
+    behavior
+  .catchSome:
+    case ex: NetworkException =>
+      ZIO.succeed:
+        "Network Unavailable"
+  // TODO Eh, find a better version of this.
+  .mapError(_.asInstanceOf[GpsException])
 ```
 
 ```scala mdoc
@@ -468,6 +479,11 @@ def check(userId: String): ZIO[
   Status
 ] =
   defer:
-    val user = getUser(userId).run
-    statusOf(user).run
+    val user = 
+      getUser:
+        userId
+      .run
+    statusOf:
+      user
+    .run
 ```
