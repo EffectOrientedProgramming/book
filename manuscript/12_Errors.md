@@ -10,12 +10,13 @@
 ```scala
 val logic =
   ZIO
-    .die(new Exception("Connection lost"))
-    .ensuring(
-      ZIO.die(
-        throw new Exception("Release Failed")
-      )
-    )
+    .die:
+      Exception:
+        "Connection lost"
+    .ensuring:
+      ZIO.die:
+        throw Exception:
+          "Release Failed"
 ```
 ```scala
 runDemo(logic)
@@ -45,7 +46,7 @@ runDemo(
   )
 )
 // Exception in thread "zio-fiber-" java.lang.Exception: 1
-// 	at repl.MdocSession$MdocApp.$init$$$anonfun$4$$anonfun$1(12_Errors.md:31)
+// 	at repl.MdocSession$MdocApp.$init$$$anonfun$4$$anonfun$1(12_Errors.md:32)
 // 	at mdoctools.OurConsole$.printLine$$anonfun$1(OurConsole.scala:18)
 // 	at scala.runtime.function.JProcedure1.apply(JProcedure1.java:15)
 // 	at scala.runtime.function.JProcedure1.apply(JProcedure1.java:10)
@@ -53,7 +54,7 @@ runDemo(
 // 	at zio.Unsafe$.unsafe(Unsafe.scala:37)
 // 	at zio.ZIOCompanionVersionSpecific.succeed$$anonfun$1(ZIOCompanionVersionSpecific.scala:185)
 // 	Suppressed: java.lang.Exception: 2a
-// 		at repl.MdocSession$MdocApp.$init$$$anonfun$4$$anonfun$1(12_Errors.md:32)
+// 		at repl.MdocSession$MdocApp.$init$$$anonfun$4$$anonfun$1(12_Errors.md:33)
 // 		at mdoctools.OurConsole$.printLine$$anonfun$1(OurConsole.scala:18)
 // 		at scala.runtime.function.JProcedure1.apply(JProcedure1.java:15)
 // 		at scala.runtime.function.JProcedure1.apply(JProcedure1.java:10)
@@ -62,7 +63,7 @@ runDemo(
 // 		at zio.ZIOCompanionVersionSpecific.succeed$$anonfun$1(ZIOCompanionVersionSpecific.scala:185)
 // 		Suppressed: java.lang.Exception: 3
 // Exception in thread "zio-fiber-" java.lang.Exception: 1
-// 	at repl.MdocSession$MdocApp.$init$$$anonfun$4$$anonfun$1(12_Errors.md:31)
+// 	at repl.MdocSession$MdocApp.$init$$$anonfun$4$$anonfun$1(12_Errors.md:32)
 // 	at mdoctools.OurConsole$.printLine$$anonfun$1(OurConsole.scala:18)
 // 	at scala.runtime.function.JProcedure1.apply(JProcedure1.java:15)
 // 	at scala.runtime.function.JProcedure1.apply(JProcedure1.java:10)
@@ -70,7 +71,7 @@ runDemo(
 // 	at zio.Unsafe$.unsafe(Unsafe.scala:37)
 // 	at zio.ZIOCompanionVersionSpecific.succeed$$anonfun$1(ZIOCompanionVersionSpecific.scala:185)
 // 	Suppressed: java.lang.Exception: 2b
-// 		at repl.MdocSession$MdocApp.$init$$$anonfun$4$$anonfun$1(12_Errors.md:33)
+// 		at repl.MdocSession$MdocApp.$init$$$anonfun$4$$anonfun$1(12_Errors.md:34)
 // 		at mdoctools.OurConsole$.printLine$$anonfun$1(OurConsole.scala:18)
 // 		at scala.runtime.function.JProcedure1.apply(JProcedure1.java:15)
 // 		at scala.runtime.function.JProcedure1.apply(JProcedure1.java:10)
@@ -92,7 +93,8 @@ runDemo:
     try
       throw Exception:
         "Client connection lost"
-    finally throw new Exception("Release Failed")
+    finally throw Exception:
+      "Release Failed"
 // java.lang.Exception: Release Failed
 ```
 
@@ -140,12 +142,13 @@ enum Scenario:
 def displayTemperature(
     behavior: Scenario
 ): String =
-  if (behavior == Scenario.GPSError)
-    throw new GpsException()
-  else if (behavior == Scenario.NetworkError)
-    throw new NetworkException()
-  else
-    "35 degrees"
+  behavior match
+    case Scenario.GPSError =>
+      throw GpsException()
+    case Scenario.NetworkError =>
+      throw NetworkException()
+    case Scenario.Success =>
+      "35 degrees"
 ```
 
 ```scala
@@ -167,9 +170,9 @@ If we don't make any attempt to handle our problem, the whole program blows up a
 // Note - Can't make this output prettier/simpler because it's *not* using ZIO
 currentTemperatureUnsafe(Scenario.NetworkError)
 // repl.MdocSession$MdocApp$NetworkException
-// 	at repl.MdocSession$MdocApp.displayTemperature(12_Errors.md:74)
-// 	at repl.MdocSession$MdocApp.currentTemperatureUnsafe(12_Errors.md:84)
-// 	at repl.MdocSession$MdocApp.$init$$$anonfun$6(12_Errors.md:95)
+// 	at repl.MdocSession$MdocApp.displayTemperature(12_Errors.md:77)
+// 	at repl.MdocSession$MdocApp.currentTemperatureUnsafe(12_Errors.md:87)
+// 	at repl.MdocSession$MdocApp.$init$$$anonfun$6(12_Errors.md:98)
 ```
 
 We could take the bare-minimum approach of catching the `Exception` and returning `null`:
@@ -246,9 +249,11 @@ def currentTemperature(
     case ex: GpsException =>
       "GPS problem"
 
-currentTemperature(Scenario.NetworkError)
+currentTemperature:
+  Scenario.NetworkError
 // res7: String = "Network Unavailable"
-currentTemperature(Scenario.GPSError)
+currentTemperature:
+  Scenario.GPSError
 // res8: String = "GPS problem"
 ```
 
@@ -328,27 +333,33 @@ def getTemperatureZ(behavior: Scenario): ZIO[
   GpsException | NetworkException,
   String
 ] =
-  if (behavior == Scenario.GPSError)
-    ZIO.fail(new GpsException())
-  else if (behavior == Scenario.NetworkError)
+  behavior match
+    case Scenario.GPSError =>
+      ZIO.fail:
+        GpsException()
+    case Scenario.NetworkError =>
     // TODO Use a non-exceptional error
-    ZIO.fail:
-      NetworkException()
-  else
-    ZIO.succeed("30 degrees")
+      ZIO.fail:
+        NetworkException()
+    case Scenario.Success =>
+      ZIO.succeed:
+        "35 degrees"
 
 runDemo:
   getTemperatureZ:
     Scenario.Success
-// 30 degrees
+// 35 degrees
 ```
 
 ```scala
 // TODO make MDoc:fail adhere to line limits?
 runDemo:
-  getTemperatureZ(Scenario.Success).catchAll:
+  getTemperatureZ:
+    Scenario.Success
+  .catchAll:
     case ex: NetworkException =>
-      ZIO.succeed("Network Unavailable")
+      ZIO.succeed:
+        "Network Unavailable"
 // error: 
 // match may not be exhaustive.
 // 
@@ -414,7 +425,8 @@ def getTemperatureZGpsGap(
       displayTemperature(behavior)
     .catchAll:
       case ex: NetworkException =>
-        ZIO.succeed("Network Unavailable")
+        ZIO.succeed:
+          "Network Unavailable"
 ```
 
 ```scala
@@ -435,18 +447,22 @@ def getTemperatureZWithFallback(
     behavior: Scenario
 ): ZIO[Any, Nothing, String] =
   ZIO
-    .attempt(displayTemperature(behavior))
-    .catchAll {
+    .attempt:
+      displayTemperature:
+        behavior
+    .catchAll:
       case ex: NetworkException =>
-        ZIO.succeed("Network Unavailable")
+        ZIO.succeed:
+          "Network Unavailable"
       case other =>
-        ZIO.succeed("Error: " + other)
-    }
+        ZIO.succeed:
+          "Error: " + other
 ```
 
 ```scala
 runDemo:
-  getTemperatureZWithFallback(Scenario.GPSError)
+  getTemperatureZWithFallback:
+    Scenario.GPSError
 // Error: repl.MdocSession$MdocApp$GpsException
 ```
 
@@ -457,10 +473,13 @@ def getTemperatureZAndFlagUnhandled(
     behavior: Scenario
 ): ZIO[Any, GpsException, String] =
   ZIO
-    .attempt(displayTemperature(behavior))
-    .catchSome { case ex: NetworkException =>
-      ZIO.succeed("Network Unavailable")
-    }
+    .attempt:
+      displayTemperature:
+        behavior
+    .catchSome: 
+      case ex: NetworkException =>
+        ZIO.succeed:
+          "Network Unavailable"
     // TODO Eh, find a better version of this.
     .mapError(_.asInstanceOf[GpsException])
 ```
@@ -552,10 +571,9 @@ def loginSuperUser(userId: String): ZIO[
   UserNotFound | PermissionError,
   SuperUser
 ] =
-  defer {
+  defer:
     val basicUser = getUser(userId).run
     getSuperUser(basicUser).run
-  }
 
 trait Status
 trait NetworkService
@@ -570,10 +588,9 @@ def check(userId: String): ZIO[
   UserNotFound,
   Status
 ] =
-  defer {
+  defer:
     val user = getUser(userId).run
     statusOf(user).run
-  }
 ```
 
 
