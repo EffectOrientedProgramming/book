@@ -15,6 +15,7 @@ These syntastic features were some of the most contentious changes from Scala 3
 
 ## Rules / examples
 - Generally, when providing a block as an argument, use a colon and place the argument on the following line
+
 ```scala
 def sendMessage(msg: String) =
   println("Sent: " + msg)
@@ -64,7 +65,9 @@ runDemo:
 // World
 // ()
 ```
+
 VS
+
 ```scala
 runDemo:
   defer:
