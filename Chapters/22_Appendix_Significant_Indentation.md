@@ -15,6 +15,7 @@ These syntastic features were some of the most contentious changes from Scala 3
 
 ## Rules / examples
 - Generally, when providing a block as an argument, use a colon and place the argument on the following line
+
 ```scala mdoc
 def sendMessage(msg: String) =
   println("Sent: " + msg)
@@ -58,7 +59,9 @@ runDemo:
     ZIO.debug("Hello").run
     ZIO.debug("World").run
 ```
+
 VS
+
 ```scala mdoc
 runDemo:
   defer:
