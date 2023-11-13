@@ -144,7 +144,6 @@ object AcousticDetectorX:
 
         // that same service we wrote above
         AcousticDetectorX(valueProducer)
-end AcousticDetectorX
 
 ```
 

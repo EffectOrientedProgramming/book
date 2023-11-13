@@ -93,8 +93,9 @@ runDemo:
     try
       throw Exception:
         "Client connection lost"
-    finally throw Exception:
-      "Release Failed"
+    finally
+      throw Exception:
+        "Release Failed"
 // java.lang.Exception: Release Failed
 ```
 
@@ -170,9 +171,9 @@ If we don't make any attempt to handle our problem, the whole program blows up a
 // Note - Can't make this output prettier/simpler because it's *not* using ZIO
 currentTemperatureUnsafe(Scenario.NetworkError)
 // repl.MdocSession$MdocApp$NetworkException
-// 	at repl.MdocSession$MdocApp.displayTemperature(12_Errors.md:77)
-// 	at repl.MdocSession$MdocApp.currentTemperatureUnsafe(12_Errors.md:87)
-// 	at repl.MdocSession$MdocApp.$init$$$anonfun$6(12_Errors.md:98)
+// 	at repl.MdocSession$MdocApp.displayTemperature(12_Errors.md:78)
+// 	at repl.MdocSession$MdocApp.currentTemperatureUnsafe(12_Errors.md:88)
+// 	at repl.MdocSession$MdocApp.$init$$$anonfun$6(12_Errors.md:99)
 ```
 
 We could take the bare-minimum approach of catching the `Exception` and returning `null`:
@@ -338,7 +339,7 @@ def getTemperatureZ(behavior: Scenario): ZIO[
       ZIO.fail:
         GpsException()
     case Scenario.NetworkError =>
-    // TODO Use a non-exceptional error
+      // TODO Use a non-exceptional error
       ZIO.fail:
         NetworkException()
     case Scenario.Success =>
@@ -476,7 +477,7 @@ def getTemperatureZAndFlagUnhandled(
     .attempt:
       displayTemperature:
         behavior
-    .catchSome: 
+    .catchSome:
       case ex: NetworkException =>
         ZIO.succeed:
           "Network Unavailable"
