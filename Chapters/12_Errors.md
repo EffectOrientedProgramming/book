@@ -15,10 +15,6 @@ Once you add `throw`, the rules are more complicated
     - Otherwise, Read everything from left-to-right, top-to-bottom,
     - Unless we `throw`, which means immediately jumping through a different dimension away from the code you're viewing
 
-### Linear reporting
-Everything must be reported linearly, even in systems that are executing on different fibers, across several threads, amongst multiple cores.
-
-
 # Hello Failures
 
 If you are not interested in the discouraged ways to handle errors, and just want to see the ZIO approach, jump down to

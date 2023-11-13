@@ -1,3 +1,7 @@
+### Linear reporting
+With classic `Exception` handling, Everything must be reported linearly, even in systems that are executing on different fibers, across several threads, amongst multiple cores.
+
+
 `Cause` will track all errors originating from a single call in an application, regardless of concurrency and parallelism.
 
 ```scala mdoc:silent
