@@ -3,7 +3,8 @@ package Parallelism
 object PrimeSeeker extends ZIOAppDefault:
 
   override def run =
-      ZIO.foreachPar(1 to 16): _ =>
+    ZIO
+      .foreachPar(1 to 16): _ =>
         ZIO
           .succeed:
             crypto.nextPrimeAfter:

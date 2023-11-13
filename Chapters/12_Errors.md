@@ -57,8 +57,9 @@ runDemo:
     try
       throw Exception:
         "Client connection lost"
-    finally throw Exception:
-      "Release Failed"
+    finally
+      throw Exception:
+        "Release Failed"
 ```
 
 We will only see the later `pool` problem.
@@ -291,7 +292,7 @@ def getTemperatureZ(behavior: Scenario): ZIO[
       ZIO.fail:
         GpsException()
     case Scenario.NetworkError =>
-    // TODO Use a non-exceptional error
+      // TODO Use a non-exceptional error
       ZIO.fail:
         NetworkException()
     case Scenario.Success =>
@@ -418,7 +419,7 @@ def getTemperatureZAndFlagUnhandled(
     .attempt:
       displayTemperature:
         behavior
-    .catchSome: 
+    .catchSome:
       case ex: NetworkException =>
         ZIO.succeed:
           "Network Unavailable"

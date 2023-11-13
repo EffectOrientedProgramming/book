@@ -10,9 +10,8 @@ object KeepSuccesses extends zio.ZIOAppDefault:
   case class BadResponse(payload: String)
 
   val initialRequests =
-    allCalls
-      .map:
-        fastUnreliableNetworkCall
+    allCalls.map:
+      fastUnreliableNetworkCall
 
   val moreStructuredLogic =
     defer:
@@ -71,5 +70,5 @@ object KeepSuccesses extends zio.ZIOAppDefault:
     else
       ZIO.fail:
         BadResponse(input)
-      
+
 end KeepSuccesses
