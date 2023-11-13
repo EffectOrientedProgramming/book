@@ -81,7 +81,8 @@ def currentTemperatureNull(
 ): String =
   render:
     try
-      calculateTemp(behavior)
+      calculateTemp:
+        behavior
     catch
       case ex: RuntimeException =>
         null
@@ -100,7 +101,8 @@ def currentTemperature(
 ): String =
   render:
     try
-      calculateTemp(behavior)
+      calculateTemp:
+        behavior
     catch
       case ex: RuntimeException =>
         "-1 degrees"

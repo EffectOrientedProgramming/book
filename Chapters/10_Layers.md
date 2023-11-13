@@ -129,16 +129,18 @@ object ConsoleLive extends Console:
 ```scala mdoc:silent
 case class Logic(console: Console):
   val invoke: ZIO[Any, Nothing, Unit] =
-    defer {
+    defer:
       console.printLine("Hello").run
       console.printLine("World").run
-    }
 ```
 
 However, providing dependencies to the logic is still tedious.
 
 ```scala mdoc
-runDemo(Logic(ConsoleLive).invoke)
+runDemo:
+  Logic:
+    ConsoleLive
+  .invoke
 ```
 
 ### Three: Create `object Effect.live` field
@@ -148,19 +150,20 @@ Rather than making each caller wrap our instance in a `Layer`, we can do that a 
 ```scala mdoc
 object Console:
   val live: ZLayer[Any, Nothing, Console] =
-    ZLayer.succeed[Console](ConsoleLive)
+    ZLayer.succeed[Console]:
+      ConsoleLive
 ```
 More important than removing repetition - using 1 unique Layer instance per type allows us to share it across our application.
 
 Now executing our code is as simple as describing it.
 
 ```scala mdoc
-runDemo(
+runDemo:
   ZIO
-    .serviceWithZIO[Logic](_.invoke)
+    .serviceWithZIO[Logic]:
+      _.invoke
     .provide(
       Console.live,
       ZLayer.fromFunction(Logic.apply _)
     )
-)
 ```
