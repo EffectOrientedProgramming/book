@@ -84,13 +84,13 @@ We could take the bare-minimum approach of catching the `Exception` and returnin
 def currentTemperatureNull(
     behavior: Scenario
 ): String =
-  val temp =
+  render:
     try
-      calculateTemp(behavior)
+      calculateTemp:
+        behavior
     catch
       case ex: RuntimeException =>
         null
-  s"Temperature: $temp"
 
 currentTemperatureNull:
   Scenario.NetworkError
@@ -105,11 +105,13 @@ Maybe we could fallback to a `sentinel` value, such as `0` or `-1` to indicate a
 def currentTemperature(
     behavior: Scenario
 ): String =
-  try
-    "Temperature: " + calculateTemp(behavior)
-  catch
-    case ex: RuntimeException =>
-      "Temperature: -1 degrees"
+  render:
+    try
+      calculateTemp:
+        behavior
+    catch
+      case ex: RuntimeException =>
+        "-1 degrees"
 
 currentTemperature:
   Scenario.NetworkError
