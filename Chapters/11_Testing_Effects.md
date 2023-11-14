@@ -1,8 +1,8 @@
-# Testing Effects
-
 ## Testing Unpredictable Effects
 
-Effects need access to external systems thus are unpredictable.  Tests are ideally predictable so how do we write tests for effects that are predictable?  With ZIO we can replace the external systems with predictable ones when running our tests.
+Effects need access to external systems thus are unpredictable.  
+Tests are ideally predictable so how do we write tests for effects that are predictable?
+With ZIO we can replace the external systems with predictable ones when running our tests.
 
 With ZIO Test we can use predictable replacements for the standard systems effects (Clock, Random, Console, etc).
 
@@ -118,7 +118,7 @@ For the average, undiagnosed "This test fails sometimes" circumstance, this is t
 
 - `eventually`
 When you have a test that is flaky, but you don't know what a reasonable retry behavior is, use `eventually`.
-It's tolerant of any number of failures.
+It's tolerant of any number of failures, and will just keep retrying until interrupted by other mechanisms.
 
 
 ### Platform concerns
@@ -127,8 +127,29 @@ It's tolerant of any number of failures.
 - TestAspect.ifEnv/ifProp
 
 ### Time
-- Measuring
-- Restricting
+#### Measuring Time
+Since there is already a `.timed` method available directly on `ZIO` instances, it might seem redundant to have a `timed` `TestAspect`.
+However, they are distinct enough to justify their existence.
+`ZIO`s `.timed` methods changes the result type of your code by adding the duration to a tuple in the result.
+This is useful, but requires the calling code to handle this new result type.
+`TestAspect.timed` is a non-invasive way to measure the duration of a test.
+The timing information will be managed behind the scenes, and printed in the test output, without changing any other behavior.
+
+#### Restricting Time
+Sometimes, it's not enough to simply track the time that a test takes.
+If you have specific Service Level Agreements (SLAs) that you need to meet, you want your tests to help ensure that you are meeting them. 
+However, even if you don't have contracts bearing down on you, there are still good reasons to ensure that your tests complete in a timely manner.
+Services like GitHub Actions will automatically cancel your build if it takes too long, but this only happens at a very coarse level.
+It simply kills the job and won't actually help you find the specific test responsible.
+
+A common technique is to define a base test class for your project that all of your tests extend.
+In this class, you can set a default upper limit on test duration.
+When a test violates this limit, it will fail with a helpful error message.
+
+This helps you to identify tests that have completely locked up, or are taking an unreasonable amount of time to complete.
+
+For example, if you are running your tests in a CI/CD pipeline, you want to ensure that your tests complete quickly, so that you can get feedback as soon as possible.
+you can use `TestAspect.timeout` to ensure that your tests complete within a certain time frame.
 
 ### What should run?
 - Ignore
