@@ -31,7 +31,7 @@ def runDemo[E, A](z: => ZIO[Scope, E, A]): Unit =
 import zio.System
 import zio.test.*
 
-def runSpec(x: ZIO[Scope, Nothing, TestResult]) =
+def runSpec(x: ZIO[Scope, Nothing, TestResult], aspects: TestAspect[Scope, Scope, Nothing, Nothing]*) =
 
   val liveEnvironment: Layer[
     Nothing,
@@ -54,9 +54,11 @@ def runSpec(x: ZIO[Scope, Nothing, TestResult]) =
     )
   end liveEnvironment
 
+  val annotatedSpec = aspects.foldLeft(zio.test.test("")(x))(_ @@ _)
+
   runDemo(
     ZioTestExecution
-      .runSpecAsApp(zio.test.test("")(x))
+      .runSpecAsApp(annotatedSpec)
       .provide(
         liveEnvironment,
         TestEnvironment.live,
