@@ -2,69 +2,7 @@
 
 1. Creating & Handling
 1. Error composability
-1. Cause
 1. Retry
-
-`Cause` will track all errors originating from a single call in an application, regardless of concurrency and parallelism.
-
-```scala mdoc:silent
-val logic =
-  ZIO
-    .die:
-      Exception:
-        "Connection lost"
-    .ensuring:
-      ZIO.die:
-        throw Exception:
-          "Release Failed"
-```
-```scala mdoc
-runDemo(logic)
-```
-
-Cause allows you to aggregate multiple errors of the same type
-
-`&&`/`Both` represents parallel failures
-`++`/`Then` represents sequential failures
-
-Cause.die will show you the line that failed, because it requires a throwable
-Cause.fail will not necessarily, because it can be any arbitrary type
-
-## Manual demonstration of these operators
-
-```scala mdoc
-runDemo(
-  Console.printLine(
-    (
-      Cause.die(Exception("1")) ++
-        (Cause.fail(Exception("2a")) &&
-          Cause.fail(Exception("2b"))) ++
-        Cause
-          .stackless(Cause.fail(Exception("3")))
-    ).prettyPrint
-  )
-)
-```
-
-## Avoided Technique - Throwing Exceptions
-
-Now we will highlight the deficiencies of throwing `Exception`s.
-The previous code might be written in this style:
-
-```scala mdoc
-runDemo:
-  ZIO.attempt:
-    try
-      throw Exception:
-        "Client connection lost"
-    finally
-      throw Exception:
-        "Release Failed"
-```
-
-We will only see the later `pool` problem.
-If we throw an `Exception` in our logic, and then throw another while cleaning up, we simply lose the original.
-This is because thrown `Exception`s cannot be _composed_.
 
 In a language that cannot `throw`, following the execution path is simple, following 2 basic rules:
 
@@ -76,10 +14,6 @@ Once you add `throw`, the rules are more complicated
     - At a branch, execute only the first match
     - Otherwise, Read everything from left-to-right, top-to-bottom,
     - Unless we `throw`, which means immediately jumping through a different dimension away from the code you're viewing
-
-### Linear reporting
-Everything must be reported linearly, even in systems that are executing on different fibers, across several threads, amongst multiple cores.
-
 
 # Hello Failures
 
@@ -103,9 +37,10 @@ enum Scenario:
     NetworkError,
     GPSError
 
-def displayTemperature(
-    behavior: Scenario
-): String =
+def render(value: String) =
+  s"Temperature: $value"
+
+def calculateTemp(behavior: Scenario): String =
   behavior match
     case Scenario.GPSError =>
       throw GpsException()
@@ -119,9 +54,12 @@ def displayTemperature(
 def currentTemperatureUnsafe(
     behavior: Scenario
 ): String =
-  "Temperature: " + displayTemperature(behavior)
+  render:
+    calculateTemp:
+      behavior
 
-currentTemperatureUnsafe(Scenario.Success)
+currentTemperatureUnsafe:
+  Scenario.Success
 ```
 
 On the happy path, everything looks as desired.
@@ -131,7 +69,8 @@ If we don't make any attempt to handle our problem, the whole program blows up a
 
 ```scala mdoc:crash
 // Note - Can't make this output prettier/simpler because it's *not* using ZIO
-currentTemperatureUnsafe(Scenario.NetworkError)
+currentTemperatureUnsafe:
+  Scenario.NetworkError
 ```
 
 We could take the bare-minimum approach of catching the `Exception` and returning `null`:
@@ -140,14 +79,16 @@ We could take the bare-minimum approach of catching the `Exception` and returnin
 def currentTemperatureNull(
     behavior: Scenario
 ): String =
-  try
-    "Temperature: " +
-      displayTemperature(behavior)
-  catch
-    case (ex: RuntimeException) =>
-      "Temperature: " + null
+  render:
+    try
+      calculateTemp:
+        behavior
+    catch
+      case ex: RuntimeException =>
+        null
 
-currentTemperatureNull(Scenario.NetworkError)
+currentTemperatureNull:
+  Scenario.NetworkError
 ```
 
 This is *slightly* better, as the user can at least see the outer structure of our UI element, but it still leaks out code-specific details world.
@@ -158,12 +99,13 @@ Maybe we could fallback to a `sentinel` value, such as `0` or `-1` to indicate a
 def currentTemperature(
     behavior: Scenario
 ): String =
-  try
-    "Temperature: " +
-      displayTemperature(behavior)
-  catch
-    case ex: RuntimeException =>
-      "Temperature: -1 degrees"
+  render:
+    try
+      calculateTemp:
+        behavior
+    catch
+      case ex: RuntimeException =>
+        "-1 degrees"
 
 currentTemperature:
   Scenario.NetworkError
@@ -176,12 +118,13 @@ We can take a more honest and accurate approach in this situation.
 def currentTemperature(
     behavior: Scenario
 ): String =
-  try
-    "Temperature: " +
-      displayTemperature(behavior)
-  catch
-    case ex: RuntimeException =>
-      "Temperature Unavailable"
+  render:
+    try
+      calculateTemp:
+        behavior
+    catch
+      case ex: RuntimeException =>
+        "Unavailable"
 
 currentTemperature:
   Scenario.NetworkError
@@ -197,8 +140,9 @@ def currentTemperature(
     behavior: Scenario
 ): String =
   try
-    "Temperature: " +
-      displayTemperature(behavior)
+    render:
+      calculateTemp:
+        behavior
   catch
     case ex: NetworkException =>
       "Network Unavailable"
@@ -207,6 +151,7 @@ def currentTemperature(
 
 currentTemperature:
   Scenario.NetworkError
+
 currentTemperature:
   Scenario.GPSError
 ```
@@ -319,32 +264,42 @@ TODO Demonstrate ZIO calculating the error types without an explicit annotation 
 
 ```scala mdoc
 runDemo:
-  getTemperatureZ(Scenario.GPSError)
+  getTemperatureZ:
+    Scenario.GPSError
 ```
 
 {#wrapping-legacy-code}
 ### Wrapping Legacy Code
 
 If we are unable to re-write the fallible function, we can still wrap the call
-We are re-using the  `displayTemperature`
+We are re-using the  `calculateTemp`
 
 {{TODO }}
 
 ```scala mdoc
+def calculateTempWrapped(
+  behavior: Scenario
+): ZIO[Any, Throwable, String] =
+  ZIO.attempt:
+    calculateTemp:
+      behavior
+```
+
+
+
+```scala mdoc
 def displayTemperatureZWrapped(
     behavior: Scenario
-): ZIO[Any, Nothing, String] =
-  ZIO
-    .attempt:
-      displayTemperature:
-        behavior
-    .catchAll:
-      case ex: NetworkException =>
-        ZIO.succeed:
-          "Network Unavailable"
-      case ex: GpsException =>
-        ZIO.succeed:
-          "GPS problem"
+): ZIO[Any, Nothing, String] = 
+  calculateTempWrapped:
+    behavior
+  .catchAll:
+    case ex: NetworkException =>
+      ZIO.succeed:
+        "Network Unavailable"
+    case ex: GpsException =>
+      ZIO.succeed:
+        "GPS problem"
 ```
 
 ```scala mdoc
@@ -365,13 +320,12 @@ This is decent, but does not provide the maximum possible guarantees. Look at wh
 def getTemperatureZGpsGap(
     behavior: Scenario
 ): ZIO[Any, Nothing, String] =
-  ZIO
-    .attempt:
-      displayTemperature(behavior)
-    .catchAll:
-      case ex: NetworkException =>
-        ZIO.succeed:
-          "Network Unavailable"
+  calculateTempWrapped:
+    behavior
+  .catchAll:
+    case ex: NetworkException =>
+      ZIO.succeed:
+        "Network Unavailable"
 ```
 
 ```scala mdoc
@@ -390,17 +344,15 @@ First, we can provide a fallback case that will report anything we missed:
 def getTemperatureZWithFallback(
     behavior: Scenario
 ): ZIO[Any, Nothing, String] =
-  ZIO
-    .attempt:
-      displayTemperature:
-        behavior
-    .catchAll:
-      case ex: NetworkException =>
-        ZIO.succeed:
-          "Network Unavailable"
-      case other =>
-        ZIO.succeed:
-          "Error: " + other
+  calculateTempWrapped:
+    behavior
+  .catchAll:
+    case ex: NetworkException =>
+      ZIO.succeed:
+        "Network Unavailable"
+    case other =>
+      ZIO.succeed:
+        "Error: " + other
 ```
 
 ```scala mdoc
@@ -415,16 +367,14 @@ This lets us avoid the most egregious gaps in functionality, but it does not tak
 def getTemperatureZAndFlagUnhandled(
     behavior: Scenario
 ): ZIO[Any, GpsException, String] =
-  ZIO
-    .attempt:
-      displayTemperature:
-        behavior
-    .catchSome:
-      case ex: NetworkException =>
-        ZIO.succeed:
-          "Network Unavailable"
-    // TODO Eh, find a better version of this.
-    .mapError(_.asInstanceOf[GpsException])
+  calculateTempWrapped:
+    behavior
+  .catchSome:
+    case ex: NetworkException =>
+      ZIO.succeed:
+        "Network Unavailable"
+  // TODO Eh, find a better version of this.
+  .mapError(_.asInstanceOf[GpsException])
 ```
 
 ```scala mdoc
@@ -531,6 +481,11 @@ def check(userId: String): ZIO[
   Status
 ] =
   defer:
-    val user = getUser(userId).run
-    statusOf(user).run
+    val user = 
+      getUser:
+        userId
+      .run
+    statusOf:
+      user
+    .run
 ```
