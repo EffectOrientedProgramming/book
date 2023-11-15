@@ -1,6 +1,7 @@
 # Running Effects
 
-## ZIOs are not their result. They are something that can be executed, that _might_ produce that result.
+## ZIOs are not their result. 
+They are something that can be executed, that _might_ produce that result.
 If you have a ZIO Effect like:
 
 ```scala mdoc
@@ -37,7 +38,7 @@ If it is your friend's birthday, they want a cake, not a list of instructions ab
 ### The `defer`/direct syntax makes this more explicit
 
 
-## There is an interpreter that provides the ZIO superpowers
+## The ZIO Interpreter
 
 Scala compiles code to JVM bytecodes,
 Similarly ZIO has an interpreter that steps through and executes your code, much like the JVM interprets JVM bytecodes.
@@ -52,7 +53,10 @@ The reason we have the `defer` directive(method?) in zio-direct is to indicate t
 ## Building applications from scratch
 
 One way to run ZIOs is to use a "main method" program (something you can start in the JVM).
-However, setting up the pieces needed for this is a bit cumbersome if done without helpers so ZIO provides an easy way to do this with the `ZIOAppDefault` trait.
+However, setting up the pieces needed for this is a bit cumbersome if done without helpers.
+
+### ZIOAppDefault
+ZIO provides an easy way to do this with the `ZIOAppDefault` trait.
 
 To use it create a new `object` that extends the `ZIOAppDefault` trait and implements the `run` method.  That method returns a ZIO so you can now give it the example `ZIO.debug` data:
 ```scala mdoc
@@ -71,18 +75,33 @@ It is the standard, simplest way to start executing your recipes.
 
 ```scala mdoc
 object RunningZIOs extends ZIOAppDefault:
-  def run =
-    Console.printLine:
-      "Hello World!"
+  def run = {
+    //  TODO Console/debug don't work
+    ZIO.attempt:
+      println:
+        "Hello World!"
+  }
 
-// RunningZIOs.main(Array.empty)  // causes mdoc crash
+// To execute the code:
+RunningZIOs.main(Array.empty)
+
 ```
 You can provide arbitrary ZIO instances to the run method, as long as you have provided every piece of the environment.
 In other words, it can accept `ZIO[Any, _, _]`.
 
 There is a more flexible `ZIOApp` that facilitates sharing layers between applications, but this is advanced and not necessary for most applications.
 
-### runDemo ?
+### runDemo
+While the `ZIOApp*` types are great for building real applications, they are not ideal for demonstrating code for a book.
+We created the `runDemo` function to streamline this use-case.
+It is a function that takes a ZIO and executes it in a runtime, returning the result.
+It uses most of the same techniques that are used in `ZIOAppDefault`, but is more single purpose, always immediately executing the ZIO provided to it.
+
+```scala mdoc
+runDemo:
+    ZIO.debug:
+      "hello, world"
+```
 
 ## Testing code
     - `runSpec` ?
@@ -92,6 +111,7 @@ There is a more flexible `ZIOApp` that facilitates sharing layers between applic
 Similar to `ZIOAppDefault`, there is a `ZIOSpecDefault` that should be your starting point for testing ZIO applications.
 
 > TODO - Decide which scenario to test
+
 
 ```scala mdoc
 import zio.test._
@@ -110,6 +130,17 @@ runSpec:
   defer:
     assertTrue:
       Random.nextIntBounded(10).run < 10
+```
+
+
+```scala mdoc
+runSpec(
+  defer:
+    assertTrue:
+      Random.nextIntBounded(10).run < 10
+  ,
+  TestAspect.timeout(1.second)
+)
 ```
 
 TODO Justify defer syntax over for-comp for multi-statement assertions
