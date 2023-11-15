@@ -139,7 +139,7 @@ runSpec(
     assertTrue:
       Random.nextIntBounded(10).run < 10
   ,
-  TestAspect.timeout(1.second)
+  TestAspect.timeout(10.second)
 )
 ```
 
