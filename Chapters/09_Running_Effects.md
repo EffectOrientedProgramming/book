@@ -75,12 +75,11 @@ It is the standard, simplest way to start executing your recipes.
 
 ```scala mdoc
 object RunningZIOs extends ZIOAppDefault:
-  def run = {
+  def run =
     //  TODO Console/debug don't work
     ZIO.attempt:
       println:
         "Hello World!"
-  }
 
 // To execute the code:
 RunningZIOs.main(Array.empty)
@@ -109,6 +108,8 @@ runDemo:
 ### ZIOSpecDefault
 
 Similar to `ZIOAppDefault`, there is a `ZIOSpecDefault` that should be your starting point for testing ZIO applications.
+`ZIOSpecDefault` provides test-specific implementations built-in services, to make testing easier.
+When you run the same `ZIO` in these 2 contexts, the only thing that changes are the built-in services provided by the runtime.
 
 > TODO - Decide which scenario to test
 
@@ -119,8 +120,10 @@ object TestingZIOs extends ZIOSpecDefault:
   def spec =
     test("Hello Tests"):
       defer:
+        ZIO.console.run
         assertTrue:
-          Random.nextIntBounded(10).run < 10
+          Random.nextIntBounded(10).run > 10
+
 ```
 
 ### runSpec
