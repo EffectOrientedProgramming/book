@@ -55,7 +55,7 @@ def runSpec[E <: Throwable](
       ](
         Clock
           .ClockLive, // TODO Should this be OurClock
-        Console.ConsoleLive,
+        OurConsole, // TODO Figure out why this doesn't work
         System.SystemLive,
         Random.RandomLive
       )

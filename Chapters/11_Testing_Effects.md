@@ -83,6 +83,19 @@ We can add behaviors to `ZSpec`s that are more specific to testing.
 
 ### Injecting Behavior before/after/around
 
+```scala mdoc
+runSpec(
+  defer:
+    println("During test")
+    assertCompletes
+  .withConsole(mdoctools.OurConsole),
+  TestAspect.around(
+    ZIO.debug("ZIO IO, before"),
+    ZIO.succeed(println("plain IO, after")),
+  )
+)
+```
+
 ### Flakiness
 Commonly, as a project grows, the supporting tests become more and more flaky.
 This can be caused by a number of factors:
@@ -176,7 +189,7 @@ For example, if you are running your tests in a CI/CD pipeline, you want to ensu
 you can use `TestAspect.timeout` to ensure that your tests complete within a certain time frame.
 
 ### What should run?
-It would be great if all of tests could run & pass at every moment in time, but there are times when it's not feasible.
+It would be great if all our tests could run & pass at every moment in time, but there are times when it's not feasible.
 If you are doing Test-Driven Development, you don't want the build to be broken until you are completely finished implementing the feature.
 If you are rewriting a significant part of your project, you already know there are going to be test failures until you are finished.
 Traditionally, we comment out the tests in these situations.
@@ -200,3 +213,5 @@ runSpec(
   TestAspect.ignore
 )
 ```
+
+### 
