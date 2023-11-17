@@ -10,7 +10,7 @@ println("A")
 ZIO.debug("B")
 // res1: ZIO[Any, Nothing, Unit] = Sync(
 //   trace = "repl.MdocSession.MdocApp.res1(09_Running_Effects.md:13)",
-//   eval = zio.ZIOCompanionVersionSpecific$$Lambda$17003/0x000000080432d040@1ac10915
+//   eval = zio.ZIOCompanionVersionSpecific$$Lambda$15850/0x0000000803fa4840@64976821
 // )
 println("C")
 // C
@@ -26,7 +26,7 @@ A common mistake when starting with ZIO is trying to return ZIO instances themse
 
 ```scala
 println(Random.nextInt)
-// Stateful(repl.MdocSession.MdocApp.res3(09_Running_Effects.md:25),zio.FiberRef$unsafe$$anon$2$$Lambda$17077/0x00000008043bd840@6337386b)
+// Stateful(repl.MdocSession.MdocApp.res3(09_Running_Effects.md:25),zio.FiberRef$unsafe$$anon$2$$Lambda$15921/0x0000000804030040@4d128f62)
 ```
 
 This is a mistake because ZIO's are not their result, they are descriptions of effects that produce the result.
@@ -81,6 +81,8 @@ If you are learning ZIO, you should start your exploration with `ZIOAppDefault`.
 It is the standard, simplest way to start executing your recipes.
 
 ```scala
+// NOTE We cannot execute invoke main on this
+// because it crashes mdoc in the CI process
 object RunningZIOs extends ZIOAppDefault:
   def run =
     //  TODO Console/debug don't work
@@ -103,8 +105,8 @@ It uses most of the same techniques that are used in `ZIOAppDefault`, but is mor
 
 ```scala
 runDemo:
-    ZIO.debug:
-      "hello, world"
+  ZIO.debug:
+    "hello, world"
 // hello, world
 // ()
 ```
@@ -139,18 +141,6 @@ runSpec:
   defer:
     assertTrue:
       Random.nextIntBounded(10).run < 10
-// Test: PASSED*
-```
-
-
-```scala
-runSpec(
-  defer:
-    assertTrue:
-      Random.nextIntBounded(10).run < 10
-  ,
-  TestAspect.timeout(10.second)
-)
 // Test: PASSED*
 ```
 

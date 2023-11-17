@@ -295,7 +295,7 @@ We are re-using the  `calculateTemp`
 
 ```scala
 def calculateTempWrapped(
-  behavior: Scenario
+    behavior: Scenario
 ): ZIO[Any, Throwable, String] =
   ZIO.attempt:
     calculateTemp:
@@ -307,7 +307,7 @@ def calculateTempWrapped(
 ```scala
 def displayTemperatureZWrapped(
     behavior: Scenario
-): ZIO[Any, Nothing, String] = 
+): ZIO[Any, Nothing, String] =
   calculateTempWrapped:
     behavior
   .catchAll:
@@ -394,7 +394,7 @@ def getTemperatureZAndFlagUnhandled(
     case ex: NetworkException =>
       ZIO.succeed:
         "Network Unavailable"
-  // TODO Eh, find a better version of this.
+    // TODO Eh, find a better version of this.
   .mapError(_.asInstanceOf[GpsException])
 ```
 

@@ -86,6 +86,22 @@ We can add behaviors to `ZSpec`s that are more specific to testing.
 
 ### Injecting Behavior before/after/around
 
+```scala
+runSpec(
+  defer:
+    println("During test")
+    assertCompletes
+  .withConsole(mdoctools.OurConsole),
+  TestAspect.around(
+    ZIO.debug("ZIO IO, before"),
+    ZIO.succeed(println("plain IO, after")),
+  )
+)
+// During test
+// plain IO, after
+// Test: PASSED*
+```
+
 ### Flakiness
 Commonly, as a project grows, the supporting tests become more and more flaky.
 This can be caused by a number of factors:
@@ -102,12 +118,38 @@ A team of engineers might be able to successfully run the entire test suite on t
 However, the CI/CD system might not have enough resources to run the tests triggered by everyone pushing to the repository.
 Your tests might be occasionally failing due to timeouts or lack of memory.
 
+```scala
+runSpec(
+  defer:
+    assertTrue:
+      Random.nextBoolean.run
+  ,
+  TestAspect.withLiveRandom,
+  TestAspect.flaky
+)
+// Test: PASSED*
+```
+
+
 #### Forbidding
 - `nonflaky`
 
 We might have sections of the code that absolutely must be reliable, and we want to express that in our tests.
 By using `nonFlaky` we can ensure that the test will fail if it is flaky, by hammering it with repeated executions.
 You can dial up the number of iterations to match your reliability expectations.
+
+
+```scala
+runSpec(
+  defer:
+    assertTrue:
+      Random.nextInt.run != 42
+  ,
+  TestAspect.withLiveRandom,
+  TestAspect.nonFlaky
+)
+// Test: PASSED*
+```
 
 #### Tolerating/Flagging
 
@@ -155,8 +197,34 @@ For example, if you are running your tests in a CI/CD pipeline, you want to ensu
 you can use `TestAspect.timeout` to ensure that your tests complete within a certain time frame.
 
 ### What should run?
-- Ignore
+It would be great if all our tests could run & pass at every moment in time, but there are times when it's not feasible.
+If you are doing Test-Driven Development, you don't want the build to be broken until you are completely finished implementing the feature.
+If you are rewriting a significant part of your project, you already know there are going to be test failures until you are finished.
+Traditionally, we comment out the tests in these situations.
+However, this can lead to a lot of noise in the codebase, and it's easy to forget to uncomment the tests when you are done.
+`TestAspect`s provide a better way to handle this.
 
+```scala
+runSpec(
+  defer:
+    assertNever:
+      "Not implemented. Do not run"
+)
+// Test: FAILED
+```
+
+```scala
+runSpec(
+  defer:
+    assertNever:
+      "Not implemented. Do not run"
+  ,
+  TestAspect.ignore
+)
+// Test: PASSED*
+```
+
+### 
 
 ## Edit This Chapter
 [Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/11_Testing_Effects.md)

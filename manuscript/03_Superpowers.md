@@ -121,10 +121,10 @@ runDemo:
   saveUser:
     "morty"
   .timeoutFail(TimeoutError)(timeLimit)
-  .retry:
-    aFewTimes
-  .orElseSucceed:
-    "ERROR: User could not be saved"
+    .retry:
+      aFewTimes
+    .orElseSucceed:
+      "ERROR: User could not be saved"
 // Interrupting slow request
 // Database Timeout
 // User saved
@@ -139,13 +139,13 @@ runDemo:
   saveUser:
     "morty"
   .timeoutFail(TimeoutError)(timeLimit)
-  .retry:
-    aFewTimes
-  .orElse:
-    sendToManualQueue:
-      "morty"
-  .orElseSucceed:
-    "ERROR: User could not be saved, even to the fallback system"
+    .retry:
+      aFewTimes
+    .orElse:
+      sendToManualQueue:
+        "morty"
+    .orElseSucceed:
+      "ERROR: User could not be saved, even to the fallback system"
 // DatabaseError
 // DatabaseError
 // DatabaseError
@@ -161,22 +161,22 @@ runDemo:
 runDemo:
   saveUser:
     "morty"
-  // todo: maybe this hidden extension method
-  // goes too far with functionality that
-  // doesn't really exist
-  // TODO Should we fireAndForget before the
-  // retries/fallbacks?
+    // todo: maybe this hidden extension method
+    // goes too far with functionality that
+    // doesn't really exist
+    // TODO Should we fireAndForget before the
+    // retries/fallbacks?
   .fireAndForget:
     userSignupInitiated:
       "morty"
   .timeoutFail(TimeoutError)(timeLimit)
-  .retry:
-    aFewTimes
-  .orElse:
-    sendToManualQueue:
-      "morty"
-  .orElseSucceed:
-    "ERROR: User could not be saved"
+    .retry:
+      aFewTimes
+    .orElse:
+      sendToManualQueue:
+        "morty"
+    .orElseSucceed:
+      "ERROR: User could not be saved"
 // User saved
 ```
 
@@ -193,19 +193,19 @@ runDemo:
   saveUser:
     "mrsdavis"
   .timeoutFail(TimeoutError)(timeLimit)
-  .retry:
-    aFewTimes
-  .orElse:
-    sendToManualQueue:
-      "mrsdavis"
-  .tapBoth(
-    error =>
-      userSignUpFailed("mrsdavis", error),
-    success =>
-      userSignupSucceeded("mrsdavis", success)
-  )
-  .orElseSucceed:
-    "ERROR: User could not be saved"
+    .retry:
+      aFewTimes
+    .orElse:
+      sendToManualQueue:
+        "mrsdavis"
+    .tapBoth(
+      error =>
+        userSignUpFailed("mrsdavis", error),
+      success =>
+        userSignupSucceeded("mrsdavis", success)
+    )
+    .orElseSucceed:
+      "ERROR: User could not be saved"
 // Analytics sent for signup completion
 // User saved
 ```

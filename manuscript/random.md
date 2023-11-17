@@ -33,7 +33,7 @@ class MutableRNG(var seed: Int):
 
 ```scala
 val rng = MutableRNG(1)
-// rng: MutableRNG = repl.MdocSession$MdocApp$MutableRNG@347083e3
+// rng: MutableRNG = repl.MdocSession$MdocApp$MutableRNG@3a98b63f
 rng.nextInt()
 // res0: Int = 357
 rng.nextInt()
@@ -46,7 +46,7 @@ Let's see what happens if we make a new instance with the same seed.
 
 ```scala
 val rngDuplicate = MutableRNG(1)
-// rngDuplicate: MutableRNG = repl.MdocSession$MdocApp$MutableRNG@570d219f
+// rngDuplicate: MutableRNG = repl.MdocSession$MdocApp$MutableRNG@15de3e94
 rngDuplicate.nextInt()
 // res3: Int = 357
 rngDuplicate.nextInt()
