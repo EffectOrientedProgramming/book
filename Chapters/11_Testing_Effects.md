@@ -99,12 +99,36 @@ A team of engineers might be able to successfully run the entire test suite on t
 However, the CI/CD system might not have enough resources to run the tests triggered by everyone pushing to the repository.
 Your tests might be occasionally failing due to timeouts or lack of memory.
 
+```scala mdoc
+runSpec(
+  defer:
+    assertTrue:
+      Random.nextBoolean.run
+  ,
+  TestAspect.withLiveRandom,
+  TestAspect.flaky
+)
+```
+
+
 #### Forbidding
 - `nonflaky`
 
 We might have sections of the code that absolutely must be reliable, and we want to express that in our tests.
 By using `nonFlaky` we can ensure that the test will fail if it is flaky, by hammering it with repeated executions.
 You can dial up the number of iterations to match your reliability expectations.
+
+
+```scala mdoc
+runSpec(
+  defer:
+    assertTrue:
+      Random.nextInt.run != 42
+  ,
+  TestAspect.withLiveRandom,
+  TestAspect.nonFlaky
+)
+```
 
 #### Tolerating/Flagging
 
@@ -152,4 +176,11 @@ For example, if you are running your tests in a CI/CD pipeline, you want to ensu
 you can use `TestAspect.timeout` to ensure that your tests complete within a certain time frame.
 
 ### What should run?
+It would be great if all of tests could run & pass at every moment in time, but there are times when it's not feasible.
+If you are doing Test-Driven Development, you don't want the build to be broken until you are completely finished implementing the feature.
+If you are rewriting a significant part of your project, you already know there are going to be test failures until you are finished.
+Traditionally, we comment out the tests in these situations.
+However, this can lead to a lot of noise in the codebase, and it's easy to forget to uncomment the tests when you are done.
+`TestAspect`s provide a better way to handle this.
+
 - Ignore

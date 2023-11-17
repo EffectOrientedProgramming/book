@@ -74,16 +74,14 @@ If you are learning ZIO, you should start your exploration with `ZIOAppDefault`.
 It is the standard, simplest way to start executing your recipes.
 
 ```scala mdoc
+// NOTE We cannot execute invoke main on this
+// because it crashes mdoc in the CI process
 object RunningZIOs extends ZIOAppDefault:
   def run =
     //  TODO Console/debug don't work
     ZIO.attempt:
       println:
         "Hello World!"
-
-// todo: this is crashing mdoc
-// To execute the code:
-//RunningZIOs.main(Array.empty)
 ```
 
 
@@ -100,8 +98,8 @@ It uses most of the same techniques that are used in `ZIOAppDefault`, but is mor
 
 ```scala mdoc
 runDemo:
-    ZIO.debug:
-      "hello, world"
+  ZIO.debug:
+    "hello, world"
 ```
 
 ## Testing code
@@ -134,17 +132,6 @@ runSpec:
   defer:
     assertTrue:
       Random.nextIntBounded(10).run < 10
-```
-
-
-```scala mdoc
-runSpec(
-  defer:
-    assertTrue:
-      Random.nextIntBounded(10).run < 10
-  ,
-  TestAspect.timeout(10.second)
-)
 ```
 
 TODO Justify defer syntax over for-comp for multi-statement assertions
