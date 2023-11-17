@@ -183,4 +183,20 @@ Traditionally, we comment out the tests in these situations.
 However, this can lead to a lot of noise in the codebase, and it's easy to forget to uncomment the tests when you are done.
 `TestAspect`s provide a better way to handle this.
 
-- Ignore
+```scala mdoc
+runSpec(
+  defer:
+    assertNever:
+      "Not implemented. Do not run"
+)
+```
+
+```scala mdoc
+runSpec(
+  defer:
+    assertNever:
+      "Not implemented. Do not run"
+  ,
+  TestAspect.ignore
+)
+```
