@@ -1,6 +1,7 @@
 # Running Effects
 
-## ZIOs are not their result. They are something that can be executed, that _might_ produce that result.
+## ZIOs are not their result. 
+They are something that can be executed, that _might_ produce that result.
 If you have a ZIO Effect like:
 
 ```scala
@@ -9,7 +10,7 @@ println("A")
 ZIO.debug("B")
 // res1: ZIO[Any, Nothing, Unit] = Sync(
 //   trace = "repl.MdocSession.MdocApp.res1(09_Running_Effects.md:13)",
-//   eval = zio.ZIOCompanionVersionSpecific$$Lambda$15737/0x0000000103fc0c40@4fc53e40
+//   eval = zio.ZIOCompanionVersionSpecific$$Lambda$17003/0x000000080432d040@1ac10915
 // )
 println("C")
 // C
@@ -25,7 +26,7 @@ A common mistake when starting with ZIO is trying to return ZIO instances themse
 
 ```scala
 println(Random.nextInt)
-// Stateful(repl.MdocSession.MdocApp.res3(09_Running_Effects.md:25),zio.FiberRef$unsafe$$anon$2$$Lambda$15826/0x000000010405b840@13beb997)
+// Stateful(repl.MdocSession.MdocApp.res3(09_Running_Effects.md:25),zio.FiberRef$unsafe$$anon$2$$Lambda$17077/0x00000008043bd840@6337386b)
 ```
 
 This is a mistake because ZIO's are not their result, they are descriptions of effects that produce the result.
@@ -44,7 +45,7 @@ If it is your friend's birthday, they want a cake, not a list of instructions ab
 ### The `defer`/direct syntax makes this more explicit
 
 
-## There is an interpreter that provides the ZIO superpowers
+## The ZIO Interpreter
 
 Scala compiles code to JVM bytecodes,
 Similarly ZIO has an interpreter that steps through and executes your code, much like the JVM interprets JVM bytecodes.
@@ -59,7 +60,10 @@ The reason we have the `defer` directive(method?) in zio-direct is to indicate t
 ## Building applications from scratch
 
 One way to run ZIOs is to use a "main method" program (something you can start in the JVM).
-However, setting up the pieces needed for this is a bit cumbersome if done without helpers so ZIO provides an easy way to do this with the `ZIOAppDefault` trait.
+However, setting up the pieces needed for this is a bit cumbersome if done without helpers.
+
+### ZIOAppDefault
+ZIO provides an easy way to do this with the `ZIOAppDefault` trait.
 
 To use it create a new `object` that extends the `ZIOAppDefault` trait and implements the `run` method.  That method returns a ZIO so you can now give it the example `ZIO.debug` data:
 ```scala
@@ -79,15 +83,31 @@ It is the standard, simplest way to start executing your recipes.
 ```scala
 object RunningZIOs extends ZIOAppDefault:
   def run =
-    Console.printLine:
-      "Hello World!"
+    //  TODO Console/debug don't work
+    ZIO.attempt:
+      println:
+        "Hello World!"
 ```
+
+
 You can provide arbitrary ZIO instances to the run method, as long as you have provided every piece of the environment.
 In other words, it can accept `ZIO[Any, _, _]`.
 
 There is a more flexible `ZIOApp` that facilitates sharing layers between applications, but this is advanced and not necessary for most applications.
 
-### runDemo ?
+### runDemo
+While the `ZIOApp*` types are great for building real applications, they are not ideal for demonstrating code for a book.
+We created the `runDemo` function to streamline this use-case.
+It is a function that takes a ZIO and executes it in a runtime, returning the result.
+It uses most of the same techniques that are used in `ZIOAppDefault`, but is more single purpose, always immediately executing the ZIO provided to it.
+
+```scala
+runDemo:
+    ZIO.debug:
+      "hello, world"
+// hello, world
+// ()
+```
 
 ## Testing code
     - `runSpec` ?
@@ -95,8 +115,11 @@ There is a more flexible `ZIOApp` that facilitates sharing layers between applic
 ### ZIOSpecDefault
 
 Similar to `ZIOAppDefault`, there is a `ZIOSpecDefault` that should be your starting point for testing ZIO applications.
+`ZIOSpecDefault` provides test-specific implementations built-in services, to make testing easier.
+When you run the same `ZIO` in these 2 contexts, the only thing that changes are the built-in services provided by the runtime.
 
 > TODO - Decide which scenario to test
+
 
 ```scala
 import zio.test._
@@ -104,8 +127,9 @@ object TestingZIOs extends ZIOSpecDefault:
   def spec =
     test("Hello Tests"):
       defer:
+        ZIO.console.run
         assertTrue:
-          Random.nextIntBounded(10).run < 10
+          Random.nextIntBounded(10).run > 10
 ```
 
 ### runSpec
@@ -115,6 +139,18 @@ runSpec:
   defer:
     assertTrue:
       Random.nextIntBounded(10).run < 10
+// Test: PASSED*
+```
+
+
+```scala
+runSpec(
+  defer:
+    assertTrue:
+      Random.nextIntBounded(10).run < 10
+  ,
+  TestAspect.timeout(10.second)
+)
 // Test: PASSED*
 ```
 
