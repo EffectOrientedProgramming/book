@@ -18,7 +18,7 @@ jobs:
     - run: |
         ./bin/sbt genManuscript
         mkdir manuscript/resources
-        mv manuscript/images manuscript/resources/
+        mv manuscript/images manuscript/resources/ 2>/dev/null
 
     - name: generate and test examples
       run: |

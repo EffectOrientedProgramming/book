@@ -1,7 +1,6 @@
 import sbt.IO
 import sbt.*
 import Keys.*
-import mdoc.internal.cli.Settings
 
 import java.io.File
 import java.nio.file.Path
@@ -154,11 +153,9 @@ object BuildTooling {
       RelativePath
     }
     import mdoc.internal.cli.InputFile
-    import mdoc.internal.io.ConsoleReporter
-    import mdoc.internal.markdown.{
-      CodeFence,
-      MarkdownFile
-    }
+    import mdoc.internal.cli.Settings
+    import mdoc.internal.markdown.MarkdownFile
+    import mdoc.parser.CodeFence
 
     FileIOBullshit
       .markdownFilesInFile(markdownDir)
@@ -194,7 +191,6 @@ object BuildTooling {
             .parse(
               input,
               inputFile,
-              ConsoleReporter.default,
               Settings.default(
                 AbsolutePath.workingDirectory
               )

@@ -1,16 +1,14 @@
-resolvers ++=
-  Resolver.sonatypeOssRepos("snapshots")
-
 addSbtPlugin(
   "org.typelevel" % "sbt-tpolecat" %
-    "0.5.0" // Upgrading to 0.4.3 broke mdoc :(
+    "0.5.0"
 )
+
 addSbtPlugin(
   "org.scalameta" % "sbt-scalafmt" % "2.5.2"
 )
 
 addSbtPlugin(
-  "org.scalameta" % "sbt-mdoc" % "2.4.0"
+  "org.scalameta" % "sbt-mdoc" % "2.5.1"
 )
 
 addSbtPlugin(
@@ -37,7 +35,7 @@ addSbtPlugin(
 //  .dependsOn(MdToSourcePlugin)
 
 libraryDependencies +=
-  "org.scalameta" %% "mdoc" % "2.4.0"
+  "org.scalameta" %% "mdoc" % "2.5.1"
 
 ThisBuild / libraryDependencySchemes ++=
   Seq(

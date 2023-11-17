@@ -81,10 +81,12 @@ object RunningZIOs extends ZIOAppDefault:
       println:
         "Hello World!"
 
+// todo: this is crashing mdoc
 // To execute the code:
-RunningZIOs.main(Array.empty)
-
+//RunningZIOs.main(Array.empty)
 ```
+
+
 You can provide arbitrary ZIO instances to the run method, as long as you have provided every piece of the environment.
 In other words, it can accept `ZIO[Any, _, _]`.
 
@@ -123,7 +125,6 @@ object TestingZIOs extends ZIOSpecDefault:
         ZIO.console.run
         assertTrue:
           Random.nextIntBounded(10).run > 10
-
 ```
 
 ### runSpec
