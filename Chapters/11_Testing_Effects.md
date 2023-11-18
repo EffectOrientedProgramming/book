@@ -80,6 +80,49 @@ We have seen how to add capabilities and behaviors `ZIO`'s enabled by manipulati
 We can add behaviors to `ZSpec`s that are more specific to testing.
 
 ### Overriding Builtin Services
+When testing `ZIO`s we can provide user-defined Environment types by using `.provide`.
+However, the Built-in Services are not part of the Environment, so we need a different way to override them.
+By default, tests will get `Test` versions of the Built-in Services.
+
+```scala mdoc
+runSpec:
+
+  defer:
+    val thingThatTakesTime = ZIO.sleep(2.seconds)
+    val result =
+      defer:
+        val fork =
+          thingThatTakesTime
+              .fork
+              .run
+        TestClock.adjust(10.seconds).run
+        fork.join.run
+      .timed
+      .run
+    println(result)
+    assertCompletes
+```
+```scala mdoc
+runSpec(
+
+  defer:
+    val thingThatTakesTime = ZIO.sleep(2.seconds)
+    val result =
+      defer:
+        val fork =
+          thingThatTakesTime
+            .fork
+            .run
+        TestClock.adjust(10.seconds).run
+        fork.join.run
+      .timed
+      .run
+    println(result)
+    assertCompletes
+  ,
+  TestAspect.withLiveClock
+)
+```
 
 ### Injecting Behavior before/after/around
 
@@ -88,7 +131,7 @@ runSpec(
   defer:
     println("During test")
     assertCompletes
-  .withConsole(mdoctools.OurConsole),
+  ,
   TestAspect.around(
     ZIO.debug("ZIO IO, before"),
     ZIO.succeed(println("plain IO, after")),
