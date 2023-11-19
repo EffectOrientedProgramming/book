@@ -74,3 +74,9 @@ runDemo:
         .run
     durations.fold(Duration.Zero)(_ + _).render
 ```
+
+## zipPar, zipWithPar
+
+## validateWithPar?
+
+## withParallelism

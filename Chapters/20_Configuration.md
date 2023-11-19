@@ -6,9 +6,9 @@ Changing things based on the running environment.
 
 ## Config Files
 
-## ZIO Config
-
 ## Environment Variables
+
+## ZIO Config
 
 ## Historic Approach
 
