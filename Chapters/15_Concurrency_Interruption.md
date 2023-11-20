@@ -37,6 +37,8 @@ runDemo:
       1.seconds
 ```
 
+## Future Cancellation
+
 We show that Future's are killed with finalizers that never run
 
 ```scala mdoc

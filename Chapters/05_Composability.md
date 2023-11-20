@@ -35,6 +35,7 @@ Other framings/techniques and their pros/cons:
 ### Functions that return a Future
 
 - Can be interrupted example1[^^future_interrupted_1] two[^^future_interrupted_2]
+- [Cleanup is not guaranteed](./15_Concurrency_Interruption.md##Future-Cancellation)
 - Manual management of cancellation
 - Start executing immediately
 - Must all fail with Exception
@@ -85,19 +86,16 @@ For example, to compose a ZIO that can produce an error with a ZIO that logs the
 
 ```scala mdoc
 def logAndProvideDefault(e: Throwable) =
-  defer:
-    Console
-      .printLine:
-        e.getMessage
-      .run
-    ZIO
-      .succeed:
-        "default value"
-      .run
+  Console
+    .printLine:
+      e.getMessage
+    .as:
+      "default value"
 
 runDemo:
   ZIO
-    .attempt(???)
+    .attempt:
+      ???
     .catchAll:
       logAndProvideDefault
 ```
