@@ -17,6 +17,7 @@ Other framings/techniques and their pros/cons:
 ### Plain functions that throw Exceptions
 
 - We can't union these error possibilities and track them in the type system
+- Cannot attach behavior to deferred functions
 
 
 
@@ -31,6 +32,7 @@ Other framings/techniques and their pros/cons:
 
 - We can manage the errors in the type system, but we can't interrupt the code that is producing these values
 - All of these types must be manually transformed into the other types
+- Execution is not deferred
 
 ### Functions that return a Future
 
@@ -43,7 +45,8 @@ Other framings/techniques and their pros/cons:
 ### Implicits
   - Are not automatically managed by the compiler, you must explicitly add each one to your parent function
   - Resolving the origin of a provided implicit can be challenging
-- Try-with-resources
+
+### Try-with-resources
   - These are statically scoped
   - Unclear who is responsible for acquisition & cleanup
 
@@ -66,17 +69,26 @@ With functions there is one way to compose.
 Another term for this form of composition is called `andThen` in Scala.
 
 With ZIO you can use `zio-direct` to compose ZIOs sequentially with:
+```scala mdoc:invisible
+val findTopNewsStory = 
+     ZIO.succeed:
+       "Battery Breakthrough"
+     
+def textAlert(
+    message: String
+) = 
+  Console.printLine:
+    s"Texting story: $message"
+```
+
 ```scala mdoc
-// TODO Terrible example. Replace.
-defer:
-  val asdf =
-    ZIO
-      .succeed:
-        "asdf"
+runDemo:
+  defer:
+    val topStory =
+      findTopNewsStory
       .run
-  ZIO
-    .succeed:
-      asdf.toUpperCase
+    textAlert:
+      topStory
     .run
 ```
 
