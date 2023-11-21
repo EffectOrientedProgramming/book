@@ -42,6 +42,8 @@ runDemo:
 We show that Future's are killed with finalizers that never run
 
 ```scala mdoc
+import scala.concurrent.Future
+
 runDemo:
   ZIO
     .fromFuture:
