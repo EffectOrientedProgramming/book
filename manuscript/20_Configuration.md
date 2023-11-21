@@ -6,9 +6,9 @@ Changing things based on the running environment.
 
 ## Config Files
 
-## ZIO Config
-
 ## Environment Variables
+
+## ZIO Config
 
 ## Historic Approach
 
@@ -219,11 +219,11 @@ val logic =
 //     trace = "repl.MdocSession.MdocApp.<local MdocApp>.logic(20_Configuration.md:233)",
 //     first = Sync(
 //       trace = "repl.MdocSession.MdocApp.<local MdocApp>.logic(20_Configuration.md:233)",
-//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$15883/0x0000000803fc1c40@2e2680be
+//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$15825/0x0000000803fb3040@440f7f9d
 //     ),
-//     successK = zio.ZIO$$$Lambda$15887/0x0000000803fc5840@483c58d8
+//     successK = zio.ZIO$$$Lambda$15829/0x0000000803fb6840@436626dc
 //   ),
-//   successK = zio.ZIO$$Lambda$15936/0x0000000804035040@4159bf54
+//   successK = zio.ZIO$$Lambda$15881/0x0000000804027840@64130c0f
 // )
 runDemo(
   logic.provide(

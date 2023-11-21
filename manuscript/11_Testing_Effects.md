@@ -127,7 +127,7 @@ runSpec(
   ,
   TestAspect.withLiveClock
 )
-// (PT2.00074188S,())
+// (PT2.000836946S,())
 // Test: PASSED*
 ```
 
@@ -271,7 +271,7 @@ runSpec(
 // Test: PASSED*
 ```
 
-### 
+## Defining a base test class for your project
 
 ## Edit This Chapter
 [Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/11_Testing_Effects.md)

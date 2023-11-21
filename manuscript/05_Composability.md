@@ -17,6 +17,7 @@ Other framings/techniques and their pros/cons:
 ### Plain functions that throw Exceptions
 
 - We can't union these error possibilities and track them in the type system
+- Cannot attach behavior to deferred functions
 
 
 
@@ -31,10 +32,12 @@ Other framings/techniques and their pros/cons:
 
 - We can manage the errors in the type system, but we can't interrupt the code that is producing these values
 - All of these types must be manually transformed into the other types
+- Execution is not deferred
 
 ### Functions that return a Future
 
 - Can be interrupted example1[^^future_interrupted_1] two[^^future_interrupted_2]
+- [Cleanup is not guaranteed](./15_Concurrency_Interruption.md##Future-Cancellation)
 - Manual management of cancellation
 - Start executing immediately
 - Must all fail with Exception
@@ -42,7 +45,8 @@ Other framings/techniques and their pros/cons:
 ### Implicits
   - Are not automatically managed by the compiler, you must explicitly add each one to your parent function
   - Resolving the origin of a provided implicit can be challenging
-- Try-with-resources
+
+### Try-with-resources
   - These are statically scoped
   - Unclear who is responsible for acquisition & cleanup
 
@@ -65,26 +69,18 @@ With functions there is one way to compose.
 Another term for this form of composition is called `andThen` in Scala.
 
 With ZIO you can use `zio-direct` to compose ZIOs sequentially with:
+
 ```scala
-// TODO Terrible example. Replace.
-defer:
-  val asdf =
-    ZIO
-      .succeed:
-        "asdf"
+runDemo:
+  defer:
+    val topStory =
+      findTopNewsStory
       .run
-  ZIO
-    .succeed:
-      asdf.toUpperCase
+    textAlert:
+      topStory
     .run
-// res0: ZIO[Any, Nothing, String] = OnSuccess(
-//   trace = "zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19)",
-//   first = Sync(
-//     trace = "repl.MdocSession.MdocApp.res0(05_Composability.md:8)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$15883/0x0000000803fc1c40@1eb119b
-//   ),
-//   successK = repl.MdocSession$MdocApp$$Lambda$16740/0x0000000804266040@1cd2823b
-// )
+// Texting story: Battery Breakthrough
+// ()
 ```
 
 There are many other ways you can compose ZIOs.
@@ -93,19 +89,16 @@ For example, to compose a ZIO that can produce an error with a ZIO that logs the
 
 ```scala
 def logAndProvideDefault(e: Throwable) =
-  defer:
-    Console
-      .printLine:
-        e.getMessage
-      .run
-    ZIO
-      .succeed:
-        "default value"
-      .run
+  Console
+    .printLine:
+      e.getMessage
+    .as:
+      "default value"
 
 runDemo:
   ZIO
-    .attempt(???)
+    .attempt:
+      ???
     .catchAll:
       logAndProvideDefault
 // an implementation is missing

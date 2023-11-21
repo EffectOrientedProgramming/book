@@ -1,7 +1,17 @@
 # Concurrency Interruption
 
-1. Timeout
-1. Race
+## Why Interruption Is Necessary Throughout the Stack
+
+## Timeout
+## Race
+
+## .withFinalizer
+## .zipWithPar
+## .aquireRelease effects are uninterruptable
+## .fromFutureInterrupt
+
+## Uninterruptable
+
 
 ```scala
 // This is duplicate code
@@ -29,30 +39,13 @@ runDemo:
 // PT1S
 ```
 
+## Future Cancellation
+
 We show that Future's are killed with finalizers that never run
-A:
 
 ```scala
 import scala.concurrent.Future
-runDemo:
-  ZIO
-    .fromFuture:
-      Future:
-        try
-          println("Starting operation")
-          Thread.sleep(500)
-          println("Ending operation")
-        finally
-          println("Cleanup")
-    .timeout:
-      25.millis
-// Starting operation
-// None
-```
 
-B:
-
-```scala
 runDemo:
   ZIO
     .fromFuture:
