@@ -257,4 +257,4 @@ runSpec(
 )
 ```
 
-### 
+## Defining a base test class for your project
