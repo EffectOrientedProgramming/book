@@ -219,11 +219,11 @@ val logic =
 //     trace = "repl.MdocSession.MdocApp.<local MdocApp>.logic(20_Configuration.md:233)",
 //     first = Sync(
 //       trace = "repl.MdocSession.MdocApp.<local MdocApp>.logic(20_Configuration.md:233)",
-//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$15889/0x0000000804079040@79ef9702
+//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$17014/0x0000000804338440@f3db5be
 //     ),
-//     successK = zio.ZIO$$$Lambda$15891/0x000000080407e840@101913a5
+//     successK = zio.ZIO$$$Lambda$17018/0x000000080433e840@75f73642
 //   ),
-//   successK = zio.ZIO$$Lambda$15937/0x00000008040e8840@10b43288
+//   successK = zio.ZIO$$Lambda$17074/0x00000008043ae040@574871ca
 // )
 runDemo(
   logic.provide(
