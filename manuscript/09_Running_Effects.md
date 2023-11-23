@@ -10,7 +10,7 @@ println("A")
 ZIO.debug("B")
 // res1: ZIO[Any, Nothing, Unit] = Sync(
 //   trace = "repl.MdocSession.MdocApp.res1(09_Running_Effects.md:13)",
-//   eval = zio.ZIOCompanionVersionSpecific$$Lambda$15825/0x0000000803fb3040@4a56bbb3
+//   eval = zio.ZIOCompanionVersionSpecific$$Lambda$15889/0x0000000804079040@25926529
 // )
 println("C")
 // C
@@ -26,7 +26,7 @@ A common mistake when starting with ZIO is trying to return ZIO instances themse
 
 ```scala
 println(Random.nextInt)
-// Stateful(repl.MdocSession.MdocApp.res3(09_Running_Effects.md:25),zio.FiberRef$unsafe$$anon$2$$Lambda$15902/0x0000000804034840@430b9946)
+// Stateful(repl.MdocSession.MdocApp.res3(09_Running_Effects.md:25),zio.FiberRef$unsafe$$anon$2$$Lambda$15957/0x00000008040f5840@1300efb3)
 ```
 
 This is a mistake because ZIO's are not their result, they are descriptions of effects that produce the result.
