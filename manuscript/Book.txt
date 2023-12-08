@@ -35,6 +35,7 @@ zio_helpers.md
 crypto.md
 experiments-src-test-scala-test_aspects.md
 experiments-src-test-scala-scenarios.md
+async.md
 cancellation.md
 concurrency.md
 rezilience.md

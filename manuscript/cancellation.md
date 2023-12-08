@@ -2,6 +2,25 @@
 
  
 
+### experiments/src/main/scala/cancellation/ForkNoJoin.scala
+```scala
+package cancellation
+
+import zio.*
+
+object ForkNoJoin extends ZIOAppDefault:
+
+  override def run =
+    ZIO
+      .sleep(Duration.Infinity)
+      .onInterrupt(
+        Console.printLine("interrupted").orDie
+      )
+      .fork
+
+```
+
+
 ### experiments/src/main/scala/cancellation/FutureCancellation.scala
 ```scala
 package cancellation
@@ -44,12 +63,12 @@ def createProcess(
     innerProcess: ZIO[Any, Nothing, Unit]
 ) =
   defer:
-    ZIO.debug(s"Started $label").run
+    ZIO.debug(s"Beginning $label").run
     innerProcess.run
-    ZIO.debug(s"Finished $label").run
+    ZIO.debug(s"Completed $label").run
     // TODO Consider rewriting to avoid
     // dot-chaining on block
-  .onInterrupt(ZIO.debug(s"Interrupted $label"))
+  .onInterrupt(ZIO.debug(s"Interrupt $label"))
 
 object HelloCancellation2 extends ZIOAppDefault:
   val complex =
