@@ -15,12 +15,12 @@ def createProcess(
     innerProcess: ZIO[Any, Nothing, Unit]
 ) =
   defer:
-    ZIO.debug(s"Started $label").run
+    ZIO.debug(s"Beginning $label").run
     innerProcess.run
-    ZIO.debug(s"Finished $label").run
+    ZIO.debug(s"Completed $label").run
     // TODO Consider rewriting to avoid
     // dot-chaining on block
-  .onInterrupt(ZIO.debug(s"Interrupted $label"))
+  .onInterrupt(ZIO.debug(s"Interrupt $label"))
 
 object HelloCancellation2 extends ZIOAppDefault:
   val complex =

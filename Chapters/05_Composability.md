@@ -1,5 +1,18 @@
 # Composability
 
+An essential part of creating programs is the ability to combine small pieces into larger pieces.  
+Different languages / paradigms provide different ways to accomplish these combinations.  
+Objects can be combined by creating objects that contain other objects.  
+Functions can be combined by creating new functions that call other functions.  
+These are types of "composition" but these traditional approaches do not address all of the aspects of a program.
+
+For example, functions that use resources which need to be opened and closed, do not compose.
+
+
+
+
+ZIOs compose including errors, async, blocking, resource managed, cancellation, eitherness, environmental requirements.
+
 ## Composability Explanation
 
 1. But Functions & Specialized Data Types Don't Compose for Effects
@@ -49,6 +62,8 @@ Other framings/techniques and their pros/cons:
 ### Try-with-resources
   - These are statically scoped
   - Unclear who is responsible for acquisition & cleanup
+
+
 
 Each of these approaches gives you benefits, but you can't assemble them all together.
 Instead of the best of all worlds, you get the pain of all worlds.
