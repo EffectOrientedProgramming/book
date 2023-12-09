@@ -10,7 +10,7 @@ println("A")
 ZIO.debug("B")
 // res1: ZIO[Any, Nothing, Unit] = Sync(
 //   trace = "repl.MdocSession.MdocApp.res1(09_Running_Effects.md:13)",
-//   eval = zio.ZIOCompanionVersionSpecific$$Lambda$17060/0x0000000804336440@5289faca
+//   eval = zio.ZIOCompanionVersionSpecific$$Lambda$16145/0x0000000804065040@629b5e1e
 // )
 println("C")
 // C
@@ -26,7 +26,7 @@ A common mistake when starting with ZIO is trying to return ZIO instances themse
 
 ```scala
 println(Random.nextInt)
-// Stateful(repl.MdocSession.MdocApp.res3(09_Running_Effects.md:25),zio.FiberRef$unsafe$$anon$2$$Lambda$17132/0x00000008043c8840@1f474ff0)
+// Stateful(repl.MdocSession.MdocApp.res3(09_Running_Effects.md:25),zio.FiberRef$unsafe$$anon$2$$Lambda$16269/0x000000080410c040@1400115c)
 ```
 
 This is a mistake because ZIO's are not their result, they are descriptions of effects that produce the result.
@@ -66,6 +66,7 @@ However, setting up the pieces needed for this is a bit cumbersome if done witho
 ZIO provides an easy way to do this with the `ZIOAppDefault` trait.
 
 To use it create a new `object` that extends the `ZIOAppDefault` trait and implements the `run` method.  That method returns a ZIO so you can now give it the example `ZIO.debug` data:
+
 ```scala
 object HelloWorld extends zio.ZIOAppDefault:
   def run =
@@ -147,6 +148,7 @@ runSpec:
 TODO Justify defer syntax over for-comp for multi-statement assertions
 I think this example completes the objective
 TODO Change this to a Console app, where the logic & testing is more visceral
+
 ```scala
 runSpec:
   defer:
@@ -158,18 +160,8 @@ runSpec:
 // Test: PASSED*
 ```
 
-```scala
-runSpec:
-  for
-    res1 <- Random.nextIntBetween(0, 10)
-    res2 <- Random.nextIntBetween(10, 20)
-    res3 <- Random.nextIntBetween(20, 30)
-  yield assertTrue:
-    res1 <= 10 && res2 <= 20 && res3 <= 30
-// Test: PASSED*
-```
-
 Consider a `Console` application:
+
 ```scala
 val logic =
   defer:
@@ -236,12 +228,8 @@ Unsafe.unsafe { implicit u: Unsafe =>
 
 If needed you can even interop to Scala Futures through `Unsafe`, transforming the output of a ZIO into a Future.
 
-## Web Request Handler
-Different enough to warrant its own section?
-You only ever execute a top-level ZIO, even if it branches out to multiple other ZIOs
-
 ## Processing streams of data
-
+TODO Consider removing stream content entirely
 
 ## Edit This Chapter
 [Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/09_Running_Effects.md)
