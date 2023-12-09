@@ -85,13 +85,11 @@ Another term for this form of composition is called `andThen` in Scala.
 
 With ZIO you can use `zio-direct` to compose ZIOs sequentially with:
 ```scala mdoc:invisible
-val findTopNewsStory = 
-     ZIO.succeed:
-       "Battery Breakthrough"
-     
-def textAlert(
-    message: String
-) = 
+val findTopNewsStory =
+  ZIO.succeed:
+    "Battery Breakthrough"
+
+def textAlert(message: String) =
   Console.printLine:
     s"Texting story: $message"
 ```
@@ -99,9 +97,7 @@ def textAlert(
 ```scala mdoc
 runDemo:
   defer:
-    val topStory =
-      findTopNewsStory
-      .run
+    val topStory = findTopNewsStory.run
     textAlert:
       topStory
     .run

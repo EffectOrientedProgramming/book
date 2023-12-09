@@ -22,7 +22,9 @@ def runDemo[E, A](z: => ZIO[Any, E, A]): Unit =
 import zio.System
 import zio.test.*
 
-def runSpec[E <: Throwable](x: ZIO[Any, E, TestResult]) =
+def runSpec[E <: Throwable](
+    x: ZIO[Any, E, TestResult]
+) =
 
   val liveEnvironment: Layer[
     Nothing,

@@ -91,32 +91,25 @@ runSpec:
     val thingThatTakesTime = ZIO.sleep(2.seconds)
     val result =
       defer:
-        val fork =
-          thingThatTakesTime
-              .fork
-              .run
+        val fork = thingThatTakesTime.fork.run
         TestClock.adjust(10.seconds).run
         fork.join.run
       .timed
-      .run
+        .run
     println(result)
     assertCompletes
 ```
 ```scala mdoc
 runSpec(
-
   defer:
     val thingThatTakesTime = ZIO.sleep(2.seconds)
     val result =
       defer:
-        val fork =
-          thingThatTakesTime
-            .fork
-            .run
+        val fork = thingThatTakesTime.fork.run
         TestClock.adjust(10.seconds).run
         fork.join.run
       .timed
-      .run
+        .run
     println(result)
     assertCompletes
   ,
@@ -134,7 +127,7 @@ runSpec(
   ,
   TestAspect.around(
     ZIO.debug("ZIO IO, before"),
-    ZIO.succeed(println("plain IO, after")),
+    ZIO.succeed(println("plain IO, after"))
   )
 )
 ```
