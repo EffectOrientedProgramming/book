@@ -15,27 +15,29 @@ object Mining extends ZIOAppDefault:
 
   private val miners =
     Seq("Zeb", "Frop", "Shtep")
-      .flatMap(minerName =>
+      .flatMap: minerName =>
         Range(1, 50)
-          .map(i => new Miner(minerName + i))
-      )
+          .map:
+            i => new Miner(minerName + i)
 
   def raceForNextBlock(
       chain: Ref[BlockChain]
   ): ZIO[Any, Nothing, Unit] =
     defer:
-      val raceResult = findNextBlock(miners).run
+      val raceResult =
+        findNextBlock:
+          miners
+        .run
       val (winner, winningPrime) = raceResult
       chain
-        .update(chainCurrent =>
+        .update: chainCurrent =>
           chainCurrent.copy(blocks =
             chainCurrent.blocks :+ winningPrime
           )
-        )
         .run
-      debug(
+      debug:
         s"$winner mined block: $winningPrime"
-      ).run
+      .run
 
   case class BlockChain(
       blocks: List[Int] = List.empty

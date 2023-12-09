@@ -32,8 +32,7 @@ case class StatefulResource(
   def request: ZIO[Any, Throwable, Int] =
     defer:
       val res = Random.nextIntBounded(1000).run
-      // Add the request to the list of current
-      // requests
+      // Add request to current requests
       currentRequests
         .updateAndGet(res :: _)
         .debug("Current requests: ")
