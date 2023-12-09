@@ -59,6 +59,7 @@ However, setting up the pieces needed for this is a bit cumbersome if done witho
 ZIO provides an easy way to do this with the `ZIOAppDefault` trait.
 
 To use it create a new `object` that extends the `ZIOAppDefault` trait and implements the `run` method.  That method returns a ZIO so you can now give it the example `ZIO.debug` data:
+
 ```scala mdoc
 object HelloWorld extends zio.ZIOAppDefault:
   def run =
@@ -137,6 +138,7 @@ runSpec:
 TODO Justify defer syntax over for-comp for multi-statement assertions
 I think this example completes the objective
 TODO Change this to a Console app, where the logic & testing is more visceral
+
 ```scala mdoc
 runSpec:
   defer:
@@ -147,17 +149,8 @@ runSpec:
         Random.nextIntBetween(20, 30).run <= 30
 ```
 
-```scala mdoc
-runSpec:
-  for
-    res1 <- Random.nextIntBetween(0, 10)
-    res2 <- Random.nextIntBetween(10, 20)
-    res3 <- Random.nextIntBetween(20, 30)
-  yield assertTrue:
-    res1 <= 10 && res2 <= 20 && res3 <= 30
-```
-
 Consider a `Console` application:
+
 ```scala mdoc:silent
 val logic =
   defer:
@@ -221,8 +214,5 @@ Unsafe.unsafe { implicit u: Unsafe =>
 
 If needed you can even interop to Scala Futures through `Unsafe`, transforming the output of a ZIO into a Future.
 
-## Web Request Handler
-Different enough to warrant its own section?
-You only ever execute a top-level ZIO, even if it branches out to multiple other ZIOs
-
 ## Processing streams of data
+TODO Consider removing stream content entirely

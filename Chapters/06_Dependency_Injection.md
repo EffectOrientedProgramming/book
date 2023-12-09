@@ -44,7 +44,8 @@ TODO Values to convey:
    - test implementations
 - Layer Resourcefulness
    - Layers can have setup & teardown (open & close)
-   - 
+
+
 ```scala mdoc:silent
 // Explain private constructor approach
 case class Dough private ()
@@ -119,22 +120,13 @@ object Heat:
 
 ## Intersections AKA Products AKA Case Classes AKA Ands
 
-```mermaid
-graph TD;
-  Any-->User;
-  Any-->Account;
-   
-```
-
 ```scala mdoc
-trait Piece1
-trait Piece2
+trait Dependency1
+trait Dependency2
 
 def needyFunction()
-    : ZIO[Piece1 & Piece1, Nothing, Unit] = ???
+    : ZIO[Dependency1 & Dependency2, Nothing, Unit] = ???
 ```
-
-For your `Answer`, it can be desirable to give a clear name that is relevant to your domain.
 
 The requirements for each ZIO are combined as an anonymous product type denoted by the `&` symbol.
 
