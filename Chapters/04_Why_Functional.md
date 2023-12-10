@@ -188,7 +188,7 @@ For a program to be useful, it must be affected by the world, and it must have e
 The phrase "side effect" implies an incidental or accidental impact on the world.
 What we need to do is formalize this idea and bring it under our control.
 We can then call it simply an "effect," without the "side." 
-The solution is to manage these effects so they are under our control.
+The solution is to manage these effects, so they are under our control.
 
 This bridge between pure functions and practical programs with controlled and managed effects is the reason for the title of this book.
 

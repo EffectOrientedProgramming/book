@@ -8,12 +8,25 @@ import scala.util.{Success, Try}
 
 // todo: turn into a relatable scenario
 // todo: consider a multi-step build like in Superpowers
+
 object AllTheThings extends ZIOAppDefault:
+  type Nail = ZIO.type
+  /*
+    If ZIO is your hammer, it's not that you _see_ everything as nails.
+    You can actually _convert_ everything into nails.
+   */
+
+  /*
+
+    Possible scenario:
+      Get headline - Future
+      Analyze for topic/persons of interest - Option
+      Lookup known information on them - Resource?
+      Save event to DB  - Try
+
+   */
 
   def asyncThing(i: Int) = ZIO.sleep(i.seconds)
-
-  def optionThing(o: Option[Int]) =
-    ZIO.fromOption(o)
 
   def errorThing[A](t: Try[A]) = ZIO.fromTry(t)
 
@@ -24,17 +37,18 @@ object AllTheThings extends ZIOAppDefault:
         Console.printLine("open").orDie.run
         "asdf"
 
-    val close = Console.printLine("close").orDie
+    val close = (_: Any) => Console.printLine("close").orDie
 
-    ZIO.acquireRelease(open)(_ => close)
+    ZIO.acquireRelease(open)(close)
 
   override def run =
     defer:
       // todo: useful order, maybe async first or
       // near first?
       // maybe something parallel in here too?
+      // Convert from AutoCloseable
       // maybe add Future or make asyncThing a
-      // Future
+      // Future `
       val s: String = resourcefulThing.run
       val t: Try[String] =
         Success(
@@ -55,3 +69,15 @@ object AllTheThings extends ZIOAppDefault:
       case _: Any =>
         ???
 end AllTheThings
+
+def futureBits = {
+  import scala.concurrent.Future
+  ZIO.fromFuture(implicit ec =>
+    Future.successful("Success!")
+  )
+  ZIO.fromFuture(implicit ec =>
+    Future.failed(new Exception("Failure :("))
+  )
+
+}
+
