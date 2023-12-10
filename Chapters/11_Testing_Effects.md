@@ -47,14 +47,20 @@ runSpec:
     assertTrue(result.isEmpty)
 ```
 
-By default in ZIO Test, the clock does not change unless instructed to.  Calling a time based effect like `timeout` would hang indefinitely with a warning like:
+By default in ZIO Test, the clock does not change unless instructed to.
+Calling a time based effect like `timeout` would hang indefinitely with a warning like:
 ```
-Warning: A test is using time, but is not advancing the test clock, which may result in the test hanging. Use TestClock.adjust to manually advance the time.
+Warning: A test is using time, but is not advancing the test clock, which may result in the test hanging. 
+Use TestClock.adjust to manually advance the time.
 ```
 
-To test time based effects we need to `fork` those effects so that then we can adjust the clock.  After adjusting the clock, we can then `join` the effect where in this case the timeout has then been reached causing the effect to return a `None`.
+To test time based effects we need to `fork` those effects so that then we can adjust the clock.
+After adjusting the clock, we can then `join` the effect where in this case the timeout has then been reached causing the effect to return a `None`.
 
-Using a simulated Clock means that we no longer rely on real-world time for time.  So this example runs in milliseconds of real-world time instead of taking an actual 1 second to hit the timeout.  This way our time-based tests run much more quickly since they are not based on actual system time.  They are also more predictable as the time adjustments are fully controlled by the tests.
+Using a simulated Clock means that we no longer rely on real-world time for time.
+So this example runs in milliseconds of real-world time instead of taking an actual 1 second to hit the timeout.
+This way our time-based tests run much more quickly since they are not based on actual system time.
+They are also more predictable as the time adjustments are fully controlled by the tests.
 
 ### Targeting Error-Prone Time Bands
 

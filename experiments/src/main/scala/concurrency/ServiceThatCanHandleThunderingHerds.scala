@@ -47,13 +47,12 @@ case class ServiceThatCanHandleThunderingHerds(
     cache.get(name)
 
   override val hits: ZIO[Any, Nothing, Int] =
-    defer {
+    defer:
       cache.cacheStats.run.hits.toInt
-    }
+      
   override val misses: ZIO[Any, Nothing, Int] =
-    defer {
+    defer:
       cache.cacheStats.run.misses.toInt
-    }
 
 object ServiceThatCanHandleThunderingHerds:
   val make =

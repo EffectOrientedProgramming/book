@@ -193,7 +193,6 @@ import HiddenPrelude.*
 ### Successful Code
 
 ```scala mdoc
-// works
 runDemo:
   saveUser:
     "mrsdavis"
@@ -206,10 +205,9 @@ HiddenPrelude.resetScenario(Scenario.NeverWorks)
 ### Error Fallback Value
 
 ```scala mdoc
-// fails
 runDemo:
   saveUser:
-    "mrsdavis"
+    "Robert'); DROP TABLE USERS"
   .orElseFail:
     "ERROR: User could not be saved"
 ```
@@ -247,7 +245,6 @@ HiddenPrelude.resetScenario(Scenario.NeverWorks)
 ```
 
 ```scala mdoc
-// fails every time - with retry
 runDemo:
   saveUser:
     "morty"

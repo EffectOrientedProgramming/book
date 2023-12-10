@@ -15,12 +15,11 @@ Once you add `throw`, the rules are more complicated
     - Otherwise, Read everything from left-to-right, top-to-bottom,
     - Unless we `throw`, which means immediately jumping through a different dimension away from the code you're viewing
 
-# Hello Failures
 
+## Historic approaches to Error-handling
 If you are not interested in the discouraged ways to handle errors, and just want to see the ZIO approach, jump down to
 [ZIO Error Handling](#zio-error-handling)
 
-## Historic approaches to Error-handling
 In the past, some programs have thrown exceptions to indicate failures.
 Imagine a program that displays the local temperature the user based on GPS position and a network call. There are distinct levels of problems in any given program. They require different types of handling by the programmer.
 

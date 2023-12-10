@@ -1,32 +1,22 @@
 # Running Effects
 
 ## ZIOs are not their result. 
-They are something that can be executed, that _might_ produce that result.
-If you have a ZIO Effect like:
-
-```scala mdoc
-println("A")
-ZIO.debug("B")
-println("C")
-```
-
-We will not see the `ZIO.debug` output.
-
-It only describes something *to be* done.
-It is only data (in the ZIO data type), not instructions.
-To actually run a ZIO, your program must take the data types and interpret / run them, executing the logic .
 
 A common mistake when starting with ZIO is trying to return ZIO instances themselves rather than their result.
 
 ```scala mdoc
 println(Random.nextInt)
 ```
+We will not see a random number printed out; we see some inscrutable type information.
 
 This is a mistake because ZIO's are not their result, they are descriptions of effects that produce the result.
+The `ZIO` instance only describes something *to be* done.
 
-ZIOs are not automatically executed. 
+ZIOs are not automatically executed.
+To actually run a ZIO, your program must take the data types and interpret / run them, executing the logic .
 The user must determine when/where that happens.
 
+Consider the `Option` type in the standard library.
 An `Option` _might_ have a value inside of it, but you can't safely assume that it does.
 Similarly, a `ZIO` _might_ produce a value, but you have to run it to find out.
 
@@ -213,6 +203,3 @@ Unsafe.unsafe { implicit u: Unsafe =>
 ```
 
 If needed you can even interop to Scala Futures through `Unsafe`, transforming the output of a ZIO into a Future.
-
-## Processing streams of data
-TODO Consider removing stream content entirely

@@ -62,8 +62,11 @@ object Mining extends ZIOAppDefault:
 
       ZIO
         .raceAll(
-          miners.head.mine(startNum),
-          miners.tail.map(_.mine(startNum))
+          miners.head.mine:
+            startNum,
+          miners.tail.map:
+            _.mine:
+              startNum
         )
         .run
 

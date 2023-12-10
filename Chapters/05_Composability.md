@@ -27,6 +27,26 @@ ZIOs compose including errors, async, blocking, resource managed, cancellation, 
 
 Other framings/techniques and their pros/cons:
 
+### Plain functions that return Unit
+
+`Unit` can be viewed as the bare minimum of effect tracking.
+
+Consider a function
+
+```scala mdoc
+def saveInformation(info: String): Unit = ???
+```
+
+If we look only at the types, this function is an `Any=>Unit`.
+`Unit` is the single, blunt tool to indicate effectful functions in plain Scala.
+When we see it, we know that *some* type of side-effect is being performed.
+
+When a function returns `Unit`, we know that the only reason we are calling the function is to perform an effect.
+Alternatively, if there are no arguments to the function, then the input is `Unit`, indicating that an effect is used to _produce_ the result.
+
+Unfortunately, we can't do things like timeout/race/etc these functions. 
+We can either execute them, or not, and that's about it, without resorting to additional tools for manipulating their execution.
+
 ### Plain functions that throw Exceptions
 
 - We can't union these error possibilities and track them in the type system
