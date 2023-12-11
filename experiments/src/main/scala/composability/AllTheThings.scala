@@ -1,6 +1,7 @@
 package composability
 
 import zio.*
+import scala.concurrent.Future
 import zio.direct.*
 
 import scala.Option
@@ -24,7 +25,14 @@ object AllTheThings extends ZIOAppDefault:
       Lookup known information on them - Resource?
       Save event to DB  - Try
 
+   Is Either different enough to demo here?
+    It basically splits the difference between Option/Try
+    I think if we show both of them, we can skip Either.
+
    */
+
+  def getHeadline(): Future[String] =
+    Future.successful("The stock market is crashing!")
 
   def asyncThing(i: Int) = ZIO.sleep(i.seconds)
 
@@ -71,7 +79,6 @@ object AllTheThings extends ZIOAppDefault:
 end AllTheThings
 
 def futureBits = {
-  import scala.concurrent.Future
   ZIO.fromFuture(implicit ec =>
     Future.successful("Success!")
   )
