@@ -1,39 +1,23 @@
 # Running Effects
 
 ## ZIOs are not their result. 
-They are something that can be executed, that _might_ produce that result.
-If you have a ZIO Effect like:
-
-```scala
-println("A")
-// A
-ZIO.debug("B")
-// res1: ZIO[Any, Nothing, Unit] = Sync(
-//   trace = "repl.MdocSession.MdocApp.res1(09_Running_Effects.md:13)",
-//   eval = zio.ZIOCompanionVersionSpecific$$Lambda$16145/0x0000000804065040@629b5e1e
-// )
-println("C")
-// C
-```
-
-We will not see the `ZIO.debug` output.
-
-It only describes something *to be* done.
-It is only data (in the ZIO data type), not instructions.
-To actually run a ZIO, your program must take the data types and interpret / run them, executing the logic .
 
 A common mistake when starting with ZIO is trying to return ZIO instances themselves rather than their result.
 
 ```scala
 println(Random.nextInt)
-// Stateful(repl.MdocSession.MdocApp.res3(09_Running_Effects.md:25),zio.FiberRef$unsafe$$anon$2$$Lambda$16269/0x000000080410c040@1400115c)
+// Stateful(repl.MdocSession.MdocApp.res0(09_Running_Effects.md:8),zio.FiberRef$unsafe$$anon$2$$Lambda$17368/0x000000080446e040@b6d4b5d)
 ```
+We will not see a random number printed out; we see some inscrutable type information.
 
 This is a mistake because ZIO's are not their result, they are descriptions of effects that produce the result.
+The `ZIO` instance only describes something *to be* done.
 
-ZIOs are not automatically executed. 
+ZIOs are not automatically executed.
+To actually run a ZIO, your program must take the data types and interpret / run them, executing the logic .
 The user must determine when/where that happens.
 
+Consider the `Option` type in the standard library.
 An `Option` _might_ have a value inside of it, but you can't safely assume that it does.
 Similarly, a `ZIO` _might_ produce a value, but you have to run it to find out.
 
@@ -228,8 +212,6 @@ Unsafe.unsafe { implicit u: Unsafe =>
 
 If needed you can even interop to Scala Futures through `Unsafe`, transforming the output of a ZIO into a Future.
 
-## Processing streams of data
-TODO Consider removing stream content entirely
 
 ## Edit This Chapter
 [Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/09_Running_Effects.md)

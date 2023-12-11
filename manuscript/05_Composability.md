@@ -27,6 +27,26 @@ ZIOs compose including errors, async, blocking, resource managed, cancellation, 
 
 Other framings/techniques and their pros/cons:
 
+### Plain functions that return Unit
+
+`Unit` can be viewed as the bare minimum of effect tracking.
+
+Consider a function
+
+```scala
+def saveInformation(info: String): Unit = ???
+```
+
+If we look only at the types, this function is an `Any=>Unit`.
+`Unit` is the single, blunt tool to indicate effectful functions in plain Scala.
+When we see it, we know that *some* type of side-effect is being performed.
+
+When a function returns `Unit`, we know that the only reason we are calling the function is to perform an effect.
+Alternatively, if there are no arguments to the function, then the input is `Unit`, indicating that an effect is used to _produce_ the result.
+
+Unfortunately, we can't do things like timeout/race/etc these functions. 
+We can either execute them, or not, and that's about it, without resorting to additional tools for manipulating their execution.
+
 ### Plain functions that throw Exceptions
 
 - We can't union these error possibilities and track them in the type system
@@ -88,9 +108,7 @@ With ZIO you can use `zio-direct` to compose ZIOs sequentially with:
 ```scala
 runDemo:
   defer:
-    val topStory =
-      findTopNewsStory
-      .run
+    val topStory = findTopNewsStory.run
     textAlert:
       topStory
     .run
@@ -139,6 +157,7 @@ runDemo:
 package composability
 
 import zio.*
+import scala.concurrent.Future
 import zio.direct.*
 
 import scala.Option
@@ -146,12 +165,31 @@ import scala.util.{Success, Try}
 
 // todo: turn into a relatable scenario
 // todo: consider a multi-step build like in Superpowers
+
 object AllTheThings extends ZIOAppDefault:
+  type Nail = ZIO.type
+  /* If ZIO is your hammer, it's not that you
+   * _see_ everything as nails.
+   * You can actually _convert_ everything into
+   * nails. */
+
+  /*  Possible scenario:
+   * Get headline - Future Analyze for
+   * topic/persons of interest - Option Lookup
+   * known information on them - Resource?
+   * Save event to DB - Try
+   *
+   * Is Either different enough to demo here?
+   * It basically splits the difference between
+   * Option/Try I think if we show both of them,
+   * we can skip Either. */
+
+  def getHeadline(): Future[String] =
+    Future.successful(
+      "The stock market is crashing!"
+    )
 
   def asyncThing(i: Int) = ZIO.sleep(i.seconds)
-
-  def optionThing(o: Option[Int]) =
-    ZIO.fromOption(o)
 
   def errorThing[A](t: Try[A]) = ZIO.fromTry(t)
 
@@ -162,17 +200,20 @@ object AllTheThings extends ZIOAppDefault:
         Console.printLine("open").orDie.run
         "asdf"
 
-    val close = Console.printLine("close").orDie
+    val close =
+      (_: Any) =>
+        Console.printLine("close").orDie
 
-    ZIO.acquireRelease(open)(_ => close)
+    ZIO.acquireRelease(open)(close)
 
   override def run =
     defer:
       // todo: useful order, maybe async first or
       // near first?
       // maybe something parallel in here too?
+      // Convert from AutoCloseable
       // maybe add Future or make asyncThing a
-      // Future
+      // Future `
       val s: String = resourcefulThing.run
       val t: Try[String] =
         Success(
@@ -193,6 +234,14 @@ object AllTheThings extends ZIOAppDefault:
       case _: Any =>
         ???
 end AllTheThings
+
+def futureBits =
+  ZIO.fromFuture(implicit ec =>
+    Future.successful("Success!")
+  )
+  ZIO.fromFuture(implicit ec =>
+    Future.failed(new Exception("Failure :("))
+  )
 
 ```
 

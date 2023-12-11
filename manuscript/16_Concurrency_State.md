@@ -64,7 +64,7 @@ val unreliableCounting =
 ```scala
 runDemo:
   unreliableCounting
-// Final count: 96830
+// Final count: 98893
 ```
 
 Due to the unpredictable nature of shared mutable state, we do not know exactly what the final count above is.
@@ -202,6 +202,7 @@ This correctness comes with a cost though, as the name of this type implies.
 Each of your updates will run sequentially, despite initially launching them all in parallel.
 This is the only known way to avoid retries.
 Try to structure your code to minimize the coupling between effects and updates, and use this type only when necessary.
+
 
 ## Edit This Chapter
 [Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/16_Concurrency_State.md)

@@ -37,6 +37,7 @@ rezilience.md
 environment.md
 experiments-src-test-scala-zio_test.md
 experiments-src-test-scala-layers.md
+experiments-src-main-scala.md
 experiments-src-test-scala-time.md
 performance.md
 resourcemanagement.md

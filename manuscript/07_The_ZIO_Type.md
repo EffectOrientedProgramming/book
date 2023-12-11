@@ -60,25 +60,8 @@ ZIO provides simple interop with may of the built-in Scala data types, namely
 
 And even some Java types -
 
-- `java.util.concurrent.Future`
 - `AutoCloseable`
 
-```scala
-import scala.concurrent.Future
-
-runDemo:
-  ZIO.fromFuture(implicit ec =>
-    Future.successful("Success!")
-  )
-// Success!
-
-runDemo(
-  ZIO.fromFuture(implicit ec =>
-    Future.failed(new Exception("Failure :("))
-  )
-)
-// java.lang.Exception: Failure :(
-```
 
 
 ## Edit This Chapter

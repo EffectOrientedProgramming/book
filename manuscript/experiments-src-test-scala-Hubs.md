@@ -116,7 +116,8 @@ object QuizGameSpec extends ZIOSpecDefault:
           )
         }
       }
-    ) @@ TestAspect.withLiveClock @@ TestAspect.sequential
+    ) @@ TestAspect.withLiveClock @@
+      TestAspect.sequential
 end QuizGameSpec
 
 ```

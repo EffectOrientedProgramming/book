@@ -41,7 +41,6 @@ object TimeoutError
 ### Successful Code
 
 ```scala
-// works
 runDemo:
   saveUser:
     "mrsdavis"
@@ -52,10 +51,9 @@ runDemo:
 ### Error Fallback Value
 
 ```scala
-// fails
 runDemo:
   saveUser:
-    "mrsdavis"
+    "Robert'); DROP TABLE USERS"
   .orElseFail:
     "ERROR: User could not be saved"
 // DatabaseError
@@ -91,7 +89,6 @@ runDemo:
 
 
 ```scala
-// fails every time - with retry
 runDemo:
   saveUser:
     "morty"
@@ -209,6 +206,7 @@ runDemo:
 // Analytics sent for signup completion
 // User saved
 ```
+
 
 ## Edit This Chapter
 [Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/03_Superpowers.md)

@@ -76,7 +76,7 @@ runDemo:
             )
         .run
     durations.fold(Duration.Zero)(_ + _).render
-// 15 m 8 s
+// 14 m 55 s
 ```
 
 ## zipPar, zipWithPar
@@ -84,6 +84,7 @@ runDemo:
 ## validateWithPar?
 
 ## withParallelism
+
 
 ## Edit This Chapter
 [Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/13_Concurrency_High_Level.md)
