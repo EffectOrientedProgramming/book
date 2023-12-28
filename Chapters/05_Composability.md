@@ -49,7 +49,7 @@ We can either execute them, or not, and that's about it, without resorting to ad
 
 ### Plain functions that throw Exceptions
 
-- We can't union these error possibilities and track them in the type system
+- We cannot union these error possibilities and track them in the type system
 - Cannot attach behavior to deferred functions
 
 

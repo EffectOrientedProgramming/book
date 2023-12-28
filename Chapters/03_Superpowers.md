@@ -340,8 +340,7 @@ Feeling a bit "meh" about this step.
 ```scala mdoc
 // concurrently save & send analytics, ignoring analytics failures
 runDemo:
-  // TODO Consider ways to dedup morty
-  // string
+  // TODO Consider how to dedup strings
   saveUser:
     "mrsdavis"
   .timeoutFail(TimeoutError)(timeLimit)

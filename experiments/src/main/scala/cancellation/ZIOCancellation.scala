@@ -6,10 +6,6 @@ val longRunning =
     ZIO.sleep(5.seconds)
   )
 
-object HelloCancellation extends ZIOAppDefault:
-
-  def run = longRunning.timeout(2.seconds)
-
 def createProcess(
     label: String,
     innerProcess: ZIO[Any, Nothing, Unit]

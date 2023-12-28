@@ -13,40 +13,36 @@ We have taken 2 completely separate workflows and fused them into one.
 
 ## .withFinalizer
 ## .onInterrupt
-## .zipWithPar
-## Uninterruptable
-## .aquireRelease effects are uninterruptable
-There are certain cases where you want to ensure code is not interrupted.
-For example, when you have a finalizer that needs to free up resources, you need to ensure it completes.
-## .fromFutureInterrupt
 
-
-
-```scala mdoc
-// This is duplicate code
-def sleepThenPrint(
-    d: Duration
-): ZIO[Any, java.io.IOException, Duration] =
-  defer:
-    ZIO
-      .sleep:
-        d
-      .run
-    println:
-      s"${d.render} elapsed"
-    d
-```
+## Fork Interruption
+Interruption is explicit in the previous situations, but there is an implicit interruption point that you should be aware of.
+If an operation is forked, and we exit the scope that created it without joining, then it will be interrupted.
 
 ```scala mdoc
 runDemo:
-  sleepThenPrint:
-    2.seconds
-  .race:
-    sleepThenPrint:
-      1.seconds
+  defer:
+    ZIO.debug:
+      "About to sleep forever"
+    .run
+    ZIO.sleep:
+      Duration.Infinity
+    .onInterrupt:
+      ZIO.succeed:
+        // More mdoc console weirdness :(
+        println: 
+          "Interrupted the eternal sleep"
+    .fork
+    .run
 ```
 
-## Future Cancellation
+## Uninterruptable
+## .acquireRelease effects are uninterruptible
+There are certain cases where you want to ensure code is not interrupted.
+For example, when you have a finalizer that needs to free up resources, you need to ensure it completes.
+
+
+
+## Future Cancellation (Contra-example. Not necessary for happy path explanation)
 
 We show that Future's are killed with finalizers that never run
 
@@ -70,3 +66,5 @@ runDemo:
     .timeout:
       25.millis
 ```
+
+### .fromFutureInterrupt

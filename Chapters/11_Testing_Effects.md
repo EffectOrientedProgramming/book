@@ -34,17 +34,26 @@ Even time can be simulated as using the clock is an effect.
 import zio.test.*
 
 runSpec:
-  val thingThatTakesTime = ZIO.sleep(2.seconds)
+  val slowOperation = 
+    ZIO.sleep:
+      2.seconds
 
   defer:
     val fork =
-      thingThatTakesTime
-        .timeout(1.second)
+      slowOperation
+        .timeout:
+          1.second
         .fork
         .run
-    TestClock.adjust(2.seconds).run
-    val result = fork.join.run
-    assertTrue(result.isEmpty)
+    TestClock.adjust:
+      2.seconds
+    .run
+    val result = 
+      fork
+        .join
+        .run
+    assertTrue:
+      result.isEmpty
 ```
 
 By default in ZIO Test, the clock does not change unless instructed to.
@@ -77,7 +86,8 @@ In this example we utilize ZIO Test's `assertTrue` which provides a non-DSL appr
 
 ```scala mdoc
 runSpec:
-  assertTrue(Some("asdf") == None)
+  assertTrue:
+    Some("asdf") == None
 ```
 
 
@@ -94,10 +104,10 @@ By default, tests will get `Test` versions of the Built-in Services.
 runSpec:
 
   defer:
-    val thingThatTakesTime = ZIO.sleep(2.seconds)
+    val slowOperation = ZIO.sleep(2.seconds)
     val result =
       defer:
-        val fork = thingThatTakesTime.fork.run
+        val fork = slowOperation.fork.run
         TestClock.adjust(10.seconds).run
         fork.join.run
       .timed
@@ -108,10 +118,10 @@ runSpec:
 ```scala mdoc
 runSpec(
   defer:
-    val thingThatTakesTime = ZIO.sleep(2.seconds)
+    val slowOperation = ZIO.sleep(2.seconds)
     val result =
       defer:
-        val fork = thingThatTakesTime.fork.run
+        val fork = slowOperation.fork.run
         TestClock.adjust(10.seconds).run
         fork.join.run
       .timed
@@ -132,8 +142,10 @@ runSpec(
     assertCompletes
   ,
   TestAspect.around(
-    ZIO.debug("ZIO IO, before"),
-    ZIO.succeed(println("plain IO, after"))
+    ZIO.debug:
+      "ZIO IO, before",
+    ZIO.succeed:
+      println("plain IO, after")
   )
 )
 ```
