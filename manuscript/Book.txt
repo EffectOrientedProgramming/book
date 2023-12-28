@@ -21,11 +21,8 @@
 22_Appendix_Significant_Indentation.md
 23_Appendix_ZIO_Direct.md
 ExperimentsSection.md
-experiments-src-test-scala-Hubs.md
 experiments-src-test-scala-random.md
 experiments-src-test-scala-running_effects.md
-logging.md
-hello_failures.md
 zio_helpers.md
 experiments-src-test-scala-test_aspects.md
 async.md
@@ -35,7 +32,5 @@ rezilience.md
 environment.md
 experiments-src-test-scala-zio_test.md
 experiments-src-test-scala-layers.md
-experiments-src-main-scala.md
-experiments-src-test-scala-time.md
 performance.md
 experiments-src-test-scala-concurrency.md

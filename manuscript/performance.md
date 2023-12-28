@@ -42,7 +42,7 @@ object Hedging extends ZIOAppDefault:
           .run
 
       ZIO
-        .repeatNPar(50_000):
+        .repeatNPar(50_000): _ =>
           demoRequest:
             timeBuckets
         .run

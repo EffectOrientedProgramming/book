@@ -213,12 +213,7 @@ end RateLimiterDemoWithLogging
 object RateLimiterDemoGlobal
     extends ZIOAppDefault:
 
-  // TODO Put in book-side ZIO helpers?
-  extension (z: ZIO.type)
-    def repeatNPar[R, E, A](numTimes: Int)(
-        op: Int => ZIO[R, E, A]
-    ): ZIO[R, E, Seq[A]] =
-      z.foreachPar(0 until numTimes)(op)
+  import zio_helpers.repeatNPar
 
   def run =
     defer:
@@ -231,7 +226,6 @@ object RateLimiterDemoGlobal
             // Repeats as fast as allowed
             .repeatN(5).debug(s"Result $i")
         .run
-end RateLimiterDemoGlobal
 
 ```
 
