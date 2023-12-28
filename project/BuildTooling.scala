@@ -468,7 +468,10 @@ object BuildTooling {
           "dev.zio"   %% "zio-test-sbt" %
             zioVersion % Test,
           "dev.zio"   %% "zio-prelude" %
-            "1.0.0-RC21"
+            "1.0.0-RC21",
+          // TODO Confirm if worth including just for *1* example
+          "org.apache.commons" % "commons-text" %
+            "1.11.0",
         ),
       scalaVersion := "3.3.1",
       scalacOptions -= "-explain-types",

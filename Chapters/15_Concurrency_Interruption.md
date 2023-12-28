@@ -35,11 +35,78 @@ runDemo:
     .run
 ```
 
+If we encounter an error between forking and joining, the fibers will also be interrupted.
+
+```scala mdoc
+// TODO Define this in a more generic location?
+def createProcess(
+                   label: String,
+                   innerProcess: ZIO[Any, Nothing, Unit]
+                 ) =
+  defer:
+    ZIO.debug(s"Beginning $label").run
+    innerProcess.run
+    ZIO.debug(s"Completed $label").run
+  // TODO Consider rewriting to avoid
+  // dot-chaining on block
+  .onInterrupt(ZIO.succeed(println(s"Interrupt $label")))
+```
+
+```scala mdoc
+runDemo:
+  defer:
+    val fiber1 =
+      createProcess(
+        "Fiber 1",
+        ZIO.sleep(5.seconds)
+      ).fork.run
+
+    val fiber2 =
+      createProcess(
+        "Fiber 2",
+        ZIO.sleep(5.seconds)
+      ).fork.run
+
+    // Once we fail here, the fibers will be
+    // interrupted.
+    ZIO.fail("Youch!").run
+    fiber1.join.run
+    fiber2.join.run
+
+```
+
 ## Uninterruptable
-## .acquireRelease effects are uninterruptible
+### .acquireRelease effects are uninterruptible
 There are certain cases where you want to ensure code is not interrupted.
 For example, when you have a finalizer that needs to free up resources, you need to ensure it completes.
 
+
+### Tight loops 
+Tight loops that aren't performing ZIO operations cannot be interrupted by the ZIO runtime. 
+
+```scala mdoc
+
+import org.apache.commons.text.similarity
+import similarity.LevenshteinDistance
+runDemo:
+  defer:
+    val leven =
+      LevenshteinDistance.getDefaultInstance
+    val input =
+      Random.nextString(20_000).run
+    val target =
+      Random.nextString(20_000).run
+    ZIO.succeed:
+      leven(input, target)
+    .timeout(1.seconds)
+    .timed
+    .debug("Time:")
+    .run
+```
+We can see 2 significant behaviors here:
+
+- `timeout` did cause the long operation to return `None`
+- It did _not_ interrupt the operation early.
 
 
 ## Future Cancellation (Contra-example. Not necessary for happy path explanation)
