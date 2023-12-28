@@ -157,9 +157,11 @@ runDemo:
 package composability
 
 import zio.*
+
 import scala.concurrent.Future
 import zio.direct.*
 
+import java.lang.AutoCloseable
 import scala.Option
 import scala.util.{Success, Try}
 
@@ -175,9 +177,12 @@ object AllTheThings extends ZIOAppDefault:
 
   /*  Possible scenario:
    * Get headline - Future Analyze for
-   * topic/persons of interest - Option Lookup
-   * known information on them - Resource?
-   * Save event to DB - Try
+   * topic/persons of interest - Option Check if
+   * we have made an entry for them in today's
+   * summary file - Resource If not:
+   * Dig up supporting information on the topic
+   * from a DB - Try Make new entry in today's
+   * summary file - Resource
    *
    * Is Either different enough to demo here?
    * It basically splits the difference between
@@ -189,9 +194,31 @@ object AllTheThings extends ZIOAppDefault:
       "The stock market is crashing!"
     )
 
-  def asyncThing(i: Int) = ZIO.sleep(i.seconds)
+  def findTopicOfInterest(
+      content: String
+  ): Option[String] =
+    Option
+      .when(content.contains("stock market")):
+        "stock market"
 
-  def errorThing[A](t: Try[A]) = ZIO.fromTry(t)
+  trait CloseableFile extends AutoCloseable:
+    def existsInFile(searchTerm: String): Boolean
+
+    def close: Unit
+    def write(entry: String): Unit
+
+  val summaryFile: CloseableFile =
+    new CloseableFile:
+      override def close =
+        println("Closing file now!")
+
+      override def existsInFile(
+          searchTerm: String
+      ): Boolean = searchTerm == "stock market"
+
+      override def write(entry: String) = ???
+
+  def asyncThing(i: Int) = ZIO.sleep(i.seconds)
 
   val resourcefulThing
       : ZIO[Scope, Nothing, String] =
@@ -214,11 +241,27 @@ object AllTheThings extends ZIOAppDefault:
       // Convert from AutoCloseable
       // maybe add Future or make asyncThing a
       // Future `
-      val s: String = resourcefulThing.run
-      val t: Try[String] =
-        Success(
-          s
-        ) // todo: some failable function
+      val headline: String =
+        ZIO
+          .fromFuture: implicit ec =>
+            getHeadline()
+          .run
+
+      val topic =
+        ZIO
+          .fromOption:
+            findTopicOfInterest(headline)
+          .run
+
+      val summaryFileZ =
+        ZIO
+          .fromAutoCloseable:
+            ZIO.succeed:
+              summaryFile
+          .run
+
+      val t: Try[String] = Success(headline)
+      // todo: some failable function
       val w: String = ZIO.fromTry(t).run
       val o: Option[Int] =
         Option.unless(w.isEmpty)(
