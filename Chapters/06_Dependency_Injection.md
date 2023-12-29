@@ -67,12 +67,6 @@ Effects can't be run until their dependencies have been fulfilled
 TODO: Decide what to do about the compiler error differences between these approaches
 
 ```scala mdoc:fail
-object LetDoughRiseNoDough extends ZIOAppDefault:
-  override def run = Dough.letRise
-```
-
-```scala mdoc:fail
-// TODO Consider weirdness of provide with no args
 runDemo:
   Dough.letRise.provide()
 ```
@@ -133,7 +127,7 @@ The requirements for each ZIO are combined as an anonymous product type denoted 
 
 
 ```scala mdoc
-// Restore private constructor after failure scenario is dialed in
+// TODO Restore private constructor after failure scenario is dialed in
 case class Bread()
 
 object Bread:
