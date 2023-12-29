@@ -67,32 +67,6 @@ Effects can't be run until their dependencies have been fulfilled
 TODO: Decide what to do about the compiler error differences between these approaches
 
 ```scala
-object LetDoughRiseNoDough extends ZIOAppDefault:
-  override def run = Dough.letRise
-// error:
-// 
-// 
-// ──── ZIO APP ERROR ───────────────────────────────────────────────────
-// 
-//  Your effect requires a service that is not in the environment.
-//  Please provide a layer for the following type:
-// 
-//    1. repl.MdocSession.MdocApp.Dough
-// 
-//  Call your effect's provide method with the layers you need.
-//  You can read more about layers and providing services here:
-//  
-//    https://zio.dev/reference/contextual/
-// 
-// ──────────────────────────────────────────────────────────────────────
-// 
-// 
-//     defer:
-// ^
-```
-
-```scala
-// TODO Consider weirdness of provide with no args
 runDemo:
   Dough.letRise.provide()
 // error:
@@ -170,7 +144,7 @@ The requirements for each ZIO are combined as an anonymous product type denoted 
 
 
 ```scala
-// Restore private constructor after failure scenario is dialed in
+// TODO Restore private constructor after failure scenario is dialed in
 case class Bread()
 
 object Bread:
@@ -226,6 +200,7 @@ runDemo:
       Dough.fresh,
       Heat.oven
     )
+// Making Homemade Bread
 // Eating bread!
 ```
 

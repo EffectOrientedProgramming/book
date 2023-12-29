@@ -2,61 +2,9 @@
 
  
 
-### experiments/src/main/scala/cancellation/ForkNoJoin.scala
+### experiments/src/main/scala/cancellation/CancellationTree.scala
 ```scala
 package cancellation
-
-import zio.*
-
-object ForkNoJoin extends ZIOAppDefault:
-
-  override def run =
-    ZIO
-      .sleep(Duration.Infinity)
-      .onInterrupt(
-        Console.printLine("interrupted").orDie
-      )
-      .fork
-
-```
-
-
-### experiments/src/main/scala/cancellation/FutureCancellation.scala
-```scala
-package cancellation
-
-import scala.concurrent.Future
-
-// We show that Future's are killed with finalizers that never run
-object FutureNaiveCancellation
-    extends ZIOAppDefault:
-
-  def run =
-    ZIO
-      .fromFuture:
-        Future:
-          try Thread.sleep(500)
-          finally println("Cleanup")
-          "Success!"
-      .timeout(25.millis)
-      .debug
-
-```
-
-
-### experiments/src/main/scala/cancellation/ZIOCancellation.scala
-```scala
-package cancellation
-
-val longRunning =
-  createProcess(
-    "LongRunning",
-    ZIO.sleep(5.seconds)
-  )
-
-object HelloCancellation extends ZIOAppDefault:
-
-  def run = longRunning.timeout(2.seconds)
 
 def createProcess(
     label: String,
@@ -70,89 +18,41 @@ def createProcess(
     // dot-chaining on block
   .onInterrupt(ZIO.debug(s"Interrupt $label"))
 
-object HelloCancellation2 extends ZIOAppDefault:
-  val complex =
-    createProcess("Complex", longRunning)
-
-  def run = complex.timeout(2.seconds)
-
-object CancellationWeb extends ZIOAppDefault:
+object CancellationTree extends ZIOAppDefault:
   def spawnLevel(
       level: Int,
       limit: Int,
       parent: String
   ): ZIO[Any, Nothing, Unit] =
     ZIO
-      .foreachPar(List("L", "R"))(label =>
-        createProcess(
+      .foreachPar(List("L", "R"))(branch =>
+        val label =
           " " *
-            (level + 1 * 2) + parent +
-            s"-$label",
-          ZIO
-            .when(level < limit)(
-              spawnLevel(
-                level + 1,
-                limit,
-                " " *
-                  (level + 1 * 2) + parent +
-                  s"-$label"
-              )
-            )
-            .unit
+            (level * 2) + parent + s"-$branch"
+
+        createProcess(
+          label,
+          defer:
+            ZIO
+              .when(level < limit):
+                spawnLevel(
+                  level + 1,
+                  limit,
+                  label
+                )
+              .unit
+              .run
+            ZIO
+              .sleep:
+                Duration.Infinity
+              .run
         )
       )
-      .delay(level.seconds)
       .unit
 
   def run =
-    spawnLevel(0, 3, "Root").timeout(3.seconds)
-end CancellationWeb
-
-object FailureDuringFork extends ZIOAppDefault:
-  def run =
-    defer:
-      val fiber1 =
-        createProcess(
-          "Fiber 1",
-          ZIO.sleep(5.seconds)
-        ).fork.run
-
-      val fiber2 =
-        createProcess(
-          "Fiber 2",
-          ZIO.sleep(5.seconds)
-        ).fork.run
-
-      // Once we fail here, the fibers will be
-      // interrupted.
-      ZIO.fail("Youch!").run
-      fiber1.join.run
-      fiber2.join.run
-end FailureDuringFork
-
-import org.apache.commons.lang3.RandomStringUtils
-import org.apache.commons.text.similarity.LevenshteinDistance
-
-val input  = RandomStringUtils.random(70_000)
-val target = RandomStringUtils.random(70_000)
-val leven =
-  LevenshteinDistance.getDefaultInstance
-
-object PlainLeven extends App:
-  leven(input, target)
-
-object CancellingATightLoop
-    extends ZIOAppDefault:
-  val scenario =
-    ZIO.attempt(leven(input, target))
-
-  def run =
-    // For timeouts, you need fibers and
-    // cancellation
-    scenario
-      // TODO This is running for 16 seconds
-      // nomatter what.
-      .timed.debug("Time:").timeout(2.seconds)
+    spawnLevel(0, 1, "Root").timeout(1.seconds)
+end CancellationTree
 
 ```
 

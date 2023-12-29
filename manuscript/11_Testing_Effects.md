@@ -35,17 +35,26 @@ Even time can be simulated as using the clock is an effect.
 import zio.test.*
 
 runSpec:
-  val thingThatTakesTime = ZIO.sleep(2.seconds)
+  val slowOperation = 
+    ZIO.sleep:
+      2.seconds
 
   defer:
     val fork =
-      thingThatTakesTime
-        .timeout(1.second)
+      slowOperation
+        .timeout:
+          1.second
         .fork
         .run
-    TestClock.adjust(2.seconds).run
-    val result = fork.join.run
-    assertTrue(result.isEmpty)
+    TestClock.adjust:
+      2.seconds
+    .run
+    val result = 
+      fork
+        .join
+        .run
+    assertTrue:
+      result.isEmpty
 // Test: PASSED*
 ```
 
@@ -79,7 +88,8 @@ In this example we utilize ZIO Test's `assertTrue` which provides a non-DSL appr
 
 ```scala
 runSpec:
-  assertTrue(Some("asdf") == None)
+  assertTrue:
+    Some("asdf") == None
 // Test: FAILED
 ```
 
@@ -97,10 +107,10 @@ By default, tests will get `Test` versions of the Built-in Services.
 runSpec:
 
   defer:
-    val thingThatTakesTime = ZIO.sleep(2.seconds)
+    val slowOperation = ZIO.sleep(2.seconds)
     val result =
       defer:
-        val fork = thingThatTakesTime.fork.run
+        val fork = slowOperation.fork.run
         TestClock.adjust(10.seconds).run
         fork.join.run
       .timed
@@ -113,10 +123,10 @@ runSpec:
 ```scala
 runSpec(
   defer:
-    val thingThatTakesTime = ZIO.sleep(2.seconds)
+    val slowOperation = ZIO.sleep(2.seconds)
     val result =
       defer:
-        val fork = thingThatTakesTime.fork.run
+        val fork = slowOperation.fork.run
         TestClock.adjust(10.seconds).run
         fork.join.run
       .timed
@@ -126,7 +136,7 @@ runSpec(
   ,
   TestAspect.withLiveClock
 )
-// (PT2.000774222S,())
+// (PT2.000645075S,())
 // Test: PASSED*
 ```
 
@@ -139,8 +149,10 @@ runSpec(
     assertCompletes
   ,
   TestAspect.around(
-    ZIO.debug("ZIO IO, before"),
-    ZIO.succeed(println("plain IO, after"))
+    ZIO.debug:
+      "ZIO IO, before",
+    ZIO.succeed:
+      println("plain IO, after")
   )
 )
 // During test
