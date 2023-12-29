@@ -78,6 +78,7 @@ object CircuitBreakerDemo extends ZIOAppDefault:
   def run =
     defer:
       val cb       = makeCircuitBreaker.run
+      // TODO Provide requests internally.
       val requests = Ref.make[Int](0).run
       import Scenario.Step.*
 

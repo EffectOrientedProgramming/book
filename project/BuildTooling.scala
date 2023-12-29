@@ -415,7 +415,6 @@ object BuildTooling {
       "io.getquill" %% "quill-jdbc-zio" %
         "4.8.0",
       "io.getquill" %% "quill-zio"   % "4.8.0",
-      "nl.vroste"   %% "rezilience"  % "0.9.4",
       "dev.zio"     %% "zio-process" % "0.7.2",
       "dev.zio" %% "zio-direct" % "1.0.0-RC7",
       "dev.zio" %% "zio-schema" % "0.4.16",
@@ -469,6 +468,7 @@ object BuildTooling {
             zioVersion % Test,
           "dev.zio"   %% "zio-prelude" %
             "1.0.0-RC21",
+          "nl.vroste"   %% "rezilience"  % "0.9.4",
           // TODO Confirm if worth including just for *1* example
           "org.apache.commons" % "commons-text" %
             "1.11.0",
