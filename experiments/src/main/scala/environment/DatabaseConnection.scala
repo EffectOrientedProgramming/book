@@ -14,19 +14,20 @@ object DbConnection:
   val make: ZLayer[Any, Nothing, DbConnection] =
     ZLayer.scoped(
       ZIO.acquireRelease(
-        defer {
-          val actionLog: Ref[Seq[String]] =
+        defer:
+          val actionLog =
             Ref.make(Seq.empty[String]).run
           val connection =
             DbConnection(actionLog)
           connection.execute("OPEN").run
           connection
-        }
       )(connection =>
-        defer {
-          connection.execute("CLOSE").run
+        defer:
+          connection
+            .execute("CLOSE")
+            .run
           pprint.apply(connection)
-        }.debug
+        .debug
       )
     )
 end DbConnection
