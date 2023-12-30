@@ -1,30 +1,28 @@
 package concurrency
 
-import zio.Console.printLine
 import zio.test.*
 
 import java.nio.file.Path
 
 object ThunderingHerdsSpec
     extends ZIOSpecDefault:
-  val testInnards =
+  val herdScenario =
     defer {
       val users = List("Bill", "Bruce", "James")
 
       val herdBehavior =
         defer {
-          val fileService =
-            ZIO.service[FileService].run
+          val popularService =
+            ZIO.service[PopularService].run
           val fileResults =
             ZIO
               .foreachPar(users)(user =>
-                fileService.retrieveContents(
+                popularService.retrieveContents(
                   Path.of("awesomeMemes")
                 )
               )
               .run
-          ZIO.debug("=========").run
-          fileService
+          popularService
             .retrieveContents(
               Path.of("awesomeMemes")
             )
@@ -32,38 +30,54 @@ object ThunderingHerdsSpec
           fileResults
         }
 
-      printLine("Capture?").run
       val logicFork = herdBehavior.fork.run
       TestClock.adjust(2.seconds).run
-      val res = logicFork.join.run
-      val misses =
+      val res: List[FileContents] = logicFork.join.run
+      val misses: Int =
         ZIO
-          .serviceWithZIO[FileService](_.misses)
+          .serviceWithZIO[PopularService](_.misses)
           .run
-      ZIO.debug("Eh?").run
+      (res, misses)
 
-      assertTrue(
-        misses == 1,
-        res.forall(singleResult =>
-          singleResult ==
-            FileSystem.hardcodedFileContents
-        )
-      )
     }
-  end testInnards
+  end herdScenario
 
   override def spec =
     suite("ThunderingHerdsSpec")(
       test(
         "classic happy path using zio-cache library"
       ) {
-        testInnards
+        defer:
+          val (res, misses) = herdScenario.run
+          assertTrue(
+            misses == 1,
+            res.forall(singleResult =>
+              singleResult ==
+                FSLive.hardcodedFileContents
+            )
+          )
       }.provide(
         FileSystem.live,
         ZLayer.fromZIO(
           ServiceThatCanHandleThunderingHerds
             .make
         )
-      )
-    )
+      ),
+      test(
+        "sad path using no caching"
+      ) {
+        defer:
+          val (res, misses) = herdScenario.run
+          assertTrue(
+            misses == 4,
+            res.forall(singleResult =>
+              singleResult ==
+                FSLive.hardcodedFileContents
+            )
+          )
+      }.provide(
+        FileSystem.live,
+        NoCacheAtAll.live
+        )
+    ) @@ TestAspect.withLiveClock
 end ThunderingHerdsSpec
