@@ -37,8 +37,9 @@ object TimeoutError
 
 
 ## Building a Resilient Process in stages
+We want to evolve our process from a simple happy path to a more resilient process.
 
-### Successful Code
+## Step 1: Happy Path
 
 ```scala
 runDemo:
@@ -48,7 +49,7 @@ runDemo:
 ```
 
 
-### Error Fallback Value
+## Step 2: Provide Error Fallback Value
 
 ```scala
 runDemo:
@@ -60,7 +61,7 @@ runDemo:
 // ERROR: User could not be saved
 ```
 
-### Retry Upon Failure
+## Step 3: Retry Upon Failure
 
 
 ```scala
@@ -85,7 +86,7 @@ runDemo:
 // User saved
 ```
 
-### Fallback after multiple failures
+## Step 4: Fallback after multiple failures
 
 
 ```scala
@@ -103,7 +104,7 @@ runDemo:
 // ERROR: User could not be saved
 ```
 
-### Timeouts
+## Step 5: Timeouts
 
 
 
@@ -127,7 +128,7 @@ runDemo:
 // User saved
 ```
 
-### Fallback Effect
+## Step 6: Fallback Effect
 
 
 ```scala
@@ -150,7 +151,7 @@ runDemo:
 // User sent to manual setup queue
 ```
 
-### Concurrently Execute Effect 
+## Step 7: Concurrently Execute Effect 
 
 
 ```scala
@@ -178,7 +179,7 @@ runDemo:
 ```
 
 
-### Ignore failures in Concurrent Effect 
+## Step 8: Ignore failures in Concurrent Effect 
 
 Feeling a bit "meh" about this step.
 
@@ -206,6 +207,7 @@ runDemo:
 // User saved
 ```
 
+## Step 9: Rate Limit TODO 
 
 ## Edit This Chapter
 [Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/03_Superpowers.md)
