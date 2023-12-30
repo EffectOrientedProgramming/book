@@ -1,7 +1,6 @@
 package zio_test
 
 import zio.test.*
-import zio_test.Shared.Scoreboard
 
 object UseComplexLayer
     extends ZIOSpec[Scoreboard]:
