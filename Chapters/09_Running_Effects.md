@@ -94,7 +94,6 @@ runDemo:
 ```
 
 ## Testing code
-    - `runSpec` ?
 
 ### ZIOSpecDefault
 

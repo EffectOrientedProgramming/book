@@ -18,12 +18,6 @@ object Hedging extends ZIOAppDefault:
             .race:
               hedge(wait, depth - 1)
 
-  def hedgedRequestNarrow =
-    handleRequest
-      .race(handleRequest.delay(25.millis))
-      .race(handleRequest.delay(25.millis))
-      .race(handleRequest.delay(25.millis))
-
   def hedgedRequestGeneral =
     handleRequest.hedge(25.millis, 3)
 

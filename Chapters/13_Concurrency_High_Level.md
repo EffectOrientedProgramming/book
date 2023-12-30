@@ -3,6 +3,7 @@
 1. forEachPar, collectAllPar
 
 TODO Prose
+
 ```scala mdoc
 def sleepThenPrint(
     d: Duration
