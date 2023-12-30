@@ -1,7 +1,7 @@
 # Dependency Injection
 1. Application startup uses the same tools that you utilize for the rest of your application
 
-### General/Historic discussion
+## General/Historic discussion
 
 One reason to modularize an application into "parts" is that the relationship between the parts can be expressed and also changed depending on the needs for a given execution path.  
 Typically, this approach to breaking things into parts and expressing what they need, is called "Dependency Injection."
@@ -22,7 +22,7 @@ An alternative to this approach is to use "Constructor Injection" which avoids s
 
 If instead functionality expressed its dependencies through the type system, the compiler could verify that the needed parts are in-fact available given a particular path of execution (e.g. main app, test suite one, test suite two).
 
-### What ZIO can provide us.
+## What ZIO can provide us.
 
 With ZIO's approach to dependencies, you get many desirable characteristics at compile-time, using standard language features.
 Your services are defined as classes with constructor arguments, just as in any vanilla Scala application.
@@ -60,7 +60,7 @@ object Dough:
       .tapWithMessage("Making Fresh Dough")
 ```
 
-### Step 1: Effects can express dependencies
+## Step 1: Effects can express dependencies
 
 Effects can't be run until their dependencies have been fulfilled
 
@@ -85,7 +85,7 @@ runDemo:
 //                          ^
 ```
 
-### Step 2: Provide Dependencies to Effects
+## Step 2: Provide Dependency Layers to Effects
 
 Then the effect can be run.
 
@@ -125,11 +125,11 @@ object Heat:
 
 
 
-### Step 3: Effects can require multiple dependencies
+## Step 3: Effects can require multiple dependencies
 
 > Note: The following is copy&pasted and might just need a slight diversion to &'d typed parameters
 
-## Intersections AKA Products AKA Case Classes AKA Ands
+### Intersections AKA Products AKA Case Classes AKA Ands
 
 ```scala
 trait Dependency1
@@ -182,7 +182,7 @@ runDemo:
 // Bread()
 ```
 
-### Step 4: Dependencies can "automatically" assemble to fulfill the needs of an effect
+## Step 4: Dependencies can "automatically" assemble to fulfill the needs of an effect
 
 Something around how like typical DI, the "graph" of dependencies gets resolved "for you"
 This typically happens in some completely new/custom phase, that does follow standard code paths.
@@ -204,7 +204,7 @@ runDemo:
 ```
 
 
-### Step 5: Different effects can require the same dependency
+## Step 5: Different effects can require the same dependency
 Eventually, we grow tired of eating plain `Bread` and decide to start making `Toast`.
 Both of these processes require `Heat`.
 
@@ -245,7 +245,7 @@ runDemo:
 However, the oven uses a lot of energy to make `Toast`.
 It would be great if we can instead use our dedicated toaster!
 
-### Step 6: Dependencies are based on types and must be uniquely provided
+## Step 6: Dependencies must be fulfilled by unique types
 
 ```scala
 runDemo:
@@ -276,7 +276,7 @@ runDemo:
 Unfortunately our program is now ambiguous.
 It cannot decide if we should be making `Toast` in the oven, `Bread` in the toaster, or any other combination.
 
-### Step 7: Providing Dependencies at Different Levels
+## Step 7: Providing Dependencies at Different Levels
 This enables other effects that use them to provide their own dependencies of the same type
 
 ```scala
@@ -290,7 +290,7 @@ runDemo:
 // Toast()
 ```
 
-### Step 8: Dependencies can fail
+## Step 8: Dependencies can fail
 
 
 TODO Explain `.build` before using it to demo layer construction
@@ -310,7 +310,7 @@ runDemo:
 ```
 
 
-### Step 9: Dependency Retries
+## Step 9: Dependency Retries
 
 ```scala
 runDemo:
@@ -331,7 +331,7 @@ runDemo:
 // Eating bread!
 ```
 
-### Step 10: Dependency Fallback
+## Step 10: Fallback Dependencies 
 
 
 ```scala
@@ -348,7 +348,7 @@ runDemo:
 // Toast()
 ```
 
-### Step 11: Layer Retry + Fallback?
+## Step 11: Layer Retry + Fallback?
 
 Maybe retry on the ZLayer eg. (BreadDough.rancid, Heat.brokenFor10Seconds)
 

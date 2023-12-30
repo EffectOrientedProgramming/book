@@ -30,6 +30,5 @@ async.md
 cancellation.md
 concurrency.md
 rezilience.md
-experiments-src-test-scala-zio_test.md
 performance.md
 experiments-src-test-scala-concurrency.md
