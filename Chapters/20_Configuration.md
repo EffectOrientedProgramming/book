@@ -320,19 +320,3 @@ TODO{{Reorder things so that the official ZIO TestSystem is used.}}
 
 ZIO provides a more complete `System` API in the `zio.System`.
 This is always available as a standard service from the ZIO runtime.
-
-TODO
-
-```scala mdoc
-def fancyLodgingBuiltIn(
-    hotelApiZ: HotelApiZ
-): ZIO[Any, SecurityException | Error, Hotel] =
-  defer {
-    val apiKey = zio.System.env("API_KEY").run
-    hotelApiZ
-      .cheapest(
-        apiKey.get // unsafe! TODO Use either
-      )
-      .run
-  }
-```
