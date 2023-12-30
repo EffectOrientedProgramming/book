@@ -3,6 +3,7 @@
 1. forEachPar, collectAllPar
 
 TODO Prose
+
 ```scala
 def sleepThenPrint(
     d: Duration
@@ -76,7 +77,7 @@ runDemo:
             )
         .run
     durations.fold(Duration.Zero)(_ + _).render
-// 15 m 6 s
+// 14 m 54 s
 ```
 
 ## zipPar, zipWithPar

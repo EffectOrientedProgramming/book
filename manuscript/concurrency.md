@@ -2,30 +2,16 @@
 
  
 
-### experiments/src/main/scala/concurrency/ServiceThatCanHandleThunderingHerds.scala
+### experiments/src/main/scala/concurrency/Invisible.scala
 ```scala
 package concurrency
 
-import zio.cache.{Cache, Lookup}
-
-import java.nio.file.Path
 import zio.Console.printLine
 
-// TODO Move this all to concurrency_state prose when we can bring tests over in a decent way
-
-case class FileContents(contents: List[String])
-
-trait FileService:
-  def retrieveContents(
-      name: Path
-  ): ZIO[Any, Nothing, FileContents]
-
-  // These are just for demos
-  val hits: ZIO[Any, Nothing, Int]
-  val misses: ZIO[Any, Nothing, Int]
+import java.nio.file.Path
 
 // TODO Figure if these functions belong in the object instead.
-trait FileSystem:
+case class FSLive() extends FileSystem:
   def readFileExpensive(
       name: Path
   ): ZIO[Any, Nothing, FileContents] =
@@ -35,26 +21,75 @@ trait FileSystem:
         .run
 
       ZIO.sleep(2.seconds).run
-      FileSystem.hardcodedFileContents
+      FSLive.hardcodedFileContents
 
-object FileSystem:
+object FSLive:
   val hardcodedFileContents =
     FileContents(
       List("viralImage1", "viralImage2")
     )
-  val live = ZLayer.succeed(new FileSystem {})
+
+```
+
+
+### experiments/src/main/scala/concurrency/ServiceThatCanHandleThunderingHerds.scala
+```scala
+package concurrency
+
+import zio.ZLayer
+import zio.cache.{Cache, Lookup}
+
+import java.nio.file.Path
+
+// TODO Move this all to concurrency_state prose when we can bring tests over in a decent way
+
+case class FileContents(contents: List[String])
+
+trait PopularService:
+  def retrieveContents(
+      name: Path
+  ): ZIO[Any, Nothing, FileContents]
+
+  val misses: ZIO[Any, Nothing, Int]
+
+trait FileSystem:
+  def readFileExpensive(
+      name: Path
+  ): ZIO[Any, Nothing, FileContents]
+
+object FileSystem:
+  val live = ZLayer.succeed(FSLive())
+
+case class NoCacheAtAll(
+    fileSystem: FileSystem,
+    missesRef: Ref[Int]
+) extends PopularService:
+  override def retrieveContents(
+      name: Path
+  ): ZIO[Any, Nothing, FileContents] =
+    defer:
+      missesRef.update(_ + 1).run
+      fileSystem.readFileExpensive(name).run
+
+  override val misses: ZIO[Any, Nothing, Int] =
+    missesRef.get
+
+object NoCacheAtAll:
+  val live =
+    ZLayer.fromZIO:
+      defer:
+        NoCacheAtAll(
+          ZIO.service[FileSystem].run,
+          Ref.make(0).run
+        )
 
 case class ServiceThatCanHandleThunderingHerds(
     cache: Cache[Path, Nothing, FileContents]
-) extends FileService:
+) extends PopularService:
   override def retrieveContents(
       name: Path
   ): ZIO[Any, Nothing, FileContents] =
     cache.get(name)
-
-  override val hits: ZIO[Any, Nothing, Int] =
-    defer:
-      cache.cacheStats.run.hits.toInt
 
   override val misses: ZIO[Any, Nothing, Int] =
     defer:

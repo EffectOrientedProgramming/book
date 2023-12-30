@@ -4,6 +4,7 @@
 1. Throwaway reference to STM
 
 TODO Prose
+
 ```scala
 def sleepThenPrint(
     d: Duration

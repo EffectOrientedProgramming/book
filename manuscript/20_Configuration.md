@@ -219,11 +219,11 @@ val logic =
 //     trace = "repl.MdocSession.MdocApp.<local MdocApp>.logic(20_Configuration.md:233)",
 //     first = Sync(
 //       trace = "repl.MdocSession.MdocApp.<local MdocApp>.logic(20_Configuration.md:233)",
-//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$17197/0x00000008043a0840@48e40542
+//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$16026/0x0000000804006440@377d9407
 //     ),
-//     successK = zio.ZIO$$$Lambda$17199/0x00000008043a6840@67b3795a
+//     successK = zio.ZIO$$$Lambda$16028/0x0000000804004040@192e043
 //   ),
-//   successK = zio.ZIO$$Lambda$17246/0x0000000804410040@7e4b14d9
+//   successK = zio.ZIO$$Lambda$16075/0x0000000804085040@8aa94f2
 // )
 runDemo(
   logic.provide(
@@ -287,116 +287,6 @@ TODO{{Reorder things so that the official ZIO TestSystem is used.}}
 
 ZIO provides a more complete `System` API in the `zio.System`.
 This is always available as a standard service from the ZIO runtime.
-
-TODO
-
-```scala
-def fancyLodgingBuiltIn(
-    hotelApiZ: HotelApiZ
-): ZIO[Any, SecurityException | Error, Hotel] =
-  defer {
-    val apiKey = zio.System.env("API_KEY").run
-    hotelApiZ
-      .cheapest(
-        apiKey.get // unsafe! TODO Use either
-      )
-      .run
-  }
-```
-
-## Exercises
-
-```todo
-import zio.test.TestSystem
-import zio.test.TestSystem.Data
-// TODO Use real tests once Scala3 & ZIO2 are
-// updated
-```
-
-X> **Exercise 1:** Create a function will report missing Environment Variables as `NoSuchElementException` failures, instead of an `Option` success case.
-
-```todo
-trait Exercise1:
-  def envOrFail(variable: String): ZIO[
-    zio.System,
-    SecurityException | NoSuchElementException,
-    String
-  ]
-```
-
-```todo
-object Exercise1Solution extends Exercise1:
-  def envOrFail(variable: String): ZIO[
-    zio.System,
-    SecurityException | NoSuchElementException,
-    String
-  ] =
-    // TODO Direct instead of flatmap
-    zio
-      .System
-      .env(variable)
-      .flatMap(
-        _.fold(
-          ZIO.fail(new NoSuchElementException())
-        )(ZIO.succeed(_))
-      )
-```
-
-```todo
-import zio.test.*
-
-runSpec(
-  defer {
-    val res = Exercise1Solution
-      .envOrFail("key")
-      .provide(
-        TestSystem.live(
-          Data(envs = Map("key" -> "value"))
-        )
-      )
-      .run
-    
-    assertTrue(res == "value")
-  }
-)
-
-```
-
-```todo
-import zio.test.*
-
-runSpec(
-  defer {
-    val res =
-      Exercise1Solution
-        .envOrFail("key")
-        .catchSome {
-          case _: NoSuchElementException =>
-            ZIO.succeed("Expected Error")
-        }
-        .provide(
-          TestSystem.live(Data(envs = Map()))
-        )
-        .run
-
-      assertTrue(res == "Expected Error")
-    }
-)
-```
-
-X> **Exercise 2:** Create a function will attempt to parse a value as an Integer and report errors as a `NumberFormatException`.
-
-```scala
-trait Exercise2:
-  def envInt(variable: String): ZIO[
-    Any,
-    NoSuchElementException |
-      NumberFormatException,
-    Int
-  ] = ???
-```
-
-
 
 
 ## Edit This Chapter
