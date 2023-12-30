@@ -189,8 +189,9 @@ import HiddenPrelude.*
 ```
 
 ## Building a Resilient Process in stages
+We want to evolve our process from a simple happy path to a more resilient process.
 
-### Successful Code
+## Step 1: Happy Path
 
 ```scala mdoc
 runDemo:
@@ -202,7 +203,7 @@ runDemo:
 HiddenPrelude.resetScenario(Scenario.NeverWorks)
 ```
 
-### Error Fallback Value
+## Step 2: Provide Error Fallback Value
 
 ```scala mdoc
 runDemo:
@@ -212,7 +213,7 @@ runDemo:
     "ERROR: User could not be saved"
 ```
 
-### Retry Upon Failure
+## Step 3: Retry Upon Failure
 
 ```scala mdoc:invisible
 HiddenPrelude
@@ -238,7 +239,7 @@ runDemo:
     "ERROR: User could not be saved"
 ```
 
-### Fallback after multiple failures
+## Step 4: Fallback after multiple failures
 
 ```scala mdoc:invisible
 HiddenPrelude.resetScenario(Scenario.NeverWorks)
@@ -254,7 +255,7 @@ runDemo:
     "ERROR: User could not be saved"
 ```
 
-### Timeouts
+## Step 5: Timeouts
 
 
 ```scala mdoc:invisible
@@ -277,7 +278,7 @@ runDemo:
       "ERROR: User could not be saved"
 ```
 
-### Fallback Effect
+## Step 6: Fallback Effect
 
 ```scala mdoc:invisible
 HiddenPrelude.resetScenario(Scenario.NeverWorks)
@@ -298,7 +299,7 @@ runDemo:
       "ERROR: User could not be saved, even to the fallback system"
 ```
 
-### Concurrently Execute Effect 
+## Step 7: Concurrently Execute Effect 
 
 ```scala mdoc:invisible
 HiddenPrelude
@@ -333,7 +334,7 @@ HiddenPrelude
   .resetScenario(Scenario.WorksFirstTime)
 ```
 
-### Ignore failures in Concurrent Effect 
+## Step 8: Ignore failures in Concurrent Effect 
 
 Feeling a bit "meh" about this step.
 
@@ -358,3 +359,5 @@ runDemo:
     .orElseSucceed:
       "ERROR: User could not be saved"
 ```
+
+## Step 9: Rate Limit TODO 
