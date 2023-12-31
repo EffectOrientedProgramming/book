@@ -136,7 +136,7 @@ runSpec(
   ,
   TestAspect.withLiveClock
 )
-// (PT2.001680416S,())
+// (PT2.000746859S,())
 // Test: PASSED*
 ```
 
