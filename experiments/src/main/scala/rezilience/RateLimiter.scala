@@ -13,30 +13,12 @@ val makeRateLimiter
 
 // We use Throwable as error type in this example
 def rsaKeyGenerator: ZIO[Any, Throwable, Int] =
-  Random.nextInt
+  Random.nextIntBounded(1000)
 
-object RateLimiterDemo extends ZIOAppDefault:
-  def run =
-    defer:
-      val rateLimiter = makeRateLimiter.run
-      rateLimiter(rsaKeyGenerator)
-        // Repeats as fast as the limiter allows
-        .repeatN(5).debug("Result").run
-
+import zio_helpers.timedSecondsDebug
 object RateLimiterDemoWithLogging
     extends ZIOAppDefault:
 
-  // TODO Put in book-side ZIO helpers?
-  extension [R, E, A](z: ZIO[R, E, A])
-    def timedSecondsDebug(
-        message: String
-    ): ZIO[R, E, A] =
-      z.timed
-        .tap: (duration, res) =>
-          ZIO.debug:
-            message + ": " + res + " [took " +
-              duration.getSeconds + "s]"
-        .map(_._2)
 
   def run =
     defer:
@@ -45,7 +27,7 @@ object RateLimiterDemoWithLogging
         // Print the time to generate each key:
         .timedSecondsDebug("Generated key")
         // Repeat as fast as the limiter allows:
-        .repeatN(5)
+        .repeatN(3)
         // Print the last result
         .timedSecondsDebug("Result").run
 
@@ -60,11 +42,13 @@ object RateLimiterDemoGlobal
     defer:
       val rateLimiter = makeRateLimiter.run
       ZIO
-        .repeatNPar(4): i =>
-          rateLimiter(
-            rsaKeyGenerator.debug(i.toString)
-          )
+        .repeatNPar(3): i =>
+          rateLimiter:
+            rsaKeyGenerator
+          .timedSecondsDebug(s"${i.toString} generated a key")
             // Repeats as fast as allowed
-            .repeatN(5).debug(s"Result $i")
+          .repeatN(2).debug(s"Result $i")
+        .unit
+        .timedSecondsDebug("Total time")
         .run
 end RateLimiterDemoGlobal
