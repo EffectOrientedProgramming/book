@@ -2,7 +2,7 @@
 
  
 
-### experiments/src/test/scala/concurrency/ThunderingHerdsSpec.scala
+### experiments/src/test/scala/concurrency/CacheSpec.scala
 ```scala
 package concurrency
 
@@ -10,10 +10,11 @@ import zio.test.*
 
 import java.nio.file.Path
 
-object ThunderingHerdsSpec
+object CacheSpec
     extends ZIOSpecDefault:
-  val herdScenario =
+  val thunderingHerdsScenario =
     defer {
+      // TODO Bigger list of random users.
       val users = List("Bill", "Bruce", "James")
 
       val herdBehavior =
@@ -23,15 +24,13 @@ object ThunderingHerdsSpec
           val fileResults =
             ZIO
               .foreachPar(users)(user =>
-                popularService.retrieveContents(
+                popularService.retrieve:
                   Path.of("awesomeMemes")
-                )
               )
               .run
           popularService
-            .retrieveContents(
+            .retrieve:
               Path.of("awesomeMemes")
-            )
             .run
           fileResults
         }
@@ -39,33 +38,33 @@ object ThunderingHerdsSpec
       val logicFork = herdBehavior.fork.run
       TestClock.adjust(2.seconds).run
       val res: List[FileContents] = logicFork.join.run
-      val misses: Int =
+      val costToOperate: String =
         ZIO
-          .serviceWithZIO[PopularService](_.misses)
+          .serviceWithZIO[CloudStorage](_.invoice)
           .run
-      (res, misses)
+      (res, costToOperate)
 
     }
-  end herdScenario
+  end thunderingHerdsScenario
 
   override def spec =
-    suite("ThunderingHerdsSpec")(
+    suite("CacheSpec")(
       test(
         "classic happy path using zio-cache library"
       ) {
         defer:
-          val (res, misses) = herdScenario.run
+          val (res, costToOperate) = thunderingHerdsScenario.run
           assertTrue(
-            misses == 1,
+            costToOperate == "Amount owed: $1",
             res.forall(singleResult =>
               singleResult ==
-                FSLive.hardcodedFileContents
+                FSLive.hardcodedContents
             )
           )
       }.provide(
-        FileSystem.live,
+        CloudStorage.live,
         ZLayer.fromZIO(
-          ServiceThatCanHandleThunderingHerds
+          ServiceCached
             .make
         )
       ),
@@ -73,20 +72,20 @@ object ThunderingHerdsSpec
         "sad path using no caching"
       ) {
         defer:
-          val (res, misses) = herdScenario.run
+          val (res, costToOperate) = thunderingHerdsScenario.run
           assertTrue(
-            misses == 4,
+            costToOperate == "Amount owed: $4",
             res.forall(singleResult =>
               singleResult ==
-                FSLive.hardcodedFileContents
+                FSLive.hardcodedContents
             )
           )
       }.provide(
-        FileSystem.live,
-        NoCacheAtAll.live
+        CloudStorage.live,
+        ServiceUncached.live
         )
     ) @@ TestAspect.withLiveClock
-end ThunderingHerdsSpec
+end CacheSpec
 
 ```
 

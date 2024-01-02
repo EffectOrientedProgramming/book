@@ -2,37 +2,7 @@
 
  
 
-### experiments/src/main/scala/concurrency/Invisible.scala
-```scala
-package concurrency
-
-import zio.Console.printLine
-
-import java.nio.file.Path
-
-// TODO Figure if these functions belong in the object instead.
-case class FSLive() extends FileSystem:
-  def readFileExpensive(
-      name: Path
-  ): ZIO[Any, Nothing, FileContents] =
-    defer:
-      printLine("Reading from FileSystem")
-        .orDie
-        .run
-
-      ZIO.sleep(2.seconds).run
-      FSLive.hardcodedFileContents
-
-object FSLive:
-  val hardcodedFileContents =
-    FileContents(
-      List("viralImage1", "viralImage2")
-    )
-
-```
-
-
-### experiments/src/main/scala/concurrency/ServiceThatCanHandleThunderingHerds.scala
+### experiments/src/main/scala/concurrency/Caching.scala
 ```scala
 package concurrency
 
@@ -46,74 +16,106 @@ import java.nio.file.Path
 case class FileContents(contents: List[String])
 
 trait PopularService:
-  def retrieveContents(
+  def retrieve(
       name: Path
   ): ZIO[Any, Nothing, FileContents]
 
-  val misses: ZIO[Any, Nothing, Int]
-
-trait FileSystem:
-  def readFileExpensive(
+trait CloudStorage:
+  def expensiveDownload(
       name: Path
   ): ZIO[Any, Nothing, FileContents]
 
-object FileSystem:
-  val live = ZLayer.succeed(FSLive())
+  val invoice: ZIO[Any, Nothing, String]
 
-case class NoCacheAtAll(
-    fileSystem: FileSystem,
-    missesRef: Ref[Int]
-) extends PopularService:
-  override def retrieveContents(
-      name: Path
-  ): ZIO[Any, Nothing, FileContents] =
-    defer:
-      missesRef.update(_ + 1).run
-      fileSystem.readFileExpensive(name).run
-
-  override val misses: ZIO[Any, Nothing, Int] =
-    missesRef.get
-
-object NoCacheAtAll:
+// Invisible
+object CloudStorage:
   val live =
     ZLayer.fromZIO:
       defer:
-        NoCacheAtAll(
-          ZIO.service[FileSystem].run,
-          Ref.make(0).run
+        FSLive(Ref.make(0).run)
+// /Invisible
+
+case class ServiceUncached(files: CloudStorage)
+    extends PopularService:
+  override def retrieve(
+      name: Path
+  ): ZIO[Any, Nothing, FileContents] =
+    defer:
+      files.expensiveDownload(name).run
+
+object ServiceUncached:
+  val live =
+    ZLayer.fromZIO:
+      defer:
+        ServiceUncached(
+          ZIO.service[CloudStorage].run
         )
 
-case class ServiceThatCanHandleThunderingHerds(
+// TODO Do we care about this level of indirection?
+case class ServiceCached(
     cache: Cache[Path, Nothing, FileContents]
 ) extends PopularService:
-  override def retrieveContents(
+  override def retrieve(
       name: Path
   ): ZIO[Any, Nothing, FileContents] =
     cache.get(name)
 
-  override val misses: ZIO[Any, Nothing, Int] =
-    defer:
-      cache.cacheStats.run.misses.toInt
-
-object ServiceThatCanHandleThunderingHerds:
+object ServiceCached:
   val make =
     defer:
-      val retrievalFunction =
-        ZIO
-          .service[FileSystem]
-          .map(_.readFileExpensive)
-          .run
       val cache
           : Cache[Path, Nothing, FileContents] =
         Cache
           .make(
             capacity = 100,
             timeToLive = Duration.Infinity,
-            lookup = Lookup(retrievalFunction)
+            lookup =
+              Lookup((key: Path) =>
+                ZIO.serviceWithZIO[CloudStorage]:
+                  _.expensiveDownload(key)
+              )
           )
           .run
-      ServiceThatCanHandleThunderingHerds(cache)
-end ServiceThatCanHandleThunderingHerds
+      ServiceCached(cache)
+
+```
+
+
+### experiments/src/main/scala/concurrency/Invisible.scala
+```scala
+package concurrency
+
+import zio.Console.printLine
+
+import java.nio.file.Path
+
+// TODO Figure if these functions belong in the object instead.
+case class FSLive(requests: Ref[Int])
+    extends CloudStorage:
+  def expensiveDownload(
+      name: Path
+  ): ZIO[Any, Nothing, FileContents] =
+    defer:
+      // TODO Delete this when we are confident
+      // we only care about the invoice
+      printLine("Reading from FileSystem")
+        .orDie
+        .run
+      requests.update(_ + 1).run
+
+      ZIO.sleep(2.seconds).run
+      FSLive.hardcodedContents
+
+  val invoice: ZIO[Any, Nothing, String] =
+    requests
+      .get
+      .map(count => "Amount owed: $" + count)
+
+object FSLive:
+  val hardcodedContents =
+    FileContents(
+      List("viralImage1", "viralImage2")
+    )
 
 ```
 
