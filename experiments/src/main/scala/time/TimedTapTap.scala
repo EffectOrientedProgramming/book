@@ -1,9 +1,9 @@
 package time
 
 val longRunning =
-  defer:
-    ZIO.sleep(5.seconds).run
-    Console.printLine("done").run
+  Console
+    .printLine("done")
+    .delay(5.seconds)
 
 val runningNotifier =
   defer:

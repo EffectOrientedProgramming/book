@@ -7,13 +7,13 @@ def createProcess(
   defer:
     ZIO.debug(s"Beginning $label").run
     innerProcess.run
-    ZIO.debug(s"Completed $label").run
-    // TODO Consider rewriting to avoid
-    // dot-chaining on block
+    ZIO.sleep:
+      Duration.Infinity
+    .run
   .onInterrupt(ZIO.debug(s"Interrupt $label"))
 
 object CancellationTree extends ZIOAppDefault:
-  def spawnLevel(
+  def spawnChildren(
       level: Int,
       limit: Int,
       parent: String
@@ -27,23 +27,18 @@ object CancellationTree extends ZIOAppDefault:
 
         createProcess(
           label,
-          defer:
-            ZIO
-              .when(level < limit):
-                spawnLevel(
-                  level + 1,
-                  limit,
-                  label
-                )
-              .unit
-              .run
-            ZIO.sleep:
-              Duration.Infinity
-            .run
+          ZIO
+            .when(level < limit):
+              spawnChildren(
+                level + 1,
+                limit,
+                label
+              )
+            .unit
         )
       )
       .unit
 
   def run =
-    spawnLevel(0, 1, "Root").timeout(1.seconds)
+    spawnChildren(0, 1, "Root").timeout(1.seconds)
 end CancellationTree

@@ -10,9 +10,9 @@ object FeedLinesDemo extends ZIOSpecDefault:
         assertCompletes
 
 object ExampleConsoleSpec extends ZIOSpecDefault:
-  val promptForUsername = ZIO.succeed("Zeb")
   def notificationFor(username: String) =
     ZIO.succeed("Meeting @ 9")
+    
   def spec =
     test("console IO"):
       defer:

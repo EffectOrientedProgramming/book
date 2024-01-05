@@ -28,29 +28,22 @@ def checkAnswerZSplit(
     answer: Int,
     guess: String
 ): ZIO[Any, Nothing, String] =
-  parse(guess)
-    .map(i =>
-      if answer == i then
-        "You got it!"
-      else
-        s"BZZ Wrong!!"
-    )
-    .merge
-
-val sideEffectingGuessingGame =
-  defer:
-    Console.print(prompt).run
-    val answer =
-      scala.util.Random.between(low, high)
-    println("Side effecting random #: " + answer)
-    val guess = Console.readLine.run
-    checkAnswer(answer, guess)
+  parse:
+    guess
+  .map(i =>
+    if answer == i then
+      "You got it!"
+    else
+      s"BZZ Wrong!!"
+  )
+  .merge
 
 val effectfulGuessingGame =
-  defer {
-    Console.print(prompt).run
+  defer:
+    Console.print:
+      prompt
+    .run
     val answer =
       Random.nextIntBetween(low, high).run
     val guess = Console.readLine.run
     checkAnswerZSplit(answer, guess).run
-  }
