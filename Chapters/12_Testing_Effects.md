@@ -31,7 +31,6 @@ You can preload "Random" data that will result in deterministic behavior.
 ZIO gives you built-in methods to support this.
 
 ```scala mdoc:silent
-import zio.test.TestRandom
 
 TestRandom.feedBooleans(true, false)
 TestRandom.feedBytes(Chunk(1, 2, 3))
