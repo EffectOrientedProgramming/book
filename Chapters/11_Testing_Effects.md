@@ -1,4 +1,4 @@
-## Testing Unpredictable Effects
+# Testing Effects
 
 Effects need access to external systems thus are unpredictable.  
 Tests are ideally predictable so how do we write tests for effects that are predictable?
