@@ -40,16 +40,12 @@ case class ServiceUncached(files: CloudStorage)
   override def retrieve(
       name: Path
   ): ZIO[Any, Nothing, FileContents] =
-    defer:
-      files.expensiveDownload(name).run
+    files.expensiveDownload(name)
 
 object ServiceUncached:
   val live =
-    ZLayer.fromZIO:
-      defer:
-        ServiceUncached(
-          ZIO.service[CloudStorage].run
-        )
+    ZLayer.fromFunction:
+      ServiceUncached.apply
 
 // TODO Do we care about this level of indirection?
 case class ServiceCached(

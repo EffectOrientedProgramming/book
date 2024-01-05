@@ -33,7 +33,7 @@ class MutableRNG(var seed: Int):
 
 ```scala
 val rng = MutableRNG(1)
-// rng: MutableRNG = repl.MdocSession$MdocApp$MutableRNG@158782e5
+// rng: MutableRNG = repl.MdocSession$MdocApp$MutableRNG@1232f6eb
 rng.nextInt()
 // res0: Int = 357
 rng.nextInt()
@@ -46,7 +46,7 @@ Let's see what happens if we make a new instance with the same seed.
 
 ```scala
 val rngDuplicate = MutableRNG(1)
-// rngDuplicate: MutableRNG = repl.MdocSession$MdocApp$MutableRNG@725436f3
+// rngDuplicate: MutableRNG = repl.MdocSession$MdocApp$MutableRNG@48cf0d7a
 rngDuplicate.nextInt()
 // res3: Int = 357
 rngDuplicate.nextInt()
@@ -137,104 +137,6 @@ TestRandom.clearBytes
 
  
 
-### experiments/src/main/scala/random/DiceRolling.scala
-```scala
-package random
-
-import scala.util.Random
-
-def rollDice(): Int = Random.nextInt(6) + 1
-
-@main
-def randNumEx =
-  println(rollDice())
-  println(rollDice())
-
-enum GameState:
-  case InProgress(roundResult: String)
-  case Win
-  case Lose
-
-def scoreRound(input: Int): GameState =
-  input match
-    case 6 =>
-      GameState.Win
-    case 1 =>
-      GameState.Lose
-    case _ =>
-      GameState.InProgress("Attempt: " + input)
-
-def fullRound(): GameState =
-  val roll = rollDice()
-  scoreRound(roll)
-
-@main
-def playASingleRound() = println(fullRound())
-
-val rollDiceZ: ZIO[Any, Nothing, Int] =
-  zio.Random.nextIntBetween(1, 7)
-
-import zio.{ZIO, ZIOAppDefault}
-object RollTheDice extends ZIOAppDefault:
-  val logic = rollDiceZ.debug
-
-  def run = logic
-
-val fullRoundZ: ZIO[Any, Nothing, GameState] =
-  rollDiceZ.map(scoreRound)
-
-// The problem above is that you can test the winner logic completely separate from the random number generator.
-// The next example cannot be split so easily.
-
-import zio.Ref
-
-val threeChances =
-  defer {
-    val remainingChancesR = Ref.make(3).run
-    val gameState =
-      Ref
-        .make[GameState](
-          GameState.InProgress("Starting")
-        )
-        .run
-
-    while (
-      gameState.get.run == GameState.InProgress
-    ) {
-      rollDiceZ.run
-      val remainingChances =
-        remainingChancesR.getAndUpdate(_ - 1).run
-      if (remainingChances == 0)
-        gameState.set(GameState.Lose).run
-    }
-
-    val finalGameState =
-      gameState
-        .get
-        .run // note: this has to be outside the debug parameter
-    ZIO
-      .debug(
-        "Final game result: " + finalGameState
-      )
-      .run
-  }
-
-/* Rewrite these as test cases using the standard
- * zio.Random
- *
- * object ThreeChances extends ZIOAppDefault:
- * def run =
- * threeChances.provide(
- * RandomBoundedIntFake.apply(Seq(2, 5, 6)) )
- *
- * object LoseInTwoChances extends ZIOAppDefault:
- * def run =
- * threeChances.provide(
- * RandomBoundedIntFake.apply(Seq(2, 1)) ) */
-
-```
-
-
 ### experiments/src/main/scala/random/RandomGuessingGame.scala
 ```scala
 package random
@@ -267,32 +169,25 @@ def checkAnswerZSplit(
     answer: Int,
     guess: String
 ): ZIO[Any, Nothing, String] =
-  parse(guess)
-    .map(i =>
-      if answer == i then
-        "You got it!"
-      else
-        s"BZZ Wrong!!"
-    )
-    .merge
-
-val sideEffectingGuessingGame =
-  defer:
-    Console.print(prompt).run
-    val answer =
-      scala.util.Random.between(low, high)
-    println("Side effecting random #: " + answer)
-    val guess = Console.readLine.run
-    checkAnswer(answer, guess)
+  parse:
+    guess
+  .map(i =>
+    if answer == i then
+      "You got it!"
+    else
+      s"BZZ Wrong!!"
+  ).merge
 
 val effectfulGuessingGame =
-  defer {
-    Console.print(prompt).run
+  defer:
+    Console
+      .print:
+        prompt
+      .run
     val answer =
       Random.nextIntBetween(low, high).run
     val guess = Console.readLine.run
     checkAnswerZSplit(answer, guess).run
-  }
 
 ```
 

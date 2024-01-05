@@ -83,26 +83,25 @@ object TimeIgnorant:
         ZIO
           .getOrFailWith(
             "Must call summary before posts"
-          )(summaryCalledTime)
+          ):
+            summaryCalledTime
           .run
       ZIO
-        .debug("Summary called: " + timeStamp)
+        .debug:
+          "Summary called: " + timeStamp
         .run
       ZIO
         .when(
           Duration
             .between(timeStamp, Instant.now)
             .compareTo(Duration.ofSeconds(1)) > 0
-        )(
-          ZIO.debug(
+        ):
+          ZIO.debug:
             "Significant delay between calls. Results are skewed!"
-          )
-        )
         .run
       ZIO
-        .debug(
+        .debug:
           "Getting posts:  " + executionTimeStamp
-        )
         .run
       Seq(Post("Hello!"), Post("Goodbye!"))
     }
@@ -128,9 +127,7 @@ object DemoSyncIssues extends ZIOAppDefault:
 package time
 
 val longRunning =
-  defer:
-    ZIO.sleep(5.seconds).run
-    Console.printLine("done").run
+  Console.printLine("done").delay(5.seconds)
 
 val runningNotifier =
   defer:
