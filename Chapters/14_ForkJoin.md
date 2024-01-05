@@ -1,32 +1,36 @@
-# Concurrency Low Level
+# Concurrency Fork Join
 
-1. Fork join
-1. Throwaway reference to STM
+Programs that need to perform multiple operations at the same time may need to utilize a technique called "fork/join" where operations are explicitly "forked" creating two parallel contexts of execution.  Usually fork is used so that overall progress of multiple operations can happen faster than if they were done sequentially.  If the output of the fork is needed by the originator of the fork, then a join is used to bring the two parallel operations back together.
 
-TODO Prose
-
+An example operation that makes it easy to visualize fork/join is one that sleeps for some amount of time, then prints how long it actually slept for, and then returns that elapsed time:
 ```scala mdoc
 def sleepThenPrint(
     d: Duration
 ): ZIO[Any, java.io.IOException, Duration] =
   defer {
-    ZIO.sleep(d).run
-    println(s"${d.render} elapsed")
-    d
+    val elapsed = ZIO.sleep(d).timed.run
+    Console.println(s"${elapsed.render} elapsed").run
+    elapsed
   }
 ```
 
+With ZIO we can fork the `sleepThenPrint` effect with two durations and verify that they in-fact run in parallel as the shorter duration that is forked after the longer one, prints before the longer one:
 ```scala mdoc
 runDemo(
   defer {
     val f1 = sleepThenPrint(2.seconds).fork.run
     val f2 = sleepThenPrint(1.seconds).fork.run
-    f1.join.run
-    f2.join.run
+    f1.join.debug.run
+    f2.join.debug.run
   }
 )
 ```
 
+The joins cause the main execution to "wait" until both effects have completed before continuing.
+
+A variation of fork that can be used for operations which do not need to be joined is `forkDaemon` which is typically used for long-running background processes.
+
+Bill:
 
 ZIO is based on the fork/join model of concurrency, utilizing fibers for computations.
 Most of the time, you will not need to create fibers directly.
