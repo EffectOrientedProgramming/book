@@ -1,6 +1,6 @@
 # Repeats
 
-## Number of occurances
+## Number of occurences
 
 ## Spacing/timing of repeats
 

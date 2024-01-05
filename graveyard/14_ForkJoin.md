@@ -1,8 +1,13 @@
 # Concurrency Fork Join
 
-Programs that need to perform multiple operations at the same time may need to utilize a technique called "fork/join" where operations are explicitly "forked" creating two parallel contexts of execution.  Usually fork is used so that overall progress of multiple operations can happen faster than if they were done sequentially.  If the output of the fork is needed by the originator of the fork, then a join is used to bring the two parallel operations back together.
+Programs that need to perform multiple operations at the same time may need to utilize a technique called "fork/join" where 
+operations are explicitly "forked" creating two parallel contexts of execution.  
+Usually fork is used so that overall progress of multiple operations can happen faster than if they were done sequentially.  
 
-An example operation that makes it easy to visualize fork/join is one that sleeps for some amount of time, then prints how long it actually slept for, and then returns that elapsed time:
+If we want to ensure the fork completes, then a join is used to bring the two parallel operations back together.
+
+An example operation that makes it easy to visualize fork/join is one that sleeps for some amount of time, 
+then prints how long it actually slept for, and then returns that elapsed time:
 ```scala mdoc
 def sleepThenPrint(
     d: Duration
@@ -14,14 +19,18 @@ def sleepThenPrint(
   }
 ```
 
-With ZIO we can fork the `sleepThenPrint` effect with two durations and verify that they in-fact run in parallel as the shorter duration that is forked after the longer one, prints before the longer one:
+With ZIO we can fork the `sleepThenPrint` effect with two durations and verify that they in-fact run in parallel as 
+the shorter duration that is forked after the longer one, prints before the longer one:
 ```scala mdoc
 runDemo(
+  ZIO.foreachPar(List(2.seconds, 1.seconds)):
+    sleepThenPrint
+    
   defer {
     val f1 = sleepThenPrint(2.seconds).fork.run
     val f2 = sleepThenPrint(1.seconds).fork.run
-    f1.join.debug.run
-    f2.join.debug.run
+    f1.join.run
+    f2.join.run
   }
 )
 ```

@@ -45,13 +45,19 @@ TODO Values to convey:
 - Layer Resourcefulness
    - Layers can have setup & teardown (open & close)
 
+## TODO Rewrite this without 
 
 ```scala mdoc:silent
+
 // Explain private constructor approach
 case class Dough private ()
 
+case class Kitchen(dough: Dough):
+  val letRise: ZIO[Any, Nothing, Unit] =
+    ZIO.debug("Dough is rising")
+
 object Dough:
-  val letRise: ZIO[Dough, Nothing, Unit] =
+  val letRise: zio[Dough, Nothing, Unit] =
     ZIO.debug("Dough is rising")
 
   val fresh: ZLayer[Any, Nothing, Dough] =

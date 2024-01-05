@@ -61,8 +61,7 @@ object AllTheThings extends ZIOAppDefault:
 
   def asyncThing(i: Int) = ZIO.sleep(i.seconds)
 
-  val resourcefulThing
-      : ZIO[Scope, Nothing, String] =
+  val resourcefulThing =
     val open =
       defer:
         Console.printLine("open").orDie.run
