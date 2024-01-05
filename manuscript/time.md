@@ -1,38 +1,4 @@
-# Time
-
-Time based functions are effectful because they
-rely on a variable that is constantly changing.
-
-
-Your program displays 2 sections:
-    Summary
-        -Time range
-        -totalNumberOfTransactions 
-        -All Participants
-
-    Details
-        - List[Transaction]
-        
-Show how these can be out of sync with unprincipled `Clock` access
-
-`.now()`
-
-How often it is overlooked/minimized
-"Race Condition" vs "race operation"
-Example possibilities
-    - Progress bar
-    - query(largeRange) followed by query(smallRange), and getting new results in the 2nd call
-
-## Edit This Chapter
-[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/time.md)
-
-
-## Automatically attached experiments.
- These are included at the end of this
- chapter because their package in the
- experiments directory matched the name
- of this chapter. Enjoy working on the
- code with full editor capabilities :D
+## time
 
  
 
@@ -143,4 +109,5 @@ object TimedTapTapJames extends ZIOAppDefault:
       lr.join.run
 
 ```
+
 

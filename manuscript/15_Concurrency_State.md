@@ -26,6 +26,11 @@ trait RefZ[A]:
   def update(a: A => A): ZIO[Any, Nothing, Unit]
 ```
 
+In order to confidently use this, we need certain guarantees about the behavior:
+
+- The underlying value cannot be changed during a read
+- Multiple writes cannot happen concurrently, which would result in lost updates
+
 Less obviously, we also need to create the Mutable reference itself.
 We are changing the world, by creating a space that we can manipulate.
 This operation can live in the companion object:
@@ -36,10 +41,6 @@ object RefZ:
     ???
 ```
 
-In order to confidently use this, we need certain guarantees about the behavior:
-
-- The underlying value cannot be changed during a read
-- Multiple writes cannot happen concurrently, which would result in lost updates
 
 ## Unreliable Counting
 
@@ -52,18 +53,18 @@ val unreliableCounting =
 
   defer:
     ZIO
-      // TODO Get scalafmt to put `_ =>` on a new
-      // line
       .foreachParDiscard(Range(0, 100000)): _ =>
         increment
       .run
+    // It's not obvious to the reader why
+    // we need to wrap counter in .succeed
     "Final count: " + ZIO.succeed(counter).run
 ```
 
 ```scala
 runDemo:
   unreliableCounting
-// Final count: 99582
+// Final count: 99425
 ```
 
 Due to the unpredictable nature of shared mutable state, we do not know exactly what the final count above is.
@@ -201,6 +202,7 @@ This correctness comes with a cost though, as the name of this type implies.
 Each of your updates will run sequentially, despite initially launching them all in parallel.
 This is the only known way to avoid retries.
 Try to structure your code to minimize the coupling between effects and updates, and use this type only when necessary.
+
 
 ## Edit This Chapter
 [Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/15_Concurrency_State.md)

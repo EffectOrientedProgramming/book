@@ -1,0 +1,55 @@
+## The ZIO Type
+
+
+We need an `Answer` about this scenario.  The scenario requires things and could produce an error.
+```
+trait ZIO[Requirements, Error, Answer]
+```
+
+
+The `ZIO` trait is at the center of our Effect-oriented world.
+
+```scala
+trait ZIO[R, E, A]
+```
+
+A trait with 3 type parameters can be intimidating, but each one serves a distinct, important purpose.
+
+## R - The Environment
+
+This is the piece that distinguishes the ZIO monad.
+It indicates which pieces of the world we will be observing or changing.
+
+```scala
+import zio.Console
+
+def print(
+    msg: String
+): ZIO[Console, Nothing, Unit] = ???
+```
+
+This type signature tells us that `print` needs a `Console` in its environment to execute.
+
+## E - The Error
+
+This parameter tells us how this operation might fail.
+
+```scala
+def parse(
+    contents: String
+): ZIO[Any, IllegalArgumentException, Unit] = ???
+```
+
+## A - The Result
+
+This is what our code will return if it completes successfully.
+
+```scala
+def defaultGreeting()
+    : ZIO[Any, Nothing, String] = ???
+```
+
+
+
+## Edit This Chapter
+[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/08_The_ZIO_Datatype.md)

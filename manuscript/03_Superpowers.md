@@ -5,7 +5,9 @@
     1. Note: Progressive enhancement through adding capabilities 
 1. Concurrency
     1. Race
+      1. "Race Condition" vs "race operation"
     1. Hedge (to show the relationship to OpeningHook ie progressive enhancement)
+1. Resilience
 1. Sequential
     1. ZIO Direct
     1. Note: Combine OpeningHook & Concurrency with ZIO Direct
