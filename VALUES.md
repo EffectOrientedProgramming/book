@@ -22,6 +22,16 @@ ROD!!
 1. Test Oriented Programming (not TDD)
 1. Scala 3 + ZIO 2
 1. Aspirational Programming (???)
+1. Braceless syntax, as much as possible
+
+1. No for comprehensions
+1. No flatmap references
+1. No map references
+
+- Don't mention monads
+
+- runDemo & runSpec to keep examples tight
+    - Rename runTest
 
 
 How much do we get into underlying Monadic / Algebraic Laws?

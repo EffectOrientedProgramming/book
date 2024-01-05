@@ -26,6 +26,31 @@ The `Random` Effect uses an injected something which when running the ZIO uses t
 
 Anything an effect needs (from the system or the environment) can be substituted in tests for something predictable.  For example, an effect that fetches users from a database can be simulated with a predictable set of users instead of having to setup a test database with predictable users.
 
+When your program treats randomness as an effect, testing unusual scenarios becomes straightforward.
+You can preload "Random" data that will result in deterministic behavior.
+ZIO gives you built-in methods to support this.
+
+```scala mdoc:silent
+import zio.test.TestRandom
+
+TestRandom.feedBooleans(true, false)
+TestRandom.feedBytes(Chunk(1, 2, 3))
+TestRandom.feedChars('a', 'b', 'c')
+TestRandom.feedDoubles(1.0, 2.0, 3.0)
+TestRandom.feedFloats(1.0f, 2.0f, 3.0f)
+TestRandom.feedInts(1, 2, 3)
+TestRandom.feedLongs(1L, 2L, 3L)
+TestRandom.feedStrings("a", "b", "c")
+TestRandom.feedUUIDs(
+  java
+    .util
+    .UUID
+    .fromString(
+      "00000000-0000-0000-0000-000000000001"
+    ),
+)
+```
+
 ## Time
 
 Even time can be simulated as using the clock is an effect.

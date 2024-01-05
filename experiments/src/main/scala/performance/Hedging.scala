@@ -8,7 +8,7 @@ object Hedging extends ZIOAppDefault:
     defer:
       val fastResponses =
         Ref.make(0).run
-      val slowResponses =
+      val contractBreaches =
         Ref.make(0).run
 
       ZIO
@@ -17,24 +17,26 @@ object Hedging extends ZIOAppDefault:
             defer:
               Response
                 .random
-                // .hedge(25.millis)
+                  .hedge(25.millis)
                 .run match
                 case Response.Fast =>
                   fastResponses.update(_ + 1).run
                 case Response.BreachOfContract =>
-                  slowResponses.update(_ + 1).run
+                  contractBreaches.update(_ + 1).run
         .run
 
       fastResponses.get
         .debug("Fast responses")
         .run
-      slowResponses
+      contractBreaches
         .get
         .debug("Slow responses")
         .run
 
 end Hedging
 
+// TODO Does Hedging belong in the Composability chapter?
+//   Defining extension methods that fit smoothly into your flows is impressive and should be shown somewhere.
 extension [R, E, A](z: ZIO[R, E, A])
   def hedge(
              wait: zio.Duration,

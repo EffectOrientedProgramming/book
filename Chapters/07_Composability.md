@@ -148,55 +148,25 @@ runDemo:
 ....
 
 
-TODO Make this a separate chapter. Again.
-## The ZIO Type
+## Hedging 
+TODO Determine final location for Hedging
+### Why?
+This technique snips off the most extreme end of the latency tail.
+
+Determine the average response time for the top 50% of your requests.
+If you make a call that does not get a response within this average delay, make an additional, identical request.
+However, you do not give up on the 1st request, since it might respond immediately after sending the 2nd.
+Instead, you want to race them and use the first response you get
+
+To be clear - this technique will not reduce the latency of the fastest requests at all.
+It only alleviates the pain of the slowest responses.
+
+You have `1/n` chance of getting the worst case response time.
+This approach turns that into a `1/n^2` chance.
+The cost of this is only ~3% more total requests made. *Citations needed*
+
+Further, if this is not enough to completely eliminate your extreme tail, you can employ the exact same technique once more.
+Then, you end up with `1/n^3` chance of getting that worst performance.
 
 
-We need an `Answer` about this scenario.  The scenario requires things and could produce an error.
-```
-trait ZIO[Requirements, Error, Answer]
-```
-
-
-The `ZIO` trait is at the center of our Effect-oriented world.
-
-```scala
-trait ZIO[R, E, A]
-```
-
-A trait with 3 type parameters can be intimidating, but each one serves a distinct, important purpose.
-
-## R - The Environment
-
-This is the piece that distinguishes the ZIO monad.
-It indicates which pieces of the world we will be observing or changing.
-
-```scala mdoc
-import zio.Console
-
-def print(
-    msg: String
-): ZIO[Console, Nothing, Unit] = ???
-```
-
-This type signature tells us that `print` needs a `Console` in its environment to execute.
-
-## E - The Error
-
-This parameter tells us how this operation might fail.
-
-```scala mdoc
-def parse(
-    contents: String
-): ZIO[Any, IllegalArgumentException, Unit] = ???
-```
-
-## A - The Result
-
-This is what our code will return if it completes successfully.
-
-```scala mdoc
-def defaultGreeting()
-    : ZIO[Any, Nothing, String] = ???
-```
 

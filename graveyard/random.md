@@ -65,43 +65,6 @@ You can produce random data more efficiently by
 
 You can even subscribe to services that combine all of these techniques to produce random data.
 
-## Predictable Randomness
-When your program treats randomness as an effect, testing unusual scenarios becomes straightforward.
-You can preload "Random" data that will result in deterministic behavior.
-ZIO gives you built-in methods to support this.
-
-```scala mdoc:silent
-import zio.test.TestRandom
-
-TestRandom.feedBooleans(true, false)
-TestRandom.feedBytes(Chunk(1, 2, 3))
-TestRandom.feedChars('a', 'b', 'c')
-TestRandom.feedDoubles(1.0, 2.0, 3.0)
-TestRandom.feedFloats(1.0f, 2.0f, 3.0f)
-TestRandom.feedInts(1, 2, 3)
-TestRandom.feedLongs(1L, 2L, 3L)
-TestRandom.feedStrings("a", "b", "c")
-TestRandom.feedUUIDs(
-  java
-    .util
-    .UUID
-    .fromString(
-      "00000000-0000-0000-0000-000000000000"
-    ),
-  java
-    .util
-    .UUID
-    .fromString(
-      "00000000-0000-0000-0000-000000000001"
-    ),
-  java
-    .util
-    .UUID
-    .fromString(
-      "00000000-0000-0000-0000-000000000002"
-    )
-)
-```
 
 ```scala mdoc
 

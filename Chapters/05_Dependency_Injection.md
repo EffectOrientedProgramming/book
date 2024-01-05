@@ -57,7 +57,7 @@ case class Kitchen(dough: Dough):
     ZIO.debug("Dough is rising")
 
 object Dough:
-  val letRise: zio[Dough, Nothing, Unit] =
+  val letRise: ZIO[Dough, Nothing, Unit] =
     ZIO.debug("Dough is rising")
 
   val fresh: ZLayer[Any, Nothing, Dough] =
