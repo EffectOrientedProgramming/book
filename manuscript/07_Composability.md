@@ -1,4 +1,81 @@
-# Composability
+# Contract-Based Composability
+
+Good contracts make good composability.
+
+contracts are what makes composability work at scale
+our effects put in place contracts on how things can compose
+exceptions do not put in place a contract
+
+maybe something about how exceptions do not convey a contract in either direction. Anything can be wrapped with a try.  Things that produce exceptions don't need to be wrapped with trys.
+
+possible example of Scope for Environment contracts
+
+possible contract on provide for things not needed
+
+```scala
+ZIO.succeed("asdf")
+  .someOrFail("error")
+// error:
+// 
+// This operator requires that the output type be a subtype of Option[Any]
+// But the actual type was String..
+// I found:
+// 
+//     IsSubtypeOfOutput.impl[A, B](/* missing */summon[A <:< B])
+// 
+// But no implicit values were found that match type A <:< B.
+// def logAndProvideDefault(e: Throwable) =
+//
+```
+
+this works as the contract is that the
+
+
+```scala
+ZIO.succeed(maybeThing())
+  .someOrFail("error")
+// res1: ZIO[Any, String, Unit] = OnSuccess(
+//   trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:20)",
+//   first = Sync(
+//     trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:19)",
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$15962/0x00000008040a1440@49e1f2e0
+//   ),
+//   successK = zio.ZIO$$Lambda$17148/0x00000008042c6840@ed8e39e
+// )
+```
+
+
+```scala
+ZIO.succeed(println("Always gonna work"))
+  .retryN(100)
+// error:
+// This error handling operation assumes your effect can fail. However, your effect has Nothing for the error type, which means it cannot fail, so there is no need to handle the failure. To find out which method you can use instead of this operation, please see the reference chart at: https://zio.dev/can_fail.
+// I found:
+// 
+//     CanFail.canFail[E](/* missing */summon[util.NotGiven[E =:= Nothing]])
+// 
+// But no implicit values were found that match type util.NotGiven[E =:= Nothing].
+// def logAndProvideDefault(e: Throwable) =
+//
+```
+
+```scala
+ZIO.attempt(println("This might work"))
+  .retryN(100)
+// res3: ZIO[Any, Throwable, Unit] = OnSuccess(
+//   trace = "repl.MdocSession.MdocApp.res3(07_Composability.md:34)",
+//   first = Sync(
+//     trace = "repl.MdocSession.MdocApp.res3(07_Composability.md:34)",
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$15962/0x00000008040a1440@b97ca29
+//   ),
+//   successK = zio.ZIO$$$Lambda$15964/0x00000008040a6840@4de40c80
+// )
+```
+
+is this about surfacing the hidden information through a "bookkeeper" that conveys the
+constraints to the caller
+
+
 
 An essential part of creating programs is the ability to combine small pieces into larger pieces.  
 Different languages / paradigms provide different ways to accomplish these combinations.  
@@ -7,9 +84,6 @@ Functions can be combined by creating new functions that call other functions.
 These are types of "composition" but these traditional approaches do not address all of the aspects of a program.
 
 For example, functions that use resources which need to be opened and closed, do not compose.
-
-
-
 
 ZIOs compose including errors, async, blocking, resource managed, cancellation, eitherness, environmental requirements.
 
@@ -162,6 +236,9 @@ The cost of this is only ~3% more total requests made. *Citations needed*
 
 Further, if this is not enough to completely eliminate your extreme tail, you can employ the exact same technique once more.
 Then, you end up with `1/n^3` chance of getting that worst performance.
+
+
+
 
 
 
