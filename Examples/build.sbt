@@ -1,6 +1,6 @@
 ThisBuild / scalaVersion := "3.3.1"
 
-val zioVersion = "2.0.19"
+val zioVersion = "2.0.21"
 
 lazy val mdoctools = (project in file("mdoctools"))
   .settings(
