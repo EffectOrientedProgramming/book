@@ -6,7 +6,7 @@ A common mistake when starting with ZIO is trying to return ZIO instances themse
 
 ```scala
 println(Random.nextInt)
-// Stateful(repl.MdocSession.MdocApp.res0(10_Running_Effects.md:8),zio.FiberRef$unsafe$$anon$2$$Lambda$17212/0x0000000804427840@3751bf74)
+// Stateful(repl.MdocSession.MdocApp.res0(10_Running_Effects.md:8),zio.FiberRef$unsafe$$anon$2$$Lambda$17290/0x0000000804387840@7ea6842e)
 ```
 We will not see a random number printed out; we see some inscrutable type information.
 
