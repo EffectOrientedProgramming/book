@@ -7,7 +7,7 @@ addSbtPlugin(
 )
 
 addSbtPlugin(
-  "org.scalameta" % "sbt-mdoc" % "2.5.1"
+  "org.scalameta" % "sbt-mdoc" % "2.5.2"
 )
 
 addSbtPlugin(
@@ -34,7 +34,7 @@ addSbtPlugin(
 //  .dependsOn(MdToSourcePlugin)
 
 libraryDependencies +=
-  "org.scalameta" %% "mdoc" % "2.5.1"
+  "org.scalameta" %% "mdoc" % "2.5.2"
 
 ThisBuild / libraryDependencySchemes ++=
   Seq(
