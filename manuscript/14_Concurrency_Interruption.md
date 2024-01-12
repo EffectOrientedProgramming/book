@@ -35,7 +35,7 @@ runDemo:
     .run
 // About to sleep forever
 // Interrupted the eternal sleep
-// zio.internal.FiberRuntime@5fb18c3a
+// zio.internal.FiberRuntime@6c8b6585
 ```
 
 If we encounter an error between forking and joining, the fibers will also be interrupted.
@@ -106,7 +106,7 @@ runDemo:
     .timed
     .debug("Time:")
     .run
-// (PT2.724655906S,None)
+// (PT2.288867344S,None)
 ```
 We can see 2 significant behaviors here:
 
