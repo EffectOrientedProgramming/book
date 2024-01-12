@@ -417,10 +417,10 @@ object BuildTooling {
       "io.getquill" %% "quill-zio"   % "4.8.0",
       "dev.zio"     %% "zio-process" % "0.7.2",
       "dev.zio" %% "zio-direct" % "1.0.0-RC7",
-      "dev.zio" %% "zio-schema" % "0.4.16",
-      "dev.zio" %% "zio-schema-json" % "0.4.16",
+      "dev.zio" %% "zio-schema" % "0.4.17",
+      "dev.zio" %% "zio-schema-json" % "0.4.17",
       "dev.zio" %% "zio-schema-derivation" %
-        "0.4.16"
+        "0.4.17"
       // "org.scala-lang" % "scala-reflect" %
       // scalaVersion.value % "provided"
 //    "dev.zio" %% "zio-direct-streams" % "1.0.0-RC7" // TODO Enable when on the ground :(
