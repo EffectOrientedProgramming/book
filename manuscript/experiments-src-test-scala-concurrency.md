@@ -10,8 +10,7 @@ import zio.test.*
 
 import java.nio.file.Path
 
-object CacheSpec
-    extends ZIOSpecDefault:
+object CacheSpec extends ZIOSpecDefault:
   val thunderingHerdsScenario =
     defer {
       // TODO Bigger list of random users.
@@ -37,10 +36,13 @@ object CacheSpec
 
       val logicFork = herdBehavior.fork.run
       TestClock.adjust(2.seconds).run
-      val res: List[FileContents] = logicFork.join.run
+      val res: List[FileContents] =
+        logicFork.join.run
       val costToOperate: String =
         ZIO
-          .serviceWithZIO[CloudStorage](_.invoice)
+          .serviceWithZIO[CloudStorage](
+            _.invoice
+          )
           .run
       (res, costToOperate)
 
@@ -53,7 +55,8 @@ object CacheSpec
         "classic happy path using zio-cache library"
       ) {
         defer:
-          val (res, costToOperate) = thunderingHerdsScenario.run
+          val (res, costToOperate) =
+            thunderingHerdsScenario.run
           assertTrue(
             costToOperate == "Amount owed: $1",
             res.forall(singleResult =>
@@ -63,16 +66,12 @@ object CacheSpec
           )
       }.provide(
         CloudStorage.live,
-        ZLayer.fromZIO(
-          ServiceCached
-            .make
-        )
+        ZLayer.fromZIO(ServiceCached.make)
       ),
-      test(
-        "sad path using no caching"
-      ) {
+      test("sad path using no caching") {
         defer:
-          val (res, costToOperate) = thunderingHerdsScenario.run
+          val (res, costToOperate) =
+            thunderingHerdsScenario.run
           assertTrue(
             costToOperate == "Amount owed: $4",
             res.forall(singleResult =>
@@ -83,7 +82,7 @@ object CacheSpec
       }.provide(
         CloudStorage.live,
         ServiceUncached.live
-        )
+      )
     ) @@ TestAspect.withLiveClock
 end CacheSpec
 

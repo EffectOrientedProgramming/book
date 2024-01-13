@@ -21,21 +21,23 @@ If an operation is forked, and we exit the scope that created it without joining
 ```scala
 runDemo:
   defer:
-    ZIO.debug:
-      "About to sleep forever"
-    .run
-    ZIO.sleep:
-      Duration.Infinity
-    .onInterrupt:
-      ZIO.succeed:
-        // More mdoc console weirdness :(
-        println: 
-          "Interrupted the eternal sleep"
-    .fork
-    .run
+    ZIO
+      .debug:
+        "About to sleep forever"
+      .run
+    ZIO
+      .sleep:
+        Duration.Infinity
+      .onInterrupt:
+        ZIO.succeed:
+          // More mdoc console weirdness :(
+          println:
+            "Interrupted the eternal sleep"
+      .fork
+      .run
 // About to sleep forever
 // Interrupted the eternal sleep
-// zio.internal.FiberRuntime@6ed8a122
+// zio.internal.FiberRuntime@5c8da8e8
 ```
 
 If we encounter an error between forking and joining, the fibers will also be interrupted.
@@ -43,16 +45,18 @@ If we encounter an error between forking and joining, the fibers will also be in
 ```scala
 // TODO Define this in a more generic location?
 def createProcess(
-                   label: String,
-                   innerProcess: ZIO[Any, Nothing, Unit]
-                 ) =
+    label: String,
+    innerProcess: ZIO[Any, Nothing, Unit]
+) =
   defer:
     ZIO.debug(s"Beginning $label").run
     innerProcess.run
     ZIO.debug(s"Completed $label").run
-  // TODO Consider rewriting to avoid
-  // dot-chaining on block
-  .onInterrupt(ZIO.succeed(println(s"Interrupt $label")))
+    // TODO Consider rewriting to avoid
+    // dot-chaining on block
+  .onInterrupt(
+    ZIO.succeed(println(s"Interrupt $label"))
+  )
 ```
 
 ```scala
@@ -96,17 +100,16 @@ runDemo:
   defer:
     val leven =
       LevenshteinDistance.getDefaultInstance
-    val input =
-      Random.nextString(20_000).run
-    val target =
-      Random.nextString(20_000).run
-    ZIO.succeed:
-      leven(input, target)
-    .timeout(1.seconds)
-    .timed
-    .debug("Time:")
-    .run
-// (PT2.329968313S,None)
+    val input  = Random.nextString(20_000).run
+    val target = Random.nextString(20_000).run
+    ZIO
+      .succeed:
+        leven(input, target)
+      .timeout(1.seconds)
+      .timed
+      .debug("Time:")
+      .run
+// (PT1.962621123S,None)
 ```
 We can see 2 significant behaviors here:
 

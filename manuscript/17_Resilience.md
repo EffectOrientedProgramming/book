@@ -6,7 +6,7 @@ If we want to ensure we don't accidentally DDOS a service, we can restrict the n
 
 ```scala
 trait DelicateResource:
-    val request: ZIO[Any, String, Int]
+  val request: ZIO[Any, String, Int]
 ```
 
 
@@ -16,13 +16,15 @@ runDemo:
     ZIO
       .foreachPar(1 to 10): _ =>
         //          bulkhead:
-        ZIO.serviceWithZIO[DelicateResource](_.request)
-    .as("All Requests Succeeded")
-    .catchAll(err => ZIO.succeed(err))
-    .debug
-    .run
+        ZIO.serviceWithZIO[DelicateResource](
+          _.request
+        )
+      .as("All Requests Succeeded")
+      .catchAll(err => ZIO.succeed(err))
+      .debug
+      .run
   .provideSome[Scope]:
-      DelicateResource.live
+    DelicateResource.live
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
 // Killed the server!!
@@ -34,13 +36,13 @@ import nl.vroste.rezilience.Bulkhead
 runDemo:
   defer:
     val bulkhead: Bulkhead =
-      Bulkhead
-        .make(maxInFlightCalls = 3)
-        .run
+      Bulkhead.make(maxInFlightCalls = 3).run
     ZIO
       .foreachPar(1 to 10): _ =>
         bulkhead:
-          ZIO.serviceWithZIO[DelicateResource](_.request)
+          ZIO.serviceWithZIO[DelicateResource](
+            _.request
+          )
       .as("All Requests Succeeded")
       .catchAll(err => ZIO.succeed(err))
       .debug
@@ -51,6 +53,7 @@ runDemo:
 ```
 
 ## Circuit Breaking
+
 
 ## Edit This Chapter
 [Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/17_Resilience.md)

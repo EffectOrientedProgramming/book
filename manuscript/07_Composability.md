@@ -13,8 +13,7 @@ possible example of Scope for Environment contracts
 possible contract on provide for things not needed
 
 ```scala
-ZIO.succeed("asdf")
-  .someOrFail("error")
+ZIO.succeed("asdf").someOrFail("error")
 // error:
 // 
 // This operator requires that the output type be a subtype of Option[Any]
@@ -32,21 +31,21 @@ this works as the contract is that the
 
 
 ```scala
-ZIO.succeed(maybeThing())
-  .someOrFail("error")
+ZIO.succeed(maybeThing()).someOrFail("error")
 // res1: ZIO[Any, String, Unit] = OnSuccess(
 //   trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:20)",
 //   first = Sync(
-//     trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:19)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$17219/0x0000000804307040@7975d595
+//     trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:20)",
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$17163/0x000000080438e440@3ba5eb68
 //   ),
-//   successK = zio.ZIO$$Lambda$18372/0x00000008044fe040@4fb2641c
+//   successK = zio.ZIO$$Lambda$18315/0x000000080471e040@709bf65c
 // )
 ```
 
 
 ```scala
-ZIO.succeed(println("Always gonna work"))
+ZIO
+  .succeed(println("Always gonna work"))
   .retryN(100)
 // error:
 // This error handling operation assumes your effect can fail. However, your effect has Nothing for the error type, which means it cannot fail, so there is no need to handle the failure. To find out which method you can use instead of this operation, please see the reference chart at: https://zio.dev/can_fail.
@@ -60,15 +59,16 @@ ZIO.succeed(println("Always gonna work"))
 ```
 
 ```scala
-ZIO.attempt(println("This might work"))
+ZIO
+  .attempt(println("This might work"))
   .retryN(100)
 // res3: ZIO[Any, Throwable, Unit] = OnSuccess(
-//   trace = "repl.MdocSession.MdocApp.res3(07_Composability.md:34)",
+//   trace = "repl.MdocSession.MdocApp.res3(07_Composability.md:35)",
 //   first = Sync(
-//     trace = "repl.MdocSession.MdocApp.res3(07_Composability.md:34)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$17219/0x0000000804307040@5f548050
+//     trace = "repl.MdocSession.MdocApp.res3(07_Composability.md:35)",
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$17163/0x000000080438e440@76643831
 //   ),
-//   successK = zio.ZIO$$$Lambda$17221/0x0000000804305840@6dbd3427
+//   successK = zio.ZIO$$$Lambda$17165/0x000000080438c040@23ca72fc
 // )
 ```
 
@@ -280,7 +280,7 @@ object AllTheThings extends ZIOAppDefault:
    * You can actually _convert_ everything into
    * nails. */
 
-  /*  Possible scenario:
+  /* Possible scenario:
    * Get headline - Future Analyze for
    * topic/persons of interest - Option Check if
    * we have made an entry for them in today's
@@ -347,8 +347,9 @@ object AllTheThings extends ZIOAppDefault:
       // Future `
       val headline: String =
         ZIO
-          .fromFuture: implicit ec =>
+          .fromFuture { implicit ec =>
             getHeadline()
+          }
           .run
 
       val topic =

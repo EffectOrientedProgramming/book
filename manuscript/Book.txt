@@ -20,9 +20,7 @@
 ExperimentsSection.md
 random.md
 experiments-src-test-scala-random.md
-experiments-src-test-scala-running_effects.md
 zio_helpers.md
-experiments-src-test-scala-test_aspects.md
 async.md
 cancellation.md
 concurrency.md

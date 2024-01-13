@@ -106,6 +106,7 @@ case class FSLive(requests: Ref[Int])
     requests
       .get
       .map(count => "Amount owed: $" + count)
+end FSLive
 
 object FSLive:
   val hardcodedContents =

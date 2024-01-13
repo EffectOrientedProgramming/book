@@ -9,8 +9,6 @@ package rezilience
 import nl.vroste.rezilience.*
 import nl.vroste.rezilience.CircuitBreaker.*
 import zio.{Schedule, ZLayer}
-import java.time.Instant
-import scala.concurrent.TimeoutException
 
 case class Cost(value: Int)
 case class Analysis(content: String)
@@ -23,9 +21,6 @@ object Scenario:
   enum Step:
     case Success,
       Failure
-
-import rezilience.Scenario.Step
-import Scenario.Step.*
 
 object CircuitBreakerDemo extends ZIOAppDefault:
 
@@ -106,7 +101,18 @@ object ExternalSystemProtected:
         Scope.default
       )
 
+```
+
+
+### experiments/src/main/scala/rezilience/CircuitBreakerInvisible.scala
+```scala
+package rezilience
+
+import java.time.Instant
+import scala.concurrent.TimeoutException
+
 // Invisible mdoc fencess
+import Scenario.Step.*
 
 object ExternalSystem:
   val live

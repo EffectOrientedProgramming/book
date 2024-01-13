@@ -32,9 +32,10 @@ object RandomRosencrantsSpec
           TestRandom
             .feedBooleans(Seq.fill(100)(true)*)
             .run
-          ZIO.debug:
-            "*Performance Begins*"
-          .run
+          ZIO
+            .debug:
+              "*Performance Begins*"
+            .run
           coinToss.repeatN(4).run
 
           ZIO
@@ -59,6 +60,7 @@ object RandomRosencrantsSpec
 end RandomRosencrantsSpec
 
 // G: There is an art to building suspense.
+
 ```
 
 
@@ -86,7 +88,6 @@ object RunEffectfulGuessingGameSpec
         ) @@ TestAspect.nonFlaky(10)
       )
     )
-end RunEffectfulGuessingGameSpec
 
 ```
 
