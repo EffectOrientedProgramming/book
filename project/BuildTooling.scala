@@ -403,29 +403,6 @@ object BuildTooling {
          |""".stripMargin)
   }
 
-  def experimentLibrariesThatNeedToBeVettedForInclusionInBook =
-    Seq(
-      "org.apache.commons" % "commons-text" %
-        "1.11.0",
-      "io.github.scottweaver" %%
-        "zio-2-0-testcontainers-postgresql" %
-        "0.10.0",
-      "io.github.scottweaver"        %%
-        "zio-2-0-db-migration-aspect" % "0.10.0",
-      "io.getquill" %% "quill-jdbc-zio" %
-        "4.8.0",
-      "io.getquill" %% "quill-zio"   % "4.8.0",
-      "dev.zio"     %% "zio-process" % "0.7.2",
-      "dev.zio" %% "zio-direct" % "1.0.0-RC7",
-      "dev.zio" %% "zio-schema" % "0.4.17",
-      "dev.zio" %% "zio-schema-json" % "0.4.17",
-      "dev.zio" %% "zio-schema-derivation" %
-        "0.4.17"
-      // "org.scala-lang" % "scala-reflect" %
-      // scalaVersion.value % "provided"
-//    "dev.zio" %% "zio-direct-streams" % "1.0.0-RC7" // TODO Enable when on the ground :(
-    )
-
   // TODO Make a Versions object?
   val zioVersion = "2.0.21"
 
@@ -447,8 +424,6 @@ object BuildTooling {
         Seq(
           "dev.zio" %% "zio"       % zioVersion,
           "dev.zio" %% "zio-cache" % "0.2.3",
-          "dev.zio" %% "zio-concurrent" %
-            zioVersion,
           "dev.zio"     %%
             "zio-direct" % "1.0.0-RC7" excludeAll
             (
@@ -458,21 +433,11 @@ object BuildTooling {
             (
               "com.geirsson",
               "metaconfig-core"
-            ) excludeAll
-            ("org.typelevel", "paiges-core"),
-          "dev.zio" %% "zio-logging" % "2.1.16",
-          "dev.zio" %% "zio-streams" %
-            zioVersion,
+            ),
           "dev.zio"   %% "zio-test" % zioVersion,
           "dev.zio"   %% "zio-test-sbt" %
             zioVersion % Test,
-          "dev.zio"   %% "zio-prelude" %
-            "1.0.0-RC21",
           "nl.vroste" %% "rezilience" % "0.9.4",
-          // TODO Confirm if worth including just
-          // for *1* example
-          "org.apache.commons" % "commons-text" %
-            "1.11.0"
         ),
       scalaVersion := "3.3.1",
       scalacOptions -= "-explain-types",

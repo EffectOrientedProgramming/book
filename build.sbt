@@ -25,18 +25,6 @@ examplesDir := file("Examples/src/main/scala")
 
 examplesHelperDir := file("Examples/mdoctools/src/main/scala")
 
-lazy val illustratedPrimer =
-  (project in file("illustratedPrimer"))
-    .enablePlugins(ScalaJSPlugin)
-    .settings(
-      scalaJSUseMainModuleInitializer := true,
-      libraryDependencies ++= List(
-        "com.raquo" %%% "laminar" % "15.0.0",
-        "com.raquo" %%% "waypoint" % "6.0.0"
-      )
-    )
-
-
 // Tool that lets us re-order numbered markdown chapters
 lazy val booker =
   (project in file("booker"))
@@ -52,7 +40,6 @@ lazy val experiments =
   .settings(
     // TODO I put this in because a valid test is being flagged otherwise.
     scalacOptions -= "-Wunused:locals",
-    libraryDependencies ++= experimentLibrariesThatNeedToBeVettedForInclusionInBook
   )
   .settings(
     scalacOptions +=
@@ -69,6 +56,7 @@ resolvers ++= Resolver.sonatypeOssRepos("snapshots")
 
 lazy val mdoctools = (project in file("mdoctools"))
   .settings(commonSettings)
+//  .settings(libraryDependencies += "org.scalameta" %% "mdoc" % "2.5.2")
 
 lazy val root =
   (project in file("."))

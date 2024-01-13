@@ -88,17 +88,12 @@ For example, when you have a finalizer that needs to free up resources, you need
 Tight loops that aren't performing ZIO operations cannot be interrupted by the ZIO runtime. 
 
 ```scala mdoc
-import org.apache.commons.text.similarity
-import similarity.LevenshteinDistance
+def longOperation() = "**TODO**"
 runDemo:
   defer:
-    val leven =
-      LevenshteinDistance.getDefaultInstance
-    val input  = Random.nextString(20_000).run
-    val target = Random.nextString(20_000).run
     ZIO
       .succeed:
-        leven(input, target)
+        longOperation()
       .timeout(1.seconds)
       .timed
       .debug("Time:")
