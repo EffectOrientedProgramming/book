@@ -31,7 +31,6 @@ You can preload "Random" data that will result in deterministic behavior.
 ZIO gives you built-in methods to support this.
 
 ```scala mdoc:silent
-
 TestRandom.feedBooleans(true, false)
 TestRandom.feedBytes(Chunk(1, 2, 3))
 TestRandom.feedChars('a', 'b', 'c')
@@ -46,7 +45,7 @@ TestRandom.feedUUIDs(
     .UUID
     .fromString(
       "00000000-0000-0000-0000-000000000001"
-    ),
+    )
 )
 ```
 
@@ -58,7 +57,7 @@ Even time can be simulated as using the clock is an effect.
 import zio.test.*
 
 runSpec:
-  val slowOperation = 
+  val slowOperation =
     ZIO.sleep:
       2.seconds
 
@@ -69,13 +68,11 @@ runSpec:
           1.second
         .fork
         .run
-    TestClock.adjust:
-      2.seconds
-    .run
-    val result = 
-      fork
-        .join
-        .run
+    TestClock
+      .adjust:
+        2.seconds
+      .run
+    val result = fork.join.run
     assertTrue:
       result.isEmpty
 ```
@@ -167,7 +164,8 @@ runSpec(
   ,
   TestAspect.around(
     ZIO.debug:
-      "ZIO IO, before",
+      "ZIO IO, before"
+    ,
     ZIO.succeed:
       println("plain IO, after")
   )

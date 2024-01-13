@@ -21,18 +21,20 @@ If an operation is forked, and we exit the scope that created it without joining
 ```scala mdoc
 runDemo:
   defer:
-    ZIO.debug:
-      "About to sleep forever"
-    .run
-    ZIO.sleep:
-      Duration.Infinity
-    .onInterrupt:
-      ZIO.succeed:
-        // More mdoc console weirdness :(
-        println: 
-          "Interrupted the eternal sleep"
-    .fork
-    .run
+    ZIO
+      .debug:
+        "About to sleep forever"
+      .run
+    ZIO
+      .sleep:
+        Duration.Infinity
+      .onInterrupt:
+        ZIO.succeed:
+          // More mdoc console weirdness :(
+          println:
+            "Interrupted the eternal sleep"
+      .fork
+      .run
 ```
 
 If we encounter an error between forking and joining, the fibers will also be interrupted.
@@ -40,16 +42,18 @@ If we encounter an error between forking and joining, the fibers will also be in
 ```scala mdoc
 // TODO Define this in a more generic location?
 def createProcess(
-                   label: String,
-                   innerProcess: ZIO[Any, Nothing, Unit]
-                 ) =
+    label: String,
+    innerProcess: ZIO[Any, Nothing, Unit]
+) =
   defer:
     ZIO.debug(s"Beginning $label").run
     innerProcess.run
     ZIO.debug(s"Completed $label").run
-  // TODO Consider rewriting to avoid
-  // dot-chaining on block
-  .onInterrupt(ZIO.succeed(println(s"Interrupt $label")))
+    // TODO Consider rewriting to avoid
+    // dot-chaining on block
+  .onInterrupt(
+    ZIO.succeed(println(s"Interrupt $label"))
+  )
 ```
 
 ```scala mdoc
@@ -72,7 +76,6 @@ runDemo:
     ZIO.fail("Youch!").run
     fiber1.join.run
     fiber2.join.run
-
 ```
 
 ## Uninterruptable
@@ -85,23 +88,21 @@ For example, when you have a finalizer that needs to free up resources, you need
 Tight loops that aren't performing ZIO operations cannot be interrupted by the ZIO runtime. 
 
 ```scala mdoc
-
 import org.apache.commons.text.similarity
 import similarity.LevenshteinDistance
 runDemo:
   defer:
     val leven =
       LevenshteinDistance.getDefaultInstance
-    val input =
-      Random.nextString(20_000).run
-    val target =
-      Random.nextString(20_000).run
-    ZIO.succeed:
-      leven(input, target)
-    .timeout(1.seconds)
-    .timed
-    .debug("Time:")
-    .run
+    val input  = Random.nextString(20_000).run
+    val target = Random.nextString(20_000).run
+    ZIO
+      .succeed:
+        leven(input, target)
+      .timeout(1.seconds)
+      .timed
+      .debug("Time:")
+      .run
 ```
 We can see 2 significant behaviors here:
 

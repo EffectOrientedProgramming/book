@@ -12,7 +12,7 @@ object FeedLinesDemo extends ZIOSpecDefault:
 object ExampleConsoleSpec extends ZIOSpecDefault:
   def notificationFor(username: String) =
     ZIO.succeed("Meeting @ 9")
-    
+
   def spec =
     test("console IO"):
       defer:

@@ -14,7 +14,9 @@ def sleepThenPrint(
 ): ZIO[Any, java.io.IOException, Duration] =
   defer {
     val elapsed = ZIO.sleep(d).timed.run
-    Console.println(s"${elapsed.render} elapsed").run
+    Console
+      .println(s"${elapsed.render} elapsed")
+      .run
     elapsed
   }
 ```
@@ -25,7 +27,6 @@ the shorter duration that is forked after the longer one, prints before the long
 runDemo(
   ZIO.foreachPar(List(2.seconds, 1.seconds)):
     sleepThenPrint
-    
   defer {
     val f1 = sleepThenPrint(2.seconds).fork.run
     val f2 = sleepThenPrint(1.seconds).fork.run

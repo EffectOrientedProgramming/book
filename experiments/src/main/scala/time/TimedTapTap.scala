@@ -1,9 +1,7 @@
 package time
 
 val longRunning =
-  Console
-    .printLine("done")
-    .delay(5.seconds)
+  Console.printLine("done").delay(5.seconds)
 
 val runningNotifier =
   defer:

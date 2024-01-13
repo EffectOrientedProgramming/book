@@ -20,4 +20,3 @@ object RunEffectfulGuessingGameSpec
         ) @@ TestAspect.nonFlaky(10)
       )
     )
-end RunEffectfulGuessingGameSpec

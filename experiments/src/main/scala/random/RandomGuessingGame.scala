@@ -35,14 +35,14 @@ def checkAnswerZSplit(
       "You got it!"
     else
       s"BZZ Wrong!!"
-  )
-  .merge
+  ).merge
 
 val effectfulGuessingGame =
   defer:
-    Console.print:
-      prompt
-    .run
+    Console
+      .print:
+        prompt
+      .run
     val answer =
       Random.nextIntBetween(low, high).run
     val guess = Console.readLine.run

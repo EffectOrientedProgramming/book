@@ -38,10 +38,7 @@ def demoToyEnvironment =
     env.add("hi")
 
   val env2: ToyEnvironment[String & DBService] =
-    env1.add(new DBService{})
+    env1.add(new DBService {})
 
   println(env2.get[String])
   println(env2.get[DBService])
-
-
-end demoToyEnvironment

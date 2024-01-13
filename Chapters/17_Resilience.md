@@ -6,16 +6,16 @@ If we want to ensure we don't accidentally DDOS a service, we can restrict the n
 
 ```scala mdoc
 trait DelicateResource:
-    val request: ZIO[Any, String, Int]
+  val request: ZIO[Any, String, Int]
 ```
 
 ```scala mdoc:invisible
 // It can represent any service outside of our control
 // that has usage constraints
 case class Live(
-                             currentRequests: Ref[List[Int]],
-                             alive: Ref[Boolean]
-                           ) extends DelicateResource:
+    currentRequests: Ref[List[Int]],
+    alive: Ref[Boolean]
+) extends DelicateResource:
   val request: ZIO[Any, String, Int] =
     defer:
       val res = Random.nextIntBounded(1000).run
@@ -37,8 +37,11 @@ case class Live(
       if (alive.get.run)
         res
       else
-        ZIO.fail("Server was killed by another request!!").run
-
+        ZIO
+          .fail(
+            "Server was killed by another request!!"
+          )
+          .run
 
   private def removeRequest(i: Int) =
     currentRequests.update(_ diff List(i))
@@ -49,8 +52,16 @@ object DelicateResource:
   val live =
     ZLayer.fromZIO:
       defer:
-        ZIO.debug("Delicate Resource constructed.").run
-        ZIO.debug("Do not make more than 3 concurrent requests!").run
+        ZIO
+          .debug(
+            "Delicate Resource constructed."
+          )
+          .run
+        ZIO
+          .debug(
+            "Do not make more than 3 concurrent requests!"
+          )
+          .run
         Live(
           Ref.make[List[Int]](List.empty).run,
           Ref.make(true).run
@@ -63,13 +74,15 @@ runDemo:
     ZIO
       .foreachPar(1 to 10): _ =>
         //          bulkhead:
-        ZIO.serviceWithZIO[DelicateResource](_.request)
-    .as("All Requests Succeeded")
-    .catchAll(err => ZIO.succeed(err))
-    .debug
-    .run
+        ZIO.serviceWithZIO[DelicateResource](
+          _.request
+        )
+      .as("All Requests Succeeded")
+      .catchAll(err => ZIO.succeed(err))
+      .debug
+      .run
   .provideSome[Scope]:
-      DelicateResource.live
+    DelicateResource.live
 ```
 
 ```scala mdoc
@@ -78,13 +91,13 @@ import nl.vroste.rezilience.Bulkhead
 runDemo:
   defer:
     val bulkhead: Bulkhead =
-      Bulkhead
-        .make(maxInFlightCalls = 3)
-        .run
+      Bulkhead.make(maxInFlightCalls = 3).run
     ZIO
       .foreachPar(1 to 10): _ =>
         bulkhead:
-          ZIO.serviceWithZIO[DelicateResource](_.request)
+          ZIO.serviceWithZIO[DelicateResource](
+            _.request
+          )
       .as("All Requests Succeeded")
       .catchAll(err => ZIO.succeed(err))
       .debug

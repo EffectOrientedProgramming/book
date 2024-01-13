@@ -23,9 +23,7 @@ object DbConnection:
           connection
       )(connection =>
         defer:
-          connection
-            .execute("CLOSE")
-            .run
+          connection.execute("CLOSE").run
           pprint.apply(connection)
         .debug
       )

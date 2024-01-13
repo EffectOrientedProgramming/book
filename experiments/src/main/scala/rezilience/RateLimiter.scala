@@ -19,7 +19,6 @@ import zio_helpers.timedSecondsDebug
 object RateLimiterDemoWithLogging
     extends ZIOAppDefault:
 
-
   def run =
     defer:
       val rateLimiter = makeRateLimiter.run
@@ -30,8 +29,6 @@ object RateLimiterDemoWithLogging
         .repeatN(3)
         // Print the last result
         .timedSecondsDebug("Result").run
-
-end RateLimiterDemoWithLogging
 
 object RateLimiterDemoGlobal
     extends ZIOAppDefault:
@@ -45,9 +42,11 @@ object RateLimiterDemoGlobal
         .repeatNPar(3): i =>
           rateLimiter:
             rsaKeyGenerator
-          .timedSecondsDebug(s"${i.toString} generated a key")
+          .timedSecondsDebug(
+            s"${i.toString} generated a key"
+          )
             // Repeats as fast as allowed
-          .repeatN(2).debug(s"Result $i")
+            .repeatN(2).debug(s"Result $i")
         .unit
         .timedSecondsDebug("Total time")
         .run

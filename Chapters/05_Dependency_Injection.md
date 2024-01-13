@@ -48,7 +48,6 @@ TODO Values to convey:
 ## TODO Rewrite this without 
 
 ```scala mdoc:silent
-
 // Explain private constructor approach
 case class Dough private ()
 
@@ -124,8 +123,11 @@ object Heat:
 trait Dependency1
 trait Dependency2
 
-def needyFunction()
-    : ZIO[Dependency1 & Dependency2, Nothing, Unit] = ???
+def needyFunction(): ZIO[
+  Dependency1 & Dependency2,
+  Nothing,
+  Unit
+] = ???
 ```
 
 The requirements for each ZIO are combined as an anonymous product type denoted by the `&` symbol.

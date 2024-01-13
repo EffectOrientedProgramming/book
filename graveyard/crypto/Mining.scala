@@ -14,11 +14,10 @@ object Mining extends ZIOAppDefault:
       chain.get.debug("Final").run
 
   private val miners =
-    Seq("Zeb", "Frop", "Shtep")
-      .flatMap: minerName =>
-        Range(1, 50)
-          .map:
-            i => new Miner(minerName + i)
+    Seq("Zeb", "Frop", "Shtep").flatMap:
+      minerName =>
+        Range(1, 50).map: i =>
+          new Miner(minerName + i)
 
   def raceForNextBlock(
       chain: Ref[BlockChain]
@@ -62,11 +61,16 @@ object Mining extends ZIOAppDefault:
 
       ZIO
         .raceAll(
-          miners.head.mine:
-            startNum,
-          miners.tail.map:
-            _.mine:
+          miners
+            .head
+            .mine:
               startNum
+          ,
+          miners
+            .tail
+            .map:
+              _.mine:
+                startNum
         )
         .run
 

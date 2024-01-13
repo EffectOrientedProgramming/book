@@ -7,9 +7,10 @@ def createProcess(
   defer:
     ZIO.debug(s"Beginning $label").run
     innerProcess.run
-    ZIO.sleep:
-      Duration.Infinity
-    .run
+    ZIO
+      .sleep:
+        Duration.Infinity
+      .run
   .onInterrupt(ZIO.debug(s"Interrupt $label"))
 
 object CancellationTree extends ZIOAppDefault:
@@ -22,8 +23,7 @@ object CancellationTree extends ZIOAppDefault:
       .foreachPar(List("L", "R"))(branch =>
         val label =
           " " *
-            (level * 2) + parent +
-            s"-$branch"
+            (level * 2) + parent + s"-$branch"
 
         createProcess(
           label,
@@ -40,5 +40,6 @@ object CancellationTree extends ZIOAppDefault:
       .unit
 
   def run =
-    spawnChildren(0, 1, "Root").timeout(1.seconds)
+    spawnChildren(0, 1, "Root")
+      .timeout(1.seconds)
 end CancellationTree

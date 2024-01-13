@@ -13,29 +13,30 @@ possible example of Scope for Environment contracts
 possible contract on provide for things not needed
 
 ```scala mdoc:fail
-ZIO.succeed("asdf")
-  .someOrFail("error")
+ZIO.succeed("asdf").someOrFail("error")
 ```
 
 this works as the contract is that the
 
 ```scala mdoc:invisible
-def maybeThing(): Option[Unit] = Option.when(true)(())
+def maybeThing(): Option[Unit] =
+  Option.when(true)(())
 ```
 
 ```scala mdoc
-ZIO.succeed(maybeThing())
-  .someOrFail("error")
+ZIO.succeed(maybeThing()).someOrFail("error")
 ```
 
 
 ```scala mdoc:fail
-ZIO.succeed(println("Always gonna work"))
+ZIO
+  .succeed(println("Always gonna work"))
   .retryN(100)
 ```
 
 ```scala mdoc
-ZIO.attempt(println("This might work"))
+ZIO
+  .attempt(println("This might work"))
   .retryN(100)
 ```
 

@@ -7,14 +7,16 @@ import scala.concurrent.TimeoutException
 import Scenario.Step.*
 
 object ExternalSystem:
-  val live: ZLayer[Any, Nothing, ExpensiveSystem] =
+  val live
+      : ZLayer[Any, Nothing, ExpensiveSystem] =
     ZLayer.fromZIO:
       defer:
         val valueProducer =
           scheduledValues(
             (300.millis, Success),
             (200.millis, Failure),
-            // TODO Restore when I can get CB to reconnect :(
+            // TODO Restore when I can get CB to
+            // reconnect :(
             (400.millis, Failure),
             (5.seconds, Success)
           ).run
@@ -24,23 +26,28 @@ object ExternalSystem:
         )
 
 case class ExternalSystem(
-                           requests: Ref[Int],
-                           responseAction: ZIO[
-                             Any, // access time
-                             TimeoutException,
-                             Scenario.Step
-                           ]
-
-                         ) extends ExpensiveSystem:
+    requests: Ref[Int],
+    responseAction: ZIO[
+      Any, // access time
+      TimeoutException,
+      Scenario.Step
+    ]
+) extends ExpensiveSystem:
 
   // TODO: Better error type than Throwable
-  val billToDate:ZIO[Any, String, Cost] =
-    requests.get.map:
-      Cost(_)
+  val billToDate: ZIO[Any, String, Cost] =
+    requests
+      .get
+      .map:
+        Cost(_)
 
   def call: ZIO[Any, String, Analysis] =
     defer:
-      ZIO.debug("Called underlying ExternalSystem").run
+      ZIO
+        .debug(
+          "Called underlying ExternalSystem"
+        )
+        .run
       val requestCount =
         requests.updateAndGet(_ + 1).run
       responseAction.orDie.run match
@@ -51,15 +58,16 @@ case class ExternalSystem(
                 s"Expensive report #$requestCount"
             .run
         case Failure =>
-          ZIO.debug:
-            "boom"
-          .run
-          ZIO.fail:
-            "Something went wrong"
-          .run
+          ZIO
+            .debug:
+              "boom"
+            .run
+          ZIO
+            .fail:
+              "Something went wrong"
+            .run
 
 end ExternalSystem
-
 
 // TODO Consider deleting
 object InstantOps:
@@ -77,9 +85,9 @@ import InstantOps._
 
 // TODO Consider TimeSequence as a name
 def scheduledValues[A](
-                        value: (Duration, A),
-                        values: (Duration, A)*
-                      ): ZIO[
+    value: (Duration, A),
+    values: (Duration, A)*
+): ZIO[
   Any, // construction time
   Nothing,
   ZIO[
@@ -102,10 +110,10 @@ def scheduledValues[A](
 // TODO Some comments, tests, examples, etc to
 // make this function more obvious
 private def createTimeTableX[A](
-                                 startTime: Instant,
-                                 value: (Duration, A),
-                                 values: (Duration, A)*
-                               ): Seq[ExpiringValue[A]] =
+    startTime: Instant,
+    value: (Duration, A),
+    values: (Duration, A)*
+): Seq[ExpiringValue[A]] =
   values.scanLeft(
     ExpiringValue(
       startTime.plusZ(value._1),
@@ -113,9 +121,9 @@ private def createTimeTableX[A](
     )
   ) {
     case (
-      ExpiringValue(elapsed, _),
-      (duration, value)
-      ) =>
+          ExpiringValue(elapsed, _),
+          (duration, value)
+        ) =>
       ExpiringValue(
         elapsed.plusZ(duration),
         value
@@ -123,20 +131,20 @@ private def createTimeTableX[A](
   }
 
 /** Input: (1 minute, "value1") (2 minute,
- * "value2")
- *
- * Runtime: Zero value: (8:00 + 1 minute,
- * "value1")
- *
- * case ((8:01, _) , (2.minutes, "value2")) =>
- * (8:01 + 2.minutes, "value2")
- *
- * Output: ( ("8:01", "value1"), ("8:03",
- * "value2") )
- */
+  * "value2")
+  *
+  * Runtime: Zero value: (8:00 + 1 minute,
+  * "value1")
+  *
+  * case ((8:01, _) , (2.minutes, "value2")) =>
+  * (8:01 + 2.minutes, "value2")
+  *
+  * Output: ( ("8:01", "value1"), ("8:03",
+  * "value2") )
+  */
 private def accessX[A](
-                        timeTable: Seq[ExpiringValue[A]]
-                      ): ZIO[Any, TimeoutException, A] =
+    timeTable: Seq[ExpiringValue[A]]
+): ZIO[Any, TimeoutException, A] =
   defer {
     val now = Clock.instant.run
     ZIO
@@ -151,6 +159,6 @@ private def accessX[A](
   }
 
 private case class ExpiringValue[A](
-                                     expirationTime: Instant,
-                                     value: A
-                                   )
+    expirationTime: Instant,
+    value: A
+)

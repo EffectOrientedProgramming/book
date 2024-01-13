@@ -26,9 +26,10 @@ object RandomRosencrantsSpec
           TestRandom
             .feedBooleans(Seq.fill(100)(true)*)
             .run
-          ZIO.debug:
-            "*Performance Begins*"
-          .run
+          ZIO
+            .debug:
+              "*Performance Begins*"
+            .run
           coinToss.repeatN(4).run
 
           ZIO

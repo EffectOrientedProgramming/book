@@ -33,12 +33,7 @@ import zio.test.*
 
 def runSpec[E <: Throwable](
     x: ZIO[Scope, E, TestResult],
-    aspects: TestAspect[
-      Scope,
-      Scope,
-      E,
-      E
-    ]*
+    aspects: TestAspect[Scope, Scope, E, E]*
 ) =
 
   val liveEnvironment: Layer[

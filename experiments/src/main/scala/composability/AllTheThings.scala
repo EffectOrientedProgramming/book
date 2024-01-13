@@ -14,33 +14,36 @@ import scala.util.{Success, Try}
 
 object AllTheThings extends ZIOAppDefault:
   type Nail = ZIO.type
-  /*
-    If ZIO is your hammer, it's not that you _see_ everything as nails.
-    You can actually _convert_ everything into nails.
-   */
+  /* If ZIO is your hammer, it's not that you
+   * _see_ everything as nails.
+   * You can actually _convert_ everything into
+   * nails. */
 
-  /*
-
-    Possible scenario:
-      Get headline - Future
-      Analyze for topic/persons of interest - Option
-      Check if we have made an entry for them in today's summary file - Resource
-      If not:
-        Dig up supporting information on the topic from a DB  - Try
-        Make new entry in today's summary file - Resource
-
-   Is Either different enough to demo here?
-    It basically splits the difference between Option/Try
-    I think if we show both of them, we can skip Either.
-
-   */
+  /*  Possible scenario:
+   * Get headline - Future Analyze for
+   * topic/persons of interest - Option Check if
+   * we have made an entry for them in today's
+   * summary file - Resource If not:
+   * Dig up supporting information on the topic
+   * from a DB - Try Make new entry in today's
+   * summary file - Resource
+   *
+   * Is Either different enough to demo here?
+   * It basically splits the difference between
+   * Option/Try I think if we show both of them,
+   * we can skip Either. */
 
   def getHeadline(): Future[String] =
-    Future.successful("The stock market is crashing!")
+    Future.successful(
+      "The stock market is crashing!"
+    )
 
-  def findTopicOfInterest(content: String): Option[String] =
-    Option.when(content.contains("stock market")):
-      "stock market"
+  def findTopicOfInterest(
+      content: String
+  ): Option[String] =
+    Option
+      .when(content.contains("stock market")):
+        "stock market"
 
   trait CloseableFile extends AutoCloseable:
     def existsInFile(searchTerm: String): Boolean
@@ -53,11 +56,11 @@ object AllTheThings extends ZIOAppDefault:
       override def close =
         println("Closing file now!")
 
-      override def existsInFile(searchTerm: String): Boolean =
-        searchTerm == "stock market"
+      override def existsInFile(
+          searchTerm: String
+      ): Boolean = searchTerm == "stock market"
 
       override def write(entry: String) = ???
-
 
   def asyncThing(i: Int) = ZIO.sleep(i.seconds)
 
@@ -67,7 +70,9 @@ object AllTheThings extends ZIOAppDefault:
         Console.printLine("open").orDie.run
         "asdf"
 
-    val close = (_: Any) => Console.printLine("close").orDie
+    val close =
+      (_: Any) =>
+        Console.printLine("close").orDie
 
     ZIO.acquireRelease(open)(close)
 
@@ -80,25 +85,26 @@ object AllTheThings extends ZIOAppDefault:
       // maybe add Future or make asyncThing a
       // Future `
       val headline: String =
-        ZIO.fromFuture:
-          implicit ec => getHeadline()
-        .run
+        ZIO
+          .fromFuture { implicit ec =>
+            getHeadline()
+          }
+          .run
 
       val topic =
-        ZIO.fromOption:
-          findTopicOfInterest(headline)
-        .run
+        ZIO
+          .fromOption:
+            findTopicOfInterest(headline)
+          .run
 
       val summaryFileZ =
-        ZIO.fromAutoCloseable:
-          ZIO.succeed:
-            summaryFile
-        .run
+        ZIO
+          .fromAutoCloseable:
+            ZIO.succeed:
+              summaryFile
+          .run
 
-      val t: Try[String] =
-        Success(
-          headline
-        )
+      val t: Try[String] = Success(headline)
       // todo: some failable function
       val w: String = ZIO.fromTry(t).run
       val o: Option[Int] =
@@ -116,13 +122,10 @@ object AllTheThings extends ZIOAppDefault:
         ???
 end AllTheThings
 
-def futureBits = {
+def futureBits =
   ZIO.fromFuture(implicit ec =>
     Future.successful("Success!")
   )
   ZIO.fromFuture(implicit ec =>
     Future.failed(new Exception("Failure :("))
   )
-
-}
-
