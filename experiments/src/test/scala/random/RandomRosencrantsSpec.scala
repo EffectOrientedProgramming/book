@@ -52,5 +52,3 @@ object RandomRosencrantsSpec
     )
 
 end RandomRosencrantsSpec
-
-// G: There is an art to building suspense.
