@@ -18,13 +18,9 @@
 17_Resilience.md
 18_Configuration.md
 ExperimentsSection.md
-random.md
 experiments-src-test-scala-random.md
 zio_helpers.md
-async.md
-cancellation.md
 concurrency.md
 rezilience.md
-time.md
 performance.md
 experiments-src-test-scala-concurrency.md

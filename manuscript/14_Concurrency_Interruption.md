@@ -37,7 +37,7 @@ runDemo:
       .run
 // About to sleep forever
 // Interrupted the eternal sleep
-// zio.internal.FiberRuntime@5c8da8e8
+// zio.internal.FiberRuntime@3c89bc37
 ```
 
 If we encounter an error between forking and joining, the fibers will also be interrupted.
@@ -79,8 +79,6 @@ runDemo:
     ZIO.fail("Youch!").run
     fiber1.join.run
     fiber2.join.run
-// Interrupt Fiber 2
-// Interrupt Fiber 1
 // Youch!
 ```
 
@@ -94,22 +92,17 @@ For example, when you have a finalizer that needs to free up resources, you need
 Tight loops that aren't performing ZIO operations cannot be interrupted by the ZIO runtime. 
 
 ```scala
-import org.apache.commons.text.similarity
-import similarity.LevenshteinDistance
+def longOperation() = "**TODO**"
 runDemo:
   defer:
-    val leven =
-      LevenshteinDistance.getDefaultInstance
-    val input  = Random.nextString(20_000).run
-    val target = Random.nextString(20_000).run
     ZIO
       .succeed:
-        leven(input, target)
+        longOperation()
       .timeout(1.seconds)
       .timed
       .debug("Time:")
       .run
-// (PT1.962621123S,None)
+// (PT0.001097551S,Some(**TODO**))
 ```
 We can see 2 significant behaviors here:
 
