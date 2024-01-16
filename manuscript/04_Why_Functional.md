@@ -295,6 +295,7 @@ The solution is to manage these effects, so they are under our control.
 This bridge between pure functions and practical programs with controlled and managed effects is the reason for the title of this book.
 
 ## Avoiding Recursion
+TODO move to graveyard 
 
 We will deliberately avoid recursion in most examples.
 Many functional programming tutorials begin by introducing recursion.
