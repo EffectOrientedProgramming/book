@@ -36,9 +36,9 @@ ZIO.succeed(maybeThing()).someOrFail("error")
 //   trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:20)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:20)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$15897/0x0000000803f93440@24b9d499
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$15861/0x000000080404fc40@253628c9
 //   ),
-//   successK = zio.ZIO$$Lambda$17050/0x0000000804272840@15d0142b
+//   successK = zio.ZIO$$Lambda$17014/0x00000008043d5040@182738c6
 // )
 ```
 
@@ -66,9 +66,9 @@ ZIO
 //   trace = "repl.MdocSession.MdocApp.res3(07_Composability.md:35)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res3(07_Composability.md:35)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$15897/0x0000000803f93440@d902e7
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$15861/0x000000080404fc40@6166f8a
 //   ),
-//   successK = zio.ZIO$$$Lambda$15899/0x0000000803f91040@281169a1
+//   successK = zio.ZIO$$$Lambda$15863/0x000000080404d840@508caef8
 // )
 ```
 

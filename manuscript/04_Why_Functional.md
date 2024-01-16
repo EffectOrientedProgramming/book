@@ -316,11 +316,11 @@ They enable concise code that would otherwise be awkward and intrusive to right 
 
 Functions in a functional language don't need to be tied to a particular data structure.
 Thus, they can often be written for more general use and to reduce duplication.
-Functional languages come with a general set of well-tested, reusable operations that can be applied almost mathematically in many situations.
+Functional languages come with a general set of well-tested, reusable operations that can be applied in many situations.
 
 A functional language relies on immutability.
 An immutable data structure doesn't need privacy because it is safe for any task to read, and it cannot be written (only initialized).
-Because immutability dramatically simplifies everything, objects in functional languages are simply naked data structures along with constructors.
+Ojects in functional languages are simply naked data structures along with constructors.
 When everything is immutable, there is no need for private properties or methods to maintain the state of an object.
 
 ## Summary: Style vs Substance
@@ -331,8 +331,7 @@ This is why lambdas are so important, because you constantly need to adapt gener
 
 The two things we do with functions is compose them to make more complex functions, and adapt to them to our specific problem.
 
-We assume that many readers are attracted to this book because they have some experience with functional programming constructs in other languages such as Java (version 8 or newer), Kotlin, Python or some other language that provides a modicum of support.
-However, we also assume you have heard---or you have a sense---that there could be significantly more than:
+However, there could be significantly more than:
 
 - a function's ability to create other functions
 - transforming elemements in a collection using `map`
