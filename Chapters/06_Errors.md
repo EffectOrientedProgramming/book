@@ -226,11 +226,7 @@ TODO {{Update verbiage now that ZIO section is first}}
 ### ZIO-First Error Handling
 
 ```scala mdoc
-def getTemperatureZ(behavior: Scenario): ZIO[
-  Any,
-  GpsException | NetworkException,
-  String
-] =
+def getTemperatureZ(behavior: Scenario) =
   behavior match
     case Scenario.GPSError =>
       ZIO.fail:
@@ -278,7 +274,7 @@ We are re-using the  `calculateTemp`
 ```scala mdoc
 def calculateTempWrapped(
     behavior: Scenario
-): ZIO[Any, Throwable, String] =
+) =
   ZIO.attempt:
     calculateTemp:
       behavior
@@ -289,7 +285,7 @@ def calculateTempWrapped(
 ```scala mdoc
 def displayTemperatureZWrapped(
     behavior: Scenario
-): ZIO[Any, Nothing, String] =
+) =
   calculateTempWrapped:
     behavior
   .catchAll:
@@ -318,7 +314,7 @@ This is decent, but does not provide the maximum possible guarantees. Look at wh
 ```scala mdoc
 def getTemperatureZGpsGap(
     behavior: Scenario
-): ZIO[Any, Nothing, String] =
+) =
   calculateTempWrapped:
     behavior
   .catchAll:
@@ -342,7 +338,7 @@ First, we can provide a fallback case that will report anything we missed:
 ```scala mdoc
 def getTemperatureZWithFallback(
     behavior: Scenario
-): ZIO[Any, Nothing, String] =
+) =
   calculateTempWrapped:
     behavior
   .catchAll:
@@ -365,7 +361,7 @@ This lets us avoid the most egregious gaps in functionality, but it does not tak
 ```scala mdoc
 def getTemperatureZAndFlagUnhandled(
     behavior: Scenario
-): ZIO[Any, GpsException, String] =
+) =
   calculateTempWrapped:
     behavior
   .catchSome:
@@ -396,18 +392,11 @@ Scala 3 automatically aggregates the error types by synthesizing an anonymous su
 Functions usually transform the `Answer` from one type to another type.  Errors often aggregate.
 
 
-```scala
-trait Error1
-trait Error2
-
-def failableFunction()
-    : ZIO[Any, Error1 | Error2, Unit] = ???
-```
 Consider 2 error types
 
 ```scala
-trait UserNotFound
-trait PermissionError
+case class UserNotFound()
+case class PermissionError()
 ```
 
 In the type system, the most recent ancestor between them is `Any`.  
@@ -446,45 +435,32 @@ case class UserService()
 ```
 
 ```scala
-trait User
-trait SuperUser
+case class User(name: String)
+case class SuperUser(name: String)
 
 def getUser(
     userId: String
-): ZIO[UserService, UserNotFound, User] = ???
+) =
+   if (userId == "morty" || userId = "rick")
+     ZIO.succeed:
+       User(userId)
+   else
+     ZIO.fail:
+       UserNotFound()
+
 def getSuperUser(
     user: User
-): ZIO[UserService, PermissionError, SuperUser] =
-  ???
+) =
+  if (user.name = "rick")
+    ZIO.succeed:
+      SuperUser(user.name)
+  else
+    ZIO.fail:
+      PermissionError()
 
-def loginSuperUser(userId: String): ZIO[
-  UserService,
-  UserNotFound | PermissionError,
-  SuperUser
-] =
+def loginSuperUser(userId: String) =
   defer:
     val basicUser = getUser(userId).run
     getSuperUser(basicUser).run
 
-trait Status
-trait NetworkService
-
-def statusOf(
-    user: User
-): ZIO[NetworkService, UserNotFound, Status] =
-  ???
-
-def check(userId: String): ZIO[
-  UserService & NetworkService,
-  UserNotFound,
-  Status
-] =
-  defer:
-    val user = 
-      getUser:
-        userId
-      .run
-    statusOf:
-      user
-    .run
 ```

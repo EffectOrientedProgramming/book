@@ -227,14 +227,14 @@ It would be great if we can instead use our dedicated toaster!
 
 ```scala mdoc:fail
 runDemo:
-  Toast
-    .make
-    .provide(
-      Dough.fresh,
-      Bread.homemade,
-      Heat.oven,
-      Heat.toaster
-    )
+  ZLayer.make[Toast](
+    Toast
+      .make,
+    Dough.fresh,
+    Bread.homemade,
+    Heat.oven,
+    Heat.toaster
+  ).build
 ```
 Unfortunately our program is now ambiguous.
 It cannot decide if we should be making `Toast` in the oven, `Bread` in the toaster, or any other combination.
