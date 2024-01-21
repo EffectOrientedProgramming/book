@@ -59,7 +59,7 @@ object Dough:
   val letRise: ZIO[Dough, Nothing, Unit] =
     ZIO.debug("Dough is rising")
 
-  val fresh: ZLayer[Any, Nothing, Dough] =
+  val fresh =
     ZLayer
       .derive[Dough]
       .tapWithMessage("Making Fresh Dough")
@@ -71,6 +71,7 @@ Effects can't be run until their dependencies have been fulfilled
 
 TODO: Decide what to do about the compiler error differences between these approaches
 
+TODO: Can we avoid the `.provide()` and still get a good compile error in mdoc
 ```scala mdoc:fail
 runDemo:
   Dough.letRise.provide()
@@ -94,13 +95,13 @@ They will all be used soon.
 ```scala mdoc
 case class Heat private ()
 object Heat:
-  val oven: ZLayer[Any, Nothing, Heat] =
+  val oven =
     ZLayer
       .derive[Heat]
       .tapWithMessage:
         "Heating Oven"
 
-  val toaster: ZLayer[Any, Nothing, Heat] =
+  val toaster =
     ZLayer
       .derive[Heat]
       .tapWithMessage:
@@ -145,15 +146,14 @@ object Bread:
 
   // TODO Explain ZLayer.fromZIO in prose
   // immediately before/after this
-  val homemade
-      : ZLayer[Heat & Dough, Nothing, Bread] =
+  val homemade =
     ZLayer
       .fromZIO:
         make
       .tapWithMessage:
         "Making Homemade Bread"
 
-  val storeBought: ZLayer[Any, Nothing, Bread] =
+  val storeBought =
     ZLayer
       .derive[Bread]
       .tapWithMessage:
@@ -310,7 +310,7 @@ object Bread2:
 
   // Already constructed elsewhere, that we don't
   // control
-  val fromFriend: ZLayer[Any, String, Bread] =
+  val fromFriend =
     ZLayer.fromZIO:
       Bread2.attempt(invocations)
 end Bread2
