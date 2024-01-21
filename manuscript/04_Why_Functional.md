@@ -1,5 +1,7 @@
 # Why Functional
 
+TODO: Combine with "What are Effects" ?
+
 > In your journey to this book, you might have already learned one way to think about programming, and possibly several.
 
 You might have succeeded creating a project using that approach.

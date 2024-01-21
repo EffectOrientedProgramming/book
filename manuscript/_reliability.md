@@ -1,5 +1,7 @@
 # Introduction
 
+TODO: Combine with "Reliability" ?
+
 08:07 AM January 13, 2018
 
 Televisions, Radios, and Cell Phones across Hawaii suddenly flash an alert:
@@ -218,6 +220,7 @@ Kit Langton, for being a kindred spirit in software interests and inspiring cont
 Wyett Considine, for being an enthusiastic intern and initial audience.
 
 Hali Frasure, for dozens of dinners and facilitating our book nights generally.
+
 
 ## Edit This Chapter
 [Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/_reliability.md)

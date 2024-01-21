@@ -1,12 +1,14 @@
 # Running Effects
 
+TODO: Combine with "Configuration"
+
 ## ZIOs are not their result. 
 
 A common mistake when starting with ZIO is trying to return ZIO instances themselves rather than their result.
 
 ```scala
 println(Random.nextInt)
-// Stateful(repl.MdocSession.MdocApp.res0(_running.md:8),zio.FiberRef$unsafe$$anon$2$$Lambda$15960/0x00000008040cf840@5deccc48)
+// Stateful(repl.MdocSession.MdocApp.res0(_running.md:8),zio.FiberRef$unsafe$$anon$2$$Lambda$15987/0x0000000803f6b840@6ecb29a6)
 ```
 We will not see a random number printed out; we see some inscrutable type information.
 

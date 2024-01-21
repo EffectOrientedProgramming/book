@@ -1,5 +1,7 @@
 # Layers
 
+TODO: Combine with "Configuration" ?
+
 ## Creating
 
 ## Composing

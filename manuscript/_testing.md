@@ -1,5 +1,7 @@
 # Testing Effects
 
+TODO: Combine with "Configuration" ?
+
 Effects need access to external systems thus are unpredictable.  
 Tests are ideally predictable so how do we write tests for effects that are predictable?
 With ZIO we can replace the external systems with predictable ones when running our tests.
@@ -157,7 +159,7 @@ runSpec(
   ,
   TestAspect.withLiveClock
 )
-// (PT2.000530396S,())
+// (PT2.000717915S,())
 // Test: PASSED*
 ```
 
