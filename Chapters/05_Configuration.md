@@ -388,3 +388,11 @@ runDemo:
     .build // TODO Stop using build, if possible
     .debug
 ```
+
+
+
+Changing things based on the running environment.
+
+- CLI Params
+- Config Files
+- Environment Variables
