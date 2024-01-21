@@ -22,7 +22,7 @@ An alternative to this approach is to use "Constructor Injection" which avoids s
 
 If instead functionality expressed its dependencies through the type system, the compiler could verify that the needed parts are in-fact available given a particular path of execution (e.g. main app, test suite one, test suite two).
 
-## What ZIO can provide us.
+## What ZIO Provides Us.
 
 With ZIO's approach to dependencies, you get many desirable characteristics at compile-time, using standard language features.
 Your services are defined as classes with constructor arguments, just as in any vanilla Scala application.

@@ -77,7 +77,7 @@ runDemo:
             )
         .run
     durations.fold(Duration.Zero)(_ + _).render
-// 14 m 46 s
+// 14 m 31 s
 ```
 
 ## zipPar, zipWithPar

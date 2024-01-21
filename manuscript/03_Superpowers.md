@@ -1,45 +1,13 @@
-# Superpowers
+# Superpowers with Effects
 
-1. The superpowers are the strategies to deal with unpredictability 
-1. OpeningHook (1-6)
-    1. Note: Progressive enhancement through adding capabilities 
-1. Concurrency
-    1. Race
-      1. "Race Condition" vs "race operation"
-    1. Hedge (to show the relationship to OpeningHook ie progressive enhancement)
-1. Resilience
-1. Sequential
-    1. ZIO Direct
-    1. Note: Combine OpeningHook & Concurrency with ZIO Direct
-1. And so much more
-    1. Note: And there are many capabilities you might want to express. In the future we will dive into these other capabilities.
-
-- Racing
-- Timeout
-- Resource Safety
-- Mutability that you can trust
-- Human-readable
-- Cross-cutting Concerns / Observability / Regular Aspects
-  - timed
-  - metrics
-  - debug
-  - logging
-
-- Interruption/Cancellation
-- Fibers
-- Processor Utilization
-  - Fairness
-  - Work-stealing
-- Resource Control/Management
-
-```scala
-object DatabaseError
-object TimeoutError
-```
+TODO: A couple sentences about the superpowers
 
 
 ## Building a Resilient Process in stages
 We want to evolve our process from a simple happy path to a more resilient process.
+Progressive enhancement through adding capabilities
+
+TODO: Is "Step" necessary? Some other word?
 
 ## Step 1: Happy Path
 
@@ -52,6 +20,11 @@ runDemo:
 
 
 ## Step 2: Provide Error Fallback Value
+
+```scala
+object DatabaseError
+object TimeoutError
+```
 
 ```scala
 runDemo:

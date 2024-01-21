@@ -294,14 +294,6 @@ The solution is to manage these effects, so they are under our control.
 
 This bridge between pure functions and practical programs with controlled and managed effects is the reason for the title of this book.
 
-## Avoiding Recursion
-TODO move to graveyard 
-
-We will deliberately avoid recursion in most examples.
-Many functional programming tutorials begin by introducing recursion.
-While this resonates with some, it is an additional hurdle that makes the transition harder.
-We want to demonstrate powerful, functional code without user-facing recursion.
-
 ## Core Differences Between OO and Functional
 
 An OO language worries about managing state.
@@ -334,7 +326,7 @@ The two things we do with functions is compose them to make more complex functio
 However, there could be significantly more than:
 
 - a function's ability to create other functions
-- transforming elemements in a collection using `map`
+- transforming elements in a collection using `map`
 
 Those are indeed important benefits, but they just dip into the possibilities.
 Adopting some of the styles found in functional programming does not make a language functional.
