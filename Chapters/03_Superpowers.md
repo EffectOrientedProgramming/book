@@ -112,7 +112,7 @@ object HiddenPrelude:
       username: String
   ) =
     ZIO
-      .succeed("User sent to manual setup queue")
+      .attempt("User sent to manual setup queue")
 
   def userSignupInitiated(username: String) =
     ZIO.succeed(
