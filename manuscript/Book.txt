@@ -7,13 +7,12 @@
 06_Errors.md
 07_Composability.md
 08_The_ZIO_Datatype.md
-09_Builtin_Services.md
 10_Running_Effects.md
 11_Layers.md
 12_Testing_Effects.md
 13_Concurrency_High_Level.md
 14_Concurrency_Interruption.md
-15_Concurrency_State.md
+15_State.md
 16_Repeats.md
 17_Resilience.md
 18_Configuration.md
