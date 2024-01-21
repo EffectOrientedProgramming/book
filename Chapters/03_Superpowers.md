@@ -58,7 +58,7 @@ object HiddenPrelude:
 
   def saveUser(
       username: String
-  ): ZIO[Any, DatabaseError.type, String] =
+  ) =
     val succeed = ZIO.succeed("User saved")
     val fail =
       ZIO
@@ -110,7 +110,7 @@ object HiddenPrelude:
 
   def sendToManualQueue(
       username: String
-  ): ZIO[Any, TimeoutError.type, String] =
+  ) =
     ZIO
       .succeed("User sent to manual setup queue")
 
@@ -147,7 +147,7 @@ object HiddenPrelude:
   extension [R, E, A](z: ZIO[R, E, A])
     def fireAndForget(
         background: ZIO[R, Nothing, Any]
-    ): ZIO[R, E, A] =
+    ) =
       z.zipParLeft(background.forkDaemon)
 
 end HiddenPrelude
@@ -275,6 +275,7 @@ runDemo:
 ```
 
 ## Step 7: Concurrently Execute Effect 
+TODO Consider deleting. Uses an extension
 
 ```scala mdoc:invisible
 HiddenPrelude
