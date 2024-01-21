@@ -1,5 +1,7 @@
 # Running Effects
 
+TODO: Combine with "Configuration"
+
 ## ZIOs are not their result. 
 
 A common mistake when starting with ZIO is trying to return ZIO instances themselves rather than their result.

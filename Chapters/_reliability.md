@@ -1,5 +1,7 @@
 # Introduction
 
+TODO: Combine with "Reliability" ?
+
 08:07 AM January 13, 2018
 
 Televisions, Radios, and Cell Phones across Hawaii suddenly flash an alert:
