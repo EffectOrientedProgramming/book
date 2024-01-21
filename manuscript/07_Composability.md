@@ -36,9 +36,9 @@ ZIO.succeed(maybeThing()).someOrFail("error")
 //   trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:20)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:20)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$15879/0x0000000803f92840@6fa45508
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$15889/0x000000080404f040@7580e9bf
 //   ),
-//   successK = zio.ZIO$$Lambda$17031/0x0000000804252040@928f6ed
+//   successK = zio.ZIO$$Lambda$17046/0x000000080375b840@520e1e2e
 // )
 ```
 
@@ -66,9 +66,9 @@ ZIO
 //   trace = "repl.MdocSession.MdocApp.res3(07_Composability.md:35)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res3(07_Composability.md:35)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$15879/0x0000000803f92840@614f4d97
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$15889/0x000000080404f040@2cbf2b28
 //   ),
-//   successK = zio.ZIO$$$Lambda$15881/0x0000000803f91040@7ffdd1b3
+//   successK = zio.ZIO$$$Lambda$15891/0x000000080404d840@3fb56ad3
 // )
 ```
 
@@ -237,6 +237,9 @@ The cost of this is only ~3% more total requests made. *Citations needed*
 Further, if this is not enough to completely eliminate your extreme tail, you can employ the exact same technique once more.
 Then, you end up with `1/n^3` chance of getting that worst performance.
 
+## Repeats
+
+Repeating is a form of composability, because you are composing a program with itself
 
 
 
