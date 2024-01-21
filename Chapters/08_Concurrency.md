@@ -7,7 +7,7 @@ TODO Prose
 ```scala mdoc
 def sleepThenPrint(
     d: Duration
-): ZIO[Any, java.io.IOException, Duration] =
+) =
   defer:
     ZIO.sleep(d).run
     ZIO.debug(s"${d.render} elapsed").run

@@ -4,19 +4,17 @@
 ## Constraining concurrent requests
 If we want to ensure we don't accidentally DDOS a service, we can restrict the number of concurrent requests to it.
 
-```scala mdoc
-trait DelicateResource:
-  val request: ZIO[Any, String, Int]
-```
 
 ```scala mdoc:invisible
+trait DelicateResource:
+    val request: ZIO[Any, String, Int]
 // It can represent any service outside of our control
 // that has usage constraints
 case class Live(
     currentRequests: Ref[List[Int]],
     alive: Ref[Boolean]
 ) extends DelicateResource:
-  val request: ZIO[Any, String, Int] =
+  val request =
     defer:
       val res = Random.nextIntBounded(1000).run
 

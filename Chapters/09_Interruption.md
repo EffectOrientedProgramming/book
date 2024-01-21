@@ -39,7 +39,7 @@ runDemo:
 
 If we encounter an error between forking and joining, the fibers will also be interrupted.
 
-```scala mdoc
+```scala mdoc:invisible
 // TODO Define this in a more generic location?
 def createProcess(
     label: String,
