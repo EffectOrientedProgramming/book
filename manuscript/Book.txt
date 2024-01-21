@@ -10,7 +10,8 @@
 09_Interruption.md
 10_State.md
 11_Reliability.md
-12_The_ZIO_Datatype.md
+12_ZIO_and_ZLayer.md
+13_Appendix_RunningEffects.md
 ExperimentsSection.md
 experiments-src-test-scala-random.md
 zio_helpers.md

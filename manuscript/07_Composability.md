@@ -36,9 +36,9 @@ ZIO.succeed(maybeThing()).someOrFail("error")
 //   trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:20)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:20)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$15916/0x0000000802f74040@761e4902
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14949/0x0000000803d5f440@3475d6b6
 //   ),
-//   successK = zio.ZIO$$Lambda$17072/0x0000000804275040@6f8ec428
+//   successK = zio.ZIO$$Lambda$17637/0x0000000803280040@6d23c67b
 // )
 ```
 
@@ -66,9 +66,9 @@ ZIO
 //   trace = "repl.MdocSession.MdocApp.res3(07_Composability.md:35)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res3(07_Composability.md:35)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$15916/0x0000000802f74040@906a475
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14949/0x0000000803d5f440@4316f7e5
 //   ),
-//   successK = zio.ZIO$$$Lambda$15918/0x0000000802f72840@69daa1e1
+//   successK = zio.ZIO$$$Lambda$14951/0x0000000803d71040@7fd803f5
 // )
 ```
 
@@ -242,7 +242,7 @@ Then, you end up with `1/n^3` chance of getting that worst performance.
 Repeating is a form of composability, because you are composing a program with itself
 
 
-
+### Injecting Behavior before/after/around
 
 
 
