@@ -1,4 +1,5 @@
-# Dependency Injection
+# Configuration
+
 1. Application startup uses the same tools that you utilize for the rest of your application
 
 ## General/Historic discussion
@@ -137,6 +138,9 @@ The requirements for each ZIO are combined as an anonymous product type denoted 
 
 ```scala mdoc
 // TODO Restore private constructor after failure scenario is dialed in
+// TODO Can we make Bread a trait,
+//    Then we would have BreadHomemade & BreadStoreBought
+
 case class Bread()
 
 object Bread:
@@ -396,3 +400,4 @@ Changing things based on the running environment.
 - CLI Params
 - Config Files
 - Environment Variables
+
