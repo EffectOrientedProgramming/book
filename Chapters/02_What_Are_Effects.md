@@ -1,5 +1,11 @@
 # What Are Effects
 
+TODO: General idea of what an effect is
+
+The Effect is not what happens on the external system because there is no way to know the actual impact of what the program caused by the communication.
+
+## Dealing with unpredictability
+
 Any real program has to interact with things outside the programmer's control.
 
 All external systems are unpredictable.
@@ -20,7 +26,7 @@ These programs are unpredictable because the programmer has no control over what
 
 Effect Oriented systems allow us to apply strategies to mitigate the unpredictability of using external systems.
 
-### Effects can not be un-done.
+## Effects can not be un-done
 
 Once a program has communicated with an external system, (i.e. executed an Effect), everything that happens on that external systems is out of the program's control.
 
@@ -37,6 +43,10 @@ We know one thing for certain - you will never be able to un-ask that question.
 Even if you ultimately grow closer with this person after navigating this situation, you can't go back to a world where you never asked. 
 Regardless of any apology and forgiveness, your relationship is now different.
 
+## Effects Defined as Data
 
+TODO
 
-The Effect is not what happens on the external system because there is no way to know the actual impact of what the program caused by the communication.
+One approach to defining effects is...
+
+The effects have not been executed when defined.
