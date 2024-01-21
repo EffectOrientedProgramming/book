@@ -50,16 +50,12 @@ TODO Values to convey:
 
 ```scala
 // Explain private constructor approach
-case class Dough private ()
-
-case class Kitchen(dough: Dough):
-  val letRise: ZIO[Any, Nothing, Unit] =
-    ZIO.debug("Dough is rising")
+case class Dough():
+  val letRise =
+    ZIO.debug:
+      "Dough is rising"
 
 object Dough:
-  val letRise: ZIO[Dough, Nothing, Unit] =
-    ZIO.debug("Dough is rising")
-
   val fresh =
     ZLayer
       .derive[Dough]
@@ -75,8 +71,9 @@ TODO: Decide what to do about the compiler error differences between these appro
 TODO: Can we avoid the `.provide()` and still get a good compile error in mdoc
 ```scala
 runDemo:
-  Dough.letRise.provide()
-// error:
+  ZIO.serviceWithZIO[Dough](_.letRise)
+    .provide()
+// error: 
 // 
 // 
 // ──── ZLAYER ERROR ────────────────────────────────────────────────────
@@ -87,9 +84,7 @@ runDemo:
 //       
 // ──────────────────────────────────────────────────────────────────────
 // 
-// 
-//     .provide:
-//      ^^^^^^^
+//
 ```
 
 ## Step 2: Provide Dependency Layers to Effects
@@ -98,10 +93,10 @@ Then the effect can be run.
 
 ```scala
 runDemo:
-  Dough
-    .letRise
-    .provide:
-      Dough.fresh
+  ZIO.serviceWithZIO[Dough]:
+    _.letRise
+  .provide:
+    Dough.fresh
 // Making Fresh Dough
 // Dough is rising
 // ()
@@ -111,7 +106,7 @@ For code organization, and legibility at call sites, we are defining several lay
 They will all be used soon.
 
 ```scala
-case class Heat private ()
+case class Heat()
 object Heat:
   val oven =
     ZLayer
@@ -125,7 +120,7 @@ object Heat:
       .tapWithMessage:
         "Heating Toaster"
 
-  val broken: ZLayer[Any, String, Nothing] =
+  val broken =
     ZLayer.fail:
       "**Power Out**"
 ```
@@ -138,51 +133,36 @@ object Heat:
 
 ### Intersections AKA Products AKA Case Classes AKA Ands
 
-```scala
-trait Dependency1
-trait Dependency2
-
-def needyFunction(): ZIO[
-  Dependency1 & Dependency2,
-  Nothing,
-  Unit
-] = ???
-```
-
-The requirements for each ZIO are combined as an anonymous product type denoted by the `&` symbol.
-
-
+The requirements for each ZIO operation are combined as an anonymous product type denoted by the `&` symbol.
 
 ```scala
 // TODO Restore private constructor after failure scenario is dialed in
 // TODO Can we make Bread a trait,
 //    Then we would have BreadHomemade & BreadStoreBought
 
-case class Bread()
+trait Bread:
+  val eat =
+    ZIO.debug:
+      "Eating bread!"
+
+case class BreadHomeMade(heat: Heat, dough: Dough) extends Bread
+// TODO  Move StoreBought further down?
+case class BreadStoreBought() extends Bread
 
 object Bread:
-  val make: ZIO[Heat & Dough, Nothing, Bread] =
-    ZIO.succeed:
-      Bread()
-
   // TODO Explain ZLayer.fromZIO in prose
   // immediately before/after this
   val homemade =
     ZLayer
-      .fromZIO:
-        make
+      .derive[BreadHomeMade]
       .tapWithMessage:
         "Making Homemade Bread"
 
   val storeBought =
     ZLayer
-      .derive[Bread]
+      .derive[BreadStoreBought]
       .tapWithMessage:
         "Buying Bread"
-
-  val eat: ZIO[Bread, Nothing, String] =
-    ZIO.succeed:
-      "Eating bread!"
 
 end Bread
 ```
@@ -190,8 +170,15 @@ end Bread
 
 ```scala
 runDemo:
-  Bread.make.provide(Dough.fresh, Heat.oven)
-// Bread()
+  Bread
+    .homemade
+    .build
+    .provide(
+        Dough.fresh, 
+        Heat.oven, 
+        Scope.default
+    )
+// ZEnvironment(MdocSession::MdocApp::BreadHomeMa
 ```
 
 ## Step 4: Dependencies can "automatically" assemble to fulfill the needs of an effect
@@ -203,16 +190,16 @@ Dependencies on effects propagate to effects which use effects.
 ```scala
 // TODO Figure out why Bread.eat debug isn't showing up
 runDemo:
-  Bread
-    .eat
-    .provide(
+  ZIO.serviceWithZIO[Bread]:
+    _.eat
+  .provide(
       // Highlight that homemade needs the other
       // dependencies.
       Bread.homemade,
       Dough.fresh,
       Heat.oven
     )
-// Eating bread!
+// ()
 ```
 
 
@@ -223,18 +210,17 @@ Both of these processes require `Heat`.
 ```scala
 // Is it worth the complexity of making this private?
 // It would keep people from creating Toasts without using the make method
-case class Toast private ()
+case class Toast (heat: Heat, bread: Bread)
 
 object Toast:
-  val make: ZIO[Heat & Bread, Nothing, Toast] =
-    ZIO.succeed:
-      println:
-        "Making toast"
-      Toast()
+  val make =
+    ZLayer.derive[Toast]
+      .tapWithMessage("Making Toast")
 ```
 
 It is possible to also use the oven to provide `Heat` to make the `Toast`.
 
+TODO Update refs here
 The dependencies are based on the type, so in this case both
 `Toast.make` and `Bread.make` require heat, but 
 
@@ -243,15 +229,13 @@ Notice - Even though we provide the same dependencies in this example, Heat.oven
 
 ```scala
 runDemo:
-  Toast
-    .make
-    .provide(
-      Bread.homemade,
-      Dough.fresh,
-      Heat.oven
-    )
-// Making toast
-// Toast()
+  ZLayer.make[Toast](
+    Toast.make,
+    Bread.homemade,
+    Dough.fresh,
+    Heat.oven
+  ).build
+// ZEnvironment(MdocSession::MdocApp::Toast -> To
 ```
 
 However, the oven uses a lot of energy to make `Toast`.
@@ -261,14 +245,14 @@ It would be great if we can instead use our dedicated toaster!
 
 ```scala
 runDemo:
-  Toast
-    .make
-    .provide(
-      Dough.fresh,
-      Bread.homemade,
-      Heat.oven,
-      Heat.toaster
-    )
+  ZLayer.make[Toast](
+    Toast
+      .make,
+    Dough.fresh,
+    Bread.homemade,
+    Heat.oven,
+    Heat.toaster
+  ).build
 // error: 
 // 
 // 
@@ -294,12 +278,18 @@ This enables other effects that use them to provide their own dependencies of th
 ```scala
 runDemo:
   val bread =
-    ZLayer.fromZIO:
-      Bread.make.provide(Dough.fresh, Heat.oven)
+    ZLayer.make[Bread](
+      Bread.homemade,
+      Dough.fresh, 
+      Heat.oven
+    )
 
-  Toast.make.provide(bread, Heat.toaster)
-// Making toast
-// Toast()
+  ZLayer.make[Toast](
+    Toast.make,
+    bread, 
+    Heat.toaster
+  ).build
+// ZEnvironment(MdocSession::MdocApp::Toast -> To
 ```
 
 ## Step 8: Dependencies can fail
@@ -313,9 +303,9 @@ Bread2.fromFriend: ZLayer[Any, String, Bread]
 
 ```scala
 runDemo:
-  Bread
-    .eat
-    .provide:
+  ZIO.serviceWithZIO[Bread]:
+    _.eat
+  .provide:
       Bread2.fromFriend
 // **Power out**
 // **Power out Rez**
@@ -333,14 +323,14 @@ runDemo:
         Schedule.recurs:
           3
 
-  Bread
-    .eat
-    .provide:
-      bread
+  ZIO.serviceWithZIO[Bread]:
+    _.eat
+  .provide:
+    bread
 // **Power out**
 // **Power out**
 // Power is on
-// Eating bread!
+// ()
 ```
 
 ## Step 10: Fallback Dependencies 
@@ -354,10 +344,13 @@ runDemo:
       .orElse:
         Bread.storeBought
 
-  Toast.make.provide(bread, Heat.toaster)
+  ZLayer.make[Toast](
+    Toast.make,
+    bread,
+    Heat.toaster
+  ).build
 // **Power out**
-// Making toast
-// Toast()
+// ZEnvironment(MdocSession::MdocApp::Toast -> To
 ```
 
 ## Step 11: Layer Retry + Fallback?
@@ -378,7 +371,7 @@ runDemo:
     .debug
 // **Power out**
 // **Power out**
-// ZEnvironment(MdocSession::MdocApp::Bread -> Br
+// ZEnvironment(MdocSession::MdocApp::BreadStoreB
 ```
 
 

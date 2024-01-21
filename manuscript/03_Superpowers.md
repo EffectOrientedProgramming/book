@@ -127,6 +127,7 @@ runDemo:
 ```
 
 ## Step 7: Concurrently Execute Effect 
+TODO Consider deleting. Uses an extension
 
 
 ```scala
