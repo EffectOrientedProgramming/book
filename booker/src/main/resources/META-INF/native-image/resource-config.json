@@ -1,75 +1,166 @@
 {
   "resources":{
-  "includes":[
-    {
-      "pattern":"\\QMETA-INF/services/java.nio.file.spi.FileSystemProvider\\E"
-    }, 
-    {
-      "pattern":"\\QMETA-INF/services/org.scalafmt.interfaces.Scalafmt\\E"
-    }, 
-    {
-      "pattern":"\\Qcom/sun/jna/linux-x86-64/libjnidispatch.so\\E"
-    }, 
-    {
-      "pattern":"\\Qcom/typesafe/sbt/packager/linux/control-functions\\E"
-    }, 
-    {
-      "pattern":"\\Qcompiler.properties\\E"
-    }, 
-    {
-      "pattern":"\\Qcoursier/bootstrap/launcher/bootstrap-jar-urls\\E"
-    }, 
-    {
-      "pattern":"\\Qcoursier/bootstrap/launcher/bootstrap.properties\\E"
-    }, 
-    {
-      "pattern":"\\Qincrementalcompiler.version.properties\\E"
-    }, 
-    {
-      "pattern":"\\Qlibrary.properties\\E"
-    }, 
-    {
-      "pattern":"\\Qmodule.properties\\E"
-    }, 
-    {
-      "pattern":"\\Qnative/x86_64/libswoval-files0.so\\E"
-    }, 
-    {
-      "pattern":"\\Qorg/apache/ivy/core/settings/ivysettings.xml\\E"
-    }, 
-    {
-      "pattern":"\\Qorg/apache/ivy/core/settings/typedef.properties\\E"
-    }, 
-    {
-      "pattern":"\\Qorg/fusesource/jansi/jansi.properties\\E"
-    }, 
-    {
-      "pattern":"\\Qorg/jline/utils/capabilities.txt\\E"
-    }, 
-    {
-      "pattern":"\\Qorg/jline/utils/xterm-256color.caps\\E"
-    }, 
-    {
-      "pattern":"\\Qorg/slf4j/impl/StaticLoggerBinder.class\\E"
-    }, 
-    {
-      "pattern":"\\Qsbt-mdoc.properties\\E"
-    }, 
-    {
-      "pattern":"\\Qsbt/internal/XMainConfiguration.class\\E"
-    }, 
-    {
-      "pattern":"\\Qsbt/sbt.autoplugins\\E"
-    }, 
-    {
-      "pattern":"\\Qsbt/sbt.boot.properties\\E"
-    }, 
-    {
-      "pattern":"\\Qscalafix-interfaces.properties\\E"
-    }
-  ]},
+  "includes":[{
+    "pattern":"\\QMETA-INF/log4j-provider.properties\\E"
+  }, {
+    "pattern":"\\QMETA-INF/org/apache/logging/log4j/core/config/plugins/Log4j2Plugins.dat\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/java.lang.System$LoggerFinder\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/java.net.spi.InetAddressResolverProvider\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/java.net.spi.URLStreamHandlerProvider\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/java.nio.file.spi.FileSystemProvider\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/java.time.zone.ZoneRulesProvider\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/java.util.spi.ResourceBundleControlProvider\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/javax.script.ScriptEngineFactory\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/javax.xml.parsers.DocumentBuilderFactory\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/javax.xml.parsers.SAXParserFactory\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/org.apache.logging.log4j.core.util.ContextDataProvider\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/org.apache.logging.log4j.core.util.WatchEventService\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/org.apache.logging.log4j.spi.Provider\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/org.apache.logging.log4j.util.PropertySource\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/org.scalafmt.interfaces.Scalafmt\\E"
+  }, {
+    "pattern":"\\Qcom/sun/jna/linux-x86-64/libjnidispatch.so\\E"
+  }, {
+    "pattern":"\\Qcom/typesafe/sbt/packager/linux/control-functions\\E"
+  }, {
+    "pattern":"\\Qcompiler.properties\\E"
+  }, {
+    "pattern":"\\Qcoursier/bootstrap/launcher/bootstrap-jar-urls-1\\E"
+  }, {
+    "pattern":"\\Qcoursier/bootstrap/launcher/bootstrap-jar-urls\\E"
+  }, {
+    "pattern":"\\Qcoursier/bootstrap/launcher/bootstrap-loader-name-1\\E"
+  }, {
+    "pattern":"\\Qcoursier/bootstrap/launcher/bootstrap.properties\\E"
+  }, {
+    "pattern":"\\Qcoursier/bootstrap/launcher/set-python-properties\\E"
+  }, {
+    "pattern":"\\Qincrementalcompiler.version.properties\\E"
+  }, {
+    "pattern":"\\Qlibrary.properties\\E"
+  }, {
+    "pattern":"\\Qlog4j2-test.jsn\\E"
+  }, {
+    "pattern":"\\Qlog4j2-test.json\\E"
+  }, {
+    "pattern":"\\Qlog4j2-test.properties\\E"
+  }, {
+    "pattern":"\\Qlog4j2-test.xml\\E"
+  }, {
+    "pattern":"\\Qlog4j2-test.yaml\\E"
+  }, {
+    "pattern":"\\Qlog4j2-test.yml\\E"
+  }, {
+    "pattern":"\\Qlog4j2-test556d0826.jsn\\E"
+  }, {
+    "pattern":"\\Qlog4j2-test556d0826.json\\E"
+  }, {
+    "pattern":"\\Qlog4j2-test556d0826.properties\\E"
+  }, {
+    "pattern":"\\Qlog4j2-test556d0826.xml\\E"
+  }, {
+    "pattern":"\\Qlog4j2-test556d0826.yaml\\E"
+  }, {
+    "pattern":"\\Qlog4j2-test556d0826.yml\\E"
+  }, {
+    "pattern":"\\Qlog4j2.StatusLogger.properties\\E"
+  }, {
+    "pattern":"\\Qlog4j2.component.properties\\E"
+  }, {
+    "pattern":"\\Qlog4j2.jsn\\E"
+  }, {
+    "pattern":"\\Qlog4j2.json\\E"
+  }, {
+    "pattern":"\\Qlog4j2.properties\\E"
+  }, {
+    "pattern":"\\Qlog4j2.system.properties\\E"
+  }, {
+    "pattern":"\\Qlog4j2.xml\\E"
+  }, {
+    "pattern":"\\Qlog4j2.yaml\\E"
+  }, {
+    "pattern":"\\Qlog4j2.yml\\E"
+  }, {
+    "pattern":"\\Qlog4j2556d0826.jsn\\E"
+  }, {
+    "pattern":"\\Qlog4j2556d0826.json\\E"
+  }, {
+    "pattern":"\\Qlog4j2556d0826.properties\\E"
+  }, {
+    "pattern":"\\Qlog4j2556d0826.xml\\E"
+  }, {
+    "pattern":"\\Qlog4j2556d0826.yaml\\E"
+  }, {
+    "pattern":"\\Qlog4j2556d0826.yml\\E"
+  }, {
+    "pattern":"\\Qmodule.properties\\E"
+  }, {
+    "pattern":"\\Qnative/x86_64/libswoval-files0.so\\E"
+  }, {
+    "pattern":"\\Qorg/apache/ivy/core/settings/ivysettings.xml\\E"
+  }, {
+    "pattern":"\\Qorg/apache/ivy/core/settings/typedef.properties\\E"
+  }, {
+    "pattern":"\\Qorg/apache/ivy/plugins/parser/xml/ivy.xsd\\E"
+  }, {
+    "pattern":"\\Qorg/fusesource/jansi/jansi.properties\\E"
+  }, {
+    "pattern":"\\Qorg/jline/utils/capabilities.txt\\E"
+  }, {
+    "pattern":"\\Qorg/jline/utils/xterm-256color.caps\\E"
+  }, {
+    "pattern":"\\Qorg/slf4j/impl/StaticLoggerBinder.class\\E"
+  }, {
+    "pattern":"\\Qplugin.properties\\E"
+  }, {
+    "pattern":"\\Qsbt-mdoc.properties\\E"
+  }, {
+    "pattern":"\\Qsbt.boot.properties1.9.8\\E"
+  }, {
+    "pattern":"\\Qsbt.boot.properties1.9\\E"
+  }, {
+    "pattern":"\\Qsbt.boot.properties\\E"
+  }, {
+    "pattern":"\\Qsbt/internal/XMainConfiguration.class\\E"
+  }, {
+    "pattern":"\\Qsbt/sbt.autoplugins\\E"
+  }, {
+    "pattern":"\\Qsbt/sbt.boot.properties1.9.8\\E"
+  }, {
+    "pattern":"\\Qsbt/sbt.boot.properties1.9\\E"
+  }, {
+    "pattern":"\\Qsbt/sbt.boot.properties\\E"
+  }, {
+    "pattern":"\\Qsbt/sbt.builds\\E"
+  }, {
+    "pattern":"\\Qscalac-plugin.xml\\E"
+  }, {
+    "pattern":"\\Qscalafix-interfaces.properties\\E"
+  }, {
+    "pattern":"\\Qwrapped.properties\\E"
+  }, {
+    "pattern":"java.base:\\Qjdk/internal/icu/impl/data/icudt72b/nfkc.nrm\\E"
+  }, {
+    "pattern":"java.base:\\Qsun/net/www/content-types.properties\\E"
+  }, {
+    "pattern":"jdk.jfr:\\Qjdk/jfr/internal/query/view.ini\\E"
+  }]},
   "bundles":[{
-      "name":"org.eclipse.jgit.internal.JGitText",
-      "locales":[""]
-    }]
+    "name":"org.eclipse.jgit.internal.JGitText",
+    "locales":[""]
+  }]
 }

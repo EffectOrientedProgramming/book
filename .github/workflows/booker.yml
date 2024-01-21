@@ -32,9 +32,8 @@ jobs:
 
       - uses: graalvm/setup-graalvm@v1
         with:
-          version: 'latest'
-          java-version: '17'
-          components: 'native-image'
+          java-version: '21'
+          distribution: 'graalvm-community'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install msvc-dev
