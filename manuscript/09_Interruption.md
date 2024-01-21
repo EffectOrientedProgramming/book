@@ -37,27 +37,11 @@ runDemo:
       .run
 // About to sleep forever
 // Interrupted the eternal sleep
-// zio.internal.FiberRuntime@77681e5d
+// zio.internal.FiberRuntime@4f94416f
 ```
 
 If we encounter an error between forking and joining, the fibers will also be interrupted.
 
-```scala
-// TODO Define this in a more generic location?
-def createProcess(
-    label: String,
-    innerProcess: ZIO[Any, Nothing, Unit]
-) =
-  defer:
-    ZIO.debug(s"Beginning $label").run
-    innerProcess.run
-    ZIO.debug(s"Completed $label").run
-    // TODO Consider rewriting to avoid
-    // dot-chaining on block
-  .onInterrupt(
-    ZIO.succeed(println(s"Interrupt $label"))
-  )
-```
 
 ```scala
 runDemo:
@@ -104,7 +88,8 @@ runDemo:
       .timed
       .debug("Time:")
       .run
-// (PT0.000498478S,Some(**TODO**))
+// Time:: (PT0.000386368S,Some(**TODO**))
+// (PT0.000386368S,Some(**TODO**))
 ```
 We can see 2 significant behaviors here:
 

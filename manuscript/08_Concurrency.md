@@ -7,7 +7,7 @@ TODO Prose
 ```scala
 def sleepThenPrint(
     d: Duration
-): ZIO[Any, java.io.IOException, Duration] =
+) =
   defer:
     ZIO.sleep(d).run
     ZIO.debug(s"${d.render} elapsed").run
@@ -77,7 +77,7 @@ runDemo:
             )
         .run
     durations.fold(Duration.Zero)(_ + _).render
-// 14 m 51 s
+// 15 m
 ```
 
 ## zipPar, zipWithPar

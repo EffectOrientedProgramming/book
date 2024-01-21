@@ -4,10 +4,6 @@
 ## Constraining concurrent requests
 If we want to ensure we don't accidentally DDOS a service, we can restrict the number of concurrent requests to it.
 
-```scala
-trait DelicateResource:
-  val request: ZIO[Any, String, Int]
-```
 
 
 ```scala

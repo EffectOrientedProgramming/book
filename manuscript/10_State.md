@@ -19,28 +19,13 @@ Required Operations:
 - Read the current value
 
 These are both effectful operations.
-
-```scala
-trait RefZ[A]:
-  def get: ZIO[Any, Nothing, A]
-  def update(a: A => A): ZIO[Any, Nothing, Unit]
-```
-
-In order to confidently use this, we need certain guarantees about the behavior:
+In order to confidently use them, we need certain guarantees about the behavior:
 
 - The underlying value cannot be changed during a read
 - Multiple writes cannot happen concurrently, which would result in lost updates
 
 Less obviously, we also need to create the Mutable reference itself.
 We are changing the world, by creating a space that we can manipulate.
-This operation can live in the companion object:
-
-```scala
-object RefZ:
-  def make[A](a: A): ZIO[Any, Nothing, RefZ[A]] =
-    ???
-```
-
 
 ## Unreliable Counting
 
@@ -64,7 +49,7 @@ val unreliableCounting =
 ```scala
 runDemo:
   unreliableCounting
-// Final count: 99540
+// Final count: 98334
 ```
 
 Due to the unpredictable nature of shared mutable state, we do not know exactly what the final count above is.
