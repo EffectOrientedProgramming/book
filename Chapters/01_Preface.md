@@ -20,3 +20,19 @@ The code in this book uses language syntax that might be unfamiliar.
 
 * significant indentation
 * colon syntax
+
+### Teaching With This Book
+
+You may use the examples, exercises and solutions in classroom and other educational situations as long as you cite this book as the source.
+See the [Copyright]({{???}}) page for further details.
+
+The primary goal of the copyright is to ensure that the source of the code is properly cited, and to prevent you from republishing the code without permission.
+As long as this book is cited, using examples from the book in most media is generally not a problem.
+
+## Acknowledgements
+
+Kit Langton, for being a kindred spirit in software interests and inspiring contributor to the open source world.
+
+Wyett Considine, for being an enthusiastic intern and initial audience.
+
+Hali Frasure, for dozens of dinners and facilitating our book nights generally.

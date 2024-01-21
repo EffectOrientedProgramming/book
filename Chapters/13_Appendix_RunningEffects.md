@@ -1,46 +1,7 @@
-# Running Effects
+# Appendix Running Effects
 
-TODO: Combine with "Configuration"
+TODO: Make an appendix?
 
-## ZIOs are not their result. 
-
-A common mistake when starting with ZIO is trying to return ZIO instances themselves rather than their result.
-
-```scala mdoc
-println(Random.nextInt)
-```
-We will not see a random number printed out; we see some inscrutable type information.
-
-This is a mistake because ZIO's are not their result, they are descriptions of effects that produce the result.
-The `ZIO` instance only describes something *to be* done.
-
-ZIOs are not automatically executed.
-To actually run a ZIO, your program must take the data types and interpret / run them, executing the logic .
-The user must determine when/where that happens.
-
-Consider the `Option` type in the standard library.
-An `Option` _might_ have a value inside of it, but you can't safely assume that it does.
-Similarly, a `ZIO` _might_ produce a value, but you have to run it to find out.
-
-You can think of them as recipes for producing a value.
-You don't want to return a recipe from a function, you can only return a value.
-If it is your friend's birthday, they want a cake, not a list of instructions about mixing ingredients and baking.
-
-
-### The `defer`/direct syntax makes this more explicit
-
-
-## The ZIO Interpreter
-
-Scala compiles code to JVM bytecodes,
-Similarly ZIO has an interpreter that steps through and executes your code, much like the JVM interprets JVM bytecodes.
-The Zio interpreter is the hidden piece that allows Zio to understand so much more about the meaning of your code.
-This includes the ability to decide what to run concurrently and how to invisibly tune that concurrency--all at runtime.
-The interpreter is responsible for deciding when to context-switch between tasks, and is able to do this because it understands the ZIO code that it's executing.
-
-The interpreter is also the mechanism that evaluates the various effects described in the generic type parameters for each ZIO object.
-
-The reason we have the `defer` directive(method?) in zio-direct is to indicate that this code will be evaluated by the interpreter later.
 
 ## Building applications from scratch
 
