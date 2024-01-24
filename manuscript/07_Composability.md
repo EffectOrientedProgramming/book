@@ -36,9 +36,9 @@ ZIO.succeed(maybeThing()).someOrFail("error")
 //   trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:20)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:20)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14979/0x0000000803d5f440@5fe8b573
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14904/0x0000000803d69040@3a318fc4
 //   ),
-//   successK = zio.ZIO$$Lambda$17692/0x0000000804388040@fb1fed7
+//   successK = zio.ZIO$$Lambda$17610/0x0000000804408040@6c2efad5
 // )
 ```
 
@@ -66,9 +66,9 @@ ZIO
 //   trace = "repl.MdocSession.MdocApp.res3(07_Composability.md:35)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res3(07_Composability.md:35)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14979/0x0000000803d5f440@410ae932
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14904/0x0000000803d69040@2c484a78
 //   ),
-//   successK = zio.ZIO$$$Lambda$14981/0x0000000803d71040@657f6846
+//   successK = zio.ZIO$$$Lambda$14906/0x0000000803d6e840@52be86fa
 // )
 ```
 
@@ -350,14 +350,13 @@ object AllTheThings extends ZIOAppDefault:
       // Future `
       val headline: String =
         ZIO
-          .fromFuture { implicit ec =>
+          .from:
             getHeadline()
-          }
           .run
 
       val topic =
         ZIO
-          .fromOption:
+          .from:
             findTopicOfInterest(headline)
           .run
 
@@ -370,12 +369,11 @@ object AllTheThings extends ZIOAppDefault:
 
       val t: Try[String] = Success(headline)
       // todo: some failable function
-      val w: String = ZIO.fromTry(t).run
+      val w: String = ZIO.from(t).run
       val o: Option[Int] =
-        Option.unless(w.isEmpty)(
+        Option.unless(w.isEmpty):
           w.length
-        ) // todo: some optional function
-      val i: Int = ZIO.fromOption(o).debug.run
+      val i: Int = ZIO.from(o).debug.run
       asyncThing(i).run
       // todo: some error handling to show that
       // the errors weren't lost along the way

@@ -17,4 +17,3 @@ experiments-src-test-scala-random.md
 zio_helpers.md
 rezilience.md
 performance.md
-experiments-src-test-scala-concurrency.md
