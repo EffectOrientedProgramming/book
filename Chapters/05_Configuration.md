@@ -412,17 +412,69 @@ With ZIO Test we can use predictable replacements for the standard systems effec
 
 An example of this is Random numbers.  Randomness is inherently unpredictable.  But in ZIO Test, without changing our Effects we can change the underlying systems with something predictable:
 
-```scala mdoc
-import zio.test.TestRandom
-import zio.test.assertTrue
+```scala mdoc:silent
+import zio.test.{TestRandom, TestAspect, assertCompletes}
 
+val coinToss =
+  defer:
+    if (Random.nextBoolean.run)
+      ZIO
+        .debug:
+          "R: Heads."
+        .run
+    else
+      ZIO
+        .fail:
+          "Tails encountered. Ending performance."
+        .run
+
+val rosencrantzAndGuildensternAreDead =
+  defer:
+    TestRandom
+      .feedBooleans(Seq.fill(8)(true) *)
+      .run
+    ZIO
+      .debug:
+        "*Performance Begins*"
+      .run
+    coinToss.repeatN(4).run
+    
+    ZIO
+      .debug:
+        "G: There is an art to building suspense."
+      .run
+    coinToss.run
+    ZIO
+      .debug:
+        "G: Though it can be done by luck alone."
+      .run
+    coinToss.run
+    ZIO
+      .debug:
+        "G: ...probability"
+      .run
+    coinToss.run
+```
+
+```scala mdoc
 runSpec:
   defer:
-    TestRandom.feedInts(1, 2).run
-    val result1 = Random.nextInt.run
-    val result2 = Random.nextInt.run
-    assertTrue(result1 == 1, result2 == 2)
+    rosencrantzAndGuildensternAreDead.run
+    assertCompletes
 ```
+
+```scala mdoc:silent
+val spec =
+  defer:
+    rosencrantzAndGuildensternAreDead.run
+    assertCompletes
+```
+
+```scala mdoc
+// todo: maybe we can change runSpec so that this spec structure matches the previous
+runSpec(spec, TestAspect.withLiveRandom, TestAspect.eventually)
+```
+
 
 The `Random` Effect uses an injected something which when running the ZIO uses the system's unpredictable random number generator.  In ZIO Test the `Random` Effect uses a different something which can predictably generate "random" numbers.  `TestRandom` provides a way to define what those numbers are.  This example feeds in the `Int`s `1` and `2` so the first time we ask for a random number we get `1` and the second time we get `2`.
 

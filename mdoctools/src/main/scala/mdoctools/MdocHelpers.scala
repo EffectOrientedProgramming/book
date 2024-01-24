@@ -31,7 +31,7 @@ def runDemo[E, A](z: => ZIO[Scope, E, A]): Unit =
 import zio.System
 import zio.test.*
 
-def runSpec[E <: Throwable](
+def runSpec[E](
     x: ZIO[Scope, E, TestResult],
     aspects: TestAspect[Scope, Scope, E, E]*
 ) =
