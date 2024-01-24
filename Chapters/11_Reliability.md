@@ -1,8 +1,124 @@
-# Resilience
+# Reliability
 
 ## Caching
 
+```scala mdoc:invisible
+import zio.{ZIO, ZLayer}
+import zio.cache.{Cache, Lookup}
 
+import java.nio.file.Path
+
+case class FSLive(requests: Ref[Int])
+    extends CloudStorage:
+  def retrieve(
+      name: Path
+  ): ZIO[Any, Nothing, FileContents] =
+    defer:
+      requests.update(_ + 1).run
+      ZIO.sleep(10.millis).run
+      FSLive.hardcodedContents
+
+  val invoice: ZIO[Any, Nothing, String] =
+    defer:
+      val count = requests.get.run
+
+      "Amount owed: $" + count
+
+object FSLive:
+  val hardcodedContents =
+    FileContents(
+      List("viralImage1", "viralImage2")
+    )
+end FSLive
+
+case class FileContents(contents: List[String])
+
+trait CloudStorage:
+  def retrieve(
+      name: Path
+  ): ZIO[Any, Nothing, FileContents]
+  val invoice: ZIO[Any, Nothing, String]
+
+object CloudStorage:
+  val live =
+    ZLayer.fromZIO:
+      defer:
+        FSLive(Ref.make(0).run)
+
+case class PopularService(
+    retrieveContents: Path => ZIO[
+      Any,
+      Nothing,
+      FileContents
+    ]
+):
+  def retrieve(name: Path) =
+    retrieveContents(name)
+```
+
+One way to achieve better reliability is with caching.
+
+```scala mdoc:silent
+val thunderingHerdsScenario =
+  defer:
+    val popularService =
+      ZIO.service[PopularService].run
+
+    ZIO
+      .foreachPar(List.fill(100)(())): _ =>  // james don't like
+        popularService.retrieve:
+          Path.of("awesomeMemes")
+      .run
+
+    val cloudStorage =
+      ZIO.service[CloudStorage].run
+
+    cloudStorage.invoice.debug.run
+
+object PopularService:
+  private def lookup(key: Path) =
+    defer:
+      val cloudStorage =
+        ZIO.service[CloudStorage].run
+
+      cloudStorage.retrieve(key).run
+
+  val make =
+    defer:
+      val cloudStorage =
+        ZIO.service[CloudStorage].run
+      PopularService(cloudStorage.retrieve)
+
+  val makeCached =
+    defer:
+      val cache =
+        Cache
+          .make(
+            capacity = 100,
+            timeToLive = Duration.Infinity,
+            lookup = Lookup(lookup)
+          )
+          .run
+
+      PopularService(cache.get)
+end PopularService
+```
+
+```scala mdoc
+runDemo:
+  thunderingHerdsScenario.provide(
+    CloudStorage.live,
+    ZLayer.fromZIO(PopularService.make)
+  )
+```
+
+```scala mdoc
+runDemo:
+  thunderingHerdsScenario.provide(
+    CloudStorage.live,
+    ZLayer.fromZIO(PopularService.makeCached)
+  )
+```
 
 ## Staying under rate limits
 ## Constraining concurrent requests
