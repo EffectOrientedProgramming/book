@@ -70,6 +70,9 @@ runDemo:
 ```
 
 ## Staying under rate limits
+
+
+
 ## Constraining concurrent requests
 If we want to ensure we don't accidentally DDOS a service, we can restrict the number of concurrent requests to it.
 
@@ -118,6 +121,10 @@ runDemo:
 ```
 
 ## Circuit Breaking
+
+
+## Hedging
+
 
 
 ## Edit This Chapter

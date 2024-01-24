@@ -6,8 +6,6 @@
 ```scala
 package performance
 
-import zio_helpers.repeatNPar
-
 object Hedging extends ZIOAppDefault:
 
   def run =
@@ -16,18 +14,26 @@ object Hedging extends ZIOAppDefault:
       val contractBreaches = Ref.make(0).run
 
       ZIO
-        .repeatNPar(50_000): _ =>
-          defer:
-            Response
-              .random
-              .hedge(25.millis)
-              .run match
-              case Response.Fast =>
-                fastResponses.update(_ + 1).run
-              case Response.BreachOfContract =>
-                contractBreaches
-                  .update(_ + 1)
-                  .run
+        .foreachPar(List.fill(50_000)(())):
+          _ => // james still hates this
+            defer:
+              val randomResponse =
+                Response.random
+
+              val hedged =
+                randomResponse.race:
+                  randomResponse.delay:
+                    25.millis
+
+              // todo: extract to invisible
+              // function
+              hedged.run match
+                case Response.Fast =>
+                  fastResponses.update(_ + 1).run
+                case Response.BreachOfContract =>
+                  contractBreaches
+                    .update(_ + 1)
+                    .run
         .run
 
       fastResponses
@@ -41,14 +47,7 @@ object Hedging extends ZIOAppDefault:
 
 end Hedging
 
-// TODO Does Hedging belong in the Composability chapter?
-//   Defining extension methods that fit smoothly into your flows is impressive and should be shown somewhere.
-extension [R, E, A](z: ZIO[R, E, A])
-  def hedge(wait: zio.Duration): ZIO[R, E, A] =
-    z.race:
-      z.delay:
-        wait
-
+// invisible below
 enum Response:
   case Fast,
     BreachOfContract
