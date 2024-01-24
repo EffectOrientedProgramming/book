@@ -13,7 +13,6 @@
 12_ZIO_and_ZLayer.md
 13_Appendix_RunningEffects.md
 ExperimentsSection.md
-experiments-src-test-scala-random.md
 zio_helpers.md
 rezilience.md
 performance.md
