@@ -1,69 +1,115 @@
 package concurrency
 
-import zio.ZLayer
+import zio.{ZIO, ZIOAppDefault, ZLayer}
 import zio.cache.{Cache, Lookup}
+import zio_helpers.repeatNPar
 
 import java.nio.file.Path
 
-// TODO Move this all to concurrency_state prose when we can bring tests over in a decent way
+val thunderingHerdsScenario =
+  defer:
+    val popularService =
+      ZIO.service[PopularService].run
+
+    ZIO
+      .repeatNPar(100):
+        popularService.retrieve:
+          Path.of("awesomeMemes")
+      .run
+
+    val cloudStorage =
+      ZIO.service[CloudStorage].run
+
+    cloudStorage.invoice.debug.run
+
+object PopularService:
+  private def lookup(key: Path) =
+    defer:
+      val cloudStorage =
+        ZIO.service[CloudStorage].run
+
+      cloudStorage.retrieve(key).run
+
+  val make =
+    defer:
+      val cloudStorage =
+        ZIO.service[CloudStorage].run
+      PopularService(cloudStorage.retrieve)
+
+  val makeCached =
+    defer:
+      val cache =
+        Cache
+          .make(
+            capacity = 100,
+            timeToLive = Duration.Infinity,
+            lookup = Lookup(lookup)
+          )
+          .run
+
+      PopularService(cache.get)
+end PopularService
+
+object NoCache extends ZIOAppDefault:
+  override def run =
+    thunderingHerdsScenario.provide(
+      CloudStorage.live,
+      ZLayer.fromZIO(PopularService.make)
+    )
+
+object WithCache extends ZIOAppDefault:
+  override def run =
+    thunderingHerdsScenario.provide(
+      CloudStorage.live,
+      ZLayer.fromZIO(PopularService.makeCached)
+    )
+
+// invisible to bottom
+
+// TODO Figure if these functions belong in the object instead.
+case class FSLive(requests: Ref[Int])
+    extends CloudStorage:
+  def retrieve(
+      name: Path
+  ): ZIO[Any, Nothing, FileContents] =
+    defer:
+      requests.update(_ + 1).run
+      ZIO.sleep(10.millis).run
+      FSLive.hardcodedContents
+
+  val invoice: ZIO[Any, Nothing, String] =
+    defer:
+      val count = requests.get.run
+
+      "Amount owed: $" + count
+
+object FSLive:
+  val hardcodedContents =
+    FileContents(
+      List("viralImage1", "viralImage2")
+    )
+end FSLive
 
 case class FileContents(contents: List[String])
 
-trait PopularService:
+trait CloudStorage:
   def retrieve(
       name: Path
   ): ZIO[Any, Nothing, FileContents]
-
-trait CloudStorage:
-  def expensiveDownload(
-      name: Path
-  ): ZIO[Any, Nothing, FileContents]
-
   val invoice: ZIO[Any, Nothing, String]
 
-// Invisible
 object CloudStorage:
   val live =
     ZLayer.fromZIO:
       defer:
         FSLive(Ref.make(0).run)
-// /Invisible
 
-case class ServiceUncached(files: CloudStorage)
-    extends PopularService:
-  override def retrieve(
-      name: Path
-  ): ZIO[Any, Nothing, FileContents] =
-    files.expensiveDownload(name)
-
-object ServiceUncached:
-  val live =
-    ZLayer.fromFunction:
-      ServiceUncached.apply
-
-// TODO Do we care about this level of indirection?
-case class ServiceCached(
-    cache: Cache[Path, Nothing, FileContents]
-) extends PopularService:
-  override def retrieve(
-      name: Path
-  ): ZIO[Any, Nothing, FileContents] =
-    cache.get(name)
-
-object ServiceCached:
-  val make =
-    defer:
-      val cache
-          : Cache[Path, Nothing, FileContents] =
-        Cache
-          .make(
-            capacity = 100,
-            timeToLive = Duration.Infinity,
-            lookup =
-              Lookup((key: Path) =>
-                ZIO.serviceWithZIO[CloudStorage]:
-                  _.expensiveDownload(key)
-              )
-          )
-          .run
-      ServiceCached(cache)
+case class PopularService(
+    retrieveContents: Path => ZIO[
+      Any,
+      Nothing,
+      FileContents
+    ]
+):
+  def retrieve(name: Path) =
+    retrieveContents(name)

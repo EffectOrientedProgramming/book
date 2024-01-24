@@ -19,7 +19,7 @@ object AllTheThings extends ZIOAppDefault:
    * You can actually _convert_ everything into
    * nails. */
 
-  /*  Possible scenario:
+  /* Possible scenario:
    * Get headline - Future Analyze for
    * topic/persons of interest - Option Check if
    * we have made an entry for them in today's
@@ -86,14 +86,13 @@ object AllTheThings extends ZIOAppDefault:
       // Future `
       val headline: String =
         ZIO
-          .fromFuture { implicit ec =>
+          .from:
             getHeadline()
-          }
           .run
 
       val topic =
         ZIO
-          .fromOption:
+          .from:
             findTopicOfInterest(headline)
           .run
 
@@ -106,12 +105,11 @@ object AllTheThings extends ZIOAppDefault:
 
       val t: Try[String] = Success(headline)
       // todo: some failable function
-      val w: String = ZIO.fromTry(t).run
+      val w: String = ZIO.from(t).run
       val o: Option[Int] =
-        Option.unless(w.isEmpty)(
+        Option.unless(w.isEmpty):
           w.length
-        ) // todo: some optional function
-      val i: Int = ZIO.fromOption(o).debug.run
+      val i: Int = ZIO.from(o).debug.run
       asyncThing(i).run
       // todo: some error handling to show that
       // the errors weren't lost along the way
