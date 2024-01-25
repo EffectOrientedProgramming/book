@@ -36,9 +36,9 @@ ZIO.succeed(maybeThing()).someOrFail("error")
 //   trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:20)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:20)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14944/0x0000000803d67440@278383c6
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14961/0x0000000803cd6840@5d634918
 //   ),
-//   successK = zio.ZIO$$Lambda$17710/0x000000080340d840@1c35d1e9
+//   successK = zio.ZIO$$Lambda$17731/0x0000000801e5b040@2e13e6d2
 // )
 ```
 
@@ -66,9 +66,9 @@ ZIO
 //   trace = "repl.MdocSession.MdocApp.res3(07_Composability.md:35)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res3(07_Composability.md:35)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14944/0x0000000803d67440@5ba29f6e
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14961/0x0000000803cd6840@43f99fc3
 //   ),
-//   successK = zio.ZIO$$$Lambda$14946/0x0000000803d65040@38068fcc
+//   successK = zio.ZIO$$$Lambda$14963/0x0000000803cd5040@2da21ecd
 // )
 ```
 
@@ -269,12 +269,108 @@ import zio.*
 import scala.concurrent.Future
 import zio.direct.*
 
-import java.lang.AutoCloseable
 import scala.Option
-import scala.util.{Success, Try}
+import scala.util.Try
 
-// todo: turn into a relatable scenario
-// todo: consider a multi-step build like in Superpowers
+trait NewsService:
+  def getHeadline(): Future[String]
+
+trait ContentAnalyzer:
+  def findTopicOfInterest(
+      content: String
+  ): Option[String]
+
+trait HistoricalRecord:
+  case class DetailedHistory(content: String)
+  case class NoRecordsAvailable(reason: String)
+
+  def summaryFor(
+      topic: String
+  ): Either[NoRecordsAvailable, DetailedHistory]
+
+trait CloseableFile extends AutoCloseable:
+  def existsInFile(searchTerm: String): Boolean
+
+  def write(entry: String): Try[Unit]
+
+case class Scenario(
+    newsService: NewsService,
+    contentAnalyzer: ContentAnalyzer,
+    historicalRecord: HistoricalRecord,
+    closeableFile: CloseableFile
+):
+
+  def asyncThing(i: Int) = ZIO.sleep(i.seconds)
+
+  val resourcefulThing =
+    val open =
+      defer:
+        ZIO.debug("open").run
+        "asdf"
+
+    val close = (_: Any) => ZIO.debug("close")
+
+    ZIO.acquireRelease(open)(close)
+
+  val logic =
+    defer:
+      // todo: useful order, maybe async first or
+      // near first?
+      // maybe something parallel in here too?
+      // Convert from AutoCloseable
+      // maybe add Future or make asyncThing a
+      // Future `
+      val headline: String =
+        ZIO
+          .from:
+            newsService.getHeadline()
+          .run
+
+      val topic =
+        ZIO
+          .from:
+            contentAnalyzer.findTopicOfInterest:
+              headline
+          .run
+
+      val summaryFileZ =
+        ZIO
+          .fromAutoCloseable:
+            ZIO.succeed:
+              closeableFile
+          .run
+
+      val topicIsFresh =
+        summaryFileZ.existsInFile:
+          topic
+
+      if (topicIsFresh)
+        val newInfo =
+          ZIO
+            .from:
+              historicalRecord.summaryFor:
+                topic
+            .run
+        ZIO
+          .from:
+            summaryFileZ.write:
+              newInfo.content
+          .run
+
+      ZIO
+        .debug:
+          "topicIsFresh: " + topicIsFresh
+        .run
+
+      asyncThing(1).run
+      // todo: some error handling to show that
+      // the errors weren't lost along the way
+    .catchAll:
+      case t: Throwable =>
+        ???
+      case _: Any =>
+        ???
+end Scenario
 
 object AllTheThings extends ZIOAppDefault:
   type Nail = ZIO.type
@@ -297,25 +393,58 @@ object AllTheThings extends ZIOAppDefault:
    * Option/Try I think if we show both of them,
    * we can skip Either. */
 
-  def getHeadline(): Future[String] =
-    Future.successful(
-      "The stock market is crashing!"
-    )
+  override def run =
+    Scenario(
+      Implementations.newsService,
+      Implementations.contentAnalyzer,
+      Implementations.historicalRecord,
+      Implementations.closeableFile
+    ).logic
+end AllTheThings
 
-  def findTopicOfInterest(
-      content: String
-  ): Option[String] =
-    Option
-      .when(content.contains("stock market")):
-        "stock market"
+```
 
-  trait CloseableFile extends AutoCloseable:
-    def existsInFile(searchTerm: String): Boolean
 
-    def close: Unit
-    def write(entry: String): Unit
+### experiments/src/main/scala/composability/Invisible.scala
+```scala
+package composability
 
-  val summaryFile: CloseableFile =
+import scala.concurrent.Future
+import scala.util.Try
+
+object Implementations:
+  val newsService =
+    new NewsService:
+      def getHeadline(): Future[String] =
+        Future.successful:
+          "The stock market is crashing!"
+
+  val contentAnalyzer =
+    new ContentAnalyzer:
+      override def findTopicOfInterest(
+          content: String
+      ): Option[String] =
+        Option.when(
+          content.contains("stock market")
+        ):
+          "stock market"
+
+  val historicalRecord =
+    new HistoricalRecord:
+      override def summaryFor(
+          topic: String
+      ): Either[
+        NoRecordsAvailable,
+        DetailedHistory
+      ] =
+        topic match
+          case "stock market" =>
+            Right(
+              DetailedHistory("detailed history")
+            )
+          case "TODO_OTHER_MORE_OBSCURE_TOPIC" =>
+            Left(NoRecordsAvailable("blah blah"))
+  val closeableFile =
     new CloseableFile:
       override def close =
         println("Closing file now!")
@@ -324,73 +453,19 @@ object AllTheThings extends ZIOAppDefault:
           searchTerm: String
       ): Boolean = searchTerm == "stock market"
 
-      override def write(entry: String) = ???
-
-  def asyncThing(i: Int) = ZIO.sleep(i.seconds)
-
-  val resourcefulThing =
-    val open =
-      defer:
-        Console.printLine("open").orDie.run
-        "asdf"
-
-    val close =
-      (_: Any) =>
-        Console.printLine("close").orDie
-
-    ZIO.acquireRelease(open)(close)
-
-  override def run =
-    defer:
-      // todo: useful order, maybe async first or
-      // near first?
-      // maybe something parallel in here too?
-      // Convert from AutoCloseable
-      // maybe add Future or make asyncThing a
-      // Future `
-      val headline: String =
-        ZIO
-          .from:
-            getHeadline()
-          .run
-
-      val topic =
-        ZIO
-          .from:
-            findTopicOfInterest(headline)
-          .run
-
-      val summaryFileZ =
-        ZIO
-          .fromAutoCloseable:
-            ZIO.succeed:
-              summaryFile
-          .run
-
-      val t: Try[String] = Success(headline)
-      // todo: some failable function
-      val w: String = ZIO.from(t).run
-      val o: Option[Int] =
-        Option.unless(w.isEmpty):
-          w.length
-      val i: Int = ZIO.from(o).debug.run
-      asyncThing(i).run
-      // todo: some error handling to show that
-      // the errors weren't lost along the way
-    .catchAll:
-      case t: Throwable =>
-        ???
-      case _: Any =>
-        ???
-end AllTheThings
-
-def futureBits =
-  ZIO.fromFuture(implicit ec =>
-    Future.successful("Success!")
-  )
-  ZIO.fromFuture(implicit ec =>
-    Future.failed(new Exception("Failure :("))
-  )
+      override def write(
+          entry: String
+      ): Try[Unit] =
+        println("Writing to file: " + entry)
+        if (entry == "stock market")
+          Try(
+            throw new Exception(
+              "Stock market already exists!"
+            )
+          )
+        else
+          Try(())
+end Implementations
 
 ```
 
