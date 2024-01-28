@@ -290,7 +290,7 @@ object Bread2:
         .when(true)(
           ZIO.fail("**Power out Rez**")
         )
-        .map(_ => ???)
+        .as(???)
         .run
       ZIO.succeed(BreadStoreBought()).run
 

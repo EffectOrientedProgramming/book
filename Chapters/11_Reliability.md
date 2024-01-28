@@ -192,12 +192,12 @@ object DelicateResource:
 ```scala mdoc
 runDemo:
   defer:
+    val delicateResource =
+      ZIO.service[DelicateResource].run
     ZIO
       .foreachPar(1 to 10): _ =>
         //          bulkhead:
-        ZIO.serviceWithZIO[DelicateResource](
-          _.request
-        )
+          delicateResource.request
       .as("All Requests Succeeded")
       .catchAll(err => ZIO.succeed(err))
       .debug
@@ -213,12 +213,12 @@ runDemo:
   defer:
     val bulkhead: Bulkhead =
       Bulkhead.make(maxInFlightCalls = 3).run
+    val delicateResource =
+      ZIO.service[DelicateResource].run
     ZIO
       .foreachPar(1 to 10): _ =>
         bulkhead:
-          ZIO.serviceWithZIO[DelicateResource](
-            _.request
-          )
+          delicateResource.request
       .as("All Requests Succeeded")
       .catchAll(err => ZIO.succeed(err))
       .debug
