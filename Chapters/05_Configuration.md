@@ -133,7 +133,10 @@ trait Bread:
     ZIO.debug:
       "Eating bread!"
 
-case class BreadHomeMade(heat: Heat, dough: Dough) extends Bread
+case class BreadHomeMade(
+    heat: Heat,
+    dough: Dough
+) extends Bread
 // TODO  Move StoreBought further down?
 case class BreadStoreBought() extends Bread
 
@@ -151,8 +154,6 @@ object Bread:
       .derive[BreadStoreBought]
       .tapWithMessage:
         "Buying Bread"
-
-end Bread
 ```
 
 
@@ -162,9 +163,9 @@ runDemo:
     .homemade
     .build
     .provide(
-        Dough.fresh, 
-        Heat.oven, 
-        Scope.default
+      Dough.fresh,
+      Heat.oven,
+      Scope.default
     )
 ```
 
@@ -181,12 +182,12 @@ runDemo:
     val bread = ZIO.service[Bread].run
     bread.eat.run
   .provide(
-      // Highlight that homemade needs the other
-      // dependencies.
-      Bread.homemade,
-      Dough.fresh,
-      Heat.oven
-    )
+    // Highlight that homemade needs the other
+    // dependencies.
+    Bread.homemade,
+    Dough.fresh,
+    Heat.oven
+  )
 ```
 
 
@@ -197,11 +198,12 @@ Both of these processes require `Heat`.
 ```scala mdoc
 // Is it worth the complexity of making this private?
 // It would keep people from creating Toasts without using the make method
-case class Toast (heat: Heat, bread: Bread)
+case class Toast(heat: Heat, bread: Bread)
 
 object Toast:
   val make =
-    ZLayer.derive[Toast]
+    ZLayer
+      .derive[Toast]
       .tapWithMessage("Making Toast")
 ```
 
@@ -216,12 +218,14 @@ Notice - Even though we provide the same dependencies in this example, Heat.oven
 
 ```scala mdoc
 runDemo:
-  ZLayer.make[Toast](
-    Toast.make,
-    Bread.homemade,
-    Dough.fresh,
-    Heat.oven
-  ).build
+  ZLayer
+    .make[Toast](
+      Toast.make,
+      Bread.homemade,
+      Dough.fresh,
+      Heat.oven
+    )
+    .build
 ```
 
 However, the oven uses a lot of energy to make `Toast`.
@@ -231,14 +235,15 @@ It would be great if we can instead use our dedicated toaster!
 
 ```scala mdoc:fail
 runDemo:
-  ZLayer.make[Toast](
-    Toast
-      .make,
-    Dough.fresh,
-    Bread.homemade,
-    Heat.oven,
-    Heat.toaster
-  ).build
+  ZLayer
+    .make[Toast](
+      Toast.make,
+      Dough.fresh,
+      Bread.homemade,
+      Heat.oven,
+      Heat.toaster
+    )
+    .build
 ```
 Unfortunately our program is now ambiguous.
 It cannot decide if we should be making `Toast` in the oven, `Bread` in the toaster, or any other combination.
@@ -251,15 +256,13 @@ runDemo:
   val bread =
     ZLayer.make[Bread](
       Bread.homemade,
-      Dough.fresh, 
+      Dough.fresh,
       Heat.oven
     )
 
-  ZLayer.make[Toast](
-    Toast.make,
-    bread, 
-    Heat.toaster
-  ).build
+  ZLayer
+    .make[Toast](Toast.make, bread, Heat.toaster)
+    .build
 ```
 
 ## Step 8: Dependencies can fail
@@ -294,9 +297,7 @@ object Bread2:
         .run
       ZIO.succeed(BreadStoreBought()).run
 
-  def attempt(
-      invocations: Ref[Int]
-  ) =
+  def attempt(invocations: Ref[Int]) =
     invocations
       .updateAndGet(_ + 1)
       .flatMap {
@@ -330,7 +331,7 @@ runDemo:
     val bread = ZIO.service[Bread].run
     bread.eat.run
   .provide:
-      Bread2.fromFriend
+    Bread2.fromFriend
 ```
 
 ```scala mdoc:invisible
@@ -366,11 +367,9 @@ runDemo:
       .orElse:
         Bread.storeBought
 
-  ZLayer.make[Toast](
-    Toast.make,
-    bread,
-    Heat.toaster
-  ).build
+  ZLayer
+    .make[Toast](Toast.make, bread, Heat.toaster)
+    .build
 ```
 
 ## Step 11: Layer Retry + Fallback?
@@ -416,7 +415,11 @@ With ZIO Test we can use predictable replacements for the standard systems effec
 An example of this is Random numbers.  Randomness is inherently unpredictable.  But in ZIO Test, without changing our Effects we can change the underlying systems with something predictable:
 
 ```scala mdoc:silent
-import zio.test.{TestRandom, TestAspect, assertCompletes}
+import zio.test.{
+  TestRandom,
+  TestAspect,
+  assertCompletes
+}
 
 val coinToss =
   defer:
@@ -434,14 +437,14 @@ val coinToss =
 val rosencrantzAndGuildensternAreDead =
   defer:
     TestRandom
-      .feedBooleans(Seq.fill(8)(true) *)
+      .feedBooleans(Seq.fill(8)(true)*)
       .run
     ZIO
       .debug:
         "*Performance Begins*"
       .run
     coinToss.repeatN(4).run
-    
+
     ZIO
       .debug:
         "G: There is an art to building suspense."
@@ -475,7 +478,11 @@ val spec =
 
 ```scala mdoc
 // todo: maybe we can change runSpec so that this spec structure matches the previous
-runSpec(spec, TestAspect.withLiveRandom, TestAspect.eventually)
+runSpec(
+  spec,
+  TestAspect.withLiveRandom,
+  TestAspect.eventually
+)
 ```
 
 

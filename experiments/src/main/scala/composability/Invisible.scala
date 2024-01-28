@@ -12,17 +12,27 @@ object Implementations:
 
   val contentAnalyzer =
     new ContentAnalyzer:
-      override def findTopicOfInterest(content: String): Option[String] =
-        Option
-          .when(content.contains("stock market")):
-            "stock market"
+      override def findTopicOfInterest(
+          content: String
+      ): Option[String] =
+        Option.when(
+          content.contains("stock market")
+        ):
+          "stock market"
 
   val historicalRecord =
     new HistoricalRecord:
-      override def summaryFor(topic: String): Either[NoRecordsAvailable, DetailedHistory] =
+      override def summaryFor(
+          topic: String
+      ): Either[
+        NoRecordsAvailable,
+        DetailedHistory
+      ] =
         topic match
           case "stock market" =>
-            Right(DetailedHistory("detailed history"))
+            Right(
+              DetailedHistory("detailed history")
+            )
           case "TODO_OTHER_MORE_OBSCURE_TOPIC" =>
             Left(NoRecordsAvailable("blah blah"))
   val closeableFile =
@@ -31,13 +41,19 @@ object Implementations:
         println("Closing file now!")
 
       override def existsInFile(
-                                 searchTerm: String
-                               ): Boolean = searchTerm == "stock market"
+          searchTerm: String
+      ): Boolean = searchTerm == "stock market"
 
-      override def write(entry: String): Try[Unit] =
+      override def write(
+          entry: String
+      ): Try[Unit] =
         println("Writing to file: " + entry)
         if (entry == "stock market")
-          Try(throw new Exception("Stock market already exists!"))
+          Try(
+            throw new Exception(
+              "Stock market already exists!"
+            )
+          )
         else
           Try(())
-        
+end Implementations

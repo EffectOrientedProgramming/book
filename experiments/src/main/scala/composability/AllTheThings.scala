@@ -14,27 +14,28 @@ trait NewsService:
 case class NoInterestingTopicsFound()
 trait ContentAnalyzer:
   def findTopicOfInterest(
-                           content: String
-                         ): Option[String]
+      content: String
+  ): Option[String]
 
 case class DetailedHistory(content: String)
 case class NoRecordsAvailable(reason: String)
 trait HistoricalRecord:
 
-  def summaryFor(topic: String): Either[NoRecordsAvailable, DetailedHistory]
+  def summaryFor(
+      topic: String
+  ): Either[NoRecordsAvailable, DetailedHistory]
 
 trait CloseableFile extends AutoCloseable:
   def existsInFile(searchTerm: String): Boolean
 
   def write(entry: String): Try[Unit]
 
-
 case class Scenario(
     newsService: NewsService,
     contentAnalyzer: ContentAnalyzer,
     historicalRecord: HistoricalRecord,
     closeableFile: CloseableFile
-                   ):
+):
 
   val logic =
     defer:
@@ -49,7 +50,9 @@ case class Scenario(
           .from:
             contentAnalyzer.findTopicOfInterest:
               headline
-          .mapError(_ => NoInterestingTopicsFound())
+          .mapError(_ =>
+            NoInterestingTopicsFound()
+          )
           .run
 
       val summaryFileZ =
@@ -60,28 +63,29 @@ case class Scenario(
           .run
 
       val topicIsFresh =
-        summaryFileZ
-          .existsInFile:
-            topic
+        summaryFileZ.existsInFile:
+          topic
 
       if (topicIsFresh)
         val newInfo =
-          ZIO.from:
-            historicalRecord.summaryFor:
-              topic
+          ZIO
+            .from:
+              historicalRecord.summaryFor:
+                topic
+            .run
+        ZIO
+          .from:
+            summaryFileZ.write:
+              newInfo.content
           .run
-        ZIO.from:
-          summaryFileZ.write:
-            newInfo.content
+
+      ZIO
+        .debug:
+          "topicIsFresh: " + topicIsFresh
         .run
 
-      ZIO.debug:
-        "topicIsFresh: " + topicIsFresh
-      .run
-
-        // todo: some error handling to show that
-        // the errors weren't lost along the way
-
+      // todo: some error handling to show that
+      // the errors weren't lost along the way
     .catchAll:
       case t: Throwable =>
         ???
@@ -89,7 +93,7 @@ case class Scenario(
         ???
       case nothing: NoInterestingTopicsFound =>
         ???
-
+end Scenario
 
 object AllTheThings extends ZIOAppDefault:
   type Nail = ZIO.type
@@ -98,12 +102,10 @@ object AllTheThings extends ZIOAppDefault:
    * You can actually _convert_ everything into
    * nails. */
 
-  /*
-   * Is Either different enough to demo here?
+  /* Is Either different enough to demo here?
    * It basically splits the difference between
    * Option/Try I think if we show both of them,
    * we can skip Either. */
-
 
   override def run =
     Scenario(

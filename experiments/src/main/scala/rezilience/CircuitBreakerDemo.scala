@@ -26,7 +26,10 @@ object CircuitBreakerDemo extends ZIOAppDefault:
       trippingStrategy =
         TrippingStrategy
           .failureCount(maxFailures = 2),
-      resetPolicy = Retry.Schedules.common(maxRetries = Some(10)),
+      resetPolicy =
+        Retry
+          .Schedules
+          .common(maxRetries = Some(10)),
 //          .exponentialBackoff(
 //            min = 1.second,
 //            max = 4.second,
@@ -39,18 +42,17 @@ object CircuitBreakerDemo extends ZIOAppDefault:
 
   def run =
     defer:
-      val expensiveSystem = ZIO.service[ExpensiveSystem].run
-      expensiveSystem.call
+      val expensiveSystem =
+        ZIO.service[ExpensiveSystem].run
+      expensiveSystem
+        .call
         .ignore
         .repeat(
           Schedule.recurs(18) &&
             Schedule.spaced(250.millis)
         )
         .run
-      expensiveSystem
-        .billToDate
-        .debug
-        .run
+      expensiveSystem.billToDate.debug.run
     .provide:
 //       ExternalSystem // TOGGLE
       ExternalSystemProtected // TOGGLE

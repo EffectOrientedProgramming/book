@@ -56,9 +56,7 @@ object HiddenPrelude:
       }
   end Scenario
 
-  def saveUser(
-      username: String
-  ) =
+  def saveUser(username: String) =
     val succeed = ZIO.succeed("User saved")
     val fail =
       ZIO
@@ -108,9 +106,7 @@ object HiddenPrelude:
     )
   end saveUser
 
-  def sendToManualQueue(
-      username: String
-  ) =
+  def sendToManualQueue(username: String) =
     ZIO
       .attempt("User sent to manual setup queue")
 
@@ -147,8 +143,7 @@ object HiddenPrelude:
   extension [R, E, A](z: ZIO[R, E, A])
     def fireAndForget(
         background: ZIO[R, Nothing, Any]
-    ) =
-      z.zipParLeft(background.forkDaemon)
+    ) = z.zipParLeft(background.forkDaemon)
 
 end HiddenPrelude
 

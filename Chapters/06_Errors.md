@@ -272,9 +272,7 @@ We are re-using the  `calculateTemp`
 {{TODO }}
 
 ```scala mdoc
-def calculateTempWrapped(
-    behavior: Scenario
-) =
+def calculateTempWrapped(behavior: Scenario) =
   ZIO.attempt:
     calculateTemp:
       behavior
@@ -312,9 +310,7 @@ runDemo:
 This is decent, but does not provide the maximum possible guarantees. Look at what happens if we forget to handle one of our errors.
 
 ```scala mdoc
-def getTemperatureZGpsGap(
-    behavior: Scenario
-) =
+def getTemperatureZGpsGap(behavior: Scenario) =
   calculateTempWrapped:
     behavior
   .catchAll:
