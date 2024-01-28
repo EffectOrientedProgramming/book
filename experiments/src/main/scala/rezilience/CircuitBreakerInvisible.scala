@@ -14,11 +14,8 @@ object ExternalSystem:
         val valueProducer =
           scheduledValues(
             (300.millis, Success),
-            (200.millis, Failure),
-            // TODO Restore when I can get CB to
-            // reconnect :(
             (400.millis, Failure),
-            (5.seconds, Success)
+            (20.seconds, Success)
           ).run
         ExternalSystem(
           Ref.make(0).run,

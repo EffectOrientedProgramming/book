@@ -26,7 +26,7 @@ object CircuitBreakerDemo extends ZIOAppDefault:
       trippingStrategy =
         TrippingStrategy
           .failureCount(maxFailures = 2),
-      resetPolicy = Retry.Schedules.common(),
+      resetPolicy = Retry.Schedules.common(maxRetries = Some(10)),
 //          .exponentialBackoff(
 //            min = 1.second,
 //            max = 4.second,
@@ -39,18 +39,16 @@ object CircuitBreakerDemo extends ZIOAppDefault:
 
   def run =
     defer:
-      ZIO
-        .serviceWithZIO[ExpensiveSystem](_.call)
+      val expensiveSystem = ZIO.service[ExpensiveSystem].run
+      expensiveSystem.call
         .ignore
         .repeat(
-          Schedule.recurs(8) &&
-            Schedule.spaced(200.millis)
+          Schedule.recurs(18) &&
+            Schedule.spaced(250.millis)
         )
         .run
-      ZIO
-        .serviceWithZIO[ExpensiveSystem](
-          _.billToDate
-        )
+      expensiveSystem
+        .billToDate
         .debug
         .run
     .provide:
@@ -75,7 +73,6 @@ case class ExternalSystemProtected(
         case CircuitBreakerOpen =>
           "Circuit breaker blocked the call to our external system"
         case WrappedError(e) =>
-          println("ignored boom?")
           s"External system threw an exception: $e"
       .tapError(e => ZIO.debug(e))
 
