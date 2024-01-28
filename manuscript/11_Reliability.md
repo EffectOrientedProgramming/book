@@ -12,9 +12,10 @@ val thunderingHerdsScenario =
       ZIO.service[PopularService].run
 
     ZIO
-      .foreachPar(List.fill(100)(())): _ =>  // james don't like
-        popularService.retrieve:
-          Path.of("awesomeMemes")
+      .foreachPar(List.fill(100)(())):
+        _ => // james don't like
+          popularService.retrieve:
+            Path.of("awesomeMemes")
       .run
 
     val cloudStorage =
@@ -86,7 +87,7 @@ runDemo:
     ZIO
       .foreachPar(1 to 10): _ =>
         //          bulkhead:
-          delicateResource.request
+        delicateResource.request
       .as("All Requests Succeeded")
       .catchAll(err => ZIO.succeed(err))
       .debug
@@ -133,21 +134,24 @@ runDemo:
     val contractBreaches = Ref.make(0).run
 
     ZIO
-      .foreachPar(List.fill(50_000)(())): _ => // james still hates this
-        defer:
-          val hedged =
-            logicThatSporadicallyLocksUp.race:
-              logicThatSporadicallyLocksUp.delay:
-                25.millis
+      .foreachPar(List.fill(50_000)(())):
+        _ => // james still hates this
+          defer:
+            val hedged =
+              logicThatSporadicallyLocksUp.race:
+                logicThatSporadicallyLocksUp
+                  .delay:
+                    25.millis
 
-          // TODO How do we make this demo more obvious?
-          //   The request is returning the hypothetical runtime, but that's
-          //   not clear from the code that will be visible to the reader.
-          val duration = hedged.run
-          if (duration > 1.second)
-            contractBreaches
-              .update(_ + 1)
-              .run
+            // TODO How do we make this demo more
+            // obvious?
+            // The request is returning the
+            // hypothetical runtime, but that's
+            // not clear from the code that will
+            // be visible to the reader.
+            val duration = hedged.run
+            if (duration > 1.second)
+              contractBreaches.update(_ + 1).run
       .run
 
     contractBreaches
@@ -156,6 +160,7 @@ runDemo:
       .run
 // 0
 ```
+
 
 ## Edit This Chapter
 [Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/11_Reliability.md)
