@@ -11,14 +11,15 @@ import scala.util.Try
 trait NewsService:
   def getHeadline(): Future[String]
 
+case class NoInterestingTopicsFound()
 trait ContentAnalyzer:
   def findTopicOfInterest(
                            content: String
                          ): Option[String]
 
+case class DetailedHistory(content: String)
+case class NoRecordsAvailable(reason: String)
 trait HistoricalRecord:
-  case class DetailedHistory(content: String)
-  case class NoRecordsAvailable(reason: String)
 
   def summaryFor(topic: String): Either[NoRecordsAvailable, DetailedHistory]
 
@@ -34,9 +35,6 @@ case class Scenario(
     historicalRecord: HistoricalRecord,
     closeableFile: CloseableFile
                    ):
-
-  def asyncThing(i: Int) =
-    ZIO.sleep(i.seconds)
 
   val resourcefulThing =
     val open =
@@ -69,6 +67,7 @@ case class Scenario(
           .from:
             contentAnalyzer.findTopicOfInterest:
               headline
+          .mapError(_ => NoInterestingTopicsFound())
           .run
 
       val summaryFileZ =
@@ -98,14 +97,17 @@ case class Scenario(
         "topicIsFresh: " + topicIsFresh
       .run
 
-      asyncThing(1).run
         // todo: some error handling to show that
         // the errors weren't lost along the way
+
     .catchAll:
       case t: Throwable =>
         ???
-      case _: Any =>
+      case noRecords: NoRecordsAvailable =>
         ???
+      case nothing: NoInterestingTopicsFound =>
+        ???
+
 
 object AllTheThings extends ZIOAppDefault:
   type Nail = ZIO.type

@@ -1,6 +1,6 @@
 package rezilience
 
-import nl.vroste.rezilience.*
+import nl.vroste.rezilience.RateLimiter
 
 /** This is useful for scenarios such as:
   *   - Making sure you don't suddenly spike your
@@ -46,7 +46,7 @@ object RateLimiterDemoGlobal
             s"${i.toString} generated a key"
           )
             // Repeats as fast as allowed
-            .repeatN(2).debug(s"Result $i")
+            .repeatN(2)
         .unit
         .timedSecondsDebug("Total time")
         .run
