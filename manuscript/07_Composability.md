@@ -36,9 +36,9 @@ ZIO.succeed(maybeThing()).someOrFail("error")
 //   trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:20)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:20)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14961/0x0000000803cd6840@5d634918
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14980/0x0000000803d68840@59c1e787
 //   ),
-//   successK = zio.ZIO$$Lambda$17731/0x0000000801e5b040@2e13e6d2
+//   successK = zio.ZIO$$Lambda$17752/0x00000008044e3840@41c7af39
 // )
 ```
 
@@ -66,9 +66,9 @@ ZIO
 //   trace = "repl.MdocSession.MdocApp.res3(07_Composability.md:35)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res3(07_Composability.md:35)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14961/0x0000000803cd6840@43f99fc3
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14980/0x0000000803d68840@1d5e27c
 //   ),
-//   successK = zio.ZIO$$$Lambda$14963/0x0000000803cd5040@2da21ecd
+//   successK = zio.ZIO$$$Lambda$14982/0x0000000803d6e840@248f2623
 // )
 ```
 
@@ -275,14 +275,15 @@ import scala.util.Try
 trait NewsService:
   def getHeadline(): Future[String]
 
+case class NoInterestingTopicsFound()
 trait ContentAnalyzer:
   def findTopicOfInterest(
       content: String
   ): Option[String]
 
+case class DetailedHistory(content: String)
+case class NoRecordsAvailable(reason: String)
 trait HistoricalRecord:
-  case class DetailedHistory(content: String)
-  case class NoRecordsAvailable(reason: String)
 
   def summaryFor(
       topic: String
@@ -300,26 +301,8 @@ case class Scenario(
     closeableFile: CloseableFile
 ):
 
-  def asyncThing(i: Int) = ZIO.sleep(i.seconds)
-
-  val resourcefulThing =
-    val open =
-      defer:
-        ZIO.debug("open").run
-        "asdf"
-
-    val close = (_: Any) => ZIO.debug("close")
-
-    ZIO.acquireRelease(open)(close)
-
   val logic =
     defer:
-      // todo: useful order, maybe async first or
-      // near first?
-      // maybe something parallel in here too?
-      // Convert from AutoCloseable
-      // maybe add Future or make asyncThing a
-      // Future `
       val headline: String =
         ZIO
           .from:
@@ -331,6 +314,9 @@ case class Scenario(
           .from:
             contentAnalyzer.findTopicOfInterest:
               headline
+          .mapError(_ =>
+            NoInterestingTopicsFound()
+          )
           .run
 
       val summaryFileZ =
@@ -362,13 +348,14 @@ case class Scenario(
           "topicIsFresh: " + topicIsFresh
         .run
 
-      asyncThing(1).run
       // todo: some error handling to show that
       // the errors weren't lost along the way
     .catchAll:
       case t: Throwable =>
         ???
-      case _: Any =>
+      case noRecords: NoRecordsAvailable =>
+        ???
+      case nothing: NoInterestingTopicsFound =>
         ???
 end Scenario
 
@@ -379,16 +366,7 @@ object AllTheThings extends ZIOAppDefault:
    * You can actually _convert_ everything into
    * nails. */
 
-  /* Possible scenario:
-   * Get headline - Future Analyze for
-   * topic/persons of interest - Option Check if
-   * we have made an entry for them in today's
-   * summary file - Resource If not:
-   * Dig up supporting information on the topic
-   * from a DB - Try Make new entry in today's
-   * summary file - Resource
-   *
-   * Is Either different enough to demo here?
+  /* Is Either different enough to demo here?
    * It basically splits the difference between
    * Option/Try I think if we show both of them,
    * we can skip Either. */

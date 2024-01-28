@@ -14,5 +14,4 @@
 13_Appendix_RunningEffects.md
 ExperimentsSection.md
 rezilience.md
-performance.md
 zio_helpers.md

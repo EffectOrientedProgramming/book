@@ -81,12 +81,12 @@ If we want to ensure we don't accidentally DDOS a service, we can restrict the n
 ```scala
 runDemo:
   defer:
+    val delicateResource =
+      ZIO.service[DelicateResource].run
     ZIO
       .foreachPar(1 to 10): _ =>
         //          bulkhead:
-        ZIO.serviceWithZIO[DelicateResource](
-          _.request
-        )
+          delicateResource.request
       .as("All Requests Succeeded")
       .catchAll(err => ZIO.succeed(err))
       .debug
@@ -105,12 +105,12 @@ runDemo:
   defer:
     val bulkhead: Bulkhead =
       Bulkhead.make(maxInFlightCalls = 3).run
+    val delicateResource =
+      ZIO.service[DelicateResource].run
     ZIO
       .foreachPar(1 to 10): _ =>
         bulkhead:
-          ZIO.serviceWithZIO[DelicateResource](
-            _.request
-          )
+          delicateResource.request
       .as("All Requests Succeeded")
       .catchAll(err => ZIO.succeed(err))
       .debug
@@ -126,6 +126,36 @@ runDemo:
 ## Hedging
 
 
+
+```scala
+runDemo:
+  defer:
+    val contractBreaches = Ref.make(0).run
+
+    ZIO
+      .foreachPar(List.fill(50_000)(())): _ => // james still hates this
+        defer:
+          val hedged =
+            logicThatSporadicallyLocksUp.race:
+              logicThatSporadicallyLocksUp.delay:
+                25.millis
+
+          // TODO How do we make this demo more obvious?
+          //   The request is returning the hypothetical runtime, but that's
+          //   not clear from the code that will be visible to the reader.
+          val duration = hedged.run
+          if (duration > 1.second)
+            contractBreaches
+              .update(_ + 1)
+              .run
+      .run
+
+    contractBreaches
+      .get
+      .debug("Contract Breaches")
+      .run
+// 0
+```
 
 ## Edit This Chapter
 [Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/11_Reliability.md)

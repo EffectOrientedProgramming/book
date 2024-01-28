@@ -32,7 +32,10 @@ object CircuitBreakerDemo extends ZIOAppDefault:
       trippingStrategy =
         TrippingStrategy
           .failureCount(maxFailures = 2),
-      resetPolicy = Retry.Schedules.common(),
+      resetPolicy =
+        Retry
+          .Schedules
+          .common(maxRetries = Some(10)),
 //          .exponentialBackoff(
 //            min = 1.second,
 //            max = 4.second,
@@ -45,20 +48,17 @@ object CircuitBreakerDemo extends ZIOAppDefault:
 
   def run =
     defer:
-      ZIO
-        .serviceWithZIO[ExpensiveSystem](_.call)
+      val expensiveSystem =
+        ZIO.service[ExpensiveSystem].run
+      expensiveSystem
+        .call
         .ignore
         .repeat(
-          Schedule.recurs(8) &&
-            Schedule.spaced(200.millis)
+          Schedule.recurs(18) &&
+            Schedule.spaced(250.millis)
         )
         .run
-      ZIO
-        .serviceWithZIO[ExpensiveSystem](
-          _.billToDate
-        )
-        .debug
-        .run
+      expensiveSystem.billToDate.debug.run
     .provide:
 //       ExternalSystem // TOGGLE
       ExternalSystemProtected // TOGGLE
@@ -81,7 +81,6 @@ case class ExternalSystemProtected(
         case CircuitBreakerOpen =>
           "Circuit breaker blocked the call to our external system"
         case WrappedError(e) =>
-          println("ignored boom?")
           s"External system threw an exception: $e"
       .tapError(e => ZIO.debug(e))
 
@@ -122,11 +121,8 @@ object ExternalSystem:
         val valueProducer =
           scheduledValues(
             (300.millis, Success),
-            (200.millis, Failure),
-            // TODO Restore when I can get CB to
-            // reconnect :(
             (400.millis, Failure),
-            (5.seconds, Success)
+            (20.seconds, Success)
           ).run
         ExternalSystem(
           Ref.make(0).run,
@@ -278,7 +274,7 @@ private case class ExpiringValue[A](
 ```scala
 package rezilience
 
-import nl.vroste.rezilience.*
+import nl.vroste.rezilience.RateLimiter
 
 /** This is useful for scenarios such as:
   *   - Making sure you don't suddenly spike your
@@ -324,7 +320,7 @@ object RateLimiterDemoGlobal
             s"${i.toString} generated a key"
           )
             // Repeats as fast as allowed
-            .repeatN(2).debug(s"Result $i")
+            .repeatN(2)
         .unit
         .timedSecondsDebug("Total time")
         .run

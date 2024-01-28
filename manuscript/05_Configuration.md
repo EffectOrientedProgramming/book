@@ -71,9 +71,11 @@ TODO: Decide what to do about the compiler error differences between these appro
 TODO: Can we avoid the `.provide()` and still get a good compile error in mdoc
 ```scala
 runDemo:
-  ZIO.serviceWithZIO[Dough](_.letRise)
-    .provide()
-// error: 
+  defer:
+    val dough = ZIO.service[Dough].run
+    dough.letRise.run
+  .provide()
+// error:
 // 
 // 
 // ──── ZLAYER ERROR ────────────────────────────────────────────────────
@@ -84,7 +86,9 @@ runDemo:
 //       
 // ──────────────────────────────────────────────────────────────────────
 // 
-//
+// 
+//     defer:
+//     ^
 ```
 
 ## Step 2: Provide Dependency Layers to Effects
@@ -93,8 +97,9 @@ Then the effect can be run.
 
 ```scala
 runDemo:
-  ZIO.serviceWithZIO[Dough]:
-    _.letRise
+  defer:
+    val dough = ZIO.service[Dough].run
+    dough.letRise.run
   .provide:
     Dough.fresh
 // Making Fresh Dough
@@ -190,8 +195,9 @@ Dependencies on effects propagate to effects which use effects.
 ```scala
 // TODO Figure out why Bread.eat debug isn't showing up
 runDemo:
-  ZIO.serviceWithZIO[Bread]:
-    _.eat
+  defer:
+    val bread = ZIO.service[Bread].run
+    bread.eat.run
   .provide(
       // Highlight that homemade needs the other
       // dependencies.
@@ -303,8 +309,9 @@ Bread2.fromFriend: ZLayer[Any, String, Bread]
 
 ```scala
 runDemo:
-  ZIO.serviceWithZIO[Bread]:
-    _.eat
+  defer:
+    val bread = ZIO.service[Bread].run
+    bread.eat.run
   .provide:
       Bread2.fromFriend
 // **Power out**
@@ -316,17 +323,15 @@ runDemo:
 
 ```scala
 runDemo:
-  val bread =
+  defer:
+    val bread = ZIO.service[Bread].run
+    bread.eat.run
+  .provide:
     Bread2
       .fromFriend
       .retry:
         Schedule.recurs:
           3
-
-  ZIO.serviceWithZIO[Bread]:
-    _.eat
-  .provide:
-    bread
 // **Power out**
 // **Power out**
 // Power is on
