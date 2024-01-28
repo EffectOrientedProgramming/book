@@ -36,26 +36,8 @@ case class Scenario(
     closeableFile: CloseableFile
                    ):
 
-  val resourcefulThing =
-    val open =
-      defer:
-        ZIO.debug("open").run
-        "asdf"
-
-    val close =
-      (_: Any) =>
-        ZIO.debug("close")
-
-    ZIO.acquireRelease(open)(close)
-
   val logic =
     defer:
-      // todo: useful order, maybe async first or
-      // near first?
-      // maybe something parallel in here too?
-      // Convert from AutoCloseable
-      // maybe add Future or make asyncThing a
-      // Future `
       val headline: String =
         ZIO
           .from:
@@ -116,15 +98,7 @@ object AllTheThings extends ZIOAppDefault:
    * You can actually _convert_ everything into
    * nails. */
 
-  /*  Possible scenario:
-   * Get headline - Future Analyze for
-   * topic/persons of interest - Option Check if
-   * we have made an entry for them in today's
-   * summary file - Resource If not:
-   * Dig up supporting information on the topic
-   * from a DB - Try Make new entry in today's
-   * summary file - Resource
-   *
+  /*
    * Is Either different enough to demo here?
    * It basically splits the difference between
    * Option/Try I think if we show both of them,
