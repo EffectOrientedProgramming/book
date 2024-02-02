@@ -197,7 +197,8 @@ There is a function that returns a Future:
 
 ```scala mdoc:invisible
 def getHeadLine(): Future[String] =
-  (Future.successful("Battery Breakthrough"))
+  Future.successful:
+    "The stock market is crashing!"
 ```
 
 
@@ -352,7 +353,7 @@ def summaryFor(
   topic match
     case "stock market" =>
         Right(
-          "detailed history"
+          s"detailed history of ${topic}"
         )
     case "obscureTopic" =>
         Left(NoRecordsAvailable("obscureTopic"))
@@ -396,14 +397,15 @@ runDemo:
       summaryFile.existsInFile:
         topic
 
+    // TODO Consider ZIO.when instead of if
     if (topicIsFresh)
       val newInfo =
         summaryForZ(topic).run
 
       writeToFileZ(summaryFile, newInfo)
-        .debug("File Conetents")
-        .unit
         .run
+    else
+        "no summary available"
 
       // todo: some error handling to show that
       // the errors weren't lost along the way
