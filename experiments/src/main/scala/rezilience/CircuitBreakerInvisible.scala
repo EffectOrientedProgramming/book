@@ -1,5 +1,7 @@
 package rezilience
 
+import zio.Random
+
 import java.time.Instant
 import scala.concurrent.TimeoutException
 
@@ -12,11 +14,17 @@ object ExternalSystem:
     ZLayer.fromZIO:
       defer:
         val valueProducer =
-          scheduledValues(
-            (300.millis, Success),
-            (400.millis, Failure),
-            (20.seconds, Success)
-          ).run
+          Random.nextBoolean.map {
+            case true =>
+              Success
+            case false =>
+              Failure
+          }
+//          scheduledValues(
+//            (1.second, Success),
+//            (3.seconds, Failure),
+//            (5.seconds, Success)
+//          ).run
         ExternalSystem(
           Ref.make(0).run,
           valueProducer

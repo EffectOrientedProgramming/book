@@ -18,10 +18,7 @@ object Scenario:
 
 object CircuitBreakerDemo extends ZIOAppDefault:
 
-  val makeCircuitBreaker
-      : ZIO[Scope, Nothing, CircuitBreaker[
-        Any
-      ]] =
+  val makeCircuitBreaker =
     CircuitBreaker.make(
       trippingStrategy =
         TrippingStrategy
@@ -29,12 +26,7 @@ object CircuitBreakerDemo extends ZIOAppDefault:
       resetPolicy =
         Retry
           .Schedules
-          .common(maxRetries = Some(10)),
-//          .exponentialBackoff(
-//            min = 1.second,
-//            max = 4.second,
-//          ),
-
+          .common(),
       onStateChange =
         state =>
           ZIO.debug(s"State change: $state")
@@ -48,7 +40,7 @@ object CircuitBreakerDemo extends ZIOAppDefault:
         .call
         .ignore
         .repeat(
-          Schedule.recurs(18) &&
+          Schedule.recurs(30) &&
             Schedule.spaced(250.millis)
         )
         .run
