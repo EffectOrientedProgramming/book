@@ -36,9 +36,9 @@ ZIO.succeed(maybeThing()).someOrFail("error")
 //   trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:20)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:20)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14906/0x0000000803d5f440@1554d511
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14938/0x0000000803da8040@5a252ee0
 //   ),
-//   successK = zio.ZIO$$Lambda$17677/0x000000080309b040@4828080
+//   successK = zio.ZIO$$Lambda$17780/0x0000000804485840@78bb0984
 // )
 ```
 
@@ -54,7 +54,7 @@ ZIO
 //     CanFail.canFail[E](/* missing */summon[util.NotGiven[E =:= Nothing]])
 // 
 // But no implicit values were found that match type util.NotGiven[E =:= Nothing].
-// def logAndProvideDefault(e: Throwable) =
+//     summaryForZ("stock market").run
 //
 ```
 
@@ -66,9 +66,9 @@ ZIO
 //   trace = "repl.MdocSession.MdocApp.res3(07_Composability.md:35)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res3(07_Composability.md:35)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14906/0x0000000803d5f440@2fdde1ad
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14938/0x0000000803da8040@11ee4a4a
 //   ),
-//   successK = zio.ZIO$$$Lambda$14908/0x0000000803d5d040@286ec72b
+//   successK = zio.ZIO$$$Lambda$14940/0x0000000803dae840@4b02e6ef
 // )
 ```
 
@@ -215,6 +215,144 @@ runDemo:
 ```
 
 ## All The Thing Example
+```scala
+import scala.concurrent.Future
+```
+
+There is a function that returns a Future:
+
+
+
+```scala
+getHeadLine(): Future[String]
+```
+
+```scala
+val getHeadlineZ =
+  ZIO.from:
+    getHeadLine()
+```
+
+```scala
+runDemo:
+  defer:
+    getHeadlineZ.run
+  .catchAll:
+    case _: Throwable =>
+      ZIO.debug:
+        "Could not fetch the latest headline"
+// Battery Breakthrough
+```
+
+
+```scala
+findTopicOfInterest("content"): Option[String]
+```
+
+```scala
+case class NoInterestingTopicsFound()
+def topicOfInterestZ(headline: String) =
+  ZIO
+    .from:
+      findTopicOfInterest:
+        headline
+    .orElseFail:
+      NoInterestingTopicsFound()
+```
+
+```scala
+runDemo:
+  defer:
+    val headline = getHeadlineZ.run
+    topicOfInterestZ(headline).run
+  .catchAll:
+    case _: Throwable =>
+      ZIO.debug:
+        "Could not fetch the latest headline"
+    case NoInterestingTopicsFound() =>
+      ZIO.debug:
+        s"No Interesting topic found in the headline"
+// No Interesting topic found in the headline
+// ()
+```
+
+
+```scala
+closeableFile: AutoCloseable
+```
+
+```scala
+val closeableFileZ =
+  ZIO
+    .fromAutoCloseable:
+      ZIO.succeed:
+        closeableFile
+
+```
+
+```scala
+runDemo:
+  defer:
+    closeableFileZ.run
+// Closing file now!
+// repl.MdocSession$MdocApp$$anon$13@72afc3d2
+```
+
+```scala
+closeableFile.existsInFile("something"): Boolean
+```
+
+```scala
+runDemo:
+  defer:
+    val headline = getHeadlineZ.run
+    val topicOfInterest = topicOfInterestZ(headline).run
+    val file = closeableFileZ.run
+    file.existsInFile(topicOfInterest)
+  .catchAll:
+    case _: Throwable =>
+      ZIO.debug:
+        "Could not fetch the latest headline"
+    case NoInterestingTopicsFound() =>
+      ZIO.debug:
+        s"No Interesting topic found in the headline"
+// No Interesting topic found in the headline
+// ()
+```
+
+```scala
+case class NoRecordsAvailable(topic: String)
+```
+
+
+```scala
+summaryFor("stock market"): Either[NoRecordsAvailable, String]
+```
+
+```scala
+def summaryForZ(topic: String) =
+  ZIO
+    .from:
+      summaryFor:
+        topic
+```
+
+```scala
+runDemo:
+  defer:
+    summaryForZ("stock market").run
+  .catchAll:
+    case NoRecordsAvailable(topic) =>
+        ZIO.debug:
+          s"No records available for ${topic}"
+// detailed history
+```
+
+```scala
+
+closeableFile.write("asdf"): Try[Unit]
+```
+
 
 ....
 
@@ -283,13 +421,12 @@ trait ContentAnalyzer:
       content: String
   ): Option[String]
 
-case class DetailedHistory(content: String)
-case class NoRecordsAvailable(reason: String)
+case class NoRecordsAvailable(topic: String)
 trait HistoricalRecord:
 
   def summaryFor(
       topic: String
-  ): Either[NoRecordsAvailable, DetailedHistory]
+  ): Either[NoRecordsAvailable, String]
 
 trait CloseableFile extends AutoCloseable:
   def existsInFile(searchTerm: String): Boolean
@@ -302,47 +439,54 @@ case class Scenario(
     historicalRecord: HistoricalRecord,
     closeableFile: CloseableFile
 ):
+  val headLineZ =
+    ZIO.from:
+      newsService.getHeadline()
+
+  def topicOfInterestZ(headline: String) =
+    ZIO
+      .from:
+        contentAnalyzer.findTopicOfInterest:
+          headline
+      .orElseFail:
+        NoInterestingTopicsFound()
+
+  val closeableFileZ =
+    ZIO.fromAutoCloseable:
+      ZIO.succeed:
+        closeableFile
+
+  def summaryForZ(topic: String) =
+    ZIO.from:
+      historicalRecord.summaryFor:
+        topic
+
+  def writeToSummaryFileZ(
+      summaryFile: CloseableFile,
+      content: String
+  ) =
+    ZIO.from:
+      summaryFile.write:
+        content
 
   val logic =
     defer:
-      val headline: String =
-        ZIO
-          .from:
-            newsService.getHeadline()
-          .run
+      val headline: String = headLineZ.run
 
-      val topic =
-        ZIO
-          .from:
-            contentAnalyzer.findTopicOfInterest:
-              headline
-          .mapError(_ =>
-            NoInterestingTopicsFound()
-          )
-          .run
+      val topic: String =
+        topicOfInterestZ(headline).run
 
-      val summaryFileZ =
-        ZIO
-          .fromAutoCloseable:
-            ZIO.succeed:
-              closeableFile
-          .run
+      val summaryFile: CloseableFile =
+        closeableFileZ.run
 
-      val topicIsFresh =
-        summaryFileZ.existsInFile:
+      val topicIsFresh: Boolean =
+        summaryFile.existsInFile:
           topic
 
       if (topicIsFresh)
-        val newInfo =
-          ZIO
-            .from:
-              historicalRecord.summaryFor:
-                topic
-            .run
-        ZIO
-          .from:
-            summaryFileZ.write:
-              newInfo.content
+        val newInfo = summaryForZ(topic).run
+
+        writeToSummaryFileZ(summaryFile, newInfo)
           .run
 
       ZIO
@@ -353,12 +497,18 @@ case class Scenario(
       // todo: some error handling to show that
       // the errors weren't lost along the way
     .catchAll:
-      case t: Throwable =>
-        ???
-      case noRecords: NoRecordsAvailable =>
-        ???
-      case nothing: NoInterestingTopicsFound =>
-        ???
+      case _: Throwable =>
+        ZIO.debug(
+          "News Service could not fetch the latest headline"
+        )
+      case NoRecordsAvailable(topic) =>
+        ZIO.debug(
+          s"Could not generate a summary for $topic"
+        )
+      case NoInterestingTopicsFound() =>
+        ZIO.debug(
+          s"No Interesting topic found in the headline"
+        )
 end Scenario
 
 object AllTheThings extends ZIOAppDefault:
@@ -374,12 +524,22 @@ object AllTheThings extends ZIOAppDefault:
    * we can skip Either. */
 
   override def run =
-    Scenario(
-      Implementations.newsService,
-      Implementations.contentAnalyzer,
-      Implementations.historicalRecord,
-      Implementations.closeableFile
-    ).logic
+    defer:
+      val scenario = ZIO.service[Scenario].run
+      scenario.logic
+    .provide(
+      ZLayer.fromFunction(Scenario.apply),
+      ZLayer
+        .succeed(Implementations.newsService),
+      ZLayer.succeed(
+        Implementations.contentAnalyzer
+      ),
+      ZLayer.succeed(
+        Implementations.historicalRecord
+      ),
+      ZLayer
+        .succeed(Implementations.closeableFile)
+    )
 end AllTheThings
 
 ```
@@ -413,15 +573,10 @@ object Implementations:
     new HistoricalRecord:
       override def summaryFor(
           topic: String
-      ): Either[
-        NoRecordsAvailable,
-        DetailedHistory
-      ] =
+      ): Either[NoRecordsAvailable, String] =
         topic match
           case "stock market" =>
-            Right(
-              DetailedHistory("detailed history")
-            )
+            Right("detailed history")
           case "TODO_OTHER_MORE_OBSCURE_TOPIC" =>
             Left(NoRecordsAvailable("blah blah"))
   val closeableFile =
