@@ -169,6 +169,7 @@ There are many other ways you can compose ZIOs.
 The methods for composability depend on the desired behavior.
 For example, to compose a ZIO that can produce an error with a ZIO that logs the error and then produces a default value, you can use the `catchAll` like:
 
+
 ```scala mdoc
 // TODO Consider deleting .as
 //   The problem is we can't return literals in zio-direct.
@@ -215,6 +216,7 @@ runDemo:
   defer:
     getHeadlineZ.run
   .catchAll:
+    // TODO Should we show a failure demo at every step?
     case _: Throwable =>
       ZIO.debug:
         "Could not fetch the latest headline"
@@ -249,12 +251,8 @@ def topicOfInterestZ(headline: String) =
 ```scala mdoc
 runDemo:
   defer:
-    val headline = getHeadlineZ.run
-    topicOfInterestZ(headline).run
+    topicOfInterestZ("headline").run
   .catchAll:
-    case _: Throwable =>
-      ZIO.debug:
-        "Could not fetch the latest headline"
     case NoInterestingTopicsFound() =>
       ZIO.debug:
         s"No Interesting topic found in the headline"
@@ -265,7 +263,7 @@ import scala.util.Try
 
 trait CloseableFile extends AutoCloseable:
   def existsInFile(searchTerm: String): Boolean
-  def write(entry: String): Try[Unit]
+  def write(entry: String): Try[String]
 
 val closeableFile =
   new CloseableFile:
@@ -278,7 +276,7 @@ val closeableFile =
 
     override def write(
       entry: String
-    ): Try[Unit] =
+    ): Try[String] =
       println("Writing to file: " + entry)
       if (entry == "stock market")
         Try(
@@ -287,7 +285,7 @@ val closeableFile =
           )
         )
       else
-        Try(())
+        Try(entry)
 ```
 
 ```scala mdoc:silent
@@ -324,11 +322,11 @@ runDemo:
 
 ```scala mdoc:silent
 
-closeableFile.write("asdf"): Try[Unit]
+closeableFile.write("asdf"): Try[String]
 ```
 
 ```scala mdoc
-def writeToFile(file: CloseableFile, content: String) =
+def writeToFileZ(file: CloseableFile, content: String) =
   ZIO
     .from:
       file.write:
@@ -339,7 +337,7 @@ def writeToFile(file: CloseableFile, content: String) =
 runDemo:
   defer:
     val file = closeableFileZ.run
-    writeToFile(file, "New data on topic").run
+    writeToFileZ(file, "New data on topic").run
 ```
 
 ```scala mdoc
@@ -380,6 +378,42 @@ runDemo:
     case NoRecordsAvailable(topic) =>
         ZIO.debug:
           s"No records available for ${topic}"
+```
+
+```scala mdoc
+runDemo:
+  defer:
+    val headline: String =
+      getHeadlineZ.run
+
+    val topic: String =
+      topicOfInterestZ(headline).run
+
+    val summaryFile: CloseableFile =
+      closeableFileZ.run
+
+    val topicIsFresh: Boolean =
+      summaryFile.existsInFile:
+        topic
+
+    if (topicIsFresh)
+      val newInfo =
+        summaryForZ(topic).run
+
+      writeToFileZ(summaryFile, newInfo)
+        .debug("File Conetents")
+        .unit
+        .run
+
+      // todo: some error handling to show that
+      // the errors weren't lost along the way
+  .catchAll:
+    case _: Throwable =>
+      ZIO.debug("News Service could not fetch the latest headline")
+    case NoRecordsAvailable(topic) =>
+      ZIO.debug(s"Could not generate a summary for $topic")
+    case NoInterestingTopicsFound() =>
+      ZIO.debug(s"No Interesting topic found in the headline")
 ```
 
 
