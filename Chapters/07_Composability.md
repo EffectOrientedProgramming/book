@@ -318,17 +318,28 @@ closeableFile.existsInFile("something"): Boolean
 ```scala mdoc
 runDemo:
   defer:
-    val headline = getHeadlineZ.run
-    val topicOfInterest = topicOfInterestZ(headline).run
     val file = closeableFileZ.run
-    file.existsInFile(topicOfInterest)
-  .catchAll:
-    case _: Throwable =>
-      ZIO.debug:
-        "Could not fetch the latest headline"
-    case NoInterestingTopicsFound() =>
-      ZIO.debug:
-        s"No Interesting topic found in the headline"
+    file.existsInFile("topicOfInterest")
+```
+
+```scala mdoc:silent
+
+closeableFile.write("asdf"): Try[Unit]
+```
+
+```scala mdoc
+def writeToFile(file: CloseableFile, content: String) =
+  ZIO
+    .from:
+      file.write:
+        content
+```
+
+```scala mdoc
+runDemo:
+  defer:
+    val file = closeableFileZ.run
+    writeToFile(file, "New data on topic").run
 ```
 
 ```scala mdoc
@@ -369,11 +380,6 @@ runDemo:
     case NoRecordsAvailable(topic) =>
         ZIO.debug:
           s"No records available for ${topic}"
-```
-
-```scala mdoc:silent
-
-closeableFile.write("asdf"): Try[Unit]
 ```
 
 
