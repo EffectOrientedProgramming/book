@@ -17,13 +17,12 @@ trait ContentAnalyzer:
       content: String
   ): Option[String]
 
-case class DetailedHistory(content: String)
 case class NoRecordsAvailable(topic: String)
 trait HistoricalRecord:
 
   def summaryFor(
       topic: String
-  ): Either[NoRecordsAvailable, DetailedHistory]
+  ): Either[NoRecordsAvailable, String]
 
 trait CloseableFile extends AutoCloseable:
   def existsInFile(searchTerm: String): Boolean
@@ -55,7 +54,7 @@ case class Scenario(
         ZIO.succeed:
           closeableFile
   
-  def historicalRecordZ(topic: String) =
+  def summaryForZ(topic: String) =
     ZIO
       .from:
         historicalRecord.summaryFor:
@@ -84,9 +83,9 @@ case class Scenario(
 
       if (topicIsFresh)
         val newInfo =
-          historicalRecordZ(topic).run
+          summaryForZ(topic).run
           
-        writeToSummaryFileZ(summaryFile, newInfo.content)
+        writeToSummaryFileZ(summaryFile, newInfo)
           .run
 
       ZIO

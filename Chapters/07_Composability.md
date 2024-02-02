@@ -188,6 +188,194 @@ runDemo:
 ```
 
 ## All The Thing Example
+```scala mdoc
+import scala.concurrent.Future
+```
+
+There is a function that returns a Future:
+
+```scala mdoc:invisible
+def getHeadLine(): Future[String] =
+  (Future.successful("Battery Breakthrough"))
+```
+
+
+```scala mdoc:silent
+getHeadLine(): Future[String]
+```
+
+```scala mdoc:silent
+val getHeadlineZ =
+  ZIO.from:
+    getHeadLine()
+```
+
+```scala mdoc
+runDemo:
+  defer:
+    getHeadlineZ.run
+  .catchAll:
+    case _: Throwable =>
+      ZIO.debug:
+        "Could not fetch the latest headline"
+```
+
+```scala mdoc:invisible
+def findTopicOfInterest(
+      content: String
+  ): Option[String] =
+  Option.when(
+    content.contains("stock market")
+  ):
+    "stock market"
+
+```
+
+```scala mdoc:silent
+findTopicOfInterest("content"): Option[String]
+```
+
+```scala mdoc
+case class NoInterestingTopicsFound()
+def topicOfInterestZ(headline: String) =
+  ZIO
+    .from:
+      findTopicOfInterest:
+        headline
+    .orElseFail:
+      NoInterestingTopicsFound()
+```
+
+```scala mdoc
+runDemo:
+  defer:
+    val headline = getHeadlineZ.run
+    topicOfInterestZ(headline).run
+  .catchAll:
+    case _: Throwable =>
+      ZIO.debug:
+        "Could not fetch the latest headline"
+    case NoInterestingTopicsFound() =>
+      ZIO.debug:
+        s"No Interesting topic found in the headline"
+```
+
+```scala mdoc:invisible
+import scala.util.Try
+
+trait CloseableFile extends AutoCloseable:
+  def existsInFile(searchTerm: String): Boolean
+  def write(entry: String): Try[Unit]
+
+val closeableFile =
+  new CloseableFile:
+    override def close =
+      println("Closing file now!")
+
+    override def existsInFile(
+      searchTerm: String
+    ): Boolean = searchTerm == "stock market"
+
+    override def write(
+      entry: String
+    ): Try[Unit] =
+      println("Writing to file: " + entry)
+      if (entry == "stock market")
+        Try(
+          throw new Exception(
+            "Stock market already exists!"
+          )
+        )
+      else
+        Try(())
+```
+
+```scala mdoc:silent
+closeableFile: AutoCloseable
+```
+
+```scala mdoc:silent
+val closeableFileZ =
+  ZIO
+    .fromAutoCloseable:
+      ZIO.succeed:
+        closeableFile
+
+```
+
+```scala mdoc
+runDemo:
+  defer:
+    closeableFileZ.run
+    
+
+```
+
+```scala mdoc:silent
+closeableFile.existsInFile("something"): Boolean
+```
+
+```scala mdoc
+runDemo:
+  defer:
+    val headline = getHeadlineZ.run
+    val topicOfInterest = topicOfInterestZ(headline).run
+    val file = closeableFileZ.run
+    file.existsInFile(topicOfInterest)
+  .catchAll:
+    case _: Throwable =>
+      ZIO.debug:
+        "Could not fetch the latest headline"
+    case NoInterestingTopicsFound() =>
+      ZIO.debug:
+        s"No Interesting topic found in the headline"
+```
+
+```scala mdoc
+case class NoRecordsAvailable(topic: String)
+```
+
+```scala mdoc:invisible
+import scala.util.Either
+def summaryFor(
+  topic: String
+): Either[NoRecordsAvailable, String] =
+  topic match
+    case "stock market" =>
+        Right(
+          "detailed history"
+        )
+    case "obscureTopic" =>
+        Left(NoRecordsAvailable("obscureTopic"))
+```
+
+```scala mdoc:silent
+summaryFor("stock market"): Either[NoRecordsAvailable, String]
+```
+
+```scala mdoc
+def summaryForZ(topic: String) =
+  ZIO
+    .from:
+      summaryFor:
+        topic
+```
+
+```scala mdoc
+runDemo:
+  defer:
+    summaryForZ("stock market").run
+  .catchAll:
+    case NoRecordsAvailable(topic) =>
+        ZIO.debug:
+          s"No records available for ${topic}"
+```
+
+```scala mdoc:silent
+
+closeableFile.write("asdf"): Try[Unit]
+```
+
 
 ....
 

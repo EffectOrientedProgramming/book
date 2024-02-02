@@ -26,12 +26,12 @@ object Implementations:
           topic: String
       ): Either[
         NoRecordsAvailable,
-        DetailedHistory
+        String
       ] =
         topic match
           case "stock market" =>
             Right(
-              DetailedHistory("detailed history")
+              "detailed history"
             )
           case "TODO_OTHER_MORE_OBSCURE_TOPIC" =>
             Left(NoRecordsAvailable("blah blah"))
