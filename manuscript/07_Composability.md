@@ -36,9 +36,9 @@ ZIO.succeed(maybeThing()).someOrFail("error")
 //   trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:20)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:20)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$16118/0x0000000803fb1040@29fd06b9
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14906/0x0000000803d5f440@1554d511
 //   ),
-//   successK = zio.ZIO$$Lambda$18885/0x000000080473b840@11eca49
+//   successK = zio.ZIO$$Lambda$17677/0x000000080309b040@4828080
 // )
 ```
 
@@ -66,9 +66,9 @@ ZIO
 //   trace = "repl.MdocSession.MdocApp.res3(07_Composability.md:35)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res3(07_Composability.md:35)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$16118/0x0000000803fb1040@6dc88432
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14906/0x0000000803d5f440@2fdde1ad
 //   ),
-//   successK = zio.ZIO$$$Lambda$16120/0x0000000803fb6840@23a3a318
+//   successK = zio.ZIO$$$Lambda$14908/0x0000000803d5d040@286ec72b
 // )
 ```
 
@@ -195,6 +195,8 @@ The methods for composability depend on the desired behavior.
 For example, to compose a ZIO that can produce an error with a ZIO that logs the error and then produces a default value, you can use the `catchAll` like:
 
 ```scala
+// TODO Consider deleting .as
+//   The problem is we can't return literals in zio-direct.
 def logAndProvideDefault(e: Throwable) =
   Console
     .printLine:

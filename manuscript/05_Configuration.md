@@ -69,6 +69,7 @@ Effects can't be run until their dependencies have been fulfilled
 TODO: Decide what to do about the compiler error differences between these approaches
 
 TODO: Can we avoid the `.provide()` and still get a good compile error in mdoc
+
 ```scala
 runDemo:
   defer:
@@ -141,10 +142,6 @@ object Heat:
 The requirements for each ZIO operation are combined as an anonymous product type denoted by the `&` symbol.
 
 ```scala
-// TODO Restore private constructor after failure scenario is dialed in
-// TODO Can we make Bread a trait,
-//    Then we would have BreadHomemade & BreadStoreBought
-
 trait Bread:
   val eat =
     ZIO.debug:
@@ -158,8 +155,6 @@ case class BreadHomeMade(
 case class BreadStoreBought() extends Bread
 
 object Bread:
-  // TODO Explain ZLayer.fromZIO in prose
-  // immediately before/after this
   val homemade =
     ZLayer
       .derive[BreadHomeMade]
@@ -206,6 +201,8 @@ runDemo:
     Dough.fresh,
     Heat.oven
   )
+// Making Homemade Bread
+// Eating bread!
 // ()
 ```
 
@@ -215,8 +212,6 @@ Eventually, we grow tired of eating plain `Bread` and decide to start making `To
 Both of these processes require `Heat`.
 
 ```scala
-// Is it worth the complexity of making this private?
-// It would keep people from creating Toasts without using the make method
 case class Toast(heat: Heat, bread: Bread)
 
 object Toast:

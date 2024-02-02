@@ -105,10 +105,7 @@ Smalltalk's success came from its ability to rapidly create systems by adding fu
 This introduced a conundrum, because Smalltalk is a dynamic language, and Java, like C++, is statically typed.
 Smalltalk can be thought of as supporting an experimental style of programming: you send a message to an object and discover at runtime whether the object knows what to do with that message.
 But C++ and Java ensure everything is valid, at compile time 
-    (along with escape mechanisms that effectively disable that type checking).
-This conundrum is exemplified by the *Liskov Substitution Principle*,
-    which says that you shouldn't add new methods to an inherited type ---
-        and yet that activity is the foundation of Smalltalk.
+    (though there are escape mechanisms that bypass that type checking).
 
 The Agile methodologies that began in the early 2000's were another attempt to produce software faster,
     but through a more bottom-up lens.
@@ -120,7 +117,7 @@ Agile helped the process of software development,
     the focus is on developing software quickly,
     not on developing reliable software.
 
-The most important thing to take away from this language history is that the fundamental goal of the various techniques was speed of creation.
+This language history highlights that the fundamental goal of the various techniques was speed of creation.
 There seems to be an underlying assumption that these approaches will somehow automatically create more reliable software.
 As a result,
     we have languages that quickly create unreliable software.
@@ -255,7 +252,9 @@ Functions that behave mathematically,
     are called *pure functions*.
 When we add the additional constraint of immutability,
     we produce functions that compose without introducing points of breakage.
-We can reliably reason about such functions.
+We can rely on such functions.
+Note - an operator like `.retry` makes no sense for a pure operation.
+
 
 ## Composability 
 TODO Reconsider this formal math style. It doesn't match our other examples, where we really stick to Scala code
@@ -275,7 +274,8 @@ An incomplete function requires more operations when using it, to handle the pro
 You can think of the solution as *stepwise composability*.
 Instead of calling `g(h(a))`, we break the process into steps: `x = h(a)`, then check the success of the operation.
 If successful, pass the result to `g`.
-These extra steps make composability sound like it could get tedious, and languages like Scala that provide more thorough support for functional programming provide syntax to make this kind of programming feasible.
+These extra steps make composability sound like it could get tedious, 
+Languages like Scala provide more thorough support for functional programming provide syntax to make this kind of programming feasible.
 
 ## Effects
 
