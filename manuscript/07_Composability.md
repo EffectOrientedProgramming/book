@@ -36,9 +36,9 @@ ZIO.succeed(maybeThing()).someOrFail("error")
 //   trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:20)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:20)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14894/0x0000000803d37440@4ae84dc7
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$16047/0x00000008035f6440@1435e769
 //   ),
-//   successK = zio.ZIO$$Lambda$17736/0x000000080433a840@74bc0f34
+//   successK = zio.ZIO$$Lambda$18892/0x0000000804713040@64c621fa
 // )
 ```
 
@@ -54,8 +54,8 @@ ZIO
 //     CanFail.canFail[E](/* missing */summon[util.NotGiven[E =:= Nothing]])
 // 
 // But no implicit values were found that match type util.NotGiven[E =:= Nothing].
-// import scala.util.Either
-//                         ^
+// runDemo:
+//         ^
 ```
 
 ```scala
@@ -66,9 +66,9 @@ ZIO
 //   trace = "repl.MdocSession.MdocApp.res3(07_Composability.md:35)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res3(07_Composability.md:35)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14894/0x0000000803d37440@178a3773
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$16047/0x00000008035f6440@567a8974
 //   ),
-//   successK = zio.ZIO$$$Lambda$14896/0x0000000803d48840@494d3c20
+//   successK = zio.ZIO$$$Lambda$16049/0x00000008035f4040@29637a92
 // )
 ```
 
@@ -239,7 +239,8 @@ runDemo:
   defer:
     getHeadlineZ.run
   .catchAll:
-    // TODO Should we show a failure demo at every step?
+    // TODO Should we show a failure demo at
+    // every step?
     case _: Throwable =>
       ZIO.debug:
         "Could not fetch the latest headline"
@@ -281,11 +282,9 @@ closeableFile: AutoCloseable
 
 ```scala
 val closeableFileZ =
-  ZIO
-    .fromAutoCloseable:
-      ZIO.succeed:
-        closeableFile
-
+  ZIO.fromAutoCloseable:
+    ZIO.succeed:
+      closeableFile
 ```
 
 ```scala
@@ -293,7 +292,7 @@ runDemo:
   defer:
     closeableFileZ.run
 // Closing file now!
-// repl.MdocSession$MdocApp$$anon$13@6ffaedbf
+// repl.MdocSession$MdocApp$$anon$13@74476f9b
 ```
 
 ```scala
@@ -310,16 +309,17 @@ runDemo:
 ```
 
 ```scala
-
 closeableFile.write("asdf"): Try[String]
 ```
 
 ```scala
-def writeToFileZ(file: CloseableFile, content: String) =
-  ZIO
-    .from:
-      file.write:
-        content
+def writeToFileZ(
+    file: CloseableFile,
+    content: String
+) =
+  ZIO.from:
+    file.write:
+      content
 ```
 
 ```scala
@@ -338,15 +338,17 @@ case class NoRecordsAvailable(topic: String)
 
 
 ```scala
-summaryFor("stock market"): Either[NoRecordsAvailable, String]
+summaryFor("stock market"): Either[
+  NoRecordsAvailable,
+  String
+]
 ```
 
 ```scala
 def summaryForZ(topic: String) =
-  ZIO
-    .from:
-      summaryFor:
-        topic
+  ZIO.from:
+    summaryFor:
+      topic
 ```
 
 ```scala
@@ -355,16 +357,15 @@ runDemo:
     summaryForZ("stock market").run
   .catchAll:
     case NoRecordsAvailable(topic) =>
-        ZIO.debug:
-          s"No records available for ${topic}"
+      ZIO.debug:
+        s"No records available for ${topic}"
 // detailed history of stock market
 ```
 
 ```scala
 runDemo:
   defer:
-    val headline: String =
-      getHeadlineZ.run
+    val headline: String = getHeadlineZ.run
 
     val topic: String =
       topicOfInterestZ(headline).run
@@ -378,23 +379,27 @@ runDemo:
 
     // TODO Consider ZIO.when instead of if
     if (topicIsFresh)
-      val newInfo =
-        summaryForZ(topic).run
+      val newInfo = summaryForZ(topic).run
 
-      writeToFileZ(summaryFile, newInfo)
-        .run
+      writeToFileZ(summaryFile, newInfo).run
     else
-        "no summary available"
+      "no summary available"
 
-      // todo: some error handling to show that
-      // the errors weren't lost along the way
+    // todo: some error handling to show that
+    // the errors weren't lost along the way
   .catchAll:
     case _: Throwable =>
-      ZIO.debug("News Service could not fetch the latest headline")
+      ZIO.debug(
+        "News Service could not fetch the latest headline"
+      )
     case NoRecordsAvailable(topic) =>
-      ZIO.debug(s"Could not generate a summary for $topic")
+      ZIO.debug(
+        s"Could not generate a summary for $topic"
+      )
     case NoInterestingTopicsFound() =>
-      ZIO.debug(s"No Interesting topic found in the headline")
+      ZIO.debug(
+        s"No Interesting topic found in the headline"
+      )
 // Writing to file: detailed history of stock market
 // Closing file now!
 // detailed history of stock market
