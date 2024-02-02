@@ -23,8 +23,8 @@ ZIO.succeed("asdf").someOrFail("error")
 //     IsSubtypeOfOutput.impl[A, B](/* missing */summon[A <:< B])
 // 
 // But no implicit values were found that match type A <:< B.
-// def logAndProvideDefault(e: Throwable) =
-//
+// import scala.util.Either
+//                         ^
 ```
 
 this works as the contract is that the
@@ -36,9 +36,9 @@ ZIO.succeed(maybeThing()).someOrFail("error")
 //   trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:20)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:20)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14938/0x0000000803da8040@5a252ee0
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14894/0x0000000803d37440@4ae84dc7
 //   ),
-//   successK = zio.ZIO$$Lambda$17780/0x0000000804485840@78bb0984
+//   successK = zio.ZIO$$Lambda$17736/0x000000080433a840@74bc0f34
 // )
 ```
 
@@ -54,8 +54,8 @@ ZIO
 //     CanFail.canFail[E](/* missing */summon[util.NotGiven[E =:= Nothing]])
 // 
 // But no implicit values were found that match type util.NotGiven[E =:= Nothing].
-//     summaryForZ("stock market").run
-//
+// import scala.util.Either
+//                         ^
 ```
 
 ```scala
@@ -66,9 +66,9 @@ ZIO
 //   trace = "repl.MdocSession.MdocApp.res3(07_Composability.md:35)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res3(07_Composability.md:35)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14938/0x0000000803da8040@11ee4a4a
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14894/0x0000000803d37440@178a3773
 //   ),
-//   successK = zio.ZIO$$$Lambda$14940/0x0000000803dae840@4b02e6ef
+//   successK = zio.ZIO$$$Lambda$14896/0x0000000803d48840@494d3c20
 // )
 ```
 
@@ -194,6 +194,7 @@ There are many other ways you can compose ZIOs.
 The methods for composability depend on the desired behavior.
 For example, to compose a ZIO that can produce an error with a ZIO that logs the error and then produces a default value, you can use the `catchAll` like:
 
+
 ```scala
 // TODO Consider deleting .as
 //   The problem is we can't return literals in zio-direct.
@@ -238,10 +239,11 @@ runDemo:
   defer:
     getHeadlineZ.run
   .catchAll:
+    // TODO Should we show a failure demo at every step?
     case _: Throwable =>
       ZIO.debug:
         "Could not fetch the latest headline"
-// Battery Breakthrough
+// The stock market is crashing!
 ```
 
 
@@ -263,12 +265,8 @@ def topicOfInterestZ(headline: String) =
 ```scala
 runDemo:
   defer:
-    val headline = getHeadlineZ.run
-    topicOfInterestZ(headline).run
+    topicOfInterestZ("headline").run
   .catchAll:
-    case _: Throwable =>
-      ZIO.debug:
-        "Could not fetch the latest headline"
     case NoInterestingTopicsFound() =>
       ZIO.debug:
         s"No Interesting topic found in the headline"
@@ -295,7 +293,7 @@ runDemo:
   defer:
     closeableFileZ.run
 // Closing file now!
-// repl.MdocSession$MdocApp$$anon$13@72afc3d2
+// repl.MdocSession$MdocApp$$anon$13@6ffaedbf
 ```
 
 ```scala
@@ -305,19 +303,33 @@ closeableFile.existsInFile("something"): Boolean
 ```scala
 runDemo:
   defer:
-    val headline = getHeadlineZ.run
-    val topicOfInterest = topicOfInterestZ(headline).run
     val file = closeableFileZ.run
-    file.existsInFile(topicOfInterest)
-  .catchAll:
-    case _: Throwable =>
-      ZIO.debug:
-        "Could not fetch the latest headline"
-    case NoInterestingTopicsFound() =>
-      ZIO.debug:
-        s"No Interesting topic found in the headline"
-// No Interesting topic found in the headline
-// ()
+    file.existsInFile("topicOfInterest")
+// Closing file now!
+// false
+```
+
+```scala
+
+closeableFile.write("asdf"): Try[String]
+```
+
+```scala
+def writeToFileZ(file: CloseableFile, content: String) =
+  ZIO
+    .from:
+      file.write:
+        content
+```
+
+```scala
+runDemo:
+  defer:
+    val file = closeableFileZ.run
+    writeToFileZ(file, "New data on topic").run
+// Writing to file: New data on topic
+// Closing file now!
+// New data on topic
 ```
 
 ```scala
@@ -345,12 +357,47 @@ runDemo:
     case NoRecordsAvailable(topic) =>
         ZIO.debug:
           s"No records available for ${topic}"
-// detailed history
+// detailed history of stock market
 ```
 
 ```scala
+runDemo:
+  defer:
+    val headline: String =
+      getHeadlineZ.run
 
-closeableFile.write("asdf"): Try[Unit]
+    val topic: String =
+      topicOfInterestZ(headline).run
+
+    val summaryFile: CloseableFile =
+      closeableFileZ.run
+
+    val topicIsFresh: Boolean =
+      summaryFile.existsInFile:
+        topic
+
+    // TODO Consider ZIO.when instead of if
+    if (topicIsFresh)
+      val newInfo =
+        summaryForZ(topic).run
+
+      writeToFileZ(summaryFile, newInfo)
+        .run
+    else
+        "no summary available"
+
+      // todo: some error handling to show that
+      // the errors weren't lost along the way
+  .catchAll:
+    case _: Throwable =>
+      ZIO.debug("News Service could not fetch the latest headline")
+    case NoRecordsAvailable(topic) =>
+      ZIO.debug(s"Could not generate a summary for $topic")
+    case NoInterestingTopicsFound() =>
+      ZIO.debug(s"No Interesting topic found in the headline")
+// Writing to file: detailed history of stock market
+// Closing file now!
+// detailed history of stock market
 ```
 
 
@@ -389,218 +436,3 @@ Repeating is a form of composability, because you are composing a program with i
 
 ## Edit This Chapter
 [Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/07_Composability.md)
-
-
-## Automatically attached experiments.
- These are included at the end of this
- chapter because their package in the
- experiments directory matched the name
- of this chapter. Enjoy working on the
- code with full editor capabilities :D
-
- 
-
-### experiments/src/main/scala/composability/AllTheThings.scala
-```scala
-package composability
-
-import zio.*
-
-import scala.concurrent.Future
-import zio.direct.*
-
-import scala.Option
-import scala.util.Try
-
-trait NewsService:
-  def getHeadline(): Future[String]
-
-case class NoInterestingTopicsFound()
-trait ContentAnalyzer:
-  def findTopicOfInterest(
-      content: String
-  ): Option[String]
-
-case class NoRecordsAvailable(topic: String)
-trait HistoricalRecord:
-
-  def summaryFor(
-      topic: String
-  ): Either[NoRecordsAvailable, String]
-
-trait CloseableFile extends AutoCloseable:
-  def existsInFile(searchTerm: String): Boolean
-
-  def write(entry: String): Try[Unit]
-
-case class Scenario(
-    newsService: NewsService,
-    contentAnalyzer: ContentAnalyzer,
-    historicalRecord: HistoricalRecord,
-    closeableFile: CloseableFile
-):
-  val headLineZ =
-    ZIO.from:
-      newsService.getHeadline()
-
-  def topicOfInterestZ(headline: String) =
-    ZIO
-      .from:
-        contentAnalyzer.findTopicOfInterest:
-          headline
-      .orElseFail:
-        NoInterestingTopicsFound()
-
-  val closeableFileZ =
-    ZIO.fromAutoCloseable:
-      ZIO.succeed:
-        closeableFile
-
-  def summaryForZ(topic: String) =
-    ZIO.from:
-      historicalRecord.summaryFor:
-        topic
-
-  def writeToSummaryFileZ(
-      summaryFile: CloseableFile,
-      content: String
-  ) =
-    ZIO.from:
-      summaryFile.write:
-        content
-
-  val logic =
-    defer:
-      val headline: String = headLineZ.run
-
-      val topic: String =
-        topicOfInterestZ(headline).run
-
-      val summaryFile: CloseableFile =
-        closeableFileZ.run
-
-      val topicIsFresh: Boolean =
-        summaryFile.existsInFile:
-          topic
-
-      if (topicIsFresh)
-        val newInfo = summaryForZ(topic).run
-
-        writeToSummaryFileZ(summaryFile, newInfo)
-          .run
-
-      ZIO
-        .debug:
-          "topicIsFresh: " + topicIsFresh
-        .run
-
-      // todo: some error handling to show that
-      // the errors weren't lost along the way
-    .catchAll:
-      case _: Throwable =>
-        ZIO.debug(
-          "News Service could not fetch the latest headline"
-        )
-      case NoRecordsAvailable(topic) =>
-        ZIO.debug(
-          s"Could not generate a summary for $topic"
-        )
-      case NoInterestingTopicsFound() =>
-        ZIO.debug(
-          s"No Interesting topic found in the headline"
-        )
-end Scenario
-
-object AllTheThings extends ZIOAppDefault:
-  type Nail = ZIO.type
-  /* If ZIO is your hammer, it's not that you
-   * _see_ everything as nails.
-   * You can actually _convert_ everything into
-   * nails. */
-
-  /* Is Either different enough to demo here?
-   * It basically splits the difference between
-   * Option/Try I think if we show both of them,
-   * we can skip Either. */
-
-  override def run =
-    defer:
-      val scenario = ZIO.service[Scenario].run
-      scenario.logic
-    .provide(
-      ZLayer.fromFunction(Scenario.apply),
-      ZLayer
-        .succeed(Implementations.newsService),
-      ZLayer.succeed(
-        Implementations.contentAnalyzer
-      ),
-      ZLayer.succeed(
-        Implementations.historicalRecord
-      ),
-      ZLayer
-        .succeed(Implementations.closeableFile)
-    )
-end AllTheThings
-
-```
-
-
-### experiments/src/main/scala/composability/Invisible.scala
-```scala
-package composability
-
-import scala.concurrent.Future
-import scala.util.Try
-
-object Implementations:
-  val newsService =
-    new NewsService:
-      def getHeadline(): Future[String] =
-        Future.successful:
-          "The stock market is crashing!"
-
-  val contentAnalyzer =
-    new ContentAnalyzer:
-      override def findTopicOfInterest(
-          content: String
-      ): Option[String] =
-        Option.when(
-          content.contains("stock market")
-        ):
-          "stock market"
-
-  val historicalRecord =
-    new HistoricalRecord:
-      override def summaryFor(
-          topic: String
-      ): Either[NoRecordsAvailable, String] =
-        topic match
-          case "stock market" =>
-            Right("detailed history")
-          case "TODO_OTHER_MORE_OBSCURE_TOPIC" =>
-            Left(NoRecordsAvailable("blah blah"))
-  val closeableFile =
-    new CloseableFile:
-      override def close =
-        println("Closing file now!")
-
-      override def existsInFile(
-          searchTerm: String
-      ): Boolean = searchTerm == "stock market"
-
-      override def write(
-          entry: String
-      ): Try[Unit] =
-        println("Writing to file: " + entry)
-        if (entry == "stock market")
-          Try(
-            throw new Exception(
-              "Stock market already exists!"
-            )
-          )
-        else
-          Try(())
-end Implementations
-
-```
-
