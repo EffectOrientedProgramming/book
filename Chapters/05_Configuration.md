@@ -125,7 +125,6 @@ object Heat:
 The requirements for each ZIO operation are combined as an anonymous product type denoted by the `&` symbol.
 
 ```scala mdoc
-
 trait Bread:
   val eat =
     ZIO.debug:

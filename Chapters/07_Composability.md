@@ -217,7 +217,8 @@ runDemo:
   defer:
     getHeadlineZ.run
   .catchAll:
-    // TODO Should we show a failure demo at every step?
+    // TODO Should we show a failure demo at
+    // every step?
     case _: Throwable =>
       ZIO.debug:
         "Could not fetch the latest headline"
@@ -225,13 +226,10 @@ runDemo:
 
 ```scala mdoc:invisible
 def findTopicOfInterest(
-      content: String
-  ): Option[String] =
-  Option.when(
-    content.contains("stock market")
-  ):
+    content: String
+): Option[String] =
+  Option.when(content.contains("stock market")):
     "stock market"
-
 ```
 
 ```scala mdoc:silent
@@ -272,11 +270,11 @@ val closeableFile =
       println("Closing file now!")
 
     override def existsInFile(
-      searchTerm: String
+        searchTerm: String
     ): Boolean = searchTerm == "stock market"
 
     override def write(
-      entry: String
+        entry: String
     ): Try[String] =
       println("Writing to file: " + entry)
       if (entry == "stock market")
@@ -295,19 +293,15 @@ closeableFile: AutoCloseable
 
 ```scala mdoc:silent
 val closeableFileZ =
-  ZIO
-    .fromAutoCloseable:
-      ZIO.succeed:
-        closeableFile
-
+  ZIO.fromAutoCloseable:
+    ZIO.succeed:
+      closeableFile
 ```
 
 ```scala mdoc
 runDemo:
   defer:
     closeableFileZ.run
-    
-
 ```
 
 ```scala mdoc:silent
@@ -322,16 +316,17 @@ runDemo:
 ```
 
 ```scala mdoc:silent
-
 closeableFile.write("asdf"): Try[String]
 ```
 
 ```scala mdoc
-def writeToFileZ(file: CloseableFile, content: String) =
-  ZIO
-    .from:
-      file.write:
-        content
+def writeToFileZ(
+    file: CloseableFile,
+    content: String
+) =
+  ZIO.from:
+    file.write:
+      content
 ```
 
 ```scala mdoc
@@ -348,27 +343,27 @@ case class NoRecordsAvailable(topic: String)
 ```scala mdoc:invisible
 import scala.util.Either
 def summaryFor(
-  topic: String
+    topic: String
 ): Either[NoRecordsAvailable, String] =
   topic match
     case "stock market" =>
-        Right(
-          s"detailed history of ${topic}"
-        )
+      Right(s"detailed history of ${topic}")
     case "obscureTopic" =>
-        Left(NoRecordsAvailable("obscureTopic"))
+      Left(NoRecordsAvailable("obscureTopic"))
 ```
 
 ```scala mdoc:silent
-summaryFor("stock market"): Either[NoRecordsAvailable, String]
+summaryFor("stock market"): Either[
+  NoRecordsAvailable,
+  String
+]
 ```
 
 ```scala mdoc
 def summaryForZ(topic: String) =
-  ZIO
-    .from:
-      summaryFor:
-        topic
+  ZIO.from:
+    summaryFor:
+      topic
 ```
 
 ```scala mdoc
@@ -377,15 +372,14 @@ runDemo:
     summaryForZ("stock market").run
   .catchAll:
     case NoRecordsAvailable(topic) =>
-        ZIO.debug:
-          s"No records available for ${topic}"
+      ZIO.debug:
+        s"No records available for ${topic}"
 ```
 
 ```scala mdoc
 runDemo:
   defer:
-    val headline: String =
-      getHeadlineZ.run
+    val headline: String = getHeadlineZ.run
 
     val topic: String =
       topicOfInterestZ(headline).run
@@ -399,23 +393,27 @@ runDemo:
 
     // TODO Consider ZIO.when instead of if
     if (topicIsFresh)
-      val newInfo =
-        summaryForZ(topic).run
+      val newInfo = summaryForZ(topic).run
 
-      writeToFileZ(summaryFile, newInfo)
-        .run
+      writeToFileZ(summaryFile, newInfo).run
     else
-        "no summary available"
+      "no summary available"
 
-      // todo: some error handling to show that
-      // the errors weren't lost along the way
+    // todo: some error handling to show that
+    // the errors weren't lost along the way
   .catchAll:
     case _: Throwable =>
-      ZIO.debug("News Service could not fetch the latest headline")
+      ZIO.debug(
+        "News Service could not fetch the latest headline"
+      )
     case NoRecordsAvailable(topic) =>
-      ZIO.debug(s"Could not generate a summary for $topic")
+      ZIO.debug(
+        s"Could not generate a summary for $topic"
+      )
     case NoInterestingTopicsFound() =>
-      ZIO.debug(s"No Interesting topic found in the headline")
+      ZIO.debug(
+        s"No Interesting topic found in the headline"
+      )
 ```
 
 

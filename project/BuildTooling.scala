@@ -430,14 +430,11 @@ object BuildTooling {
               "com.geirsson",
               "metaconfig-typesafe-config"
             ) excludeAll
-            (
-              "com.geirsson",
-              "metaconfig-core"
-            ),
+            ("com.geirsson", "metaconfig-core"),
           "dev.zio"   %% "zio-test" % zioVersion,
           "dev.zio"   %% "zio-test-sbt" %
             zioVersion % Test,
-          "nl.vroste" %% "rezilience" % "0.9.4",
+          "nl.vroste" %% "rezilience"   % "0.9.4"
         ),
       scalaVersion := "3.3.1",
       scalacOptions -= "-explain-types",
