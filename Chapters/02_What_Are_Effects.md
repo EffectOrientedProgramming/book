@@ -144,7 +144,7 @@ Any real program has to interact with things outside the programmer's control.
 
 All external systems are unpredictable.
 
-One of the biggest challenges in building systems that are more predictable / reliable / ??? is to isolate and manage the unpredictable parts.
+Building systems that are reliable requires isolating and managing the unpredictable parts.
 
 An approach that programmers may use to handle this is to delineate the parts of the program which use external systems.
 
@@ -162,20 +162,33 @@ Effect Oriented systems allow us to apply strategies to mitigate the unpredictab
 
 ## Effects can not be un-done
 
-Once a program has communicated with an external system, (i.e. executed an Effect), everything that happens on that external systems is out of the program's control.
+Once a program has communicated with an external system, 
+  (i.e. executed an Effect),
+  everything that happens on that external systems is out of the program's control.
 
 (analogies on human communication)
 Imagine that a friend recently stayed in your home.
-3 days after they leave, you realize that you are missing some money that had been stored in the guestroom.
-Now you have a dilemma - do you ask them if they took the money?
-Simply by asking, you could permanently change, or even end, your relationship with this person.
-They could immediately admit fault, and ask for forgiveness.
-Now you know that they are capable of stealing from you - will you ever trust them in your home again?
-They could angrily deny the accusation, and resent you for making it.
+3 days after they leave,
+  you realize that you are missing some money that had been stored in the guestroom.
+Now you have a dilemma -
+  do you ask them if they took the money?
+Simply by asking,
+  you could permanently change, 
+    or even end, 
+    your relationship with this person.
+They could immediately admit fault,
+  and ask for forgiveness.
+Now you know that they are capable of stealing from you -
+  will you ever trust them in your home again?
+They could angrily deny the accusation,
+  and resent you for making it.
 Or the conversation could go in a million different other ways that are impossible to predict.
-We know one thing for certain - you will never be able to un-ask that question.
-Even if you ultimately grow closer with this person after navigating this situation, you can't go back to a world where you never asked. 
-Regardless of any apology and forgiveness, your relationship is now different.
+We know one thing for certain - 
+  you will never be able to un-ask that question.
+Even if you ultimately grow closer with this person after navigating this situation,
+  you can't go back to a world where you never asked. 
+Regardless of any apology and forgiveness, 
+  your relationship is now different.
 
 ## What is an Effect?
 
@@ -188,7 +201,9 @@ An application might generate any number of effects, which fall into two categor
 Effects cannot be undone.
 If you 3D-print a figurine, you cannot reclaim that material.
 Once you send a Tweet, you can delete it but people might have already read it.
-Even if you provide database `DELETE` statements paired with `INSERT` statements, it must still be considered effectful: Another program might read your data before you delete it, or a database trigger might activate during an `INSERT`.
+Even if you provide database `DELETE` statements paired with `INSERT` statements, it must still be considered effectful.
+Another program might read your data before you delete it, 
+  or a database trigger might activate during an `INSERT`.
 
 TODO {{Explain: Optionality, Asynchronicity, Blocking -- In a later chapter. }}
 
