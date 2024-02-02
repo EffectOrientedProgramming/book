@@ -36,9 +36,9 @@ ZIO.succeed(maybeThing()).someOrFail("error")
 //   trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:20)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:20)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$16047/0x00000008035f6440@1435e769
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14850/0x0000000803d47440@6d32731
 //   ),
-//   successK = zio.ZIO$$Lambda$18892/0x0000000804713040@64c621fa
+//   successK = zio.ZIO$$Lambda$17691/0x0000000804432040@34788e05
 // )
 ```
 
@@ -66,9 +66,9 @@ ZIO
 //   trace = "repl.MdocSession.MdocApp.res3(07_Composability.md:35)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res3(07_Composability.md:35)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$16047/0x00000008035f6440@567a8974
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14850/0x0000000803d47440@41fbe05f
 //   ),
-//   successK = zio.ZIO$$$Lambda$16049/0x00000008035f4040@29637a92
+//   successK = zio.ZIO$$$Lambda$14852/0x0000000803d45040@2f19d129
 // )
 ```
 
@@ -148,7 +148,7 @@ We can either execute them, or not, and that's about it, without resorting to ad
 - Manual management of cancellation
 - Start executing immediately
 - Must all fail with Exception
-- 
+
 ### Implicits
   - Are not automatically managed by the compiler, you must explicitly add each one to your parent function
   - Resolving the origin of a provided implicit can be challenging
@@ -292,7 +292,7 @@ runDemo:
   defer:
     closeableFileZ.run
 // Closing file now!
-// repl.MdocSession$MdocApp$$anon$13@74476f9b
+// repl.MdocSession$MdocApp$$anon$13@6663df7d
 ```
 
 ```scala
@@ -389,17 +389,14 @@ runDemo:
     // the errors weren't lost along the way
   .catchAll:
     case _: Throwable =>
-      ZIO.debug(
+      ZIO.debug:
         "News Service could not fetch the latest headline"
-      )
     case NoRecordsAvailable(topic) =>
-      ZIO.debug(
+      ZIO.debug:
         s"Could not generate a summary for $topic"
-      )
     case NoInterestingTopicsFound() =>
-      ZIO.debug(
+      ZIO.debug:
         s"No Interesting topic found in the headline"
-      )
 // Writing to file: detailed history of stock market
 // Closing file now!
 // detailed history of stock market

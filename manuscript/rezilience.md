@@ -24,23 +24,12 @@ object Scenario:
 
 object CircuitBreakerDemo extends ZIOAppDefault:
 
-  val makeCircuitBreaker
-      : ZIO[Scope, Nothing, CircuitBreaker[
-        Any
-      ]] =
+  val makeCircuitBreaker =
     CircuitBreaker.make(
       trippingStrategy =
         TrippingStrategy
           .failureCount(maxFailures = 2),
-      resetPolicy =
-        Retry
-          .Schedules
-          .common(maxRetries = Some(10)),
-//          .exponentialBackoff(
-//            min = 1.second,
-//            max = 4.second,
-//          ),
-
+      resetPolicy = Retry.Schedules.common(),
       onStateChange =
         state =>
           ZIO.debug(s"State change: $state")
@@ -54,7 +43,7 @@ object CircuitBreakerDemo extends ZIOAppDefault:
         .call
         .ignore
         .repeat(
-          Schedule.recurs(18) &&
+          Schedule.recurs(30) &&
             Schedule.spaced(250.millis)
         )
         .run
@@ -107,6 +96,8 @@ object ExternalSystemProtected:
 ```scala
 package rezilience
 
+import zio.Random
+
 import java.time.Instant
 import scala.concurrent.TimeoutException
 
@@ -119,15 +110,24 @@ object ExternalSystem:
     ZLayer.fromZIO:
       defer:
         val valueProducer =
-          scheduledValues(
-            (300.millis, Success),
-            (400.millis, Failure),
-            (20.seconds, Success)
-          ).run
+          Random
+            .nextBoolean
+            .map {
+              case true =>
+                Success
+              case false =>
+                Failure
+            }
+//          scheduledValues(
+//            (1.second, Success),
+//            (3.seconds, Failure),
+//            (5.seconds, Success)
+//          ).run
         ExternalSystem(
           Ref.make(0).run,
           valueProducer
         )
+end ExternalSystem
 
 case class ExternalSystem(
     requests: Ref[Int],
@@ -266,6 +266,59 @@ private case class ExpiringValue[A](
     expirationTime: Instant,
     value: A
 )
+
+```
+
+
+### experiments/src/main/scala/rezilience/CircuitBreakerSimple.scala
+```scala
+package rezilience
+
+import nl.vroste.rezilience.*
+import nl.vroste.rezilience.CircuitBreaker.*
+import zio.{Random, Schedule, ZIOAppDefault}
+
+object CircuitBreakerSimple
+    extends ZIOAppDefault:
+  val makeCircuitBreaker =
+    CircuitBreaker.make(
+      trippingStrategy =
+        TrippingStrategy
+          .failureCount(maxFailures = 2),
+      resetPolicy = Retry.Schedules.common(),
+//          .exponentialBackoff(
+//            min = 1.second,
+//            max = 4.second,
+//          ),
+
+      onStateChange =
+        state =>
+          ZIO.debug(s"State change: $state")
+    )
+
+  val spotty =
+    defer:
+      val shouldSucceed = Random.nextBoolean.run
+      shouldSucceed match
+        case true =>
+          ZIO
+            .succeed(())
+            .tap(_ => ZIO.debug("Succeeded"))
+            .run
+        case false =>
+          ZIO
+            .fail("Boom")
+            .tapError(_ => ZIO.debug("Failed"))
+            .run
+
+  def run =
+    defer:
+      val cb = makeCircuitBreaker.run
+      cb(spotty)
+        .ignore
+        .repeat(Schedule.recurs(30))
+        .run
+end CircuitBreakerSimple
 
 ```
 

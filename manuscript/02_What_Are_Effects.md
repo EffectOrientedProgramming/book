@@ -1,6 +1,6 @@
 # What Are Effects
 
-# Introduction
+## Introduction
 
 TODO: Combine with "Reliability" ?
 
@@ -256,7 +256,7 @@ A common mistake when starting with ZIO is trying to return ZIO instances themse
 
 ```scala
 println(Random.nextInt)
-// Stateful(repl.MdocSession.MdocApp.res0(02_What_Are_Effects.md:8),zio.FiberRef$unsafe$$anon$2$$Lambda$16066/0x00000008038b1840@12c6e765)
+// Stateful(repl.MdocSession.MdocApp.res0(02_What_Are_Effects.md:8),zio.FiberRef$unsafe$$anon$2$$Lambda$14869/0x0000000803d71040@18dec340)
 ```
 We will not see a random number printed out; we see some inscrutable type information.
 
