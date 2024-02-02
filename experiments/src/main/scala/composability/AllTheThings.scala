@@ -18,7 +18,7 @@ trait ContentAnalyzer:
   ): Option[String]
 
 case class DetailedHistory(content: String)
-case class NoRecordsAvailable(reason: String)
+case class NoRecordsAvailable(topic: String)
 trait HistoricalRecord:
 
   def summaryFor(
@@ -36,47 +36,57 @@ case class Scenario(
     historicalRecord: HistoricalRecord,
     closeableFile: CloseableFile
 ):
+  val headLineZ =
+    ZIO
+      .from:
+        newsService.getHeadline()
+
+  def topicOfInterestZ(headline: String) =
+    ZIO
+      .from:
+        contentAnalyzer.findTopicOfInterest:
+          headline
+      .orElseFail:
+        NoInterestingTopicsFound()
+        
+  val closeableFileZ =
+    ZIO
+      .fromAutoCloseable:
+        ZIO.succeed:
+          closeableFile
+  
+  def historicalRecordZ(topic: String) =
+    ZIO
+      .from:
+        historicalRecord.summaryFor:
+          topic
+          
+  def writeToSummaryFileZ(summaryFile: CloseableFile, content: String) =
+    ZIO
+      .from:
+        summaryFile.write:
+          content
 
   val logic =
     defer:
       val headline: String =
-        ZIO
-          .from:
-            newsService.getHeadline()
-          .run
+        headLineZ.run
 
-      val topic =
-        ZIO
-          .from:
-            contentAnalyzer.findTopicOfInterest:
-              headline
-          .mapError(_ =>
-            NoInterestingTopicsFound()
-          )
-          .run
+      val topic: String =
+        topicOfInterestZ(headline).run
 
-      val summaryFileZ =
-        ZIO
-          .fromAutoCloseable:
-            ZIO.succeed:
-              closeableFile
-          .run
+      val summaryFile: CloseableFile =
+        closeableFileZ.run
 
-      val topicIsFresh =
-        summaryFileZ.existsInFile:
+      val topicIsFresh: Boolean =
+        summaryFile.existsInFile:
           topic
 
       if (topicIsFresh)
         val newInfo =
-          ZIO
-            .from:
-              historicalRecord.summaryFor:
-                topic
-            .run
-        ZIO
-          .from:
-            summaryFileZ.write:
-              newInfo.content
+          historicalRecordZ(topic).run
+          
+        writeToSummaryFileZ(summaryFile, newInfo.content)
           .run
 
       ZIO
@@ -87,12 +97,12 @@ case class Scenario(
       // todo: some error handling to show that
       // the errors weren't lost along the way
     .catchAll:
-      case t: Throwable =>
-        ???
-      case noRecords: NoRecordsAvailable =>
-        ???
-      case nothing: NoInterestingTopicsFound =>
-        ???
+      case _: Throwable =>
+        ZIO.debug("News Service could not fetch the latest headline")
+      case NoRecordsAvailable(topic) =>
+        ZIO.debug(s"Could not generate a summary for $topic")
+      case NoInterestingTopicsFound() =>
+        ZIO.debug(s"No Interesting topic found in the headline")
 end Scenario
 
 object AllTheThings extends ZIOAppDefault:
@@ -108,10 +118,14 @@ object AllTheThings extends ZIOAppDefault:
    * we can skip Either. */
 
   override def run =
-    Scenario(
-      Implementations.newsService,
-      Implementations.contentAnalyzer,
-      Implementations.historicalRecord,
-      Implementations.closeableFile
-    ).logic
+    defer:
+      val scenario = ZIO.service[Scenario].run
+      scenario.logic
+    .provide(
+      ZLayer.fromFunction(Scenario.apply),
+      ZLayer.succeed(Implementations.newsService),
+      ZLayer.succeed(Implementations.contentAnalyzer),
+      ZLayer.succeed(Implementations.historicalRecord),
+      ZLayer.succeed(Implementations.closeableFile)
+    )
 end AllTheThings
