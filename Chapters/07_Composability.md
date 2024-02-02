@@ -116,7 +116,7 @@ We can either execute them, or not, and that's about it, without resorting to ad
 - Manual management of cancellation
 - Start executing immediately
 - Must all fail with Exception
-- 
+
 ### Implicits
   - Are not automatically managed by the compiler, you must explicitly add each one to your parent function
   - Resolving the origin of a provided implicit can be challenging
@@ -403,17 +403,14 @@ runDemo:
     // the errors weren't lost along the way
   .catchAll:
     case _: Throwable =>
-      ZIO.debug(
+      ZIO.debug:
         "News Service could not fetch the latest headline"
-      )
     case NoRecordsAvailable(topic) =>
-      ZIO.debug(
+      ZIO.debug:
         s"Could not generate a summary for $topic"
-      )
     case NoInterestingTopicsFound() =>
-      ZIO.debug(
+      ZIO.debug:
         s"No Interesting topic found in the headline"
-      )
 ```
 
 

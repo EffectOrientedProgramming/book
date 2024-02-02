@@ -1,6 +1,6 @@
 # What Are Effects
 
-# Introduction
+## Introduction
 
 TODO: Combine with "Reliability" ?
 
