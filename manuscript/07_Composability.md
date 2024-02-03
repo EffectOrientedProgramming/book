@@ -36,9 +36,9 @@ ZIO.succeed(maybeThing()).someOrFail("error")
 //   trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:20)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:20)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14850/0x0000000803d47440@6d32731
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14874/0x0000000803d36840@13eef362
 //   ),
-//   successK = zio.ZIO$$Lambda$17691/0x0000000804432040@34788e05
+//   successK = zio.ZIO$$Lambda$17735/0x00000008035c7840@74f87db0
 // )
 ```
 
@@ -54,8 +54,8 @@ ZIO
 //     CanFail.canFail[E](/* missing */summon[util.NotGiven[E =:= Nothing]])
 // 
 // But no implicit values were found that match type util.NotGiven[E =:= Nothing].
-// runDemo:
-//         ^
+//       topicOfInterestZ(headline).run
+//
 ```
 
 ```scala
@@ -66,9 +66,9 @@ ZIO
 //   trace = "repl.MdocSession.MdocApp.res3(07_Composability.md:35)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res3(07_Composability.md:35)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14850/0x0000000803d47440@41fbe05f
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14874/0x0000000803d36840@4fcfd7c0
 //   ),
-//   successK = zio.ZIO$$$Lambda$14852/0x0000000803d45040@2f19d129
+//   successK = zio.ZIO$$$Lambda$14876/0x0000000803d48040@121b9583
 // )
 ```
 
@@ -236,16 +236,24 @@ val getHeadlineZ =
 
 ```scala
 runDemo:
-  defer:
-    getHeadlineZ.run
-  .catchAll:
-    // TODO Should we show a failure demo at
-    // every step?
+  getHeadlineZ.mapError:
     case _: Throwable =>
-      ZIO.debug:
-        "Could not fetch the latest headline"
-// The stock market is crashing!
+      "Could not fetch the latest headline"
+// Stock market crash!
 ```
+Now let's confirm the behavior when the headline is not available.
+
+```scala
+// This controls some invisible machinery
+headLineAvailable = false
+
+runDemo:
+  getHeadlineZ.mapError:
+    case _: Throwable =>
+      "Could not fetch the latest headline"
+// Could not fetch the latest headline
+```
+
 
 
 ```scala
@@ -253,63 +261,64 @@ findTopicOfInterest("content"): Option[String]
 ```
 
 ```scala
-case class NoInterestingTopicsFound()
+case class NoInterestingTopic()
 def topicOfInterestZ(headline: String) =
   ZIO
     .from:
       findTopicOfInterest:
         headline
     .orElseFail:
-      NoInterestingTopicsFound()
+      NoInterestingTopic()
 ```
 
 ```scala
 runDemo:
-  defer:
-    topicOfInterestZ("headline").run
-  .catchAll:
-    case NoInterestingTopicsFound() =>
-      ZIO.debug:
-        s"No Interesting topic found in the headline"
-// No Interesting topic found in the headline
-// ()
+  topicOfInterestZ("stock market crash!")
+// stock market
+```
+
+```scala
+runDemo:
+  topicOfInterestZ("boring and inane content")
+// NoInterestingTopic()
 ```
 
 
 ```scala
-closeableFile: AutoCloseable
+closeableFile(): AutoCloseable
 ```
 
 ```scala
 val closeableFileZ =
   ZIO.fromAutoCloseable:
     ZIO.succeed:
-      closeableFile
+      closeableFile()
 ```
 
 ```scala
 runDemo:
-  defer:
-    closeableFileZ.run
-// Closing file now!
-// repl.MdocSession$MdocApp$$anon$13@6663df7d
+  closeableFileZ
+// Opening file!
+// Closing file!
+// repl.MdocSession$MdocApp$$anon$29@4c12b746
 ```
 
 ```scala
-closeableFile.existsInFile("something"): Boolean
+closeableFile().contains("something"): Boolean
 ```
 
 ```scala
 runDemo:
   defer:
     val file = closeableFileZ.run
-    file.existsInFile("topicOfInterest")
-// Closing file now!
+    file.contains("topicOfInterest")
+// Opening file!
+// Closing file!
 // false
 ```
 
 ```scala
-closeableFile.write("asdf"): Try[String]
+closeableFile().write("asdf"): Try[String]
 ```
 
 ```scala
@@ -327,8 +336,9 @@ runDemo:
   defer:
     val file = closeableFileZ.run
     writeToFileZ(file, "New data on topic").run
+// Opening file!
 // Writing to file: New data on topic
-// Closing file now!
+// Closing file!
 // New data on topic
 ```
 
@@ -353,19 +363,25 @@ def summaryForZ(topic: String) =
 
 ```scala
 runDemo:
-  defer:
-    summaryForZ("stock market").run
-  .catchAll:
-    case NoRecordsAvailable(topic) =>
-      ZIO.debug:
-        s"No records available for ${topic}"
+  summaryForZ:
+    "stock market"
 // detailed history of stock market
 ```
 
 ```scala
 runDemo:
+  summaryForZ:
+    "obscureTopic"
+// NoRecordsAvailable(obscureTopic)
+```
+
+
+
+```scala
+runDemo:
   defer:
-    val headline: String = getHeadlineZ.run
+    val headline: String =
+      getHeadlineZ.run
 
     val topic: String =
       topicOfInterestZ(headline).run
@@ -374,32 +390,33 @@ runDemo:
       closeableFileZ.run
 
     val topicIsFresh: Boolean =
-      summaryFile.existsInFile:
+      summaryFile.contains:
         topic
 
     // TODO Consider ZIO.when instead of if
     if (topicIsFresh)
-      val newInfo = summaryForZ(topic).run
+      val newInfo = 
+        summaryForZ:
+          topic
+        .run
 
-      writeToFileZ(summaryFile, newInfo).run
+      writeToFileZ(
+        summaryFile, 
+        newInfo
+      ).run
     else
       "no summary available"
 
     // todo: some error handling to show that
     // the errors weren't lost along the way
-  .catchAll:
+  .mapError:
     case _: Throwable =>
-      ZIO.debug:
-        "News Service could not fetch the latest headline"
+      "Could not fetch headline"
     case NoRecordsAvailable(topic) =>
-      ZIO.debug:
-        s"Could not generate a summary for $topic"
-    case NoInterestingTopicsFound() =>
-      ZIO.debug:
-        s"No Interesting topic found in the headline"
-// Writing to file: detailed history of stock market
-// Closing file now!
-// detailed history of stock market
+      s"No records for $topic"
+    case NoInterestingTopic() =>
+      "No Interesting topic found"
+// No Interesting topic found
 ```
 
 
