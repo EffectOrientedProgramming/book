@@ -23,10 +23,7 @@ object CircuitBreakerDemo extends ZIOAppDefault:
       trippingStrategy =
         TrippingStrategy
           .failureCount(maxFailures = 2),
-      resetPolicy =
-        Retry
-          .Schedules
-          .common(),
+      resetPolicy = Retry.Schedules.common(),
       onStateChange =
         state =>
           ZIO.debug(s"State change: $state")

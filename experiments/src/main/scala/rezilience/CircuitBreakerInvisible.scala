@@ -14,12 +14,14 @@ object ExternalSystem:
     ZLayer.fromZIO:
       defer:
         val valueProducer =
-          Random.nextBoolean.map {
-            case true =>
-              Success
-            case false =>
-              Failure
-          }
+          Random
+            .nextBoolean
+            .map {
+              case true =>
+                Success
+              case false =>
+                Failure
+            }
 //          scheduledValues(
 //            (1.second, Success),
 //            (3.seconds, Failure),
@@ -29,6 +31,7 @@ object ExternalSystem:
           Ref.make(0).run,
           valueProducer
         )
+end ExternalSystem
 
 case class ExternalSystem(
     requests: Ref[Int],

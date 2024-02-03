@@ -196,9 +196,14 @@ import scala.concurrent.Future
 There is a function that returns a Future:
 
 ```scala mdoc:invisible
+var headLineAvailable = true
 def getHeadLine(): Future[String] =
-  Future.successful:
-    "The stock market is crashing!"
+  if (headLineAvailable)
+    Future.successful("Stock market crash!")
+  else
+    Future.failed(
+      new Exception("Headline not available")
+    )
 ```
 
 
@@ -214,14 +219,24 @@ val getHeadlineZ =
 
 ```scala mdoc
 runDemo:
-  defer:
-    getHeadlineZ.run
-  .catchAll:
-    // TODO Should we show a failure demo at
-    // every step?
+  getHeadlineZ.mapError:
     case _: Throwable =>
-      ZIO.debug:
-        "Could not fetch the latest headline"
+      "Could not fetch the latest headline"
+```
+Now let's confirm the behavior when the headline is not available.
+
+```scala mdoc
+// This controls some invisible machinery
+headLineAvailable = false
+
+runDemo:
+  getHeadlineZ.mapError:
+    case _: Throwable =>
+      "Could not fetch the latest headline"
+```
+
+```scala mdoc:invisible
+headLineAvailable = true
 ```
 
 ```scala mdoc:invisible
@@ -237,39 +252,39 @@ findTopicOfInterest("content"): Option[String]
 ```
 
 ```scala mdoc
-case class NoInterestingTopicsFound()
+case class NoInterestingTopic()
 def topicOfInterestZ(headline: String) =
   ZIO
     .from:
       findTopicOfInterest:
         headline
     .orElseFail:
-      NoInterestingTopicsFound()
+      NoInterestingTopic()
 ```
 
 ```scala mdoc
 runDemo:
-  defer:
-    topicOfInterestZ("headline").run
-  .catchAll:
-    case NoInterestingTopicsFound() =>
-      ZIO.debug:
-        s"No Interesting topic found in the headline"
+  topicOfInterestZ("stock market crash!")
+```
+
+```scala mdoc
+runDemo:
+  topicOfInterestZ("boring and inane content")
 ```
 
 ```scala mdoc:invisible
 import scala.util.Try
 
 trait CloseableFile extends AutoCloseable:
-  def existsInFile(searchTerm: String): Boolean
+  def contains(searchTerm: String): Boolean
   def write(entry: String): Try[String]
 
-val closeableFile =
+def closeableFile() =
   new CloseableFile:
-    override def close =
-      println("Closing file now!")
+    println("Opening file!")
+    override def close = println("Closing file!")
 
-    override def existsInFile(
+    override def contains(
         searchTerm: String
     ): Boolean = searchTerm == "stock market"
 
@@ -288,35 +303,34 @@ val closeableFile =
 ```
 
 ```scala mdoc:silent
-closeableFile: AutoCloseable
+closeableFile(): AutoCloseable
 ```
 
 ```scala mdoc:silent
 val closeableFileZ =
   ZIO.fromAutoCloseable:
     ZIO.succeed:
-      closeableFile
+      closeableFile()
 ```
 
 ```scala mdoc
 runDemo:
-  defer:
-    closeableFileZ.run
+  closeableFileZ
 ```
 
 ```scala mdoc:silent
-closeableFile.existsInFile("something"): Boolean
+closeableFile().contains("something"): Boolean
 ```
 
 ```scala mdoc
 runDemo:
   defer:
     val file = closeableFileZ.run
-    file.existsInFile("topicOfInterest")
+    file.contains("topicOfInterest")
 ```
 
 ```scala mdoc:silent
-closeableFile.write("asdf"): Try[String]
+closeableFile().write("asdf"): Try[String]
 ```
 
 ```scala mdoc
@@ -368,18 +382,23 @@ def summaryForZ(topic: String) =
 
 ```scala mdoc
 runDemo:
-  defer:
-    summaryForZ("stock market").run
-  .catchAll:
-    case NoRecordsAvailable(topic) =>
-      ZIO.debug:
-        s"No records available for ${topic}"
+  summaryForZ:
+    "stock market"
 ```
 
 ```scala mdoc
 runDemo:
+  summaryForZ:
+    "obscureTopic"
+```
+
+
+
+```scala mdoc
+runDemo:
   defer:
-    val headline: String = getHeadlineZ.run
+    val headline: String =
+      getHeadlineZ.run
 
     val topic: String =
       topicOfInterestZ(headline).run
@@ -388,29 +407,32 @@ runDemo:
       closeableFileZ.run
 
     val topicIsFresh: Boolean =
-      summaryFile.existsInFile:
+      summaryFile.contains:
         topic
 
     // TODO Consider ZIO.when instead of if
     if (topicIsFresh)
-      val newInfo = summaryForZ(topic).run
+      val newInfo = 
+        summaryForZ:
+          topic
+        .run
 
-      writeToFileZ(summaryFile, newInfo).run
+      writeToFileZ(
+        summaryFile, 
+        newInfo
+      ).run
     else
       "no summary available"
 
     // todo: some error handling to show that
     // the errors weren't lost along the way
-  .catchAll:
+  .mapError:
     case _: Throwable =>
-      ZIO.debug:
-        "News Service could not fetch the latest headline"
+      "Could not fetch headline"
     case NoRecordsAvailable(topic) =>
-      ZIO.debug:
-        s"Could not generate a summary for $topic"
-    case NoInterestingTopicsFound() =>
-      ZIO.debug:
-        s"No Interesting topic found in the headline"
+      s"No records for $topic"
+    case NoInterestingTopic() =>
+      "No Interesting topic found"
 ```
 
 
