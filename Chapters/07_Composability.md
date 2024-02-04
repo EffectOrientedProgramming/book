@@ -306,7 +306,6 @@ import scala.util.Try
 
 trait CloseableFile extends AutoCloseable:
   def contains(searchTerm: String): Boolean
-  def write(entry: String): Try[String]
 
 def closeableFile() =
   new CloseableFile:
@@ -319,19 +318,6 @@ def closeableFile() =
       println:
         "Searching file for: " + searchTerm
       searchTerm == "stock market"
-
-    override def write(
-        entry: String
-    ): Try[String] =
-      println("Writing to file: " + entry)
-      if (entry == "stock market")
-        Try(
-          throw new Exception(
-            "Stock market already exists!"
-          )
-        )
-      else
-        Try(entry)
 ```
 
 ```scala mdoc:silent
@@ -362,8 +348,28 @@ runDemo:
       "topicOfInterest"
 ```
 
+### Try
+TODO Extract `write` function from `CloseableFile` to standalone
+
+```scala mdoc:invisible
+def write(
+        entry: String,
+        // TODO Can we use this file in an interesting way?
+        file: CloseableFile
+    ): Try[String] =
+      println("Writing to file: " + entry)
+      if (entry == "stock market")
+        Try(
+          throw new Exception(
+            "Stock market already exists!"
+          )
+        )
+      else
+        Try(entry)
+```
+
 ```scala mdoc:silent
-closeableFile().write("asdf"): Try[String]
+write("asdf", closeableFile()): Try[String]
 ```
 
 ```scala mdoc
@@ -372,8 +378,10 @@ def writeToFileZ(
     content: String
 ) =
   ZIO.from:
-    file.write:
-      content
+    write(
+      content,
+      file,
+    )
   .orDie
 ```
 
