@@ -227,17 +227,18 @@ By wrapping this in `ZIO.from`, it will:
 - Give us the ability to customize the error type
 
 ```scala mdoc:silent
+case class HeadlineNotAvailable()
 val getHeadlineZ =
   ZIO.from:
     getHeadLine()
+  .mapError:
+    case _: Throwable =>
+      HeadlineNotAvailable()
 ```
 
 ```scala mdoc
 runDemo:
-  getHeadlineZ.mapError:
-    // TODO Should we move this mapError to getHeadlineZ?
-    case _: Throwable =>
-      "Could not fetch the latest headline"
+  getHeadlineZ
 ```
 Now let's confirm the behavior when the headline is not available.
 
@@ -246,9 +247,7 @@ Now let's confirm the behavior when the headline is not available.
 headLineAvailable = false
 
 runDemo:
-  getHeadlineZ.mapError:
-    case _: Throwable =>
-      "Could not fetch the latest headline"
+  getHeadlineZ
 ```
 
 ```scala mdoc:invisible
@@ -375,6 +374,7 @@ def writeToFileZ(
   ZIO.from:
     file.write:
       content
+  .orDie
 ```
 
 ```scala mdoc
@@ -463,7 +463,8 @@ val researchWorkflow =
         newInfo
       ).run
     else
-      "no summary available"
+      "Topic was already covered"
+
 ```
 
 
@@ -473,7 +474,7 @@ runDemo:
     // todo: some error handling to show that
     // the errors weren't lost along the way
   .mapError:
-    case _: Throwable =>
+    case _: HeadlineNotAvailable =>
       "Could not fetch headline"
     case NoRecordsAvailable(topic) =>
       s"No records for $topic"
