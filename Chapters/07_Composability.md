@@ -109,14 +109,6 @@ We can either execute them, or not, and that's about it, without resorting to ad
 - All of these types must be manually transformed into the other types
 - Execution is not deferred
 
-### Functions that return a Future
-
-- Can be interrupted example1[^^future_interrupted_1] two[^^future_interrupted_2]
-- [Cleanup is not guaranteed](./15_Concurrency_Interruption.md##Future-Cancellation)
-- Manual management of cancellation
-- Start executing immediately
-- Must all fail with Exception
-
 ### Implicits
   - Are not automatically managed by the compiler, you must explicitly add each one to your parent function
   - Resolving the origin of a provided implicit can be challenging
@@ -189,9 +181,26 @@ runDemo:
 ```
 
 ## All The Thing Example
+When writing substantial, complex applications, you will quickly encounter APIs that that return data types with less power than ZIO.
+Thankfully, ZIO provides numerous conversion methods that simplify these interactions.
+By utilizing some clever type-level, compile-time techniques
+  (which we will not cover here),
+  ZIO is able to use a single interface - `ZIO.from` to handle many of these cases.
+
+## Future interop
+
+###
 ```scala mdoc
 import scala.concurrent.Future
 ```
+
+The original asynchronous datatype in Scala has several undesirable characteristics:
+
+- Cleanup is not guaranteed
+- Start executing immediately
+- Must all fail with Exception
+- Needs `ExecutionContext`s passed everywhere
+
 
 There is a function that returns a Future:
 
@@ -199,17 +208,23 @@ There is a function that returns a Future:
 var headLineAvailable = true
 def getHeadLine(): Future[String] =
   if (headLineAvailable)
-    Future.successful("Stock market crash!")
+    Future.successful("stock market crash!")
   else
     Future.failed(
       new Exception("Headline not available")
     )
 ```
 
-
 ```scala mdoc:silent
 getHeadLine(): Future[String]
 ```
+
+TODO This is repetitive after listing the downsides above.
+By wrapping this in `ZIO.from`, it will:
+- get the `ExecutionContext` it needs
+- Defer execution of the code
+- Let us attach finalizer behavior
+- Give us the ability to customize the error type
 
 ```scala mdoc:silent
 val getHeadlineZ =
@@ -220,6 +235,7 @@ val getHeadlineZ =
 ```scala mdoc
 runDemo:
   getHeadlineZ.mapError:
+    // TODO Should we move this mapError to getHeadlineZ?
     case _: Throwable =>
       "Could not fetch the latest headline"
 ```
@@ -236,8 +252,14 @@ runDemo:
 ```
 
 ```scala mdoc:invisible
+// TODO We showed this being toggled off - would it be appropriate to show it turning back on?
 headLineAvailable = true
 ```
+
+### Option Interop
+`Option` is the simplest of the alternate types you will encounter.
+It does not deal with asynchronicity, error types, or anything else.
+It merely indicates if you have a value.
 
 ```scala mdoc:invisible
 def findTopicOfInterest(
@@ -248,8 +270,14 @@ def findTopicOfInterest(
 ```
 
 ```scala mdoc:silent
-findTopicOfInterest("content"): Option[String]
+// TODO Discuss colon clashing in this example
+findTopicOfInterest:
+  "content"
+: Option[String]
 ```
+
+If you want to treat the case of a missing value as an error, you can again use `ZIO.from`:
+ZIO will convert `None` into a generic error type, giving you the opportunity to define a more specific error type.
 
 ```scala mdoc
 case class NoInterestingTopic()
@@ -264,12 +292,14 @@ def topicOfInterestZ(headline: String) =
 
 ```scala mdoc
 runDemo:
-  topicOfInterestZ("stock market crash!")
+  topicOfInterestZ:
+    "stock market crash!"
 ```
 
 ```scala mdoc
 runDemo:
-  topicOfInterestZ("boring and inane content")
+  topicOfInterestZ:
+    "boring and inane content"
 ```
 
 ```scala mdoc:invisible
@@ -286,7 +316,10 @@ def closeableFile() =
 
     override def contains(
         searchTerm: String
-    ): Boolean = searchTerm == "stock market"
+    ): Boolean =
+      println:
+        "Searching file for: " + searchTerm
+      searchTerm == "stock market"
 
     override def write(
         entry: String
@@ -326,7 +359,8 @@ closeableFile().contains("something"): Boolean
 runDemo:
   defer:
     val file = closeableFileZ.run
-    file.contains("topicOfInterest")
+    file.contains:
+      "topicOfInterest"
 ```
 
 ```scala mdoc:silent
@@ -361,9 +395,12 @@ def summaryFor(
 ): Either[NoRecordsAvailable, String] =
   topic match
     case "stock market" =>
-      Right(s"detailed history of ${topic}")
+      Right:
+        s"detailed history of $topic"
     case "obscureTopic" =>
-      Left(NoRecordsAvailable("obscureTopic"))
+      Left:
+        NoRecordsAvailable:
+            "obscureTopic"
 ```
 
 ```scala mdoc:silent
@@ -392,16 +429,18 @@ runDemo:
     "obscureTopic"
 ```
 
+Now that we have all of these well-defined effects, we can wield them in any combination and sequence we desire.
 
-
-```scala mdoc
-runDemo:
+```scala mdoc:silent
+val researchWorkflow =
   defer:
     val headline: String =
       getHeadlineZ.run
 
     val topic: String =
-      topicOfInterestZ(headline).run
+      topicOfInterestZ:
+        headline
+      .run
 
     val summaryFile: CloseableFile =
       closeableFileZ.run
@@ -410,20 +449,27 @@ runDemo:
       summaryFile.contains:
         topic
 
-    // TODO Consider ZIO.when instead of if
+    // TODO What's a compelling result here?
+    // One side returns the contents of the summary file,
+    // While the other just says we can't get it
     if (topicIsFresh)
-      val newInfo = 
+      val newInfo =
         summaryForZ:
           topic
         .run
 
       writeToFileZ(
-        summaryFile, 
+        summaryFile,
         newInfo
       ).run
     else
       "no summary available"
+```
 
+
+```scala mdoc
+runDemo:
+  researchWorkflow
     // todo: some error handling to show that
     // the errors weren't lost along the way
   .mapError:
