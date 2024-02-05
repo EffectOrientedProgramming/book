@@ -1,5 +1,9 @@
 # Configuration
 
+
+[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/05_Configuration.md)
+
+
 1. Application startup uses the same tools that you utilize for the rest of your application
 
 ## General/Historic discussion
@@ -524,7 +528,3 @@ They are also more predictable as the time adjustments are fully controlled by t
 
 Using real-world time also can be error prone because effects may have unexpected results in certain time bands.
 For instance, if you have code that gets the time and it happens to be 23:59:59, then after some operations that take a few seconds, you get some database records for the current day, those records may no longer be the day associated with previously received records.  This scenario can be very hard to test for when using real-world time.  When using a simulated clock in tests, you can write tests that adjust the clock to reliably reproduce the condition.
-
-
-## Edit This Chapter
-[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/05_Configuration.md)

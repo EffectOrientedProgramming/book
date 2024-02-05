@@ -1,5 +1,9 @@
 # Superpowers with Effects
 
+
+[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/03_Superpowers.md)
+
+
 TODO: A couple sentences about the superpowers
 
 
@@ -228,7 +232,3 @@ This can be caused by a number of factors:
   A team of engineers might be able to successfully run the entire test suite on their personal machines.
   However, the CI/CD system might not have enough resources to run the tests triggered by everyone pushing to the repository.
   Your tests might be occasionally failing due to timeouts or lack of memory.
-
-
-## Edit This Chapter
-[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/03_Superpowers.md)

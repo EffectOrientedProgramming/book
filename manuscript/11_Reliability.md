@@ -1,5 +1,9 @@
 # Reliability
 
+
+[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/11_Reliability.md)
+
+
 ## Caching
 
 
@@ -160,7 +164,3 @@ runDemo:
       .run
 // 0
 ```
-
-
-## Edit This Chapter
-[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/11_Reliability.md)

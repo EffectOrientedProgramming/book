@@ -1,5 +1,9 @@
 # Copyright
 
+
+[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/00_Copyright.md)
+
+
 ## Effect Oriented Programming
 
 By Bill Frasure, Bruce Eckel and James Ward
@@ -150,7 +154,3 @@ https://github.com/EffectOrientedProgramming/EOPCode/issues
 You may use the code in your projects and in the classroom (including your
 presentation materials) as long as the copyright notice that appears in each
 source file is retained.
-
-
-## Edit This Chapter
-[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/00_Copyright.md)

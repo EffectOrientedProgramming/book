@@ -1,5 +1,9 @@
 # What Are Effects
 
+
+[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/02_What_Are_Effects.md)
+
+
 ## Introduction
 
 TODO: Combine with "Reliability" ?
@@ -39,8 +43,6 @@ Basic changes would drastically simplify proper use of the alerts.
 Imagine the earlier mishaps that moved "False Alarm" to the top of the list.
 
 We believe the system was doomed long before the interface was created.
-The fatal flaw was that both "live" and "test" alerts were available in the running application.
-A safe system makes these behaviors mutually exclusive.
 
 The effects of this system were:
 
@@ -240,25 +242,16 @@ They can be advanced:
 - Triggering an alarm
 - Stabilizing an airplane
 - Detonating explosives
-- 
+
 ## ZIOs are not their result.
 
 ### Effects Defined as Data
-
-TODO
 
 One approach to defining effects is...
 
 The effects have not been executed when defined.
 
-
-A common mistake when starting with ZIO is trying to return ZIO instances themselves rather than their result.
-
-```scala
-println(Random.nextInt)
-// Stateful(repl.MdocSession.MdocApp.res0(02_What_Are_Effects.md:8),zio.FiberRef$unsafe$$anon$2$$Lambda$14893/0x0000000803d5e840@6976d414)
-```
-We will not see a random number printed out; we see some inscrutable type information.
+A common mistake when starting with ZIO is to return ZIO instances themselves rather than running them to produce a result.
 
 This is a mistake because ZIO's are not their result, they are descriptions of effects that produce the result.
 The `ZIO` instance only describes something *to be* done.
@@ -288,7 +281,3 @@ The interpreter is also the mechanism that evaluates the various effects describ
 
 The reason we have the `defer` directive(method?) in zio-direct is to indicate that this code will be evaluated by the interpreter later.
 
-
-
-## Edit This Chapter
-[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/02_What_Are_Effects.md)

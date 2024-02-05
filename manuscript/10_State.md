@@ -1,5 +1,9 @@
 # State
 
+
+[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/10_State.md)
+
+
 1. Ref
 1. Thundering Herds
 
@@ -27,7 +31,7 @@ In order to confidently use them, we need certain guarantees about the behavior:
 Less obviously, we also need to create the Mutable reference itself.
 We are changing the world, by creating a space that we can manipulate.
 
-## Unreliable Counting
+## Unreliable State
 
 ```scala
 val unreliableCounting =
@@ -49,7 +53,7 @@ val unreliableCounting =
 ```scala
 runDemo:
   unreliableCounting
-// Final count: 98118
+// Final count: 99539
 ```
 
 Due to the unpredictable nature of shared mutable state, we do not know exactly what the final count above is.
@@ -63,7 +67,7 @@ TODO Consider making a diagram parallel writes
 Performing our side effects inside ZIO's does not magically make them safe.
 We need to fully embrace the ZIO components, utilizing `Ref` for correct mutation.
 
-## Reliable Counting
+## Reliable State
 
 ```scala
 lazy val reliableCounting =
@@ -88,6 +92,8 @@ Now we can say with full confidence that our final count is 100000.
 Additionally, these updates happen _without blocking_.
 This is achieved through a strategy called "Compare & Swap", which we will not cover in detail.
 *TODO Link/reference supplemental reading*
+
+## Unreliable Effects
 
 Although there are significant advantages; a basic `Ref` is not the solution for everything.
 We can only pass pure functions into `update`.
@@ -153,7 +159,7 @@ However, it is completely inappropriate for effects, which should only be execut
 For these situations, we need a specialized variation of `Ref`
 
 
-## Ref.Synchronized
+## Reliable Effects
 
 `Ref.Synchronized` guarantees only a single execution of the `update` body and any of the effects contained inside.
 The only change required is replacing `Ref.make` with `Ref.Synchronized.make`
@@ -187,7 +193,3 @@ This correctness comes with a cost though, as the name of this type implies.
 Each of your updates will run sequentially, despite initially launching them all in parallel.
 This is the only known way to avoid retries.
 Try to structure your code to minimize the coupling between effects and updates, and use this type only when necessary.
-
-
-## Edit This Chapter
-[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/10_State.md)

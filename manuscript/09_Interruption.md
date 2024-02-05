@@ -1,4 +1,8 @@
-# Concurrency Interruption
+# Interruption
+
+
+[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/09_Interruption.md)
+
 
 ## Why Interruption Is Necessary Throughout the Stack
 In order for the `Runtime`  to operate and provide the super powers of `ZIO`, it needs to be able to interrupt running workflows without resource leaks.
@@ -37,7 +41,7 @@ runDemo:
       .run
 // About to sleep forever
 // Interrupted the eternal sleep
-// zio.internal.FiberRuntime@5f88a782
+// zio.internal.FiberRuntime@5af1b487
 ```
 
 If we encounter an error between forking and joining, the fibers will also be interrupted.
@@ -88,7 +92,7 @@ runDemo:
       .timed
       .debug("Time:")
       .run
-// (PT0.000497628S,Some(**TODO**))
+// (PT0.000588377S,Some(**TODO**))
 ```
 We can see 2 significant behaviors here:
 
@@ -124,7 +128,3 @@ runDemo:
 ```
 
 ### .fromFutureInterrupt
-
-
-## Edit This Chapter
-[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/09_Interruption.md)

@@ -1,5 +1,9 @@
 # Contract-Based Composability
 
+
+[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/07_Composability.md)
+
+
 Good contracts make good composability.
 
 contracts are what makes composability work at scale
@@ -36,9 +40,9 @@ ZIO.succeed(maybeThing()).someOrFail("error")
 //   trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:20)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:20)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14874/0x0000000803d36840@13eef362
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$16998/0x00000008041a4440@7c5ce8af
 //   ),
-//   successK = zio.ZIO$$Lambda$17735/0x00000008035c7840@74f87db0
+//   successK = zio.ZIO$$Lambda$18883/0x0000000804741840@77066020
 // )
 ```
 
@@ -54,8 +58,8 @@ ZIO
 //     CanFail.canFail[E](/* missing */summon[util.NotGiven[E =:= Nothing]])
 // 
 // But no implicit values were found that match type util.NotGiven[E =:= Nothing].
-//       topicOfInterestZ(headline).run
-//
+//     if (topicIsFresh)
+//                      ^
 ```
 
 ```scala
@@ -66,9 +70,9 @@ ZIO
 //   trace = "repl.MdocSession.MdocApp.res3(07_Composability.md:35)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res3(07_Composability.md:35)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$14874/0x0000000803d36840@4fcfd7c0
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$16998/0x00000008041a4440@686cb8c2
 //   ),
-//   successK = zio.ZIO$$$Lambda$14876/0x0000000803d48040@121b9583
+//   successK = zio.ZIO$$$Lambda$17000/0x00000008041c0840@131fc5df
 // )
 ```
 
@@ -141,22 +145,11 @@ We can either execute them, or not, and that's about it, without resorting to ad
 - All of these types must be manually transformed into the other types
 - Execution is not deferred
 
-### Functions that return a Future
-
-- Can be interrupted example1[^^future_interrupted_1] two[^^future_interrupted_2]
-- [Cleanup is not guaranteed](./15_Concurrency_Interruption.md##Future-Cancellation)
-- Manual management of cancellation
-- Start executing immediately
-- Must all fail with Exception
-
 ### Implicits
   - Are not automatically managed by the compiler, you must explicitly add each one to your parent function
   - Resolving the origin of a provided implicit can be challenging
 
-### Try-with-resources
-  - These are statically scoped
-  - Unclear who is responsible for acquisition & cleanup
-
+### Try-with-resources / AutoCloseable
 
 
 Each of these approaches gives you benefits, but you can't assemble them all together.
@@ -216,30 +209,55 @@ runDemo:
 ```
 
 ## All The Thing Example
+When writing substantial, complex applications, you will quickly encounter APIs that that return data types with less power than ZIO.
+Thankfully, ZIO provides numerous conversion methods that simplify these interactions.
+By utilizing some clever type-level, compile-time techniques
+  (which we will not cover here),
+  ZIO is able to use a single interface - `ZIO.from` to handle many of these cases.
+
+## Future interop
+
+###
 ```scala
 import scala.concurrent.Future
 ```
 
-There is a function that returns a Future:
+The original asynchronous datatype in Scala has several undesirable characteristics:
 
+- Cleanup is not guaranteed
+- Start executing immediately
+- Must all fail with Exception
+- Needs `ExecutionContext`s passed everywhere
+
+
+There is a function that returns a Future:
 
 
 ```scala
 getHeadLine(): Future[String]
 ```
 
+TODO This is repetitive after listing the downsides above.
+By wrapping this in `ZIO.from`, it will:
+- get the `ExecutionContext` it needs
+- Defer execution of the code
+- Let us attach finalizer behavior
+- Give us the ability to customize the error type
+
 ```scala
+case class HeadlineNotAvailable()
 val getHeadlineZ =
   ZIO.from:
     getHeadLine()
+  .mapError:
+    case _: Throwable =>
+      HeadlineNotAvailable()
 ```
 
 ```scala
 runDemo:
-  getHeadlineZ.mapError:
-    case _: Throwable =>
-      "Could not fetch the latest headline"
-// Stock market crash!
+  getHeadlineZ
+// stock market crash!
 ```
 Now let's confirm the behavior when the headline is not available.
 
@@ -248,17 +266,26 @@ Now let's confirm the behavior when the headline is not available.
 headLineAvailable = false
 
 runDemo:
-  getHeadlineZ.mapError:
-    case _: Throwable =>
-      "Could not fetch the latest headline"
-// Could not fetch the latest headline
+  getHeadlineZ
+// HeadlineNotAvailable()
 ```
 
+
+### Option Interop
+`Option` is the simplest of the alternate types you will encounter.
+It does not deal with asynchronicity, error types, or anything else.
+It merely indicates if you have a value.
 
 
 ```scala
-findTopicOfInterest("content"): Option[String]
+// TODO Discuss colon clashing in this example
+val _: Option[String] =
+  findTopicOfInterest:
+    "content"
 ```
+
+If you want to treat the case of a missing value as an error, you can again use `ZIO.from`:
+ZIO will convert `None` into a generic error type, giving you the opportunity to define a more specific error type.
 
 ```scala
 case class NoInterestingTopic()
@@ -273,20 +300,32 @@ def topicOfInterestZ(headline: String) =
 
 ```scala
 runDemo:
-  topicOfInterestZ("stock market crash!")
+  topicOfInterestZ:
+    "stock market crash!"
 // stock market
 ```
 
 ```scala
 runDemo:
-  topicOfInterestZ("boring and inane content")
+  topicOfInterestZ:
+    "boring and inane content"
 // NoInterestingTopic()
 ```
 
+### AutoCloseable Interop
+Java/Scala provide the `AutoCloseable` interface for defining finalizer behavior on objects.
+While this is a big improvement over manually managing this in ad-hoc ways, the static scoping of this mechanism makes it clunky to use.
+TODO Decide whether to show nested files example to highlight this weakness
+
+
+We have an existing function that produces an `AutoCloseable`.
 
 ```scala
 closeableFile(): AutoCloseable
 ```
+
+Since `AutoCloseable` is a trait that can be implemented by arbitrary classes, we can't rely on `ZIO.from` to automatically manage this conversion for us.
+In this situation, we should use the explicit `ZIO.fromAutoCloseable` function.
 
 ```scala
 val closeableFileZ =
@@ -295,13 +334,20 @@ val closeableFileZ =
       closeableFile()
 ```
 
+Once we do this, the `ZIO` runtime will manage the lifecycle of this object via the `Scope` mechanism.
+TODO Link to docs for this?
+In the simplest case, we open and close the file, with no logic while it is iopen.
+
 ```scala
 runDemo:
   closeableFileZ
 // Opening file!
 // Closing file!
-// repl.MdocSession$MdocApp$$anon$29@4c12b746
+// repl.MdocSession$MdocApp$$anon$29@d8feaca
 ```
+
+Since that is not terribly useful, let's start calling some methods on our managed file.
+
 
 ```scala
 closeableFile().contains("something"): Boolean
@@ -311,8 +357,10 @@ closeableFile().contains("something"): Boolean
 runDemo:
   defer:
     val file = closeableFileZ.run
-    file.contains("topicOfInterest")
+    file.contains:
+      "topicOfInterest"
 // Opening file!
+// Searching file for: topicOfInterest
 // Closing file!
 // false
 ```
@@ -329,6 +377,7 @@ def writeToFileZ(
   ZIO.from:
     file.write:
       content
+  .orDie
 ```
 
 ```scala
@@ -375,16 +424,18 @@ runDemo:
 // NoRecordsAvailable(obscureTopic)
 ```
 
-
+Now that we have all of these well-defined effects, we can wield them in any combination and sequence we desire.
 
 ```scala
-runDemo:
+val researchWorkflow =
   defer:
     val headline: String =
       getHeadlineZ.run
 
     val topic: String =
-      topicOfInterestZ(headline).run
+      topicOfInterestZ:
+        headline
+      .run
 
     val summaryFile: CloseableFile =
       closeableFileZ.run
@@ -393,30 +444,40 @@ runDemo:
       summaryFile.contains:
         topic
 
-    // TODO Consider ZIO.when instead of if
     if (topicIsFresh)
-      val newInfo = 
+      val newInfo =
         summaryForZ:
           topic
         .run
 
       writeToFileZ(
-        summaryFile, 
+        summaryFile,
         newInfo
       ).run
+      newInfo
     else
-      "no summary available"
+      "Topic was already covered"
 
+```
+
+
+```scala
+runDemo:
+  researchWorkflow
     // todo: some error handling to show that
     // the errors weren't lost along the way
   .mapError:
-    case _: Throwable =>
+    case _: HeadlineNotAvailable =>
       "Could not fetch headline"
     case NoRecordsAvailable(topic) =>
       s"No records for $topic"
     case NoInterestingTopic() =>
       "No Interesting topic found"
-// No Interesting topic found
+// Opening file!
+// Searching file for: stock market
+// Writing to file: detailed history of stock market
+// Closing file!
+// detailed history of stock market
 ```
 
 
@@ -451,7 +512,3 @@ Repeating is a form of composability, because you are composing a program with i
 ### Injecting Behavior before/after/around
 
 
-
-
-## Edit This Chapter
-[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/07_Composability.md)

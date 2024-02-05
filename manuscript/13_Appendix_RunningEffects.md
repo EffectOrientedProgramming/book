@@ -1,5 +1,9 @@
 # Appendix Running Effects
 
+
+[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/13_Appendix_RunningEffects.md)
+
+
 TODO: Make an appendix?
 
 
@@ -172,7 +176,3 @@ Unsafe.unsafe { implicit u: Unsafe =>
 ```
 
 If needed you can even interop to Scala Futures through `Unsafe`, transforming the output of a ZIO into a Future.
-
-
-## Edit This Chapter
-[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/13_Appendix_RunningEffects.md)

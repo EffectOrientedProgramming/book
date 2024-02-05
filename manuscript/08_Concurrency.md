@@ -1,4 +1,8 @@
-# Concurrency High Level
+# Concurrency
+
+
+[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/08_Concurrency.md)
+
 
 1. forEachPar, collectAllPar
 
@@ -75,7 +79,7 @@ runDemo:
             )
         .run
     durations.fold(Duration.Zero)(_ + _).render
-// 15 m 4 s
+// 14 m 42 s
 ```
 
 ## zipPar, zipWithPar
@@ -83,7 +87,3 @@ runDemo:
 ## validateWithPar?
 
 ## withParallelism
-
-
-## Edit This Chapter
-[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/08_Concurrency.md)

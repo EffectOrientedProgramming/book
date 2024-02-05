@@ -1,5 +1,9 @@
 # ZIO and ZLayer
 
+
+[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/12_ZIO_and_ZLayer.md)
+
+
 Connect the DI & Errors chapter to how they are represented in the ZIO data type.
 
 The way we get good compile errors is by having data types which "know" the ...
@@ -75,7 +79,3 @@ They also build in scope management that will ensure resource cleanup in asynchr
 ## ZIO <-> ZLayer
 
 `ZLayer.fromZIO`
-
-
-## Edit This Chapter
-[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/12_ZIO_and_ZLayer.md)
