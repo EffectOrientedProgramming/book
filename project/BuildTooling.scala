@@ -303,19 +303,17 @@ object BuildTooling {
 
     def attachEditLink(
         proseFile: ProseFile
-    ): Unit =
-      IO.append(
-        proseFile.p.toFile,
-        // TODO Verify this link
+    ): Unit = {
+      println("attaching edit link")
+      val editLink =
         s"""
            |
-           |## Edit This Chapter
-           |[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/${proseFile
-            .p
-            .getFileName
-            .toString})
+           |[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/${proseFile.p.getFileName.toString})
            |""".stripMargin
-      )
+      val lines = IO.readLines(proseFile.p.toFile)
+      val linesWithEditLink = lines.head :: (editLink :: lines.tail)
+      IO.writeLines(proseFile.p.toFile, linesWithEditLink, append = false)
+    }
 
     proseFiles.foreach(attachEditLink)
 //    attachEditLink(value)
