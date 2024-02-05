@@ -39,8 +39,6 @@ Basic changes would drastically simplify proper use of the alerts.
 Imagine the earlier mishaps that moved "False Alarm" to the top of the list.
 
 We believe the system was doomed long before the interface was created.
-The fatal flaw was that both "live" and "test" alerts were available in the running application.
-A safe system makes these behaviors mutually exclusive.
 
 The effects of this system were:
 
@@ -240,24 +238,16 @@ They can be advanced:
 - Triggering an alarm
 - Stabilizing an airplane
 - Detonating explosives
-- 
+
 ## ZIOs are not their result.
 
 ### Effects Defined as Data
-
-TODO
 
 One approach to defining effects is...
 
 The effects have not been executed when defined.
 
-
-A common mistake when starting with ZIO is trying to return ZIO instances themselves rather than their result.
-
-```scala mdoc
-println(Random.nextInt)
-```
-We will not see a random number printed out; we see some inscrutable type information.
+A common mistake when starting with ZIO is to return ZIO instances themselves rather than running them to produce a result.
 
 This is a mistake because ZIO's are not their result, they are descriptions of effects that produce the result.
 The `ZIO` instance only describes something *to be* done.

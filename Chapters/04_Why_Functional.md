@@ -222,14 +222,16 @@ A statement doesn't return a result,
 For example,
     "print" is typically a statement that returns nothing but causes the side effect of displaying text on a console.
 On the other hand, 
-    an *expression* produces ("expresses") a result.
+    an *expression* produces 
+        ("expresses") 
+        a result.
 A functional language avoids statements and attempts to make everything an expression that produces a result.
 
 What about the environment affecting the function?
-This is a bit more subtle,
-    and requires that we think in more general terms than just basic imperative programming.
-In particular,
-    we must consider concurrency.
+If our program behaves differently at different times,
+    that means the environment's time is affecting the function.
+More subtly,
+    we should consider concurrency.
 If multiple tasks are running in our program,
     then at any point another task might see variables in our function.
 A variable can change,
@@ -255,28 +257,6 @@ When we add the additional constraint of immutability,
 We can rely on such functions.
 Note - an operator like `.retry` makes no sense for a pure operation.
 
-
-## Composability 
-TODO Reconsider this formal math style. It doesn't match our other examples, where we really stick to Scala code
-
-If functions `g` and `h` are pure, we should be able to combine them directly (assuming the types agree) to produce a new function `f`:
-
-```text
-f(a) = g(h(a))
-```
-
-This assumes that all functions involved are *complete*, meaning that they produce a legitimate result for every possible value of `a`.
-This is not always true.
-For example, dividing a number by zero is undefined, and so cannot produce a reasonable number as a result.
-Using a key to look up a value in a map is undefined if that key doesn't exist in the map. <-- TODO Weird wording
-
-An incomplete function requires more operations when using it, to handle the problematic inputs.
-You can think of the solution as *stepwise composability*.
-Instead of calling `g(h(a))`, we break the process into steps: `x = h(a)`, then check the success of the operation.
-If successful, pass the result to `g`.
-These extra steps make composability sound like it could get tedious, 
-Languages like Scala provide more thorough support for functional programming provide syntax to make this kind of programming feasible.
-
 ## Effects
 
 Now we have created this perfect world of pure functions that behave just like the functions in theoretical mathematics.
@@ -291,8 +271,8 @@ For a program to be useful, it must be affected by the world, and it must have e
 
 The phrase "side effect" implies an incidental or accidental impact on the world.
 What we need to do is formalize this idea and bring it under our control.
-We can then call it simply an "effect," without the "side." 
-The solution is to manage these effects, so they are under our control.
+We can then call it simply an "effect".
+The goal is to manage these effects, so they are under our control.
 
 This bridge between pure functions and practical programs with controlled and managed effects is the reason for the title of this book.
 

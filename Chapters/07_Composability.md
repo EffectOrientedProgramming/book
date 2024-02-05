@@ -113,10 +113,7 @@ We can either execute them, or not, and that's about it, without resorting to ad
   - Are not automatically managed by the compiler, you must explicitly add each one to your parent function
   - Resolving the origin of a provided implicit can be challenging
 
-### Try-with-resources
-  - These are statically scoped
-  - Unclear who is responsible for acquisition & cleanup
-
+### Try-with-resources / AutoCloseable
 
 
 Each of these approaches gives you benefits, but you can't assemble them all together.
@@ -206,6 +203,8 @@ There is a function that returns a Future:
 
 ```scala mdoc:invisible
 var headLineAvailable = true
+// TODO If we make this function accept the "mock" result and return that, then
+//  we can leverage that to hit all of the possible paths in AllTheThings.
 def getHeadLine(): Future[String] =
   if (headLineAvailable)
     Future.successful("stock market crash!")
@@ -270,9 +269,9 @@ def findTopicOfInterest(
 
 ```scala mdoc:silent
 // TODO Discuss colon clashing in this example
-findTopicOfInterest:
-  "content"
-: Option[String]
+val _: Option[String] =
+  findTopicOfInterest:
+    "content"
 ```
 
 If you want to treat the case of a missing value as an error, you can again use `ZIO.from`:
@@ -301,15 +300,22 @@ runDemo:
     "boring and inane content"
 ```
 
+### AutoCloseable Interop
+Java/Scala provide the `AutoCloseable` interface for defining finalizer behavior on objects.
+While this is a big improvement over manually managing this in ad-hoc ways, the static scoping of this mechanism makes it clunky to use.
+TODO Decide whether to show nested files example to highlight this weakness
+
 ```scala mdoc:invisible
 import scala.util.Try
 
 trait CloseableFile extends AutoCloseable:
+  // TODO Return existing entry, rather than a raw Boolean?
   def contains(searchTerm: String): Boolean
   def write(entry: String): Try[String]
 
 def closeableFile() =
   new CloseableFile:
+    var contents: List[String] = List("Medical Breakthrough!")
     println("Opening file!")
     override def close = println("Closing file!")
 
@@ -323,20 +329,27 @@ def closeableFile() =
     override def write(
         entry: String
     ): Try[String] =
-      println("Writing to file: " + entry)
       if (entry == "stock market")
         Try(
           throw new Exception(
             "Stock market already exists!"
           )
         )
-      else
+      else {
+        println("Writing to file: " + entry)
+        contents =  entry :: contents
         Try(entry)
+      }
 ```
+
+We have an existing function that produces an `AutoCloseable`.
 
 ```scala mdoc:silent
 closeableFile(): AutoCloseable
 ```
+
+Since `AutoCloseable` is a trait that can be implemented by arbitrary classes, we can't rely on `ZIO.from` to automatically manage this conversion for us.
+In this situation, we should use the explicit `ZIO.fromAutoCloseable` function.
 
 ```scala mdoc:silent
 val closeableFileZ =
@@ -345,10 +358,17 @@ val closeableFileZ =
       closeableFile()
 ```
 
+Once we do this, the `ZIO` runtime will manage the lifecycle of this object via the `Scope` mechanism.
+TODO Link to docs for this?
+In the simplest case, we open and close the file, with no logic while it is iopen.
+
 ```scala mdoc
 runDemo:
   closeableFileZ
 ```
+
+Since that is not terribly useful, let's start calling some methods on our managed file.
+
 
 ```scala mdoc:silent
 closeableFile().contains("something"): Boolean
@@ -449,9 +469,6 @@ val researchWorkflow =
       summaryFile.contains:
         topic
 
-    // TODO What's a compelling result here?
-    // One side returns the contents of the summary file,
-    // While the other just says we can't get it
     if (topicIsFresh)
       val newInfo =
         summaryForZ:
@@ -462,6 +479,7 @@ val researchWorkflow =
         summaryFile,
         newInfo
       ).run
+      newInfo
     else
       "Topic was already covered"
 
