@@ -1,4 +1,4 @@
-# Concurrency High Level
+# Concurrency
 
 1. forEachPar, collectAllPar
 

@@ -1,4 +1,4 @@
-# Concurrency Interruption
+# Interruption
 
 ## Why Interruption Is Necessary Throughout the Stack
 In order for the `Runtime`  to operate and provide the super powers of `ZIO`, it needs to be able to interrupt running workflows without resource leaks.

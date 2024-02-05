@@ -20,6 +20,8 @@ Once you add `throw`, the rules are more complicated
 If you are not interested in the discouraged ways to handle errors, and just want to see the ZIO approach, jump down to
 [ZIO Error Handling](#zio-error-handling)
 
+## Throwing Exceptions
+
 In the past, some programs have thrown exceptions to indicate failures.
 Imagine a program that displays the local temperature the user based on GPS position and a network call. There are distinct levels of problems in any given program. They require different types of handling by the programmer.
 
@@ -72,6 +74,8 @@ currentTemperatureUnsafe:
   Scenario.NetworkError
 ```
 
+## Returning `null` 
+
 We could take the bare-minimum approach of catching the `Exception` and returning `null`:
 
 ```scala mdoc
@@ -92,6 +96,8 @@ currentTemperatureNull:
 
 This is *slightly* better, as the user can at least see the outer structure of our UI element, but it still leaks out code-specific details world.
 
+## Sentinel Values
+
 Maybe we could fallback to a `sentinel` value, such as `0` or `-1` to indicate a failure?
 
 ```scala mdoc:nest
@@ -111,6 +117,8 @@ currentTemperature:
 ```
 
 Clearly, this isn't acceptable, as both of these common sentinel values are valid temperatures.
+
+## Diligent Catching, without any hints.
 We can take a more honest and accurate approach in this situation.
 
 ```scala mdoc:nest
@@ -170,6 +178,8 @@ Encountering an error during a function call generally means two things:
 
 2. You can't return a normal result.
 
+## More Problems with Exceptions
+
 Many languages use *exceptions* for handling errors.
 An exception *throws* out of the current execution path to locate a user-written *handler* to deal with the error.
 There are two goals for exceptions:
@@ -195,10 +205,8 @@ Exceptions have problems:
    statically-typed error management solution can ensure---at compile
    time---that all errors are handled.
 
-1. They don't scale.
+1. They don't scale, because its difficult to know what exceptions a function can throw.
    {{Need to think about this more to make the case.}}
-
-1. Hard to reason about. {{Also need to make this case}}
 
 1. Difficult or impossible to retry an operation if it fails.
    Java {{and Scala?}} use the "termination" model of exception handling.
@@ -208,10 +216,6 @@ Exceptions have problems:
 Exceptions were a valiant attempt to produce a consistent error-reporting interface, and they are definitely better than what's in C.
 But they don't end up solving the problem very well, and you just don't know what you're going to get when you use exceptions.
 
-
-### What's wrong with Try?
-
-### ADTS as another step forward
 
 ## ZIO Error Handling
 
@@ -327,9 +331,7 @@ runDemo:
 
 The compiler does not catch this bug, and instead fails at runtime.
 Take extra care when interacting with legacy code, since we cannot automatically recognize these situations at compile time.
-We have 2 options in these situations.
-
-First, we can provide a fallback case that will report anything we missed:
+We can provide a fallback case that will report anything we missed:
 
 ```scala mdoc
 def getTemperatureZWithFallback(
@@ -353,29 +355,6 @@ runDemo:
 ```
 
 This lets us avoid the most egregious gaps in functionality, but it does not take full advantage of ZIO's type-safety.
-
-```scala mdoc
-def getTemperatureZAndFlagUnhandled(
-    behavior: Scenario
-) =
-  calculateTempWrapped:
-    behavior
-  .catchSome:
-    case ex: NetworkException =>
-      ZIO.succeed:
-        "Network Unavailable"
-    // TODO Eh, find a better version of this.
-  .mapError(_.asInstanceOf[GpsException])
-```
-
-```scala mdoc
-runDemo:
-  getTemperatureZAndFlagUnhandled:
-    Scenario.GPSError
-```
-
-
-{{TODO show catchSome}}
 
 > Note: The following is copy&pasted and needs work
 

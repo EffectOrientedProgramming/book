@@ -27,7 +27,7 @@ In order to confidently use them, we need certain guarantees about the behavior:
 Less obviously, we also need to create the Mutable reference itself.
 We are changing the world, by creating a space that we can manipulate.
 
-## Unreliable Counting
+## Unreliable State
 
 ```scala mdoc:silent
 val unreliableCounting =
@@ -62,7 +62,7 @@ TODO Consider making a diagram parallel writes
 Performing our side effects inside ZIO's does not magically make them safe.
 We need to fully embrace the ZIO components, utilizing `Ref` for correct mutation.
 
-## Reliable Counting
+## Reliable State
 
 ```scala mdoc
 lazy val reliableCounting =
@@ -86,6 +86,8 @@ Now we can say with full confidence that our final count is 100000.
 Additionally, these updates happen _without blocking_.
 This is achieved through a strategy called "Compare & Swap", which we will not cover in detail.
 *TODO Link/reference supplemental reading*
+
+## Unreliable Effects
 
 Although there are significant advantages; a basic `Ref` is not the solution for everything.
 We can only pass pure functions into `update`.
@@ -140,7 +142,7 @@ However, it is completely inappropriate for effects, which should only be execut
 For these situations, we need a specialized variation of `Ref`
 
 
-## Ref.Synchronized
+## Reliable Effects
 
 `Ref.Synchronized` guarantees only a single execution of the `update` body and any of the effects contained inside.
 The only change required is replacing `Ref.make` with `Ref.Synchronized.make`
