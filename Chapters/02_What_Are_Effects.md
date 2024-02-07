@@ -60,7 +60,7 @@ There are many other examples of carefully-built software systems failing disast
   for metric but ground control software used non-metric English.
 
 The list goes on; just search for something like "Famous Software Failures" to see more.
-And consider security- all the applications you use that are constantly being updated with security patches.
+And consider security - all the applications you use that are constantly being updated with security patches.
 What about those that aren't?
 Are they that good, or is security being ignored?
 
@@ -263,17 +263,3 @@ Similarly, a `ZIO` _might_ produce a value, but you have to run it to find out.
 You can think of them as recipes for producing a value.
 You don't want to return a recipe from a function, you can only return a value.
 If it is your friend's birthday, they want a cake, not a list of instructions about mixing ingredients and baking.
-
-
-## The Interpreter
-
-Scala compiles code to JVM bytecodes,
-An interpreter steps through and executes your code, much like the JVM interprets JVM bytecodes.
-The interpreter is the hidden piece understands so much more about the meaning of your code.
-This includes the ability to decide what to run concurrently and how to invisibly tune that concurrency--all at runtime.
-The interpreter is responsible for deciding when to context-switch between tasks, and is able to do this because it understands the ZIO code that it's executing.
-
-The interpreter is also the mechanism that evaluates the various effects described in the generic type parameters for each ZIO object.
-
-The reason we have the `defer` directive(method?) in zio-direct is to indicate that this code will be evaluated by the interpreter later.
-

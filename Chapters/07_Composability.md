@@ -1,4 +1,4 @@
-# Contract-Based Composability
+# Composability
 
 Good contracts make good composability.
 
@@ -6,7 +6,9 @@ contracts are what makes composability work at scale
 our effects put in place contracts on how things can compose
 exceptions do not put in place a contract
 
-maybe something about how exceptions do not convey a contract in either direction. Anything can be wrapped with a try.  Things that produce exceptions don't need to be wrapped with trys.
+maybe something about how exceptions do not convey a contract in either direction. 
+Anything can be wrapped with a try.  
+Things that produce exceptions don't need to be wrapped with trys.
 
 possible example of Scope for Environment contracts
 
