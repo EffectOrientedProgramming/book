@@ -9,7 +9,8 @@ The code examples should be relatable to programmers who are familiar with:
   - Functions that take parameters, can be named, and referenced
   - TODO
 
-This book also uses Scala ZIO, an effect-oriented library for Scala, but it does not go into depth on ZIO.  To learn ZIO, see: TODO
+This book also uses Scala ZIO, an effect-oriented library for Scala, but it does not go into depth on ZIO.  
+To learn ZIO, visit zio.dev 
 
 
 ## Code examples
@@ -35,4 +36,4 @@ Kit Langton, for being a kindred spirit in software interests and inspiring cont
 
 Wyett Considine, for being an enthusiastic intern and initial audience.
 
-Hali Frasure, for dozens of dinners and facilitating our book nights generally.
+Hali Frasure, for cooking so many dinners and facilitating our book nights generally.

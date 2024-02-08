@@ -291,20 +291,17 @@ object Bread2:
       ZIO.succeed(BreadStoreBought()).run
 
   def attempt(invocations: Ref[Int]) =
-    invocations
-      .updateAndGet(_ + 1)
-      .flatMap {
+    defer:
+      val currentInvocations: Int = invocations.updateAndGet(_+1).run
+      currentInvocations match
         case cnt if cnt < 3 =>
-          forcedFailure
-//              ???
-        // Avoid manual Bread construction here
+          forcedFailure.run
         case _ =>
-          defer:
-            println("Power is on")
-            ZIO.succeed(BreadStoreBought()).run
-      }
+          println("Power is on")
+          BreadStoreBought()
 
-  // Already constructed elsewhere, that we don't
+
+// Already constructed elsewhere, that we don't
   // control
   val fromFriend =
     ZLayer.fromZIO:
