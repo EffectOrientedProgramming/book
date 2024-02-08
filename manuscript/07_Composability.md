@@ -1,4 +1,4 @@
-# Contract-Based Composability
+# Composability
 
 
 [Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/07_Composability.md)
@@ -10,7 +10,9 @@ contracts are what makes composability work at scale
 our effects put in place contracts on how things can compose
 exceptions do not put in place a contract
 
-maybe something about how exceptions do not convey a contract in either direction. Anything can be wrapped with a try.  Things that produce exceptions don't need to be wrapped with trys.
+maybe something about how exceptions do not convey a contract in either direction. 
+Anything can be wrapped with a try.  
+Things that produce exceptions don't need to be wrapped with trys.
 
 possible example of Scope for Environment contracts
 
@@ -40,9 +42,9 @@ ZIO.succeed(maybeThing()).someOrFail("error")
 //   trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:20)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:20)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$17021/0x000000080425c440@28d32089
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$15823/0x0000000803f80040@4c9a8300
 //   ),
-//   successK = zio.ZIO$$Lambda$18902/0x0000000804739040@3b752b08
+//   successK = zio.ZIO$$Lambda$17706/0x000000080444b840@1c7c165d
 // )
 ```
 
@@ -70,9 +72,9 @@ ZIO
 //   trace = "repl.MdocSession.MdocApp.res3(07_Composability.md:35)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res3(07_Composability.md:35)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$17021/0x000000080425c440@1ee7d25f
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$15823/0x0000000803f80040@1e7619ca
 //   ),
-//   successK = zio.ZIO$$$Lambda$17023/0x000000080425a040@7f539a7c
+//   successK = zio.ZIO$$$Lambda$15825/0x0000000803f86840@61a44017
 // )
 ```
 
@@ -343,7 +345,7 @@ runDemo:
   closeableFileZ
 // Opening file!
 // Closing file!
-// repl.MdocSession$MdocApp$$anon$29@2a038328
+// repl.MdocSession$MdocApp$$anon$29@4ba744f3
 ```
 
 Since that is not terribly useful, let's start calling some methods on our managed file.
