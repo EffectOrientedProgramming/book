@@ -205,6 +205,8 @@ runDemo:
     Dough.fresh,
     Heat.oven
   )
+// Making Homemade Bread
+// Eating bread!
 // ()
 ```
 
@@ -242,6 +244,7 @@ runDemo:
       Heat.oven
     )
     .build
+// Making Toast
 // ZEnvironment(MdocSession::MdocApp::Toast -> To
 ```
 

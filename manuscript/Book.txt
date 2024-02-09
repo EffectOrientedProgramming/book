@@ -12,6 +12,3 @@
 11_Reliability.md
 12_ZIO_and_ZLayer.md
 13_Appendix_RunningEffects.md
-ExperimentsSection.md
-rezilience.md
-zio_helpers.md

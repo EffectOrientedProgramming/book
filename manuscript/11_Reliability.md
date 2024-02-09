@@ -77,6 +77,64 @@ runDemo:
 ## Staying under rate limits
 
 
+```scala
+import nl.vroste.rezilience.RateLimiter
+
+val makeRateLimiter =
+  RateLimiter.make(max = 1, interval = 1.second)
+```
+
+```scala
+// shows extension function definition
+// so that we can explain timedSecondsDebug
+extension (rateLimiter: RateLimiter)
+  def makeCalls(name: String) =
+    rateLimiter:
+      expensiveApiCall
+    .timedSecondsDebug:
+      s"$name called API"
+    .repeatN(2) // Repeats as fast as allowed
+```
+
+```scala
+runDemo:
+  defer:
+    val rateLimiter = makeRateLimiter.run
+    rateLimiter
+      .makeCalls:
+        "System"
+      .timedSecondsDebug("Result").run
+// System called API [took 0s]
+// System called API [took 1s]
+// System called API [took 1s]
+// Result [took 2s]
+// ()
+```
+
+```scala
+runDemo:
+  defer:
+    val rateLimiter = makeRateLimiter.run
+    val people = List("Bill", "Bruce", "James")
+
+    ZIO
+      .foreachPar(people):
+        rateLimiter.makeCalls
+      .timedSecondsDebug:
+        "Total time"
+      .run
+// Bill called API [took 0s]
+// Bruce called API [took 1s]
+// James called API [took 2s]
+// Bill called API [took 3s]
+// Bruce called API [took 3s]
+// James called API [took 3s]
+// Bill called API [took 3s]
+// Bruce called API [took 3s]
+// James called API [took 3s]
+// Total time [took 8s]
+// List((), (), ())
+```
 
 ## Constraining concurrent requests
 If we want to ensure we don't accidentally DDOS a service, we can restrict the number of concurrent requests to it.
