@@ -1,67 +1,31 @@
 package rezilience
 
-import zio.Random
+import zio.Ref
 
 import java.time.Instant
 import scala.concurrent.TimeoutException
 
 // Invisible mdoc fencess
-
-val externalSystem =
-  defer:
-    val b = Random.nextBoolean.run
-    if b then ZIO.succeed("asdf").run else ZIO.fail("zxcv").run
-//          scheduledValues(
-//            (1.second, Success),
-//            (3.seconds, Failure),
-//            (5.seconds, Success)
-//          ).run
-
-/*
-case class ExternalSystem(
-    requests: Ref[Int],
-    responseAction: ZIO[
-      Any, // access time
-      TimeoutException,
-      Scenario.Step
-    ]
-) extends ExpensiveSystem:
-
-  // TODO: Better error type than Throwable
-  val billToDate: ZIO[Any, String, Cost] =
-    requests
-      .get
-      .map:
-        Cost(_)
-
-  def call: ZIO[Any, String, Analysis] =
-    defer:
-      ZIO
-        .debug(
-          "Called underlying ExternalSystem"
+import zio.Runtime.default.unsafe
+val timeSensitiveValue =
+  Unsafe.unsafe((u: Unsafe) =>
+    given Unsafe = u
+    unsafe
+      .run(
+        scheduledValues(
+          (1.second, true),
+          (3.seconds, false),
+          (5.seconds, true)
         )
-        .run
-      val requestCount =
-        requests.updateAndGet(_ + 1).run
-      responseAction.orDie.run match
-        case Success =>
-          ZIO
-            .succeed:
-              Analysis:
-                s"Expensive report #$requestCount"
-            .run
-        case Failure =>
-          ZIO
-            .debug:
-              "boom"
-            .run
-          ZIO
-            .fail:
-              "Something went wrong"
-            .run
+      )
+      .getOrThrowFiberFailure()
+  )
 
-end ExternalSystem
- */
+def externalSystem(numCalls: Ref[Int]) =
+  defer:
+    numCalls.update(_ + 1).run
+    val b = timeSensitiveValue.run
+    if b then ZIO.succeed(()).run else ZIO.fail(()).run
 
 // TODO Consider deleting
 object InstantOps:

@@ -2,10 +2,8 @@ package rezilience
 
 import nl.vroste.rezilience.*
 import nl.vroste.rezilience.CircuitBreaker.*
-import zio.{Schedule}
+import zio.Schedule
 
-//case class Cost(value: Int)
-//case class Analysis(content: String)
 
 object CircuitBreakerDemo extends ZIOAppDefault:
 
@@ -14,33 +12,31 @@ object CircuitBreakerDemo extends ZIOAppDefault:
       trippingStrategy =
         TrippingStrategy
           .failureCount(maxFailures = 2),
-      resetPolicy = Retry.Schedules.common(),
+      resetPolicy = Retry.Schedules.common(jitterFactor = 0),
       onStateChange =
         state =>
           ZIO.debug(s"State change: $state")
     )
 
+  val repeatSchedule = Schedule.recurs(30) &&
+    Schedule.spaced(250.millis)
+
   def run =
     defer:
       val cb = makeCircuitBreaker.run
-      cb(externalSystem)
-        .tap(r => ZIO.debug(s"Result: $r"))
+      val numCallsRef = Ref.make[Int](0).run
+      cb(externalSystem(numCallsRef))
+        .tap(_ => ZIO.debug(s"Call to external service successful"))
         .mapError:
           case CircuitBreakerOpen =>
             "Circuit breaker blocked the call to our external system"
-          case WrappedError(e) =>
-            s"External system threw an exception: $e"
+          case WrappedError(_) =>
+            "External system threw an exception"
         .tapError(e => ZIO.debug(e))
         .ignore
-        .repeat(
-          Schedule.recurs(30) &&
-            Schedule.spaced(250.millis)
-        )
+        .repeat(repeatSchedule)
         .run
-//      expensiveSystem.billToDate.debug.run
-//    .provide:
-//       ExternalSystem // TOGGLE
-//      ExternalSystemProtected // TOGGLE
-//        .live
+
+      numCallsRef.get.debug("We hit the external system this many times").run
 
 end CircuitBreakerDemo
