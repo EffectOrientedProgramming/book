@@ -7,13 +7,12 @@ import nl.vroste.rezilience.RateLimiter
   *     AWS bill
   *   - Not accidentally DDOSing a service
   */
-val makeRateLimiter
-    : ZIO[Scope, Nothing, RateLimiter] =
+val makeRateLimiter =
   RateLimiter.make(max = 1, interval = 1.second)
 
 // We use Throwable as error type in this example
-def rsaKeyGenerator: ZIO[Any, Throwable, Int] =
-  Random.nextIntBounded(1000)
+val expensiveApiCall =
+  ZIO.unit
 
 import zio_helpers.timedSecondsDebug
 object RateLimiterDemoWithLogging
@@ -22,9 +21,9 @@ object RateLimiterDemoWithLogging
   def run =
     defer:
       val rateLimiter = makeRateLimiter.run
-      rateLimiter(rsaKeyGenerator)
+      rateLimiter(expensiveApiCall)
         // Print the time to generate each key:
-        .timedSecondsDebug("Generated key")
+        .timedSecondsDebug("Called API")
         // Repeat as fast as the limiter allows:
         .repeatN(3)
         // Print the last result
@@ -33,20 +32,18 @@ object RateLimiterDemoWithLogging
 object RateLimiterDemoGlobal
     extends ZIOAppDefault:
 
-  import zio_helpers.repeatNPar
-
   def run =
     defer:
       val rateLimiter = makeRateLimiter.run
       ZIO
-        .repeatNPar(3): i =>
+        .foreachPar(List("Bill", "Bruce", "James")): name =>
           rateLimiter:
-            rsaKeyGenerator
+            expensiveApiCall
           .timedSecondsDebug(
-            s"${i.toString} generated a key"
+            s"$name called API"
           )
-            // Repeats as fast as allowed
-            .repeatN(2)
+          // Repeats as fast as allowed
+          .repeatN(2)
         .unit
         .timedSecondsDebug("Total time")
         .run
