@@ -128,6 +128,73 @@ runDemo:
 ## Circuit Breaking
 
 
+```scala
+val repeatSchedule =
+  Schedule.recurs(140) &&
+    Schedule.spaced(50.millis)
+```
+
+```scala
+runDemo:
+  defer:
+    val numCalls = Ref.make[Int](0).run
+
+    externalSystem(numCalls)
+      .ignore
+      .repeat(repeatSchedule)
+      .run
+
+    val made = numCalls
+      .get
+      .run
+
+    s"Calls made: $made"
+// Calls made: 141
+```
+
+```scala
+import nl.vroste.rezilience.{CircuitBreaker, TrippingStrategy, Retry}
+import nl.vroste.rezilience.CircuitBreaker.CircuitBreakerOpen
+
+val makeCircuitBreaker =
+  CircuitBreaker.make(
+    trippingStrategy =
+      TrippingStrategy
+        .failureCount(maxFailures = 2),
+    resetPolicy = Retry.Schedules.common(),
+  )
+```
+
+```scala
+runDemo:
+  defer:
+    val cb = makeCircuitBreaker.run
+    val numCalls = Ref.make[Int](0).run
+    val numPrevented = Ref.make[Int](0).run
+    val protectedCall =
+      cb(externalSystem(numCalls))
+        .catchSome:
+          case CircuitBreakerOpen =>
+            numPrevented.update(_ + 1)
+  
+    protectedCall
+      .ignore
+      .repeat(repeatSchedule)
+      .run
+
+    val prevented = 
+      numPrevented
+        .get
+        .run
+
+    val made =
+      numCalls
+        .get
+        .run
+    s"Calls prevented: $prevented Calls made: $made"
+// Calls prevented: 74 Calls made: 67
+```
+
 ## Hedging
 
 
@@ -164,3 +231,4 @@ runDemo:
       .run
 // 0
 ```
+
