@@ -42,9 +42,9 @@ ZIO.succeed(maybeThing()).someOrFail("error")
 //   trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:20)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:20)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$15823/0x0000000803f80040@4c9a8300
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$15485/0x0000000803f50440@73006eb0
 //   ),
-//   successK = zio.ZIO$$Lambda$17706/0x000000080444b840@1c7c165d
+//   successK = zio.ZIO$$Lambda$17368/0x00000008043f1840@2b9175e1
 // )
 ```
 
@@ -72,9 +72,9 @@ ZIO
 //   trace = "repl.MdocSession.MdocApp.res3(07_Composability.md:35)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res3(07_Composability.md:35)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$15823/0x0000000803f80040@1e7619ca
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$15485/0x0000000803f50440@7195fc93
 //   ),
-//   successK = zio.ZIO$$$Lambda$15825/0x0000000803f86840@61a44017
+//   successK = zio.ZIO$$$Lambda$15487/0x0000000803f56840@2a6de21b
 // )
 ```
 
@@ -345,7 +345,7 @@ runDemo:
   closeableFileZ
 // Opening file!
 // Closing file!
-// repl.MdocSession$MdocApp$$anon$29@4ba744f3
+// repl.MdocSession$MdocApp$$anon$29@3316a908
 ```
 
 Since that is not terribly useful, let's start calling some methods on our managed file.

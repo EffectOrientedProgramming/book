@@ -8,19 +8,10 @@ package rezilience
 
 import nl.vroste.rezilience.*
 import nl.vroste.rezilience.CircuitBreaker.*
-import zio.{Schedule, ZLayer}
+import zio.{Schedule}
 
-case class Cost(value: Int)
-case class Analysis(content: String)
-
-trait ExpensiveSystem:
-  def call: ZIO[Any, String, Analysis]
-  val billToDate: ZIO[Any, String, Cost]
-
-object Scenario:
-  enum Step:
-    case Success,
-      Failure
+//case class Cost(value: Int)
+//case class Analysis(content: String)
 
 object CircuitBreakerDemo extends ZIOAppDefault:
 
@@ -37,57 +28,28 @@ object CircuitBreakerDemo extends ZIOAppDefault:
 
   def run =
     defer:
-      val expensiveSystem =
-        ZIO.service[ExpensiveSystem].run
-      expensiveSystem
-        .call
+      val cb = makeCircuitBreaker.run
+      cb(externalSystem)
+        .tap(r => ZIO.debug(s"Result: $r"))
+        .mapError:
+          case CircuitBreakerOpen =>
+            "Circuit breaker blocked the call to our external system"
+          case WrappedError(e) =>
+            s"External system threw an exception: $e"
+        .tapError(e => ZIO.debug(e))
         .ignore
         .repeat(
           Schedule.recurs(30) &&
             Schedule.spaced(250.millis)
         )
         .run
-      expensiveSystem.billToDate.debug.run
-    .provide:
+//      expensiveSystem.billToDate.debug.run
+//    .provide:
 //       ExternalSystem // TOGGLE
-      ExternalSystemProtected // TOGGLE
-        .live
+//      ExternalSystemProtected // TOGGLE
+//        .live
 
 end CircuitBreakerDemo
-
-case class ExternalSystemProtected(
-    externalSystem: ExpensiveSystem,
-    circuitBreaker: CircuitBreaker[String]
-) extends ExpensiveSystem:
-  val billToDate: ZIO[Any, String, Cost] =
-    externalSystem.billToDate
-
-  def call: ZIO[Any, String, Analysis] =
-    circuitBreaker:
-      externalSystem.call
-    .tap(r => ZIO.debug(s"Result: $r"))
-      .mapError:
-        case CircuitBreakerOpen =>
-          "Circuit breaker blocked the call to our external system"
-        case WrappedError(e) =>
-          s"External system threw an exception: $e"
-      .tapError(e => ZIO.debug(e))
-
-object ExternalSystemProtected:
-  val live
-      : ZLayer[Any, Nothing, ExpensiveSystem] =
-    ZLayer.fromZIO:
-      defer:
-        ExternalSystemProtected(
-          ZIO.service[ExpensiveSystem].run,
-          CircuitBreakerDemo
-            .makeCircuitBreaker
-            .run
-        )
-      .provide(
-        ExternalSystem.live,
-        Scope.default
-      )
 
 ```
 
@@ -102,76 +64,44 @@ import java.time.Instant
 import scala.concurrent.TimeoutException
 
 // Invisible mdoc fencess
-import Scenario.Step.*
 
-object ExternalSystem:
-  val live
-      : ZLayer[Any, Nothing, ExpensiveSystem] =
-    ZLayer.fromZIO:
-      defer:
-        val valueProducer =
-          Random
-            .nextBoolean
-            .map {
-              case true =>
-                Success
-              case false =>
-                Failure
-            }
+val externalSystem =
+  defer:
+    val b = Random.nextBoolean.run
+    if b then
+      ZIO.succeed("asdf").run
+    else
+      ZIO.fail("zxcv").run
 //          scheduledValues(
 //            (1.second, Success),
 //            (3.seconds, Failure),
 //            (5.seconds, Success)
 //          ).run
-        ExternalSystem(
-          Ref.make(0).run,
-          valueProducer
-        )
-end ExternalSystem
 
-case class ExternalSystem(
-    requests: Ref[Int],
-    responseAction: ZIO[
-      Any, // access time
-      TimeoutException,
-      Scenario.Step
-    ]
-) extends ExpensiveSystem:
-
-  // TODO: Better error type than Throwable
-  val billToDate: ZIO[Any, String, Cost] =
-    requests
-      .get
-      .map:
-        Cost(_)
-
-  def call: ZIO[Any, String, Analysis] =
-    defer:
-      ZIO
-        .debug(
-          "Called underlying ExternalSystem"
-        )
-        .run
-      val requestCount =
-        requests.updateAndGet(_ + 1).run
-      responseAction.orDie.run match
-        case Success =>
-          ZIO
-            .succeed:
-              Analysis:
-                s"Expensive report #$requestCount"
-            .run
-        case Failure =>
-          ZIO
-            .debug:
-              "boom"
-            .run
-          ZIO
-            .fail:
-              "Something went wrong"
-            .run
-
-end ExternalSystem
+/* case class ExternalSystem( requests: Ref[Int],
+ * responseAction: ZIO[ Any, // access time
+ * TimeoutException, Scenario.Step ] ) extends
+ * ExpensiveSystem:
+ *
+ * // TODO: Better error type than Throwable val
+ * billToDate: ZIO[Any, String, Cost] =
+ * requests .get .map:
+ * Cost(_)
+ *
+ * def call: ZIO[Any, String, Analysis] =
+ * defer:
+ * ZIO .debug( "Called underlying ExternalSystem"
+ * ) .run val requestCount =
+ * requests.updateAndGet(_ + 1).run
+ * responseAction.orDie.run match case Success =>
+ * ZIO .succeed:
+ * Analysis:
+ * s"Expensive report #$requestCount" .run case
+ * Failure => ZIO .debug:
+ * "boom" .run ZIO .fail:
+ * "Something went wrong" .run
+ *
+ * end ExternalSystem */
 
 // TODO Consider deleting
 object InstantOps:
