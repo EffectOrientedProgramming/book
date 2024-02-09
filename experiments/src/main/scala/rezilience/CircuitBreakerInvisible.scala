@@ -13,9 +13,9 @@ val timeSensitiveValue =
     unsafe
       .run(
         scheduledValues(
-          (1.second, true),
-          (3.seconds, false),
-          (5.seconds, true)
+          (1100.millis, true),
+          (4100.millis, false),
+          (5000.millis, true)
         )
       )
       .getOrThrowFiberFailure()
@@ -25,7 +25,12 @@ def externalSystem(numCalls: Ref[Int]) =
   defer:
     numCalls.update(_ + 1).run
     val b = timeSensitiveValue.run
-    if b then ZIO.succeed(()).run else ZIO.fail(()).run
+    if b then
+      ZIO.debug(s"Call to external service successful").run
+      ZIO.succeed(()).run
+    else
+      ZIO.debug("External system threw an exception").run
+      ZIO.fail(()).run
 
 // TODO Consider deleting
 object InstantOps:

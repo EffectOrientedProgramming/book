@@ -12,31 +12,36 @@ object CircuitBreakerDemo extends ZIOAppDefault:
       trippingStrategy =
         TrippingStrategy
           .failureCount(maxFailures = 2),
-      resetPolicy = Retry.Schedules.common(jitterFactor = 0),
+      resetPolicy = Retry.Schedules.common(factor = 1, jitterFactor = 0),
       onStateChange =
         state =>
           ZIO.debug(s"State change: $state")
     )
 
-  val repeatSchedule = Schedule.recurs(30) &&
-    Schedule.spaced(250.millis)
+  val repeatSchedule =
+    Schedule.recurs(7) &&
+    Schedule.spaced(1.second)
 
   def run =
     defer:
       val cb = makeCircuitBreaker.run
-      val numCallsRef = Ref.make[Int](0).run
-      cb(externalSystem(numCallsRef))
-        .tap(_ => ZIO.debug(s"Call to external service successful"))
-        .mapError:
-          case CircuitBreakerOpen =>
-            "Circuit breaker blocked the call to our external system"
-          case WrappedError(_) =>
-            "External system threw an exception"
-        .tapError(e => ZIO.debug(e))
+      val numCalls = Ref.make[Int](0).run
+      val protectedCall =
+        cb(externalSystem(numCalls))
+          .catchSome:
+            case CircuitBreakerOpen =>
+              ZIO.debug:
+                "Circuit breaker blocked call"
+
+      //externalSystem(numCalls)
+      protectedCall
         .ignore
         .repeat(repeatSchedule)
         .run
 
-      numCallsRef.get.debug("We hit the external system this many times").run
+      numCalls
+        .get
+        .debug("Calls to external system")
+        .run
 
 end CircuitBreakerDemo
