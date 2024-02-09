@@ -2,19 +2,10 @@ package rezilience
 
 import nl.vroste.rezilience.*
 import nl.vroste.rezilience.CircuitBreaker.*
-import zio.{Schedule, ZLayer}
+import zio.{Schedule}
 
-case class Cost(value: Int)
-case class Analysis(content: String)
-
-trait ExpensiveSystem:
-  def call: ZIO[Any, String, Analysis]
-  val billToDate: ZIO[Any, String, Cost]
-
-object Scenario:
-  enum Step:
-    case Success,
-      Failure
+//case class Cost(value: Int)
+//case class Analysis(content: String)
 
 object CircuitBreakerDemo extends ZIOAppDefault:
 
@@ -31,54 +22,25 @@ object CircuitBreakerDemo extends ZIOAppDefault:
 
   def run =
     defer:
-      val expensiveSystem =
-        ZIO.service[ExpensiveSystem].run
-      expensiveSystem
-        .call
+      val cb = makeCircuitBreaker.run
+      cb(externalSystem)
+        .tap(r => ZIO.debug(s"Result: $r"))
+        .mapError:
+          case CircuitBreakerOpen =>
+            "Circuit breaker blocked the call to our external system"
+          case WrappedError(e) =>
+            s"External system threw an exception: $e"
+        .tapError(e => ZIO.debug(e))
         .ignore
         .repeat(
           Schedule.recurs(30) &&
             Schedule.spaced(250.millis)
         )
         .run
-      expensiveSystem.billToDate.debug.run
-    .provide:
+//      expensiveSystem.billToDate.debug.run
+//    .provide:
 //       ExternalSystem // TOGGLE
-      ExternalSystemProtected // TOGGLE
-        .live
+//      ExternalSystemProtected // TOGGLE
+//        .live
 
 end CircuitBreakerDemo
-
-case class ExternalSystemProtected(
-    externalSystem: ExpensiveSystem,
-    circuitBreaker: CircuitBreaker[String]
-) extends ExpensiveSystem:
-  val billToDate: ZIO[Any, String, Cost] =
-    externalSystem.billToDate
-
-  def call: ZIO[Any, String, Analysis] =
-    circuitBreaker:
-      externalSystem.call
-    .tap(r => ZIO.debug(s"Result: $r"))
-      .mapError:
-        case CircuitBreakerOpen =>
-          "Circuit breaker blocked the call to our external system"
-        case WrappedError(e) =>
-          s"External system threw an exception: $e"
-      .tapError(e => ZIO.debug(e))
-
-object ExternalSystemProtected:
-  val live
-      : ZLayer[Any, Nothing, ExpensiveSystem] =
-    ZLayer.fromZIO:
-      defer:
-        ExternalSystemProtected(
-          ZIO.service[ExpensiveSystem].run,
-          CircuitBreakerDemo
-            .makeCircuitBreaker
-            .run
-        )
-      .provide(
-        ExternalSystem.live,
-        Scope.default
-      )

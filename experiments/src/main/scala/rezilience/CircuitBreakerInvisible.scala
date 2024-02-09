@@ -6,33 +6,18 @@ import java.time.Instant
 import scala.concurrent.TimeoutException
 
 // Invisible mdoc fencess
-import Scenario.Step.*
 
-object ExternalSystem:
-  val live
-      : ZLayer[Any, Nothing, ExpensiveSystem] =
-    ZLayer.fromZIO:
-      defer:
-        val valueProducer =
-          Random
-            .nextBoolean
-            .map {
-              case true =>
-                Success
-              case false =>
-                Failure
-            }
+val externalSystem =
+  defer:
+    val b = Random.nextBoolean.run
+    if b then ZIO.succeed("asdf").run else ZIO.fail("zxcv").run
 //          scheduledValues(
 //            (1.second, Success),
 //            (3.seconds, Failure),
 //            (5.seconds, Success)
 //          ).run
-        ExternalSystem(
-          Ref.make(0).run,
-          valueProducer
-        )
-end ExternalSystem
 
+/*
 case class ExternalSystem(
     requests: Ref[Int],
     responseAction: ZIO[
@@ -76,6 +61,7 @@ case class ExternalSystem(
             .run
 
 end ExternalSystem
+ */
 
 // TODO Consider deleting
 object InstantOps:
