@@ -42,9 +42,9 @@ ZIO.succeed(maybeThing()).someOrFail("error")
 //   trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:20)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:20)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$15095/0x0000000803dcc440@5dfee0ee
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$15063/0x0000000803d41440@16c83867
 //   ),
-//   successK = zio.ZIO$$Lambda$16977/0x0000000804366840@2c75a7af
+//   successK = zio.ZIO$$Lambda$16951/0x0000000804298040@262aa2a0
 // )
 ```
 
@@ -72,9 +72,9 @@ ZIO
 //   trace = "repl.MdocSession.MdocApp.res3(07_Composability.md:35)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res3(07_Composability.md:35)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$15095/0x0000000803dcc440@1ea54766
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$15063/0x0000000803d41440@445980bd
 //   ),
-//   successK = zio.ZIO$$$Lambda$15097/0x0000000803dca040@5fccc76d
+//   successK = zio.ZIO$$$Lambda$15065/0x0000000803d46840@41b6ea3c
 // )
 ```
 
@@ -241,6 +241,7 @@ getHeadLine(): Future[String]
 
 TODO This is repetitive after listing the downsides above.
 By wrapping this in `ZIO.from`, it will:
+
 - get the `ExecutionContext` it needs
 - Defer execution of the code
 - Let us attach finalizer behavior
@@ -345,7 +346,7 @@ runDemo:
   closeableFileZ
 // Opening file!
 // Closing file!
-// repl.MdocSession$MdocApp$$anon$29@7acded82
+// repl.MdocSession$MdocApp$$anon$29@7e82e273
 ```
 
 Since that is not terribly useful, let's start calling some methods on our managed file.
@@ -469,7 +470,7 @@ runDemo:
     // todo: some error handling to show that
     // the errors weren't lost along the way
   .mapError:
-    case _: HeadlineNotAvailable =>
+    case HeadlineNotAvailable() =>
       "Could not fetch headline"
     case NoRecordsAvailable(topic) =>
       s"No records for $topic"
