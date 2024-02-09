@@ -24,61 +24,6 @@ case class ProseFile(p: Path) {
 
 object BuildTooling {
 
-  def appendExperimentsToEndOfBookInNewChapter(
-      packagedName: String,
-      manuscript: File,
-      experiments: List[FencedCode]
-  ): Unit = {
-    val packageMarkdownFileName =
-      packagedName
-        .replaceAllLiterally("/", "-") + ".md"
-
-    val nf = manuscript / packageMarkdownFileName
-
-    val md: String =
-      s"""## ${packageMarkdownFileName
-          .stripSuffix(".md")}
-         |
-         | ${experiments.map(_.content).mkString}
-         |""".stripMargin
-
-    FileIOBullshit.createFile(nf, Seq(md))
-
-    def addChapterToLeanpubIndex(
-        chapterName: String
-    ): Unit =
-      IO.append(
-        manuscript / "Book.txt",
-        chapterName + "\n"
-      )
-
-    addChapterToLeanpubIndex(
-      packageMarkdownFileName
-    )
-  }
-
-  def appendExperimentsToMatchingProseFile(
-      proseFile: ProseFile,
-      experiments: List[FencedCode]
-  ): Unit = {
-//    println("Should append to existing file for: " + proseFile)
-    val chapterExperiments =
-      s"""
-         |
-         |## Automatically attached experiments.
-         | These are included at the end of this
-         | chapter because their package in the
-         | experiments directory matched the name
-         | of this chapter. Enjoy working on the
-         | code with full editor capabilities :D
-         |
-         | ${experiments.map(_.content).mkString}
-         |""".stripMargin
-    IO.append(
-      proseFile.p.toFile,
-      chapterExperiments
-    )
-  }
 
   import java.nio.charset.Charset
   import java.nio.file.{
@@ -318,87 +263,7 @@ object BuildTooling {
     proseFiles.foreach(attachEditLink)
 //    attachEditLink(value)
 
-    def packageName(
-        experimentFile: ExperimentFile
-    ) =
-      experimentFile
-        .p
-        .getParent
-        .toString
-        .stripPrefix(
-          "experiments/src/main/scala/"
-        )
 
-    // These may or may not correspond to prose
-    // chapters
-    val experimentClasses
-        : Map[String, List[ExperimentFile]] =
-      FileIOBullshit
-        .scalaFilesIn(
-          file("experiments/src").toPath
-        )
-        .map(ExperimentFile)
-        // TODO Investigate nested package
-        // behavior
-        .groupBy(packageName)
-
-    val nf =
-      leanPubDirectory / "ExperimentsSection.md"
-    val experimentsHeaderContent =
-      "# Experiments\n\n" +
-        "These experiments are not currently attached to a chapter, but are included for previewing. Before publication, we should not have any lingering experiments here.\n\n"
-    IO.append(
-      leanPubDirectory / "Book.txt",
-      nf.getName + "\n"
-    )
-    FileIOBullshit.createFile(
-      nf,
-      Seq(experimentsHeaderContent)
-    )
-
-    experimentClasses.foreach {
-      case (packageName, experimentsInPackage) =>
-        val proseFileOnSameTopic
-            : Option[ProseFile] =
-          proseFiles
-            .find(_.cleanName == packageName)
-
-        val allFences: List[FencedCode] =
-          experimentsInPackage
-            .sortBy(_.p.getFileName.toString)
-            .map(fileFence)
-
-        proseFileOnSameTopic match {
-          case Some(value) =>
-            appendExperimentsToMatchingProseFile(
-              value,
-              allFences
-            )
-          case None =>
-            appendExperimentsToEndOfBookInNewChapter(
-              packageName,
-              leanPubDirectory,
-              allFences
-            )
-        }
-    }
-
-  }
-
-  case class ExperimentFile(p: Path)
-
-  private def fileFence(
-      experimentFile: ExperimentFile
-  ): FencedCode = {
-    val file  = experimentFile.p.toFile
-    val lines = IO.read(file)
-    FencedCode(s"""
-         |
-         |### ${file.toString}
-         |```scala
-         |$lines
-         |```
-         |""".stripMargin)
   }
 
   // TODO Make a Versions object?
