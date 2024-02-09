@@ -222,6 +222,7 @@ getHeadLine(): Future[String]
 
 TODO This is repetitive after listing the downsides above.
 By wrapping this in `ZIO.from`, it will:
+
 - get the `ExecutionContext` it needs
 - Defer execution of the code
 - Let us attach finalizer behavior
@@ -494,7 +495,7 @@ runDemo:
     // todo: some error handling to show that
     // the errors weren't lost along the way
   .mapError:
-    case _: HeadlineNotAvailable =>
+    case HeadlineNotAvailable() =>
       "Could not fetch headline"
     case NoRecordsAvailable(topic) =>
       s"No records for $topic"
