@@ -122,7 +122,64 @@ runDemo:
 
 ## Staying under rate limits
 
+```scala mdoc:invisible
+val expensiveApiCall =
+  ZIO.unit
 
+extension [R, E, A](z: ZIO[R, E, A])
+  def timedSecondsDebug(
+                         message: String
+                       ): ZIO[R, E, A] =
+    z.timed
+      .tap: (duration, _) =>
+        println(message + " [took " +
+          duration.getSeconds + "s]")
+        ZIO.unit
+      .map(_._2)
+```
+
+```scala mdoc:silent
+import nl.vroste.rezilience.RateLimiter
+
+val makeRateLimiter =
+  RateLimiter.make(max = 1, interval = 1.second)
+```
+
+```scala mdoc:silent
+// shows extension function definition
+// so that we can explain timedSecondsDebug
+extension (rateLimiter: RateLimiter)
+  def makeCalls(name: String) =
+    rateLimiter:
+      expensiveApiCall
+    .timedSecondsDebug:
+      s"$name called API"
+    .repeatN(2) // Repeats as fast as allowed
+```
+
+```scala mdoc
+runDemo:
+  defer:
+    val rateLimiter = makeRateLimiter.run
+    rateLimiter
+      .makeCalls:
+        "System"
+      .timedSecondsDebug("Result").run
+```
+
+```scala mdoc
+runDemo:
+  defer:
+    val rateLimiter = makeRateLimiter.run
+    val people = List("Bill", "Bruce", "James")
+
+    ZIO
+      .foreachPar(people):
+        rateLimiter.makeCalls
+      .timedSecondsDebug:
+        "Total time"
+      .run
+```
 
 ## Constraining concurrent requests
 If we want to ensure we don't accidentally DDOS a service, we can restrict the number of concurrent requests to it.
