@@ -43,14 +43,13 @@ You can also do things that simply are not possible in other approaches, such as
 
 ## DI-Wow!
 TODO Values to convey:
+
 - Layer Graph
    - Cycles are a compile error
    - Visualization with Mermaid
    - test implementations
 - Layer Resourcefulness
    - Layers can have setup & teardown (open & close)
-
-## TODO Rewrite this without 
 
 ```scala
 // Explain private constructor approach

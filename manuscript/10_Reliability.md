@@ -250,7 +250,7 @@ runDemo:
         .get
         .run
     s"Calls prevented: $prevented Calls made: $made"
-// Calls prevented: 75 Calls made: 66
+// Calls prevented: 74 Calls made: 67
 ```
 
 ## Hedging
