@@ -1,102 +1,4 @@
-# What Are Effects
-
-## Introduction
-
-TODO: Combine with "Reliability" ?
-
-08:07 AM January 13, 2018
-
-Televisions, Radios, and Cell Phones across Hawaii suddenly flash an alert:
-
-C> "BALLISTIC MISSILE INBOUND THREAT TO HAWAII. SEEK IMMEDIATE SHELTER. THIS IS NOT A DRILL"
-
-Local communities sound alarms.
-
-Calls to 911 jam the phone lines.
-
-Panicked internet searches overwhelm data networks.
-
-Students sprint from classrooms to fallout shelters.
-
-Parents say goodbye to their children.
-
-## Untangling the Chaos
-
-Thankfully, no missiles were launched that day.
-
-During what should have been a quiet system test, an employee at the Hawaii Emergency Management Agency accidentally pushed the wrong button.
-From the [Washington Post](https://www.washingtonpost.com/news/post-nation/wp/2018/01/14/hawaii-missile-alert-how-one-employee-pushed-the-wrong-button-and-caused-a-wave-of-panic/):
-
-C> "He clicked the button to send out an actual notification on Hawaii's emergency alert interface during what was intended to be a test of the state's ballistic missile preparations computer program."
-C> The employee was prompted to choose between the options "test missile alert" and "missile alert", had selected the latter, initiating the alert sent out across the state.
-
-Here is the system's control screen:
-
-![](images/HawaiiAlertSystem.jpg)
-
-This cluster of inconsistently named links increased the likelihood of mistakes.
-Basic changes would drastically simplify proper use of the alerts.
-Imagine the earlier mishaps that moved "False Alarm" to the top of the list.
-
-We believe the system was doomed long before the interface was created.
-
-The effects of this system were:
-
-- Sending messages to Cell Phones
-- Playing warnings on Radio frequencies
-- Displaying banners on Television stations
-
-## The State of Software
-
-There are many other examples of carefully-built software systems failing disastrously:
-
-- The Ariane 5 rocket self-destructed on 4 June 1996 because of a malfunction
-  in the control software (the program tried to stuff a 64-bit number into a
-  16-bit space).
-
-- The American Northeast Power Blackout, August 14 2003.
-
-- The NASA Mars Climate Orbiter, September 23, 1999. The orbiter was programmed
-  for metric but ground control software used non-metric English.
-
-The list goes on; just search for something like "Famous Software Failures" to see more.
-And consider security - all the applications you use that are constantly being updated with security patches.
-What about those that aren't?
-Are they that good, or is security being ignored?
-
-How did things get so bad?
-
-## The Software Crisis
-
-In the 70's and 80's, the idea of the *Software Crisis* emerged.
-This can be summarized as: "We can't create software fast enough."
-One of the most popular attempts to solve this problem was *Structured Analysis & Design*, which was a way to understand a problem and design a solution using existing imperative languages.
-
-The real problem that Structured Analysis & Design set out to solve was big monolithic pieces of code.
-When one programmer was able to solve the entire problem, the structure of the program didn't matter as much.
-But as software needs grew, this approach didn't scale.
-In particular, you couldn't finish a project more quickly by adding more programmers, because there wasn't a way to hand off portions of a program to multiple programmers.
-To do that, teams needed some way to break down the complexity of the program into individual functions---functions that might someday be reused.
-This was seen as the reason for the Software Crisis.
-
-Structured Analysis was an attempt to discover the individual functions in a program.
-But it was a top-down approach, and it assumed these functions could be determined before any code is written.
-Structured Analysis & Design continued the approach of "big up-front design."
-The analyst produced the structure, and then the programmers implemented it.
-
-Experienced programmers know that a design that cannot evolve during development is doomed to failure: both programmers and stakeholders learn things during development.
-You discover much of your structure *as* you're building the program, and not on a whiteboard.
-Building a program reveals things you didn't know were important when you designed the solution.
-
-From this book's perspective, the most fundamental problem with Structured Analysis & Design was that it only paid lip service to the idea of reliability.
-There was nothing about reliability truly integrated into Structured Analysis & Design.
-
-Structured Analysis & Design was motivated by a business problem: "how do we create software faster?"
-Virtually every language that came out in its aftermath focused on development speed.
-Not reliability.
-So we produced a lot of languages to quickly create unreliable software.
-
-## Reliability
+# Effects As A Way Forward
 
 A reliable system does not break. // TODO Discuss
 
@@ -204,6 +106,24 @@ Another program might read your data before you delete it,
   or a database trigger might activate during an `INSERT`.
 
 TODO {{Explain: Optionality, Asynchronicity, Blocking -- In a later chapter. }}
+
+TODO {{copied here from How We Got Here}}
+Now we have created this perfect world of pure functions that behave just like the functions in theoretical mathematics.
+They have no side effects and cannot be affected by other functions, and can be neatly and safely composed.
+
+"But," you wonder, "if all I can do with the result of one pure function is pass it as an argument to another pure function, what's the point of all these pure function calls?
+If these functions have no effect on the world, they seem like an intellectual exercise that merely heats up the CPU."
+
+This is absolutely true.
+A program that never affects the world is pointless.
+For a program to be useful, it must be affected by the world, and it must have effects upon the world.
+
+The phrase "side effect" implies an incidental or accidental impact on the world.
+What we need to do is formalize this idea and bring it under our control.
+We can then call it simply an "effect".
+The goal is to manage these effects, so they are under our control.
+
+This bridge between pure functions and practical programs with controlled and managed effects is the reason for the title of this book.
 
 
 ### Observing the World
