@@ -1,6 +1,4 @@
-# Why Functional
-
-TODO: Combine with "What are Effects" ?
+# How We Got Here
 
 > In your journey to this book, you might have already learned one way to think about programming, and possibly several.
 
