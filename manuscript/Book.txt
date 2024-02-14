@@ -1,8 +1,8 @@
 00_Copyright.md
 01_Preface.md
-02_What_Are_Effects.md
-03_Superpowers.md
-04_Why_Functional.md
+02_How_We_Got_Here.md
+03_Effects_As_A_Way_Forward.md
+04_Superpowers.md
 05_Configuration.md
 06_Errors.md
 07_Composability.md
