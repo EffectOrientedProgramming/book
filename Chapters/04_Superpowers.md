@@ -1,6 +1,10 @@
 # Superpowers with Effects
 
-TODO: A couple sentences about the superpowers
+Effects enable us to progressively add capabilities to a program to increase its reliability and control the unpredictable aspects.
+In this chapter you will see that once we've defined parts of a program in terms of effects, we gain some superpowers.
+The reason we call it "superpowers" is that the capabilities you will see can be attached to **any** effect. For recurring concerns in our program, we do not want to create a bespoke solution for each context.
+To illustrate this we will show a few examples of common capabilities applied to effects.
+Let's start with the "happy path" where we save a user to a database (an effect) and then gradually add superpowers.
 
 ```scala mdoc:invisible
 object HiddenPrelude:
@@ -60,10 +64,10 @@ object HiddenPrelude:
     val succeed = ZIO.succeed("User saved")
     val fail =
       ZIO
-        .fail(DatabaseError)
-        .tapError { _ =>
+        .fail("**Database crashed!!**")
+        .tapError { error =>
           ZIO.succeed:
-            println("DatabaseError")
+            println(error)
 
           // TODO This blows up, probably due to
           // our general ZIO Console problem.
@@ -150,13 +154,9 @@ end HiddenPrelude
 import HiddenPrelude.*
 ```
 
-## Building a Resilient Process in stages
-We want to evolve our process from a simple happy path to a more resilient process.
-Progressive enhancement through adding capabilities
+## Example 1. The Happy Path is The Wrong Path
 
-TODO: Is "Step" necessary? Some other word?
-
-## Step 1: Happy Path
+To start with we save a user to a database:
 
 ```scala mdoc
 runDemo:
@@ -168,12 +168,11 @@ runDemo:
 HiddenPrelude.resetScenario(Scenario.NeverWorks)
 ```
 
-## Step 2: Provide Error Fallback Value
+In a real system this gives our users strange errors because they are unhandled.
 
-```scala mdoc
-object DatabaseError
-object TimeoutError
-```
+## Example 2. Users Like Nice Errors
+
+By handling the error, we can return something nicer:
 
 ```scala mdoc
 runDemo:
@@ -183,53 +182,81 @@ runDemo:
     "ERROR: User could not be saved"
 ```
 
-## Step 3: Retry Upon Failure
+The first superpower is that **any** fallible effect can attach a variety of error handling capabilities.
+`orElseFail` transforms any failure into a user-friendly form.
+We added the capability without restructuring the original effect.
+This is just one way to handle errors.
+ZIO provides many variations, which we will not cover exhaustively.
+
+## Example 3. What if Failure is Temporary?
 
 ```scala mdoc:invisible
 HiddenPrelude
   .resetScenario(Scenario.doesNotWorkInitially)
 ```
 
+Sometimes things work when you keep trying.  We can use a schedule to determine how to keep trying:
+
+TODO {{runDemo should use a super fast clock so our builds aren't slow}}
 ```scala mdoc:silent
-import zio.Schedule.{recurs, spaced}
 val aFewTimes =
-  // TODO Restore original spacing when done
-  // editing
-  // recurs(3) && spaced(1.second)
-  recurs(3) && spaced(1.millis)
+  Schedule.spaced(1.milli) && Schedule.recurs(3)
 ```
+
+`spaced(1.second)` is a `Schedule` that happens once per second, forever.
+`recurs(3)` builds a `Schedule` that happens 3 times.
+By combining them, we get a `Schedule` that does something once per second, but only 3 times.
+Schedules can be applied to many different capabilities.
+We can add lines to the previous example to apply a `retry` to the effect.
+We do this because we assume the failure will likely be resolved within 3 seconds:
 
 ```scala mdoc
 runDemo:
   saveUser:
     "morty"
-  .retry:
-    aFewTimes
-  .orElseSucceed:
+  .retry:     // Added
+    aFewTimes // Added
+  .orElseFail:
     "ERROR: User could not be saved"
 ```
 
-## Step 4: Fallback after multiple failures
+You can see from the output that we failed twice trying to save the user, then it succeeded.
+
+The second superpower (`retry`) is combined with the first (`orElseFail`).
+Like `orElseFail`, it can be added to any fallible effect.
+The uber-superpower is that superpowers can be combined;
+  this creates a new effect that is the combination of the original effect AND the superpowers applied to it.
+
+> TODO Holy shit moment callout (this is really important)
+
+## Example 4. Failure is an Option
 
 ```scala mdoc:invisible
 HiddenPrelude.resetScenario(Scenario.NeverWorks)
 ```
 
+This uber-super power is further illustrated when the retries do not ultimately succeed:
+
 ```scala mdoc
 runDemo:
   saveUser:
     "morty"
   .retry:
     aFewTimes
-  .orElseSucceed:
+  .orElseFail:
     "ERROR: User could not be saved"
 ```
 
-## Step 5: Timeouts
+In this run of the program, the effect failed its initial attempt, and failed the subsequent three retries.  The final failure was handled by the `orElseFail`.
 
+## Example 5. Timeouts
 
 ```scala mdoc:invisible
 HiddenPrelude.resetScenario(Scenario.firstIsSlow)
+```
+
+```scala mdoc
+object TimeoutError
 ```
 
 ```scala mdoc
@@ -244,11 +271,11 @@ runDemo:
   .timeoutFail(TimeoutError)(timeLimit)
     .retry:
       aFewTimes
-    .orElseSucceed:
+    .orElseFail:
       "ERROR: User could not be saved"
 ```
 
-## Step 6: Fallback Effect
+## Example 6. Fallback Effect
 
 ```scala mdoc:invisible
 HiddenPrelude.resetScenario(Scenario.NeverWorks)
@@ -265,11 +292,11 @@ runDemo:
     .orElse:
       sendToManualQueue:
         "morty"
-    .orElseSucceed: // TODO Delete?
+    .orElseFail: // TODO Delete?
       "ERROR: User could not be saved, even to the fallback system"
 ```
 
-## Step 7: Concurrently Execute Effect 
+## Example 7. Concurrently Execute Effect 
 TODO Consider deleting. Uses an extension
 
 ```scala mdoc:invisible
@@ -296,7 +323,7 @@ runDemo:
     .orElse:
       sendToManualQueue:
         "morty"
-    .orElseSucceed:
+    .orElseFail:
       "ERROR: User could not be saved"
 ```
 
@@ -305,7 +332,7 @@ HiddenPrelude
   .resetScenario(Scenario.WorksFirstTime)
 ```
 
-## Step 8: Ignore failures in Concurrent Effect 
+## Example 8. Ignore failures in Concurrent Effect 
 
 Feeling a bit "meh" about this step.
 
@@ -327,11 +354,13 @@ runDemo:
       success =>
         userSignupSucceeded("mrsdavis", success)
     )
-    .orElseSucceed:
+    .orElseFail:
       "ERROR: User could not be saved"
 ```
 
-## Step 9: Rate Limit TODO 
+## Example 9. Rate Limit TODO 
+
+TODO {{Can this be a progressive enhancement or just wait until the reliability chapter?}}
 
 
 TODO Slot these in:

@@ -159,6 +159,10 @@ They can be advanced:
 - Stabilizing an airplane
 - Detonating explosives
 
+## WTF is ZIO
+
+TODO
+
 ## ZIOs are not their result.
 
 ### Effects Defined as Data
