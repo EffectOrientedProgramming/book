@@ -1,6 +1,18 @@
 # Reliability
 
+Reliability is the ability of a system to perform and maintain its functions in routine circumstances, as well as hostile or unexpected circumstances. 
+It is a measure of the quality of a system and is a key factor in the success of any system.
+It can cover a wide range of topics, from the ability to handle errors, to the ability to handle high loads, to the ability to handle malicious attacks.
+We will not cover all of these topics, but will highlight some important ones that ZIO handles nicely.
+
 ## Caching
+Putting a cache in front of a service can resolve many issues.
+
+- If the service is slow, the cache can speed up the response time.
+- If the service is brittle, the cache can provide a stable response and minimize the risk of overwhelming the resource.
+- If the service is expensive, the cache can reduce the number of calls to it, and thus reduce your operating cost.
+
+Putting a cache in front of a slow, brittle, or expensive service can be a great way to improve performance and reliability.
 
 ```scala mdoc:invisible
 import zio.{ZIO, ZLayer}
@@ -55,7 +67,7 @@ case class PopularService(
     retrieveContents(name)
 ```
 
-One way to achieve better reliability is with caching.
+To demonstrate, we will take one of the worst case scenarios that your service might encounter: the thundering herd problem.
 
 ```scala mdoc:silent
 val thunderingHerdsScenario =
@@ -63,7 +75,7 @@ val thunderingHerdsScenario =
     val popularService =
       ZIO.service[PopularService].run
 
-    ZIO
+    ZIO // All requests arrives nearly at once
       .foreachPar(List.fill(100)(())):
         _ => // james don't like
           popularService.retrieve:
@@ -74,51 +86,72 @@ val thunderingHerdsScenario =
       ZIO.service[CloudStorage].run
 
     cloudStorage.invoice.debug.run
-
-object PopularService:
-  private def lookup(key: Path) =
-    defer:
-      val cloudStorage =
-        ZIO.service[CloudStorage].run
-
-      cloudStorage.retrieve(key).run
-
-  val make =
-    defer:
-      val cloudStorage =
-        ZIO.service[CloudStorage].run
-      PopularService(cloudStorage.retrieve)
-
-  val makeCached =
-    defer:
-      val cache =
-        Cache
-          .make(
-            capacity = 100,
-            timeToLive = Duration.Infinity,
-            lookup = Lookup(lookup)
-          )
-          .run
-
-      PopularService(cache.get)
-end PopularService
 ```
+
+If you have a steady stream of requests coming in, any naive cache can store the result after the first request, and then be ready to serve it to all subsequent requests.
+However, it is possible that all the requests will arrive before the first one has been served and cached the value.
+In this case, a naive cache would allow all of them to trigger their own request to your underlying slow/brittle/expensive service and then they would all update the cache with the same value.
+Thankfully, ZIO provides capabilities that make it easy to capture simultaneous requests to the same resource, and make sure that only one request is made to the underlying service.
+
+We will first show the uncached service:
+
+```scala mdoc:silent
+val makePopularService =
+  defer:
+    val cloudStorage =
+      ZIO.service[CloudStorage].run
+    PopularService(cloudStorage.retrieve)
+```
+
+In this world, each request to our `CloudStorage` provider will cost us one dollar.
+Egregious, but it will help us demonstrate the problem with small, round numbers.
 
 ```scala mdoc
 runDemo:
   thunderingHerdsScenario.provide(
     CloudStorage.live,
-    ZLayer.fromZIO(PopularService.make)
+    ZLayer.fromZIO(makePopularService)
   )
 ```
+
+We can see that the invoice is 100 dollars, because every single request reached our `CloudStorage` provider.
+
+Now we will apply our cache:
+
+```scala mdoc:silent
+val makeCachedPopularService =
+  defer:
+    val cloudStorage = ZIO.service[CloudStorage].run
+    val cache =
+      Cache
+        .make(
+          capacity = 100,
+          timeToLive = Duration.Infinity,
+          lookup = Lookup(cloudStorage.retrieve)
+        )
+        .run
+
+    PopularService(cache.get)
+```
+
+The only changes required are:
+
+- building our cache with sensible values
+- then passing the `Cache#get` method to our `PopularService` constructor, rather than the bare `CloudStorage#retrieve` method
+
+Now when we run the same scenario, with our cache in place:
 
 ```scala mdoc
 runDemo:
   thunderingHerdsScenario.provide(
     CloudStorage.live,
-    ZLayer.fromZIO(PopularService.makeCached)
+    ZLayer.fromZIO(makeCachedPopularService)
   )
 ```
+
+We can see that the invoice is only 1 dollar, because only one request reached our `CloudStorage` provider.
+Wonderful!
+In practice, the savings will rarely be *this* extreme, but it is a reassuring to know that we can handle these situations with ease, while maintaining a low cost.
 
 ## Staying under rate limits
 
