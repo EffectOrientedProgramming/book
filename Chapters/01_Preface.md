@@ -1,5 +1,15 @@
 # Preface
 
+## Goals
+Emphasize composability as a prime value for building reliable systems
+Demonstrate that Effects let us reach new levels of composability.
+Accomplish these goals without using fundamental/infamous concepts
+
+  - `flatmap`
+  - `monads`
+  - `map`
+  - `for` comprehensions
+
 ## Who is the book is for
 
 This book uses Scala 3 but the focus is not on the language.

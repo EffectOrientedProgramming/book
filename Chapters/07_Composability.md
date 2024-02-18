@@ -14,20 +14,6 @@ possible example of Scope for Environment contracts
 
 possible contract on provide for things not needed
 
-```scala mdoc:fail
-ZIO.succeed("asdf").someOrFail("error")
-```
-
-this works as the contract is that the
-
-```scala mdoc:invisible
-def maybeThing(): Option[Unit] =
-  Option.when(true)(())
-```
-
-```scala mdoc
-ZIO.succeed(maybeThing()).someOrFail("error")
-```
 
 
 ```scala mdoc:fail
