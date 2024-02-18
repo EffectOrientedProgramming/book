@@ -217,11 +217,12 @@ By wrapping this in `ZIO.from`, it will:
 ```scala mdoc:silent
 case class HeadlineNotAvailable()
 val getHeadlineZ =
-  ZIO.from:
-    getHeadLine()
-  .mapError:
-    case _: Throwable =>
-      HeadlineNotAvailable()
+  ZIO
+    .from:
+      getHeadLine()
+    .mapError:
+      case _: Throwable =>
+        HeadlineNotAvailable()
 ```
 
 ```scala mdoc
@@ -298,13 +299,15 @@ TODO Decide whether to show nested files example to highlight this weakness
 import scala.util.Try
 
 trait CloseableFile extends AutoCloseable:
-  // TODO Return existing entry, rather than a raw Boolean?
+  // TODO Return existing entry, rather than a
+  // raw Boolean?
   def contains(searchTerm: String): Boolean
   def write(entry: String): Try[String]
 
 def closeableFile() =
   new CloseableFile:
-    var contents: List[String] = List("Medical Breakthrough!")
+    var contents: List[String] =
+      List("Medical Breakthrough!")
     println("Opening file!")
     override def close = println("Closing file!")
 
@@ -326,7 +329,7 @@ def closeableFile() =
         )
       else {
         println("Writing to file: " + entry)
-        contents =  entry :: contents
+        contents = entry :: contents
         Try(entry)
       }
 ```
@@ -380,10 +383,11 @@ def writeToFileZ(
     file: CloseableFile,
     content: String
 ) =
-  ZIO.from:
-    file.write:
-      content
-  .orDie
+  ZIO
+    .from:
+      file.write:
+        content
+    .orDie
 ```
 
 ```scala mdoc
@@ -409,7 +413,7 @@ def summaryFor(
     case "obscureTopic" =>
       Left:
         NoRecordsAvailable:
-            "obscureTopic"
+          "obscureTopic"
 ```
 
 ```scala mdoc:silent
@@ -443,8 +447,7 @@ Now that we have all of these well-defined effects, we can wield them in any com
 ```scala mdoc:silent
 val researchWorkflow =
   defer:
-    val headline: String =
-      getHeadlineZ.run
+    val headline: String = getHeadlineZ.run
 
     val topic: String =
       topicOfInterestZ:
@@ -464,14 +467,10 @@ val researchWorkflow =
           topic
         .run
 
-      writeToFileZ(
-        summaryFile,
-        newInfo
-      ).run
+      writeToFileZ(summaryFile, newInfo).run
       newInfo
     else
       "Topic was already covered"
-
 ```
 
 
@@ -480,13 +479,13 @@ runDemo:
   researchWorkflow
     // todo: some error handling to show that
     // the errors weren't lost along the way
-  .mapError:
-    case HeadlineNotAvailable() =>
-      "Could not fetch headline"
-    case NoRecordsAvailable(topic) =>
-      s"No records for $topic"
-    case NoInterestingTopic() =>
-      "No Interesting topic found"
+    .mapError:
+      case HeadlineNotAvailable() =>
+        "Could not fetch headline"
+      case NoRecordsAvailable(topic) =>
+        s"No records for $topic"
+      case NoInterestingTopic() =>
+        "No Interesting topic found"
 ```
 
 

@@ -96,7 +96,6 @@ First, we will create a helper function that imitates a long-running calculation
 
 ```scala mdoc
 def expensiveCalculation() =
-  
   Thread.sleep:
     35
 ```
@@ -122,10 +121,7 @@ runDemo:
       .foreachParDiscard(Range(0, 4)): _ =>
         update(counter)
       .run
-    val finalCount =
-      counter
-        .get
-        .run
+    val finalCount = counter.get.run
     s"Final count: $finalCount"
 ```
 What is going on?!
@@ -159,10 +155,7 @@ val sideEffectingUpdatesSync =
       .foreachParDiscard(Range(0, 4)): _ =>
         update(counter)
       .run
-    val finalCount =
-      counter
-        .get
-        .run
+    val finalCount = counter.get.run
     s"Final count: $finalCount"
 ```
 

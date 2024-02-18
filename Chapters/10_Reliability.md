@@ -121,7 +121,8 @@ Now we will apply our cache:
 ```scala mdoc:silent
 val makeCachedPopularService =
   defer:
-    val cloudStorage = ZIO.service[CloudStorage].run
+    val cloudStorage =
+      ZIO.service[CloudStorage].run
     val cache =
       Cache
         .make(
@@ -156,17 +157,18 @@ In practice, the savings will rarely be *this* extreme, but it is a reassuring t
 ## Staying under rate limits
 
 ```scala mdoc:invisible
-val expensiveApiCall =
-  ZIO.unit
+val expensiveApiCall = ZIO.unit
 
 extension [R, E, A](z: ZIO[R, E, A])
   def timedSecondsDebug(
-                         message: String
-                       ): ZIO[R, E, A] =
+      message: String
+  ): ZIO[R, E, A] =
     z.timed
       .tap: (duration, _) =>
-        println(message + " [took " +
-          duration.getSeconds + "s]")
+        println(
+          message + " [took " +
+            duration.getSeconds + "s]"
+        )
         ZIO.unit
       .map(_._2)
 ```
@@ -197,7 +199,8 @@ runDemo:
     rateLimiter
       .makeCalls:
         "System"
-      .timedSecondsDebug("Result").run
+      .timedSecondsDebug("Result")
+      .run
 ```
 
 ```scala mdoc
@@ -320,7 +323,6 @@ runDemo:
 ## Circuit Breaking
 
 ```scala mdoc:invisible
-
 import zio.Ref
 
 import java.time.Instant
@@ -462,15 +464,17 @@ runDemo:
       .repeat(repeatSchedule)
       .run
 
-    val made = numCalls
-      .get
-      .run
+    val made = numCalls.get.run
 
     s"Calls made: $made"
 ```
 
 ```scala mdoc:silent
-import nl.vroste.rezilience.{CircuitBreaker, TrippingStrategy, Retry}
+import nl.vroste.rezilience.{
+  CircuitBreaker,
+  TrippingStrategy,
+  Retry
+}
 import nl.vroste.rezilience.CircuitBreaker.CircuitBreakerOpen
 
 val makeCircuitBreaker =
@@ -478,36 +482,29 @@ val makeCircuitBreaker =
     trippingStrategy =
       TrippingStrategy
         .failureCount(maxFailures = 2),
-    resetPolicy = Retry.Schedules.common(),
+    resetPolicy = Retry.Schedules.common()
   )
 ```
 
 ```scala mdoc
 runDemo:
   defer:
-    val cb = makeCircuitBreaker.run
-    val numCalls = Ref.make[Int](0).run
+    val cb           = makeCircuitBreaker.run
+    val numCalls     = Ref.make[Int](0).run
     val numPrevented = Ref.make[Int](0).run
     val protectedCall =
-      cb(externalSystem(numCalls))
-        .catchSome:
-          case CircuitBreakerOpen =>
-            numPrevented.update(_ + 1)
-  
+      cb(externalSystem(numCalls)).catchSome:
+        case CircuitBreakerOpen =>
+          numPrevented.update(_ + 1)
+
     protectedCall
       .ignore
       .repeat(repeatSchedule)
       .run
 
-    val prevented = 
-      numPrevented
-        .get
-        .run
+    val prevented = numPrevented.get.run
 
-    val made =
-      numCalls
-        .get
-        .run
+    val made = numCalls.get.run
     s"Calls prevented: $prevented Calls made: $made"
 ```
 

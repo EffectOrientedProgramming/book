@@ -291,14 +291,14 @@ object Bread2:
 
   def attempt(invocations: Ref[Int]) =
     defer:
-      val currentInvocations: Int = invocations.updateAndGet(_+1).run
+      val currentInvocations: Int =
+        invocations.updateAndGet(_ + 1).run
       currentInvocations match
         case cnt if cnt < 3 =>
           forcedFailure.run
         case _ =>
           println("Power is on")
           BreadStoreBought()
-
 
 // Already constructed elsewhere, that we don't
   // control
