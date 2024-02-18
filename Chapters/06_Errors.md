@@ -30,8 +30,8 @@ Temperature: 30 degrees
 ```
 
 ```scala mdoc
-class GpsException()     extends RuntimeException
-class NetworkException() extends RuntimeException
+class GpsException()     extends Exception
+class NetworkException() extends Exception
 
 enum Scenario:
   case Success,
@@ -87,7 +87,7 @@ def currentTemperatureNull(
       calculateTemp:
         behavior
     catch
-      case ex: RuntimeException =>
+      case ex: Exception =>
         null
 
 currentTemperatureNull:
@@ -109,7 +109,7 @@ def currentTemperature(
       calculateTemp:
         behavior
     catch
-      case ex: RuntimeException =>
+      case ex: Exception =>
         "-1 degrees"
 
 currentTemperature:
@@ -130,7 +130,7 @@ def currentTemperature(
       calculateTemp:
         behavior
     catch
-      case ex: RuntimeException =>
+      case ex: Exception =>
         "Unavailable"
 
 currentTemperature:
