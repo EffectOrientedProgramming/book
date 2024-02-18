@@ -96,6 +96,7 @@ First, we will create a helper function that imitates a long-running calculation
 
 ```scala mdoc
 def expensiveCalculation() =
+  
   Thread.sleep:
     35
 ```
@@ -121,7 +122,11 @@ runDemo:
       .foreachParDiscard(Range(0, 4)): _ =>
         update(counter)
       .run
-    "Final count: " + counter.get.run
+    val finalCount =
+      counter
+        .get
+        .run
+    s"Final count: $finalCount"
 ```
 What is going on?!
 Previously, we were losing updates because of unsafe mutability.
@@ -152,12 +157,13 @@ val sideEffectingUpdatesSync =
     val counter = Ref.Synchronized.make(0).run
     ZIO
       .foreachParDiscard(Range(0, 4)): _ =>
-        counter.update: previousValue =>
-          expensiveCalculation()
-          sendNotification()
-          previousValue + 1
+        update(counter)
       .run
-    "Final count: " + counter.get.run
+    val finalCount =
+      counter
+        .get
+        .run
+    s"Final count: $finalCount"
 ```
 
 ```scala mdoc
