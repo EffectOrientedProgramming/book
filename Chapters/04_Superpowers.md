@@ -182,7 +182,8 @@ runDemo:
 ```
 
 ```scala mdoc:invisible
-HiddenPrelude.resetScenario(Scenario.NeverWorks)
+HiddenPrelude.resetScenario:
+  Scenario.NeverWorks
 ```
 
 In a real system this gives our users strange errors because they are unhandled.
@@ -191,7 +192,8 @@ In a real system this gives our users strange errors because they are unhandled.
 
 ```scala mdoc
 HiddenPrelude
-  .resetScenario(Scenario.doesNotWorkInitially)
+  .resetScenario:
+    Scenario.doesNotWorkInitially
 ```
 
 Sometimes things work when you keep trying.  We can use a schedule to determine how to keep trying:
@@ -225,7 +227,8 @@ You can see from the output that we failed twice trying to save the user, then i
 ### What if it never succeeds?
 
 ```scala mdoc
-HiddenPrelude.resetScenario(Scenario.NeverWorks)
+HiddenPrelude.resetScenario:
+  Scenario.NeverWorks
 ```
 
 This uber-super power is further illustrated when the retries do not ultimately succeed:
@@ -270,7 +273,8 @@ this creates a new effect that is the combination of the original effect AND the
 ## Step 4. Timeouts
 
 ```scala mdoc
-HiddenPrelude.resetScenario(Scenario.firstIsSlow)
+HiddenPrelude.resetScenario:
+  Scenario.firstIsSlow
 ```
 ```scala mdoc:silent
 val step4 =
@@ -288,7 +292,8 @@ runDemo:
 ## Step 5. Fallback Effect
 
 ```scala mdoc
-HiddenPrelude.resetScenario(Scenario.NeverWorks)
+HiddenPrelude.resetScenario:
+  Scenario.NeverWorks
 ```
 
 ```scala mdoc:silent
@@ -308,7 +313,8 @@ TODO Consider deleting. Uses an extension
 
 ```scala mdoc
 HiddenPrelude
-  .resetScenario(Scenario.WorksFirstTime)
+  .resetScenario:
+    Scenario.WorksFirstTime
 ```
 
 ```scala mdoc:silent
@@ -340,7 +346,8 @@ val step7 =
 
 ```scala mdoc
 HiddenPrelude
-  .resetScenario(Scenario.WorksFirstTime)
+  .resetScenario:
+    Scenario.WorksFirstTime
 ```
 
 ```scala mdoc
@@ -359,7 +366,8 @@ val step8 =
 
 ```scala mdoc
 HiddenPrelude
-  .resetScenario(Scenario.WorksFirstTime)
+  .resetScenario:
+    Scenario.WorksFirstTime
 ```
 
 ```scala mdoc
