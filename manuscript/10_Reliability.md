@@ -74,7 +74,8 @@ Now we will apply our cache:
 ```scala
 val makeCachedPopularService =
   defer:
-    val cloudStorage = ZIO.service[CloudStorage].run
+    val cloudStorage =
+      ZIO.service[CloudStorage].run
     val cache =
       Cache
         .make(
@@ -136,7 +137,8 @@ runDemo:
     rateLimiter
       .makeCalls:
         "System"
-      .timedSecondsDebug("Result").run
+      .timedSecondsDebug("Result")
+      .run
 // System called API [took 0s]
 // System called API [took 1s]
 // System called API [took 1s]
@@ -235,16 +237,18 @@ runDemo:
       .repeat(repeatSchedule)
       .run
 
-    val made = numCalls
-      .get
-      .run
+    val made = numCalls.get.run
 
     s"Calls made: $made"
 // Calls made: 141
 ```
 
 ```scala
-import nl.vroste.rezilience.{CircuitBreaker, TrippingStrategy, Retry}
+import nl.vroste.rezilience.{
+  CircuitBreaker,
+  TrippingStrategy,
+  Retry
+}
 import nl.vroste.rezilience.CircuitBreaker.CircuitBreakerOpen
 
 val makeCircuitBreaker =
@@ -252,36 +256,29 @@ val makeCircuitBreaker =
     trippingStrategy =
       TrippingStrategy
         .failureCount(maxFailures = 2),
-    resetPolicy = Retry.Schedules.common(),
+    resetPolicy = Retry.Schedules.common()
   )
 ```
 
 ```scala
 runDemo:
   defer:
-    val cb = makeCircuitBreaker.run
-    val numCalls = Ref.make[Int](0).run
+    val cb           = makeCircuitBreaker.run
+    val numCalls     = Ref.make[Int](0).run
     val numPrevented = Ref.make[Int](0).run
     val protectedCall =
-      cb(externalSystem(numCalls))
-        .catchSome:
-          case CircuitBreakerOpen =>
-            numPrevented.update(_ + 1)
-  
+      cb(externalSystem(numCalls)).catchSome:
+        case CircuitBreakerOpen =>
+          numPrevented.update(_ + 1)
+
     protectedCall
       .ignore
       .repeat(repeatSchedule)
       .run
 
-    val prevented = 
-      numPrevented
-        .get
-        .run
+    val prevented = numPrevented.get.run
 
-    val made =
-      numCalls
-        .get
-        .run
+    val made = numCalls.get.run
     s"Calls prevented: $prevented Calls made: $made"
 // Calls prevented: 74 Calls made: 67
 ```

@@ -11,42 +11,35 @@ To illustrate this we will show a few examples of common capabilities applied to
 Let's start with the "happy path" where we save a user to a database (an effect) and then gradually add superpowers.
 
 
-## Example 1. The Happy Path is The Wrong Path
+## Step 1. The Happy Path is The Wrong Path
 
 To start with we save a user to a database:
 
 ```scala
-runDemo:
+val userName = "Morty"
+```
+
+```scala
+val step1 =
   saveUser:
-    "mrsdavis"
+    userName
+```
+
+```scala
+runDemo:
+  step1
 // User saved
 ```
 
 
 In a real system this gives our users strange errors because they are unhandled.
 
-## Example 2. Users Like Nice Errors
-
-By handling the error, we can return something nicer:
+## Step 2. What if Failure is Temporary?
 
 ```scala
-runDemo:
-  saveUser:
-    "Robert'); DROP TABLE USERS"
-  .orElseFail:
-    "ERROR: User could not be saved"
-// **Database crashed!!**
-// ERROR: User could not be saved
+HiddenPrelude
+  .resetScenario(Scenario.doesNotWorkInitially)
 ```
-
-The first superpower is that **any** fallible effect can attach a variety of error handling capabilities.
-`orElseFail` transforms any failure into a user-friendly form.
-We added the capability without restructuring the original effect.
-This is just one way to handle errors.
-ZIO provides many variations, which we will not cover exhaustively.
-
-## Example 3. What if Failure is Temporary?
-
 
 Sometimes things work when you keep trying.  We can use a schedule to determine how to keep trying:
 
@@ -64,13 +57,14 @@ We can add lines to the previous example to apply a `retry` to the effect.
 We do this because we assume the failure will likely be resolved within 3 seconds:
 
 ```scala
+val step2 =
+  step1.retry:
+    aFewTimes
+```
+
+```scala
 runDemo:
-  saveUser:
-    "morty"
-  .retry:     // Added
-    aFewTimes // Added
-  .orElseFail:
-    "ERROR: User could not be saved"
+  step2
 // **Database crashed!!**
 // **Database crashed!!**
 // User saved
@@ -78,26 +72,40 @@ runDemo:
 
 You can see from the output that we failed twice trying to save the user, then it succeeded.
 
-The second superpower (`retry`) is combined with the first (`orElseFail`).
-Like `orElseFail`, it can be added to any fallible effect.
-The uber-superpower is that superpowers can be combined;
-  this creates a new effect that is the combination of the original effect AND the superpowers applied to it.
+### What if it never succeeds?
 
-> TODO Holy shit moment callout (this is really important)
-
-## Example 4. Failure is an Option
-
+```scala
+HiddenPrelude.resetScenario(Scenario.NeverWorks)
+```
 
 This uber-super power is further illustrated when the retries do not ultimately succeed:
 
 ```scala
 runDemo:
-  saveUser:
-    "morty"
-  .retry:
-    aFewTimes
-  .orElseFail:
+  step2
+// **Database crashed!!**
+// **Database crashed!!**
+// **Database crashed!!**
+// **Database crashed!!**
+// **Database crashed!!**
+```
+
+In this run of the program, the effect failed its initial attempt, and failed the subsequent three retries.  The final failure was handled by the `orElseFail`.
+
+
+## Step 3. Users like nice error messages
+
+Let's handle the error and return something nicer:
+
+```scala
+val step3 =
+  step2.orElseFail:
     "ERROR: User could not be saved"
+```
+
+```scala
+runDemo:
+  step3
 // **Database crashed!!**
 // **Database crashed!!**
 // **Database crashed!!**
@@ -105,119 +113,128 @@ runDemo:
 // ERROR: User could not be saved
 ```
 
-In this run of the program, the effect failed its initial attempt, and failed the subsequent three retries.  The final failure was handled by the `orElseFail`.
+The first superpower is that **any** fallible effect can attach a variety of error handling capabilities.
+`orElseFail` transforms any failure into a user-friendly form.
+We added the capability without restructuring the original effect.
+This is just one way to handle errors.
+ZIO provides many variations, which we will not cover exhaustively.
 
-## Example 5. Timeouts
+The second superpower (`orElseFail`) is combined with the first (`retry`).
+Like `retry`, it can be added to any fallible effect.
+The uber-superpower is that superpowers can be combined;
+this creates a new effect that is the combination of the original effect AND the superpowers applied to it.
 
+
+> TODO Holy shit moment callout (this is really important)
+
+## Step 4. Timeouts
 
 ```scala
-object TimeoutError
+HiddenPrelude.resetScenario(Scenario.firstIsSlow)
+```
+```scala
+val step4 =
+  step3.timeoutFail("Took too long to save"):
+    // TODO Restore real value when done editing
+    5.millis
+//      5.seconds
 ```
 
 ```scala
-// TODO Restore real value when done editing
-val timeLimit = 5.millis
-// timeLimit: Duration = PT0.005S
-//  5.seconds
-
-// first is slow - with timeout and retry
 runDemo:
-  saveUser:
-    "morty"
-  .timeoutFail(TimeoutError)(timeLimit)
-    .retry:
-      aFewTimes
-    .orElseFail:
-      "ERROR: User could not be saved"
+  step4
 // Interrupting slow request
-// Database Timeout
-// User saved
+// Took too long to save
 ```
 
-## Example 6. Fallback Effect
+## Step 5. Fallback Effect
 
+```scala
+HiddenPrelude.resetScenario(Scenario.NeverWorks)
+```
 
+```scala
+val step5 =
+  step4.orElse:
+    sendToManualQueue:
+      userName
+```
 ```scala
 // fails - with retry and fallback
 runDemo:
-  saveUser:
-    "morty"
-  .timeoutFail(TimeoutError)(timeLimit)
-    .retry:
-      aFewTimes
-    .orElse:
-      sendToManualQueue:
-        "morty"
-    .orElseFail: // TODO Delete?
-      "ERROR: User could not be saved, even to the fallback system"
-// **Database crashed!!**
+  step5
 // **Database crashed!!**
 // **Database crashed!!**
 // **Database crashed!!**
 // User sent to manual setup queue
 ```
 
-## Example 7. Concurrently Execute Effect 
+## Step 6. Concurrently Execute Effect 
 TODO Consider deleting. Uses an extension
 
+```scala
+HiddenPrelude
+  .resetScenario(Scenario.WorksFirstTime)
+```
 
 ```scala
-// concurrently save & send analytics
-runDemo:
-  saveUser:
-    "morty"
+val step6 =
+  step5
     // todo: maybe this hidden extension method
     // goes too far with functionality that
-    // doesn't really exist
-    // TODO Should we fireAndForget before the
-    // retries/fallbacks?
-  .fireAndForget:
-    userSignupInitiated:
-      "morty"
-  .timeoutFail(TimeoutError)(timeLimit)
-    .retry:
-      aFewTimes
-    .orElse:
-      sendToManualQueue:
-        "morty"
-    .orElseFail:
-      "ERROR: User could not be saved"
-// User saved
+    // doesn't exist in vanilla ZIO
+    .fireAndForget:
+      userSignupInitiated:
+        userName
 ```
 
-
-## Example 8. Ignore failures in Concurrent Effect 
-
-Feeling a bit "meh" about this step.
+`fireAndForget` is an extension method, whose implementation we are hiding for now.
+It executes the new effect in parallel, so even though we have added it "to the end" of our larger existing effect,
+  it completes first.
 
 ```scala
-// concurrently save & send analytics, ignoring analytics failures
 runDemo:
-  // TODO Consider how to dedup strings
-  saveUser:
-    "mrsdavis"
-  .timeoutFail(TimeoutError)(timeLimit)
-    .retry:
-      aFewTimes
-    .orElse:
-      sendToManualQueue:
-        "mrsdavis"
-    .tapBoth(
-      error =>
-        userSignUpFailed("mrsdavis", error),
-      success =>
-        userSignupSucceeded("mrsdavis", success)
-    )
-    .orElseFail:
-      "ERROR: User could not be saved"
-// Analytics sent for signup completion
+  step6
+// Signup initiated for Morty
 // User saved
 ```
 
-## Example 9. Rate Limit TODO 
+## Step 7. Timing all of this
 
-TODO {{Can this be a progressive enhancement or just wait until the reliability chapter?}}
+```scala
+val step7 = step6.timed
+```
 
+```scala
+HiddenPrelude
+  .resetScenario(Scenario.WorksFirstTime)
+```
+
+```scala
+runDemo:
+  step7
+// Signup initiated for Morty
+// (PT0.00101404S,User saved)
+```
+
+## Step 8. Maybe we don't want this to run at all?
+
+Prose about wanting to lock Morty out?
+
+```scala
+val step8 = step7.when(userName != "Morty")
+```
+
+```scala
+HiddenPrelude
+  .resetScenario(Scenario.WorksFirstTime)
+```
+
+```scala
+runDemo:
+  step8
+// None
+```
 
 TODO Slot these in:
 

@@ -5,7 +5,6 @@
 
 
 1. Ref
-1. Thundering Herds
 
 Functional programmers often sing the praises of immutability.
 The advantages are real and numerous.
@@ -53,7 +52,7 @@ val unreliableCounting =
 ```scala
 runDemo:
   unreliableCounting
-// Final count: 98706
+// Final count: 97139
 ```
 
 Due to the unpredictable nature of shared mutable state, we do not know exactly what the final count above is.
@@ -128,7 +127,8 @@ runDemo:
       .foreachParDiscard(Range(0, 4)): _ =>
         update(counter)
       .run
-    "Final count: " + counter.get.run
+    val finalCount = counter.get.run
+    s"Final count: $finalCount"
 // Alert: updating count!
 // Alert: updating count!
 // Alert: updating count!
@@ -170,12 +170,10 @@ val sideEffectingUpdatesSync =
     val counter = Ref.Synchronized.make(0).run
     ZIO
       .foreachParDiscard(Range(0, 4)): _ =>
-        counter.update: previousValue =>
-          expensiveCalculation()
-          sendNotification()
-          previousValue + 1
+        update(counter)
       .run
-    "Final count: " + counter.get.run
+    val finalCount = counter.get.run
+    s"Final count: $finalCount"
 ```
 
 ```scala

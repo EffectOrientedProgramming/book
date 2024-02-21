@@ -18,35 +18,6 @@ possible example of Scope for Environment contracts
 
 possible contract on provide for things not needed
 
-```scala
-ZIO.succeed("asdf").someOrFail("error")
-// error:
-// 
-// This operator requires that the output type be a subtype of Option[Any]
-// But the actual type was String..
-// I found:
-// 
-//     IsSubtypeOfOutput.impl[A, B](/* missing */summon[A <:< B])
-// 
-// But no implicit values were found that match type A <:< B.
-// import scala.util.Either
-//                         ^
-```
-
-this works as the contract is that the
-
-
-```scala
-ZIO.succeed(maybeThing()).someOrFail("error")
-// res1: ZIO[Any, String, Unit] = OnSuccess(
-//   trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:20)",
-//   first = Sync(
-//     trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:20)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$15037/0x0000000803de1440@5b72bd62
-//   ),
-//   successK = zio.ZIO$$Lambda$16923/0x00000008030e9840@1b2f827d
-// )
-```
 
 
 ```scala
@@ -60,21 +31,21 @@ ZIO
 //     CanFail.canFail[E](/* missing */summon[util.NotGiven[E =:= Nothing]])
 // 
 // But no implicit values were found that match type util.NotGiven[E =:= Nothing].
-//     if (topicIsFresh)
-//                      ^
+//       new Exception("Headline not available")
+//                                              ^
 ```
 
 ```scala
 ZIO
   .attempt(println("This might work"))
   .retryN(100)
-// res3: ZIO[Any, Throwable, Unit] = OnSuccess(
-//   trace = "repl.MdocSession.MdocApp.res3(07_Composability.md:35)",
+// res1: ZIO[Any, Throwable, Unit] = OnSuccess(
+//   trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:16)",
 //   first = Sync(
-//     trace = "repl.MdocSession.MdocApp.res3(07_Composability.md:35)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$15037/0x0000000803de1440@6265c8ca
+//     trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:16)",
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$15080/0x0000000803de4c40@755f2dd5
 //   ),
-//   successK = zio.ZIO$$$Lambda$15039/0x0000000803de6840@582e6cea
+//   successK = zio.ZIO$$$Lambda$15082/0x0000000803de2840@54524422
 // )
 ```
 
@@ -250,11 +221,12 @@ By wrapping this in `ZIO.from`, it will:
 ```scala
 case class HeadlineNotAvailable()
 val getHeadlineZ =
-  ZIO.from:
-    getHeadLine()
-  .mapError:
-    case _: Throwable =>
-      HeadlineNotAvailable()
+  ZIO
+    .from:
+      getHeadLine()
+    .mapError:
+      case _: Throwable =>
+        HeadlineNotAvailable()
 ```
 
 ```scala
@@ -346,7 +318,7 @@ runDemo:
   closeableFileZ
 // Opening file!
 // Closing file!
-// repl.MdocSession$MdocApp$$anon$29@206029ec
+// repl.MdocSession$MdocApp$$anon$27@280d45d9
 ```
 
 Since that is not terribly useful, let's start calling some methods on our managed file.
@@ -377,10 +349,11 @@ def writeToFileZ(
     file: CloseableFile,
     content: String
 ) =
-  ZIO.from:
-    file.write:
-      content
-  .orDie
+  ZIO
+    .from:
+      file.write:
+        content
+    .orDie
 ```
 
 ```scala
@@ -432,8 +405,7 @@ Now that we have all of these well-defined effects, we can wield them in any com
 ```scala
 val researchWorkflow =
   defer:
-    val headline: String =
-      getHeadlineZ.run
+    val headline: String = getHeadlineZ.run
 
     val topic: String =
       topicOfInterestZ:
@@ -453,14 +425,10 @@ val researchWorkflow =
           topic
         .run
 
-      writeToFileZ(
-        summaryFile,
-        newInfo
-      ).run
+      writeToFileZ(summaryFile, newInfo).run
       newInfo
     else
       "Topic was already covered"
-
 ```
 
 
@@ -469,13 +437,13 @@ runDemo:
   researchWorkflow
     // todo: some error handling to show that
     // the errors weren't lost along the way
-  .mapError:
-    case HeadlineNotAvailable() =>
-      "Could not fetch headline"
-    case NoRecordsAvailable(topic) =>
-      s"No records for $topic"
-    case NoInterestingTopic() =>
-      "No Interesting topic found"
+    .mapError:
+      case HeadlineNotAvailable() =>
+        "Could not fetch headline"
+      case NoRecordsAvailable(topic) =>
+        s"No records for $topic"
+      case NoInterestingTopic() =>
+        "No Interesting topic found"
 // Opening file!
 // Searching file for: stock market
 // Writing to file: detailed history of stock market
