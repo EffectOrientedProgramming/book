@@ -144,6 +144,9 @@ object HiddenPrelude:
       .fork
       .uninterruptible
 
+  // TODO Decide how much to explain this in the
+  // prose,
+  // without revealing the implementation
   extension [R, E, A](z: ZIO[R, E, A])
     def fireAndForget(
         background: ZIO[R, Nothing, Any]
@@ -170,25 +173,7 @@ HiddenPrelude.resetScenario(Scenario.NeverWorks)
 
 In a real system this gives our users strange errors because they are unhandled.
 
-## Example 2. Users Like Nice Errors
-
-By handling the error, we can return something nicer:
-
-```scala mdoc
-runDemo:
-  saveUser:
-    "Robert'); DROP TABLE USERS"
-  .orElseFail:
-    "ERROR: User could not be saved"
-```
-
-The first superpower is that **any** fallible effect can attach a variety of error handling capabilities.
-`orElseFail` transforms any failure into a user-friendly form.
-We added the capability without restructuring the original effect.
-This is just one way to handle errors.
-ZIO provides many variations, which we will not cover exhaustively.
-
-## Example 3. What if Failure is Temporary?
+## Example 2. What if Failure is Temporary?
 
 ```scala mdoc:invisible
 HiddenPrelude
@@ -216,20 +201,11 @@ runDemo:
     "morty"
   .retry:     // Added
     aFewTimes // Added
-  .orElseFail:
-    "ERROR: User could not be saved"
 ```
 
 You can see from the output that we failed twice trying to save the user, then it succeeded.
 
-The second superpower (`retry`) is combined with the first (`orElseFail`).
-Like `orElseFail`, it can be added to any fallible effect.
-The uber-superpower is that superpowers can be combined;
-  this creates a new effect that is the combination of the original effect AND the superpowers applied to it.
-
-> TODO Holy shit moment callout (this is really important)
-
-## Example 4. Failure is an Option
+## Example 3. What if it never succeeds?
 
 ```scala mdoc:invisible
 HiddenPrelude.resetScenario(Scenario.NeverWorks)
@@ -243,22 +219,44 @@ runDemo:
     "morty"
   .retry:
     aFewTimes
-  .orElseFail:
-    "ERROR: User could not be saved"
 ```
 
 In this run of the program, the effect failed its initial attempt, and failed the subsequent three retries.  The final failure was handled by the `orElseFail`.
+
+
+## Example 4. Users like nice error messages
+
+Let's handle the error and return something nicer:
+
+```scala mdoc
+runDemo:
+  saveUser:
+    "Robert'); DROP TABLE USERS"
+  .retry:
+    aFewTimes
+  .orElseFail:                       // Added
+    "ERROR: User could not be saved" // Added
+```
+
+The first superpower is that **any** fallible effect can attach a variety of error handling capabilities.
+`orElseFail` transforms any failure into a user-friendly form.
+We added the capability without restructuring the original effect.
+This is just one way to handle errors.
+ZIO provides many variations, which we will not cover exhaustively.
+
+The second superpower (`orElseFail`) is combined with the first (`retry`).
+Like `retry`, it can be added to any fallible effect.
+The uber-superpower is that superpowers can be combined;
+this creates a new effect that is the combination of the original effect AND the superpowers applied to it.
+
+
+> TODO Holy shit moment callout (this is really important)
 
 ## Example 5. Timeouts
 
 ```scala mdoc:invisible
 HiddenPrelude.resetScenario(Scenario.firstIsSlow)
 ```
-
-```scala mdoc
-object TimeoutError
-```
-
 ```scala mdoc
 // TODO Restore real value when done editing
 val timeLimit = 5.millis
@@ -268,11 +266,12 @@ val timeLimit = 5.millis
 runDemo:
   saveUser:
     "morty"
-  .timeoutFail(TimeoutError)(timeLimit)
-    .retry:
-      aFewTimes
-    .orElseFail:
-      "ERROR: User could not be saved"
+  .retry:
+    aFewTimes
+  .orElseFail:
+    "ERROR: User could not be saved"
+  .timeoutFail("Took too long to save"):
+    timeLimit
 ```
 
 ## Example 6. Fallback Effect
@@ -286,14 +285,15 @@ HiddenPrelude.resetScenario(Scenario.NeverWorks)
 runDemo:
   saveUser:
     "morty"
-  .timeoutFail(TimeoutError)(timeLimit)
-    .retry:
-      aFewTimes
-    .orElse:
-      sendToManualQueue:
-        "morty"
-    .orElseFail: // TODO Delete?
-      "ERROR: User could not be saved, even to the fallback system"
+  .retry:
+    aFewTimes
+  .orElseFail: // TODO Delete?
+    "ERROR: User could not be saved,"
+  .timeoutFail("Took too long to save"):
+    timeLimit
+  .orElse:
+    sendToManualQueue:
+      "morty"
 ```
 
 ## Example 7. Concurrently Execute Effect 
@@ -309,22 +309,21 @@ HiddenPrelude
 runDemo:
   saveUser:
     "morty"
+  .retry:
+    aFewTimes
+  .orElseFail:
+    "ERROR: User could not be saved"
+  .timeoutFail("Took too long to save"):
+    timeLimit
+  .orElse:
+    sendToManualQueue:
+      "morty"
     // todo: maybe this hidden extension method
     // goes too far with functionality that
-    // doesn't really exist
-    // TODO Should we fireAndForget before the
-    // retries/fallbacks?
+    // doesn't exist in vanilla ZIO
   .fireAndForget:
-    userSignupInitiated:
-      "morty"
-  .timeoutFail(TimeoutError)(timeLimit)
-    .retry:
-      aFewTimes
-    .orElse:
-      sendToManualQueue:
-        "morty"
-    .orElseFail:
-      "ERROR: User could not be saved"
+    ZIO.logInfo:
+      "Trying to save morty"
 ```
 
 ```scala mdoc:invisible
@@ -342,20 +341,23 @@ runDemo:
   // TODO Consider how to dedup strings
   saveUser:
     "mrsdavis"
-  .timeoutFail(TimeoutError)(timeLimit)
-    .retry:
-      aFewTimes
-    .orElse:
-      sendToManualQueue:
-        "mrsdavis"
-    .tapBoth(
-      error =>
-        userSignUpFailed("mrsdavis", error),
-      success =>
-        userSignupSucceeded("mrsdavis", success)
-    )
-    .orElseFail:
-      "ERROR: User could not be saved"
+  .retry:
+    aFewTimes
+  .orElseFail:
+    "ERROR: User could not be saved"
+  .timeoutFail("Took too long to save"):
+    timeLimit
+  .orElse:
+    sendToManualQueue:
+      "mrsdavis"
+  .fireAndForget:
+    ZIO.logInfo:
+      "Trying to save morty"
+  .tapBoth(
+    error => userSignUpFailed("mrsdavis", error),
+    success =>
+      userSignupSucceeded("mrsdavis", success)
+  )
 ```
 
 ## Example 9. Rate Limit TODO 
