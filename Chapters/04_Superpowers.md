@@ -116,7 +116,7 @@ object HiddenPrelude:
 
   def userSignupInitiated(username: String) =
     ZIO.succeed(
-      "Analytics sent for signup initiation"
+      println(s"Signup initiated for $username")
     )
 
   def userSignupSucceeded(
@@ -157,14 +157,23 @@ end HiddenPrelude
 import HiddenPrelude.*
 ```
 
-## Example 1. The Happy Path is The Wrong Path
+## Step 1. The Happy Path is The Wrong Path
 
 To start with we save a user to a database:
 
+```scala mdoc:silent
+val userName = "Morty"
+```
+
+```scala mdoc:silent
+val step1 =
+  saveUser:
+    userName
+```
+
 ```scala mdoc
 runDemo:
-  saveUser:
-    "mrsdavis"
+  step1
 ```
 
 ```scala mdoc:invisible
@@ -173,9 +182,9 @@ HiddenPrelude.resetScenario(Scenario.NeverWorks)
 
 In a real system this gives our users strange errors because they are unhandled.
 
-## Example 2. What if Failure is Temporary?
+## Step 2. What if Failure is Temporary?
 
-```scala mdoc:invisible
+```scala mdoc
 HiddenPrelude
   .resetScenario(Scenario.doesNotWorkInitially)
 ```
@@ -195,19 +204,22 @@ Schedules can be applied to many different capabilities.
 We can add lines to the previous example to apply a `retry` to the effect.
 We do this because we assume the failure will likely be resolved within 3 seconds:
 
+```scala mdoc:silent
+val step2 =
+  step1.retry:
+    aFewTimes
+```
+
 ```scala mdoc
 runDemo:
-  saveUser:
-    "morty"
-  .retry:     // Added
-    aFewTimes // Added
+  step2
 ```
 
 You can see from the output that we failed twice trying to save the user, then it succeeded.
 
-## Example 3. What if it never succeeds?
+### What if it never succeeds?
 
-```scala mdoc:invisible
+```scala mdoc
 HiddenPrelude.resetScenario(Scenario.NeverWorks)
 ```
 
@@ -215,27 +227,25 @@ This uber-super power is further illustrated when the retries do not ultimately 
 
 ```scala mdoc
 runDemo:
-  saveUser:
-    "morty"
-  .retry:
-    aFewTimes
+  step2
 ```
 
 In this run of the program, the effect failed its initial attempt, and failed the subsequent three retries.  The final failure was handled by the `orElseFail`.
 
 
-## Example 4. Users like nice error messages
+## Step 3. Users like nice error messages
 
 Let's handle the error and return something nicer:
 
+```scala mdoc:silent
+val step3 =
+  step2.orElseFail:
+    "ERROR: User could not be saved"
+```
+
 ```scala mdoc
 runDemo:
-  saveUser:
-    "Robert'); DROP TABLE USERS"
-  .retry:
-    aFewTimes
-  .orElseFail:                       // Added
-    "ERROR: User could not be saved" // Added
+  step3
 ```
 
 The first superpower is that **any** fallible effect can attach a variety of error handling capabilities.
@@ -252,118 +262,103 @@ this creates a new effect that is the combination of the original effect AND the
 
 > TODO Holy shit moment callout (this is really important)
 
-## Example 5. Timeouts
+## Step 4. Timeouts
 
-```scala mdoc:invisible
+```scala mdoc
 HiddenPrelude.resetScenario(Scenario.firstIsSlow)
 ```
-```scala mdoc
-// TODO Restore real value when done editing
-val timeLimit = 5.millis
-//  5.seconds
-
-// first is slow - with timeout and retry
-runDemo:
-  saveUser:
-    "morty"
-  .retry:
-    aFewTimes
-  .orElseFail:
-    "ERROR: User could not be saved"
-  .timeoutFail("Took too long to save"):
-    timeLimit
+```scala mdoc:silent
+val step4 =
+  step3.timeoutFail("Took too long to save"):
+    // TODO Restore real value when done editing
+    5.millis
+//      5.seconds
 ```
 
-## Example 6. Fallback Effect
+```scala mdoc
+runDemo:
+  step4
+```
 
-```scala mdoc:invisible
+## Step 5. Fallback Effect
+
+```scala mdoc
 HiddenPrelude.resetScenario(Scenario.NeverWorks)
 ```
 
+```scala mdoc:silent
+val step5 =
+  step4.orElse:
+    sendToManualQueue:
+      userName
+```
 ```scala mdoc
 // fails - with retry and fallback
 runDemo:
-  saveUser:
-    "morty"
-  .retry:
-    aFewTimes
-  .orElseFail: // TODO Delete?
-    "ERROR: User could not be saved,"
-  .timeoutFail("Took too long to save"):
-    timeLimit
-  .orElse:
-    sendToManualQueue:
-      "morty"
+  step5
 ```
 
-## Example 7. Concurrently Execute Effect 
+## Step 6. Concurrently Execute Effect 
 TODO Consider deleting. Uses an extension
 
-```scala mdoc:invisible
+```scala mdoc
 HiddenPrelude
   .resetScenario(Scenario.WorksFirstTime)
 ```
 
-```scala mdoc
-// concurrently save & send analytics
-runDemo:
-  saveUser:
-    "morty"
-  .retry:
-    aFewTimes
-  .orElseFail:
-    "ERROR: User could not be saved"
-  .timeoutFail("Took too long to save"):
-    timeLimit
-  .orElse:
-    sendToManualQueue:
-      "morty"
+```scala mdoc:silent
+val step6 =
+  step5
     // todo: maybe this hidden extension method
     // goes too far with functionality that
     // doesn't exist in vanilla ZIO
-  .fireAndForget:
-    ZIO.logInfo:
-      "Trying to save morty"
+    .fireAndForget:
+      userSignupInitiated:
+        userName
 ```
 
-```scala mdoc:invisible
+`fireAndForget` is an extension method, whose implementation we are hiding for now.
+It executes the new effect in parallel, so even though we have added it "to the end" of our larger existing effect,
+  it completes first.
+
+```scala mdoc
+runDemo:
+  step6
+```
+
+## Step 7. Timing all of this
+
+```scala mdoc:silent
+val step7 = step6.timed
+```
+
+```scala mdoc
 HiddenPrelude
   .resetScenario(Scenario.WorksFirstTime)
 ```
 
-## Example 8. Ignore failures in Concurrent Effect 
-
-Feeling a bit "meh" about this step.
-
 ```scala mdoc
-// concurrently save & send analytics, ignoring analytics failures
 runDemo:
-  // TODO Consider how to dedup strings
-  saveUser:
-    "mrsdavis"
-  .retry:
-    aFewTimes
-  .orElseFail:
-    "ERROR: User could not be saved"
-  .timeoutFail("Took too long to save"):
-    timeLimit
-  .orElse:
-    sendToManualQueue:
-      "mrsdavis"
-  .fireAndForget:
-    ZIO.logInfo:
-      "Trying to save morty"
-  .tapBoth(
-    error => userSignUpFailed("mrsdavis", error),
-    success =>
-      userSignupSucceeded("mrsdavis", success)
-  )
+  step7
 ```
 
-## Example 9. Rate Limit TODO 
+## Step 8. Maybe we don't want this to run at all?
 
-TODO {{Can this be a progressive enhancement or just wait until the reliability chapter?}}
+Prose about wanting to lock Morty out?
 
+```scala mdoc:silent
+val step8 = step7.when(userName != "Morty")
+```
+
+```scala mdoc
+HiddenPrelude
+  .resetScenario(Scenario.WorksFirstTime)
+```
+
+```scala mdoc
+runDemo:
+  step8
+```
 
 TODO Slot these in:
 
