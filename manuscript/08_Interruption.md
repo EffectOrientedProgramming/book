@@ -41,7 +41,7 @@ runDemo:
       .run
 // About to sleep forever
 // Interrupted the eternal sleep
-// zio.internal.FiberRuntime@2a76f543
+// zio.internal.FiberRuntime@6891dd83
 ```
 
 If we encounter an error between forking and joining, the fibers will also be interrupted.
@@ -82,7 +82,8 @@ For example, when you have a finalizer that needs to free up resources, you need
 Tight loops that aren't performing ZIO operations cannot be interrupted by the ZIO runtime. 
 
 ```scala
-def longOperation() = "**TODO**"
+def longOperation() =
+  "**TODO**"
 runDemo:
   defer:
     ZIO
@@ -92,7 +93,7 @@ runDemo:
       .timed
       .debug("Time:")
       .run
-// (PT0.000999584S,Some(**TODO**))
+// (PT0.000463921S,Some(**TODO**))
 ```
 We can see 2 significant behaviors here:
 

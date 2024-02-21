@@ -79,9 +79,12 @@ val makeCachedPopularService =
     val cache =
       Cache
         .make(
-          capacity = 100,
-          timeToLive = Duration.Infinity,
-          lookup = Lookup(cloudStorage.retrieve)
+          capacity =
+            100,
+          timeToLive =
+            Duration.Infinity,
+          lookup =
+            Lookup(cloudStorage.retrieve)
         )
         .run
 
@@ -115,7 +118,12 @@ In practice, the savings will rarely be *this* extreme, but it is a reassuring t
 import nl.vroste.rezilience.RateLimiter
 
 val makeRateLimiter =
-  RateLimiter.make(max = 1, interval = 1.second)
+  RateLimiter.make(
+    max =
+      1,
+    interval =
+      1.second
+  )
 ```
 
 ```scala
@@ -133,7 +141,8 @@ extension (rateLimiter: RateLimiter)
 ```scala
 runDemo:
   defer:
-    val rateLimiter = makeRateLimiter.run
+    val rateLimiter =
+      makeRateLimiter.run
     rateLimiter
       .makeCalls:
         "System"
@@ -149,8 +158,10 @@ runDemo:
 ```scala
 runDemo:
   defer:
-    val rateLimiter = makeRateLimiter.run
-    val people = List("Bill", "Bruce", "James")
+    val rateLimiter =
+      makeRateLimiter.run
+    val people =
+      List("Bill", "Bruce", "James")
 
     ZIO
       .foreachPar(people):
@@ -202,7 +213,11 @@ import nl.vroste.rezilience.Bulkhead
 runDemo:
   defer:
     val bulkhead: Bulkhead =
-      Bulkhead.make(maxInFlightCalls = 3).run
+      Bulkhead
+        .make(maxInFlightCalls =
+          3
+        )
+        .run
     val delicateResource =
       ZIO.service[DelicateResource].run
     ZIO
@@ -230,14 +245,16 @@ val repeatSchedule =
 ```scala
 runDemo:
   defer:
-    val numCalls = Ref.make[Int](0).run
+    val numCalls =
+      Ref.make[Int](0).run
 
     externalSystem(numCalls)
       .ignore
       .repeat(repeatSchedule)
       .run
 
-    val made = numCalls.get.run
+    val made =
+      numCalls.get.run
 
     s"Calls made: $made"
 // Calls made: 141
@@ -254,18 +271,23 @@ import nl.vroste.rezilience.CircuitBreaker.CircuitBreakerOpen
 val makeCircuitBreaker =
   CircuitBreaker.make(
     trippingStrategy =
-      TrippingStrategy
-        .failureCount(maxFailures = 2),
-    resetPolicy = Retry.Schedules.common()
+      TrippingStrategy.failureCount(maxFailures =
+        2
+      ),
+    resetPolicy =
+      Retry.Schedules.common()
   )
 ```
 
 ```scala
 runDemo:
   defer:
-    val cb           = makeCircuitBreaker.run
-    val numCalls     = Ref.make[Int](0).run
-    val numPrevented = Ref.make[Int](0).run
+    val cb =
+      makeCircuitBreaker.run
+    val numCalls =
+      Ref.make[Int](0).run
+    val numPrevented =
+      Ref.make[Int](0).run
     val protectedCall =
       cb(externalSystem(numCalls)).catchSome:
         case CircuitBreakerOpen =>
@@ -276,11 +298,13 @@ runDemo:
       .repeat(repeatSchedule)
       .run
 
-    val prevented = numPrevented.get.run
+    val prevented =
+      numPrevented.get.run
 
-    val made = numCalls.get.run
+    val made =
+      numCalls.get.run
     s"Calls prevented: $prevented Calls made: $made"
-// Calls prevented: 74 Calls made: 67
+// Calls prevented: 75 Calls made: 66
 ```
 
 ## Hedging
@@ -290,7 +314,8 @@ runDemo:
 ```scala
 runDemo:
   defer:
-    val contractBreaches = Ref.make(0).run
+    val contractBreaches =
+      Ref.make(0).run
 
     ZIO
       .foreachPar(List.fill(50_000)(())):
@@ -308,7 +333,8 @@ runDemo:
             // hypothetical runtime, but that's
             // not clear from the code that will
             // be visible to the reader.
-            val duration = hedged.run
+            val duration =
+              hedged.run
             if (duration > 1.second)
               contractBreaches.update(_ + 1).run
       .run

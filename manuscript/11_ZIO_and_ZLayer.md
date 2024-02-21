@@ -36,7 +36,8 @@ This parameter tells us how this operation might fail.
 ```scala
 def parse(
     contents: String
-): ZIO[Any, IllegalArgumentException, Unit] = ???
+): ZIO[Any, IllegalArgumentException, Unit] =
+  ???
 ```
 
 ### A - Answer
@@ -45,7 +46,8 @@ This is what our code will return if it completes successfully.
 
 ```scala
 def defaultGreeting()
-    : ZIO[Any, Nothing, String] = ???
+    : ZIO[Any, Nothing, String] =
+  ???
 ```
 
 

@@ -76,7 +76,8 @@ TODO: Can we avoid the `.provide()` and still get a good compile error in mdoc
 ```scala
 runDemo:
   defer:
-    val dough = ZIO.service[Dough].run
+    val dough =
+      ZIO.service[Dough].run
     dough.letRise.run
   .provide()
 // error:
@@ -102,7 +103,8 @@ Then the effect can be run.
 ```scala
 runDemo:
   defer:
-    val dough = ZIO.service[Dough].run
+    val dough =
+      ZIO.service[Dough].run
     dough.letRise.run
   .provide:
     Dough.fresh
@@ -182,6 +184,10 @@ runDemo:
       Heat.oven,
       Scope.default
     )
+// Making Homemade Bread
+// TODO Handle long line. 
+// Truncating for now: 
+// ZEnvironment(MdocSession::MdocApp::BreadHomeMade -> BreadHomeMade(Heat(),Dough()))
 // ZEnvironment(MdocSession::MdocApp::BreadHomeMa
 ```
 
@@ -195,7 +201,8 @@ Dependencies on effects propagate to effects which use effects.
 // TODO Figure out why Bread.eat debug isn't showing up
 runDemo:
   defer:
-    val bread = ZIO.service[Bread].run
+    val bread =
+      ZIO.service[Bread].run
     bread.eat.run
   .provide(
     // Highlight that homemade needs the other
@@ -309,7 +316,8 @@ Bread2.fromFriend: ZLayer[Any, String, Bread]
 ```scala
 runDemo:
   defer:
-    val bread = ZIO.service[Bread].run
+    val bread =
+      ZIO.service[Bread].run
     bread.eat.run
   .provide:
     Bread2.fromFriend
@@ -323,7 +331,8 @@ runDemo:
 ```scala
 runDemo:
   defer:
-    val bread = ZIO.service[Bread].run
+    val bread =
+      ZIO.service[Bread].run
     bread.eat.run
   .provide:
     Bread2
@@ -502,7 +511,8 @@ runSpec:
       .adjust:
         2.seconds
       .run
-    val result = fork.join.run
+    val result =
+      fork.join.run
     assertTrue:
       result.isEmpty
 // Test: PASSED*

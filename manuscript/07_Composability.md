@@ -43,9 +43,9 @@ ZIO
 //   trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:16)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:16)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$15080/0x0000000803de4c40@755f2dd5
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$16303/0x0000000804107c40@7a71e3c5
 //   ),
-//   successK = zio.ZIO$$$Lambda$15082/0x0000000803de2840@54524422
+//   successK = zio.ZIO$$$Lambda$16305/0x0000000804105840@6afc48c1
 // )
 ```
 
@@ -85,7 +85,8 @@ Other framings/techniques and their pros/cons:
 Consider a function
 
 ```scala
-def saveInformation(info: String): Unit = ???
+def saveInformation(info: String): Unit =
+  ???
 ```
 
 If we look only at the types, this function is an `Any=>Unit`.
@@ -148,7 +149,8 @@ With ZIO you can use `zio-direct` to compose ZIOs sequentially with:
 ```scala
 runDemo:
   defer:
-    val topStory = findTopNewsStory.run
+    val topStory =
+      findTopNewsStory.run
     textAlert:
       topStory
     .run
@@ -238,7 +240,8 @@ Now let's confirm the behavior when the headline is not available.
 
 ```scala
 // This controls some invisible machinery
-headLineAvailable = false
+headLineAvailable =
+  false
 
 runDemo:
   getHeadlineZ
@@ -318,7 +321,7 @@ runDemo:
   closeableFileZ
 // Opening file!
 // Closing file!
-// repl.MdocSession$MdocApp$$anon$27@280d45d9
+// repl.MdocSession$MdocApp$$anon$27@2c5a1df
 ```
 
 Since that is not terribly useful, let's start calling some methods on our managed file.
@@ -331,7 +334,8 @@ closeableFile().contains("something"): Boolean
 ```scala
 runDemo:
   defer:
-    val file = closeableFileZ.run
+    val file =
+      closeableFileZ.run
     file.contains:
       "topicOfInterest"
 // Opening file!
@@ -359,7 +363,8 @@ def writeToFileZ(
 ```scala
 runDemo:
   defer:
-    val file = closeableFileZ.run
+    val file =
+      closeableFileZ.run
     writeToFileZ(file, "New data on topic").run
 // Opening file!
 // Writing to file: New data on topic
@@ -405,7 +410,8 @@ Now that we have all of these well-defined effects, we can wield them in any com
 ```scala
 val researchWorkflow =
   defer:
-    val headline: String = getHeadlineZ.run
+    val headline: String =
+      getHeadlineZ.run
 
     val topic: String =
       topicOfInterestZ:

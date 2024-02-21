@@ -16,7 +16,8 @@ Let's start with the "happy path" where we save a user to a database (an effect)
 To start with we save a user to a database:
 
 ```scala
-val userName = "Morty"
+val userName =
+  "Morty"
 ```
 
 ```scala
@@ -38,7 +39,8 @@ In a real system this gives our users strange errors because they are unhandled.
 
 ```scala
 HiddenPrelude
-  .resetScenario(Scenario.doesNotWorkInitially)
+  .resetScenario:
+    Scenario.doesNotWorkInitially
 ```
 
 Sometimes things work when you keep trying.  We can use a schedule to determine how to keep trying:
@@ -75,7 +77,8 @@ You can see from the output that we failed twice trying to save the user, then i
 ### What if it never succeeds?
 
 ```scala
-HiddenPrelude.resetScenario(Scenario.NeverWorks)
+HiddenPrelude.resetScenario:
+  Scenario.NeverWorks
 ```
 
 This uber-super power is further illustrated when the retries do not ultimately succeed:
@@ -130,7 +133,8 @@ this creates a new effect that is the combination of the original effect AND the
 ## Step 4. Timeouts
 
 ```scala
-HiddenPrelude.resetScenario(Scenario.firstIsSlow)
+HiddenPrelude.resetScenario:
+  Scenario.firstIsSlow
 ```
 ```scala
 val step4 =
@@ -150,7 +154,8 @@ runDemo:
 ## Step 5. Fallback Effect
 
 ```scala
-HiddenPrelude.resetScenario(Scenario.NeverWorks)
+HiddenPrelude.resetScenario:
+  Scenario.NeverWorks
 ```
 
 ```scala
@@ -174,7 +179,8 @@ TODO Consider deleting. Uses an extension
 
 ```scala
 HiddenPrelude
-  .resetScenario(Scenario.WorksFirstTime)
+  .resetScenario:
+    Scenario.WorksFirstTime
 ```
 
 ```scala
@@ -202,19 +208,21 @@ runDemo:
 ## Step 7. Timing all of this
 
 ```scala
-val step7 = step6.timed
+val step7 =
+  step6.timed
 ```
 
 ```scala
 HiddenPrelude
-  .resetScenario(Scenario.WorksFirstTime)
+  .resetScenario:
+    Scenario.WorksFirstTime
 ```
 
 ```scala
 runDemo:
   step7
 // Signup initiated for Morty
-// (PT0.00101404S,User saved)
+// (PT0.001902598S,User saved)
 ```
 
 ## Step 8. Maybe we don't want this to run at all?
@@ -222,12 +230,14 @@ runDemo:
 Prose about wanting to lock Morty out?
 
 ```scala
-val step8 = step7.when(userName != "Morty")
+val step8 =
+  step7.when(userName != "Morty")
 ```
 
 ```scala
 HiddenPrelude
-  .resetScenario(Scenario.WorksFirstTime)
+  .resetScenario:
+    Scenario.WorksFirstTime
 ```
 
 ```scala
