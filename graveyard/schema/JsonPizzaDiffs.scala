@@ -13,13 +13,16 @@ object DoNotKnow extends ZIOAppDefault:
       DeriveSchema.gen[Pizza]
 
   override def run =
-    val pizza1 = Pizza("Fig", 16)
-    val pizza2 = Pizza("Fig", 12)
+    val pizza1 =
+      Pizza("Fig", 16)
+    val pizza2 =
+      Pizza("Fig", 12)
 
     defer {
       Console.printLine(Pizza.schema).run
 
-      val diff = pizza1 diff pizza2
+      val diff =
+        pizza1 diff pizza2
       Console.printLine(diff).run
 
       val pizzaJson =

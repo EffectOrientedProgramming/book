@@ -27,7 +27,9 @@ case class TownResources(
   def +[A](resource: Resource[A]) =
     resource match
       case c: Cash =>
-        copy(cash = Cash(cash.value + c.value))
+        copy(cash =
+          Cash(cash.value + c.value)
+        )
       case g: Grain =>
         copy(grain =
           Grain(grain.value + g.value)
@@ -40,7 +42,9 @@ case class TownResources(
   def -[A](resource: Resource[A]) =
     resource match
       case c: Cash =>
-        copy(cash = Cash(cash.value - c.value))
+        copy(cash =
+          Cash(cash.value - c.value)
+        )
       case g: Grain =>
         copy(grain =
           Grain(grain.value - g.value)
@@ -97,12 +101,15 @@ def resourcesDemo() =
         treeTown.get.commit
       finalGrainVilleResources <-
         grainVille.get.commit
-      _ <- printLine(finalTreeTownResources)
-      _ <- printLine(finalGrainVilleResources)
+      _ <-
+        printLine(finalTreeTownResources)
+      _ <-
+        printLine(finalGrainVilleResources)
     yield ()
 
   Unsafe.unsafe { (u: Unsafe) =>
-    given Unsafe = u
+    given Unsafe =
+      u
     unsafe.run(logic).getOrThrowFiberFailure()
   }
 end resourcesDemo
@@ -117,8 +124,10 @@ def tradeResources[
     town2Offering: B
 ): STM[Throwable, Unit] =
   for
-    _ <- send(town1, town2, town1Offering)
-    _ <- send(town2, town1, town2Offering)
+    _ <-
+      send(town1, town2, town1Offering)
+    _ <-
+      send(town2, town1, town2Offering)
   yield ()
 
 def send[A <: Resource[A], B <: Resource[B]](
@@ -127,8 +136,10 @@ def send[A <: Resource[A], B <: Resource[B]](
     resource: A
 ): STM[Throwable, Unit] =
   for
-    senderBalance <- from.get
-    canSend = senderBalance.canSend(resource)
+    senderBalance <-
+      from.get
+    canSend =
+      senderBalance.canSend(resource)
     _ <-
       if (canSend)
         from.update(_ - resource) *>
@@ -146,5 +157,6 @@ def send[A <: Resource[A], B <: Resource[B]](
           Cash(fResources.cash.value + 1)
         )
       )
-    _ <- to.get
+    _ <-
+      to.get
   yield ()

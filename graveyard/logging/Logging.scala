@@ -27,7 +27,8 @@ object Logging extends ZIOAppDefault:
         )
       )
 
-  def run = ZIO.log("Hi").provide(coloredLogger)
+  def run =
+    ZIO.log("Hi").provide(coloredLogger)
 
   def location(gps: Gps): LogFormat =
     text {

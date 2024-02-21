@@ -4,10 +4,12 @@
 // This is lazy *purely* to silence the mdoc output.
 // TODO Decide whether it's clearer to do this, or capture everything in an object
 lazy val unreliableCounting =
-  var counter = 0
+  var counter =
+    0
   val increment =
     ZIO.succeed {
-      counter = counter + 1
+      counter =
+        counter + 1
     }
 
   defer {
@@ -30,7 +32,8 @@ lazy val reliableCounting =
     counter.update(_ + 1)
 
   defer {
-    val counter = Ref.make(0).run
+    val counter =
+      Ref.make(0).run
     ZIO
       .foreachParDiscard(Range(0, 100000))(_ =>
         incrementCounter(counter)
@@ -43,7 +46,8 @@ runDemo(reliableCounting)
 ```
 
 ```scala mdoc
-def expensiveCalculation() = Thread.sleep(35)
+def expensiveCalculation() =
+  Thread.sleep(35)
 ```
 
 ```scala mdoc
@@ -54,7 +58,8 @@ def sendNotification() =
 ```scala mdoc
 lazy val sideEffectingUpdates =
   defer {
-    val counter = Ref.make(0).run
+    val counter =
+      Ref.make(0).run
     ZIO
       .foreachParDiscard(Range(0, 4))(_ =>
         counter.update { previousValue =>
@@ -76,7 +81,8 @@ runDemo(sideEffectingUpdates)
 ```scala mdoc
 lazy val sideEffectingUpdatesSync =
   defer {
-    val counter = Ref.Synchronized.make(0).run
+    val counter =
+      Ref.Synchronized.make(0).run
     ZIO
       .foreachParDiscard(Range(0, 4))(_ =>
         counter.update { previousValue =>

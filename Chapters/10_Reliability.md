@@ -32,7 +32,8 @@ case class FSLive(requests: Ref[Int])
 
   val invoice: ZIO[Any, Nothing, String] =
     defer:
-      val count = requests.get.run
+      val count =
+        requests.get.run
 
       "Amount owed: $" + count
 
@@ -126,9 +127,12 @@ val makeCachedPopularService =
     val cache =
       Cache
         .make(
-          capacity = 100,
-          timeToLive = Duration.Infinity,
-          lookup = Lookup(cloudStorage.retrieve)
+          capacity =
+            100,
+          timeToLive =
+            Duration.Infinity,
+          lookup =
+            Lookup(cloudStorage.retrieve)
         )
         .run
 
@@ -157,7 +161,8 @@ In practice, the savings will rarely be *this* extreme, but it is a reassuring t
 ## Staying under rate limits
 
 ```scala mdoc:invisible
-val expensiveApiCall = ZIO.unit
+val expensiveApiCall =
+  ZIO.unit
 
 extension [R, E, A](z: ZIO[R, E, A])
   def timedSecondsDebug(
@@ -177,7 +182,12 @@ extension [R, E, A](z: ZIO[R, E, A])
 import nl.vroste.rezilience.RateLimiter
 
 val makeRateLimiter =
-  RateLimiter.make(max = 1, interval = 1.second)
+  RateLimiter.make(
+    max =
+      1,
+    interval =
+      1.second
+  )
 ```
 
 ```scala mdoc:silent
@@ -195,7 +205,8 @@ extension (rateLimiter: RateLimiter)
 ```scala mdoc
 runDemo:
   defer:
-    val rateLimiter = makeRateLimiter.run
+    val rateLimiter =
+      makeRateLimiter.run
     rateLimiter
       .makeCalls:
         "System"
@@ -206,8 +217,10 @@ runDemo:
 ```scala mdoc
 runDemo:
   defer:
-    val rateLimiter = makeRateLimiter.run
-    val people = List("Bill", "Bruce", "James")
+    val rateLimiter =
+      makeRateLimiter.run
+    val people =
+      List("Bill", "Bruce", "James")
 
     ZIO
       .foreachPar(people):
@@ -232,7 +245,8 @@ case class Live(
 ) extends DelicateResource:
   val request =
     defer:
-      val res = Random.nextIntBounded(1000).run
+      val res =
+        Random.nextIntBounded(1000).run
 
       if (currentRequests.get.run.length > 3)
         alive.set(false).run
@@ -305,7 +319,11 @@ import nl.vroste.rezilience.Bulkhead
 runDemo:
   defer:
     val bulkhead: Bulkhead =
-      Bulkhead.make(maxInFlightCalls = 3).run
+      Bulkhead
+        .make(maxInFlightCalls =
+          3
+        )
+        .run
     val delicateResource =
       ZIO.service[DelicateResource].run
     ZIO
@@ -332,7 +350,8 @@ import scala.concurrent.TimeoutException
 import zio.Runtime.default.unsafe
 val timeSensitiveValue =
   Unsafe.unsafe((u: Unsafe) =>
-    given Unsafe = u
+    given Unsafe =
+      u
     unsafe
       .run(
         scheduledValues(
@@ -347,7 +366,8 @@ val timeSensitiveValue =
 def externalSystem(numCalls: Ref[Int]) =
   defer:
     numCalls.update(_ + 1).run
-    val b = timeSensitiveValue.run
+    val b =
+      timeSensitiveValue.run
     if b then
       ZIO.succeed(()).run
     else
@@ -381,7 +401,8 @@ def scheduledValues[A](
   ]
 ] =
   defer {
-    val startTime = Clock.instant.run
+    val startTime =
+      Clock.instant.run
     val timeTable =
       createTimeTableX(
         startTime,
@@ -430,7 +451,8 @@ private def accessX[A](
     timeTable: Seq[ExpiringValue[A]]
 ): ZIO[Any, TimeoutException, A] =
   defer {
-    val now = Clock.instant.run
+    val now =
+      Clock.instant.run
     ZIO
       .getOrFailWith(
         new TimeoutException("TOO LATE")
@@ -457,14 +479,16 @@ val repeatSchedule =
 ```scala mdoc
 runDemo:
   defer:
-    val numCalls = Ref.make[Int](0).run
+    val numCalls =
+      Ref.make[Int](0).run
 
     externalSystem(numCalls)
       .ignore
       .repeat(repeatSchedule)
       .run
 
-    val made = numCalls.get.run
+    val made =
+      numCalls.get.run
 
     s"Calls made: $made"
 ```
@@ -480,18 +504,23 @@ import nl.vroste.rezilience.CircuitBreaker.CircuitBreakerOpen
 val makeCircuitBreaker =
   CircuitBreaker.make(
     trippingStrategy =
-      TrippingStrategy
-        .failureCount(maxFailures = 2),
-    resetPolicy = Retry.Schedules.common()
+      TrippingStrategy.failureCount(maxFailures =
+        2
+      ),
+    resetPolicy =
+      Retry.Schedules.common()
   )
 ```
 
 ```scala mdoc
 runDemo:
   defer:
-    val cb           = makeCircuitBreaker.run
-    val numCalls     = Ref.make[Int](0).run
-    val numPrevented = Ref.make[Int](0).run
+    val cb =
+      makeCircuitBreaker.run
+    val numCalls =
+      Ref.make[Int](0).run
+    val numPrevented =
+      Ref.make[Int](0).run
     val protectedCall =
       cb(externalSystem(numCalls)).catchSome:
         case CircuitBreakerOpen =>
@@ -502,9 +531,11 @@ runDemo:
       .repeat(repeatSchedule)
       .run
 
-    val prevented = numPrevented.get.run
+    val prevented =
+      numPrevented.get.run
 
-    val made = numCalls.get.run
+    val made =
+      numCalls.get.run
     s"Calls prevented: $prevented Calls made: $made"
 ```
 
@@ -514,7 +545,8 @@ runDemo:
 ```scala mdoc:invisible
 val logicThatSporadicallyLocksUp =
   defer:
-    val random = Random.nextIntBounded(1_000).run
+    val random =
+      Random.nextIntBounded(1_000).run
     random match
       case 0 =>
         ZIO
@@ -532,7 +564,8 @@ val logicThatSporadicallyLocksUp =
 ```scala mdoc
 runDemo:
   defer:
-    val contractBreaches = Ref.make(0).run
+    val contractBreaches =
+      Ref.make(0).run
 
     ZIO
       .foreachPar(List.fill(50_000)(())):
@@ -550,7 +583,8 @@ runDemo:
             // hypothetical runtime, but that's
             // not clear from the code that will
             // be visible to the reader.
-            val duration = hedged.run
+            val duration =
+              hedged.run
             if (duration > 1.second)
               contractBreaches.update(_ + 1).run
       .run

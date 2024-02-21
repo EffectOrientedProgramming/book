@@ -10,7 +10,8 @@ object LunchVoteTest extends ZIOSpecDefault:
     suite("voting situations")(
       test("3 quick yays") {
         defer {
-          val interruptedVoters = Ref.make(0).run
+          val interruptedVoters =
+            Ref.make(0).run
           val voters =
             List(
               Voter("Alice", 0.seconds, Yay),
@@ -31,7 +32,8 @@ object LunchVoteTest extends ZIOSpecDefault:
                   interruptedVoters.update(_ + 1)
               )
             )
-          val result = LunchVote.run(voters).run
+          val result =
+            LunchVote.run(voters).run
           val totalInterrupted =
             interruptedVoters.get.run
           // _ <-
@@ -51,7 +53,8 @@ object LunchVoteTest extends ZIOSpecDefault:
             Voter("Eve", 1.seconds, Yay)
           )
         defer {
-          val result = LunchVote.run(voters).run
+          val result =
+            LunchVote.run(voters).run
           assertTrue(result == Nay)
         }
       },
@@ -69,12 +72,14 @@ object LunchVoteTest extends ZIOSpecDefault:
             LunchVote
               .run(
                 voters,
-                maximumVoteTime = 1.seconds
+                maximumVoteTime =
+                  1.seconds
               )
               .fork
               .run
           TestClock.adjust(2.seconds).run
-          val timeout = resultF.join.flip.run
+          val timeout =
+            resultF.join.flip.run
           assertTrue(timeout.isEmpty)
         }
       }

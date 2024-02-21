@@ -12,6 +12,7 @@ type ActiveEntity =
   Hero |
     Monster // TODO Worth exploring? Or should it just be the hero that is active?
 
-type SupEnt = Hero | Monster | Wall | Tile
+type SupEnt =
+  Hero | Monster | Wall | Tile
 
 case class SupportedEntity(target: SupEnt)

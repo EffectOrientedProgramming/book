@@ -3,7 +3,8 @@ package direct
 object AutoParallel extends ZIOAppDefault:
 
   override def run =
-    def z(u1: Unit, u2: Unit) = println("done")
+    def z(u1: Unit, u2: Unit) =
+      println("done")
 
     // Multiple runs in the same expression can
     // be automatically

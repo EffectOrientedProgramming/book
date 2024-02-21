@@ -85,14 +85,16 @@ object TwitterCustomerSupport
         Nothing,
         Tweet,
         Tweet
-      ] = ZPipeline.filter(isHappy)
+      ] =
+        ZPipeline.filter(isHappy)
 
       val angryTweetFilter: ZPipeline[
         Any,
         Nothing,
         Tweet,
         Tweet
-      ] = ZPipeline.filter(isAngry)
+      ] =
+        ZPipeline.filter(isAngry)
 
       (tweets >>> happyTweetFilter)
         .runCount
@@ -145,7 +147,8 @@ object TwitterCustomerSupport
     def apply(
         csvLine: String
     ): Either[ParsingError, Tweet] =
-      val pieces = csvLine.split(",")
+      val pieces =
+        csvLine.split(",")
       Either.cond(
         pieces.length == 7,
         pieces match

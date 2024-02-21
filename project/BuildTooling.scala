@@ -24,7 +24,6 @@ case class ProseFile(p: Path) {
 
 object BuildTooling {
 
-
   import java.nio.charset.Charset
   import java.nio.file.{
     Files,
@@ -172,7 +171,8 @@ object BuildTooling {
                 .toList :+ ""
             }
 
-          val contents = header ++ indentedBlocks
+          val contents =
+            header ++ indentedBlocks
 
           FileIOBullshit
             .createFile(outFile, contents)
@@ -253,21 +253,31 @@ object BuildTooling {
       val editLink =
         s"""
            |
-           |[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/${proseFile.p.getFileName.toString})
+           |[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/${proseFile
+            .p
+            .getFileName
+            .toString})
            |""".stripMargin
-      val lines = IO.readLines(proseFile.p.toFile)
-      val linesWithEditLink = lines.head :: (editLink :: lines.tail)
-      IO.writeLines(proseFile.p.toFile, linesWithEditLink, append = false)
+      val lines =
+        IO.readLines(proseFile.p.toFile)
+      val linesWithEditLink =
+        lines.head :: (editLink :: lines.tail)
+      IO.writeLines(
+        proseFile.p.toFile,
+        linesWithEditLink,
+        append =
+          false
+      )
     }
 
     proseFiles.foreach(attachEditLink)
 //    attachEditLink(value)
 
-
   }
 
   // TODO Make a Versions object?
-  val zioVersion = "2.0.21"
+  val zioVersion =
+    "2.0.21"
 
   lazy val commonSettings =
     Seq(
@@ -279,9 +289,12 @@ object BuildTooling {
           "zio",
           "zio.direct"
         ).mkString(
-          start = "-Yimports:",
-          sep = ",",
-          end = ""
+          start =
+            "-Yimports:",
+          sep =
+            ",",
+          end =
+            ""
         ),
       libraryDependencies ++=
         Seq(

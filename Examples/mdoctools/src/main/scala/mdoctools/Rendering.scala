@@ -1,13 +1,15 @@
 package mdoctools
 
 object LineLength:
-  val commentPrefix = "// "
+  val commentPrefix =
+    "// "
   val columnWidth =
     49 -
       commentPrefix
         .length // TODO Pull from scalafmt config file
 
-  val defectPrefix = "Error: "
+  val defectPrefix =
+    "Error: "
   val topLineLength =
     columnWidth - defectPrefix.length
 
@@ -37,7 +39,8 @@ object Rendering:
       }
 
   def renderThrowableDefect(defect: Throwable) =
-    val msg = defect.toString
+    val msg =
+      defect.toString
     val extractedMessage =
       if (msg != null && msg.nonEmpty)
         if (msg.contains("$"))
@@ -73,7 +76,8 @@ object Rendering:
       .mkString("\n")
 
   def renderError[E](error: E): String =
-    val extractedMessage = error.toString
+    val extractedMessage =
+      error.toString
     if (
       extractedMessage.length >
         LineLength.topLineLength

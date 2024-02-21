@@ -36,14 +36,17 @@ def bookTelescope(): Option[Telescope] =
       println("Acquired telescope!")
     case None =>
       println("Failed to acquire telescope!")
-  val result = availableTelescope
-  availableTelescope = None
+  val result =
+    availableTelescope
+  availableTelescope =
+    None
   result
 ```
 
 ```scala mdoc:invisible
 def magicalExampleCleanup() =
-  availableTelescope = Some(Telescope())
+  availableTelescope =
+    Some(Telescope())
 ```
 
 Some possible meanings:
@@ -52,10 +55,12 @@ Some possible meanings:
 We consider this the weakest form of composability.
 Your function invokes other functions, without any strict sequencing or pipelining of results.
 ```scala mdoc:nest
-var scope: Option[Telescope] = None
+var scope: Option[Telescope] =
+  None
 
 def composedLogic(): Unit =
-  scope = bookTelescope()
+  scope =
+    bookTelescope()
   observe(Moon, scope)
 
 composedLogic()
@@ -70,14 +75,17 @@ We could drop additional statements/effects in our block that are not visible to
 // TODO Decide if this stage is actually helpful, or if we should just move straight into the other
 // definitions and more quickly highlight the resource leak here.
 
-var scope: Option[Telescope] = None
+var scope: Option[Telescope] =
+  None
 
 def destroy(): Unit =
   println("Whoops! We destroyed the telescope!")
-  scope = None
+  scope =
+    None
 
 def composedLogic(): Unit =
-  scope = bookTelescope()
+  scope =
+    bookTelescope()
   destroy()
   observe(Moon, scope)
 
@@ -93,7 +101,8 @@ magicalExampleCleanup()
 def observeDefinite(
     target: Target,
     scope: Telescope
-): Unit = println(s"Looking at $target!")
+): Unit =
+  println(s"Looking at $target!")
 ```
 ```scala mdoc:nest
 // TODO WhereTF are `compose`, `andThen`, etc?

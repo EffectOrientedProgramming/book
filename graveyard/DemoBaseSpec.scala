@@ -46,7 +46,8 @@ trait DemoBaseSpec extends ZIOSpecDefault:
 
   def walk[R, E](
       spec: Spec[R, E],
-      labels: Chunk[String] = Chunk.empty
+      labels: Chunk[String] =
+        Chunk.empty
   ): Unit =
     println("Walking")
     spec.caseValue match

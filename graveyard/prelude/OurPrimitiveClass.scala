@@ -25,4 +25,5 @@ object OurPrimitiveClass:
       def compare(
           x: OurPrimitiveClass,
           y: OurPrimitiveClass
-      ): Int = x.age.compare(y.age)
+      ): Int =
+        x.age.compare(y.age)

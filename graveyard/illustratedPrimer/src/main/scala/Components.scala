@@ -30,7 +30,8 @@ object Components extends HtmlProps:
       def generateRandomUUID(): String =
         Random.alphanumeric.take(10).mkString
 
-    val id = UUIDGenerator.generateRandomUUID()
+    val id =
+      UUIDGenerator.generateRandomUUID()
 
     val content =
       div(
@@ -101,7 +102,8 @@ object Components extends HtmlProps:
     )
   end dropdownTopic
 
-  def textPiece(text: String) = span(text + " ")
+  def textPiece(text: String) =
+    span(text + " ")
 
   def infoDisplay(
       info: Signal[Option[DynamicInfo]]

@@ -16,7 +16,8 @@ object DeliveryCenter extends ZIOAppDefault:
   case class TruckInUse(
       queued: List[Order],
       fuse: Promise[Nothing, Unit],
-      capacity: Int = 3
+      capacity: Int =
+        3
   ) extends Truck:
     val isFull: Boolean =
       queued.length == capacity
@@ -83,9 +84,12 @@ object DeliveryCenter extends ZIOAppDefault:
         .delay(4.seconds)
 
     defer {
-      val truck = loadTruck.run
+      val truck =
+        loadTruck.run
       if (truck.isFull)
-        shipIt(reason = "Truck is full.").run
+        shipIt(reason =
+          "Truck is full."
+        ).run
       else
         ZIO
           .when(truck.queued.length == 1)(
@@ -105,8 +109,11 @@ object DeliveryCenter extends ZIOAppDefault:
       val orderStream =
         ZStream.repeatWithSchedule(
           Order(),
-          Schedule
-            .exponential(1.second, factor = 1.8)
+          Schedule.exponential(
+            1.second,
+            factor =
+              1.8
+          )
         )
       orderStream
         .foreach(handle(_, stagedItems))

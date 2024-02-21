@@ -3,23 +3,27 @@ package tuples
 @main
 def fun =
   // special type, not ()
-  val t0: Unit = ()
+  val t0: Unit =
+    ()
 
   // single value tuples are really just the
   // value, no reason to treat it as a tuple
   // Q: is there a way to define single element
   // tuples?
-  val t1: String = "asdf"
+  val t1: String =
+    "asdf"
   assert(t1 == "asdf")
 
   // doesn't work because t1 isn't really a tuple
   // val t1_1 = 1 *: t1
 
-  val t2: (String, Int) = ("asdf", 1)
+  val t2: (String, Int) =
+    ("asdf", 1)
   assert(t2._1 == "asdf")
 
   // bug note, the type annotation is required
-  val t2_1: (Int, String, Int) = 1 *: t2
+  val t2_1: (Int, String, Int) =
+    1 *: t2
   assert(t2_1._2 == "asdf")
 
   // does not work with t1 cause it's not a tuple
@@ -31,7 +35,8 @@ def fun =
     t2 ++ t2
   assert(t2_t2._3 == "asdf")
 
-  val t2_0 = t2.drop(1)
+  val t2_0 =
+    t2.drop(1)
   // val t2_0: Int *:
   // scala.Tuple$package.EmptyTuple.type =
   // t2.drop(1)

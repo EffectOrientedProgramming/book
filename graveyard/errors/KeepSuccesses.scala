@@ -32,7 +32,8 @@ object KeepSuccesses extends zio.ZIOAppDefault:
             "All successes"
           .run
 
-  def run = moreStructuredLogic
+  def run =
+    moreStructuredLogic
 
   private def printFailures(
       failures: Iterable[BadResponse]

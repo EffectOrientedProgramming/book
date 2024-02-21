@@ -9,7 +9,8 @@ case class TweetFactory(counter: Counter):
         TweetFactory.randomSubject.run
       val adjective =
         TweetFactory.randomAdjective.run
-      val id = counter.get.run
+      val id =
+        counter.get.run
       SimpleTweet(
         id,
         s"$subject is the $adjective thing ever!"
@@ -25,7 +26,8 @@ private object TweetFactory:
   val derogatory =
     List("worst", "most terrible", "most awful")
 
-  val allAdjectives = superlatives ++ derogatory
+  val allAdjectives =
+    superlatives ++ derogatory
   val allSubjects =
     List(
       "Ice cream",

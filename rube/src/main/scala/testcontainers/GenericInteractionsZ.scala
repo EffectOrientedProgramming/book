@@ -24,7 +24,8 @@ object GenericInteractionsZ:
         Any,
         Throwable,
         Unit
-      ] = (_: T) => ZIO.unit
+      ] =
+        (_: T) => ZIO.unit
   ): ZIO[Scope, Throwable, T] =
     ZIO.acquireRelease {
       ZIO.debug(s"Creating $containerType") *>

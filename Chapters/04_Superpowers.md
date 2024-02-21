@@ -17,7 +17,8 @@ object HiddenPrelude:
   import zio.Runtime.default.unsafe
   val invocations =
     Unsafe.unsafe((u: Unsafe) =>
-      given Unsafe = u
+      given Unsafe =
+        u
       unsafe
         .run(
           Ref.make[Scenario](
@@ -29,7 +30,8 @@ object HiddenPrelude:
 
   def resetScenario(scenario: Scenario) =
     Unsafe.unsafe((u: Unsafe) =>
-      given Unsafe = u
+      given Unsafe =
+        u
       unsafe
         .run(invocations.set(scenario))
         .getOrThrowFiberFailure()
@@ -61,7 +63,8 @@ object HiddenPrelude:
   end Scenario
 
   def saveUser(username: String) =
-    val succeed = ZIO.succeed("User saved")
+    val succeed =
+      ZIO.succeed("User saved")
     val fail =
       ZIO
         .fail("**Database crashed!!**")
@@ -150,7 +153,8 @@ object HiddenPrelude:
   extension [R, E, A](z: ZIO[R, E, A])
     def fireAndForget(
         background: ZIO[R, Nothing, Any]
-    ) = z.zipParLeft(background.forkDaemon)
+    ) =
+      z.zipParLeft(background.forkDaemon)
 
 end HiddenPrelude
 
@@ -162,7 +166,8 @@ import HiddenPrelude.*
 To start with we save a user to a database:
 
 ```scala mdoc:silent
-val userName = "Morty"
+val userName =
+  "Morty"
 ```
 
 ```scala mdoc:silent
@@ -329,7 +334,8 @@ runDemo:
 ## Step 7. Timing all of this
 
 ```scala mdoc:silent
-val step7 = step6.timed
+val step7 =
+  step6.timed
 ```
 
 ```scala mdoc
@@ -347,7 +353,8 @@ runDemo:
 Prose about wanting to lock Morty out?
 
 ```scala mdoc:silent
-val step8 = step7.when(userName != "Morty")
+val step8 =
+  step7.when(userName != "Morty")
 ```
 
 ```scala mdoc

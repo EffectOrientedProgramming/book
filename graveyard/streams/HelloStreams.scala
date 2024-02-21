@@ -5,7 +5,8 @@ import zio.stream.*
 object HelloStreams extends ZIOAppDefault:
   def run =
     for
-      _ <- ZIO.debug("Stream stuff!")
+      _ <-
+        ZIO.debug("Stream stuff!")
       greetingStream =
         ZStream.repeatWithSchedule(
           "Hi",
@@ -21,8 +22,11 @@ object HelloStreams extends ZIOAppDefault:
           greetingStream,
           insultStream
         )
-      aFewElements = combinedStream.take(6)
-      res <- aFewElements.runCollect
-      _   <- ZIO.debug("Res: " + res)
+      aFewElements =
+        combinedStream.take(6)
+      res <-
+        aFewElements.runCollect
+      _ <-
+        ZIO.debug("Res: " + res)
     yield ()
 end HelloStreams

@@ -15,4 +15,5 @@ object NeverFinalizer extends ZIOAppDefault:
       ()
     }
 
-  def run = willBeCancelled.timeout(1.second)
+  def run =
+    willBeCancelled.timeout(1.second)

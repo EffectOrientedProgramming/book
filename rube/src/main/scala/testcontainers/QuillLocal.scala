@@ -20,15 +20,19 @@ object QuillLocal:
 
     val exposedPort =
       container.getMappedPort(5432)
-    val username = container.getUsername
-    val password = container.getPassword
+    val username =
+      container.getUsername
+    val password =
+      container.getPassword
     pgDataSource.setUser(username)
     pgDataSource
       .setPortNumbers(Array(exposedPort))
     pgDataSource.setPassword(password)
-    val config = new HikariConfig()
+    val config =
+      new HikariConfig()
     config.setDataSource(pgDataSource)
     config
+  end configFromContainer
 
   val quillPostgresContext: ZLayer[
     PostgresContainerJ,
@@ -43,7 +47,8 @@ object QuillLocal:
             PostgresContainerJ
           ]
         ) =>
-          val safePostgres = safePostgresE.get
+          val safePostgres =
+            safePostgresE.get
 
           val config =
             configFromContainer(safePostgres)
@@ -64,7 +69,8 @@ object QuillLocal:
   val quillQuery
       : ZIO[AppPostgresContext, Nothing, List[
         Person
-      ]] = ???
+      ]] =
+    ???
 /* val quillQuery : ZIO[AppPostgresContext,
  * Nothing, List[ Person ]] =
  * for ctx <- ZIO.service[AppPostgresContext]

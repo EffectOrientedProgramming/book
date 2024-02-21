@@ -20,12 +20,14 @@ class zioMain
       param: Parameter,
       arg: String,
       defaultArgument: Option[() => T]
-  )(using parser: FromString[T]): () => T = ???
+  )(using parser: FromString[T]): () => T =
+    ???
 
   def command(
       info: Info,
       args: Seq[String]
-  ): Option[Seq[String]] = Some(Seq.empty)
+  ): Option[Seq[String]] =
+    Some(Seq.empty)
 
   def run(
       program: () => ZIO[ZIOAppArgs, Any, Any]

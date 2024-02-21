@@ -13,7 +13,8 @@ def sleepThenPrint(
     d: Duration
 ): ZIO[Any, java.io.IOException, Duration] =
   defer {
-    val elapsed = ZIO.sleep(d).timed.run
+    val elapsed =
+      ZIO.sleep(d).timed.run
     Console
       .println(s"${elapsed.render} elapsed")
       .run
@@ -28,8 +29,10 @@ runDemo(
   ZIO.foreachPar(List(2.seconds, 1.seconds)):
     sleepThenPrint
   defer {
-    val f1 = sleepThenPrint(2.seconds).fork.run
-    val f2 = sleepThenPrint(1.seconds).fork.run
+    val f1 =
+      sleepThenPrint(2.seconds).fork.run
+    val f2 =
+      sleepThenPrint(1.seconds).fork.run
     f1.join.run
     f2.join.run
   }

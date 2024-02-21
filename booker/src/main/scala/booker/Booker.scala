@@ -71,7 +71,8 @@ object BookerTools:
   private def chapterFiles(
       dir: File
   ): Seq[(Int, File)] =
-    val files = filesInDir(dir)
+    val files =
+      filesInDir(dir)
     files.flatMap(parseChapter)
 
   def rename(
@@ -96,7 +97,8 @@ object BookerTools:
         .replace(' ', '_')
         .replaceAll("[^0-9a-zA-Z_]", "") + ".md"
 
-    val source = Source.fromFile(original)
+    val source =
+      Source.fromFile(original)
 
     val fromMarkdown =
       source
@@ -153,8 +155,10 @@ end BookerTools
 
 case class CliStateSimp(
     files: Seq[File],
-    cursorIdx: Int = 0,
-    newFileName: String = ""
+    cursorIdx: Int =
+      0,
+    newFileName: String =
+      ""
 ):
   val fileNameRep: String =
     val name =
@@ -323,7 +327,8 @@ end AddNewChapterApp
 object Booker extends ZIOAppDefault:
   private val program =
     defer {
-      val f: File = new File("Chapters")
+      val f: File =
+        new File("Chapters")
       val flatFiles =
         BookerTools.orderedChapters(f).run
       AddNewChapterApp // ReorderExistingApp

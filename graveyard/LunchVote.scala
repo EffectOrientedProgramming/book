@@ -58,7 +58,8 @@ object LunchVote:
   ): ZIO[Any, NotConclusive.type, Vote] =
     defer {
       ZIO.sleep(person.delay).run
-      val answer = person.response
+      val answer =
+        person.response
       val currentTally =
         results
           .computeIfPresent(

@@ -12,7 +12,8 @@ object CivilEngineering extends ZIOAppDefault:
         state: State
     ): ZIO[World, Nothing, AvailableCompanies[
       T
-    ]] = ???
+    ]] =
+      ???
 
   trait ProjectSpecifications[T]
   trait LegalRestriction
@@ -20,9 +21,11 @@ object CivilEngineering extends ZIOAppDefault:
   trait UnfulfilledPromise
   trait ProjectBid[T]
 
-  val run = ???
+  val run =
+    ???
 
-  val installPowerLine = ???
+  val installPowerLine =
+    ???
 
   case class AvailableCompanies[T](
       companies: Set[Company[T]]
@@ -31,7 +34,8 @@ object CivilEngineering extends ZIOAppDefault:
         projectSpecifications: ProjectSpecifications[
           T
         ]
-    ): ProjectBid[T] = ???
+    ): ProjectBid[T] =
+      ???
 
   trait World
   object World:
@@ -52,7 +56,8 @@ object CivilEngineering extends ZIOAppDefault:
     UnfulfilledPromise | OutOfMoney |
       PrivatePropertyRefusal,
     T
-  ] = ???
+  ] =
+    ???
 
   def stateBid[T](
       state: State,
@@ -101,7 +106,8 @@ def buildABridge() =
     Any,
     LegalRestriction,
     ProjectSpecifications
-  ] = ???
+  ] =
+    ???
 
   case class AvailableCompanies[T](
       companies: Set[Company[T]]

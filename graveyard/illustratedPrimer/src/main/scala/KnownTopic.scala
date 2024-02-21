@@ -6,7 +6,8 @@ object KnownTopic:
   def recognize(
       content: String
   ): List[ParagraphPiece] =
-    val words = content.split(" ")
+    val words =
+      content.split(" ")
     words
       .map { word =>
         if topics.contains(word.toLowerCase) then

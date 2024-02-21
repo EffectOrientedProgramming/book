@@ -45,7 +45,8 @@ object ScheduledValuesSpec
                 (2.seconds, "Second Section")
               ).run
             TestClock.adjust(1.seconds).run
-            val secondValue = valueAccessor.run
+            val secondValue =
+              valueAccessor.run
             assertTrue(
               secondValue == "Second Section"
             )

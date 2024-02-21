@@ -1,8 +1,10 @@
 package environment
 
-opaque type UserId = String
+opaque type UserId =
+  String
 object UserId:
-  def apply(str: String): UserId = str
+  def apply(str: String): UserId =
+    str
 
 case class DbConnection(
     actionLog: Ref[Seq[String]]

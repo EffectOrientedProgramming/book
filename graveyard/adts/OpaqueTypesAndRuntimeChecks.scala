@@ -4,33 +4,42 @@ object Info:
 
   import java.net.URL
 
-  opaque type Name = String
+  opaque type Name =
+    String
 
   object Name:
-    def apply(s: String): Name = s
+    def apply(s: String): Name =
+      s
 
   extension (n: Name)
-    def fancyRep() = n.toUpperCase
+    def fancyRep() =
+      n.toUpperCase
 
-  opaque type Repo = URL
+  opaque type Repo =
+    URL
 
   object Repo:
-    def apply(s: String): Repo = new URL(s)
+    def apply(s: String): Repo =
+      new URL(s)
 
   // We can't pattern match on ADTs that are
   // implemented with opaque types
-  type NameOrRepo = Name | Repo
+  type NameOrRepo =
+    Name | Repo
 
-  type NameAndRepo = Name & Repo
+  type NameAndRepo =
+    Name & Repo
 
-  type NameRepo = NameOrRepo | NameAndRepo
+  type NameRepo =
+    NameOrRepo | NameAndRepo
 end Info
 
 @main
 def run =
   Info.Name("name").fancyRep()
 
-  val name: Info.NameOrRepo = Info.Name("asdf")
+  val name: Info.NameOrRepo =
+    Info.Name("asdf")
 
   // This doesn't work, because we don't know the
   // types at runtime
@@ -38,13 +47,15 @@ def run =
    * println("I'm a name!") case repo: Info.Repo
    * => println("I'm a repo!") */
 
-  def printName(n: Info.Name) = println(n)
+  def printName(n: Info.Name) =
+    println(n)
 
 //  printName(name)
   // printName("zxcv") // does not compile
   // because a String is not a Name
 
-  val repo = Info.Repo("https://github.com")
+  val repo =
+    Info.Repo("https://github.com")
 end run
 
 /* // This doesn't work, because we don't know

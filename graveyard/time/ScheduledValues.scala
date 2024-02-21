@@ -31,7 +31,8 @@ def scheduledValues[A](
   ]
 ] =
   defer {
-    val startTime = Clock.instant.run
+    val startTime =
+      Clock.instant.run
     val timeTable =
       createTimeTableX(
         startTime,
@@ -80,7 +81,8 @@ private[time] def accessX[A](
     timeTable: Seq[ExpiringValue[A]]
 ): ZIO[Any, TimeoutException, A] =
   defer {
-    val now = Clock.instant.run
+    val now =
+      Clock.instant.run
     ZIO
       .getOrFailWith(
         new TimeoutException("TOO LATE")

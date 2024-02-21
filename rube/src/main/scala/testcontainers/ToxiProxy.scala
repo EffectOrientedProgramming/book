@@ -15,7 +15,8 @@ import scala.jdk.CollectionConverters.*
 import zio.ZLayer
 
 object ToxyProxyContainerZ:
-  val TOXIPROXY_NETWORK_ALIAS = "toxiproxy"
+  val TOXIPROXY_NETWORK_ALIAS =
+    "toxiproxy"
   def apply(
       network: Network
   ): ToxiproxyContainer =

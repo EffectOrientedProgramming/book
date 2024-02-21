@@ -4,23 +4,28 @@ object MalcomInTheMiddle extends ZIOAppDefault:
   @annotation.nowarn
   def run =
 
-    def turnOnLights() = throw new BurntBulb()
+    def turnOnLights() =
+      throw new BurntBulb()
     class BurntBulb() extends Exception
 
-    def getNewBulb() = throw new WobblyShelf()
+    def getNewBulb() =
+      throw new WobblyShelf()
     class WobblyShelf() extends Exception
 
     def grabScrewDriver() =
       throw new SqueakyDrawer()
     class SqueakyDrawer() extends Exception
 
-    def sprayWD40() = throw new EmptyCan()
+    def sprayWD40() =
+      throw new EmptyCan()
     class EmptyCan() extends Exception
 
-    def driveToStore() = throw new DeadCar()
+    def driveToStore() =
+      throw new DeadCar()
     class DeadCar() extends Exception
 
-    def repairCar() = throw new Nagging()
+    def repairCar() =
+      throw new Nagging()
     class Nagging() extends Exception
 
     try

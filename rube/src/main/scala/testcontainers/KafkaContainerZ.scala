@@ -36,7 +36,8 @@ object KafkaContainerZ:
     Network & NetworkAwareness,
     Throwable,
     KafkaContainer
-  ] = ???
+  ] =
+    ???
 /* TODO Restore once the rest of the M6 upgrade
  * is complete for network <-
  * ZLayer.service[Network] localHostName:
@@ -72,8 +73,10 @@ object KafkaInitialization:
           );
           properties
             .put("client.id", localHostname)
-          val partitions               = 1
-          val replicationFactor: Short = 1
+          val partitions =
+            1
+          val replicationFactor: Short =
+            1
           val newTopics =
             topicNames.map(topicName =>
               new NewTopic(
@@ -83,7 +86,8 @@ object KafkaInitialization:
               )
             )
 
-          val admin = Admin.create(properties)
+          val admin =
+            Admin.create(properties)
           import scala.jdk.CollectionConverters._
           admin.createTopics(newTopics.asJava)
         }
@@ -100,10 +104,13 @@ case class KafkaProducerZ(
       key: String,
       value: String
   ): Task[RecordMetadata] =
-    val partition = 0
-    val timestamp = Instant.now().toEpochMilli
+    val partition =
+      0
+    val timestamp =
+      Instant.now().toEpochMilli
     import org.apache.kafka.common.header.Header
-    val headers: List[Header] = List.empty
+    val headers: List[Header] =
+      List.empty
 
     messagesProduced.update(_ + 1) *>
       ZIO.fromFutureJava(
@@ -125,14 +132,16 @@ case class KafkaProducerZ(
       value: String
   ): ZIO[Clock & Console, Throwable, Unit] =
     for
-      curMessagesProduced <- messagesProduced.get
+      curMessagesProduced <-
+        messagesProduced.get
       _ <-
         printLine(
           "submitting record for: " + key
         )
       _ <-
         submit(key, value + curMessagesProduced)
-      _ <- messagesProduced.update(_ + 1)
+      _ <-
+        messagesProduced.update(_ + 1)
       _ <-
       ZIO.sleep(1.second) *>
         submitForever(key, value)
@@ -173,7 +182,8 @@ case class KafkaConsumerZ(
   def pollStream(): ZStream[Any, Throwable, List[
     ConsumerRecord[String, String]
   ]] =
-    val debug = false
+    val debug =
+      false
     ZStream
       .repeatZIO(poll())
       .tap(recordsConsumed =>
@@ -205,9 +215,11 @@ object UseKafka:
     for
       kafkaContainer <-
         ZIO.service[KafkaContainer]
-      messagesProduced <- Ref.make(1)
+      messagesProduced <-
+        Ref.make(1)
     yield
-      val config = new java.util.Properties()
+      val config =
+        new java.util.Properties()
       config.put(
         "client.id",
         InetAddress.getLocalHost().getHostName()
@@ -244,9 +256,11 @@ object UseKafka:
     for
       kafkaContainer <-
         ZIO.service[KafkaContainer]
-      messagesConsumed <- Ref.make(0)
+      messagesConsumed <-
+        Ref.make(0)
     yield
-      val config = new java.util.Properties()
+      val config =
+        new java.util.Properties()
       config.put(
         "client.id",
         InetAddress.getLocalHost().getHostName()
@@ -307,7 +321,8 @@ object UseKafka:
         .foreach(recordsConsumed =>
           ZIO.foreach(recordsConsumed)(record =>
             for
-              newValue <- op(record)
+              newValue <-
+                op(record)
               _ <-
                 printLine(
                   s"${consumer.topicName} --> ${record
@@ -349,7 +364,8 @@ object UseKafka:
                 ZIO.foreach(recordsConsumed)(
                   record =>
                     for
-                      newValue <- op(record)
+                      newValue <-
+                        op(record)
                       _ <-
                         printLine(
                           s"${consumer.topicName} --> ${record.value} => $newValue--> ${outputTopicName}"
@@ -386,7 +402,8 @@ object UseKafka:
             ZIO
               .foreach(recordsConsumed)(record =>
                 for
-                  newValue <- op(record)
+                  newValue <-
+                    op(record)
                   _ <-
                     printLine(
                       s"Terminal Consumption: ${consumer.topicName} --> ${record.value}"

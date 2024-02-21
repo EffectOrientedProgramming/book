@@ -19,5 +19,6 @@ given Interactive[Monster, Hero] with
 
   extension (a: Monster)
     def interactWith(b: Hero) =
-      val (hero, monster) = b.interactWith(a)
+      val (hero, monster) =
+        b.interactWith(a)
       (monster, hero)

@@ -77,5 +77,6 @@ object DecisionService:
     Any,
     Nothing,
     LiveDecisionService
-  ] = ZLayer.fromZIO(LiveDecisionService.make())
+  ] =
+    ZLayer.fromZIO(LiveDecisionService.make())
 end DecisionService

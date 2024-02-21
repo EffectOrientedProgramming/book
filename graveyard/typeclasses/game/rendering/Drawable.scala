@@ -8,17 +8,25 @@ trait Drawable[A]:
   def constructor(): A
 
 given Drawable[Hero] with
-  def symbol(): String    = "@"
-  def constructor(): Hero = Hero()
+  def symbol(): String =
+    "@"
+  def constructor(): Hero =
+    Hero()
 
 given Drawable[Monster] with
-  def symbol(): String       = "M"
-  def constructor(): Monster = Monster()
+  def symbol(): String =
+    "M"
+  def constructor(): Monster =
+    Monster()
 
 given Drawable[Tile] with
-  def symbol(): String    = "_"
-  def constructor(): Tile = Tile()
+  def symbol(): String =
+    "_"
+  def constructor(): Tile =
+    Tile()
 
 given Drawable[Wall] with
-  def symbol(): String    = "#"
-  def constructor(): Wall = Wall()
+  def symbol(): String =
+    "#"
+  def constructor(): Wall =
+    Wall()

@@ -1,7 +1,9 @@
 package random
 
-val low  = 1
-val high = 10
+val low =
+  1
+val high =
+  10
 
 val prompt =
   s"Pick a number between $low and $high: "
@@ -45,5 +47,6 @@ val effectfulGuessingGame =
       .run
     val answer =
       Random.nextIntBetween(low, high).run
-    val guess = Console.readLine.run
+    val guess =
+      Console.readLine.run
     checkAnswerZSplit(answer, guess).run

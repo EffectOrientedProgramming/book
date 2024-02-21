@@ -30,10 +30,12 @@ We are changing the world, by creating a space that we can manipulate.
 
 ```scala mdoc:silent
 val unreliableCounting =
-  var counter = 0
+  var counter =
+    0
   val increment =
     ZIO.succeed:
-      counter = counter + 1
+      counter =
+        counter + 1
 
   defer:
     ZIO
@@ -70,7 +72,8 @@ lazy val reliableCounting =
       _ + 1
 
   defer:
-    val counter = Ref.make(0).run
+    val counter =
+      Ref.make(0).run
     ZIO
       .foreachParDiscard(Range(0, 100000)): _ =>
         incrementCounter:
@@ -116,12 +119,14 @@ def update(counter: Ref[Int]) =
 
 runDemo:
   defer:
-    val counter = Ref.make(0).run
+    val counter =
+      Ref.make(0).run
     ZIO
       .foreachParDiscard(Range(0, 4)): _ =>
         update(counter)
       .run
-    val finalCount = counter.get.run
+    val finalCount =
+      counter.get.run
     s"Final count: $finalCount"
 ```
 What is going on?!
@@ -150,12 +155,14 @@ The only change required is replacing `Ref.make` with `Ref.Synchronized.make`
 ```scala mdoc:silent
 val sideEffectingUpdatesSync =
   defer:
-    val counter = Ref.Synchronized.make(0).run
+    val counter =
+      Ref.Synchronized.make(0).run
     ZIO
       .foreachParDiscard(Range(0, 4)): _ =>
         update(counter)
       .run
-    val finalCount = counter.get.run
+    val finalCount =
+      counter.get.run
     s"Final count: $finalCount"
 ```
 

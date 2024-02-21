@@ -93,7 +93,8 @@ object ProxiedRequestScenario
     Any,
     Throwable,
     Deps.AppDependencies
-  ] = ???
+  ] =
+    ???
 
 /* ZLayer.make[Deps.RubeDependencies](
  * ServiceDataSets.careerDataZ, // Clock.live,
@@ -128,7 +129,8 @@ def reportTopLevelError(
 object ContainerScenarios:
   val logic =
     for
-      people <- QuillLocal.quillQuery
+      people <-
+        QuillLocal.quillQuery
       allCitizenInfo <-
         ZIO.foreach(people)(x =>
           CareerHistoryService
@@ -150,7 +152,8 @@ object ContainerScenarios:
 
       housingHistories =
         UseKafka.createForwardedStreamZ(
-          topicName = "person_event",
+          topicName =
+            "person_event",
           op =
             record =>
               defer {
@@ -162,7 +165,8 @@ object ContainerScenarios:
                   s",Location:$location",
               } outputTopicName =
                 "housing_history",
-          groupId = "housing"
+          groupId =
+            "housing"
         )
 
       // TODO Move other Stream processes into
@@ -176,7 +180,8 @@ object ContainerScenarios:
       criminalHistoryStream <-
         UseKafka
           .createForwardedStreamZ(
-            topicName = "person_event",
+            topicName =
+              "person_event",
             op =
               record =>
                 for criminalHistory <-
@@ -185,8 +190,10 @@ object ContainerScenarios:
                         record.key
                       )
                 yield s"${record.value},$criminalHistory",
-            outputTopicName = "criminal_history",
-            groupId = "criminal"
+            outputTopicName =
+              "criminal_history",
+            groupId =
+              "criminal"
           )
           .timeout(10.seconds)
           .fork
@@ -225,7 +232,8 @@ object ContainerScenarios:
           .timeout(10.seconds)
           .fork
 
-      _ <- ZIO.sleep(1.second)
+      _ <-
+        ZIO.sleep(1.second)
 
       producer <-
         ZIO
@@ -239,12 +247,17 @@ object ContainerScenarios:
           .timeout(10.seconds)
           .fork
 
-      _ <- producer.join
-      _ <- criminalHistoryStream.join
+      _ <-
+        producer.join
+      _ <-
+        criminalHistoryStream.join
 // _ <- personEventToLocationStream.join
-      _ <- res.join
-      _ <- criminalPoller.join
-      _ <- consumingPoller2.join
+      _ <-
+        res.join
+      _ <-
+        criminalPoller.join
+      _ <-
+        consumingPoller2.join
       finalMessagesProduced <-
         ZIO.reduceAll(
           ZIO.succeed(1),
@@ -260,7 +273,8 @@ object ContainerScenarios:
     Network & BackgroundData,
     Throwable,
     BackgroundCheckService
-  ] = BackgroundCheckService.live
+  ] =
+    BackgroundCheckService.live
 
   val topicNames =
     List(
@@ -289,7 +303,8 @@ object ContainerScenarios:
 end ContainerScenarios
 
 object RunScenarios extends zio.ZIOAppDefault:
-  def run = ZIO.unit
+  def run =
+    ZIO.unit
 //    ContainerScenarios
 //      .logic
 //      .provideSomeLayer[ZIOAppArgs & zio.Scope](

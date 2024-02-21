@@ -48,7 +48,8 @@ case class Prisoner(
   ): ZIO[Any, Nothing, Action] =
     strategy.decide(actionsAgainst)
 
-  override def toString: String = s"$name"
+  override def toString: String =
+    s"$name"
 
 val silentAtFirstAndEventuallyBetray =
   new Strategy:

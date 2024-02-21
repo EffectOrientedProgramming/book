@@ -44,7 +44,8 @@ object Evolution extends ZIOAppDefault:
             Coordinate(
               1,
               Percentage(10),
-              occupant = None
+              occupant =
+                None
             )
           )
         )
@@ -52,9 +53,12 @@ object Evolution extends ZIOAppDefault:
 
   def run =
     for
-      _ <- ZIO.log("Should do evolution stuff")
-      spots = Spots(4, 4)
-      _ <- ZIO.debug(spots)
+      _ <-
+        ZIO.log("Should do evolution stuff")
+      spots =
+        Spots(4, 4)
+      _ <-
+        ZIO.debug(spots)
     yield ()
 end Evolution
 

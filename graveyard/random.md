@@ -23,7 +23,8 @@ These are initialized with a seed value that determines all the following output
 class MutableRNG(var seed: Int):
 
   def nextInt(): Int =
-    seed = mangleNumber(seed)
+    seed =
+      mangleNumber(seed)
     seed
 
   private def mangleNumber(input: Int): Int =
@@ -32,7 +33,8 @@ class MutableRNG(var seed: Int):
 ```
 
 ```scala mdoc
-val rng = MutableRNG(1)
+val rng =
+  MutableRNG(1)
 rng.nextInt()
 rng.nextInt()
 rng.nextInt()
@@ -41,7 +43,8 @@ This is good enough for many situations, but is not random enough for security a
 Let's see what happens if we make a new instance with the same seed.
 
 ```scala mdoc
-val rngDuplicate = MutableRNG(1)
+val rngDuplicate =
+  MutableRNG(1)
 rngDuplicate.nextInt()
 rngDuplicate.nextInt()
 rngDuplicate.nextInt()

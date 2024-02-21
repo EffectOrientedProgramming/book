@@ -8,13 +8,18 @@ import zio.prelude.{Assertion, Newtype}
  * can't get compile-time guarantees for custom
  * classes */
 
-type NewSpecialClass = NewSpecialClass.Type
+type NewSpecialClass =
+  NewSpecialClass.Type
 object NewSpecialClass
     extends Newtype[OurPrimitiveClass]:
   override inline def assertion
       : Assertion[OurPrimitiveClass] =
     greaterThan(
-      OurPrimitiveClass("ignored_id", age = 0)
+      OurPrimitiveClass(
+        "ignored_id",
+        age =
+          0
+      )
     )
 
 object SecurePassword extends Newtype[String]:
@@ -32,12 +37,14 @@ object SecurePassword extends Newtype[String]:
       : Assertion[String] =
     contains("$") || contains("!")
 
-type SecurePassword = SecurePassword.Type
+type SecurePassword =
+  SecurePassword.Type
 
 object NewTypeDemos extends ZIOAppDefault:
 
   def run =
-    val badValue = "Special String #$"
+    val badValue =
+      "Special String #$"
     for
       primitiveClassResult <-
         ZIO.fromEither(

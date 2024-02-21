@@ -41,7 +41,8 @@ object MicroControllerExample
     defer {
       val inSeconds =
         currentTime(TimeUnit.SECONDS).run
-      val originalArduino = arduino.get.run
+      val originalArduino =
+        arduino.get.run
       val originalLightStatus =
         originalArduino.passSignalToLight().run
       val signalOnPin =
@@ -50,7 +51,8 @@ object MicroControllerExample
           startTime
         )
       arduino.set(Arduino(signalOnPin)).run
-      val updatedArduino = arduino.get.run
+      val updatedArduino =
+        arduino.get.run
       val updatedLightStatus =
         updatedArduino.passSignalToLight().run
       if (
@@ -65,7 +67,11 @@ object MicroControllerExample
     defer {
       val arduino =
         Ref
-          .make(Arduino(pin1 = DigitalPin.OFF))
+          .make(
+            Arduino(pin1 =
+              DigitalPin.OFF
+            )
+          )
           .run
       val inSeconds =
         currentTime(TimeUnit.SECONDS).run

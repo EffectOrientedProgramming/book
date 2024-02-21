@@ -28,7 +28,8 @@ object AsyncOrSyncDontMatter
 
   def timesFour(i: Int) =
     defer:
-      val j = timesTwoAsync(i).run
+      val j =
+        timesTwoAsync(i).run
       timesTwoSync(j).run
 
   override def run =
@@ -44,7 +45,8 @@ object AsyncOrSyncDontMatter
   def shouldThrottleUserBlocking(userId: Int) =
     val privateMessageCount =
       getPrivateMessages(userId)
-    val future = getPostsByUserFuture(userId)
+    val future =
+      getPostsByUserFuture(userId)
     val postCount =
       Await.result(
         future,
@@ -63,7 +65,8 @@ object AsyncOrSyncDontMatter
         getPostsByUserZio(userId).run
       privateMessageCount + postCount > 10
 
-  def getPrivateMessages(userId: Int) = userId
+  def getPrivateMessages(userId: Int) =
+    userId
 
   def getPostsByUserFuture(
       userId: Int

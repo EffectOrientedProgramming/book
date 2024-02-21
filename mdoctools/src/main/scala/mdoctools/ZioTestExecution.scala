@@ -10,10 +10,12 @@ object ZioTestExecution:
         TestEnvironment with Scope,
         Any
       ],
-      console: Console = Console.ConsoleLive,
+      console: Console =
+        Console.ConsoleLive,
       aspects: Chunk[
         TestAspect[Nothing, Any, Nothing, Any]
-      ] = Chunk.empty,
+      ] =
+        Chunk.empty,
       testEventHandler: ZTestEventHandler =
         ZTestEventHandler.silent
   )(implicit
@@ -36,7 +38,8 @@ object ZioTestExecution:
           Console.ConsoleLive,
           ConsoleEventRenderer
         )
-      environment <- ZIO.environment[Any]
+      environment <-
+        ZIO.environment[Any]
       runner =
         TestRunner(
           TestExecutor.default[Any, Any](

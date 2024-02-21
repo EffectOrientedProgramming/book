@@ -2,7 +2,8 @@ package testcontainers.proxy
 
 val inconsistentFailuresZ =
   for
-    randomInt <- Random.nextInt
+    randomInt <-
+      Random.nextInt
     _ <-
       ZIO.attempt {
         if (randomInt % 15 == 0)
@@ -16,9 +17,13 @@ val inconsistentFailuresZ =
 
 val jitter =
   for
-    rand <- Random.nextIntBetween(1, 5)
-    _ <- ZIO.debug(s"Sleeping for $rand seconds")
-    _ <- ZIO.sleep(rand.seconds)
+    rand <-
+      Random.nextIntBetween(1, 5)
+    _ <-
+      ZIO.debug(s"Sleeping for $rand seconds")
+    _ <-
+      ZIO.sleep(rand.seconds)
   yield ()
 
-val allProxies = jitter *> inconsistentFailuresZ
+val allProxies =
+  jitter *> inconsistentFailuresZ

@@ -72,7 +72,8 @@ TODO: Can we avoid the `.provide()` and still get a good compile error in mdoc
 ```scala mdoc:fail
 runDemo:
   defer:
-    val dough = ZIO.service[Dough].run
+    val dough =
+      ZIO.service[Dough].run
     dough.letRise.run
   .provide()
 ```
@@ -84,7 +85,8 @@ Then the effect can be run.
 ```scala mdoc
 runDemo:
   defer:
-    val dough = ZIO.service[Dough].run
+    val dough =
+      ZIO.service[Dough].run
     dough.letRise.run
   .provide:
     Dough.fresh
@@ -173,7 +175,8 @@ Dependencies on effects propagate to effects which use effects.
 // TODO Figure out why Bread.eat debug isn't showing up
 runDemo:
   defer:
-    val bread = ZIO.service[Bread].run
+    val bread =
+      ZIO.service[Bread].run
     bread.eat.run
   .provide(
     // Highlight that homemade needs the other
@@ -264,7 +267,8 @@ import zio.Runtime.default.unsafe
 object Bread2:
   val invocations =
     Unsafe.unsafe((u: Unsafe) =>
-      given Unsafe = u
+      given Unsafe =
+        u
       unsafe
         .run(Ref.make(0))
         .getOrThrowFiberFailure()
@@ -272,7 +276,8 @@ object Bread2:
 
   def reset() =
     Unsafe.unsafe((u: Unsafe) =>
-      given Unsafe = u
+      given Unsafe =
+        u
       unsafe
         .run(invocations.set(0))
         .getOrThrowFiberFailure()
@@ -317,7 +322,8 @@ Bread2.fromFriend: ZLayer[Any, String, Bread]
 ```scala mdoc
 runDemo:
   defer:
-    val bread = ZIO.service[Bread].run
+    val bread =
+      ZIO.service[Bread].run
     bread.eat.run
   .provide:
     Bread2.fromFriend
@@ -332,7 +338,8 @@ Bread2.reset()
 ```scala mdoc
 runDemo:
   defer:
-    val bread = ZIO.service[Bread].run
+    val bread =
+      ZIO.service[Bread].run
     bread.eat.run
   .provide:
     Bread2
@@ -506,7 +513,8 @@ runSpec:
       .adjust:
         2.seconds
       .run
-    val result = fork.join.run
+    val result =
+      fork.join.run
     assertTrue:
       result.isEmpty
 ```

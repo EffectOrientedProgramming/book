@@ -5,12 +5,15 @@ import zio.Console.printLine
 import java.util.concurrent.TimeUnit
 import scala.io.AnsiColor.*
 
-val saveCursorPosition = Console.print("\u001b7")
-val loadCursorPosition = Console.print("\u001b8")
+val saveCursorPosition =
+  Console.print("\u001b7")
+val loadCursorPosition =
+  Console.print("\u001b8")
 
 def progressBar(
     length: RuntimeFlags,
-    label: String = ""
+    label: String =
+      ""
 ): IO[Any, Unit] =
   val barColor =
     if (length > 3)
@@ -40,7 +43,8 @@ object ClockAndConsole extends ZIOAppDefault:
       // NOTE: You can only reset the cursor //
       // position once in a single SBT session
       saveCursorPosition.run
-      val timeRemaining = 10 - timeElapsed
+      val timeRemaining =
+        10 - timeElapsed
       Console
         .print(
           s"${BOLD}$timeRemaining seconds remaining ${RESET}"
@@ -51,7 +55,8 @@ object ClockAndConsole extends ZIOAppDefault:
       loadCursorPosition.run
     }
 
-  def run = renderCurrentTime
+  def run =
+    renderCurrentTime
 end ClockAndConsole
 
 object ClockAndConsoleImproved
@@ -94,8 +99,10 @@ object ClockAndConsoleImproved
   ) =
     renderLoop(
       defer {
-        val racer1status = racer1.status.get.run
-        val racer2status = racer2.status.get.run
+        val racer1status =
+          racer1.status.get.run
+        val racer2status =
+          racer2.status.get.run
         progressBar(racer1status, racer1.name)
           .run
         printLine("").run
@@ -142,7 +149,8 @@ object ClockAndConsoleImproved
         secondsToRun: Int
     ): ZIO[Any, Nothing, LongRunningProcess] =
       defer {
-        val status = Ref.make[Int](4).run
+        val status =
+          Ref.make[Int](4).run
         new LongRunningProcess(
           name,
           startTime,
@@ -170,5 +178,6 @@ object ClockAndConsoleImproved
         .repeatUntil(_ == 0)
         .map(_ => name)
 
-  def run = renderCurrentTime
+  def run =
+    renderCurrentTime
 end ClockAndConsoleImproved

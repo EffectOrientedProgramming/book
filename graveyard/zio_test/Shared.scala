@@ -16,7 +16,8 @@ object Shared:
   case class Scoreboard(value: Ref[Int]):
     def display(): ZIO[Any, Nothing, String] =
       defer {
-        val current = value.get.run
+        val current =
+          value.get.run
         s"**$current**"
       }
 
@@ -27,7 +28,8 @@ object Shared:
   ] =
     ZLayer.fromZIO {
       defer {
-        val value = ZIO.service[Ref[Int]].run
+        val value =
+          ZIO.service[Ref[Int]].run
         ZIO
           .acquireRelease(
             ZIO.succeed(Scoreboard(value)) <*

@@ -5,7 +5,8 @@ import zio.Runtime.default.unsafe
 // Consider crashing if output is unexpectedly long
 def runDemo[E, A](z: => ZIO[Any, E, A]): Unit =
   Unsafe.unsafe { (u: Unsafe) =>
-    given Unsafe = u
+    given Unsafe =
+      u
     val res =
       unsafe
         .run(
@@ -30,7 +31,8 @@ def runSpec[E <: Throwable](
     Nothing,
     Clock with Console with System with Random
   ] =
-    implicit val trace = Trace.empty
+    implicit val trace =
+      Trace.empty
     ZLayer.succeedEnvironment(
       ZEnvironment[
         Clock,

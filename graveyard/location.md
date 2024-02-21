@@ -26,7 +26,8 @@ object Location:
       Any,
       HardwareFailure,
       GpsCoordinates
-    ] = ???
+    ] =
+      ???
     def timezone: ZIO[Any, Nothing, TimeZone] =
       ???
 ```
@@ -67,7 +68,8 @@ case class CountryService(location: Location):
   def currentCountry
       : ZIO[Any, HardwareFailure, Country] =
     defer:
-      val gpsCords = location.gpsCoords.run
+      val gpsCords =
+        location.gpsCoords.run
       if (gpsCords.latitude > 0)
         Country("Canada")
       else

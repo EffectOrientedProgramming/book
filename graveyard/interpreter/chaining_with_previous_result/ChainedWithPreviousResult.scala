@@ -54,7 +54,8 @@ def interpret(program: Seq[Operation]): String =
 
 @annotation.nowarn
 @main
-def demoInterpreter() = interpret(program)
+def demoInterpreter() =
+  interpret(program)
 
 trait Printer:
   def print(input: String): Unit

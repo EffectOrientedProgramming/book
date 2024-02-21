@@ -88,7 +88,8 @@ For example, when you have a finalizer that needs to free up resources, you need
 Tight loops that aren't performing ZIO operations cannot be interrupted by the ZIO runtime. 
 
 ```scala mdoc
-def longOperation() = "**TODO**"
+def longOperation() =
+  "**TODO**"
 runDemo:
   defer:
     ZIO

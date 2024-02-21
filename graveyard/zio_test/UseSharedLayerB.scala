@@ -4,7 +4,8 @@ import zio.test.{ZIOSpec, assertCompletes}
 import zio.{Ref, ZIO}
 
 object UseSharedLayerB extends ZIOSpec[Ref[Int]]:
-  def bootstrap = Shared.layer
+  def bootstrap =
+    Shared.layer
 
   def spec =
     test("Test B") {

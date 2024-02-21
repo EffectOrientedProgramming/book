@@ -6,8 +6,10 @@ We must handle these situations.
 
 ```scala mdoc
 import java.net.URL
-val url1 = new URL("https://www.google.com")
-val url2 = new URL("https://www.google.com")
+val url1 =
+  new URL("https://www.google.com")
+val url2 =
+  new URL("https://www.google.com")
 assert(url1.equals(url2))
 ```
 

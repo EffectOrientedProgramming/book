@@ -10,7 +10,8 @@ enum DynamicInfo:
   case VettedInfo(content: String)
   case Code(content: String)
   case ExpensiveChatInfo(content: String)
-val eventBus = new EventBus[DynamicInfo]
+val eventBus =
+  new EventBus[DynamicInfo]
 
 case class Backend():
   def getVettedInfo(
@@ -115,7 +116,8 @@ object IllustratedPrimer:
 end IllustratedPrimer
 
 object Hello extends App:
-  val backend = Backend()
+  val backend =
+    Backend()
   val containerNode =
     dom.document.querySelector("#laminar-app")
   render(

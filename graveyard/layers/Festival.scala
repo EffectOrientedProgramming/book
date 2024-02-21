@@ -3,21 +3,28 @@ package layers
 import zio.ZIO.debug
 
 case class Toilets()
-val toilets = activityLayer(entity = Toilets())
+val toilets =
+  activityLayer(entity =
+    Toilets()
+  )
 
 case class Stage()
 val stage: ZLayer[Any, Nothing, Stage] =
   activityLayer(
-    entity = Stage(),
-    setupSteps = ("Transporting", 2.seconds),
+    entity =
+      Stage(),
+    setupSteps =
+      ("Transporting", 2.seconds),
     ("Building", 4.seconds)
   )
 
 case class Permit()
 val permit: ZLayer[Any, Nothing, Permit] =
   activityLayer(
-    entity = Permit(),
-    setupSteps = ("Legal Request", 5.seconds)
+    entity =
+      Permit(),
+    setupSteps =
+      ("Legal Request", 5.seconds)
   )
 
 def activityLayer[T: Tag](
@@ -59,7 +66,8 @@ def activity(
       .run
 
 case class Venue(stage: Stage, permit: Permit)
-val venue = ZLayer.fromFunction(Venue.apply)
+val venue =
+  ZLayer.fromFunction(Venue.apply)
 
 case class SoundSystem()
 val soundSystem

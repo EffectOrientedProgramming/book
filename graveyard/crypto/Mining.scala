@@ -27,7 +27,8 @@ object Mining extends ZIOAppDefault:
         findNextBlock:
           miners
         .run
-      val (winner, winningPrime) = raceResult
+      val (winner, winningPrime) =
+        raceResult
       chain
         .update: chainCurrent =>
           chainCurrent.copy(blocks =
@@ -39,7 +40,8 @@ object Mining extends ZIOAppDefault:
       .run
 
   case class BlockChain(
-      blocks: List[Int] = List.empty
+      blocks: List[Int] =
+        List.empty
   )
 
   class Miner(val name: String):
@@ -47,7 +49,8 @@ object Mining extends ZIOAppDefault:
         num: Int
     ): ZIO[Any, Nothing, (String, Int)] =
       defer {
-        val duration = nextIntBetween(1, 4).run
+        val duration =
+          nextIntBetween(1, 4).run
         ZIO.sleep(duration.second).run
         (name, nextPrimeAfter(num))
       }

@@ -12,6 +12,7 @@ object TimedTapTapJames extends ZIOAppDefault:
 
   def run =
     defer:
-      val lr = longRunning.fork.run
+      val lr =
+        longRunning.fork.run
       runningNotifier.fork.run
       lr.join.run

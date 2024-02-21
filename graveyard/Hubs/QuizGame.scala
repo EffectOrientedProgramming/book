@@ -129,7 +129,8 @@ object QuizGame:
       correctRespondents: Ref[List[Player]]
   ) =
     defer:
-      val answer = answers.take.run
+      val answer =
+        answers.take.run
       val output =
         if (answer.text == correctAnswer)
           correctRespondents

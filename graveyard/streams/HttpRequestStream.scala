@@ -17,8 +17,10 @@ object HttpRequestStream:
 
   private val randomRequest =
     defer {
-      val code = Code.random.run
-      val path = Path.random.run
+      val code =
+        Code.random.run
+      val path =
+        Path.random.run
       Request(code, path)
     }
 

@@ -2,11 +2,14 @@ import concurrency.FileService.ActiveUpdate
 import zio.Console.printLine
 
 class Counter(count: Ref[Int]):
-  val now       = count.get
-  val increment = count.update(_ + 1)
+  val now =
+    count.get
+  val increment =
+    count.update(_ + 1)
 
 object Counter:
-  val make = Ref.make(0).map(Counter(_))
+  val make =
+    Ref.make(0).map(Counter(_))
 
 class FileCache(
     map: Ref[Map[Path, FileContents]]
@@ -92,7 +95,8 @@ object FileService:
       defer:
         val activeUpdatesNow =
           activeUpdates(activeRefresh, name).run
-        val activeUpdate = activeUpdatesNow(name)
+        val activeUpdate =
+          activeUpdatesNow(name)
         activeUpdate.observers match
           case 0 =>
             firstHerdMemberBehavior(
@@ -109,9 +113,11 @@ object FileService:
               activeUpdate
             ).run
 
-    val hits: ZIO[Any, Nothing, Int] = hit.now
+    val hits: ZIO[Any, Nothing, Int] =
+      hit.now
 
-    val misses: ZIO[Any, Nothing, Int] = miss.now
+    val misses: ZIO[Any, Nothing, Int] =
+      miss.now
 
   end Live
 end FileService

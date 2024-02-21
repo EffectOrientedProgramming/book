@@ -28,7 +28,8 @@ object TestContainersSpec
               )
             )
           }
-        val layer = ContainerScenarios.layer
+        val layer =
+          ContainerScenarios.layer
 
         logicWithAssertions
           .provideSomeLayer[ZTestEnv & ZEnv](
@@ -37,7 +38,8 @@ object TestContainersSpec
       },
       test("stream approach") {
         defer {
-          val res = ZIO.succeed(1).run
+          val res =
+            ZIO.succeed(1).run
           assert(res)(equalTo(1))
         }
       }

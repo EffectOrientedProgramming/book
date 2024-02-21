@@ -34,12 +34,14 @@ object MockServerContainerZBasic:
         Any,
         Throwable | String,
         Unit
-      ] = ZIO.unit
+      ] =
+        ZIO.unit
   ): ZLayer[
     Network,
     Throwable,
     MockServerContainerZBasic
-  ] = ???
+  ] =
+    ???
 
   /* TODO Restore after m6 is otherwise complete
    * for network <- ZLayer.service[Network]
@@ -58,7 +60,8 @@ object MockServerContainerZBasic:
 
   private def apply(
       network: Network,
-      version: String = "latest"
+      version: String =
+        "latest"
   ): MockServerContainer =
     new MockServerContainer(
       DockerImageName
@@ -117,7 +120,8 @@ class MockServerContainerZBasic(
       path: String
   ): ZIO[Any, Throwable | String, String] =
     for
-      _ <- proxyZ
+      _ <-
+        proxyZ
       response <-
         try
           ZIO
@@ -159,7 +163,8 @@ class MockServerContainerZBasic(
           case defect =>
             ZIO.debug("Defect: " + defect) *>
               ZIO.fail(defect)
-      _ <- ZIO.debug(response.code)
+      _ <-
+        ZIO.debug(response.code)
       responseBodyZ <-
         ZIO.fromEither(response.body)
     yield responseBodyZ

@@ -19,8 +19,10 @@ def interpret(operation: Operation): Unit =
 
 @main
 def m1 =
-  val p1 = Print("hello")
-  val r1 = Random(println)
+  val p1 =
+    Print("hello")
+  val r1 =
+    Random(println)
 
   interpret(p1)
   interpret(r1)

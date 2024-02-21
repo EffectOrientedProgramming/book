@@ -4,7 +4,8 @@ import zio.*
 
 object ThingsThatCompose extends ZIOAppDefault:
   override def run =
-    def saveThatNeverFails(i: Int): Unit = ()
+    def saveThatNeverFails(i: Int): Unit =
+      ()
 
     def saveThatFails(i: Int): Unit =
       if (i > 1)

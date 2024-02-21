@@ -12,10 +12,14 @@ case class TransactionDetails(
 
 object User:
   case class User(name: String)
-  val frop  = User("Frop")
-  val zeb   = User("Zeb")
-  val shtep = User("Shtep")
-  val cheep = User("Cheep")
+  val frop =
+    User("Frop")
+  val zeb =
+    User("Zeb")
+  val shtep =
+    User("Shtep")
+  val cheep =
+    User("Cheep")
 
 import time.User.*
 
@@ -26,18 +30,21 @@ case class UserUI(
 
 object TimeIgnorant:
   private var summaryCalledTime
-      : Option[Instant] = None
+      : Option[Instant] =
+    None
   def summaryFor(): UIO[Summary] =
     summaryCalledTime match
       case Some(value) =>
         ()
       case None =>
-        summaryCalledTime = Some(Instant.now())
+        summaryCalledTime =
+          Some(Instant.now())
 
     ZIO.succeed(Summary(1))
 
   def postsBy(): IO[String, Seq[Post]] =
-    val executionTimeStamp = Instant.now()
+    val executionTimeStamp =
+      Instant.now()
     defer {
       val timeStamp =
         ZIO
@@ -71,7 +78,8 @@ end TimeIgnorant
 object DemoSyncIssues extends ZIOAppDefault:
   def run =
     defer {
-      val summary = TimeIgnorant.summaryFor().run
+      val summary =
+        TimeIgnorant.summaryFor().run
       val transactions =
         TimeIgnorant.postsBy().run
       val uiContents =

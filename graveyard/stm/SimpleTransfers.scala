@@ -11,7 +11,8 @@ def transfer(
   // TODO Figure out if/when zio-direct will
   // handle STM
   for
-    senderBalance <- from.get
+    senderBalance <-
+      from.get
     _ <-
       if (amount > senderBalance)
         STM.fail(
@@ -25,8 +26,10 @@ def transfer(
 object StmDemo extends ZIOAppDefault:
   def run =
     defer {
-      val fromAccount = TRef.make(100).commit.run
-      val toAccount   = TRef.make(0).commit.run
+      val fromAccount =
+        TRef.make(100).commit.run
+      val toAccount =
+        TRef.make(0).commit.run
       transfer(fromAccount, toAccount, 20)
         .commit
         .run

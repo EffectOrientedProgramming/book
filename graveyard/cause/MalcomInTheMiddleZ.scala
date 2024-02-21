@@ -2,7 +2,8 @@ package cause
 
 object MalcomInTheMiddleZ extends ZIOAppDefault:
   def run =
-    def turnOnLights() = ZIO.fail(BurntBulb())
+    def turnOnLights() =
+      ZIO.fail(BurntBulb())
     class BurntBulb()
         extends Exception("Burnt Bulb!")
 

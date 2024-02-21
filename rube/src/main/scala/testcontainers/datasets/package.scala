@@ -22,7 +22,8 @@ object ServiceDataSets:
   extension (expectedData: ExpectedData)
     def foreach[U](
         f: RequestResponsePair => U
-    ): Unit = expectedData.foreach(f)
+    ): Unit =
+      expectedData.foreach(f)
 
     def find(
         p: RequestResponsePair => Boolean

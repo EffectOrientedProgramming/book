@@ -13,7 +13,8 @@ enum Info:
   // values
 
   extension (n: Info.Name)
-    def fancyRepS() = n.s.toUpperCase
+    def fancyRepS() =
+      n.s.toUpperCase
 
   def fancyRep() =
     this match
@@ -28,12 +29,16 @@ end Info
 @main
 def run =
   import Info.*
-  val name2: Info = Info.Name("asdf")
+  val name2: Info =
+    Info.Name("asdf")
   name2.fancyRep()
 
-  val name: Info.Name = Info.Name("asdf")
+  val name: Info.Name =
+    Info.Name("asdf")
 
-  name.copy(s = "foo")
+  name.copy(s =
+    "foo"
+  )
   val repo: Info.Repo =
     Info.Repo(URL("https://github.com"))
 

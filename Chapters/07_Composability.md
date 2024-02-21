@@ -64,7 +64,8 @@ Other framings/techniques and their pros/cons:
 Consider a function
 
 ```scala mdoc
-def saveInformation(info: String): Unit = ???
+def saveInformation(info: String): Unit =
+  ???
 ```
 
 If we look only at the types, this function is an `Any=>Unit`.
@@ -136,7 +137,8 @@ def textAlert(message: String) =
 ```scala mdoc
 runDemo:
   defer:
-    val topStory = findTopNewsStory.run
+    val topStory =
+      findTopNewsStory.run
     textAlert:
       topStory
     .run
@@ -190,7 +192,8 @@ The original asynchronous datatype in Scala has several undesirable characterist
 There is a function that returns a Future:
 
 ```scala mdoc:invisible
-var headLineAvailable = true
+var headLineAvailable =
+  true
 // TODO If we make this function accept the "mock" result and return that, then
 //  we can leverage that to hit all of the possible paths in AllTheThings.
 def getHeadLine(): Future[String] =
@@ -233,7 +236,8 @@ Now let's confirm the behavior when the headline is not available.
 
 ```scala mdoc
 // This controls some invisible machinery
-headLineAvailable = false
+headLineAvailable =
+  false
 
 runDemo:
   getHeadlineZ
@@ -241,7 +245,8 @@ runDemo:
 
 ```scala mdoc:invisible
 // TODO We showed this being toggled off - would it be appropriate to show it turning back on?
-headLineAvailable = true
+headLineAvailable =
+  true
 ```
 
 ### Option Interop
@@ -309,7 +314,8 @@ def closeableFile() =
     var contents: List[String] =
       List("Medical Breakthrough!")
     println("Opening file!")
-    override def close = println("Closing file!")
+    override def close =
+      println("Closing file!")
 
     override def contains(
         searchTerm: String
@@ -329,7 +335,8 @@ def closeableFile() =
         )
       else {
         println("Writing to file: " + entry)
-        contents = entry :: contents
+        contents =
+          entry :: contents
         Try(entry)
       }
 ```
@@ -369,7 +376,8 @@ closeableFile().contains("something"): Boolean
 ```scala mdoc
 runDemo:
   defer:
-    val file = closeableFileZ.run
+    val file =
+      closeableFileZ.run
     file.contains:
       "topicOfInterest"
 ```
@@ -393,7 +401,8 @@ def writeToFileZ(
 ```scala mdoc
 runDemo:
   defer:
-    val file = closeableFileZ.run
+    val file =
+      closeableFileZ.run
     writeToFileZ(file, "New data on topic").run
 ```
 
@@ -447,7 +456,8 @@ Now that we have all of these well-defined effects, we can wield them in any com
 ```scala mdoc:silent
 val researchWorkflow =
   defer:
-    val headline: String = getHeadlineZ.run
+    val headline: String =
+      getHeadlineZ.run
 
     val topic: String =
       topicOfInterestZ:

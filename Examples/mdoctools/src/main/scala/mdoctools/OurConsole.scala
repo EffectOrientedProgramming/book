@@ -6,11 +6,13 @@ import java.io.IOException
 object OurConsole extends Console:
   override def print(line: => Any)(implicit
       trace: Trace
-  ): IO[IOException, Unit] = ???
+  ): IO[IOException, Unit] =
+    ???
 
   override def printError(line: => Any)(implicit
       trace: Trace
-  ): IO[IOException, Unit] = ???
+  ): IO[IOException, Unit] =
+    ???
 
   override def printLine(line: => Any)(implicit
       trace: Trace
@@ -19,9 +21,11 @@ object OurConsole extends Console:
 
   override def printLineError(line: => Any)(
       implicit trace: Trace
-  ): IO[IOException, Unit] = ???
+  ): IO[IOException, Unit] =
+    ???
 
   override def readLine(implicit
       trace: Trace
-  ): IO[IOException, String] = ???
+  ): IO[IOException, String] =
+    ???
 end OurConsole

@@ -30,13 +30,18 @@ class Env(var environment: Environment):
 case class Sys(env: Env)
 
 val sys =
-  Sys(Env(environment = OriginalDeveloper))
+  Sys(
+    Env(environment =
+      OriginalDeveloper
+    )
+  )
 ```
 
 Environment Variables are a common way of providing dynamic and/or sensitive data to your running application. A basic use-case looks like this:
 
 ```scala mdoc
-val apiKey = sys.env.get("API_KEY")
+val apiKey =
+  sys.env.get("API_KEY")
 ```
 
 This seems rather innocuous; however, it can be an annoying source of problems as your project is built and deployed across different environments. Given this API:
@@ -81,8 +86,10 @@ def fancyLodgingUnsafe(
     hotelApi: HotelApi
 ): Either[Error, Hotel] =
   for
-    apiKey <- envRequiredUnsafe("API_KEY")
-    hotel  <- hotelApi.cheapest("90210", apiKey)
+    apiKey <-
+      envRequiredUnsafe("API_KEY")
+    hotel <-
+      hotelApi.cheapest("90210", apiKey)
   yield hotel
 ```
 
@@ -97,7 +104,8 @@ fancyLodgingUnsafe(HotelApi())
 **Collaborator's Machine:**
 
 ```scala mdoc:invisible
-sys.env.environment = NewDeveloper
+sys.env.environment =
+  NewDeveloper
 ```
 
 ```scala mdoc:width=47
@@ -107,7 +115,8 @@ fancyLodgingUnsafe(HotelApi())
 **Continuous Integration Server:**
 
 ```scala mdoc:invisible
-sys.env.environment = CIServer
+sys.env.environment =
+  CIServer
 ```
 
 ```scala mdoc:width=47
@@ -121,7 +130,8 @@ Finally, the CI server has not set _any_ value, and fails at runtime.
 ## Building a Better Way
 
 ```scala mdoc:invisible
-sys.env.environment = OriginalDeveloper
+sys.env.environment =
+  OriginalDeveloper
 ```
 
 ZIO has a full `System` implementation of, but we will consider just 1 function for the moment.
@@ -150,7 +160,8 @@ case class SystemStrict():
       variable: String
   ): ZIO[Any, Error, String] =
     defer {
-      val variableAttempt = envZ(variable).run
+      val variableAttempt =
+        envZ(variable).run
       ZIO
         .fromOption(variableAttempt)
         .mapError(_ =>
@@ -229,13 +240,15 @@ This is what it looks like in action:
 **Your Machine:**
 
 ```scala mdoc:invisible
-sys.env.environment = OriginalDeveloper
+sys.env.environment =
+  OriginalDeveloper
 ```
 
 ```scala mdoc:silent
 // TODO Do this for CI environment too
 // TODO "originalAuthor" Don't know why it's called that?
-val originalAuthor = HotelApiZ.live
+val originalAuthor =
+  HotelApiZ.live
 ```
 
 ```scala mdoc
@@ -254,14 +267,17 @@ runDemo(
 
 **Collaborator's Machine:**
 ```scala mdoc:invisible
-sys.env.environment = NewDeveloper
+sys.env.environment =
+  NewDeveloper
 ```
 
 ```scala mdoc:silent
 // TODO Do this for CI environment too
-val collaborater = HotelApiZ.live
+val collaborater =
+  HotelApiZ.live
 
-val colaboraterLayer = collaborater
+val colaboraterLayer =
+  collaborater
 ```
 
 ```scala mdoc
@@ -279,11 +295,13 @@ runDemo(
 **Continuous Integration Server:**
 
 ```scala mdoc:invisible
-sys.env.environment = CIServer
+sys.env.environment =
+  CIServer
 ```
 
 ```scala mdoc:silent
-val ci = HotelApiZ.live
+val ci =
+  HotelApiZ.live
 ```
 
 ```scala mdoc

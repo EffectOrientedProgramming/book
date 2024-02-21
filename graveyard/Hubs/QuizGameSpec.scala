@@ -5,10 +5,14 @@ import zio.test.*
 
 object QuizGameSpec extends ZIOSpecDefault:
 
-  val frop  = Player("Frop")
-  val zeb   = Player("Zeb")
-  val shtep = Player("Shtep")
-  val cheep = Player("Cheep")
+  val frop =
+    Player("Frop")
+  val zeb =
+    Player("Zeb")
+  val shtep =
+    Player("Shtep")
+  val cheep =
+    Player("Cheep")
 
   val players: List[Player] =
     List(frop, zeb, shtep, cheep)

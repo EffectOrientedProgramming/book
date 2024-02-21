@@ -2,7 +2,8 @@ package random
 
 import scala.util.Random
 
-def rollDice(): Int = Random.nextInt(6) + 1
+def rollDice(): Int =
+  Random.nextInt(6) + 1
 
 @main
 def randNumEx =
@@ -24,20 +25,24 @@ def scoreRound(input: Int): GameState =
       GameState.InProgress("Attempt: " + input)
 
 def fullRound(): GameState =
-  val roll = rollDice()
+  val roll =
+    rollDice()
   scoreRound(roll)
 
 @main
-def playASingleRound() = println(fullRound())
+def playASingleRound() =
+  println(fullRound())
 
 val rollDiceZ: ZIO[Any, Nothing, Int] =
   zio.Random.nextIntBetween(1, 7)
 
 import zio.{ZIO, ZIOAppDefault}
 object RollTheDice extends ZIOAppDefault:
-  val logic = rollDiceZ.debug
+  val logic =
+    rollDiceZ.debug
 
-  def run = logic
+  def run =
+    logic
 
 val fullRoundZ: ZIO[Any, Nothing, GameState] =
   rollDiceZ.map(scoreRound)
@@ -49,7 +54,8 @@ import zio.Ref
 
 val threeChances =
   defer {
-    val remainingChancesR = Ref.make(3).run
+    val remainingChancesR =
+      Ref.make(3).run
     val gameState =
       Ref
         .make[GameState](

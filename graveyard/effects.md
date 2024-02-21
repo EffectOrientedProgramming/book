@@ -38,7 +38,8 @@ Consider a function that affects its surroundings:
 ```scala mdoc
 trait X
 object X:
-  var x: Int = 0
+  var x: Int =
+    0
 
 def combine(a: Int, b: Int): Int =
   X.x += 1

@@ -20,7 +20,8 @@ object MatrixExample:
         i
       )
 
-    def map(f: => Int): matrix2D = this
+    def map(f: => Int): matrix2D =
+      this
   end matrix2D
 
   def printMat(mat: matrix2D): Unit =
@@ -35,7 +36,8 @@ object MatrixExample:
       sizeX: Int,
       sizeY: Int
   ): matrix2D =
-    val rows: List[Int] = List.range(0, sizeY)
+    val rows: List[Int] =
+      List.range(0, sizeY)
     // println(rows)
     val matr =
       rows.map(i =>
@@ -61,13 +63,16 @@ end MatrixExample
 
 @main
 def matrices =
-  val mEx    = MatrixExample
-  val matrix = mEx.makeMatrix2D(4, 4)
+  val mEx =
+    MatrixExample
+  val matrix =
+    mEx.makeMatrix2D(4, 4)
   println("Normal Matrix:")
   mEx.printMat(matrix)
   // matrix.printMat()
   println("\n \n Flipped Matrix:")
-  val flippedMat = mEx.flipMatrix(matrix)
+  val flippedMat =
+    mEx.flipMatrix(matrix)
   mEx.printMat(flippedMat)
 // flippedMat.printMat()
 

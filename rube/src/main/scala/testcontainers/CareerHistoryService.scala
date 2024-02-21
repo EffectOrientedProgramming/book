@@ -34,7 +34,8 @@ object CareerHistoryHardcoded:
     Nothing,
     CareerHistoryServiceT
   ] =
-    for careerData <- ZLayer.service[CareerData]
+    for careerData <-
+        ZLayer.service[CareerData]
     yield ZEnvironment(
       CareerHistoryHardcoded(
         careerData.get,
@@ -52,7 +53,8 @@ class CareerHistoryHardcoded private (
       person: String
   ): ZIO[Any, Throwable | String, String] =
     for
-      _ <- proxyZ
+      _ <-
+        proxyZ
       res <-
         ZIO
           .fromOption(
@@ -97,7 +99,8 @@ object CareerHistoryService:
         Any,
         Throwable | String,
         Unit
-      ] = ZIO.unit
+      ] =
+        ZIO.unit
   ): ZLayer[
     Network & Clock,
     Throwable,
@@ -121,7 +124,8 @@ object CareerHistoryService:
     CareerHistoryServiceT
   ] =
     for
-      data <- ZLayer.service[CareerData]
+      data <-
+        ZLayer.service[CareerData]
       webserver <-
         MockServerContainerZBasic.construct(
           "Career History",
@@ -156,7 +160,8 @@ object LocationService:
     for
       locationService <-
         ZIO.service[LocationService]
-      info <- locationService.locationOf(person)
+      info <-
+        locationService.locationOf(person)
     yield info
 
   val live: ZLayer[
@@ -165,7 +170,8 @@ object LocationService:
     LocationService
   ] =
     for
-      data <- ZLayer.service[LocationData]
+      data <-
+        ZLayer.service[LocationData]
       webserver <-
         MockServerContainerZBasic.construct(
           "Location Service",
@@ -205,7 +211,8 @@ object BackgroundCheckService:
     BackgroundCheckService
   ] =
     for
-      data <- ZLayer.service[BackgroundData]
+      data <-
+        ZLayer.service[BackgroundData]
       webserver <-
         MockServerContainerZBasic.construct(
           "BackgroundCheck Service",

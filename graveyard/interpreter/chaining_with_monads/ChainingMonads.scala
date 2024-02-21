@@ -11,7 +11,8 @@ class Value(val s: String) extends Operation:
     MapOp(_ => mf(s))
   override def flatMap(
       mf: String => Operation
-  ): FlatMapOp = FlatMapOp(_ => mf(s))
+  ): FlatMapOp =
+    FlatMapOp(_ => mf(s))
 
 class MapOp(val f: String => String)
     extends Operation:
@@ -19,7 +20,8 @@ class MapOp(val f: String => String)
     MapOp(f.andThen(mf))
   override def flatMap(
       mf: String => Operation
-  ): FlatMapOp = FlatMapOp(f.andThen(mf))
+  ): FlatMapOp =
+    FlatMapOp(f.andThen(mf))
 
 class FlatMapOp(val f: String => Operation)
     extends Operation:
@@ -46,20 +48,24 @@ def interpret(program: Operation): String =
 
     case fmo: FlatMapOp =>
       println("run FlatMapOp")
-      val next = fmo.f("")
+      val next =
+        fmo.f("")
       interpret(next)
 
 @main
 def demoInterpreter() =
-  val value = Value("asdf")
+  val value =
+    Value("asdf")
   println(interpret(value) == "asdf")
 
-  val upperOp = MapOp(_.toUpperCase)
+  val upperOp =
+    MapOp(_.toUpperCase)
   println(
     interpret(upperOp) == ""
   ) // applies the operation to the default empty string
 
-  val valueUpperOp = value.map(_.toUpperCase)
+  val valueUpperOp =
+    value.map(_.toUpperCase)
   println(interpret(valueUpperOp) == "ASDF")
 
   val valueUpperTakeTwoOp =
@@ -118,8 +124,10 @@ def demoInterpreter() =
 
   val programFor =
     for
-      asdf  <- Value("asdf")
-      upper <- Value(asdf.toUpperCase)
+      asdf <-
+        Value("asdf")
+      upper <-
+        Value(asdf.toUpperCase)
     yield upper.take(2)
 
   println(interpret(programFor))

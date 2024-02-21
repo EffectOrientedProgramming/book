@@ -7,4 +7,5 @@ case class Counter(count: Ref[Int]):
     count.getAndUpdate(_ + 1)
 
 object Counter:
-  val make = Ref.make(0).map(Counter(_))
+  val make =
+    Ref.make(0).map(Counter(_))
