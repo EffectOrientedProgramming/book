@@ -184,10 +184,6 @@ runDemo:
       Heat.oven,
       Scope.default
     )
-// Making Homemade Bread
-// TODO Handle long line. 
-// Truncating for now: 
-// ZEnvironment(MdocSession::MdocApp::BreadHomeMade -> BreadHomeMade(Heat(),Dough()))
 // ZEnvironment(MdocSession::MdocApp::BreadHomeMa
 ```
 

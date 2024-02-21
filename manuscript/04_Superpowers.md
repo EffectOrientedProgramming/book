@@ -171,6 +171,7 @@ runDemo:
 // **Database crashed!!**
 // **Database crashed!!**
 // **Database crashed!!**
+// Interrupting slow request
 // User sent to manual setup queue
 ```
 
@@ -222,7 +223,7 @@ HiddenPrelude
 runDemo:
   step7
 // Signup initiated for Morty
-// (PT0.001902598S,User saved)
+// (PT0.001300742S,User saved)
 ```
 
 ## Step 8. Maybe we don't want this to run at all?
