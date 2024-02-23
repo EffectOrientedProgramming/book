@@ -1,7 +1,7 @@
 import scala.util.Try
 
 libraryDependencies := Seq(
-  "io.github.kitlangton" %% "zio-tui" % "0.2.1",
+  "io.github.kitlangton" %% "zio-tui" % "0.2.2",
   //"org.jline" % "jline" % "3.25.0", // override the transitive for a newer version
   "dev.zio" %% "zio-direct" % "1.0.0-RC7",
 )
