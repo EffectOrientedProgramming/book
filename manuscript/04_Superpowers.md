@@ -215,7 +215,7 @@ val effect6 =
 runScenario(HappyPath):
   effect6
 // Log: Signup initiated for Morty
-// Result: (PT0.001234821S,User saved)
+// Result: (PT0.001160701S,User saved)
 ```
 
 The new Effect runs in the "happy path" and the time the effect took is combined with the output from the program.

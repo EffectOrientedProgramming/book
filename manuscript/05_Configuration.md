@@ -113,29 +113,6 @@ runDemo:
 // Result: ()
 ```
 
-For code organization, and legibility at call sites, we are defining several layers within the `Heat` companion object.
-They will all be used soon.
-
-```scala
-case class Heat()
-object Heat:
-  val oven =
-    ZLayer
-      .derive[Heat]
-      .tapWithMessage:
-        "Heating Oven"
-
-  val toaster =
-    ZLayer
-      .derive[Heat]
-      .tapWithMessage:
-        "Heating Toaster"
-
-  val broken =
-    ZLayer.fail:
-      "**Power Out**"
-```
-
 
 
 ## Step 3: Effects can require multiple dependencies
@@ -174,6 +151,33 @@ object Bread:
 ```
 
 
+
+For code organization, and legibility at call sites, we are defining several layers within the `Heat` companion object.
+They will all be used soon.
+
+```scala
+case class Heat()
+object Heat:
+  val broken =
+    ZLayer.fail:
+      "**Power Out**"
+
+
+val oven =
+  ZLayer
+          .derive[Heat]
+          .tapWithMessage:
+          "Heating Oven"
+// oven: ZLayer[Any, Nothing, Heat] = Fold(
+//   self = Suspend(
+//     self = zio.ZLayer$ScopedEnvironmentPartiallyApplied$$$Lambda$15260/0x0000000803e66440@2f4a8872
+//   ),
+//   failure = zio.ZLayer$$Lambda$15961/0x0000000804000040@45a09cfc,
+//   success = zio.ZLayer$$Lambda$15959/0x0000000803ffe840@27cce98
+// )
+```
+
+
 ```scala
 runDemo:
   Bread
@@ -181,7 +185,7 @@ runDemo:
     .build
     .provide(
       Dough.fresh,
-      Heat.oven,
+      oven,
       Scope.default
     )
 // Result: ZEnvironment(MdocSession::MdocApp::BreadHomeMa
@@ -205,7 +209,7 @@ runDemo:
     // dependencies.
     Bread.homemade,
     Dough.fresh,
-    Heat.oven
+    oven
   )
 // Result: ()
 ```
@@ -232,23 +236,37 @@ The dependencies are based on the type, so in this case both
 `Toast.make` and `Bread.make` require heat, but 
 
 
-Notice - Even though we provide the same dependencies in this example, Heat.oven is _also_ required by `Toast.make`
+Notice - Even though we provide the same dependencies in this example, oven is _also_ required by `Toast.make`
 
 ```scala
 runDemo:
-  ZLayer
-    .make[Toast](
-      Toast.make,
-      Bread.homemade,
-      Dough.fresh,
-      Heat.oven
-    )
-    .build
-// Result: ZEnvironment(MdocSession::MdocApp::Toast -> To
+  defer:
+    val toast =
+      ZLayer
+        .make[Toast](
+          Toast.make,
+          Bread.homemade,
+          Dough.fresh,
+          oven
+        )
+    toast
+      .build
+      .run
+      .get
+// Result: Toast(Heat(),BreadHomeMade(Heat(),Dough()))
 ```
 
 However, the oven uses a lot of energy to make `Toast`.
 It would be great if we can instead use our dedicated toaster!
+
+
+```scala
+val toaster =
+  ZLayer
+    .derive[Heat]
+    .tapWithMessage:
+      "Heating Toaster"
+```
 
 ## Step 6: Dependencies must be fulfilled by unique types
 
@@ -259,8 +277,8 @@ runDemo:
       Toast.make,
       Dough.fresh,
       Bread.homemade,
-      Heat.oven,
-      Heat.toaster
+      oven,
+      toaster
     )
     .build
 // error: 
@@ -272,8 +290,8 @@ runDemo:
 //  You have provided more than one layer for the following type:
 // 
 //    repl.MdocSession.MdocApp.Heat is provided by:
-//       1. Heat.oven
-//       2. Heat.toaster
+//       1. oven
+//       2. toaster
 // 
 // ──────────────────────────────────────────────────────────────────────
 // 
@@ -291,11 +309,11 @@ runDemo:
     ZLayer.make[Bread](
       Bread.homemade,
       Dough.fresh,
-      Heat.oven
+      oven
     )
 
   ZLayer
-    .make[Toast](Toast.make, bread, Heat.toaster)
+    .make[Toast](Toast.make, bread, toaster)
     .build
 // Result: ZEnvironment(MdocSession::MdocApp::Toast -> To
 ```
@@ -354,7 +372,7 @@ runDemo:
         Bread.storeBought
 
   ZLayer
-    .make[Toast](Toast.make, bread, Heat.toaster)
+    .make[Toast](Toast.make, bread, toaster)
     .build
 // **Power out**
 // Result: ZEnvironment(MdocSession::MdocApp::Toast -> To
