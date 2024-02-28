@@ -174,7 +174,7 @@ To start with we save a user to a database:
 val userName =
   "Morty"
 
-val effect =
+val effect0 =
   saveUser:
     userName
 ```
@@ -184,7 +184,7 @@ The Effect does not execute until we explicitly run it.
 
 ```scala mdoc
 runScenario(HappyPath):
-  effect
+  effect0
 ```
 
 `runScenario(HappyPath)` runs our Effect in the "happy path" so that it will not fail.
@@ -196,8 +196,11 @@ We can also run `effect` in a scenario that will cause it to fail.
 
 ```scala mdoc
 runScenario(DoesNotWorkInitially):
-  effect
+  effect0
 ```
+
+`runScenario(DoesNotWorkInitially)` runs our Effect but it fails.
+The output logs the failure and the program produces the failure as the result of execution.
 
 ## Superpower 1. What if Failure is Temporary?
 
@@ -208,9 +211,8 @@ We can attach a `retry` to our first Effect.
 ```scala mdoc:silent
 import Schedule.{recurs, spaced}
 val effect1 =
-  effect.retry:
-    // TODO Restore 1.second when done editing
-    recurs(3) && spaced(1.milli)
+  effect0.retry:
+    recurs(3) && spaced(1.second)
 ```
 
 The Effect with the retry behavior becomes a new Effect.
