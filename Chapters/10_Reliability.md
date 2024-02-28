@@ -595,3 +595,34 @@ runDemo:
       .run
 ```
 
+#### Restricting Time
+Sometimes, it's not enough to simply track the time that a test takes.
+If you have specific Service Level Agreements (SLAs) that you need to meet, you want your tests to help ensure that you are meeting them.
+However, even if you don't have contracts bearing down on you, there are still good reasons to ensure that your tests complete in a timely manner.
+Services like GitHub Actions will automatically cancel your build if it takes too long, but this only happens at a very coarse level.
+It simply kills the job and won't actually help you find the specific test responsible.
+
+A common technique is to define a base test class for your project that all of your tests extend.
+In this class, you can set a default upper limit on test duration.
+When a test violates this limit, it will fail with a helpful error message.
+
+This helps you to identify tests that have completely locked up, or are taking an unreasonable amount of time to complete.
+
+For example, if you are running your tests in a CI/CD pipeline, you want to ensure that your tests complete quickly, so that you can get feedback as soon as possible.
+you can use `TestAspect.timeout` to ensure that your tests complete within a certain time frame.
+
+### Flakiness
+Commonly, as a project grows, the supporting tests become more and more flaky.
+This can be caused by a number of factors:
+
+- The code is using shared, live services
+  Shared resources, such as a database or a file system, might be altered by other processes.
+  These could be other tests in the project, or even unrelated processes running on the same machine.
+
+- The code is not thread safe
+  Other processes running simultaneously might alter the expected state of the system.
+
+- Resource limitations
+  A team of engineers might be able to successfully run the entire test suite on their personal machines.
+  However, the CI/CD system might not have enough resources to run the tests triggered by everyone pushing to the repository.
+  Your tests might be occasionally failing due to timeouts or lack of memory.
