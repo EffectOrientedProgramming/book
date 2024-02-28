@@ -174,7 +174,7 @@ To start with we save a user to a database:
 val userName =
   "Morty"
 
-val effect =
+val effect0 =
   saveUser:
     userName
 ```
@@ -184,7 +184,7 @@ The Effect does not execute until we explicitly run it.
 
 ```scala mdoc
 runScenario(HappyPath):
-  effect
+  effect0
 ```
 
 `runScenario(HappyPath)` runs our Effect in the "happy path" so that it will not fail.
@@ -196,8 +196,11 @@ We can also run `effect` in a scenario that will cause it to fail.
 
 ```scala mdoc
 runScenario(DoesNotWorkInitially):
-  effect
+  effect0
 ```
+
+`runScenario(DoesNotWorkInitially)` runs our Effect but it fails.
+The output logs the failure and the program produces the failure as the result of execution.
 
 ## Superpower 1. What if Failure is Temporary?
 
@@ -208,12 +211,11 @@ We can attach a `retry` to our first Effect.
 ```scala mdoc:silent
 import Schedule.{recurs, spaced}
 val effect1 =
-  effect.retry:
-    // TODO Restore 1.second when done editing
-    recurs(3) && spaced(1.milli)
+  effect0.retry:
+    recurs(3) && spaced(1.second)
 ```
 
-The Effect with the retry behavior becomes a new Effect.
+The Effect with the retry behavior becomes a new Effect and can optionally be assigned to a `val` (as is done here).
 `recurs(3)` builds a `Schedule` that happens 3 times.
 `spaced(1.second)` is a `Schedule` that happens once per second, forever.
 By combining them, we get a `Schedule` that does something only 3 times and once per second.
@@ -258,7 +260,8 @@ We added the capability without restructuring the original Effect.
 This is just one way to handle errors.
 ZIO provides many variations, which we will not cover exhaustively.
 
-The `orElseFail` is combined with the first (`retry`) creating another new Effect that has both error handling capabilities.
+The `orElseFail` is combined with the prior Effect that has the retry,
+  creating another new Effect that has both error handling capabilities.
 Like `retry`, the `orElseFail` can be added to any fallible Effect.
 
 Not only can capabilities be added to any Effect, Effects can be combined and modified, producing new Effects.
@@ -293,7 +296,8 @@ val effect4 =
       userName
 ```
 
-The `orElse` creates a new Effect with a fallback.  The `sendToManualQueue` simulates alternative fallback logic.
+The `orElse` creates a new Effect with a fallback.
+The `sendToManualQueue` simulates alternative fallback logic.
 
 ```scala mdoc
 // fails - with retry and fallback
@@ -301,12 +305,14 @@ runScenario(NeverWorks):
   effect4
 ```
 
-We run the effect again in the `NeverWorks` scenario
-  , causing it to execute the fallback Effect.
+We run the effect again in the `NeverWorks` scenario,
+  causing it to execute the fallback Effect.
 
 ## Superpower 5. Concurrent Execution
 
-Effects can be run concurrently and as an example, we can at the same time as the user is being saved, send an event to another system.
+Effects can be run concurrently and as an example,
+  we can at the same time as the user is being saved,
+  send an event to another system.
 
 ```scala mdoc:silent
 val effect5 =
@@ -328,7 +334,7 @@ We run the effect again in the `HappyPath` scenario to simulate the case where b
 
 ## Superpower 6. How Long Do Things Take?
 
-TODO: Prose
+For diagnostic information you can track timing:
 
 ```scala mdoc:silent
 val effect6 =
@@ -340,10 +346,12 @@ runScenario(HappyPath):
   effect6
 ```
 
+The new Effect runs in the "happy path" and the time the effect took is combined with the output from the program.
+
 ## Superpower 7. Maybe We Don't Want To Run Anything
 
-Now that we have added all of these superpowers to our process
-  , our lead engineer lets us known that a certain user should be prevented from using our system.
+Now that we have added all of these superpowers to our process,
+  our lead engineer lets us known that a certain user should be prevented from using our system.
 
 ```scala mdoc:silent
 val effect7 =
@@ -354,8 +362,8 @@ val effect7 =
 runScenario(HappyPath):
   effect7
 ```
-We can add behavior to the end of our complex Effect
-  , that prevents it from ever executing in the first place.
+We can add behavior to the end of our complex Effect,
+  that prevents it from ever executing in the first place.
 
 ## Many More Superpowers
 
