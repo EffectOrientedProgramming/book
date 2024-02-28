@@ -303,8 +303,8 @@ runScenario(NeverWorks):
   effect4
 ```
 
-We run the effect again in the `NeverWorks` scenario
-  , causing it to execute the fallback Effect.
+We run the effect again in the `NeverWorks` scenario,
+  causing it to execute the fallback Effect.
 
 ## Superpower 5. Concurrent Execution
 
@@ -330,7 +330,7 @@ We run the effect again in the `HappyPath` scenario to simulate the case where b
 
 ## Superpower 6. How Long Do Things Take?
 
-TODO: Prose
+For diagnostic information you can track timing:
 
 ```scala mdoc:silent
 val effect6 =
@@ -342,10 +342,12 @@ runScenario(HappyPath):
   effect6
 ```
 
+The new Effect runs in the "happy path" and the time the effect took is combined with the output from the program.
+
 ## Superpower 7. Maybe We Don't Want To Run Anything
 
-Now that we have added all of these superpowers to our process
-  , our lead engineer lets us known that a certain user should be prevented from using our system.
+Now that we have added all of these superpowers to our process,
+  our lead engineer lets us known that a certain user should be prevented from using our system.
 
 ```scala mdoc:silent
 val effect7 =
@@ -356,8 +358,8 @@ val effect7 =
 runScenario(HappyPath):
   effect7
 ```
-We can add behavior to the end of our complex Effect
-  , that prevents it from ever executing in the first place.
+We can add behavior to the end of our complex Effect,
+  that prevents it from ever executing in the first place.
 
 ## Many More Superpowers
 

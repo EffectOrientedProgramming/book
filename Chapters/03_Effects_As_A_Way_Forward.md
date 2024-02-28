@@ -5,13 +5,13 @@ A reliable system does not break.
 If you've been programming for a while, this sounds far-fetched or even impossible.
 
 Most existing languages are built for rapid development.
-You create a system as quickly as possible
-  , then begin isolating areas of failure
-  , finding and fixing bugs until the system is tolerable and can be delivered.
-Throughout the lifetime of the system
-  , bugs are regularly discovered and fixed.
-There is no realistic expectation that you will ever achieve a completely bug-free system
-  , just one that seems to work well enough to meet the requirements.
+You create a system as quickly as possible,
+  then begin isolating areas of failure,
+  finding and fixing bugs until the system is tolerable and can be delivered.
+Throughout the lifetime of the system,
+  bugs are regularly discovered and fixed.
+There is no realistic expectation that you will ever achieve a completely bug-free system,
+  just one that seems to work well enough to meet the requirements.
 This is the reality programmers have come to accept.
 
 If each piece of a traditional system is unreliable, 
@@ -29,9 +29,9 @@ This is what *functional programming* together with *effects management* can ach
 This is what we want to teach you in this book.
 
 The biggest impact on you as a programmer is the requirement for patience.
-With most languages
-  , the first thing you want to do is figure out how to write "Hello, World!"
-  , then start accumulating the other language features as standalone concepts.
+With most languages,
+  the first thing you want to do is figure out how to write "Hello, World!",
+  then start accumulating the other language features as standalone concepts.
 In functional programming we start by examining the impact of each concept on reliability.
 We then combine the smaller concepts, ensuring reliability at each step.
 
@@ -42,8 +42,8 @@ A reliable system isolates parts that are always the same
 This mathematical rigor produces a reliable system.
 
 Some aspects of writing code in this style might seem onerous.
-Most of us are used to the more immediate feedback and satisfaction of getting something working
-  , so this can be challenging.
+Most of us are used to the more immediate feedback and satisfaction of getting something working,
+  so this can be challenging.
 But would you rather create an unreliable system quickly?
 We assume you are reading this book because you do not.
 
@@ -57,8 +57,8 @@ Building systems that are reliable requires isolating and managing the unpredict
 
 An approach that programmers may use to handle this is to delineate the parts of the program which use external systems.
 
-By delineating them
-  , programmers then have tools to handle the unpredictable parts in more predictable ways.
+By delineating them,
+  programmers then have tools to handle the unpredictable parts in more predictable ways.
 
 The interactions with external systems can be defined in terms of "Effects".
 Effects create a delineation between the parts of a program that interact with external systems and those that don't.
@@ -124,8 +124,8 @@ Regardless of any apology and forgiveness,
   your relationship is now different.
 
 Back in the world of software 
-  - anytime you communicate with an external system
-  , you have changed the world and cannot go back.
+  - anytime you communicate with an external system,
+  you have changed the world and cannot go back.
 
 TODO {{copied here from How We Got Here}}
 Now we have created this perfect world of pure functions that behave just like the functions in theoretical mathematics.
