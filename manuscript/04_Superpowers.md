@@ -64,7 +64,7 @@ val effect1 =
     recurs(3) && spaced(1.second)
 ```
 
-The Effect with the retry behavior becomes a new Effect.
+The Effect with the retry behavior becomes a new Effect and can optionally be assigned to a `val` (as is done here).
 `recurs(3)` builds a `Schedule` that happens 3 times.
 `spaced(1.second)` is a `Schedule` that happens once per second, forever.
 By combining them, we get a `Schedule` that does something only 3 times and once per second.
@@ -121,7 +121,8 @@ We added the capability without restructuring the original Effect.
 This is just one way to handle errors.
 ZIO provides many variations, which we will not cover exhaustively.
 
-The `orElseFail` is combined with the first (`retry`) creating another new Effect that has both error handling capabilities.
+The `orElseFail` is combined with the prior Effect that has the retry,
+  creating another new Effect that has both error handling capabilities.
 Like `retry`, the `orElseFail` can be added to any fallible Effect.
 
 Not only can capabilities be added to any Effect, Effects can be combined and modified, producing new Effects.
@@ -211,7 +212,7 @@ val effect6 =
 runScenario(HappyPath):
   effect6
 // Log: Signup initiated for Morty
-// Result: (PT0.001160394S,User saved)
+// Result: (PT0.001041809S,User saved)
 ```
 
 The new Effect runs in the "happy path" and the time the effect took is combined with the output from the program.
