@@ -171,8 +171,8 @@ runScenario(NeverWorks):
 // Result: User sent to manual setup queue
 ```
 
-We run the effect again in the `NeverWorks` scenario
-  , causing it to execute the fallback Effect.
+We run the effect again in the `NeverWorks` scenario,
+  causing it to execute the fallback Effect.
 
 ## Superpower 5. Concurrent Execution
 
@@ -200,7 +200,7 @@ We run the effect again in the `HappyPath` scenario to simulate the case where b
 
 ## Superpower 6. How Long Do Things Take?
 
-TODO: Prose
+For diagnostic information you can track timing:
 
 ```scala
 val effect6 =
@@ -211,13 +211,15 @@ val effect6 =
 runScenario(HappyPath):
   effect6
 // Log: Signup initiated for Morty
-// Result: (PT0.001078076S,User saved)
+// Result: (PT0.001160394S,User saved)
 ```
+
+The new Effect runs in the "happy path" and the time the effect took is combined with the output from the program.
 
 ## Superpower 7. Maybe We Don't Want To Run Anything
 
-Now that we have added all of these superpowers to our process
-  , our lead engineer lets us known that a certain user should be prevented from using our system.
+Now that we have added all of these superpowers to our process,
+  our lead engineer lets us known that a certain user should be prevented from using our system.
 
 ```scala
 val effect7 =
@@ -229,8 +231,8 @@ runScenario(HappyPath):
   effect7
 // Result: None
 ```
-We can add behavior to the end of our complex Effect
-  , that prevents it from ever executing in the first place.
+We can add behavior to the end of our complex Effect,
+  that prevents it from ever executing in the first place.
 
 ## Many More Superpowers
 
