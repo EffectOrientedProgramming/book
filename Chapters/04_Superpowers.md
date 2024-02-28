@@ -296,7 +296,8 @@ val effect4 =
       userName
 ```
 
-The `orElse` creates a new Effect with a fallback.  The `sendToManualQueue` simulates alternative fallback logic.
+The `orElse` creates a new Effect with a fallback.
+The `sendToManualQueue` simulates alternative fallback logic.
 
 ```scala mdoc
 // fails - with retry and fallback
@@ -309,7 +310,9 @@ We run the effect again in the `NeverWorks` scenario,
 
 ## Superpower 5. Concurrent Execution
 
-Effects can be run concurrently and as an example, we can at the same time as the user is being saved, send an event to another system.
+Effects can be run concurrently and as an example,
+  we can at the same time as the user is being saved,
+  send an event to another system.
 
 ```scala mdoc:silent
 val effect5 =
