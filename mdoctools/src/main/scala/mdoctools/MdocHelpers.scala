@@ -26,7 +26,7 @@ def runDemo[E, A](z: => ZIO[Scope, E, A]): Unit =
         .getOrThrowFiberFailure()
     // This is the *only* place we can trust to
     // always print the final value
-    println(res)
+    println("Result: " + res)
   }
 
 import zio.System

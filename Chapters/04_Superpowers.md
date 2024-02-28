@@ -9,7 +9,7 @@ object HiddenPrelude:
     case WorksOnTry(attempts: Int, ref: Ref[Int])
 
   import zio.Runtime.default.unsafe
-  val invocations =
+  val invocations: Ref[Scenario] =
     Unsafe.unsafe((u: Unsafe) =>
       given Unsafe =
         u
@@ -68,7 +68,9 @@ object HiddenPrelude:
             Rendering
               .renderEveryPossibleOutcomeZio(
                 defer:
-                  invocations.set(s).run
+//                  val invocations = Ref.make(0).run
+                  resetScenario(s)
+//                  invocations.set(s).run
                   z.run
                 .provide(Scope.default)
               )
@@ -77,7 +79,7 @@ object HiddenPrelude:
           .getOrThrowFiberFailure()
       // This is the *only* place we can trust to
       // always print the final value
-      println(res)
+      println("Result: " + res)
     }
 
   def saveUser(username: String) =
@@ -88,7 +90,8 @@ object HiddenPrelude:
         .fail("**Database crashed!!**")
         .tapError { error =>
           ZIO.succeed:
-            println(error)
+            println:
+              "Log: " + error
 
           // TODO This blows up, probably due to
           // our general ZIO Console problem.
@@ -113,7 +116,7 @@ object HiddenPrelude:
             ZIO
               .succeed:
                 println:
-                  "Database Timeout"
+                  "Log: Database Timeout"
               .run
 
             succeed.run
@@ -127,7 +130,7 @@ object HiddenPrelude:
           else
             fail.run
     }.onInterrupt(
-      ZIO.debug("Interrupting slow request")
+      ZIO.debug("Log: Interrupting slow request")
     )
   end saveUser
 
@@ -137,33 +140,9 @@ object HiddenPrelude:
 
   def userSignupInitiated(username: String) =
     ZIO.succeed(
-      println(s"Signup initiated for $username")
+      println(s"Log: Signup initiated for $username")
     )
 
-  def userSignupSucceeded(
-      username: String,
-      success: String
-  ) =
-    ZIO
-      .succeed(
-        "Analytics sent for signup completion"
-      )
-      .delay(1.millis)
-      .debug
-      .fork
-      .uninterruptible
-
-  def userSignUpFailed(
-      username: String,
-      error: Any
-  ) =
-    ZIO
-      .succeed:
-        "Analytics sent for signup failure"
-      .delay(1.millis)
-      .debug
-      .fork
-      .uninterruptible
 
   // TODO Decide how much to explain this in the
   // prose,
@@ -220,8 +199,6 @@ runScenario(DoesNotWorkInitially):
   effect
 ```
 
-TODO: Why two failures?
-
 ## Superpower 1. What if Failure is Temporary?
 
 Sometimes things work when you keep trying.  
@@ -248,8 +225,6 @@ runScenario(DoesNotWorkInitially):
   effect1
 ```
 
-TODO: Why one failure?
-
 The output shows that running the Effect failed twice trying to save the user, then it succeeded.
 
 ### What If It Never Succeeds?
@@ -258,8 +233,6 @@ The output shows that running the Effect failed twice trying to save the user, t
 runScenario(NeverWorks):
   effect1
 ```
-
-TODO: Why 5 failures?
 
 In the `NeverWorks` scenarios, the Effect failed its initial attempt, and failed the subsequent three retries.  
 It eventually returns the DB error to the user.
