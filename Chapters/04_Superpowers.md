@@ -253,7 +253,7 @@ runScenario(DoesNotWorkInitially):
 
 The output shows that running the Effect failed twice trying to save the user, then it succeeded.
 
-### What if it never succeeds?
+### What If It Never Succeeds?
 
 ```scala mdoc
 runScenario(NeverWorks):
@@ -263,7 +263,7 @@ runScenario(NeverWorks):
 In the `NeverWorks` scenarios, the Effect failed its initial attempt, and failed the subsequent three retries.  
 It eventually returns the DB error to the user.
 
-## Effect 3. Users like nice error messages
+## Effect 3. Users Like Nice Error Messages
 
 Let's handle the error and return something nicer:
 
@@ -342,6 +342,7 @@ val effect6 =
 ```
 
 `fireAndForget` is a convenience method we defined (in hidden code) that makes it easy to run two effects in parallel and ignore any failures on the `userSignupInitiated` Effect.
+
 We can add all sorts of custom behavior to our Effect type, and then invoke them regardless of error and result types.
 
 ```scala mdoc
@@ -349,7 +350,11 @@ runScenario(HappyPath):
   effect6
 ```
 
-## Effect 7. Timing all of this
+We run the effect again in the `HappyPath` scenario to simulate the case where both Effects run in parallel.
+
+## Effect 7. How Long Do Things Take?
+
+TODO: Prose
 
 ```scala mdoc:silent
 val effect7 =
@@ -361,7 +366,7 @@ runScenario(HappyPath):
   effect7
 ```
 
-## Effect 8. Maybe we don't want this to run at all?
+## Effect 8. Maybe We Don't Want To Run Anything
 
 Now that we have added all of these superpowers to our process
   , our lead engineer lets us known that a certain user should be prevented from using our system.
