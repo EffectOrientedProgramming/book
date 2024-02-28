@@ -20,7 +20,7 @@ To start with we save a user to a database:
 val userName =
   "Morty"
 
-val effect =
+val effect0 =
   saveUser:
     userName
 ```
@@ -30,7 +30,7 @@ The Effect does not execute until we explicitly run it.
 
 ```scala
 runScenario(HappyPath):
-  effect
+  effect0
 // Result: User saved
 ```
 
@@ -43,10 +43,13 @@ We can also run `effect` in a scenario that will cause it to fail.
 
 ```scala
 runScenario(DoesNotWorkInitially):
-  effect
+  effect0
 // Log: **Database crashed!!**
 // Result: **Database crashed!!**
 ```
+
+`runScenario(DoesNotWorkInitially)` runs our Effect but it fails.
+The output logs the failure and the program produces the failure as the result of execution.
 
 ## Superpower 1. What if Failure is Temporary?
 
@@ -57,9 +60,8 @@ We can attach a `retry` to our first Effect.
 ```scala
 import Schedule.{recurs, spaced}
 val effect1 =
-  effect.retry:
-    // TODO Restore 1.second when done editing
-    recurs(3) && spaced(1.milli)
+  effect0.retry:
+    recurs(3) && spaced(1.second)
 ```
 
 The Effect with the retry behavior becomes a new Effect.
@@ -209,7 +211,7 @@ val effect6 =
 runScenario(HappyPath):
   effect6
 // Log: Signup initiated for Morty
-// Result: (PT0.001135972S,User saved)
+// Result: (PT0.001078076S,User saved)
 ```
 
 ## Superpower 7. Maybe We Don't Want To Run Anything
