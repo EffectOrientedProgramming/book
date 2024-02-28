@@ -260,7 +260,7 @@ def getTemperatureZ(behavior: Scenario) =
 runDemo:
   getTemperatureZ:
     Scenario.Success
-// 35 degrees
+// Result: 35 degrees
 ```
 
 ```scala
@@ -285,7 +285,7 @@ TODO Demonstrate ZIO calculating the error types without an explicit annotation 
 runDemo:
   getTemperatureZ:
     Scenario.GPSError
-// repl.MdocSession$MdocApp$GpsException
+// Result: repl.MdocSession$MdocApp$GpsException
 ```
 
 {#wrapping-legacy-code}
@@ -324,14 +324,14 @@ def displayTemperatureZWrapped(
 runDemo:
   displayTemperatureZWrapped:
     Scenario.Success
-// 35 degrees
+// Result: 35 degrees
 ```
 
 ```scala
 runDemo:
   displayTemperatureZWrapped:
     Scenario.NetworkError
-// Network Unavailable
+// Result: Network Unavailable
 ```
 
 This is decent, but does not provide the maximum possible guarantees. Look at what happens if we forget to handle one of our errors.
@@ -350,7 +350,7 @@ def getTemperatureZGpsGap(behavior: Scenario) =
 runDemo:
   getTemperatureZGpsGap:
     Scenario.GPSError
-// Defect: GpsException
+// Result: Defect: GpsException
 ```
 
 The compiler does not catch this bug, and instead fails at runtime.
@@ -376,7 +376,7 @@ def getTemperatureZWithFallback(
 runDemo:
   getTemperatureZWithFallback:
     Scenario.GPSError
-// Error: repl.MdocSession$MdocApp$GpsException
+// Result: Error: repl.MdocSession$MdocApp$GpsException
 ```
 
 This lets us avoid the most egregious gaps in functionality, but it does not take full advantage of ZIO's type-safety.

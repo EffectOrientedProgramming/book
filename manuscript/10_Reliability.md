@@ -64,7 +64,7 @@ runDemo:
     CloudStorage.live,
     ZLayer.fromZIO(makePopularService)
   )
-// Amount owed: $100
+// Result: Amount owed: $100
 ```
 
 We can see that the invoice is 100 dollars, because every single request reached our `CloudStorage` provider.
@@ -104,7 +104,7 @@ runDemo:
     CloudStorage.live,
     ZLayer.fromZIO(makeCachedPopularService)
   )
-// Amount owed: $1
+// Result: Amount owed: $1
 ```
 
 We can see that the invoice is only 1 dollar, because only one request reached our `CloudStorage` provider.
@@ -152,7 +152,7 @@ runDemo:
 // System called API [took 1s]
 // System called API [took 1s]
 // Result [took 2s]
-// ()
+// Result: ()
 ```
 
 ```scala
@@ -179,7 +179,7 @@ runDemo:
 // Bruce called API [took 3s]
 // James called API [took 3s]
 // Total time [took 8s]
-// List((), (), ())
+// Result: List((), (), ())
 ```
 
 ## Constraining concurrent requests
@@ -204,7 +204,7 @@ runDemo:
     DelicateResource.live
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Killed the server!!
+// Result: Killed the server!!
 ```
 
 ```scala
@@ -230,7 +230,7 @@ runDemo:
       .run
   .provideSome[Scope]:
     DelicateResource.live
-// All Requests Succeeded
+// Result: All Requests Succeeded
 ```
 
 ## Circuit Breaking
@@ -257,7 +257,7 @@ runDemo:
       numCalls.get.run
 
     s"Calls made: $made"
-// Calls made: 141
+// Result: Calls made: 141
 ```
 
 ```scala
@@ -304,7 +304,7 @@ runDemo:
     val made =
       numCalls.get.run
     s"Calls prevented: $prevented Calls made: $made"
-// Calls prevented: 74 Calls made: 67
+// Result: Calls prevented: 75 Calls made: 66
 ```
 
 ## Hedging
@@ -343,7 +343,7 @@ runDemo:
       .get
       .debug("Contract Breaches")
       .run
-// 0
+// Result: 0
 ```
 
 #### Restricting Time

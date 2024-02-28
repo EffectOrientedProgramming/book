@@ -43,9 +43,9 @@ ZIO
 //   trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:16)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:16)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$15256/0x0000000803dc8440@626f7439
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$15208/0x0000000803e64840@2faf450a
 //   ),
-//   successK = zio.ZIO$$$Lambda$15258/0x0000000803dce840@1bbca36d
+//   successK = zio.ZIO$$$Lambda$15210/0x0000000803e63040@663625b6
 // )
 ```
 
@@ -155,7 +155,7 @@ runDemo:
       topStory
     .run
 // Texting story: Battery Breakthrough
-// ()
+// Result: ()
 ```
 
 There are many other ways you can compose ZIOs.
@@ -180,7 +180,7 @@ runDemo:
     .catchAll:
       logAndProvideDefault
 // an implementation is missing
-// default value
+// Result: default value
 ```
 
 ## All The Thing Example
@@ -234,7 +234,7 @@ val getHeadlineZ =
 ```scala
 runDemo:
   getHeadlineZ
-// stock market crash!
+// Result: stock market crash!
 ```
 Now let's confirm the behavior when the headline is not available.
 
@@ -245,7 +245,7 @@ headLineAvailable =
 
 runDemo:
   getHeadlineZ
-// HeadlineNotAvailable()
+// Result: HeadlineNotAvailable()
 ```
 
 
@@ -280,14 +280,14 @@ def topicOfInterestZ(headline: String) =
 runDemo:
   topicOfInterestZ:
     "stock market crash!"
-// stock market
+// Result: stock market
 ```
 
 ```scala
 runDemo:
   topicOfInterestZ:
     "boring and inane content"
-// NoInterestingTopic()
+// Result: NoInterestingTopic()
 ```
 
 ### AutoCloseable Interop
@@ -321,7 +321,7 @@ runDemo:
   closeableFileZ
 // Opening file!
 // Closing file!
-// repl.MdocSession$MdocApp$$anon$27@67f98c3e
+// Result: repl.MdocSession$MdocApp$$anon$27@21f8af83
 ```
 
 Since that is not terribly useful, let's start calling some methods on our managed file.
@@ -341,7 +341,7 @@ runDemo:
 // Opening file!
 // Searching file for: topicOfInterest
 // Closing file!
-// false
+// Result: false
 ```
 
 ```scala
@@ -369,7 +369,7 @@ runDemo:
 // Opening file!
 // Writing to file: New data on topic
 // Closing file!
-// New data on topic
+// Result: New data on topic
 ```
 
 ```scala
@@ -395,14 +395,14 @@ def summaryForZ(topic: String) =
 runDemo:
   summaryForZ:
     "stock market"
-// detailed history of stock market
+// Result: detailed history of stock market
 ```
 
 ```scala
 runDemo:
   summaryForZ:
     "obscureTopic"
-// NoRecordsAvailable(obscureTopic)
+// Result: NoRecordsAvailable(obscureTopic)
 ```
 
 Now that we have all of these well-defined effects, we can wield them in any combination and sequence we desire.
@@ -454,7 +454,7 @@ runDemo:
 // Searching file for: stock market
 // Writing to file: detailed history of stock market
 // Closing file!
-// detailed history of stock market
+// Result: detailed history of stock market
 ```
 
 

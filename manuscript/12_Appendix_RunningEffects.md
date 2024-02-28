@@ -59,7 +59,7 @@ runDemo:
   ZIO.debug:
     "hello, world"
 // hello, world
-// ()
+// Result: ()
 ```
 
 ## Testing code
@@ -91,7 +91,7 @@ runSpec:
   defer:
     assertTrue:
       Random.nextIntBounded(10).run < 10
-// Test: PASSED*
+// Result: Test: PASSED*
 ```
 
 TODO Justify defer syntax over for-comp for multi-statement assertions
@@ -106,7 +106,7 @@ runSpec:
         Random.nextIntBetween(10, 20).run <=
         20 &&
         Random.nextIntBetween(20, 30).run <= 30
-// Test: PASSED*
+// Result: Test: PASSED*
 ```
 
 Consider a `Console` application:
@@ -129,7 +129,7 @@ If we try to run this code in the same way as most of the examples in this book,
 ```scala
 runDemo:
   logic.timeout(1.second)
-// Defect: scala.NotImplementedError: an implemen
+// Result: Defect: scala.NotImplementedError: an implemen
 ```
 We cannot execute this code and render the results for the book because it requires interaction with a user.
 However, even if you are not trying to write demo code for a book, it is very limiting to need a user at the keyboard for your program to execute.
@@ -153,7 +153,7 @@ runSpec:
           |""".stripMargin
     assertTrue:
       capturedOutput == expectedOutput
-// Test: PASSED*
+// Result: Test: PASSED*
 ```
 
 ## Interop with existing/legacy code via Unsafe

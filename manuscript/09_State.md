@@ -54,7 +54,7 @@ val unreliableCounting =
 ```scala
 runDemo:
   unreliableCounting
-// Final count: 96671
+// Result: Final count: 99367
 ```
 
 Due to the unpredictable nature of shared mutable state, we do not know exactly what the final count above is.
@@ -88,7 +88,7 @@ lazy val reliableCounting =
 
 runDemo:
   reliableCounting
-// Final count: 100000
+// Result: Final count: 100000
 ```
 Now we can say with full confidence that our final count is 100000.
 Additionally, these updates happen _without blocking_.
@@ -144,7 +144,7 @@ runDemo:
 // Alert: updating count!
 // Alert: updating count!
 // Alert: updating count!
-// Final count: 4
+// Result: Final count: 4
 ```
 What is going on?!
 Previously, we were losing updates because of unsafe mutability.
@@ -190,7 +190,7 @@ runDemo:
 // Alert: updating count!
 // Alert: updating count!
 // Alert: updating count!
-// Final count: 4
+// Result: Final count: 4
 ```
 
 Now we see exactly the number of alerts that we expected.

@@ -110,7 +110,7 @@ runDemo:
     Dough.fresh
 // Making Fresh Dough
 // Dough is rising
-// ()
+// Result: ()
 ```
 
 For code organization, and legibility at call sites, we are defining several layers within the `Heat` companion object.
@@ -184,7 +184,7 @@ runDemo:
       Heat.oven,
       Scope.default
     )
-// ZEnvironment(MdocSession::MdocApp::BreadHomeMa
+// Result: ZEnvironment(MdocSession::MdocApp::BreadHomeMa
 ```
 
 ## Step 4: Dependencies can "automatically" assemble to fulfill the needs of an effect
@@ -207,7 +207,7 @@ runDemo:
     Dough.fresh,
     Heat.oven
   )
-// ()
+// Result: ()
 ```
 
 
@@ -244,7 +244,7 @@ runDemo:
       Heat.oven
     )
     .build
-// ZEnvironment(MdocSession::MdocApp::Toast -> To
+// Result: ZEnvironment(MdocSession::MdocApp::Toast -> To
 ```
 
 However, the oven uses a lot of energy to make `Toast`.
@@ -297,7 +297,7 @@ runDemo:
   ZLayer
     .make[Toast](Toast.make, bread, Heat.toaster)
     .build
-// ZEnvironment(MdocSession::MdocApp::Toast -> To
+// Result: ZEnvironment(MdocSession::MdocApp::Toast -> To
 ```
 
 ## Step 8: Dependencies can fail
@@ -318,7 +318,7 @@ runDemo:
   .provide:
     Bread2.fromFriend
 // **Power out**
-// **Power out Rez**
+// Result: **Power out Rez**
 ```
 
 
@@ -339,7 +339,7 @@ runDemo:
 // **Power out**
 // **Power out**
 // Power is on
-// ()
+// Result: ()
 ```
 
 ## Step 10: Fallback Dependencies 
@@ -357,7 +357,7 @@ runDemo:
     .make[Toast](Toast.make, bread, Heat.toaster)
     .build
 // **Power out**
-// ZEnvironment(MdocSession::MdocApp::Toast -> To
+// Result: ZEnvironment(MdocSession::MdocApp::Toast -> To
 ```
 
 ## Step 11: Layer Retry + Fallback?
@@ -378,7 +378,7 @@ runDemo:
     .debug
 // **Power out**
 // **Power out**
-// ZEnvironment(MdocSession::MdocApp::BreadStoreB
+// Result: ZEnvironment(MdocSession::MdocApp::BreadStoreB
 ```
 
 
@@ -455,7 +455,7 @@ runSpec:
   defer:
     rosencrantzAndGuildensternAreDead.run
     assertCompletes
-// Test: PASSED*
+// Result: Test: PASSED*
 ```
 
 ```scala
@@ -472,7 +472,7 @@ runSpec(
   TestAspect.withLiveRandom,
   TestAspect.eventually
 )
-// Test: PASSED*
+// Result: Test: PASSED*
 ```
 
 
@@ -511,7 +511,7 @@ runSpec:
       fork.join.run
     assertTrue:
       result.isEmpty
-// Test: PASSED*
+// Result: Test: PASSED*
 ```
 
 By default in ZIO Test, the clock does not change unless instructed to.

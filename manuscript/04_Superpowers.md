@@ -31,7 +31,7 @@ The Effect does not execute until we explicitly run it.
 ```scala
 runScenario(HappyPath):
   effect
-// User saved
+// Result: User saved
 ```
 
 `runScenario(HappyPath)` runs our Effect in the "happy path" so that it will not fail.
@@ -44,11 +44,9 @@ We can also run `effect` in a scenario that will cause it to fail.
 ```scala
 runScenario(DoesNotWorkInitially):
   effect
-// **Database crashed!!**
-// **Database crashed!!**
+// Log: **Database crashed!!**
+// Result: **Database crashed!!**
 ```
-
-TODO: Why two failures?
 
 ## Superpower 1. What if Failure is Temporary?
 
@@ -74,11 +72,9 @@ We do this because we assume the failure will likely be resolved within 3 second
 ```scala
 runScenario(DoesNotWorkInitially):
   effect1
-// **Database crashed!!**
-// User saved
+// Log: **Database crashed!!**
+// Result: User saved
 ```
-
-TODO: Why one failure?
 
 The output shows that running the Effect failed twice trying to save the user, then it succeeded.
 
@@ -87,14 +83,12 @@ The output shows that running the Effect failed twice trying to save the user, t
 ```scala
 runScenario(NeverWorks):
   effect1
-// **Database crashed!!**
-// **Database crashed!!**
-// **Database crashed!!**
-// **Database crashed!!**
-// **Database crashed!!**
+// Log: **Database crashed!!**
+// Log: **Database crashed!!**
+// Log: **Database crashed!!**
+// Log: **Database crashed!!**
+// Result: **Database crashed!!**
 ```
-
-TODO: Why 5 failures?
 
 In the `NeverWorks` scenarios, the Effect failed its initial attempt, and failed the subsequent three retries.  
 It eventually returns the DB error to the user.
@@ -112,11 +106,11 @@ val effect2 =
 ```scala
 runScenario(NeverWorks):
   effect2
-// **Database crashed!!**
-// **Database crashed!!**
-// **Database crashed!!**
-// **Database crashed!!**
-// ERROR: User could not be saved
+// Log: **Database crashed!!**
+// Log: **Database crashed!!**
+// Log: **Database crashed!!**
+// Log: **Database crashed!!**
+// Result: ERROR: User could not be saved
 ```
 
 **Any** fallible Effect can attach a variety of error handling capabilities.
@@ -145,8 +139,8 @@ Like the other capabilities for error handling, timeouts can be added to any Eff
 ```scala
 runScenario(FirstIsSlow):
   effect3
-// Interrupting slow request
-// Save timed out
+// Log: Interrupting slow request
+// Result: Save timed out
 ```
 
 Running the new Effect in the `FirstIsSlow` scenario causes it to take longer than the 5 second timeout.
@@ -168,11 +162,11 @@ The `orElse` creates a new Effect with a fallback.  The `sendToManualQueue` simu
 // fails - with retry and fallback
 runScenario(NeverWorks):
   effect4
-// **Database crashed!!**
-// **Database crashed!!**
-// **Database crashed!!**
-// **Database crashed!!**
-// User sent to manual setup queue
+// Log: **Database crashed!!**
+// Log: **Database crashed!!**
+// Log: **Database crashed!!**
+// Log: **Database crashed!!**
+// Result: User sent to manual setup queue
 ```
 
 We run the effect again in the `NeverWorks` scenario
@@ -196,8 +190,8 @@ We can add all sorts of custom behavior to our Effect type, and then invoke them
 ```scala
 runScenario(HappyPath):
   effect5
-// Signup initiated for Morty
-// User saved
+// Log: Signup initiated for Morty
+// Result: User saved
 ```
 
 We run the effect again in the `HappyPath` scenario to simulate the case where both Effects run in parallel.
@@ -214,8 +208,8 @@ val effect6 =
 ```scala
 runScenario(HappyPath):
   effect6
-// Signup initiated for Morty
-// (PT0.001099522S,User saved)
+// Log: Signup initiated for Morty
+// Result: (PT0.001135972S,User saved)
 ```
 
 ## Superpower 7. Maybe We Don't Want To Run Anything
@@ -231,7 +225,7 @@ val effect7 =
 ```scala
 runScenario(HappyPath):
   effect7
-// None
+// Result: None
 ```
 We can add behavior to the end of our complex Effect
   , that prevents it from ever executing in the first place.
