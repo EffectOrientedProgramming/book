@@ -13,9 +13,9 @@ Let's start with the "happy path" where we save a user to a database
 ```scala mdoc:invisible
 object HiddenPrelude:
   enum Scenario:
-    case WorksFirstTime
+    case HappyPath
     case NeverWorks
-    case FirstIsSlow(ref: Ref[Int])
+    case NumberOfSlowCall(ref: Ref[Int])
     case WorksOnTry(attempts: Int, ref: Ref[Int])
 
   import zio.Runtime.default.unsafe
@@ -26,7 +26,7 @@ object HiddenPrelude:
       unsafe
         .run(
           Ref.make[Scenario](
-            Scenario.WorksFirstTime
+            Scenario.HappyPath
           )
         )
         .getOrThrowFiberFailure()
@@ -42,9 +42,9 @@ object HiddenPrelude:
     )
 
   object Scenario:
-    val firstIsSlow =
+    val FirstIsSlow =
       Unsafe.unsafe { implicit unsafe =>
-        FirstIsSlow(
+        NumberOfSlowCall(
           Runtime
             .default
             .unsafe
@@ -109,12 +109,12 @@ object HiddenPrelude:
 
     defer {
       invocations.get.run match
-        case Scenario.WorksFirstTime =>
+        case Scenario.HappyPath =>
           succeed.run
         case Scenario.NeverWorks =>
           fail.run
 
-        case scenario: Scenario.FirstIsSlow =>
+        case scenario: Scenario.NumberOfSlowCall =>
           val numCalls =
             scenario.ref.getAndUpdate(_ + 1).run
           if numCalls == 0 then
@@ -190,7 +190,7 @@ import HiddenPrelude.*
 import Scenario.*
 ```
 
-## Effect Example 1. The Happy Path is Only One Path
+## Effect 1. The Happy Path is Only One Path
 
 To start with we save a user to a database:
 
@@ -213,9 +213,12 @@ runScenario(HappyPath):
   effect1
 ```
 
-In a real system this gives our users strange errors because they are unhandled.
+`runScenario(HappyPath)` runs our Effect in the "happy path" so that it will not fail.
+This allows us to simulate failure scenarios in the next examples.
 
-## Effect Example 2. What if Failure is Temporary?
+In real systems, assuming the "happy path" causes strange errors for users because the errors are unhandled.
+
+## Effect 2. What if Failure is Temporary?
 
 We can also run `effect1` in a scenario that will cause it to fail.
 
@@ -248,7 +251,7 @@ runScenario(DoesNotWorkInitially):
   effect2
 ```
 
-You can see from the output that we failed twice trying to save the user, then it succeeded.
+The output shows that running the Effect failed twice trying to save the user, then it succeeded.
 
 ### What if it never succeeds?
 
@@ -260,7 +263,7 @@ runScenario(NeverWorks):
 In the `NeverWorks` scenarios, the Effect failed its initial attempt, and failed the subsequent three retries.  
 It eventually returns the DB error to the user.
 
-## Effect Example 3. Users like nice error messages
+## Effect 3. Users like nice error messages
 
 Let's handle the error and return something nicer:
 
@@ -275,36 +278,39 @@ runScenario(NeverWorks):
   effect3
 ```
 
-The first superpower is that **any** fallible effect can attach a variety of error handling capabilities.
+**Any** fallible Effect can attach a variety of error handling capabilities.
 `orElseFail` transforms any failure into a user-friendly form.
-We added the capability without restructuring the original effect.
+We added the capability without restructuring the original Effect.
 This is just one way to handle errors.
 ZIO provides many variations, which we will not cover exhaustively.
 
-The second superpower (`orElseFail`) is combined with the first (`retry`).
-Like `retry`, it can be added to any fallible effect.
-The uber-superpower is that superpowers can be combined;
-this creates a new effect that is the combination of the original effect AND the superpowers applied to it.
+The `orElseFail` is combined with the first (`retry`) creating another new Effect that has both error handling capabilities.
+Like `retry`, the `orElseFail` can be added to any fallible Effect.
 
+Not only can capabilities be added to any Effect, Effects can be combined and modified, producing new Effects.
 
-> TODO Holy shit moment callout (this is really important)
-
-## Effect Example 4. Things Can Take a Long Time
+## Effect 4. Things Can Take a Long Time
 
 ```scala mdoc:silent
 val effect4 =
-  effect3.timeoutFail("Took too long to save"):
-    // TODO Restore real value when done editing
-    5.millis
-//      5.seconds
+  effect3
+    .timeoutFail("Save timed out"):
+      5.seconds
 ```
 
+If the effect does not complete within 5 seconds, it fails.
+Like the other capabilities for error handling, timeouts can be added to any Effect.
+
 ```scala mdoc
-runScenario(firstIsSlow):
+runScenario(FirstIsSlow):
   effect4
 ```
 
-## Effect Example 5. Fallback From Failure
+Running the new Effect in the `FirstIsSlow` scenario causes it to take longer than the 5 second timeout.
+
+## Effect 5. Fallback From Failure
+
+In some cases there may be a fallback for a failed Effect.
 
 ```scala mdoc:silent
 val effect5 =
@@ -312,15 +318,21 @@ val effect5 =
     sendToManualQueue:
       userName
 ```
+
+The `orElse` creates a new Effect with a fallback.  The `sendToManualQueue` simulates alternative fallback logic.
+
 ```scala mdoc
 // fails - with retry and fallback
 runScenario(NeverWorks):
   effect5
 ```
 
-## Effect Example 6. Concurrent Execution
+We run the effect again in the `NeverWorks` scenario
+  , causing it to execute the fallback Effect.
 
-`fireAndForget` is an extension method, whose implementation we are hiding for now.
+## Effect 6. Concurrent Execution
+
+Effects can be run concurrently and as an example, we can at the same time as the user is being saved, send an event to another system.
 
 ```scala mdoc:silent
 val effect6 =
@@ -329,8 +341,7 @@ val effect6 =
       userName
 ```
 
-It executes the new Effect in parallel, so even though we have added it "to the end" of our larger existing Effect,
-  it completes first.
+`fireAndForget` is a convenience method we defined (in hidden code) that makes it easy to run two effects in parallel and ignore any failures on the `userSignupInitiated` Effect.
 We can add all sorts of custom behavior to our Effect type, and then invoke them regardless of error and result types.
 
 ```scala mdoc
@@ -338,7 +349,7 @@ runScenario(HappyPath):
   effect6
 ```
 
-## Effect Example 7. Timing all of this
+## Effect 7. Timing all of this
 
 ```scala mdoc:silent
 val effect7 =
@@ -350,7 +361,7 @@ runScenario(HappyPath):
   effect7
 ```
 
-## Effect Example 8. Maybe we don't want this to run at all?
+## Effect 8. Maybe we don't want this to run at all?
 
 Now that we have added all of these superpowers to our process
   , our lead engineer lets us known that a certain user should be prevented from using our system.

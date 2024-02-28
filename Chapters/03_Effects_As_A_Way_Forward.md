@@ -153,7 +153,6 @@ Observation can be very basic:
 - Accepting user input from the console
 - Getting the current time from the system clock
 - Taking the output of a random number generator
-
 Observations can also be complex and domain-specific:
 
 - Sensing slippage in an anti-lock braking system
