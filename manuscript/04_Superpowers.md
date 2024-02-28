@@ -159,7 +159,8 @@ val effect4 =
       userName
 ```
 
-The `orElse` creates a new Effect with a fallback.  The `sendToManualQueue` simulates alternative fallback logic.
+The `orElse` creates a new Effect with a fallback.
+The `sendToManualQueue` simulates alternative fallback logic.
 
 ```scala
 // fails - with retry and fallback
@@ -177,7 +178,9 @@ We run the effect again in the `NeverWorks` scenario,
 
 ## Superpower 5. Concurrent Execution
 
-Effects can be run concurrently and as an example, we can at the same time as the user is being saved, send an event to another system.
+Effects can be run concurrently and as an example,
+  we can at the same time as the user is being saved,
+  send an event to another system.
 
 ```scala
 val effect5 =
@@ -212,7 +215,7 @@ val effect6 =
 runScenario(HappyPath):
   effect6
 // Log: Signup initiated for Morty
-// Result: (PT0.001041809S,User saved)
+// Result: (PT0.001234821S,User saved)
 ```
 
 The new Effect runs in the "happy path" and the time the effect took is combined with the output from the program.
