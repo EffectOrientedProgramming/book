@@ -92,29 +92,6 @@ runDemo:
     Dough.fresh
 ```
 
-For code organization, and legibility at call sites, we are defining several layers within the `Heat` companion object.
-They will all be used soon.
-
-```scala mdoc
-case class Heat()
-object Heat:
-  val oven =
-    ZLayer
-      .derive[Heat]
-      .tapWithMessage:
-        "Heating Oven"
-
-  val toaster =
-    ZLayer
-      .derive[Heat]
-      .tapWithMessage:
-        "Heating Toaster"
-
-  val broken =
-    ZLayer.fail:
-      "**Power Out**"
-```
-
 
 
 ## Step 3: Effects can require multiple dependencies
@@ -153,6 +130,27 @@ object Bread:
 ```
 
 
+
+For code organization, and legibility at call sites, we are defining several layers within the `Heat` companion object.
+They will all be used soon.
+
+```scala mdoc
+case class Heat()
+object Heat:
+  val broken =
+    ZLayer.fail:
+      "**Power Out**"
+
+
+val oven =
+  ZLayer
+          .derive[Heat]
+          .tapWithMessage:
+          "Heating Oven"
+
+```
+
+
 ```scala mdoc
 runDemo:
   Bread
@@ -160,7 +158,7 @@ runDemo:
     .build
     .provide(
       Dough.fresh,
-      Heat.oven,
+      oven,
       Scope.default
     )
 ```
@@ -183,7 +181,7 @@ runDemo:
     // dependencies.
     Bread.homemade,
     Dough.fresh,
-    Heat.oven
+    oven
   )
 ```
 
@@ -209,22 +207,36 @@ The dependencies are based on the type, so in this case both
 `Toast.make` and `Bread.make` require heat, but 
 
 
-Notice - Even though we provide the same dependencies in this example, Heat.oven is _also_ required by `Toast.make`
+Notice - Even though we provide the same dependencies in this example, oven is _also_ required by `Toast.make`
 
 ```scala mdoc
 runDemo:
-  ZLayer
-    .make[Toast](
-      Toast.make,
-      Bread.homemade,
-      Dough.fresh,
-      Heat.oven
-    )
-    .build
+  defer:
+    val toast =
+      ZLayer
+        .make[Toast](
+          Toast.make,
+          Bread.homemade,
+          Dough.fresh,
+          oven
+        )
+    toast
+      .build
+      .run
+      .get
 ```
 
 However, the oven uses a lot of energy to make `Toast`.
 It would be great if we can instead use our dedicated toaster!
+
+
+```scala mdoc:silent
+val toaster =
+  ZLayer
+    .derive[Heat]
+    .tapWithMessage:
+      "Heating Toaster"
+```
 
 ## Step 6: Dependencies must be fulfilled by unique types
 
@@ -235,8 +247,8 @@ runDemo:
       Toast.make,
       Dough.fresh,
       Bread.homemade,
-      Heat.oven,
-      Heat.toaster
+      oven,
+      toaster
     )
     .build
 ```
@@ -252,11 +264,11 @@ runDemo:
     ZLayer.make[Bread](
       Bread.homemade,
       Dough.fresh,
-      Heat.oven
+      oven
     )
 
   ZLayer
-    .make[Toast](Toast.make, bread, Heat.toaster)
+    .make[Toast](Toast.make, bread, toaster)
     .build
 ```
 
@@ -364,7 +376,7 @@ runDemo:
         Bread.storeBought
 
   ZLayer
-    .make[Toast](Toast.make, bread, Heat.toaster)
+    .make[Toast](Toast.make, bread, toaster)
     .build
 ```
 
