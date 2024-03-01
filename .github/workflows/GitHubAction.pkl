@@ -1,0 +1,19 @@
+@ModuleInfo { minPklVersion = "0.25.1" }
+module GitHubAction
+
+typealias Event = "push" | "pull_request"
+
+on: Listing<Event>
+
+class Step {
+  uses: String?
+  with: Mapping<String, String>?
+  run: String?
+}
+
+class Job {
+  `runs-on`: String
+  steps: Listing<Step>
+}
+
+jobs: Mapping<String, Job>
