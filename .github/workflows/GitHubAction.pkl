@@ -3,8 +3,10 @@ module GitHubAction
 
 typealias Event = "push" | "pull_request"
 
+/// The events to trigger on
 on: Listing<Event>
 
+/// A Step to run
 class Step {
   uses: String?
   with: Mapping<String, String>?
@@ -12,8 +14,15 @@ class Step {
 }
 
 class Job {
+  // todo: sum type
   `runs-on`: String
   steps: Listing<Step>
 }
 
 jobs: Mapping<String, Job>
+
+
+output {
+  // todo: do not hard code file name
+  text = "# Generated from test.pkl. DO NOT EDIT.\n" + super.text
+}

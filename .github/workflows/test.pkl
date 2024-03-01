@@ -1,28 +1,12 @@
 amends "GitHubAction.pkl"
 
+import "GitHubActionScala.pkl"
+
 on {
   "push"
   "pull_request"
 }
 
 jobs {
-  ["test"] {
-    `runs-on` = "ubuntu-latest"
-    steps {
-      new {
-        uses = "actions/checkout@v2"
-      }
-      new {
-        uses = "actions/setup-java@v3"
-        with {
-          ["distribution"] = "temurin"
-          ["java-version"] = "11"
-          ["cache"] = "sbt"
-        }
-      }
-      new {
-        run = "./bin/sbt test genManuscript"
-      }
-    }
-  }
+  ["test"] = GitHubActionScala.sbtTest("test genManuscript")
 }
