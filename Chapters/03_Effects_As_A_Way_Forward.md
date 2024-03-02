@@ -20,8 +20,8 @@ If each piece of a traditional system is unreliable,
 
 What if we could change our thinking around the problem of building software systems?
 Imagine building small pieces that can each be reasoned about and made rock-solid.
-Now suppose there is a way to combine these reliable pieces to make bigger parts that are just as reliable.
-Each time you combine smaller parts to create a bigger part, the result inherits the reliability of its components.
+Now suppose there is a way to combine these reliable pieces to make larger parts that are just as reliable.
+Each time you combine smaller parts to create a larger part, the result inherits the reliability of its components.
 Instead of multiplying unreliability, you maintain reliability.
 The resulting system is as reliable as any of its components.
 
@@ -34,6 +34,8 @@ With most languages,
   then start accumulating the other language features as standalone concepts.
 In functional programming we start by examining the impact of each concept on reliability.
 We then combine the smaller concepts, ensuring reliability at each step.
+
+TODO {{  Define pure functions }}
 
 A reliable system isolates parts that are always the same 
   (pure functions) 
@@ -50,25 +52,20 @@ We assume you are reading this book because you do not.
 ## Dealing with unpredictability
 
 Any real program has to interact with things outside the programmer's control.
-
 All external systems are unpredictable.
 
 Building systems that are reliable requires isolating and managing the unpredictable parts.
-
-An approach that programmers may use to handle this is to delineate the parts of the program which use external systems.
-
-By delineating them,
+An approach that programmers may use to handle this is to isolate the parts of the program which use external systems.
+By isolating them,
   programmers then have tools to handle the unpredictable parts in more predictable ways.
 
 The interactions with external systems can be defined in terms of "Effects".
 Effects create a delineation between the parts of a program that interact with external systems and those that don't.
 
 For example, a program that displays the current date requires something that actually knows the current date.
-
 The program needs to talk to an external system 
   (maybe just the operating system)
   to get this information.
-
 These programs are unpredictable because the programmer has no control over what that external system will say or do.
 
 ## What is an Effect?
@@ -99,6 +96,7 @@ Once a program has communicated with an external system,
   everything that happens on that external systems is out of the program's control.
 
 ### Even communication cannot be undone
+TODO Can we make it more positive?
 
 Imagine that a friend recently stayed in your home.
 3 days after they leave,
@@ -150,9 +148,11 @@ This bridge between pure functions and practical programs with controlled and ma
 
 Observation can be very basic:
 
-- Accepting user input from the console
+- Accepting user input
+- Reading from a file
 - Getting the current time from the system clock
-- Taking the output of a random number generator
+- Generating a random number
+
 Observations can also be complex and domain-specific:
 
 - Sensing slippage in an anti-lock braking system
@@ -166,7 +166,7 @@ We explore similar scenarios throughout the book.
 
 Just as with observations, changes can be basic:
 
-- Displaying on the console
+- Displaying on the screen
 - Writing to a file
 - Mutating a variable
 - Saving to a database
@@ -178,14 +178,16 @@ They can be advanced:
 - Stabilizing an airplane
 - Detonating explosives
 
-### Effects Defined as Data
-
-One approach to defining effects is...
+### Effects Define Logic TODO Should this go after the next chapter?
 
 The effects have not been executed when defined.
 
 A common mistake when starting with effects is to return un-executed effects themselves.
 More often, you really want to execute them, produce a result, and return that.
+
+You can think of Effects as recipes for producing a value.
+Usually, you don't want to return a recipe from a function, you want to return a value.
+If it is your friend's birthday, they want a cake, not a list of instructions about mixing ingredients and baking.
 
 This is a mistake because an Effect is not its result, it is a description of logic that produces the result.
 The effect only describes something *to be* done.
@@ -196,8 +198,7 @@ The user must determine when/where that happens.
 
 Consider the `Option` type from the standard library.
 An `Option` _might_ have a value inside of it, but you can't safely assume that it does.
+// TODO Can we provide an Option
 
 Similarly, an Effect _might_ produce a value, but you have to run it to find out.
-You can think of Effects as recipes for producing a value.
-Usually, you don't want to return a recipe from a function, you want to return a value.
-If it is your friend's birthday, they want a cake, not a list of instructions about mixing ingredients and baking.
+Once you execute an Effect, you get a result value, and you are back into the world of 

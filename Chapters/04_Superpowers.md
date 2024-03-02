@@ -1,5 +1,22 @@
 # Superpowers with Effects
 
+Effects enable us to progressively add capabilities to increase reliability and control the unpredictable aspects.
+In this chapter you will see that once we've defined parts of a program in terms of Effects, we gain some superpowers.
+The reason we call it "superpowers" is that the capabilities you will see can be attached to **any** Effect.
+For recurring concerns in our program, we do not want to create a bespoke solution for each context.
+To illustrate this we will show a few examples of common capabilities applied to Effects.
+Let's start with the "happy path" where we save a user to a database
+(an Effect)
+and then gradually add superpowers.
+
+To start with we save a user to a database:
+
+```scala mdoc:silent
+val userName =
+  "Morty"
+
+```
+
 ```scala mdoc:invisible
 object HiddenPrelude:
   enum Scenario:
@@ -46,7 +63,7 @@ object HiddenPrelude:
     val DoesNotWorkInitially =
       Unsafe.unsafe { implicit unsafe =>
         WorksOnTry(
-          2,
+          3,
           Runtime
             .default
             .unsafe
@@ -56,8 +73,9 @@ object HiddenPrelude:
       }
   end Scenario
 
-  def runScenario[E, A](s: Scenario)(
-      z: => ZIO[Scope, E, A]
+  def runScenario[E, A](
+     scenario: Scenario,
+     logic: => ZIO[Scope, E, A]
   ): Unit =
     Unsafe.unsafe { (u: Unsafe) =>
       given Unsafe =
@@ -69,38 +87,31 @@ object HiddenPrelude:
               .renderEveryPossibleOutcomeZio(
                 defer:
 //                  val invocations = Ref.make(0).run
-                  resetScenario(s)
+                  resetScenario(scenario)
 //                  invocations.set(s).run
-                  z.run
+                  logic.run
                 .provide(Scope.default)
               )
               .withConsole(OurConsole)
           )
           .getOrThrowFiberFailure()
-      // This is the *only* place we can trust to
-      // always print the final value
       println("Result: " + res)
     }
 
   def saveUser(username: String) =
     val succeed =
-      ZIO.succeed("User saved")
+      ZIO.succeed:
+        "User saved"
     val fail =
       ZIO
-        .fail("**Database crashed!!**")
-        .tapError { error =>
+        .fail:
+          "**Database crashed!!**"
+        .tapError: error =>
           ZIO.succeed:
             println:
               "Log: " + error
 
-          // TODO This blows up, probably due to
-          // our general ZIO Console problem.
-//          Console
-//            .printLineError("Database Error")
-//            .orDie
-        }
-
-    defer {
+    defer:
       invocations.get.run match
         case Scenario.HappyPath =>
           succeed.run
@@ -129,7 +140,7 @@ object HiddenPrelude:
             succeed.run
           else
             fail.run
-    }.onInterrupt(
+    .onInterrupt(
       ZIO.debug("Log: Interrupting slow request")
     )
   end saveUser
@@ -138,9 +149,9 @@ object HiddenPrelude:
     ZIO
       .attempt("User sent to manual setup queue")
 
-  def userSignupInitiated(username: String) =
+  val logUserSignup =
     ZIO.succeed(
-      println(s"Log: Signup initiated for $username")
+      println(s"Log: Signup initiated for $userName")
     )
 
 
@@ -159,35 +170,24 @@ import HiddenPrelude.*
 import Scenario.*
 ```
 
-Effects enable us to progressively add capabilities to increase reliability and control the unpredictable aspects.
-In this chapter you will see that once we've defined parts of a program in terms of Effects, we gain some superpowers.
-The reason we call it "superpowers" is that the capabilities you will see can be attached to **any** Effect.
-For recurring concerns in our program, we do not want to create a bespoke solution for each context.
-To illustrate this we will show a few examples of common capabilities applied to Effects.
-Let's start with the "happy path" where we save a user to a database
-(an Effect)
-and then gradually add superpowers.
-
-To start with we save a user to a database:
-
 ```scala mdoc:silent
-val userName =
-  "Morty"
-
 val effect0 =
   saveUser:
     userName
 ```
 
+
 This `val` contains the logic of the Effect.
 The Effect does not execute until we explicitly run it.
 
 ```scala mdoc
-runScenario(HappyPath):
-  effect0
+runScenario(
+  scenario = HappyPath,
+  logic = effect0
+)
 ```
 
-`runScenario(HappyPath)` runs our Effect in the "happy path" so that it will not fail.
+`runScenario(scenario = HappyPath)` runs our Effect in the "happy path" so that it will not fail.
 This allows us to simulate failure scenarios in the next examples.
 
 In real systems, assuming the "happy path" causes strange errors for users because the errors are unhandled.
@@ -195,14 +195,16 @@ In real systems, assuming the "happy path" causes strange errors for users becau
 We can also run `effect` in a scenario that will cause it to fail.
 
 ```scala mdoc
-runScenario(DoesNotWorkInitially):
-  effect0
+runScenario(
+  scenario = DoesNotWorkInitially,
+  logic = effect0
+)
 ```
 
-`runScenario(DoesNotWorkInitially)` runs our Effect but it fails.
+`runScenario(scenario = DoesNotWorkInitially)` runs our Effect but it fails.
 The output logs the failure and the program produces the failure as the result of execution.
 
-## Superpower 1. What if Failure is Temporary?
+## Superpower: What if Failure is Temporary?
 
 Sometimes things work when you keep trying.  
 We can attach a `retry` to our first Effect.
@@ -223,8 +225,10 @@ Schedules can be applied to many different capabilities.
 We do this because we assume the failure will likely be resolved within 3 seconds.
 
 ```scala mdoc
-runScenario(DoesNotWorkInitially):
-  effect1
+runScenario(
+  scenario = DoesNotWorkInitially,
+  logic = effect1
+)
 ```
 
 The output shows that running the Effect failed twice trying to save the user, then it succeeded.
@@ -232,14 +236,16 @@ The output shows that running the Effect failed twice trying to save the user, t
 ### What If It Never Succeeds?
 
 ```scala mdoc
-runScenario(NeverWorks):
-  effect1
+runScenario(
+  scenario = NeverWorks,
+  logic = effect1
+)
 ```
 
-In the `NeverWorks` scenarios, the Effect failed its initial attempt, and failed the subsequent three retries.  
+In the `NeverWorks` scenarios, the Effect failed its initial attempt, and failed the subsequent three retries.
 It eventually returns the DB error to the user.
 
-## Superpower 2. Users Like Nice Error Messages
+## Superpower: Users Like Nice Error Messages
 
 Let's handle the error and return something nicer:
 
@@ -250,8 +256,10 @@ val effect2 =
 ```
 
 ```scala mdoc
-runScenario(NeverWorks):
-  effect2
+runScenario(
+  scenario = NeverWorks,
+  logic = effect2
+)
 ```
 
 **Any** fallible Effect can attach a variety of error handling capabilities.
@@ -266,7 +274,7 @@ Like `retry`, the `orElseFail` can be added to any fallible Effect.
 
 Not only can capabilities be added to any Effect, Effects can be combined and modified, producing new Effects.
 
-## Superpower 3. Things Can Take a Long Time
+## Superpower: Things Can Take a Long Time
 
 ```scala mdoc:silent
 val effect3 =
@@ -279,13 +287,15 @@ If the effect does not complete within 5 seconds, it fails.
 Like the other capabilities for error handling, timeouts can be added to any Effect.
 
 ```scala mdoc
-runScenario(FirstIsSlow):
-  effect3
+runScenario(
+  scenario = FirstIsSlow,
+  logic = effect3
+)
 ```
 
 Running the new Effect in the `FirstIsSlow` scenario causes it to take longer than the 5 second timeout.
 
-## Superpower 4. Fallback From Failure
+## Superpower: Fallback From Failure
 
 In some cases there may be a fallback for a failed Effect.
 
@@ -300,15 +310,16 @@ The `orElse` creates a new Effect with a fallback.
 The `sendToManualQueue` simulates alternative fallback logic.
 
 ```scala mdoc
-// fails - with retry and fallback
-runScenario(NeverWorks):
-  effect4
+runScenario(
+  scenario = NeverWorks,
+  logic = effect4
+)
 ```
 
 We run the effect again in the `NeverWorks` scenario,
   causing it to execute the fallback Effect.
 
-## Superpower 5. Concurrent Execution
+## Superpower: Add Some Logging
 
 Effects can be run concurrently and as an example,
   we can at the same time as the user is being saved,
@@ -317,22 +328,24 @@ Effects can be run concurrently and as an example,
 ```scala mdoc:silent
 val effect5 =
   effect4.fireAndForget:
-    userSignupInitiated:
-      userName
+    logUserSignup
 ```
 
-`fireAndForget` is a convenience method we defined (in hidden code) that makes it easy to run two effects in parallel and ignore any failures on the `userSignupInitiated` Effect.
-
-We can add all sorts of custom behavior to our Effect type, and then invoke them regardless of error and result types.
+`fireAndForget` is a convenience method we defined (in hidden code) that makes it easy to run two effects in parallel and ignore any failures on the `logUserSignup` Effect.
 
 ```scala mdoc
-runScenario(HappyPath):
-  effect5
+runScenario(
+  scenario = HappyPath,
+  logic = effect5
+)
 ```
 
-We run the effect again in the `HappyPath` scenario to simulate the case where both Effects run in parallel.
+We run the effect again in the `HappyPath` scenario to demonstrate running the Effects in parallel.
 
-## Superpower 6. How Long Do Things Take?
+We can add all sorts of custom behavior to our Effect type,
+  and then invoke them regardless of error and result types.
+
+## Superpower: How Long Do Things Take?
 
 For diagnostic information you can track timing:
 
@@ -342,13 +355,14 @@ val effect6 =
 ```
 
 ```scala mdoc
-runScenario(HappyPath):
-  effect6
+runScenario(
+  scenario = HappyPath,
+  logic = effect6
+)
 ```
+We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.
 
-The new Effect runs in the "happy path" and the time the effect took is combined with the output from the program.
-
-## Superpower 7. Maybe We Don't Want To Run Anything
+## Superpower: Maybe We Don't Want To Run Anything
 
 Now that we have added all of these superpowers to our process,
   our lead engineer lets us known that a certain user should be prevented from using our system.
@@ -359,8 +373,10 @@ val effect7 =
 ```
 
 ```scala mdoc
-runScenario(HappyPath):
-  effect7
+runScenario(
+  scenario = HappyPath,
+  logic = effect7
+)
 ```
 We can add behavior to the end of our complex Effect,
   that prevents it from ever executing in the first place.
