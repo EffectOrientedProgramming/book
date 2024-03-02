@@ -1,10 +1,14 @@
-amends "GitHubAction.pkl"
+amends "package://pkg.pkl-lang.org/github.com/jamesward/pklgha/pklgha@0.0.1#/GitHubAction.pkl"
 
-import "GitHubActionScala.pkl"
+import "package://pkg.pkl-lang.org/github.com/jamesward/pklgha/pklgha@0.0.1#/GitHubActionScala.pkl"
 
 on {
-  "push"
-  "pull_request"
+  push {
+
+  }
+  pull_request {
+
+  }
 }
 
 jobs {

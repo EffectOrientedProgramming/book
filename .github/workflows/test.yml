@@ -1,7 +1,9 @@
-# Generated from test.pkl. DO NOT EDIT.
+# Generated file. DO NOT EDIT.
 'on':
-- push
-- pull_request
+  push: {}
+  pull_request: []
+permissions:
+  contents: write
 jobs:
   test:
     runs-on: ubuntu-latest
