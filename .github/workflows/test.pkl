@@ -1,6 +1,6 @@
-amends "package://pkg.pkl-lang.org/github.com/jamesward/pklgha/pklgha@0.0.1#/GitHubAction.pkl"
+amends "package://pkg.pkl-lang.org/github.com/jamesward/pklgha/pklgha@0.0.7#/GitHubAction.pkl"
 
-import "package://pkg.pkl-lang.org/github.com/jamesward/pklgha/pklgha@0.0.1#/GitHubActionScala.pkl"
+import "package://pkg.pkl-lang.org/github.com/jamesward/pklgha/pklgha@0.0.7#/GitHubActionScala.pkl"
 
 on {
   push {
