@@ -170,10 +170,10 @@ val oven =
           "Heating Oven"
 // oven: ZLayer[Any, Nothing, Heat] = Fold(
 //   self = Suspend(
-//     self = zio.ZLayer$ScopedEnvironmentPartiallyApplied$$$Lambda$15243/0x0000000803e70840@52879070
+//     self = zio.ZLayer$ScopedEnvironmentPartiallyApplied$$$Lambda$16400/0x000000080407b440@5ab6fedb
 //   ),
-//   failure = zio.ZLayer$$Lambda$15944/0x00000008040b0040@6ec8619c,
-//   success = zio.ZLayer$$Lambda$15942/0x00000008040ae840@365c7946
+//   failure = zio.ZLayer$$Lambda$17156/0x0000000804243840@587d2598,
+//   success = zio.ZLayer$$Lambda$17154/0x0000000804242040@7382a56d
 // )
 ```
 
@@ -399,13 +399,84 @@ runDemo:
 // Result: ZEnvironment(MdocSession::MdocApp::BreadStoreB
 ```
 
-
+TODO {{ Make like superpowers with vals. Figure out how to add the config without changing a previous step. }}
 
 Changing things based on the running environment.
 
 - CLI Params
 - Config Files
 - Environment Variables
+
+```scala
+import zio.config.*
+import zio.config.magnolia.deriveConfig
+import zio.config.typesafe.*
+
+case class RetryConfig(times: Int)
+
+val configDescriptor: Config[RetryConfig] = deriveConfig[RetryConfig]
+// configDescriptor: Config[RetryConfig] = MapOrFail(
+//   original = MapOrFail(
+//     original = MapOrFail(
+//       original = Lazy(
+//         thunk = zio.config.magnolia.DeriveConfig$$$Lambda$17383/0x00000008042d2440@735ad4a4
+//       ),
+//       mapOrFail = zio.Config$$Lambda$17373/0x00000008042c5040@36ad8024
+//     ),
+//     mapOrFail = zio.Config$$Lambda$17373/0x00000008042c5040@750854b5
+//   ),
+//   mapOrFail = zio.Config$$Lambda$17373/0x00000008042c5040@70cf07c2
+// )
+
+val configProvider =
+  ConfigProvider.fromHoconString:
+    "{ times: 3 }"
+// configProvider: ConfigProvider = zio.ConfigProvider$$anon$10@5595128b
+
+val configFromEnv =
+  ZLayer.fromZIO:
+    read:
+      configDescriptor.from:
+        configProvider
+// configFromEnv: ZLayer[Any, Error, RetryConfig] = Suspend(
+//   self = zio.ZLayer$$$Lambda$16397/0x000000080407b840@fe314bd
+// )
+
+val logic =
+  defer:
+    val retryConfig = ZIO.service[RetryConfig].run
+    retryConfig.times
+  .provide:
+    configFromEnv
+// logic: ZIO[Any, Error, Int] = OnSuccess(
+//   trace = "repl.MdocSession.MdocApp.logic(05_Configuration.md:365)",
+//   first = OnSuccess(
+//     trace = "repl.MdocSession.MdocApp.logic(05_Configuration.md:365)",
+//     first = Sync(
+//       trace = "repl.MdocSession.MdocApp.logic(05_Configuration.md:365)",
+//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$16403/0x0000000804079840@7490bbc
+//     ),
+//     successK = zio.ZIO$$Lambda$16459/0x0000000804102040@1bbecdcc
+//   ),
+//   successK = zio.ZIO$$$Lambda$16460/0x0000000804102840@6a484273
+// )
+
+runDemo:
+  logic
+// Result: 3
+
+//
+//runDemo:
+//  Bread2
+//    .fromFriend
+//    .retry:
+//      Schedule.recurs:
+//        1
+//    .orElse:
+//      Bread.storeBought
+//    .build // TODO Stop using build, if possible
+//    .debug
+```
 
 
 ## Testing Effects
