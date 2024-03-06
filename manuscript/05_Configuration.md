@@ -170,10 +170,10 @@ val oven =
           "Heating Oven"
 // oven: ZLayer[Any, Nothing, Heat] = Fold(
 //   self = Suspend(
-//     self = zio.ZLayer$ScopedEnvironmentPartiallyApplied$$$Lambda$15276/0x0000000803e66040@7fb7beee
+//     self = zio.ZLayer$ScopedEnvironmentPartiallyApplied$$$Lambda$15243/0x0000000803e70840@52879070
 //   ),
-//   failure = zio.ZLayer$$Lambda$15977/0x0000000803064040@5565be7,
-//   success = zio.ZLayer$$Lambda$15975/0x0000000803065840@6da5d9b0
+//   failure = zio.ZLayer$$Lambda$15944/0x00000008040b0040@6ec8619c,
+//   success = zio.ZLayer$$Lambda$15942/0x00000008040ae840@365c7946
 // )
 ```
 
