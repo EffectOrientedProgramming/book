@@ -401,13 +401,55 @@ runDemo:
     .debug
 ```
 
-
+TODO {{ Make like superpowers with vals. Figure out how to add the config without changing a previous step. }}
 
 Changing things based on the running environment.
 
 - CLI Params
 - Config Files
 - Environment Variables
+
+```scala mdoc
+import zio.config.*
+import zio.config.magnolia.deriveConfig
+import zio.config.typesafe.*
+
+case class RetryConfig(times: Int)
+
+val configDescriptor: Config[RetryConfig] = deriveConfig[RetryConfig]
+
+val configProvider =
+  ConfigProvider.fromHoconString:
+    "{ times: 3 }"
+
+val configFromEnv =
+  ZLayer.fromZIO:
+    read:
+      configDescriptor.from:
+        configProvider
+
+val logic =
+  defer:
+    val retryConfig = ZIO.service[RetryConfig].run
+    retryConfig.times
+  .provide:
+    configFromEnv
+
+runDemo:
+  logic
+
+//
+//runDemo:
+//  Bread2
+//    .fromFriend
+//    .retry:
+//      Schedule.recurs:
+//        1
+//    .orElse:
+//      Bread.storeBought
+//    .build // TODO Stop using build, if possible
+//    .debug
+```
 
 
 ## Testing Effects
