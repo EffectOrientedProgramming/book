@@ -300,6 +300,8 @@ object BuildTooling {
         Seq(
           "dev.zio" %% "zio"       % zioVersion,
           "dev.zio" %% "zio-cache" % "0.2.3",
+          "dev.zio" %% "zio-config" % "4.0.1",
+          "dev.zio" %% "zio-config-magnolia" % "4.0.1",
           "dev.zio"     %%
             "zio-direct" % "1.0.0-RC7" excludeAll
             (

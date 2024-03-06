@@ -2,7 +2,7 @@ import BuildTooling.*
 
 name := "EffectOrientedProgramming"
 
-inThisBuild(scalaVersion := "3.3.1")
+inThisBuild(scalaVersion := "3.4.0")
 
 initialize := {
   initialize.value
