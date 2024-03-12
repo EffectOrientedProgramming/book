@@ -134,8 +134,9 @@ val oven =
 ```scala
 trait Bread:
   val eat =
-    ZIO.debug:
-      "Eating bread!"
+    ZIO.succeed:
+      println:
+        "Eating bread!"
 
 case class BreadHomeMade(
     heat: Heat,
@@ -183,6 +184,7 @@ runDemo:
     Dough.fresh,
     oven
   )
+// Eating bread!
 // Result: ()
 ```
 
@@ -340,6 +342,7 @@ runDemo:
 // **Power out**
 // **Power out**
 // Power is on
+// Eating bread!
 // Result: ()
 ```
 
