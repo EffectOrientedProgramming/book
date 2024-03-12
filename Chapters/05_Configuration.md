@@ -112,8 +112,6 @@ case class BreadHomeMade(
     heat: Heat,
     dough: Dough
 ) extends Bread
-// TODO  Move StoreBought further down?
-case class BreadStoreBought() extends Bread
 
 object Bread:
   val homemade =
@@ -121,12 +119,6 @@ object Bread:
       .derive[BreadHomeMade]
       .tapWithMessage:
         "Making Homemade Bread"
-
-  val storeBought =
-    ZLayer
-      .derive[BreadStoreBought]
-      .tapWithMessage:
-        "Buying Bread"
 ```
 
 
@@ -134,33 +126,26 @@ object Bread:
 For code organization, and legibility at call sites, we are defining several layers within the `Heat` companion object.
 They will all be used soon.
 
-```scala mdoc
+```scala mdoc:silent
 case class Heat()
-object Heat:
-  val broken =
-    ZLayer.fail:
-      "**Power Out**"
-
 
 val oven =
   ZLayer
-          .derive[Heat]
-          .tapWithMessage:
-          "Heating Oven"
-
+    .derive[Heat]
+    .tapWithMessage:
+      "Heating Oven"
 ```
 
 
 ```scala mdoc
 runDemo:
-  Bread
-    .homemade
-    .build
-    .provide(
-      Dough.fresh,
-      oven,
-      Scope.default
-    )
+  defer:
+    ZIO.service[Bread].run
+  .provide(
+    Bread.homemade,
+    Dough.fresh, 
+    oven, 
+  )
 ```
 
 ## Step 4: Dependencies can "automatically" assemble to fulfill the needs of an effect
@@ -212,18 +197,13 @@ Notice - Even though we provide the same dependencies in this example, oven is _
 ```scala mdoc
 runDemo:
   defer:
-    val toast =
-      ZLayer
-        .make[Toast](
-          Toast.make,
-          Bread.homemade,
-          Dough.fresh,
-          oven
-        )
-    toast
-      .build
-      .run
-      .get
+    ZIO.service[Toast].run
+  .provide(
+    Toast.make,
+    Bread.homemade,
+    Dough.fresh,
+    oven
+  )
 ```
 
 However, the oven uses a lot of energy to make `Toast`.
@@ -242,15 +222,15 @@ val toaster =
 
 ```scala mdoc:fail
 runDemo:
-  ZLayer
-    .make[Toast](
-      Toast.make,
-      Dough.fresh,
-      Bread.homemade,
-      oven,
-      toaster
-    )
-    .build
+  defer:
+    ZIO.service[Toast].run
+  .provide(
+    Toast.make,
+    Dough.fresh,
+    Bread.homemade,
+    oven,
+    toaster
+  )
 ```
 Unfortunately our program is now ambiguous.
 It cannot decide if we should be making `Toast` in the oven, `Bread` in the toaster, or any other combination.
@@ -260,19 +240,34 @@ This enables other effects that use them to provide their own dependencies of th
 
 ```scala mdoc
 runDemo:
-  val bread =
-    ZLayer.make[Bread](
-      Bread.homemade,
-      Dough.fresh,
-      oven
-    )
+  defer:
+    val bread =
+      defer:
+        ZIO.service[Bread].run
+      .provide(
+        Bread.homemade,
+        Dough.fresh,
+        oven
+      )
+      .run
 
-  ZLayer
-    .make[Toast](Toast.make, bread, toaster)
-    .build
+    ZLayer
+      .make[Toast](Toast.make, ZLayer.succeed(bread), toaster)
+      .build
+      .run
+      .get
 ```
 
 ## Step 8: Dependencies can fail
+
+```scala mdoc:silent
+case class BreadStoreBought() extends Bread
+val storeBought =
+  ZLayer
+    .derive[BreadStoreBought]
+    .tapWithMessage:
+      "Buying Bread"
+```
 
 ```scala mdoc:invisible
 import zio.Runtime.default.unsafe
@@ -341,7 +336,7 @@ runDemo:
     Bread2.fromFriend
 ```
 
-```scala mdoc:invisible
+```scala mdoc:silent
 Bread2.reset()
 ```
 
@@ -363,7 +358,7 @@ runDemo:
 
 ## Step 10: Fallback Dependencies 
 
-```scala mdoc:invisible
+```scala mdoc:silent
 Bread2.reset()
 ```
 
@@ -373,7 +368,7 @@ runDemo:
     Bread2
       .fromFriend
       .orElse:
-        Bread.storeBought
+        storeBought
 
   ZLayer
     .make[Toast](Toast.make, bread, toaster)
@@ -384,7 +379,7 @@ runDemo:
 
 Maybe retry on the ZLayer eg. (BreadDough.rancid, Heat.brokenFor10Seconds)
 
-```scala mdoc:invisible
+```scala mdoc:silent
 Bread2.reset()
 ```
 
@@ -396,7 +391,7 @@ runDemo:
       Schedule.recurs:
         1
     .orElse:
-      Bread.storeBought
+      storeBought
     .build // TODO Stop using build, if possible
     .debug
 ```
@@ -409,14 +404,15 @@ Changing things based on the running environment.
 - Config Files
 - Environment Variables
 
-```scala mdoc
+```scala mdoc:silent
 import zio.config.*
 import zio.config.magnolia.deriveConfig
 import zio.config.typesafe.*
 
 case class RetryConfig(times: Int)
 
-val configDescriptor: Config[RetryConfig] = deriveConfig[RetryConfig]
+val configDescriptor: Config[RetryConfig] =
+  deriveConfig[RetryConfig]
 
 val configProvider =
   ConfigProvider.fromHoconString:
@@ -430,11 +426,14 @@ val configFromEnv =
 
 val logic =
   defer:
-    val retryConfig = ZIO.service[RetryConfig].run
+    val retryConfig =
+      ZIO.service[RetryConfig].run
     retryConfig.times
   .provide:
     configFromEnv
+```
 
+```scala mdoc
 runDemo:
   logic
 
@@ -446,7 +445,7 @@ runDemo:
 //      Schedule.recurs:
 //        1
 //    .orElse:
-//      Bread.storeBought
+//      storeBought
 //    .build // TODO Stop using build, if possible
 //    .debug
 ```

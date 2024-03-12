@@ -14,7 +14,6 @@ To start with we save a user to a database:
 ```scala mdoc:silent
 val userName =
   "Morty"
-
 ```
 
 ```scala mdoc:invisible
@@ -32,9 +31,7 @@ object HiddenPrelude:
         u
       unsafe
         .run(
-          Ref.make[Scenario](
-            Scenario.HappyPath
-          )
+          Ref.make[Scenario](Scenario.HappyPath)
         )
         .getOrThrowFiberFailure()
     )
@@ -74,8 +71,8 @@ object HiddenPrelude:
   end Scenario
 
   def runScenario[E, A](
-     scenario: Scenario,
-     logic: => ZIO[Scope, E, A]
+      scenario: Scenario,
+      logic: => ZIO[Scope, E, A]
   ): Unit =
     Unsafe.unsafe { (u: Unsafe) =>
       given Unsafe =
@@ -151,9 +148,10 @@ object HiddenPrelude:
 
   val logUserSignup =
     ZIO.succeed(
-      println(s"Log: Signup initiated for $userName")
+      println(
+        s"Log: Signup initiated for $userName"
+      )
     )
-
 
   // TODO Decide how much to explain this in the
   // prose,
@@ -182,8 +180,10 @@ The Effect does not execute until we explicitly run it.
 
 ```scala mdoc
 runScenario(
-  scenario = HappyPath,
-  logic = effect0
+  scenario =
+    HappyPath,
+  logic =
+    effect0
 )
 ```
 
@@ -196,8 +196,10 @@ We can also run `effect` in a scenario that will cause it to fail.
 
 ```scala mdoc
 runScenario(
-  scenario = DoesNotWorkInitially,
-  logic = effect0
+  scenario =
+    DoesNotWorkInitially,
+  logic =
+    effect0
 )
 ```
 
@@ -226,8 +228,10 @@ We do this because we assume the failure will likely be resolved within 3 second
 
 ```scala mdoc
 runScenario(
-  scenario = DoesNotWorkInitially,
-  logic = effect1
+  scenario =
+    DoesNotWorkInitially,
+  logic =
+    effect1
 )
 ```
 
@@ -237,8 +241,10 @@ The output shows that running the Effect failed twice trying to save the user, t
 
 ```scala mdoc
 runScenario(
-  scenario = NeverWorks,
-  logic = effect1
+  scenario =
+    NeverWorks,
+  logic =
+    effect1
 )
 ```
 
@@ -257,8 +263,10 @@ val effect2 =
 
 ```scala mdoc
 runScenario(
-  scenario = NeverWorks,
-  logic = effect2
+  scenario =
+    NeverWorks,
+  logic =
+    effect2
 )
 ```
 
@@ -278,9 +286,8 @@ Not only can capabilities be added to any Effect, Effects can be combined and mo
 
 ```scala mdoc:silent
 val effect3 =
-  effect2
-    .timeoutFail("Save timed out"):
-      5.seconds
+  effect2.timeoutFail("Save timed out"):
+    5.seconds
 ```
 
 If the effect does not complete within 5 seconds, it fails.
@@ -288,8 +295,10 @@ Like the other capabilities for error handling, timeouts can be added to any Eff
 
 ```scala mdoc
 runScenario(
-  scenario = FirstIsSlow,
-  logic = effect3
+  scenario =
+    FirstIsSlow,
+  logic =
+    effect3
 )
 ```
 
@@ -311,8 +320,10 @@ The `sendToManualQueue` simulates alternative fallback logic.
 
 ```scala mdoc
 runScenario(
-  scenario = NeverWorks,
-  logic = effect4
+  scenario =
+    NeverWorks,
+  logic =
+    effect4
 )
 ```
 
@@ -335,8 +346,10 @@ val effect5 =
 
 ```scala mdoc
 runScenario(
-  scenario = HappyPath,
-  logic = effect5
+  scenario =
+    HappyPath,
+  logic =
+    effect5
 )
 ```
 
@@ -356,8 +369,10 @@ val effect6 =
 
 ```scala mdoc
 runScenario(
-  scenario = HappyPath,
-  logic = effect6
+  scenario =
+    HappyPath,
+  logic =
+    effect6
 )
 ```
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.
@@ -374,8 +389,10 @@ val effect7 =
 
 ```scala mdoc
 runScenario(
-  scenario = HappyPath,
-  logic = effect7
+  scenario =
+    HappyPath,
+  logic =
+    effect7
 )
 ```
 We can add behavior to the end of our complex Effect,
