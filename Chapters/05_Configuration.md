@@ -113,8 +113,9 @@ val oven =
 ```scala mdoc
 trait Bread:
   val eat =
-    ZIO.debug:
-      "Eating bread!"
+    ZIO.succeed:
+      println:
+        "Eating bread!"
 
 case class BreadHomeMade(
     heat: Heat,
