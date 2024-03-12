@@ -87,6 +87,7 @@ runDemo:
   defer:
     val dough =
       ZIO.service[Dough].run
+    // TODO Maybe *only* call .service[Dough]? letRise might just complicate it.
     dough.letRise.run
   .provide:
     Dough.fresh
@@ -96,11 +97,18 @@ runDemo:
 
 ## Step 3: Effects can require multiple dependencies
 
-> Note: The following is copy&pasted and might just need a slight diversion to &'d typed parameters
+The requirements for each ZIO operation are tracked and combined automatically.
 
-### Intersections AKA Products AKA Case Classes AKA Ands
+```scala mdoc:silent
+case class Heat()
 
-The requirements for each ZIO operation are combined as an anonymous product type denoted by the `&` symbol.
+val oven =
+  ZLayer
+    .derive[Heat]
+    .tapWithMessage:
+    "Heating Oven"
+```
+
 
 ```scala mdoc
 trait Bread:
@@ -119,21 +127,6 @@ object Bread:
       .derive[BreadHomeMade]
       .tapWithMessage:
         "Making Homemade Bread"
-```
-
-
-
-For code organization, and legibility at call sites, we are defining several layers within the `Heat` companion object.
-They will all be used soon.
-
-```scala mdoc:silent
-case class Heat()
-
-val oven =
-  ZLayer
-    .derive[Heat]
-    .tapWithMessage:
-      "Heating Oven"
 ```
 
 
@@ -187,10 +180,8 @@ object Toast:
 
 It is possible to also use the oven to provide `Heat` to make the `Toast`.
 
-TODO Update refs here
-The dependencies are based on the type, so in this case both
-`Toast.make` and `Bread.make` require heat, but 
-
+The dependencies are tracked by their type. 
+In this case both `Toast.make` and `Bread.homemade` require `Heat`.
 
 Notice - Even though we provide the same dependencies in this example, oven is _also_ required by `Toast.make`
 
