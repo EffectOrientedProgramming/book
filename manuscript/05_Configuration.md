@@ -133,8 +133,6 @@ case class BreadHomeMade(
     heat: Heat,
     dough: Dough
 ) extends Bread
-// TODO  Move StoreBought further down?
-case class BreadStoreBought() extends Bread
 
 object Bread:
   val homemade =
@@ -142,12 +140,6 @@ object Bread:
       .derive[BreadHomeMade]
       .tapWithMessage:
         "Making Homemade Bread"
-
-  val storeBought =
-    ZLayer
-      .derive[BreadStoreBought]
-      .tapWithMessage:
-        "Buying Bread"
 ```
 
 
@@ -157,38 +149,25 @@ They will all be used soon.
 
 ```scala
 case class Heat()
-object Heat:
-  val broken =
-    ZLayer.fail:
-      "**Power Out**"
-
 
 val oven =
   ZLayer
-          .derive[Heat]
-          .tapWithMessage:
-          "Heating Oven"
-// oven: ZLayer[Any, Nothing, Heat] = Fold(
-//   self = Suspend(
-//     self = zio.ZLayer$ScopedEnvironmentPartiallyApplied$$$Lambda$16400/0x000000080407b440@5ab6fedb
-//   ),
-//   failure = zio.ZLayer$$Lambda$17156/0x0000000804243840@587d2598,
-//   success = zio.ZLayer$$Lambda$17154/0x0000000804242040@7382a56d
-// )
+    .derive[Heat]
+    .tapWithMessage:
+      "Heating Oven"
 ```
 
 
 ```scala
 runDemo:
-  Bread
-    .homemade
-    .build
-    .provide(
-      Dough.fresh,
-      oven,
-      Scope.default
-    )
-// Result: ZEnvironment(MdocSession::MdocApp::BreadHomeMa
+  defer:
+    ZIO.service[Bread].run
+  .provide(
+    Bread.homemade,
+    Dough.fresh, 
+    oven, 
+  )
+// Result: BreadHomeMade(Heat(),Dough())
 ```
 
 ## Step 4: Dependencies can "automatically" assemble to fulfill the needs of an effect
@@ -241,18 +220,13 @@ Notice - Even though we provide the same dependencies in this example, oven is _
 ```scala
 runDemo:
   defer:
-    val toast =
-      ZLayer
-        .make[Toast](
-          Toast.make,
-          Bread.homemade,
-          Dough.fresh,
-          oven
-        )
-    toast
-      .build
-      .run
-      .get
+    ZIO.service[Toast].run
+  .provide(
+    Toast.make,
+    Bread.homemade,
+    Dough.fresh,
+    oven
+  )
 // Result: Toast(Heat(),BreadHomeMade(Heat(),Dough()))
 ```
 
@@ -272,15 +246,15 @@ val toaster =
 
 ```scala
 runDemo:
-  ZLayer
-    .make[Toast](
-      Toast.make,
-      Dough.fresh,
-      Bread.homemade,
-      oven,
-      toaster
-    )
-    .build
+  defer:
+    ZIO.service[Toast].run
+  .provide(
+    Toast.make,
+    Dough.fresh,
+    Bread.homemade,
+    oven,
+    toaster
+  )
 // error: 
 // 
 // 
@@ -305,20 +279,35 @@ This enables other effects that use them to provide their own dependencies of th
 
 ```scala
 runDemo:
-  val bread =
-    ZLayer.make[Bread](
-      Bread.homemade,
-      Dough.fresh,
-      oven
-    )
+  defer:
+    val bread =
+      defer:
+        ZIO.service[Bread].run
+      .provide(
+        Bread.homemade,
+        Dough.fresh,
+        oven
+      )
+      .run
 
-  ZLayer
-    .make[Toast](Toast.make, bread, toaster)
-    .build
-// Result: ZEnvironment(MdocSession::MdocApp::Toast -> To
+    ZLayer
+      .make[Toast](Toast.make, ZLayer.succeed(bread), toaster)
+      .build
+      .run
+      .get
+// Result: Toast(Heat(),BreadHomeMade(Heat(),Dough()))
 ```
 
 ## Step 8: Dependencies can fail
+
+```scala
+case class BreadStoreBought() extends Bread
+val storeBought =
+  ZLayer
+    .derive[BreadStoreBought]
+    .tapWithMessage:
+      "Buying Bread"
+```
 
 
 TODO Explain `.build` before using it to demo layer construction
@@ -339,6 +328,9 @@ runDemo:
 // Result: **Power out Rez**
 ```
 
+```scala
+Bread2.reset()
+```
 
 ## Step 9: Dependency Retries
 
@@ -362,6 +354,9 @@ runDemo:
 
 ## Step 10: Fallback Dependencies 
 
+```scala
+Bread2.reset()
+```
 
 ```scala
 runDemo:
@@ -369,7 +364,7 @@ runDemo:
     Bread2
       .fromFriend
       .orElse:
-        Bread.storeBought
+        storeBought
 
   ZLayer
     .make[Toast](Toast.make, bread, toaster)
@@ -382,6 +377,9 @@ runDemo:
 
 Maybe retry on the ZLayer eg. (BreadDough.rancid, Heat.brokenFor10Seconds)
 
+```scala
+Bread2.reset()
+```
 
 ```scala
 runDemo:
@@ -391,7 +389,7 @@ runDemo:
       Schedule.recurs:
         1
     .orElse:
-      Bread.storeBought
+      storeBought
     .build // TODO Stop using build, if possible
     .debug
 // **Power out**
@@ -414,68 +412,32 @@ import zio.config.typesafe.*
 
 case class RetryConfig(times: Int)
 
-val configDescriptor: Config[RetryConfig] = deriveConfig[RetryConfig]
-// configDescriptor: Config[RetryConfig] = MapOrFail(
-//   original = MapOrFail(
-//     original = MapOrFail(
-//       original = Lazy(
-//         thunk = zio.config.magnolia.DeriveConfig$$$Lambda$17383/0x00000008042d2440@735ad4a4
-//       ),
-//       mapOrFail = zio.Config$$Lambda$17373/0x00000008042c5040@36ad8024
-//     ),
-//     mapOrFail = zio.Config$$Lambda$17373/0x00000008042c5040@750854b5
-//   ),
-//   mapOrFail = zio.Config$$Lambda$17373/0x00000008042c5040@70cf07c2
-// )
+val configDescriptor: Config[RetryConfig] =
+  deriveConfig[RetryConfig]
 
 val configProvider =
   ConfigProvider.fromHoconString:
     "{ times: 3 }"
-// configProvider: ConfigProvider = zio.ConfigProvider$$anon$10@5595128b
 
 val configFromEnv =
   ZLayer.fromZIO:
     read:
       configDescriptor.from:
         configProvider
-// configFromEnv: ZLayer[Any, Error, RetryConfig] = Suspend(
-//   self = zio.ZLayer$$$Lambda$16397/0x000000080407b840@fe314bd
-// )
 
 val logic =
   defer:
-    val retryConfig = ZIO.service[RetryConfig].run
+    val retryConfig =
+      ZIO.service[RetryConfig].run
     retryConfig.times
   .provide:
     configFromEnv
-// logic: ZIO[Any, Error, Int] = OnSuccess(
-//   trace = "repl.MdocSession.MdocApp.logic(05_Configuration.md:365)",
-//   first = OnSuccess(
-//     trace = "repl.MdocSession.MdocApp.logic(05_Configuration.md:365)",
-//     first = Sync(
-//       trace = "repl.MdocSession.MdocApp.logic(05_Configuration.md:365)",
-//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$16403/0x0000000804079840@7490bbc
-//     ),
-//     successK = zio.ZIO$$Lambda$16459/0x0000000804102040@1bbecdcc
-//   ),
-//   successK = zio.ZIO$$$Lambda$16460/0x0000000804102840@6a484273
-// )
+```
 
+```scala
 runDemo:
   logic
 // Result: 3
-
-//
-//runDemo:
-//  Bread2
-//    .fromFriend
-//    .retry:
-//      Schedule.recurs:
-//        1
-//    .orElse:
-//      Bread.storeBought
-//    .build // TODO Stop using build, if possible
-//    .debug
 ```
 
 

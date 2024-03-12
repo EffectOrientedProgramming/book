@@ -18,7 +18,6 @@ To start with we save a user to a database:
 ```scala
 val userName =
   "Morty"
-
 ```
 
 
@@ -34,8 +33,10 @@ The Effect does not execute until we explicitly run it.
 
 ```scala
 runScenario(
-  scenario = HappyPath,
-  logic = effect0
+  scenario =
+    HappyPath,
+  logic =
+    effect0
 )
 // Result: User saved
 ```
@@ -49,8 +50,10 @@ We can also run `effect` in a scenario that will cause it to fail.
 
 ```scala
 runScenario(
-  scenario = DoesNotWorkInitially,
-  logic = effect0
+  scenario =
+    DoesNotWorkInitially,
+  logic =
+    effect0
 )
 // Log: **Database crashed!!**
 // Result: **Database crashed!!**
@@ -81,8 +84,10 @@ We do this because we assume the failure will likely be resolved within 3 second
 
 ```scala
 runScenario(
-  scenario = DoesNotWorkInitially,
-  logic = effect1
+  scenario =
+    DoesNotWorkInitially,
+  logic =
+    effect1
 )
 // Log: **Database crashed!!**
 // Log: **Database crashed!!**
@@ -95,8 +100,10 @@ The output shows that running the Effect failed twice trying to save the user, t
 
 ```scala
 runScenario(
-  scenario = NeverWorks,
-  logic = effect1
+  scenario =
+    NeverWorks,
+  logic =
+    effect1
 )
 // Log: **Database crashed!!**
 // Log: **Database crashed!!**
@@ -120,8 +127,10 @@ val effect2 =
 
 ```scala
 runScenario(
-  scenario = NeverWorks,
-  logic = effect2
+  scenario =
+    NeverWorks,
+  logic =
+    effect2
 )
 // Log: **Database crashed!!**
 // Log: **Database crashed!!**
@@ -146,9 +155,8 @@ Not only can capabilities be added to any Effect, Effects can be combined and mo
 
 ```scala
 val effect3 =
-  effect2
-    .timeoutFail("Save timed out"):
-      5.seconds
+  effect2.timeoutFail("Save timed out"):
+    5.seconds
 ```
 
 If the effect does not complete within 5 seconds, it fails.
@@ -156,8 +164,10 @@ Like the other capabilities for error handling, timeouts can be added to any Eff
 
 ```scala
 runScenario(
-  scenario = FirstIsSlow,
-  logic = effect3
+  scenario =
+    FirstIsSlow,
+  logic =
+    effect3
 )
 // Log: Interrupting slow request
 // Result: Save timed out
@@ -181,8 +191,10 @@ The `sendToManualQueue` simulates alternative fallback logic.
 
 ```scala
 runScenario(
-  scenario = NeverWorks,
-  logic = effect4
+  scenario =
+    NeverWorks,
+  logic =
+    effect4
 )
 // Log: **Database crashed!!**
 // Log: **Database crashed!!**
@@ -210,8 +222,10 @@ val effect5 =
 
 ```scala
 runScenario(
-  scenario = HappyPath,
-  logic = effect5
+  scenario =
+    HappyPath,
+  logic =
+    effect5
 )
 // Log: Signup initiated for Morty
 // Result: User saved
@@ -233,11 +247,13 @@ val effect6 =
 
 ```scala
 runScenario(
-  scenario = HappyPath,
-  logic = effect6
+  scenario =
+    HappyPath,
+  logic =
+    effect6
 )
 // Log: Signup initiated for Morty
-// Result: (PT0.00135753S,User saved)
+// Result: (PT0.001003756S,User saved)
 ```
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.
 
@@ -253,8 +269,10 @@ val effect7 =
 
 ```scala
 runScenario(
-  scenario = HappyPath,
-  logic = effect7
+  scenario =
+    HappyPath,
+  logic =
+    effect7
 )
 // Result: None
 ```
