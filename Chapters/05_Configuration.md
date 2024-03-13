@@ -129,7 +129,7 @@ runDemo:
     )
 ```
 
-## Step 5: Different effects can require the same dependency
+## Step 4: Different effects can require the same dependency
 Eventually, we grow tired of eating plain `Bread` and decide to start making `Toast`.
 Both of these processes require `Heat`.
 
@@ -177,7 +177,7 @@ runDemo:
       toaster
 ```
 
-## Step 6: Dependencies must be fulfilled by unique types
+## Step 5: Dependencies must be fulfilled by unique types
 
 ```scala mdoc:fail
 runDemo:
@@ -193,7 +193,7 @@ runDemo:
 Unfortunately our program is now ambiguous.
 It cannot decide if we should be making `Toast` in the oven, `Bread` in the toaster, or any other combination.
 
-## Step 7: Providing Dependencies at Different Levels
+## Step 6: Providing Dependencies at Different Levels
 This enables other effects that use them to provide their own dependencies of the same type
 
 ```scala mdoc
@@ -213,18 +213,35 @@ runDemo:
   )
 ```
 
-## Step 8: Dependencies can fail
+## Step 7: Effects can Construct Dependencies
 
 ```scala mdoc:silent
 case class BreadStoreBought() extends Bread
-val storeBought =
-  ZLayer
-    .derive[BreadStoreBought]
+
+val buyBread =
+  ZIO.succeed(BreadStoreBought()).delay(1.second)
 ```
+
+```scala mdoc:silent
+val storeBought =
+  ZLayer.fromZIO:
+    buyBread
+```
+
+```scala mdoc
+runDemo:
+  ZIO.service[Bread]
+  .provide(storeBought)
+```
+
+
+## Step 8: Dependencies can fail
+Since dependencies can be built with effects, this means that they can fail.
 
 ```scala mdoc:invisible
 import zio.Runtime.default.unsafe
-object Bread2:
+case class BreadFromFriend() extends Bread()
+object Friend:
   val invocations =
     Unsafe.unsafe((u: Unsafe) =>
       given Unsafe =
@@ -245,14 +262,14 @@ object Bread2:
 
   val forcedFailure =
     defer:
-      println("**Power out**")
+      println("Error: **Friend Unreachable**")
       ZIO
         .when(true)(
-          ZIO.fail("**Power out Rez**")
+          ZIO.fail("Error: **Friend Unreachable**")
         )
         .as(???)
         .run
-      ZIO.succeed(BreadStoreBought()).run
+      ZIO.succeed(BreadFromFriend()).run
 
   def attempt(invocations: Ref[Int]) =
     defer:
@@ -262,32 +279,30 @@ object Bread2:
         case cnt if cnt < 3 =>
           forcedFailure.run
         case _ =>
-          println("Power is on")
-          BreadStoreBought()
+          println("Log: Friend answered")
+          BreadFromFriend()
 
 // Already constructed elsewhere, that we don't
   // control
-  val fromFriend =
+  val bread =
     ZLayer.fromZIO:
-      Bread2.attempt(invocations)
-end Bread2
+      Friend.attempt(invocations)
+end Friend
 ```
 
-TODO Explain `.build` before using it to demo layer construction
-
 ```scala mdoc:silent
-Bread2.fromFriend: ZLayer[Any, String, Bread]
+Friend.bread: ZLayer[Any, String, Bread]
 ```
 
 ```scala mdoc
 runDemo:
   ZIO.service[Bread]
     .provide:
-      Bread2.fromFriend
+      Friend.bread
 ```
 
 ```scala mdoc:silent
-Bread2.reset()
+Friend.reset()
 ```
 
 ## Step 9: Dependency Retries
@@ -296,8 +311,8 @@ Bread2.reset()
 runDemo: 
   ZIO.service[Bread]
     .provide:
-      Bread2
-        .fromFriend
+      Friend
+        .bread
         .retry:
           Schedule.recurs:
             3
@@ -306,20 +321,26 @@ runDemo:
 ## Step 10: Fallback Dependencies 
 
 ```scala mdoc:silent
-Bread2.reset()
+Friend.reset()
+```
+
+```scala mdoc:silent
+val bread =
+  Friend
+    .bread
+      .orElse:
+         storeBought
 ```
 
 ```scala mdoc
 runDemo:
-  val bread =
-    Bread2
-      .fromFriend
-      .orElse:
-        storeBought
+  ZIO.service[Toast]
+  .provide(
+    Toast.make,
+    bread,
+    toaster
+  )
 
-  ZLayer
-    .make[Toast](Toast.make, bread, toaster)
-    .build
 ```
 
 ## Step 11: Layer Retry + Fallback?
@@ -327,15 +348,15 @@ runDemo:
 Maybe retry on the ZLayer eg. (BreadDough.rancid, Heat.brokenFor10Seconds)
 
 ```scala mdoc:silent
-Bread2.reset()
+Friend.reset()
 ```
 
 ```scala mdoc
 runDemo:
   ZIO.service[Bread]
     .provide:
-      Bread2
-        .fromFriend
+      Friend
+        .bread
         .retry:
           Schedule.recurs:
             1
@@ -345,6 +366,12 @@ runDemo:
 ```
 
 TODO {{ Make like superpowers with vals. Figure out how to add the config without changing a previous step. }}
+
+## Step 12: Externalize Config for Retries
+
+```scala mdoc:silent
+Friend.reset()
+```
 
 Changing things based on the running environment.
 
@@ -366,36 +393,26 @@ val configProvider =
   ConfigProvider.fromHoconString:
     "{ times: 3 }"
 
-val configFromEnv =
+val config =
   ZLayer.fromZIO:
     read:
       configDescriptor.from:
         configProvider
-
-val logic =
-  defer:
-    val retryConfig =
-      ZIO.service[RetryConfig].run
-    retryConfig.times
-  .provide:
-    configFromEnv
 ```
 
 ```scala mdoc
 runDemo:
-  logic
-
-//
-//runDemo:
-//  Bread2
-//    .fromFriend
-//    .retry:
-//      Schedule.recurs:
-//        1
-//    .orElse:
-//      storeBought
-//    .build // TODO Stop using build, if possible
-//    .debug
+  ZIO.serviceWithZIO[RetryConfig]:
+    retryConfig =>
+      ZIO.service[Bread]
+        .provide:
+          Friend
+            .bread
+            .retry:
+              Schedule.recurs:
+                retryConfig.times
+  .provide:
+    config
 ```
 
 
