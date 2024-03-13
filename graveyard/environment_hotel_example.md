@@ -164,8 +164,11 @@ case class SystemStrict():
         envZ(variable).run
       ZIO
         .fromOption(variableAttempt)
-        .mapError(_ =>
-          Error("Missing value for: " + variable)
+        .mapError(
+          _ =>
+            Error(
+              "Missing value for: " + variable
+            )
         )
         .run
     }

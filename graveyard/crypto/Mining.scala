@@ -16,8 +16,8 @@ object Mining extends ZIOAppDefault:
   private val miners =
     Seq("Zeb", "Frop", "Shtep").flatMap:
       minerName =>
-        Range(1, 50).map: i =>
-          new Miner(minerName + i)
+        Range(1, 50).map:
+          i => new Miner(minerName + i)
 
   def raceForNextBlock(
       chain: Ref[BlockChain]
@@ -30,10 +30,11 @@ object Mining extends ZIOAppDefault:
       val (winner, winningPrime) =
         raceResult
       chain
-        .update: chainCurrent =>
-          chainCurrent.copy(blocks =
-            chainCurrent.blocks :+ winningPrime
-          )
+        .update:
+          chainCurrent =>
+            chainCurrent.copy(blocks =
+              chainCurrent.blocks :+ winningPrime
+            )
         .run
       debug:
         s"$winner mined block: $winningPrime"
@@ -82,7 +83,9 @@ end Mining
 // TODO Consider putting math functions somewhere else to avoid cluttering example
 
 def isPrime(num: Int): Boolean = (2 until num)
-  .forall(divisor => num % divisor != 0)
+  .forall(
+    divisor => num % divisor != 0
+  )
 
 @tailrec
 def nextPrimeAfter(num: Int): Int =

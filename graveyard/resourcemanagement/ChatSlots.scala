@@ -42,9 +42,10 @@ object ChatSlots extends zio.ZIOAppDefault:
             SlotState.Closed
           .run
       val managed =
-        ZIO.acquireRelease(acquire(ref))(_ =>
-          release:
-            ref
+        ZIO.acquireRelease(acquire(ref))(
+          _ =>
+            release:
+              ref
         )
       val reusable =
         managed.map:
@@ -55,17 +56,18 @@ object ChatSlots extends zio.ZIOAppDefault:
         .scoped:
           // TODO Get rid of flatmap if
           // possible...
-          managed.flatMap: s =>
-            defer:
-              printLine:
-                s
-              .run
-              printLine:
-                "Blowing up"
-              .run
-              if (true)
-                throw Exception:
-                  "Arggggg"
+          managed.flatMap:
+            s =>
+              defer:
+                printLine:
+                  s
+                .run
+                printLine:
+                  "Blowing up"
+                .run
+                if (true)
+                  throw Exception:
+                    "Arggggg"
         .run
     }
   end run

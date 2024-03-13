@@ -38,21 +38,24 @@ object KeepSuccesses extends zio.ZIOAppDefault:
   private def printFailures(
       failures: Iterable[BadResponse]
   ) =
-    ZIO.foreach(failures): e =>
-      printLine:
-        "Error: " + e +
-          ". Should retry on other server."
+    ZIO.foreach(failures):
+      e =>
+        printLine:
+          "Error: " + e +
+            ". Should retry on other server."
 
   private def attemptFallbackFor(
       failures: Iterable[BadResponse]
   ) =
     ZIO.collectAllSuccesses:
-      failures.map: failure =>
-        slowMoreReliableNetworkCall:
-          failure.payload
-        .tapError: e =>
-          printLine:
-            "Giving up on: " + e
+      failures.map:
+        failure =>
+          slowMoreReliableNetworkCall:
+            failure.payload
+          .tapError:
+            e =>
+              printLine:
+                "Giving up on: " + e
 
   def fastUnreliableNetworkCall(input: String) =
     if (input.length < 5)

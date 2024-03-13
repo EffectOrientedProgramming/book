@@ -26,47 +26,52 @@ object HiddenPrelude:
 
   import zio.Runtime.default.unsafe
   val invocations: Ref[Scenario] =
-    Unsafe.unsafe((u: Unsafe) =>
-      given Unsafe =
-        u
-      unsafe
-        .run(
-          Ref.make[Scenario](Scenario.HappyPath)
-        )
-        .getOrThrowFiberFailure()
+    Unsafe.unsafe(
+      (u: Unsafe) =>
+        given Unsafe =
+          u
+        unsafe
+          .run(
+            Ref
+              .make[Scenario](Scenario.HappyPath)
+          )
+          .getOrThrowFiberFailure()
     )
 
   def resetScenario(scenario: Scenario) =
-    Unsafe.unsafe((u: Unsafe) =>
-      given Unsafe =
-        u
-      unsafe
-        .run(invocations.set(scenario))
-        .getOrThrowFiberFailure()
+    Unsafe.unsafe(
+      (u: Unsafe) =>
+        given Unsafe =
+          u
+        unsafe
+          .run(invocations.set(scenario))
+          .getOrThrowFiberFailure()
     )
 
   object Scenario:
     val FirstIsSlow =
-      Unsafe.unsafe { implicit unsafe =>
-        NumberOfSlowCall(
-          Runtime
-            .default
-            .unsafe
-            .run(Ref.make(0))
-            .getOrThrow()
-        )
+      Unsafe.unsafe {
+        implicit unsafe =>
+          NumberOfSlowCall(
+            Runtime
+              .default
+              .unsafe
+              .run(Ref.make(0))
+              .getOrThrow()
+          )
       }
 
     val DoesNotWorkInitially =
-      Unsafe.unsafe { implicit unsafe =>
-        WorksOnTry(
-          3,
-          Runtime
-            .default
-            .unsafe
-            .run(Ref.make(0))
-            .getOrThrow()
-        )
+      Unsafe.unsafe {
+        implicit unsafe =>
+          WorksOnTry(
+            3,
+            Runtime
+              .default
+              .unsafe
+              .run(Ref.make(0))
+              .getOrThrow()
+          )
       }
   end Scenario
 
@@ -74,25 +79,26 @@ object HiddenPrelude:
       scenario: Scenario,
       logic: => ZIO[Scope, E, A]
   ): Unit =
-    Unsafe.unsafe { (u: Unsafe) =>
-      given Unsafe =
-        u
-      val res =
-        unsafe
-          .run(
-            Rendering
-              .renderEveryPossibleOutcomeZio(
-                defer:
+    Unsafe.unsafe {
+      (u: Unsafe) =>
+        given Unsafe =
+          u
+        val res =
+          unsafe
+            .run(
+              Rendering
+                .renderEveryPossibleOutcomeZio(
+                  defer:
 //                  val invocations = Ref.make(0).run
-                  resetScenario(scenario)
+                    resetScenario(scenario)
 //                  invocations.set(s).run
-                  logic.run
-                .provide(Scope.default)
-              )
-              .withConsole(OurConsole)
-          )
-          .getOrThrowFiberFailure()
-      println("Result: " + res)
+                    logic.run
+                  .provide(Scope.default)
+                )
+                .withConsole(OurConsole)
+            )
+            .getOrThrowFiberFailure()
+        println("Result: " + res)
     }
 
   def saveUser(username: String) =
@@ -103,10 +109,11 @@ object HiddenPrelude:
       ZIO
         .fail:
           "**Database crashed!!**"
-        .tapError: error =>
-          ZIO.succeed:
-            println:
-              "Log: " + error
+        .tapError:
+          error =>
+            ZIO.succeed:
+              println:
+                "Log: " + error
 
     defer:
       invocations.get.run match

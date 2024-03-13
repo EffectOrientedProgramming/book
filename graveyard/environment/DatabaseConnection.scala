@@ -23,11 +23,12 @@ object DbConnection:
             DbConnection(actionLog)
           connection.execute("OPEN").run
           connection
-      )(connection =>
-        defer:
-          connection.execute("CLOSE").run
-          pprint.apply(connection)
-        .debug
+      )(
+        connection =>
+          defer:
+            connection.execute("CLOSE").run
+            pprint.apply(connection)
+          .debug
       )
     )
 

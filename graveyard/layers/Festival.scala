@@ -48,7 +48,9 @@ def activityLayer[T: Tag](
               )
           .run
         entity
-    )(_ => debug(entity.toString + " RELEASE"))
+    )(
+      _ => debug(entity.toString + " RELEASE")
+    )
   )
 
 def activity(
@@ -92,10 +94,11 @@ val festival =
           ZIO.service[SoundSystem].run,
           ZIO.service[Security].run
         )
-    } { _ =>
-      debug(
-        "FESTIVAL: Good job, everyone. Close it down!"
-      )
+    } {
+      _ =>
+        debug(
+          "FESTIVAL: Good job, everyone. Close it down!"
+        )
     }
   }
 
@@ -108,7 +111,8 @@ val security
       defer:
         debug("SECURITY: Ready").run
         Security(ZIO.service[Toilets].run)
-    } { _ =>
-      debug("SECURITY: Going home")
+    } {
+      _ =>
+        debug("SECURITY: Going home")
     }
   }

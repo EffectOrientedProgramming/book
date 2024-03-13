@@ -5,7 +5,9 @@ case class ToyRandom(
 ) extends Operation
 
 val program: Operation =
-  ToyRandom(s => Print(s))
+  ToyRandom(
+    s => Print(s)
+  )
 
 def interpreter(doSomething: Operation): Unit =
   doSomething match

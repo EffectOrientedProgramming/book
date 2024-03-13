@@ -23,7 +23,11 @@ object DeliveryCenter extends ZIOAppDefault:
       queued.length == capacity
 
     val waitingTooLong =
-      fuse.isDone.map(done => !done)
+      fuse
+        .isDone
+        .map(
+          done => !done
+        )
 
   def handle(
       order: Order,
@@ -46,21 +50,22 @@ object DeliveryCenter extends ZIOAppDefault:
           Promise.make[Nothing, Unit].run
         val truck =
           staged
-            .updateAndGet(truck =>
-              truck match
-                case Some(t) =>
-                  Some(
-                    t.copy(queued =
-                      t.queued :+ order
+            .updateAndGet(
+              truck =>
+                truck match
+                  case Some(t) =>
+                    Some(
+                      t.copy(queued =
+                        t.queued :+ order
+                      )
                     )
-                  )
-                case None =>
-                  Some(
-                    TruckInUse(
-                      List(order),
-                      latch
+                  case None =>
+                    Some(
+                      TruckInUse(
+                        List(order),
+                        latch
+                      )
                     )
-                  )
             )
             .map(_.get)
             .run

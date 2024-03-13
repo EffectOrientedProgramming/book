@@ -31,12 +31,13 @@ object LunchVote:
           )
           .run
       val voteProcesses =
-        voters.map(voter =>
-          getVoteFrom(
-            voter,
-            resultMap,
-            voters.size
-          ).onInterrupt(voter.onInterrupt)
+        voters.map(
+          voter =>
+            getVoteFrom(
+              voter,
+              resultMap,
+              voters.size
+            ).onInterrupt(voter.onInterrupt)
         )
       ZIO
         .raceAll(

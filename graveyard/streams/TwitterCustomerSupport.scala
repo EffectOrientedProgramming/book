@@ -34,22 +34,27 @@ object TwitterCustomerSupport
       val activeCompanies =
         Ref.make[Map[String, Int]](Map.empty).run
       val mostActiveCompanyAtEachMoment =
-        tweets.mapZIO(tweet =>
-          defer {
-            val companies =
-              activeCompanies
-                .updateAndGet(
-                  incrementCompanyActivity(
-                    _,
-                    tweet
+        tweets.mapZIO(
+          tweet =>
+            defer {
+              val companies =
+                activeCompanies
+                  .updateAndGet(
+                    incrementCompanyActivity(
+                      _,
+                      tweet
+                    )
                   )
+                  .run
+              companies
+                .map(
+                  x => x
                 )
-                .run
-            companies
-              .map(x => x)
-              .toList
-              .sortBy(x => -x._2)
-          }
+                .toList
+                .sortBy(
+                  x => -x._2
+                )
+            }
         )
       val res =
         mostActiveCompanyAtEachMoment.runLast.run
@@ -76,7 +81,9 @@ object TwitterCustomerSupport
               )
             )
           )
-          .map(l => Tweet(l))
+          .map(
+            l => Tweet(l)
+          )
           .filter(_.isRight)
           .map(_.getOrElse(???))
 

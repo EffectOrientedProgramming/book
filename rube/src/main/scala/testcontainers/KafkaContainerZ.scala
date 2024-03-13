@@ -78,12 +78,13 @@ object KafkaInitialization:
           val replicationFactor: Short =
             1
           val newTopics =
-            topicNames.map(topicName =>
-              new NewTopic(
-                topicName,
-                partitions,
-                replicationFactor
-              )
+            topicNames.map(
+              topicName =>
+                new NewTopic(
+                  topicName,
+                  partitions,
+                  replicationFactor
+                )
             )
 
           val admin =
@@ -186,20 +187,23 @@ case class KafkaConsumerZ(
       false
     ZStream
       .repeatZIO(poll())
-      .tap(recordsConsumed =>
-        // Should this stay as debug?
-        if debug then
-          ZIO.foreach(
-            recordsConsumed.map { record =>
-              record.value.toString
-            }
-          )(record =>
-            ZIO.debug(
-              s"Consumed $topicName record: $record"
+      .tap(
+        recordsConsumed =>
+          // Should this stay as debug?
+          if debug then
+            ZIO.foreach(
+              recordsConsumed.map {
+                record =>
+                  record.value.toString
+              }
+            )(
+              record =>
+                ZIO.debug(
+                  s"Consumed $topicName record: $record"
+                )
             )
-          )
-        else
-          ZIO.unit
+          else
+            ZIO.unit
       )
   end pollStream
 
@@ -315,25 +319,29 @@ object UseKafka:
     Throwable | E,
     Unit
   ] =
-    createConsumer(topicName, groupId).flatMap(consumer =>
-      consumer
-        .pollStream()
-        .foreach(recordsConsumed =>
-          ZIO.foreach(recordsConsumed)(record =>
-            for
-              newValue <-
-                op(record)
-              _ <-
-                printLine(
-                  s"${consumer.topicName} --> ${record
-                      .value} => $newValue--> ${output.topicName}"
-                )
-              _ <-
-                output
-                  .submit(record.key, newValue)
-            yield ()
+    createConsumer(topicName, groupId).flatMap(
+      consumer =>
+        consumer
+          .pollStream()
+          .foreach(
+            recordsConsumed =>
+              ZIO.foreach(recordsConsumed)(
+                record =>
+                  for
+                    newValue <-
+                      op(record)
+                    _ <-
+                      printLine(
+                        s"${consumer.topicName} --> ${record.value} => $newValue--> ${output.topicName}"
+                      )
+                    _ <-
+                      output.submit(
+                        record.key,
+                        newValue
+                      )
+                  yield ()
+              )
           )
-        )
     )
 
   def createForwardedStreamZ[R, E](
@@ -357,27 +365,29 @@ object UseKafka:
         UseKafka.createProducer(outputTopicName)
       _ <-
         createConsumer(topicName, groupId)
-          .flatMap(consumer =>
-            consumer
-              .pollStream()
-              .foreach(recordsConsumed =>
-                ZIO.foreach(recordsConsumed)(
-                  record =>
-                    for
-                      newValue <-
-                        op(record)
-                      _ <-
-                        printLine(
-                          s"${consumer.topicName} --> ${record.value} => $newValue--> ${outputTopicName}"
-                        )
-                      _ <-
-                        producer.submit(
-                          record.key,
-                          newValue
-                        )
-                    yield ()
+          .flatMap(
+            consumer =>
+              consumer
+                .pollStream()
+                .foreach(
+                  recordsConsumed =>
+                    ZIO.foreach(recordsConsumed)(
+                      record =>
+                        for
+                          newValue <-
+                            op(record)
+                          _ <-
+                            printLine(
+                              s"${consumer.topicName} --> ${record.value} => $newValue--> ${outputTopicName}"
+                            )
+                          _ <-
+                            producer.submit(
+                              record.key,
+                              newValue
+                            )
+                        yield ()
+                    )
                 )
-              )
           )
     yield ()
 
@@ -394,22 +404,23 @@ object UseKafka:
     Any,
     Unit
   ] = // TODO Narrow error type
-    createConsumer(topicName, groupId)
-      .flatMap(consumer =>
+    createConsumer(topicName, groupId).flatMap(
+      consumer =>
         consumer
           .pollStream()
-          .foreach(recordsConsumed =>
-            ZIO
-              .foreach(recordsConsumed)(record =>
-                for
-                  newValue <-
-                    op(record)
-                  _ <-
-                    printLine(
-                      s"Terminal Consumption: ${consumer.topicName} --> ${record.value}"
-                    )
-                yield ()
+          .foreach(
+            recordsConsumed =>
+              ZIO.foreach(recordsConsumed)(
+                record =>
+                  for
+                    newValue <-
+                      op(record)
+                    _ <-
+                      printLine(
+                        s"Terminal Consumption: ${consumer.topicName} --> ${record.value}"
+                      )
+                  yield ()
               )
           )
-      )
+    )
 end UseKafka

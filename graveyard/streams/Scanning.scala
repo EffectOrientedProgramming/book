@@ -52,7 +52,7 @@ object Scanning extends ZIOAppDefault:
         EconomicHistory(history.quarters :+ gdp)
     )
   def run =
-    economicSnapshots.runForeach(snapShot =>
-      ZIO.debug(snapShot)
+    economicSnapshots.runForeach(
+      snapShot => ZIO.debug(snapShot)
     )
 end Scanning

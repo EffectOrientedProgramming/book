@@ -24,15 +24,17 @@ object Evolution extends ZIOAppDefault:
   ):
     override def toString() =
       coordinates
-        .map(row =>
-          row
-            .map(column =>
-              if (column.food > 0)
-                '*'
-              else
-                '\u25a1'
-            )
-            .mkString
+        .map(
+          row =>
+            row
+              .map(
+                column =>
+                  if (column.food > 0)
+                    '*'
+                  else
+                    '\u25a1'
+              )
+              .mkString
         )
         .mkString("\n")
 

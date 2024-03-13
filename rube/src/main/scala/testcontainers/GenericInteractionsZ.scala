@@ -10,9 +10,10 @@ object GenericInteractionsZ:
     ZIO.acquireRelease(
       ZIO.debug(s"Creating $containerType") *>
         start(c, containerType) *> ZIO.succeed(c)
-    )((n: T) =>
-      ZIO.attempt(n.close()).orDie *>
-        ZIO.debug(s"Closing $containerType")
+    )(
+      (n: T) =>
+        ZIO.attempt(n.close()).orDie *>
+          ZIO.debug(s"Closing $containerType")
     )
 
   def manageWithInitialization[
@@ -31,9 +32,10 @@ object GenericInteractionsZ:
       ZIO.debug(s"Creating $containerType") *>
         start(c, containerType) *>
         initialize(c) *> ZIO.succeed(c)
-    } { n =>
-      ZIO.attempt(n.close()).orDie *>
-        ZIO.debug(s"Closing $containerType")
+    } {
+      n =>
+        ZIO.attempt(n.close()).orDie *>
+          ZIO.debug(s"Closing $containerType")
     }
 
   private def start[T <: GenericContainer[T]](

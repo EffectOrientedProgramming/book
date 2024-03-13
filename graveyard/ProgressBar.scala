@@ -109,7 +109,9 @@ object ClockAndConsoleImproved
         progressBar(racer2status, racer2.name)
           .run
       }
-    ).repeatWhileZIO(_ => raceFinished.get)
+    ).repeatWhileZIO(
+      _ => raceFinished.get
+    )
 
   def raceEntities(
       racer1: ZIO[Any, Nothing, String],
@@ -118,9 +120,10 @@ object ClockAndConsoleImproved
   ): ZIO[Any, Nothing, String] =
     racer1
 //      .race(racer2)
-      .flatMap { success =>
-        raceFinished.set(true) *>
-          ZIO.succeed(success)
+      .flatMap {
+        success =>
+          raceFinished.set(true) *>
+            ZIO.succeed(success)
       }
 
   def renderLoop[T](
@@ -176,7 +179,10 @@ object ClockAndConsoleImproved
     val run: ZIO[Any, Nothing, String] =
       loopAndCheck
         .repeatUntil(_ == 0)
-        .map(_ => name)
+        .map(
+          _ => name
+        )
+  end LongRunningProcess
 
   def run =
     renderCurrentTime

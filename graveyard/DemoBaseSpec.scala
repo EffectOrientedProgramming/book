@@ -39,10 +39,12 @@ trait DemoBaseSpec extends ZIOSpecDefault:
           trace: Trace
       ): ZIO[R, TestFailure[E], TestSuccess] =
         ZIO.acquireReleaseWith(
-          before.catchAllCause(c =>
-            ZIO.fail(TestFailure.Runtime(c))
+          before.catchAllCause(
+            c => ZIO.fail(TestFailure.Runtime(c))
           )
-        )(after)(_ => test)
+        )(after)(
+          _ => test
+        )
 
   def walk[R, E](
       spec: Spec[R, E],
@@ -60,7 +62,9 @@ trait DemoBaseSpec extends ZIOSpecDefault:
         ()
       case Spec.MultipleCase(specs) =>
         println("Multi case")
-        specs.foreach(s => walk(s, labels))
+        specs.foreach(
+          s => walk(s, labels)
+        )
       case Spec.TestCase(test, annotations) =>
         println(
           "test labels: " +

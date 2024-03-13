@@ -20,22 +20,23 @@ object CancellationTree extends ZIOAppDefault:
       parent: String
   ): ZIO[Any, Nothing, Unit] =
     ZIO
-      .foreachPar(List("L", "R"))(branch =>
-        val label =
-          " " *
-            (level * 2) + parent + s"-$branch"
+      .foreachPar(List("L", "R"))(
+        branch =>
+          val label =
+            " " *
+              (level * 2) + parent + s"-$branch"
 
-        createProcess(
-          label,
-          ZIO
-            .when(level < limit):
-              spawnChildren(
-                level + 1,
-                limit,
-                label
-              )
-            .unit
-        )
+          createProcess(
+            label,
+            ZIO
+              .when(level < limit):
+                spawnChildren(
+                  level + 1,
+                  limit,
+                  label
+                )
+              .unit
+          )
       )
       .unit
 

@@ -42,8 +42,8 @@ object ThingsThatCompose extends ZIOAppDefault:
 
     def composedLogic()
         : ZIO[Any, Nothing, Unit] =
-      explicitlyFailableWorkflow().catchAll(_ =>
-        ZIO.debug("Our program failed.")
+      explicitlyFailableWorkflow().catchAll(
+        _ => ZIO.debug("Our program failed.")
       )
 
     composedLogic()

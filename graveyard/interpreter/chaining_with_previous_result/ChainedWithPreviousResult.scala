@@ -34,22 +34,23 @@ val program =
   )
 
 def interpret(program: Seq[Operation]): String =
-  program.foldLeft("") { (acc, op) =>
-    op match
-      case Print() =>
-        println(acc)
-        acc
-      case RandomString() =>
-        scala
-          .util
-          .Random
-          .alphanumeric
-          .take(10)
-          .mkString
-      case Value(value) =>
-        value
-      case StringManipulation(action) =>
-        action(acc)
+  program.foldLeft("") {
+    (acc, op) =>
+      op match
+        case Print() =>
+          println(acc)
+          acc
+        case RandomString() =>
+          scala
+            .util
+            .Random
+            .alphanumeric
+            .take(10)
+            .mkString
+        case Value(value) =>
+          value
+        case StringManipulation(action) =>
+          action(acc)
   }
 
 @annotation.nowarn
@@ -64,19 +65,20 @@ def interpretWithEnvironment(
     program: Seq[Operation],
     environment: ToyEnvironment[Printer & Random]
 ): String =
-  program.foldLeft("") { (acc, op) =>
-    op match
-      case Print() =>
-        environment.get[Printer].print(acc)
-        acc
-      case RandomString() =>
-        environment
-          .get[Random]
-          .alphanumeric
-          .take(10)
-          .mkString
-      case Value(value) =>
-        value
-      case StringManipulation(action) =>
-        action(acc)
+  program.foldLeft("") {
+    (acc, op) =>
+      op match
+        case Print() =>
+          environment.get[Printer].print(acc)
+          acc
+        case RandomString() =>
+          environment
+            .get[Random]
+            .alphanumeric
+            .take(10)
+            .mkString
+        case Value(value) =>
+          value
+        case StringManipulation(action) =>
+          action(acc)
   }

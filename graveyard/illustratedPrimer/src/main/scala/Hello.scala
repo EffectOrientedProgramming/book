@@ -67,27 +67,30 @@ object IllustratedPrimer:
     val activeDropDown: Var[Option[String]] =
       Var(None)
     div(
-      onClick --> { event =>
-        activeDropDown.now() match
-          case Some(value) =>
-            val clickedElement: String =
-              event
-                .target
-                .asInstanceOf[dom.html.Element]
-                .id
-            if (
-              !clickedElement.contains(value)
-            ) {
-              dom
-                .document
-                .querySelector("#" + value)
-                .classList
-                .toggle("is-hidden")
-              activeDropDown.writer.onNext(None)
-            }
-          case None =>
-            ()
-          // .asInstanceOf[dom.html.Element].classList.remove("active
+      onClick --> {
+        event =>
+          activeDropDown.now() match
+            case Some(value) =>
+              val clickedElement: String =
+                event
+                  .target
+                  .asInstanceOf[dom.html.Element]
+                  .id
+              if (
+                !clickedElement.contains(value)
+              ) {
+                dom
+                  .document
+                  .querySelector("#" + value)
+                  .classList
+                  .toggle("is-hidden")
+                activeDropDown
+                  .writer
+                  .onNext(None)
+              }
+            case None =>
+              ()
+            // .asInstanceOf[dom.html.Element].classList.remove("active
       },
       div(
         KnownTopic

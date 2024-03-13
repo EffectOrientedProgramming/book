@@ -10,8 +10,9 @@ object Layers:
       ZIO.acquireRelease {
         ZIO.debug("Creating network") *>
           ZIO.succeed(Network.newNetwork())
-      } { n =>
-        ZIO.attempt(n.close()).orDie *>
-          ZIO.debug("Closing network")
+      } {
+        n =>
+          ZIO.attempt(n.close()).orDie *>
+            ZIO.debug("Closing network")
       }
     )

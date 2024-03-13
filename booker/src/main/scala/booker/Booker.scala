@@ -183,15 +183,16 @@ object ReorderExistingApp
       state
         .files
         .zipWithIndex
-        .map((file, idx) =>
-          if (idx == state.cursorIdx)
-            View
-              .text(file.toString)
-              .green
-              .bold
-              .bordered
-          else
-            View.text(file.toString)
+        .map(
+          (file, idx) =>
+            if (idx == state.cursorIdx)
+              View
+                .text(file.toString)
+                .green
+                .bold
+                .bordered
+            else
+              View.text(file.toString)
         ): _*
     )
 
@@ -234,33 +235,34 @@ object AddNewChapterApp
       state
         .files
         .zipWithIndex
-        .flatMap { case (file, index) =>
-          val newFileGroup =
-            if (index == state.cursorIdx)
-              Seq(
-                View
-                  .text(
-                    "New Chapter: " +
-                      state.fileNameRep
-                  )
-                  .green
-              )
-            else
-              Seq()
-
-          val existingFileGroup =
-            if (index >= state.cursorIdx)
-              Seq(
-                View.text(
-                  BookerTools
-                    .renameRep(file, index + 1)
-                    .toString
+        .flatMap {
+          case (file, index) =>
+            val newFileGroup =
+              if (index == state.cursorIdx)
+                Seq(
+                  View
+                    .text(
+                      "New Chapter: " +
+                        state.fileNameRep
+                    )
+                    .green
                 )
-              )
-            else
-              Seq(View.text(file.toString))
+              else
+                Seq()
 
-          newFileGroup ++ existingFileGroup
+            val existingFileGroup =
+              if (index >= state.cursorIdx)
+                Seq(
+                  View.text(
+                    BookerTools
+                      .renameRep(file, index + 1)
+                      .toString
+                  )
+                )
+              else
+                Seq(View.text(file.toString))
+
+            newFileGroup ++ existingFileGroup
         }: _*
     )
 
@@ -309,8 +311,10 @@ object AddNewChapterApp
               .files
               .zipWithIndex
               .drop(state.cursorIdx)
-              .foreach { case (file, idx) =>
-                BookerTools.rename(file, idx + 1)
+              .foreach {
+                case (file, idx) =>
+                  BookerTools
+                    .rename(file, idx + 1)
               }
             TerminalApp.Step.exit
 //            throw new NotImplementedError(

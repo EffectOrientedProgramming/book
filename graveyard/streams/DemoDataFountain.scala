@@ -37,13 +37,14 @@ object RecognizeBurstOfBadRequests
       .requests
       .groupedWithin(10, 1.second)
       .debug
-      .foreach(requests =>
-        ZIO.when(
-          requests
-            .filter: r =>
-              r.response == Code.Forbidden
-            .length > 2
-        )(ZIO.debug("Too many bad requests"))
+      .foreach(
+        requests =>
+          ZIO.when(
+            requests
+              .filter:
+                r => r.response == Code.Forbidden
+              .length > 2
+          )(ZIO.debug("Too many bad requests"))
       )
       .timeout:
         5.seconds

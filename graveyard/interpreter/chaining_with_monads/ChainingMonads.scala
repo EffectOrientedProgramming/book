@@ -8,11 +8,15 @@ sealed trait Operation:
 
 class Value(val s: String) extends Operation:
   override def map(mf: String => String): MapOp =
-    MapOp(_ => mf(s))
+    MapOp(
+      _ => mf(s)
+    )
   override def flatMap(
       mf: String => Operation
   ): FlatMapOp =
-    FlatMapOp(_ => mf(s))
+    FlatMapOp(
+      _ => mf(s)
+    )
 
 class MapOp(val f: String => String)
     extends Operation:
@@ -31,8 +35,9 @@ class FlatMapOp(val f: String => Operation)
   override def flatMap(
       mf: String => Operation
   ): FlatMapOp =
-    FlatMapOp { s =>
-      f(s).flatMap(mf)
+    FlatMapOp {
+      s =>
+        f(s).flatMap(mf)
     }
 
 @tailrec
@@ -73,18 +78,30 @@ def demoInterpreter() =
   println(interpret(valueUpperTakeTwoOp) == "AS")
 
   val flatMapOpToValue =
-    FlatMapOp(_ => Value("asdf"))
+    FlatMapOp(
+      _ => Value("asdf")
+    )
   println(interpret(flatMapOpToValue) == "asdf")
 
   val flatMapOpToFlatMapOpToValue =
-    FlatMapOp(_ => FlatMapOp(_ => Value("asdf")))
+    FlatMapOp(
+      _ =>
+        FlatMapOp(
+          _ => Value("asdf")
+        )
+    )
   println(
     interpret(flatMapOpToFlatMapOpToValue) ==
       "asdf"
   )
 
   val flatMapOpToMapOp =
-    FlatMapOp(_ => MapOp(_ => "asdf"))
+    FlatMapOp(
+      _ =>
+        MapOp(
+          _ => "asdf"
+        )
+    )
   println(interpret(flatMapOpToMapOp) == "asdf")
 
   val valueFlatMapOpToValue =
@@ -94,8 +111,8 @@ def demoInterpreter() =
   )
 
   val valueFlatMapOpToValueMapOp =
-    value.flatMap(asdf =>
-      Value(asdf).map(_.toUpperCase)
+    value.flatMap(
+      asdf => Value(asdf).map(_.toUpperCase)
     )
   println(
     interpret(valueFlatMapOpToValueMapOp) ==
@@ -104,20 +121,26 @@ def demoInterpreter() =
 
   val valueFlatMapOpToValueToFlatMap =
     value
-      .flatMap(asdf => Value(asdf.toUpperCase))
-      .flatMap(upper => Value(upper.take(2)))
+      .flatMap(
+        asdf => Value(asdf.toUpperCase)
+      )
+      .flatMap(
+        upper => Value(upper.take(2))
+      )
   println(
     interpret(valueFlatMapOpToValueToFlatMap) ==
       "AS"
   )
 
   val program =
-    Value("asdf").flatMap { asdf =>
-      println(s"asdf = $asdf")
-      Value(asdf.toUpperCase).map { upper =>
-        println(s"upper = $upper")
-        upper.take(2)
-      }
+    Value("asdf").flatMap {
+      asdf =>
+        println(s"asdf = $asdf")
+        Value(asdf.toUpperCase).map {
+          upper =>
+            println(s"upper = $upper")
+            upper.take(2)
+        }
     }
 
   println(interpret(program))

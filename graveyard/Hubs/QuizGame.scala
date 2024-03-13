@@ -47,16 +47,17 @@ object QuizGame:
           .zip(answerHub.subscribe)
           .run
       ZIO
-        .foreach(rounds)(roundDescription =>
-          questionHub.publish(
-            roundDescription.question
-          ) *>
-            playARound(
-              roundDescription,
-              questions,
-              answerHub,
-              answers
-            )
+        .foreach(rounds)(
+          roundDescription =>
+            questionHub.publish(
+              roundDescription.question
+            ) *>
+              playARound(
+                roundDescription,
+                questions,
+                answerHub,
+                answers
+              )
         )
         .run
     }
@@ -108,19 +109,21 @@ object QuizGame:
   private def untilWinnersAreFound(
       correctRespondents: Ref[List[Player]]
   ) =
-    Schedule.recurUntilZIO(_ =>
-      correctRespondents.get.map(_.size == 2)
+    Schedule.recurUntilZIO(
+      _ =>
+        correctRespondents.get.map(_.size == 2)
     )
 
   private def submitAnswersAfterDelay(
       answerHub: Hub[Answer],
       answers: Seq[Answer]
   ) =
-    ZIO.foreachParDiscard(answers) { answer =>
-      defer {
-        ZIO.sleep(answer.delay).run
-        answerHub.publish(answer).run
-      }
+    ZIO.foreachParDiscard(answers) {
+      answer =>
+        defer {
+          ZIO.sleep(answer.delay).run
+          answerHub.publish(answer).run
+        }
     }
 
   private def recordCorrectAnswers(

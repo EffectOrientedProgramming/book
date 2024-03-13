@@ -3,8 +3,9 @@ package tuples
 @main
 def easy =
   val six_1 =
-    List(1, 2, 3).fold(0) { (total, i) =>
-      total + i
+    List(1, 2, 3).fold(0) {
+      (total, i) =>
+        total + i
     }
   assert(six_1 == 6)
 
@@ -43,12 +44,17 @@ def easy =
     Map("asdf" -> 1)
 
   val m2 =
-    m1.map { (s, i) =>
-      s.take(i)
+    m1.map {
+      (s, i) =>
+        s.take(i)
     }
   assert(m2.head == "a")
 
   val m3 =
-    List(1, 2, 3).map(i => i.toString -> i).toMap
+    List(1, 2, 3)
+      .map(
+        i => i.toString -> i
+      )
+      .toMap
   assert(m3.head == "1" -> 1)
 end easy

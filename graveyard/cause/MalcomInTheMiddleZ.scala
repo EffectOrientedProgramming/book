@@ -17,22 +17,26 @@ object MalcomInTheMiddleZ extends ZIOAppDefault:
 
     defer {
       turnOnLights()
-        .catchAllCause(originalError =>
-          getNewBulb().catchAllCause(bulbError =>
-            grabScrewDriver()
-              .mapErrorCause(screwDriverError =>
-                (originalError ++ bulbError) ++
-                  screwDriverError
-              )
-          )
+        .catchAllCause(
+          originalError =>
+            getNewBulb().catchAllCause(
+              bulbError =>
+                grabScrewDriver().mapErrorCause(
+                  screwDriverError =>
+                    (originalError ++
+                      bulbError) ++
+                      screwDriverError
+                )
+            )
         )
         .run
       ZIO.debug("Preserve failures!").run
-    }.catchAllCause(bigError =>
-      ZIO.debug(
-        "Final error: " +
-          simpleStructureAlternative(bigError)
-      )
+    }.catchAllCause(
+      bigError =>
+        ZIO.debug(
+          "Final error: " +
+            simpleStructureAlternative(bigError)
+        )
     )
   end run
 end MalcomInTheMiddleZ

@@ -132,20 +132,21 @@ object ContainerScenarios:
       people <-
         QuillLocal.quillQuery
       allCitizenInfo <-
-        ZIO.foreach(people)(x =>
-          CareerHistoryService
-            .citizenInfo(x.firstName)
-            .tapError(reportTopLevelError)
-            .map((x, _))
+        ZIO.foreach(people)(
+          x =>
+            CareerHistoryService
+              .citizenInfo(x.firstName)
+              .tapError(reportTopLevelError)
+              .map((x, _))
         )
       _ <-
-        ZIO
-          .foreach(allCitizenInfo)(citizenInfo =>
+        ZIO.foreach(allCitizenInfo)(
+          citizenInfo =>
             printLine(
               "Citizen info from webserver: " +
                 citizenInfo
             )
-          )
+        )
 
       personEventProducer <-
         UseKafka.createProducer("person_event")

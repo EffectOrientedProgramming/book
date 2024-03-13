@@ -18,8 +18,9 @@ class FileCache(
       name: Path,
       contents: FileContents
   ) =
-    map.update(m =>
-      m.updated(name, contents) // Update cache
+    map.update(
+      m =>
+        m.updated(name, contents) // Update cache
     )
 
   def currentValue(name: Path) =
@@ -134,10 +135,11 @@ def slowHerdMemberBehavior(
     activeUpdate
       .promise
       .await
-      .tap(_ =>
-        printLine(
-          "Slower herd member got answer from 1st member"
-        ).orDie
+      .tap(
+        _ =>
+          printLine(
+            "Slower herd member got answer from 1st member"
+          ).orDie
       )
       .run
 
@@ -149,22 +151,23 @@ def activeUpdates(
     val promiseThatMightNotBeUsed =
       Promise.make[Nothing, FileContents].run
     activeRefresh
-      .updateAndGet { activeRefreshes =>
-        activeRefreshes.updatedWith(name) {
-          case Some(activeUpdate) =>
-            Some(
-              activeUpdate.copy(observers =
-                activeUpdate.observers + 1
+      .updateAndGet {
+        activeRefreshes =>
+          activeRefreshes.updatedWith(name) {
+            case Some(activeUpdate) =>
+              Some(
+                activeUpdate.copy(observers =
+                  activeUpdate.observers + 1
+                )
               )
-            )
-          case None =>
-            Some(
-              ActiveUpdate(
-                0,
-                promiseThatMightNotBeUsed
+            case None =>
+              Some(
+                ActiveUpdate(
+                  0,
+                  promiseThatMightNotBeUsed
+                )
               )
-            )
-        }
+          }
       }
       .run
 
@@ -186,8 +189,8 @@ def firstHerdMemberBehavior(
     activeUpdate.completeWith(contents).run
 
     activeRefresh
-      .update(m =>
-        m - name // Clean out "active" entry
+      .update(
+        m => m - name // Clean out "active" entry
       )
       .run
     cache.saveContents(name, contents).run
@@ -202,10 +205,11 @@ val herdBehavior =
     val fileService =
       ZIO.service[FileService].run
     ZIO
-      .foreachParDiscard(users)(user =>
-        fileService.retrieveContents(
-          Path.of("awesomeMemes")
-        )
+      .foreachParDiscard(users)(
+        user =>
+          fileService.retrieveContents(
+            Path.of("awesomeMemes")
+          )
       )
       .run
     ZIO.debug("=========").run

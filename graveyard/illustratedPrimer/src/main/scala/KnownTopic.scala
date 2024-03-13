@@ -9,10 +9,13 @@ object KnownTopic:
     val words =
       content.split(" ")
     words
-      .map { word =>
-        if topics.contains(word.toLowerCase) then
-          ParagraphPiece.KnownTopic(word)
-        else
-          ParagraphPiece.Text(word)
+      .map {
+        word =>
+          if topics.contains(word.toLowerCase)
+          then
+            ParagraphPiece.KnownTopic(word)
+          else
+            ParagraphPiece.Text(word)
       }
       .toList
+end KnownTopic

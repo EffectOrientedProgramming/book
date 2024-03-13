@@ -107,10 +107,11 @@ def resourcesDemo() =
         printLine(finalGrainVilleResources)
     yield ()
 
-  Unsafe.unsafe { (u: Unsafe) =>
-    given Unsafe =
-      u
-    unsafe.run(logic).getOrThrowFiberFailure()
+  Unsafe.unsafe {
+    (u: Unsafe) =>
+      given Unsafe =
+        u
+      unsafe.run(logic).getOrThrowFiberFailure()
   }
 end resourcesDemo
 
@@ -152,10 +153,11 @@ def send[A <: Resource[A], B <: Resource[B]](
           )
         )
     _ <-
-      from.update(fResources =>
-        fResources.copy(cash =
-          Cash(fResources.cash.value + 1)
-        )
+      from.update(
+        fResources =>
+          fResources.copy(cash =
+            Cash(fResources.cash.value + 1)
+          )
       )
     _ <-
       to.get

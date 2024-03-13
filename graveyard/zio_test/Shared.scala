@@ -36,8 +36,11 @@ object Shared:
               ZIO.debug(
                 "Initializing scoreboard!"
               )
-          )(_ =>
-            ZIO.debug("Shutting down scoreboard")
+          )(
+            _ =>
+              ZIO.debug(
+                "Shutting down scoreboard"
+              )
           )
           .run
       }

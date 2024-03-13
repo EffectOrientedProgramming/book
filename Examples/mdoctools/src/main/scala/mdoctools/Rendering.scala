@@ -17,7 +17,9 @@ object Rendering:
   def renderEveryPossibleOutcomeZio[E, A](
       z: => ZIO[Any, E, A]
   ): ZIO[Any, java.io.IOException, String] =
-    z.map(result => result.toString)
+    z.map(
+        result => result.toString
+      )
       .catchAll {
         case error: Throwable =>
           ZIO.succeed(
@@ -28,14 +30,19 @@ object Rendering:
             Rendering.renderError(error)
           )
       }
-      .catchAllDefect(defect =>
-        ZIO.succeed(
-          Rendering.renderThrowableDefect(defect)
-        )
+      .catchAllDefect(
+        defect =>
+          ZIO.succeed(
+            Rendering
+              .renderThrowableDefect(defect)
+          )
       )
-      .map { result =>
-        Rendering
-          .lastBruteForceLineLengthPhase(result)
+      .map {
+        result =>
+          Rendering
+            .lastBruteForceLineLengthPhase(
+              result
+            )
       }
 
   def renderThrowableDefect(defect: Throwable) =
@@ -64,14 +71,17 @@ object Rendering:
     error
       .toString
       .split("\n")
-      .map(line =>
-        if (line.length > LineLength.columnWidth)
-          throw new Exception(
-            "Need to handle stacktrace line: " +
-              line
+      .map(
+        line =>
+          if (
+            line.length > LineLength.columnWidth
           )
-        else
-          line
+            throw new Exception(
+              "Need to handle stacktrace line: " +
+                line
+            )
+          else
+            line
       )
       .mkString("\n")
 
@@ -92,15 +102,18 @@ object Rendering:
   ) =
     result
       .split("\n")
-      .map(line =>
-        if (line.length > LineLength.columnWidth)
-          println(
-            "TODO Handle long line. \n" +
-              "Truncating for now: \n" + line
+      .map(
+        line =>
+          if (
+            line.length > LineLength.columnWidth
           )
-          line.take(LineLength.columnWidth)
-        else
-          line
+            println(
+              "TODO Handle long line. \n" +
+                "Truncating for now: \n" + line
+            )
+            line.take(LineLength.columnWidth)
+          else
+            line
       )
       .mkString("\n")
 end Rendering

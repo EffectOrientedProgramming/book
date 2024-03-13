@@ -65,8 +65,8 @@ We must provide all required dependencies to an effect before you can run it.
 ```scala mdoc
 runDemo:
   ZIO
-    .serviceWithZIO[Dough]: dough =>
-      dough.letRise
+    .serviceWithZIO[Dough]:
+      dough => dough.letRise
     .provide:
       Dough.fresh
 ```
@@ -85,8 +85,8 @@ TODO: Strip `repl.MdocSession.MdocApp.` from output. Remove caret indicator from
 ```scala mdoc:fail
 runDemo:
   ZIO
-    .serviceWithZIO[Dough]: dough =>
-      dough.letRise
+    .serviceWithZIO[Dough]:
+      dough => dough.letRise
     .provide()
 ```
 
@@ -197,14 +197,15 @@ This enables other effects that use them to provide their own dependencies of th
 ```scala mdoc
 runDemo:
   ZIO
-    .serviceWithZIO[Bread]: bread =>
-      ZIO
-        .service[Toast]
-        .provide(
-          Toast.make,
-          ZLayer.succeed(bread),
-          toaster
-        )
+    .serviceWithZIO[Bread]:
+      bread =>
+        ZIO
+          .service[Toast]
+          .provide(
+            Toast.make,
+            ZLayer.succeed(bread),
+            toaster
+          )
     .provide(Bread.homemade, Dough.fresh, oven)
 ```
 
@@ -237,21 +238,23 @@ import zio.Runtime.default.unsafe
 case class BreadFromFriend() extends Bread()
 object Friend:
   val invocations =
-    Unsafe.unsafe((u: Unsafe) =>
-      given Unsafe =
-        u
-      unsafe
-        .run(Ref.make(0))
-        .getOrThrowFiberFailure()
+    Unsafe.unsafe(
+      (u: Unsafe) =>
+        given Unsafe =
+          u
+        unsafe
+          .run(Ref.make(0))
+          .getOrThrowFiberFailure()
     )
 
   def reset() =
-    Unsafe.unsafe((u: Unsafe) =>
-      given Unsafe =
-        u
-      unsafe
-        .run(invocations.set(0))
-        .getOrThrowFiberFailure()
+    Unsafe.unsafe(
+      (u: Unsafe) =>
+        given Unsafe =
+          u
+        unsafe
+          .run(invocations.set(0))
+          .getOrThrowFiberFailure()
     )
 
   val forcedFailure =
@@ -394,12 +397,13 @@ val config =
 ```scala mdoc
 runDemo:
   ZIO
-    .serviceWithZIO[RetryConfig]: retryConfig =>
-      ZIO
-        .service[Bread]
-        .provide:
-          friendBreadWithRetries:
-            retryConfig.times
+    .serviceWithZIO[RetryConfig]:
+      retryConfig =>
+        ZIO
+          .service[Bread]
+          .provide:
+            friendBreadWithRetries:
+              retryConfig.times
     .provide:
       config
 ```

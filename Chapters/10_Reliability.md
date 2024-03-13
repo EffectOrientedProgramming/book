@@ -169,12 +169,13 @@ extension [R, E, A](z: ZIO[R, E, A])
       message: String
   ): ZIO[R, E, A] =
     z.timed
-      .tap: (duration, _) =>
-        println(
-          message + " [took " +
-            duration.getSeconds + "s]"
-        )
-        ZIO.unit
+      .tap:
+        (duration, _) =>
+          println(
+            message + " [took " +
+              duration.getSeconds + "s]"
+          )
+          ZIO.unit
       .map(_._2)
 ```
 
@@ -302,11 +303,14 @@ runDemo:
     val delicateResource =
       ZIO.service[DelicateResource].run
     ZIO
-      .foreachPar(1 to 10): _ =>
-        //          bulkhead:
-        delicateResource.request
+      .foreachPar(1 to 10):
+        _ =>
+          //          bulkhead:
+          delicateResource.request
       .as("All Requests Succeeded")
-      .catchAll(err => ZIO.succeed(err))
+      .catchAll(
+        err => ZIO.succeed(err)
+      )
       .debug
       .run
   .provideSome[Scope]:
@@ -327,11 +331,14 @@ runDemo:
     val delicateResource =
       ZIO.service[DelicateResource].run
     ZIO
-      .foreachPar(1 to 10): _ =>
-        bulkhead:
-          delicateResource.request
+      .foreachPar(1 to 10):
+        _ =>
+          bulkhead:
+            delicateResource.request
       .as("All Requests Succeeded")
-      .catchAll(err => ZIO.succeed(err))
+      .catchAll(
+        err => ZIO.succeed(err)
+      )
       .debug
       .run
   .provideSome[Scope]:
@@ -349,18 +356,19 @@ import scala.concurrent.TimeoutException
 // Invisible mdoc fencess
 import zio.Runtime.default.unsafe
 val timeSensitiveValue =
-  Unsafe.unsafe((u: Unsafe) =>
-    given Unsafe =
-      u
-    unsafe
-      .run(
-        scheduledValues(
-          (1100.millis, true),
-          (4100.millis, false),
-          (5000.millis, true)
+  Unsafe.unsafe(
+    (u: Unsafe) =>
+      given Unsafe =
+        u
+      unsafe
+        .run(
+          scheduledValues(
+            (1100.millis, true),
+            (4100.millis, false),
+            (5000.millis, true)
+          )
         )
-      )
-      .getOrThrowFiberFailure()
+        .getOrThrowFiberFailure()
   )
 
 def externalSystem(numCalls: Ref[Int]) =

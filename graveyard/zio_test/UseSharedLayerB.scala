@@ -10,8 +10,8 @@ object UseSharedLayerB extends ZIOSpec[Ref[Int]]:
   def spec =
     test("Test B") {
       for _ <-
-          ZIO.serviceWithZIO[Ref[Int]](count =>
-            count.update(_ + 1)
+          ZIO.serviceWithZIO[Ref[Int]](
+            count => count.update(_ + 1)
           )
       yield assertCompletes
     }

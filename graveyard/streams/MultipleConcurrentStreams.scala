@@ -14,8 +14,9 @@ object MultipleConcurrentStreams
       "updateAccount",
       "logout",
       "post:I want to buy something expensive"
-    ).mapZIO(action =>
-      ZIO.succeed(action).delay(1.seconds)
+    ).mapZIO(
+      action =>
+        ZIO.succeed(action).delay(1.seconds)
     )
 //      .throttleShape(1, 1.seconds, 2)(_.length)
 
@@ -26,14 +27,16 @@ object MultipleConcurrentStreams
   // Surprising, but I'm sure there's good
   // reasoning behind it.
   val userActionAnnouncements =
-    userActions.mapZIO(action =>
-      ZIO.debug("Incoming event: " + action)
+    userActions.mapZIO(
+      action =>
+        ZIO.debug("Incoming event: " + action)
     )
 
   val actionBytes: ZStream[Any, Nothing, Byte] =
-    userActions.flatMap(action =>
-      ZStream
-        .fromIterable((action + "\n").getBytes)
+    userActions.flatMap(
+      action =>
+        ZStream
+          .fromIterable((action + "\n").getBytes)
     )
   val filePipeline
       : ZPipeline[Any, Throwable, Byte, Long] =
@@ -44,24 +47,28 @@ object MultipleConcurrentStreams
     actionBytes >>> filePipeline
 
   val marketingData =
-    userActions
-      .filter(action => action.contains("buy"))
+    userActions.filter(
+      action => action.contains("buy")
+    )
 
   val marketingActions =
-    marketingData.mapZIO(marketingDataPoint =>
-      ZIO.debug(
-        "  $$ info: " + marketingDataPoint
-      )
+    marketingData.mapZIO(
+      marketingDataPoint =>
+        ZIO.debug(
+          "  $$ info: " + marketingDataPoint
+        )
     )
 
   val accountAuthentication =
-    userActions.filter(action =>
-      action == "login" || action == "logout"
+    userActions.filter(
+      action =>
+        action == "login" || action == "logout"
     )
 
   val auditingReport =
-    accountAuthentication.mapZIO(event =>
-      ZIO.debug("  Security info: " + event)
+    accountAuthentication.mapZIO(
+      event =>
+        ZIO.debug("  Security info: " + event)
     )
 
   def run =

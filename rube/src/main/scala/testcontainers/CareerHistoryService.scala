@@ -63,10 +63,11 @@ class CareerHistoryHardcoded private (
               .find(_.userRequest == s"/$person")
               .map(_.response)
           )
-          .mapError(_ =>
-            new NoSuchElementException(
-              s"No response for Person: $person"
-            )
+          .mapError(
+            _ =>
+              new NoSuchElementException(
+                s"No response for Person: $person"
+              )
           )
     yield res
 end CareerHistoryHardcoded
@@ -112,10 +113,11 @@ object CareerHistoryService:
         pairs.expectedData,
         proxyZ
       )
-      .flatMap(x =>
-        ZLayer.succeed(
-          CareerHistoryServiceContainer(x.get)
-        )
+      .flatMap(
+        x =>
+          ZLayer.succeed(
+            CareerHistoryServiceContainer(x.get)
+          )
       )
 
   val live: ZLayer[

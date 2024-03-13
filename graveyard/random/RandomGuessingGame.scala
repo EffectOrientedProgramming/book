@@ -32,11 +32,12 @@ def checkAnswerZSplit(
 ): ZIO[Any, Nothing, String] =
   parse:
     guess
-  .map(i =>
-    if answer == i then
-      "You got it!"
-    else
-      s"BZZ Wrong!!"
+  .map(
+    i =>
+      if answer == i then
+        "You got it!"
+      else
+        s"BZZ Wrong!!"
   ).merge
 
 val effectfulGuessingGame =

@@ -46,30 +46,34 @@ object Components extends HtmlProps:
             href := "#",
             cls  := "dropdown-item",
             "Vetted information",
-            onClick.flatMap(e =>
-              Signal.fromFuture(
-                backend.getVettedInfo(topic)
-              )
+            onClick.flatMap(
+              e =>
+                Signal.fromFuture(
+                  backend.getVettedInfo(topic)
+                )
             ) --> infoResults
           ),
           a(
             href := "#",
             cls  := "dropdown-item",
             "Show example",
-            onClick.flatMap(e =>
-              Signal.fromFuture(
-                backend.codeExample(topic)
-              )
+            onClick.flatMap(
+              e =>
+                Signal.fromFuture(
+                  backend.codeExample(topic)
+                )
             ) --> infoResults
           ),
           a(
             href := "#",
             cls  := "dropdown-item",
             "Generate new information",
-            onClick.flatMap(e =>
-              Signal.fromFuture(
-                backend.expensiveChatInfo(topic)
-              )
+            onClick.flatMap(
+              e =>
+                Signal.fromFuture(
+                  backend
+                    .expensiveChatInfo(topic)
+                )
             ) --> infoResults
           )
         )

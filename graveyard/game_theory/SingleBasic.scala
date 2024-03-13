@@ -24,14 +24,16 @@ case class DecisionHistory(
   def historyFor(
       prisoner: Prisoner
   ): List[Action] =
-    results.map(roundResult =>
-      if (
-        roundResult.prisoner1Decision.prisoner ==
-          prisoner
-      )
-        roundResult.prisoner1Decision.action
-      else
-        roundResult.prisoner2Decision.action
+    results.map(
+      roundResult =>
+        if (
+          roundResult
+            .prisoner1Decision
+            .prisoner == prisoner
+        )
+          roundResult.prisoner1Decision.action
+        else
+          roundResult.prisoner2Decision.action
     )
 
 trait Strategy:

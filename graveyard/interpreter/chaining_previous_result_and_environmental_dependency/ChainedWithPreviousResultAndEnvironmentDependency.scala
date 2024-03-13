@@ -50,23 +50,24 @@ def interpretWithEnvironment(
     program: Seq[Operation[_]],
     environment: ToyEnvironment[Service]
 ): String =
-  program.foldLeft("") { (acc, op) =>
+  program.foldLeft("") {
+    (acc, op) =>
 //    environment.get(op.dep)
-    op match
-      case Print() =>
+      op match
+        case Print() =>
 //        environment.get[Printer].print(acc)
-        acc
-      case RandomString() =>
-        scala
-          .util
-          .Random
-          .alphanumeric
-          .take(10)
-          .mkString
-      case Value(value) =>
-        value
-      case StringManipulation(action) =>
-        action(acc)
+          acc
+        case RandomString() =>
+          scala
+            .util
+            .Random
+            .alphanumeric
+            .take(10)
+            .mkString
+        case Value(value) =>
+          value
+        case StringManipulation(action) =>
+          action(acc)
   }
 
 @annotation.nowarn

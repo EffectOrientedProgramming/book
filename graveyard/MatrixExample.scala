@@ -10,14 +10,22 @@ object MatrixExample:
 
     def mapInt(f: Int => Int): matrix2D =
       val newData =
-        this.twoDList.map(i => i.map(j => f(j)))
+        this
+          .twoDList
+          .map(
+            i =>
+              i.map(
+                j => f(j)
+              )
+          )
       matrix2D(this.sizeX, this.sizeY, newData)
 
     def printMat()
         : Unit = // Uses the map function to itterate
-      this.mapInt(i =>
-        println(i)
-        i
+      this.mapInt(
+        i =>
+          println(i)
+          i
       )
 
     def map(f: => Int): matrix2D =
@@ -27,9 +35,12 @@ object MatrixExample:
   def printMat(mat: matrix2D): Unit =
     mat
       .twoDList
-      .foreach(i =>
-        i.foreach(j => print(s"  $j  "))
-        println("\n")
+      .foreach(
+        i =>
+          i.foreach(
+            j => print(s"  $j  ")
+          )
+          println("\n")
       )
 
   def makeMatrix2D(
@@ -40,16 +51,18 @@ object MatrixExample:
       List.range(0, sizeY)
     // println(rows)
     val matr =
-      rows.map(i =>
-        List.range(i * sizeX, i * sizeX + sizeX)
+      rows.map(
+        i =>
+          List
+            .range(i * sizeX, i * sizeX + sizeX)
       )
     // println(matr)
     matrix2D(sizeX, sizeY, matr)
 
   def flipMatrix(matr: matrix2D): matrix2D =
     def flippedCol(col: List[Int]) =
-      col.foldLeft(List(col(0)))((a, i) =>
-        a.::(i)
+      col.foldLeft(List(col(0)))(
+        (a, i) => a.::(i)
       )
     val flippedMat =
       matr

@@ -49,10 +49,11 @@ object DecisionService:
         val roundResult =
           RoundResult(decisions._1, decisions._2)
         history
-          .update(oldHistory =>
-            DecisionHistory(
-              roundResult :: oldHistory.results
-            )
+          .update(
+            oldHistory =>
+              DecisionHistory(
+                roundResult :: oldHistory.results
+              )
           )
           .run
         roundResult
