@@ -64,10 +64,11 @@ We must provide all required dependencies to an effect before you can run it.
 
 ```scala mdoc
 runDemo:
-  ZIO.serviceWithZIO[Dough]:
-    dough => dough.letRise
-  .provide:
-    Dough.fresh
+  ZIO
+    .serviceWithZIO[Dough]: dough =>
+      dough.letRise
+    .provide:
+      Dough.fresh
 ```
 
 
@@ -83,9 +84,10 @@ TODO: Strip `repl.MdocSession.MdocApp.` from output. Remove caret indicator from
 
 ```scala mdoc:fail
 runDemo:
-  ZIO.serviceWithZIO[Dough]:
-    dough => dough.letRise
-  .provide()
+  ZIO
+    .serviceWithZIO[Dough]: dough =>
+      dough.letRise
+    .provide()
 ```
 
 ## Step 3: Dependencies can "automatically" assemble to fulfill the needs of an effect
@@ -96,8 +98,7 @@ The requirements for each ZIO operation are tracked and combined automatically.
 case class Heat()
 
 val oven =
-  ZLayer
-    .derive[Heat]
+  ZLayer.derive[Heat]
 ```
 
 
@@ -111,8 +112,7 @@ case class BreadHomeMade(
 
 object Bread:
   val homemade =
-    ZLayer
-      .derive[BreadHomeMade]
+    ZLayer.derive[BreadHomeMade]
 ```
 
 Something around how like typical DI, the "graph" of dependencies gets resolved "for you"
@@ -121,12 +121,9 @@ Dependencies on effects propagate to effects which use effects.
 
 ```scala mdoc
 runDemo:
-  ZIO.service[Bread]
-    .provide(
-      Bread.homemade,
-      Dough.fresh, 
-      oven, 
-    )
+  ZIO
+    .service[Bread]
+    .provide(Bread.homemade, Dough.fresh, oven)
 ```
 
 ## Step 4: Different effects can require the same dependency
@@ -138,8 +135,7 @@ case class Toast(heat: Heat, bread: Bread)
 
 object Toast:
   val make =
-    ZLayer
-      .derive[Toast]
+    ZLayer.derive[Toast]
 ```
 
 It is possible to also use the oven to provide `Heat` to make the `Toast`.
@@ -151,7 +147,8 @@ Notice - Even though we provide the same dependencies in this example, oven is _
 
 ```scala mdoc
 runDemo:
-  ZIO.service[Toast]
+  ZIO
+    .service[Toast]
     .provide(
       Toast.make,
       Bread.homemade,
@@ -166,13 +163,13 @@ It would be great if we can instead use our dedicated toaster!
 
 ```scala mdoc:silent
 val toaster =
-  ZLayer
-    .derive[Heat]
+  ZLayer.derive[Heat]
 ```
 
 ```scala mdoc
 runDemo:
-  ZIO.service[Heat]
+  ZIO
+    .service[Heat]
     .provide:
       toaster
 ```
@@ -181,7 +178,8 @@ runDemo:
 
 ```scala mdoc:fail
 runDemo:
-  ZIO.service[Toast]
+  ZIO
+    .service[Toast]
     .provide(
       Toast.make,
       Dough.fresh,
@@ -198,19 +196,16 @@ This enables other effects that use them to provide their own dependencies of th
 
 ```scala mdoc
 runDemo:
-  ZIO.serviceWithZIO[Bread]:
-    bread =>
-      ZIO.service[Toast]
+  ZIO
+    .serviceWithZIO[Bread]: bread =>
+      ZIO
+        .service[Toast]
         .provide(
           Toast.make,
-          ZLayer.succeed(bread), 
+          ZLayer.succeed(bread),
           toaster
         )
-  .provide(
-    Bread.homemade,
-    Dough.fresh,
-    oven
-  )
+    .provide(Bread.homemade, Dough.fresh, oven)
 ```
 
 ## Step 7: Effects can Construct Dependencies
@@ -230,8 +225,7 @@ val storeBought =
 
 ```scala mdoc
 runDemo:
-  ZIO.service[Bread]
-  .provide(storeBought)
+  ZIO.service[Bread].provide(storeBought)
 ```
 
 
@@ -265,7 +259,9 @@ object Friend:
       println("Error: **Friend Unreachable**")
       ZIO
         .when(true)(
-          ZIO.fail("Error: **Friend Unreachable**")
+          ZIO.fail(
+            "Error: **Friend Unreachable**"
+          )
         )
         .as(???)
         .run
@@ -290,13 +286,10 @@ object Friend:
 end Friend
 ```
 
-```scala mdoc:silent
-Friend.bread: ZLayer[Any, String, Bread]
-```
-
 ```scala mdoc
 runDemo:
-  ZIO.service[Bread]
+  ZIO
+    .service[Bread]
     .provide:
       Friend.bread
 ```
@@ -311,19 +304,15 @@ Friend.reset()
 val bread =
   Friend
     .bread
-      .orElse:
-         storeBought
+    .orElse:
+      storeBought
 ```
 
 ```scala mdoc
 runDemo:
-  ZIO.service[Toast]
-  .provide(
-    Toast.make,
-    bread,
-    toaster
-  )
-
+  ZIO
+    .service[Toast]
+    .provide(Toast.make, bread, toaster)
 ```
 
 ## Step 10: Dependency Retries
@@ -342,8 +331,9 @@ def friendBreadWithRetries(times: Int) =
 ```
 
 ```scala mdoc
-runDemo: 
-  ZIO.service[Bread]
+runDemo:
+  ZIO
+    .service[Bread]
     .provide:
       friendBreadWithRetries:
         1
@@ -359,15 +349,14 @@ Friend.reset()
 
 ```scala mdoc
 runDemo:
-  ZIO.service[Bread]
+  ZIO
+    .service[Bread]
     .provide:
       friendBreadWithRetries:
         2
       .orElse:
         storeBought
 ```
-
-TODO {{ Make like superpowers with vals. Figure out how to add the config without changing a previous step. }}
 
 ## Step 12: Externalize Config for Retries
 
@@ -404,14 +393,15 @@ val config =
 
 ```scala mdoc
 runDemo:
-  ZIO.serviceWithZIO[RetryConfig]:
-    retryConfig =>
-      ZIO.service[Bread]
+  ZIO
+    .serviceWithZIO[RetryConfig]: retryConfig =>
+      ZIO
+        .service[Bread]
         .provide:
           friendBreadWithRetries:
             retryConfig.times
-  .provide:
-    config
+    .provide:
+      config
 ```
 
 
