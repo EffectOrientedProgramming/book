@@ -203,8 +203,9 @@ runDemo:
           .service[Toast]
           .provide(
             Toast.make,
-            ZLayer.succeed(bread),
-            toaster
+            toaster,
+            ZLayer.succeed:
+              bread
           )
     .provide(Bread.homemade, Dough.fresh, oven)
 ```
@@ -215,7 +216,11 @@ runDemo:
 case class BreadStoreBought() extends Bread
 
 val buyBread =
-  ZIO.succeed(BreadStoreBought()).delay(1.second)
+  ZIO
+    .succeed:
+      BreadStoreBought()
+    .delay:
+      1.second
 ```
 
 ```scala mdoc:silent
@@ -226,7 +231,10 @@ val storeBought =
 
 ```scala mdoc
 runDemo:
-  ZIO.service[Bread].provide(storeBought)
+  ZIO
+    .service[Bread]
+    .provide:
+      storeBought
 ```
 
 
