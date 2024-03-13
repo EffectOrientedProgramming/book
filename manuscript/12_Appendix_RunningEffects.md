@@ -163,14 +163,15 @@ In this case you can use ZIO's `Unsafe` utility which is called `Unsafe` to indi
 To do the same `ZIO.debug` with `Unsafe` do:
 
 ```scala
-Unsafe.unsafe { implicit u: Unsafe =>
-  Runtime
-    .default
-    .unsafe
-    .run:
-      ZIO.debug:
-        "hello, world"
-    .getOrThrowFiberFailure()
+Unsafe.unsafe {
+  implicit u: Unsafe =>
+    Runtime
+      .default
+      .unsafe
+      .run:
+        ZIO.debug:
+          "hello, world"
+      .getOrThrowFiberFailure()
 }
 // hello, world
 ```

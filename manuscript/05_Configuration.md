@@ -60,26 +60,40 @@ case class Dough():
 
 object Dough:
   val fresh =
-    ZLayer
-      .derive[Dough]
-      .tapWithMessage("Making Fresh Dough")
+    ZLayer.derive[Dough]
 ```
 
-## Step 1: Effects can express dependencies
+## Step 1: Provide Dependency Layers to Effects
+We must provide all required dependencies to an effect before you can run it.
 
-Effects can't be run until their dependencies have been fulfilled
+```scala
+runDemo:
+  ZIO
+    .serviceWithZIO[Dough]:
+      dough => dough.letRise
+    .provide:
+      Dough.fresh
+// Dough is rising
+// Result: ()
+```
+
+
+## Step 2: Unresolved Dependencies Are Compile Errors
+
+If the dependency for an Effect isn't provided, we get a compile error:
 
 TODO: Decide what to do about the compiler error differences between these approaches
 
 TODO: Can we avoid the `.provide()` and still get a good compile error in mdoc
 
+TODO: Strip `repl.MdocSession.MdocApp.` from output. Remove caret indicator from output.
+
 ```scala
 runDemo:
-  defer:
-    val dough =
-      ZIO.service[Dough].run
-    dough.letRise.run
-  .provide()
+  ZIO
+    .serviceWithZIO[Dough]:
+      dough => dough.letRise
+    .provide()
 // error:
 // 
 // 
@@ -92,31 +106,11 @@ runDemo:
 // ──────────────────────────────────────────────────────────────────────
 // 
 // 
-//     defer:
-//     ^
+//       ZIO
+//       ^
 ```
 
-## Step 2: Provide Dependency Layers to Effects
-
-Then the effect can be run.
-
-```scala
-runDemo:
-  defer:
-    val dough =
-      ZIO.service[Dough].run
-    // TODO Maybe *only* call .service[Dough]? letRise might just complicate it.
-    dough.letRise.run
-  .provide:
-    Dough.fresh
-// Making Fresh Dough
-// Dough is rising
-// Result: ()
-```
-
-
-
-## Step 3: Effects can require multiple dependencies
+## Step 3: Dependencies can "automatically" assemble to fulfill the needs of an effect
 
 The requirements for each ZIO operation are tracked and combined automatically.
 
@@ -124,19 +118,12 @@ The requirements for each ZIO operation are tracked and combined automatically.
 case class Heat()
 
 val oven =
-  ZLayer
-    .derive[Heat]
-    .tapWithMessage:
-    "Heating Oven"
+  ZLayer.derive[Heat]
 ```
 
 
 ```scala
-trait Bread:
-  val eat =
-    ZIO.succeed:
-      println:
-        "Eating bread!"
+trait Bread
 
 case class BreadHomeMade(
     heat: Heat,
@@ -145,51 +132,22 @@ case class BreadHomeMade(
 
 object Bread:
   val homemade =
-    ZLayer
-      .derive[BreadHomeMade]
-      .tapWithMessage:
-        "Making Homemade Bread"
+    ZLayer.derive[BreadHomeMade]
 ```
-
-
-```scala
-runDemo:
-  defer:
-    ZIO.service[Bread].run
-  .provide(
-    Bread.homemade,
-    Dough.fresh, 
-    oven, 
-  )
-// Result: BreadHomeMade(Heat(),Dough())
-```
-
-## Step 4: Dependencies can "automatically" assemble to fulfill the needs of an effect
 
 Something around how like typical DI, the "graph" of dependencies gets resolved "for you"
 This typically happens in some completely new/custom phase, that does follow standard code paths.
 Dependencies on effects propagate to effects which use effects.
 
 ```scala
-// TODO Figure out why Bread.eat debug isn't showing up
 runDemo:
-  defer:
-    val bread =
-      ZIO.service[Bread].run
-    bread.eat.run
-  .provide(
-    // Highlight that homemade needs the other
-    // dependencies.
-    Bread.homemade,
-    Dough.fresh,
-    oven
-  )
-// Eating bread!
-// Result: ()
+  ZIO
+    .service[Bread]
+    .provide(Bread.homemade, Dough.fresh, oven)
+// Result: BreadHomeMade(Heat(),Dough())
 ```
 
-
-## Step 5: Different effects can require the same dependency
+## Step 4: Different effects can require the same dependency
 Eventually, we grow tired of eating plain `Bread` and decide to start making `Toast`.
 Both of these processes require `Heat`.
 
@@ -198,9 +156,7 @@ case class Toast(heat: Heat, bread: Bread)
 
 object Toast:
   val make =
-    ZLayer
-      .derive[Toast]
-      .tapWithMessage("Making Toast")
+    ZLayer.derive[Toast]
 ```
 
 It is possible to also use the oven to provide `Heat` to make the `Toast`.
@@ -212,14 +168,14 @@ Notice - Even though we provide the same dependencies in this example, oven is _
 
 ```scala
 runDemo:
-  defer:
-    ZIO.service[Toast].run
-  .provide(
-    Toast.make,
-    Bread.homemade,
-    Dough.fresh,
-    oven
-  )
+  ZIO
+    .service[Toast]
+    .provide(
+      Toast.make,
+      Bread.homemade,
+      Dough.fresh,
+      oven
+    )
 // Result: Toast(Heat(),BreadHomeMade(Heat(),Dough()))
 ```
 
@@ -229,26 +185,32 @@ It would be great if we can instead use our dedicated toaster!
 
 ```scala
 val toaster =
-  ZLayer
-    .derive[Heat]
-    .tapWithMessage:
-      "Heating Toaster"
+  ZLayer.derive[Heat]
 ```
-
-## Step 6: Dependencies must be fulfilled by unique types
 
 ```scala
 runDemo:
-  defer:
-    ZIO.service[Toast].run
-  .provide(
-    Toast.make,
-    Dough.fresh,
-    Bread.homemade,
-    oven,
-    toaster
-  )
-// error: 
+  ZIO
+    .service[Heat]
+    .provide:
+      toaster
+// Result: Heat()
+```
+
+## Step 5: Dependencies must be fulfilled by unique types
+
+```scala
+runDemo:
+  ZIO
+    .service[Toast]
+    .provide(
+      Toast.make,
+      Dough.fresh,
+      Bread.homemade,
+      oven,
+      toaster
+    )
+// error:
 // 
 // 
 // ──── ZLAYER ERROR ────────────────────────────────────────────────────
@@ -262,109 +224,124 @@ runDemo:
 // 
 // ──────────────────────────────────────────────────────────────────────
 // 
-//
+// 
+//       ZIO
+//       ^
 ```
 Unfortunately our program is now ambiguous.
 It cannot decide if we should be making `Toast` in the oven, `Bread` in the toaster, or any other combination.
 
-## Step 7: Providing Dependencies at Different Levels
+## Step 6: Providing Dependencies at Different Levels
 This enables other effects that use them to provide their own dependencies of the same type
 
 ```scala
 runDemo:
-  defer:
-    val bread =
-      defer:
-        ZIO.service[Bread].run
-      .provide(
-        Bread.homemade,
-        Dough.fresh,
-        oven
-      )
-      .run
-
-    ZLayer
-      .make[Toast](Toast.make, ZLayer.succeed(bread), toaster)
-      .build
-      .run
-      .get
+  ZIO
+    .serviceWithZIO[Bread]:
+      bread =>
+        ZIO
+          .service[Toast]
+          .provide(
+            Toast.make,
+            toaster,
+            ZLayer.succeed:
+              bread
+          )
+    .provide(Bread.homemade, Dough.fresh, oven)
 // Result: Toast(Heat(),BreadHomeMade(Heat(),Dough()))
 ```
 
-## Step 8: Dependencies can fail
+## Step 7: Effects can Construct Dependencies
 
 ```scala
 case class BreadStoreBought() extends Bread
+
+val buyBread =
+  ZIO
+    .succeed:
+      BreadStoreBought()
+    .delay:
+      1.second
+```
+
+```scala
 val storeBought =
-  ZLayer
-    .derive[BreadStoreBought]
-    .tapWithMessage:
-      "Buying Bread"
-```
-
-
-TODO Explain `.build` before using it to demo layer construction
-
-```scala
-Bread2.fromFriend: ZLayer[Any, String, Bread]
+  ZLayer.fromZIO:
+    buyBread
 ```
 
 ```scala
 runDemo:
-  defer:
-    val bread =
-      ZIO.service[Bread].run
-    bread.eat.run
-  .provide:
-    Bread2.fromFriend
-// **Power out**
-// Result: **Power out Rez**
+  ZIO
+    .service[Bread]
+    .provide:
+      storeBought
+// Result: BreadStoreBought()
 ```
 
-```scala
-Bread2.reset()
-```
 
-## Step 9: Dependency Retries
+## Step 8: Dependencies can fail
+Since dependencies can be built with effects, this means that they can fail.
+
 
 ```scala
 runDemo:
-  defer:
-    val bread =
-      ZIO.service[Bread].run
-    bread.eat.run
-  .provide:
-    Bread2
-      .fromFriend
-      .retry:
-        Schedule.recurs:
-          3
-// **Power out**
-// **Power out**
-// Power is on
-// Eating bread!
-// Result: ()
+  ZIO
+    .service[Bread]
+    .provide:
+      Friend.bread
+// Error: **Friend Unreachable**
+// Result: Error: **Friend Unreachable**
 ```
 
-## Step 10: Fallback Dependencies 
+## Step 9: Fallback Dependencies
 
 ```scala
-Bread2.reset()
+Friend.reset()
+```
+
+```scala
+val bread =
+  Friend
+    .bread
+    .orElse:
+      storeBought
 ```
 
 ```scala
 runDemo:
-  val bread =
-    Bread2
-      .fromFriend
-      .orElse:
-        storeBought
+  ZIO
+    .service[Toast]
+    .provide(Toast.make, bread, toaster)
+// Error: **Friend Unreachable**
+// Result: Toast(Heat(),BreadStoreBought())
+```
 
-  ZLayer
-    .make[Toast](Toast.make, bread, toaster)
-    .build
-// **Power out**
-// Result: ZEnvironment(MdocSession::MdocApp::Toast -> To
+## Step 10: Dependency Retries
+
+```scala
+Friend.reset()
+```
+
+```scala
+def friendBreadWithRetries(times: Int) =
+  Friend
+    .bread
+    .retry:
+      Schedule.recurs:
+        times
+```
+
+```scala
+runDemo:
+  ZIO
+    .service[Bread]
+    .provide:
+      friendBreadWithRetries:
+        1
+// Error: **Friend Unreachable**
+// Error: **Friend Unreachable**
+// Result: Error: **Friend Unreachable**
 ```
 
 ## Step 11: Layer Retry + Fallback?
@@ -372,26 +349,29 @@ runDemo:
 Maybe retry on the ZLayer eg. (BreadDough.rancid, Heat.brokenFor10Seconds)
 
 ```scala
-Bread2.reset()
+Friend.reset()
 ```
 
 ```scala
 runDemo:
-  Bread2
-    .fromFriend
-    .retry:
-      Schedule.recurs:
-        1
-    .orElse:
-      storeBought
-    .build // TODO Stop using build, if possible
-    .debug
-// **Power out**
-// **Power out**
-// Result: ZEnvironment(MdocSession::MdocApp::BreadStoreB
+  ZIO
+    .service[Bread]
+    .provide:
+      friendBreadWithRetries:
+        2
+      .orElse:
+        storeBought
+// Error: **Friend Unreachable**
+// Error: **Friend Unreachable**
+// Error: **Friend Unreachable**
+// Result: BreadStoreBought()
 ```
 
-TODO {{ Make like superpowers with vals. Figure out how to add the config without changing a previous step. }}
+## Step 12: Externalize Config for Retries
+
+```scala
+Friend.reset()
+```
 
 Changing things based on the running environment.
 
@@ -413,25 +393,30 @@ val configProvider =
   ConfigProvider.fromHoconString:
     "{ times: 3 }"
 
-val configFromEnv =
+val config =
   ZLayer.fromZIO:
     read:
       configDescriptor.from:
         configProvider
-
-val logic =
-  defer:
-    val retryConfig =
-      ZIO.service[RetryConfig].run
-    retryConfig.times
-  .provide:
-    configFromEnv
 ```
 
 ```scala
 runDemo:
-  logic
-// Result: 3
+  ZIO
+    .serviceWithZIO[RetryConfig]:
+      retryConfig =>
+        ZIO
+          .service[Bread]
+          .provide:
+            friendBreadWithRetries:
+              retryConfig.times
+    .provide:
+      config
+// Error: **Friend Unreachable**
+// Error: **Friend Unreachable**
+// Error: **Friend Unreachable**
+// Log: Friend answered
+// Result: BreadFromFriend()
 ```
 
 

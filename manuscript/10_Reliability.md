@@ -193,11 +193,14 @@ runDemo:
     val delicateResource =
       ZIO.service[DelicateResource].run
     ZIO
-      .foreachPar(1 to 10): _ =>
-        //          bulkhead:
-        delicateResource.request
+      .foreachPar(1 to 10):
+        _ =>
+          //          bulkhead:
+          delicateResource.request
       .as("All Requests Succeeded")
-      .catchAll(err => ZIO.succeed(err))
+      .catchAll(
+        err => ZIO.succeed(err)
+      )
       .debug
       .run
   .provideSome[Scope]:
@@ -221,11 +224,14 @@ runDemo:
     val delicateResource =
       ZIO.service[DelicateResource].run
     ZIO
-      .foreachPar(1 to 10): _ =>
-        bulkhead:
-          delicateResource.request
+      .foreachPar(1 to 10):
+        _ =>
+          bulkhead:
+            delicateResource.request
       .as("All Requests Succeeded")
-      .catchAll(err => ZIO.succeed(err))
+      .catchAll(
+        err => ZIO.succeed(err)
+      )
       .debug
       .run
   .provideSome[Scope]:

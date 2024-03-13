@@ -43,8 +43,8 @@ val unreliableCounting =
 
   defer:
     ZIO
-      .foreachParDiscard(Range(0, 100000)): _ =>
-        increment
+      .foreachParDiscard(Range(0, 100000)):
+        _ => increment
       .run
     // It's not obvious to the reader why
     // we need to wrap counter in .succeed
@@ -54,7 +54,7 @@ val unreliableCounting =
 ```scala
 runDemo:
   unreliableCounting
-// Result: Final count: 94079
+// Result: Final count: 97229
 ```
 
 Due to the unpredictable nature of shared mutable state, we do not know exactly what the final count above is.
@@ -80,9 +80,10 @@ lazy val reliableCounting =
     val counter =
       Ref.make(0).run
     ZIO
-      .foreachParDiscard(Range(0, 100000)): _ =>
-        incrementCounter:
-          counter
+      .foreachParDiscard(Range(0, 100000)):
+        _ =>
+          incrementCounter:
+            counter
       .run
     "Final count: " + counter.get.run
 
@@ -118,18 +119,19 @@ def sendNotification() =
 
 ```scala
 def update(counter: Ref[Int]) =
-  counter.update: previousValue =>
-    expensiveCalculation()
-    sendNotification()
-    previousValue + 1
+  counter.update:
+    previousValue =>
+      expensiveCalculation()
+      sendNotification()
+      previousValue + 1
 
 runDemo:
   defer:
     val counter =
       Ref.make(0).run
     ZIO
-      .foreachParDiscard(Range(0, 4)): _ =>
-        update(counter)
+      .foreachParDiscard(Range(0, 4)):
+        _ => update(counter)
       .run
     val finalCount =
       counter.get.run
@@ -175,8 +177,8 @@ val sideEffectingUpdatesSync =
     val counter =
       Ref.Synchronized.make(0).run
     ZIO
-      .foreachParDiscard(Range(0, 4)): _ =>
-        update(counter)
+      .foreachParDiscard(Range(0, 4)):
+        _ => update(counter)
       .run
     val finalCount =
       counter.get.run
