@@ -276,7 +276,7 @@ object Friend:
       val currentInvocations: Int =
         invocations.updateAndGet(_ + 1).run
       currentInvocations match
-        case cnt if cnt < 3 =>
+        case cnt if cnt < 4 =>
           forcedFailure.run
         case _ =>
           println("Log: Friend answered")
@@ -301,24 +301,7 @@ runDemo:
       Friend.bread
 ```
 
-```scala mdoc:silent
-Friend.reset()
-```
-
-## Step 9: Dependency Retries
-
-```scala mdoc
-runDemo: 
-  ZIO.service[Bread]
-    .provide:
-      Friend
-        .bread
-        .retry:
-          Schedule.recurs:
-            3
-```
-
-## Step 10: Fallback Dependencies 
+## Step 9: Fallback Dependencies
 
 ```scala mdoc:silent
 Friend.reset()
@@ -343,6 +326,29 @@ runDemo:
 
 ```
 
+## Step 10: Dependency Retries
+
+```scala mdoc:silent
+Friend.reset()
+```
+
+```scala mdoc
+def friendBreadWithRetries(times: Int) =
+  Friend
+    .bread
+    .retry:
+      Schedule.recurs:
+        times
+```
+
+```scala mdoc
+runDemo: 
+  ZIO.service[Bread]
+    .provide:
+      friendBreadWithRetries:
+        1
+```
+
 ## Step 11: Layer Retry + Fallback?
 
 Maybe retry on the ZLayer eg. (BreadDough.rancid, Heat.brokenFor10Seconds)
@@ -355,14 +361,10 @@ Friend.reset()
 runDemo:
   ZIO.service[Bread]
     .provide:
-      Friend
-        .bread
-        .retry:
-          Schedule.recurs:
-            1
-        .orElse:
-          storeBought
-
+      friendBreadWithRetries:
+        2
+      .orElse:
+        storeBought
 ```
 
 TODO {{ Make like superpowers with vals. Figure out how to add the config without changing a previous step. }}
@@ -406,11 +408,8 @@ runDemo:
     retryConfig =>
       ZIO.service[Bread]
         .provide:
-          Friend
-            .bread
-            .retry:
-              Schedule.recurs:
-                retryConfig.times
+          friendBreadWithRetries:
+            retryConfig.times
   .provide:
     config
 ```
