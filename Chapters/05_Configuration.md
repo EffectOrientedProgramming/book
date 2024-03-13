@@ -47,7 +47,7 @@ TODO Values to convey:
 - Layer Resourcefulness
    - Layers can have setup & teardown (open & close)
 
-```scala mdoc:silent
+```scala mdoc
 // Explain private constructor approach
 case class Dough():
   val letRise =
@@ -56,46 +56,39 @@ case class Dough():
 
 object Dough:
   val fresh =
-    ZLayer
-      .derive[Dough]
-      .tapWithMessage("Making Fresh Dough")
+    ZLayer.derive[Dough]
 ```
 
-## Step 1: Effects can express dependencies
-
-Effects can't be run until their dependencies have been fulfilled
-
-TODO: Decide what to do about the compiler error differences between these approaches
-
-TODO: Can we avoid the `.provide()` and still get a good compile error in mdoc
-
-```scala mdoc:fail
-runDemo:
-  defer:
-    val dough =
-      ZIO.service[Dough].run
-    dough.letRise.run
-  .provide()
-```
-
-## Step 2: Provide Dependency Layers to Effects
-
-Then the effect can be run.
+## Step 1: Provide Dependency Layers to Effects
+We must provide all required dependencies to an effect before you can run it.
 
 ```scala mdoc
 runDemo:
-  defer:
-    val dough =
-      ZIO.service[Dough].run
-    // TODO Maybe *only* call .service[Dough]? letRise might just complicate it.
-    dough.letRise.run
+  ZIO.serviceWithZIO[Dough]:
+    dough => dough.letRise
   .provide:
     Dough.fresh
 ```
 
 
+## Step 2: Unresolved Dependencies Are Compile Errors
 
-## Step 3: Effects can require multiple dependencies
+If the dependency for an Effect isn't provided, we get a compile error:
+
+TODO: Decide what to do about the compiler error differences between these approaches
+
+TODO: Can we avoid the `.provide()` and still get a good compile error in mdoc
+
+TODO: Strip `repl.MdocSession.MdocApp.` from output. Remove caret indicator from output.
+
+```scala mdoc:fail
+runDemo:
+  ZIO.serviceWithZIO[Dough]:
+    dough => dough.letRise
+  .provide()
+```
+
+## Step 3: Dependencies can "automatically" assemble to fulfill the needs of an effect
 
 The requirements for each ZIO operation are tracked and combined automatically.
 
@@ -105,17 +98,11 @@ case class Heat()
 val oven =
   ZLayer
     .derive[Heat]
-    .tapWithMessage:
-    "Heating Oven"
 ```
 
 
 ```scala mdoc
-trait Bread:
-  val eat =
-    ZIO.succeed:
-      println:
-        "Eating bread!"
+trait Bread
 
 case class BreadHomeMade(
     heat: Heat,
@@ -126,44 +113,21 @@ object Bread:
   val homemade =
     ZLayer
       .derive[BreadHomeMade]
-      .tapWithMessage:
-        "Making Homemade Bread"
 ```
-
-
-```scala mdoc
-runDemo:
-  defer:
-    ZIO.service[Bread].run
-  .provide(
-    Bread.homemade,
-    Dough.fresh, 
-    oven, 
-  )
-```
-
-## Step 4: Dependencies can "automatically" assemble to fulfill the needs of an effect
 
 Something around how like typical DI, the "graph" of dependencies gets resolved "for you"
 This typically happens in some completely new/custom phase, that does follow standard code paths.
 Dependencies on effects propagate to effects which use effects.
 
 ```scala mdoc
-// TODO Figure out why Bread.eat debug isn't showing up
 runDemo:
-  defer:
-    val bread =
-      ZIO.service[Bread].run
-    bread.eat.run
-  .provide(
-    // Highlight that homemade needs the other
-    // dependencies.
-    Bread.homemade,
-    Dough.fresh,
-    oven
-  )
+  ZIO.service[Bread]
+    .provide(
+      Bread.homemade,
+      Dough.fresh, 
+      oven, 
+    )
 ```
-
 
 ## Step 5: Different effects can require the same dependency
 Eventually, we grow tired of eating plain `Bread` and decide to start making `Toast`.
@@ -176,7 +140,6 @@ object Toast:
   val make =
     ZLayer
       .derive[Toast]
-      .tapWithMessage("Making Toast")
 ```
 
 It is possible to also use the oven to provide `Heat` to make the `Toast`.
@@ -188,14 +151,13 @@ Notice - Even though we provide the same dependencies in this example, oven is _
 
 ```scala mdoc
 runDemo:
-  defer:
-    ZIO.service[Toast].run
-  .provide(
-    Toast.make,
-    Bread.homemade,
-    Dough.fresh,
-    oven
-  )
+  ZIO.service[Toast]
+    .provide(
+      Toast.make,
+      Bread.homemade,
+      Dough.fresh,
+      oven
+    )
 ```
 
 However, the oven uses a lot of energy to make `Toast`.
@@ -206,23 +168,27 @@ It would be great if we can instead use our dedicated toaster!
 val toaster =
   ZLayer
     .derive[Heat]
-    .tapWithMessage:
-      "Heating Toaster"
+```
+
+```scala mdoc
+runDemo:
+  ZIO.service[Heat]
+    .provide:
+      toaster
 ```
 
 ## Step 6: Dependencies must be fulfilled by unique types
 
 ```scala mdoc:fail
 runDemo:
-  defer:
-    ZIO.service[Toast].run
-  .provide(
-    Toast.make,
-    Dough.fresh,
-    Bread.homemade,
-    oven,
-    toaster
-  )
+  ZIO.service[Toast]
+    .provide(
+      Toast.make,
+      Dough.fresh,
+      Bread.homemade,
+      oven,
+      toaster
+    )
 ```
 Unfortunately our program is now ambiguous.
 It cannot decide if we should be making `Toast` in the oven, `Bread` in the toaster, or any other combination.
@@ -232,22 +198,19 @@ This enables other effects that use them to provide their own dependencies of th
 
 ```scala mdoc
 runDemo:
-  defer:
-    val bread =
-      defer:
-        ZIO.service[Bread].run
-      .provide(
-        Bread.homemade,
-        Dough.fresh,
-        oven
-      )
-      .run
-
-    ZLayer
-      .make[Toast](Toast.make, ZLayer.succeed(bread), toaster)
-      .build
-      .run
-      .get
+  ZIO.serviceWithZIO[Bread]:
+    bread =>
+      ZIO.service[Toast]
+        .provide(
+          Toast.make,
+          ZLayer.succeed(bread), 
+          toaster
+        )
+  .provide(
+    Bread.homemade,
+    Dough.fresh,
+    oven
+  )
 ```
 
 ## Step 8: Dependencies can fail
@@ -257,8 +220,6 @@ case class BreadStoreBought() extends Bread
 val storeBought =
   ZLayer
     .derive[BreadStoreBought]
-    .tapWithMessage:
-      "Buying Bread"
 ```
 
 ```scala mdoc:invisible
@@ -320,12 +281,9 @@ Bread2.fromFriend: ZLayer[Any, String, Bread]
 
 ```scala mdoc
 runDemo:
-  defer:
-    val bread =
-      ZIO.service[Bread].run
-    bread.eat.run
-  .provide:
-    Bread2.fromFriend
+  ZIO.service[Bread]
+    .provide:
+      Bread2.fromFriend
 ```
 
 ```scala mdoc:silent
@@ -335,17 +293,14 @@ Bread2.reset()
 ## Step 9: Dependency Retries
 
 ```scala mdoc
-runDemo:
-  defer:
-    val bread =
-      ZIO.service[Bread].run
-    bread.eat.run
-  .provide:
-    Bread2
-      .fromFriend
-      .retry:
-        Schedule.recurs:
-          3
+runDemo: 
+  ZIO.service[Bread]
+    .provide:
+      Bread2
+        .fromFriend
+        .retry:
+          Schedule.recurs:
+            3
 ```
 
 ## Step 10: Fallback Dependencies 
@@ -377,15 +332,16 @@ Bread2.reset()
 
 ```scala mdoc
 runDemo:
-  Bread2
-    .fromFriend
-    .retry:
-      Schedule.recurs:
-        1
-    .orElse:
-      storeBought
-    .build // TODO Stop using build, if possible
-    .debug
+  ZIO.service[Bread]
+    .provide:
+      Bread2
+        .fromFriend
+        .retry:
+          Schedule.recurs:
+            1
+        .orElse:
+          storeBought
+
 ```
 
 TODO {{ Make like superpowers with vals. Figure out how to add the config without changing a previous step. }}
