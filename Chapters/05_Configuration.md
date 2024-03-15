@@ -242,6 +242,13 @@ runDemo:
 Since dependencies can be built with effects, this means that they can fail.
 
 ```scala mdoc:invisible
+enum Scenario:
+  case HappyPath()
+  case NeverWorks()
+  case WorksOnTry[E, A](attempts: Int, logic: Resource => ZIO[Scope, E, A])
+```
+
+```scala mdoc:invisible
 import zio.Runtime.default.unsafe
 case class BreadFromFriend() extends Bread()
 object Friend:
@@ -289,11 +296,24 @@ object Friend:
           println("Log: Friend answered")
           BreadFromFriend()
 
+  def attemptZ(resource: Resource): ZIO[Any, Exception, Bread] =
+    resource.call.map: _ =>
+      println("Power is on")
+      BreadFromFriend()
+    .tapError:
+       e => 
+         ZIO.succeed:
+           println(s"Error: $e")
+
 // Already constructed elsewhere, that we don't
   // control
   val bread =
     ZLayer.fromZIO:
       Friend.attempt(invocations)
+      
+  def breadZ(resource: Resource) =
+    ZLayer.fromZIO:
+       Friend.attemptZ(resource)
 end Friend
 ```
 
@@ -305,7 +325,55 @@ runDemo:
       Friend.bread
 ```
 
+```scala mdoc
+runScenario(
+  Scenario.WorksOnTry(
+      3, 
+      resource => 
+        ZIO.service[Bread]
+        .provide:
+          Friend.breadZ(resource)
+  ),
+  ZIO.unit
+)
+```
+
 ## Step 9: Fallback Dependencies
+
+```scala mdoc:invisible
+trait Resource:
+  val call: ZIO[Any, Exception, Unit]
+
+case class ResourceLive(
+                               ref: Ref[Int], 
+                               attempts: Int
+) extends Resource:
+  val call: ZIO[Any, Exception, Unit]  =
+    defer:
+      val r = ref.getAndUpdate(_ + 1).run
+      if (r < attempts)
+        ZIO.fail(new Exception("Nope")).run
+      else
+        ZIO.succeed(()).run
+        
+def runScenario[E, A](
+  scenario: Scenario,
+  logic: => ZIO[Scope, E, A]
+): Unit =
+  runDemo:
+      // val invocations = Ref.make(0).run
+    (scenario match
+        case Scenario.HappyPath() =>
+          logic
+        case Scenario.NeverWorks() =>
+          ZIO.fail("Never works")
+        case Scenario.WorksOnTry(attempts, logic) =>
+          defer:
+            val ref = ResourceLive(Ref.make(0).run, attempts)
+
+            logic(ref).run
+      ).provide(Scope.default)
+```
 
 ```scala mdoc:silent
 Friend.reset()
@@ -339,6 +407,13 @@ def friendBreadWithRetries(times: Int) =
     .retry:
       Schedule.recurs:
         times
+        
+def friendBreadWithRetriesZ(times: Int, resource: Resource) =
+  Friend
+    .breadZ(resource)
+    .retry:
+      Schedule.recurs:
+        times
 ```
 
 ```scala mdoc
@@ -348,6 +423,25 @@ runDemo:
     .provide:
       friendBreadWithRetries:
         1
+```
+
+```scala mdoc
+runScenario(
+  // TODO Check retry numbers. 
+  // Might not want to demo this number of attempts yet.
+  Scenario.WorksOnTry(
+    3,
+    resource =>
+      ZIO.service[Bread]
+      .provide:
+        Friend.breadZ(resource)
+          .retry:
+            Schedule.recurs:
+              3
+
+  ),
+  ZIO.unit
+)
 ```
 
 ## Step 11: Layer Retry + Fallback?
@@ -367,6 +461,26 @@ runDemo:
         2
       .orElse:
         storeBought
+```
+
+```scala mdoc
+runScenario(
+  Scenario.WorksOnTry(
+    3,
+    resource =>
+      ZIO.service[Bread]
+      .provide:
+      
+        friendBreadWithRetriesZ(
+          2,
+          resource
+        )
+        .orElse:
+          storeBought // TODO Output to indicate when we've fallen back
+
+  ),
+  ZIO.unit
+)
 ```
 
 ## Step 12: Externalize Config for Retries
@@ -414,6 +528,30 @@ runDemo:
               retryConfig.times
     .provide:
       config
+```
+
+```scala mdoc
+runScenario(
+  Scenario.WorksOnTry(
+    3,
+    resource =>
+      ZIO
+        .serviceWithZIO[RetryConfig]:
+          retryConfig =>
+            ZIO
+              .service[Bread]
+              .provide:
+                friendBreadWithRetriesZ(
+                  retryConfig.times,
+                  resource
+                )
+                .orElse:
+                  storeBought // TODO Output to indicate when we've fallen back
+        .provide:
+          config
+  ),
+  ZIO.unit
+)
 ```
 
 
