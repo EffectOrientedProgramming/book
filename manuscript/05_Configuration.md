@@ -106,8 +106,8 @@ runDemo:
 // ──────────────────────────────────────────────────────────────────────
 // 
 // 
-//       ZIO
-//       ^
+//         ZIO
+//         ^
 ```
 
 ## Step 3: Dependencies can "automatically" assemble to fulfill the needs of an effect
@@ -284,6 +284,7 @@ runDemo:
 Since dependencies can be built with effects, this means that they can fail.
 
 
+
 ```scala
 runDemo:
   ZIO
@@ -294,7 +295,23 @@ runDemo:
 // Result: Error: **Friend Unreachable**
 ```
 
+```scala
+runScenario(
+  Scenario.WorksOnTry(
+      3, 
+      resource => 
+        ZIO.service[Bread]
+        .provide:
+          Friend.breadZ(resource)
+  ),
+  ZIO.unit
+)
+// Error: java.lang.Exception: Nope
+// Result: java.lang.Exception: Nope
+```
+
 ## Step 9: Fallback Dependencies
+
 
 ```scala
 Friend.reset()
@@ -330,6 +347,13 @@ def friendBreadWithRetries(times: Int) =
     .retry:
       Schedule.recurs:
         times
+        
+def friendBreadWithRetriesZ(times: Int, resource: Resource) =
+  Friend
+    .breadZ(resource)
+    .retry:
+      Schedule.recurs:
+        times
 ```
 
 ```scala
@@ -342,6 +366,30 @@ runDemo:
 // Error: **Friend Unreachable**
 // Error: **Friend Unreachable**
 // Result: Error: **Friend Unreachable**
+```
+
+```scala
+runScenario(
+  // TODO Check retry numbers. 
+  // Might not want to demo this number of attempts yet.
+  Scenario.WorksOnTry(
+    3,
+    resource =>
+      ZIO.service[Bread]
+      .provide:
+        Friend.breadZ(resource)
+          .retry:
+            Schedule.recurs:
+              3
+
+  ),
+  ZIO.unit
+)
+// Error: java.lang.Exception: Nope
+// Error: java.lang.Exception: Nope
+// Error: java.lang.Exception: Nope
+// Power is on
+// Result: BreadFromFriend()
 ```
 
 ## Step 11: Layer Retry + Fallback?
@@ -364,6 +412,30 @@ runDemo:
 // Error: **Friend Unreachable**
 // Error: **Friend Unreachable**
 // Error: **Friend Unreachable**
+// Result: BreadStoreBought()
+```
+
+```scala
+runScenario(
+  Scenario.WorksOnTry(
+    3,
+    resource =>
+      ZIO.service[Bread]
+      .provide:
+      
+        friendBreadWithRetriesZ(
+          2,
+          resource
+        )
+        .orElse:
+          storeBought // TODO Output to indicate when we've fallen back
+
+  ),
+  ZIO.unit
+)
+// Error: java.lang.Exception: Nope
+// Error: java.lang.Exception: Nope
+// Error: java.lang.Exception: Nope
 // Result: BreadStoreBought()
 ```
 
@@ -416,6 +488,35 @@ runDemo:
 // Error: **Friend Unreachable**
 // Error: **Friend Unreachable**
 // Log: Friend answered
+// Result: BreadFromFriend()
+```
+
+```scala
+runScenario(
+  Scenario.WorksOnTry(
+    3,
+    resource =>
+      ZIO
+        .serviceWithZIO[RetryConfig]:
+          retryConfig =>
+            ZIO
+              .service[Bread]
+              .provide:
+                friendBreadWithRetriesZ(
+                  retryConfig.times,
+                  resource
+                )
+                .orElse:
+                  storeBought // TODO Output to indicate when we've fallen back
+        .provide:
+          config
+  ),
+  ZIO.unit
+)
+// Error: java.lang.Exception: Nope
+// Error: java.lang.Exception: Nope
+// Error: java.lang.Exception: Nope
+// Power is on
 // Result: BreadFromFriend()
 ```
 
