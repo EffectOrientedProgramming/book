@@ -262,26 +262,12 @@ val storeBought =
 ```
 
 ```scala mdoc:invisible
-import zio.Runtime.default.unsafe
+enum Scenario:
+  case HappyPath()
+  case NeverWorks()
+  case WorksOnTry[E, A](attempts: Int, logic: Resource => ZIO[Scope, E, A])
+
 object Bread2:
-  val invocations =
-    Unsafe.unsafe((u: Unsafe) =>
-      given Unsafe =
-        u
-      unsafe
-        .run(Ref.make(0))
-        .getOrThrowFiberFailure()
-    )
-
-  def reset() =
-    Unsafe.unsafe((u: Unsafe) =>
-      given Unsafe =
-        u
-      unsafe
-        .run(invocations.set(0))
-        .getOrThrowFiberFailure()
-    )
-
   val forcedFailure =
     defer:
       println("**Power out**")
@@ -308,8 +294,44 @@ object Bread2:
   // control
   val fromFriend =
     ZLayer.fromZIO:
-      Bread2.attempt(invocations)
+      // Bread2.attempt(invocations)
+      ZIO.attempt(BreadStoreBought()).mapError(_.toString()) // TODO Get rid of
 end Bread2
+```
+
+```scala mdoc:invisible
+trait Resource:
+  val call: ZIO[Any, Exception, Unit]
+
+case class ResourceLive(
+                               ref: Ref[Int], 
+                               attempts: Int
+) extends Resource:
+  val call: ZIO[Any, Exception, Unit]  =
+    defer:
+      val r = ref.getAndUpdate(_ + 1).run
+      if (r < attempts)
+        ZIO.fail(new Exception("Nope")).run
+      else
+        ZIO.succeed(()).run
+        
+def runScenario[E, A](
+  scenario: Scenario,
+  logic: => ZIO[Scope, E, A]
+): Unit =
+  runDemo:
+      // val invocations = Ref.make(0).run
+    (scenario match
+        case Scenario.HappyPath() =>
+          logic
+        case Scenario.NeverWorks() =>
+          ZIO.fail("Never works")
+        case Scenario.WorksOnTry(attempts, logic) =>
+          defer:
+            val ref = ResourceLive(Ref.make(0).run, attempts)
+
+            logic(ref).run
+      ).provide(Scope.default)
 ```
 
 TODO Explain `.build` before using it to demo layer construction
@@ -326,10 +348,6 @@ runDemo:
     bread.eat.run
   .provide:
     Bread2.fromFriend
-```
-
-```scala mdoc:silent
-Bread2.reset()
 ```
 
 ## Step 9: Dependency Retries
@@ -350,10 +368,6 @@ runDemo:
 
 ## Step 10: Fallback Dependencies 
 
-```scala mdoc:silent
-Bread2.reset()
-```
-
 ```scala mdoc
 runDemo:
   val bread =
@@ -370,10 +384,6 @@ runDemo:
 ## Step 11: Layer Retry + Fallback?
 
 Maybe retry on the ZLayer eg. (BreadDough.rancid, Heat.brokenFor10Seconds)
-
-```scala mdoc:silent
-Bread2.reset()
-```
 
 ```scala mdoc
 runDemo:

@@ -30,7 +30,6 @@ object DbConnection:
         .debug
       )
     )
-end DbConnection
 
 object DatabaseConnectionSimple
     extends ZIOAppDefault:
