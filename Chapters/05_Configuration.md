@@ -419,8 +419,10 @@ extension (z: ZIO.type)
 
 extension [R, E, A](z: ZIO[R, E, A])
   def debugDemo(s: String): ZIO[R, E, A] =
-    z.tap:
+    z.tapBoth(
+      e => ZIO.succeed(println(s"$s: $e")),
       r => ZIO.succeed(println(s"$s: $r"))
+    )
 ```
 
 TODO: Explain why `debugDemo` instead of just `debug`
@@ -441,10 +443,19 @@ val coinToss =
 ```
 
 ```scala mdoc
-// todo: can this be nicer?
 runDemo:
-  ZIO.foreach(List.fill(100_000)(())):
-    _ => coinToss
+  // stops on the first failure
+  ZIO.collectAll:
+    LazyList.continually:
+      coinToss.debugDemo("Toss")
+
+  // stops on the first failure
+  //ZIO.collectAll(List.fill(10)(coinToss))
+
+  // collect failures and successes for all items
+  //defer:
+  //  val (failures, successes) = ZIO.partition(List.fill(10)(coinToss))(identity).run
+  //  failures.size -> successes.size
 ```
 
 ```scala mdoc:silent
