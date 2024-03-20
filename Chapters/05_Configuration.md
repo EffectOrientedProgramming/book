@@ -384,84 +384,111 @@ runDemo:
 
 ## Testing Effects
 
+TODO: Bridge from dependency / configuration to here
+
+TODO: Code that provides an "ideal friend" to our bread example
+    Maybe as a 2 step process, first outside of a test, then in a test.
+    Or a single step just in a test
+
 Effects need access to external systems thus are unpredictable.  
 Tests are ideally predictable so how do we write tests for effects that are predictable?
 With ZIO we can replace the external systems with predictable ones when running our tests.
 
 With ZIO Test we can use predictable replacements for the standard systems effects (Clock, Random, Console, etc).
 
-## Random
+### Random
 
 An example of this is Random numbers.  Randomness is inherently unpredictable.  But in ZIO Test, without changing our Effects we can change the underlying systems with something predictable:
 
-```scala mdoc:silent
-import zio.test.{
-  TestRandom,
-  TestAspect,
-  assertCompletes
-}
+```scala mdoc:invisible
 
+extension (z: ZIO.type)
+  def debugDemo(s: String): UIO[Unit] =
+    ZIO.succeed(println(s))
+
+extension [R, E, A](z: ZIO[R, E, A])
+  def debugDemo(s: String): ZIO[R, E, A]  =
+    z.tap: r =>
+      ZIO.succeed(println(s"$s: $r"))
+```
+
+TODO: Explain why `debugDemo` instead of just `debug`
+
+```scala mdoc:silent
 val coinToss =
   defer:
-    if (Random.nextBoolean.run)
+    if Random.nextBoolean.run then
       ZIO
-        .debug:
-          "R: Heads."
+        .succeed:
+          "Heads"
         .run
     else
       ZIO
         .fail:
-          "Tails encountered. Ending performance."
+          "Tails"
         .run
+```
+
+```scala mdoc
+// todo: can this be nicer?
+runDemo:
+  ZIO.foreach(List.fill(100_000)(())):
+    _ => coinToss
+```
+
+```scala mdoc:silent
+import zio.test.TestRandom
+import zio.test.assertCompletes
+
+val rosencrantzCoinToss = coinToss.debugDemo("R")
 
 val rosencrantzAndGuildensternAreDead =
   defer:
-    TestRandom
-      .feedBooleans(Seq.fill(8)(true)*)
-      .run
     ZIO
-      .debug:
+      .debugDemo:
         "*Performance Begins*"
       .run
-    coinToss.repeatN(4).run
+    rosencrantzCoinToss.repeatN(4).run
 
     ZIO
-      .debug:
+      .debugDemo:
         "G: There is an art to building suspense."
       .run
-    coinToss.run
+    rosencrantzCoinToss.run
+
     ZIO
-      .debug:
+      .debugDemo:
         "G: Though it can be done by luck alone."
       .run
-    coinToss.run
+    rosencrantzCoinToss.run
+
     ZIO
-      .debug:
+      .debugDemo:
         "G: ...probability"
       .run
-    coinToss.run
+    rosencrantzCoinToss.run
 ```
 
 ```scala mdoc
 runSpec:
   defer:
-    rosencrantzAndGuildensternAreDead.run
-    assertCompletes
-```
-
-```scala mdoc:silent
-val spec =
-  defer:
+    TestRandom
+      .feedBooleans(Seq.fill(8)(true)*)
+      .run
     rosencrantzAndGuildensternAreDead.run
     assertCompletes
 ```
 
 ```scala mdoc
-// todo: maybe we can change runSpec so that this spec structure matches the previous
+import zio.test.TestAspect
+
 runSpec(
-  spec,
+  defer:
+    rosencrantzAndGuildensternAreDead.run
+    assertCompletes
+  ,
   TestAspect.withLiveRandom,
-  TestAspect.eventually
+  TestAspect.flaky(10)
 )
 ```
 
@@ -474,7 +501,7 @@ When your program treats randomness as an effect, testing unusual scenarios beco
 You can preload "Random" data that will result in deterministic behavior.
 ZIO gives you built-in methods to support this.
 
-## Time
+### Time
 
 Even time can be simulated as using the clock is an effect.
 
@@ -518,7 +545,7 @@ So this example runs in milliseconds of real-world time instead of taking an act
 This way our time-based tests run much more quickly since they are not based on actual system time.
 They are also more predictable as the time adjustments are fully controlled by the tests.
 
-### Targeting Error-Prone Time Bands
+#### Targeting Error-Prone Time Bands
 
 Using real-world time also can be error prone because effects may have unexpected results in certain time bands.
 For instance, if you have code that gets the time and it happens to be 23:59:59, then after some operations that take a few seconds, you get some database records for the current day, those records may no longer be the day associated with previously received records.  This scenario can be very hard to test for when using real-world time.  When using a simulated clock in tests, you can write tests that adjust the clock to reliably reproduce the condition.

@@ -77,9 +77,9 @@ def runSpec[E](
       .map(
         result =>
           if (result.failureDetails.isBlank)
-            "Test: PASSED*"
+            "Test PASSED"
           else
-            "Test: FAILED"
+            "Test FAILED"
       )
   )
 end runSpec
