@@ -28,9 +28,9 @@ ZIO
 // This error handling operation assumes your effect can fail. However, your effect has Nothing for the error type, which means it cannot fail, so there is no need to handle the failure. To find out which method you can use instead of this operation, please see the reference chart at: https://zio.dev/can_fail.
 // I found:
 // 
-//     CanFail.canFail[E](/* missing */summon[util.NotGiven[E =:= Nothing]])
+//     CanFail.canFail[E](/* missing */summon[scala.util.NotGiven[E =:= Nothing]])
 // 
-// But no implicit values were found that match type util.NotGiven[E =:= Nothing].
+// But no implicit values were found that match type scala.util.NotGiven[E =:= Nothing].
 //       new Exception("Headline not available")
 //                                              ^
 ```
@@ -43,9 +43,9 @@ ZIO
 //   trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:16)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:16)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$16338/0x0000000804072c40@43e517c9
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$16361/0x0000000804006040@3e25e3bd
 //   ),
-//   successK = zio.ZIO$$$Lambda$16340/0x0000000804091040@2dd34533
+//   successK = zio.ZIO$$$Lambda$16363/0x0000000804004840@645cd2da
 // )
 ```
 
@@ -321,7 +321,7 @@ runDemo:
   closeableFileZ
 // Opening file!
 // Closing file!
-// Result: repl.MdocSession$MdocApp$$anon$27@4bc3a43f
+// Result: repl.MdocSession$MdocApp$$anon$27@5d861cee
 ```
 
 Since that is not terribly useful, let's start calling some methods on our managed file.

@@ -470,7 +470,6 @@ runDemo:
   //defer:
   //  val (failures, successes) = ZIO.partition(List.fill(10)(coinToss))(identity).run
   //  failures.size -> successes.size
-// Toss: Heads
 // Toss: Tails
 // Result: Tails
 ```
@@ -544,23 +543,12 @@ runSpec(
   TestAspect.flaky(10)
 )
 // *Performance Begins*
-// R: Tails
-// *Performance Begins*
 // R: Heads
 // R: Heads
-// R: Tails
-// *Performance Begins*
-// R: Tails
-// *Performance Begins*
 // R: Heads
 // R: Heads
-// R: Tails
-// *Performance Begins*
 // R: Heads
-// R: Tails
-// *Performance Begins*
-// R: Tails
-// *Performance Begins*
+// G: There is an art to building suspense.
 // R: Tails
 // *Performance Begins*
 // R: Tails
@@ -568,6 +556,32 @@ runSpec(
 // R: Tails
 // *Performance Begins*
 // R: Heads
+// R: Tails
+// *Performance Begins*
+// R: Tails
+// *Performance Begins*
+// R: Heads
+// R: Tails
+// *Performance Begins*
+// R: Heads
+// R: Tails
+// *Performance Begins*
+// R: Heads
+// R: Heads
+// R: Heads
+// R: Heads
+// R: Tails
+// *Performance Begins*
+// R: Heads
+// R: Heads
+// R: Heads
+// R: Heads
+// R: Heads
+// G: There is an art to building suspense.
+// R: Heads
+// G: Though it can be done by luck alone.
+// R: Tails
+// *Performance Begins*
 // R: Tails
 // *Performance Begins*
 // R: Tails
