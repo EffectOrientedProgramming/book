@@ -39,5 +39,5 @@ ThisBuild / libraryDependencySchemes ++=
   )
 
 addSbtPlugin(
-  "org.scala-js" % "sbt-scalajs" % "1.15.0"
+  "org.scala-js" % "sbt-scalajs" % "1.16.0"
 )
