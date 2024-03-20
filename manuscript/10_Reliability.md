@@ -349,7 +349,7 @@ runDemo:
       .get
       .debug("Contract Breaches")
       .run
-// Result: 1
+// Result: 0
 ```
 
 #### Restricting Time
