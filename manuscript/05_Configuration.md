@@ -106,8 +106,8 @@ runDemo:
 // ──────────────────────────────────────────────────────────────────────
 // 
 // 
-//         ZIO
-//         ^
+//       ZIO
+//       ^
 ```
 
 ## Step 3: Dependencies can "automatically" assemble to fulfill the needs of an effect
@@ -210,7 +210,7 @@ runDemo:
       oven,
       toaster
     )
-// error:
+// error: 
 // 
 // 
 // ──── ZLAYER ERROR ────────────────────────────────────────────────────
@@ -224,9 +224,7 @@ runDemo:
 // 
 // ──────────────────────────────────────────────────────────────────────
 // 
-// 
-//       ZIO
-//       ^
+//
 ```
 Unfortunately our program is now ambiguous.
 It cannot decide if we should be making `Toast` in the oven, `Bread` in the toaster, or any other combination.
@@ -257,11 +255,8 @@ runDemo:
 case class BreadStoreBought() extends Bread
 
 val buyBread =
-  ZIO
-    .succeed:
-      BreadStoreBought()
-    .delay:
-      1.second
+  ZIO.succeed:
+    BreadStoreBought()
 ```
 
 ```scala
@@ -284,76 +279,52 @@ runDemo:
 Since dependencies can be built with effects, this means that they can fail.
 
 
+```scala
+runDemo:
+  ZIO
+    .service[Bread]
+    .provide:
+      Friend.bread(worksOnAttempt =
+        3
+      )
+// Attempt 1: Error(Friend Unreachable)
+// Result: Error(Friend Unreachable)
+```
+
+## Step 9: Fallback Dependencies
 
 ```scala
 runDemo:
   ZIO
     .service[Bread]
     .provide:
-      Friend.bread
-// Error: **Friend Unreachable**
-// Result: Error: **Friend Unreachable**
-```
-
-```scala
-runScenario(
-  Scenario.WorksOnTry(
-      3, 
-      resource => 
-        ZIO.service[Bread]
-        .provide:
-          Friend.breadZ(resource)
-  ),
-  ZIO.unit
-)
-// Error: java.lang.Exception: Nope
-// Result: java.lang.Exception: Nope
-```
-
-## Step 9: Fallback Dependencies
-
-
-```scala
-Friend.reset()
-```
-
-```scala
-val bread =
-  Friend
-    .bread
-    .orElse:
-      storeBought
-```
-
-```scala
-runDemo:
-  ZIO
-    .service[Toast]
-    .provide(Toast.make, bread, toaster)
-// Error: **Friend Unreachable**
-// Result: Toast(Heat(),BreadStoreBought())
+      Friend
+        .bread(worksOnAttempt =
+          3
+        )
+        .orElse:
+          storeBought
+// Attempt 1: Error(Friend Unreachable)
+// Result: BreadStoreBought()
 ```
 
 ## Step 10: Dependency Retries
 
 ```scala
-Friend.reset()
-```
-
-```scala
-def friendBreadWithRetries(times: Int) =
-  Friend
-    .bread
-    .retry:
-      Schedule.recurs:
-        times
-        
-def friendBreadWithRetriesZ(times: Int, resource: Resource) =
-  Friend
-    .breadZ(resource)
-    .retry:
-      Schedule.recurs:
-        times
+runDemo:
+  ZIO
+    .service[Bread]
+    .provide:
+      Friend
+        .bread(worksOnAttempt =
+          3
+        )
+        .retry:
+          Schedule.recurs:
+            1
+// Attempt 1: Error(Friend Unreachable)
+// Attempt 2: Error(Friend Unreachable)
+// Result: Error(Friend Unreachable)
 ```
 
 ```scala
@@ -361,34 +332,16 @@ runDemo:
   ZIO
     .service[Bread]
     .provide:
-      friendBreadWithRetries:
-        1
-// Error: **Friend Unreachable**
-// Error: **Friend Unreachable**
-// Result: Error: **Friend Unreachable**
-```
-
-```scala
-runScenario(
-  // TODO Check retry numbers. 
-  // Might not want to demo this number of attempts yet.
-  Scenario.WorksOnTry(
-    3,
-    resource =>
-      ZIO.service[Bread]
-      .provide:
-        Friend.breadZ(resource)
-          .retry:
-            Schedule.recurs:
-              3
-
-  ),
-  ZIO.unit
-)
-// Error: java.lang.Exception: Nope
-// Error: java.lang.Exception: Nope
-// Error: java.lang.Exception: Nope
-// Power is on
+      Friend
+        .bread(worksOnAttempt =
+          3
+        )
+        .retry:
+          Schedule.recurs:
+            2
+// Attempt 1: Error(Friend Unreachable)
+// Attempt 2: Error(Friend Unreachable)
+// Attempt 3: Succeeded
 // Result: BreadFromFriend()
 ```
 
@@ -397,53 +350,25 @@ runScenario(
 Maybe retry on the ZLayer eg. (BreadDough.rancid, Heat.brokenFor10Seconds)
 
 ```scala
-Friend.reset()
-```
-
-```scala
 runDemo:
   ZIO
     .service[Bread]
     .provide:
-      friendBreadWithRetries:
-        2
-      .orElse:
-        storeBought
-// Error: **Friend Unreachable**
-// Error: **Friend Unreachable**
-// Error: **Friend Unreachable**
-// Result: BreadStoreBought()
-```
-
-```scala
-runScenario(
-  Scenario.WorksOnTry(
-    3,
-    resource =>
-      ZIO.service[Bread]
-      .provide:
-      
-        friendBreadWithRetriesZ(
-          2,
-          resource
+      Friend
+        .bread(worksOnAttempt =
+          3
         )
+        .retry:
+          Schedule.recurs:
+            1
         .orElse:
-          storeBought // TODO Output to indicate when we've fallen back
-
-  ),
-  ZIO.unit
-)
-// Error: java.lang.Exception: Nope
-// Error: java.lang.Exception: Nope
-// Error: java.lang.Exception: Nope
+          storeBought
+// Attempt 1: Error(Friend Unreachable)
+// Attempt 2: Error(Friend Unreachable)
 // Result: BreadStoreBought()
 ```
 
 ## Step 12: Externalize Config for Retries
-
-```scala
-Friend.reset()
-```
 
 Changing things based on the running environment.
 
@@ -463,7 +388,7 @@ val configDescriptor: Config[RetryConfig] =
 
 val configProvider =
   ConfigProvider.fromHoconString:
-    "{ times: 3 }"
+    "{ times: 2 }"
 
 val config =
   ZLayer.fromZIO:
@@ -480,48 +405,28 @@ runDemo:
         ZIO
           .service[Bread]
           .provide:
-            friendBreadWithRetries:
-              retryConfig.times
+            Friend
+              .bread(worksOnAttempt =
+                3
+              )
+              .retry:
+                Schedule.recurs:
+                  retryConfig.times
     .provide:
       config
-// Error: **Friend Unreachable**
-// Error: **Friend Unreachable**
-// Error: **Friend Unreachable**
-// Log: Friend answered
+// Attempt 1: Error(Friend Unreachable)
+// Attempt 2: Error(Friend Unreachable)
+// Attempt 3: Succeeded
 // Result: BreadFromFriend()
 ```
-
-```scala
-runScenario(
-  Scenario.WorksOnTry(
-    3,
-    resource =>
-      ZIO
-        .serviceWithZIO[RetryConfig]:
-          retryConfig =>
-            ZIO
-              .service[Bread]
-              .provide:
-                friendBreadWithRetriesZ(
-                  retryConfig.times,
-                  resource
-                )
-                .orElse:
-                  storeBought // TODO Output to indicate when we've fallen back
-        .provide:
-          config
-  ),
-  ZIO.unit
-)
-// Error: java.lang.Exception: Nope
-// Error: java.lang.Exception: Nope
-// Error: java.lang.Exception: Nope
-// Power is on
-// Result: BreadFromFriend()
-```
-
 
 ## Testing Effects
+
+TODO: Bridge from dependency / configuration to here
+
+TODO: Code that provides an "ideal friend" to our bread example
+    Maybe as a 2 step process, first outside of a test, then in a test.
+    Or a single step just in a test
 
 Effects need access to external systems thus are unpredictable.  
 Tests are ideally predictable so how do we write tests for effects that are predictable?
@@ -529,81 +434,132 @@ With ZIO we can replace the external systems with predictable ones when running 
 
 With ZIO Test we can use predictable replacements for the standard systems effects (Clock, Random, Console, etc).
 
-## Random
+### Random
 
 An example of this is Random numbers.  Randomness is inherently unpredictable.  But in ZIO Test, without changing our Effects we can change the underlying systems with something predictable:
 
-```scala
-import zio.test.{
-  TestRandom,
-  TestAspect,
-  assertCompletes
-}
 
+TODO: Explain why `debugDemo` instead of just `debug`
+
+```scala
 val coinToss =
   defer:
-    if (Random.nextBoolean.run)
+    if Random.nextBoolean.run then
       ZIO
-        .debug:
-          "R: Heads."
+        .succeed:
+          "Heads"
         .run
     else
       ZIO
         .fail:
-          "Tails encountered. Ending performance."
+          "Tails"
         .run
+```
+
+```scala
+// todo: can this be nicer?
+runDemo:
+  ZIO.foreach(List.fill(100_000)(())):
+    _ => coinToss
+// Result: Tails
+```
+
+```scala
+import zio.test.TestRandom
+import zio.test.assertCompletes
+
+val rosencrantzCoinToss =
+  coinToss.debugDemo("R")
 
 val rosencrantzAndGuildensternAreDead =
   defer:
-    TestRandom
-      .feedBooleans(Seq.fill(8)(true)*)
-      .run
     ZIO
-      .debug:
+      .debugDemo:
         "*Performance Begins*"
       .run
-    coinToss.repeatN(4).run
+    rosencrantzCoinToss.repeatN(4).run
 
     ZIO
-      .debug:
+      .debugDemo:
         "G: There is an art to building suspense."
       .run
-    coinToss.run
+    rosencrantzCoinToss.run
+
     ZIO
-      .debug:
+      .debugDemo:
         "G: Though it can be done by luck alone."
       .run
-    coinToss.run
+    rosencrantzCoinToss.run
+
     ZIO
-      .debug:
+      .debugDemo:
         "G: ...probability"
       .run
-    coinToss.run
+    rosencrantzCoinToss.run
 ```
 
 ```scala
 runSpec:
   defer:
+    TestRandom
+      .feedBooleans(Seq.fill(8)(true)*)
+      .run
     rosencrantzAndGuildensternAreDead.run
     assertCompletes
-// Result: Test: PASSED*
+// *Performance Begins*
+// R: Heads
+// R: Heads
+// R: Heads
+// R: Heads
+// R: Heads
+// G: There is an art to building suspense.
+// R: Heads
+// G: Though it can be done by luck alone.
+// R: Heads
+// G: ...probability
+// R: Heads
+// Result: Test PASSED
 ```
 
 ```scala
-val spec =
+import zio.test.TestAspect
+
+runSpec(
   defer:
     rosencrantzAndGuildensternAreDead.run
     assertCompletes
-```
-
-```scala
-// todo: maybe we can change runSpec so that this spec structure matches the previous
-runSpec(
-  spec,
+  ,
   TestAspect.withLiveRandom,
-  TestAspect.eventually
+  TestAspect.flaky(10)
 )
-// Result: Test: PASSED*
+// *Performance Begins*
+// *Performance Begins*
+// R: Heads
+// R: Heads
+// *Performance Begins*
+// *Performance Begins*
+// *Performance Begins*
+// *Performance Begins*
+// *Performance Begins*
+// R: Heads
+// *Performance Begins*
+// R: Heads
+// R: Heads
+// R: Heads
+// R: Heads
+// R: Heads
+// G: There is an art to building suspense.
+// *Performance Begins*
+// R: Heads
+// *Performance Begins*
+// R: Heads
+// R: Heads
+// *Performance Begins*
+// R: Heads
+// R: Heads
+// R: Heads
+// R: Heads
+// Result: Test FAILED
 ```
 
 
@@ -615,7 +571,7 @@ When your program treats randomness as an effect, testing unusual scenarios beco
 You can preload "Random" data that will result in deterministic behavior.
 ZIO gives you built-in methods to support this.
 
-## Time
+### Time
 
 Even time can be simulated as using the clock is an effect.
 
@@ -642,7 +598,7 @@ runSpec:
       fork.join.run
     assertTrue:
       result.isEmpty
-// Result: Test: PASSED*
+// Result: Test PASSED
 ```
 
 By default in ZIO Test, the clock does not change unless instructed to.
@@ -660,7 +616,7 @@ So this example runs in milliseconds of real-world time instead of taking an act
 This way our time-based tests run much more quickly since they are not based on actual system time.
 They are also more predictable as the time adjustments are fully controlled by the tests.
 
-### Targeting Error-Prone Time Bands
+#### Targeting Error-Prone Time Bands
 
 Using real-world time also can be error prone because effects may have unexpected results in certain time bands.
 For instance, if you have code that gets the time and it happens to be 23:59:59, then after some operations that take a few seconds, you get some database records for the current day, those records may no longer be the day associated with previously received records.  This scenario can be very hard to test for when using real-world time.  When using a simulated clock in tests, you can write tests that adjust the clock to reliably reproduce the condition.

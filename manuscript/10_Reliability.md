@@ -169,15 +169,15 @@ runDemo:
       .timedSecondsDebug:
         "Total time"
       .run
-// Bill called API [took 0s]
-// Bruce called API [took 1s]
-// James called API [took 2s]
-// Bill called API [took 3s]
+// Bruce called API [took 0s]
+// James called API [took 1s]
+// Bill called API [took 2s]
 // Bruce called API [took 3s]
 // James called API [took 3s]
 // Bill called API [took 3s]
 // Bruce called API [took 3s]
 // James called API [took 3s]
+// Bill called API [took 3s]
 // Total time [took 8s]
 // Result: List((), (), ())
 ```
@@ -310,7 +310,7 @@ runDemo:
     val made =
       numCalls.get.run
     s"Calls prevented: $prevented Calls made: $made"
-// Result: Calls prevented: 74 Calls made: 67
+// Result: Calls prevented: 75 Calls made: 66
 ```
 
 ## Hedging
@@ -349,7 +349,7 @@ runDemo:
       .get
       .debug("Contract Breaches")
       .run
-// Result: 0
+// Result: 1
 ```
 
 #### Restricting Time

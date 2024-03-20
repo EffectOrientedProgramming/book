@@ -91,7 +91,7 @@ runSpec:
   defer:
     assertTrue:
       Random.nextIntBounded(10).run < 10
-// Result: Test: PASSED*
+// Result: Test PASSED
 ```
 
 TODO Justify defer syntax over for-comp for multi-statement assertions
@@ -106,7 +106,7 @@ runSpec:
         Random.nextIntBetween(10, 20).run <=
         20 &&
         Random.nextIntBetween(20, 30).run <= 30
-// Result: Test: PASSED*
+// Result: Test PASSED
 ```
 
 Consider a `Console` application:
@@ -153,7 +153,7 @@ runSpec:
           |""".stripMargin
     assertTrue:
       capturedOutput == expectedOutput
-// Result: Test: PASSED*
+// Result: Test PASSED
 ```
 
 ## Interop with existing/legacy code via Unsafe
