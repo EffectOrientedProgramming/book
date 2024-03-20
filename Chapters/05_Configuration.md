@@ -219,8 +219,6 @@ val buyBread =
   ZIO
     .succeed:
       BreadStoreBought()
-    .delay:
-      1.second
 ```
 
 ```scala mdoc:silent
@@ -242,36 +240,8 @@ runDemo:
 Since dependencies can be built with effects, this means that they can fail.
 
 ```scala mdoc:invisible
-enum Scenario:
-  case HappyPath()
-  case NeverWorks()
-  case WorksOnTry[E, A](attempts: Int, logic: Resource => ZIO[Scope, E, A])
-```
-
-```scala mdoc:invisible
-import zio.Runtime.default.unsafe
 case class BreadFromFriend() extends Bread()
 object Friend:
-  val invocations =
-    Unsafe.unsafe(
-      (u: Unsafe) =>
-        given Unsafe =
-          u
-        unsafe
-          .run(Ref.make(0))
-          .getOrThrowFiberFailure()
-    )
-
-  def reset() =
-    Unsafe.unsafe(
-      (u: Unsafe) =>
-        given Unsafe =
-          u
-        unsafe
-          .run(invocations.set(0))
-          .getOrThrowFiberFailure()
-    )
-
   val forcedFailure =
     defer:
       println("Error: **Friend Unreachable**")
@@ -285,35 +255,14 @@ object Friend:
         .run
       ZIO.succeed(BreadFromFriend()).run
 
-  def attempt(invocations: Ref[Int]) =
-    defer:
-      val currentInvocations: Int =
-        invocations.updateAndGet(_ + 1).run
-      currentInvocations match
-        case cnt if cnt < 4 =>
-          forcedFailure.run
-        case _ =>
-          println("Log: Friend answered")
-          BreadFromFriend()
-
-  def attemptZ(resource: Resource): ZIO[Any, Exception, Bread] =
-    resource.call.map: _ =>
-      println("Power is on")
-      BreadFromFriend()
-    .tapError:
-       e => 
-         ZIO.succeed:
-           println(s"Error: $e")
-
-// Already constructed elsewhere, that we don't
-  // control
-  val bread =
+  def bread(worksOnAttempt: Int) =
+    var invocations = 0
     ZLayer.fromZIO:
-      Friend.attempt(invocations)
-      
-  def breadZ(resource: Resource) =
-    ZLayer.fromZIO:
-       Friend.attemptZ(resource)
+      invocations += 1
+      if invocations < worksOnAttempt then
+        forcedFailure
+      else
+        ZIO.succeed(BreadFromFriend())
 end Friend
 ```
 
@@ -322,67 +271,15 @@ runDemo:
   ZIO
     .service[Bread]
     .provide:
-      Friend.bread
-```
-
-```scala mdoc
-runScenario(
-  Scenario.WorksOnTry(
-      3, 
-      resource => 
-        ZIO.service[Bread]
-        .provide:
-          Friend.breadZ(resource)
-  ),
-  ZIO.unit
-)
+      Friend.bread(worksOnAttempt = 3)
 ```
 
 ## Step 9: Fallback Dependencies
 
-```scala mdoc:invisible
-trait Resource:
-  val call: ZIO[Any, Exception, Unit]
-
-case class ResourceLive(
-                               ref: Ref[Int], 
-                               attempts: Int
-) extends Resource:
-  val call: ZIO[Any, Exception, Unit]  =
-    defer:
-      val r = ref.getAndUpdate(_ + 1).run
-      if (r < attempts)
-        ZIO.fail(new Exception("Nope")).run
-      else
-        ZIO.succeed(()).run
-        
-def runScenario[E, A](
-  scenario: Scenario,
-  logic: => ZIO[Scope, E, A]
-): Unit =
-  runDemo:
-      // val invocations = Ref.make(0).run
-    (scenario match
-        case Scenario.HappyPath() =>
-          logic
-        case Scenario.NeverWorks() =>
-          ZIO.fail("Never works")
-        case Scenario.WorksOnTry(attempts, logic) =>
-          defer:
-            val ref = ResourceLive(Ref.make(0).run, attempts)
-
-            logic(ref).run
-      ).provide(Scope.default)
-```
-
-```scala mdoc:silent
-Friend.reset()
-```
-
 ```scala mdoc:silent
 val bread =
   Friend
-    .bread
+    .bread(worksOnAttempt = 3)
     .orElse:
       storeBought
 ```
@@ -390,27 +287,16 @@ val bread =
 ```scala mdoc
 runDemo:
   ZIO
-    .service[Toast]
-    .provide(Toast.make, bread, toaster)
+    .service[Bread]
+    .provide(bread)
 ```
 
 ## Step 10: Dependency Retries
 
-```scala mdoc:silent
-Friend.reset()
-```
-
 ```scala mdoc
 def friendBreadWithRetries(times: Int) =
   Friend
-    .bread
-    .retry:
-      Schedule.recurs:
-        times
-        
-def friendBreadWithRetriesZ(times: Int, resource: Resource) =
-  Friend
-    .breadZ(resource)
+    .bread(worksOnAttempt = 3)
     .retry:
       Schedule.recurs:
         times
@@ -426,31 +312,18 @@ runDemo:
 ```
 
 ```scala mdoc
-runScenario(
-  // TODO Check retry numbers. 
-  // Might not want to demo this number of attempts yet.
-  Scenario.WorksOnTry(
-    3,
-    resource =>
-      ZIO.service[Bread]
-      .provide:
-        Friend.breadZ(resource)
-          .retry:
-            Schedule.recurs:
-              3
-
-  ),
-  ZIO.unit
-)
+runDemo:
+  ZIO.service[Bread]
+  .provide:
+    Friend.bread(worksOnAttempt = 3)
+      .retry:
+        Schedule.recurs:
+          2
 ```
 
 ## Step 11: Layer Retry + Fallback?
 
 Maybe retry on the ZLayer eg. (BreadDough.rancid, Heat.brokenFor10Seconds)
-
-```scala mdoc:silent
-Friend.reset()
-```
 
 ```scala mdoc
 runDemo:
@@ -458,36 +331,12 @@ runDemo:
     .service[Bread]
     .provide:
       friendBreadWithRetries:
-        2
+        1
       .orElse:
         storeBought
 ```
 
-```scala mdoc
-runScenario(
-  Scenario.WorksOnTry(
-    3,
-    resource =>
-      ZIO.service[Bread]
-      .provide:
-      
-        friendBreadWithRetriesZ(
-          2,
-          resource
-        )
-        .orElse:
-          storeBought // TODO Output to indicate when we've fallen back
-
-  ),
-  ZIO.unit
-)
-```
-
 ## Step 12: Externalize Config for Retries
-
-```scala mdoc:silent
-Friend.reset()
-```
 
 Changing things based on the running environment.
 
@@ -507,7 +356,7 @@ val configDescriptor: Config[RetryConfig] =
 
 val configProvider =
   ConfigProvider.fromHoconString:
-    "{ times: 3 }"
+    "{ times: 2 }"
 
 val config =
   ZLayer.fromZIO:
@@ -529,31 +378,6 @@ runDemo:
     .provide:
       config
 ```
-
-```scala mdoc
-runScenario(
-  Scenario.WorksOnTry(
-    3,
-    resource =>
-      ZIO
-        .serviceWithZIO[RetryConfig]:
-          retryConfig =>
-            ZIO
-              .service[Bread]
-              .provide:
-                friendBreadWithRetriesZ(
-                  retryConfig.times,
-                  resource
-                )
-                .orElse:
-                  storeBought // TODO Output to indicate when we've fallen back
-        .provide:
-          config
-  ),
-  ZIO.unit
-)
-```
-
 
 ## Testing Effects
 
