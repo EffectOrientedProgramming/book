@@ -216,9 +216,8 @@ runDemo:
 case class BreadStoreBought() extends Bread
 
 val buyBread =
-  ZIO
-    .succeed:
-      BreadStoreBought()
+  ZIO.succeed:
+    BreadStoreBought()
 ```
 
 ```scala mdoc:silent
@@ -244,30 +243,31 @@ case class BreadFromFriend() extends Bread()
 object Friend:
   def forcedFailure(invocations: Int) =
     defer:
-      println(s"Attempt $invocations: Error(Friend Unreachable)")
+      println(
+        s"Attempt $invocations: Error(Friend Unreachable)"
+      )
       ZIO
         .when(true)(
-          ZIO.fail(
-            "Error(Friend Unreachable)"
-          )
+          ZIO.fail("Error(Friend Unreachable)")
         )
         .as(???)
         .run
       ZIO.succeed(BreadFromFriend()).run
 
   def bread(worksOnAttempt: Int) =
-    var invocations = 0
+    var invocations =
+      0
     ZLayer.fromZIO:
       invocations += 1
       if invocations < worksOnAttempt then
         forcedFailure(invocations)
-      else{
-        if invocations == 1 then
-          ZIO.succeed(BreadFromFriend())
-        else
-          println(s"Attempt $invocations: Succeeded")
-          ZIO.succeed(BreadFromFriend())
-}
+      else if invocations == 1 then
+        ZIO.succeed(BreadFromFriend())
+      else
+        println(
+          s"Attempt $invocations: Succeeded"
+        )
+        ZIO.succeed(BreadFromFriend())
 end Friend
 ```
 
@@ -276,7 +276,9 @@ runDemo:
   ZIO
     .service[Bread]
     .provide:
-      Friend.bread(worksOnAttempt = 3)
+      Friend.bread(worksOnAttempt =
+        3
+      )
 ```
 
 ## Step 9: Fallback Dependencies
@@ -287,7 +289,9 @@ runDemo:
     .service[Bread]
     .provide:
       Friend
-        .bread(worksOnAttempt = 3)
+        .bread(worksOnAttempt =
+          3
+        )
         .orElse:
           storeBought
 ```
@@ -299,11 +303,13 @@ runDemo:
   ZIO
     .service[Bread]
     .provide:
-        Friend
-          .bread(worksOnAttempt = 3)
-          .retry:
-            Schedule.recurs:
-              1
+      Friend
+        .bread(worksOnAttempt =
+          3
+        )
+        .retry:
+          Schedule.recurs:
+            1
 ```
 
 ```scala mdoc
@@ -312,7 +318,9 @@ runDemo:
     .service[Bread]
     .provide:
       Friend
-        .bread(worksOnAttempt = 3)
+        .bread(worksOnAttempt =
+          3
+        )
         .retry:
           Schedule.recurs:
             2
@@ -328,12 +336,14 @@ runDemo:
     .service[Bread]
     .provide:
       Friend
-        .bread(worksOnAttempt = 3)
+        .bread(worksOnAttempt =
+          3
+        )
         .retry:
           Schedule.recurs:
             1
-      .orElse:
-        storeBought
+        .orElse:
+          storeBought
 ```
 
 ## Step 12: Externalize Config for Retries
@@ -374,7 +384,9 @@ runDemo:
           .service[Bread]
           .provide:
             Friend
-              .bread(worksOnAttempt = 3)
+              .bread(worksOnAttempt =
+                3
+              )
               .retry:
                 Schedule.recurs:
                   retryConfig.times
@@ -401,15 +413,14 @@ With ZIO Test we can use predictable replacements for the standard systems effec
 An example of this is Random numbers.  Randomness is inherently unpredictable.  But in ZIO Test, without changing our Effects we can change the underlying systems with something predictable:
 
 ```scala mdoc:invisible
-
 extension (z: ZIO.type)
   def debugDemo(s: String): UIO[Unit] =
     ZIO.succeed(println(s))
 
 extension [R, E, A](z: ZIO[R, E, A])
-  def debugDemo(s: String): ZIO[R, E, A]  =
-    z.tap: r =>
-      ZIO.succeed(println(s"$s: $r"))
+  def debugDemo(s: String): ZIO[R, E, A] =
+    z.tap:
+      r => ZIO.succeed(println(s"$s: $r"))
 ```
 
 TODO: Explain why `debugDemo` instead of just `debug`
@@ -440,7 +451,8 @@ runDemo:
 import zio.test.TestRandom
 import zio.test.assertCompletes
 
-val rosencrantzCoinToss = coinToss.debugDemo("R")
+val rosencrantzCoinToss =
+  coinToss.debugDemo("R")
 
 val rosencrantzAndGuildensternAreDead =
   defer:
