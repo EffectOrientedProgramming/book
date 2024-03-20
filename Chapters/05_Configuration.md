@@ -242,13 +242,13 @@ Since dependencies can be built with effects, this means that they can fail.
 ```scala mdoc:invisible
 case class BreadFromFriend() extends Bread()
 object Friend:
-  val forcedFailure =
+  def forcedFailure(invocations: Int) =
     defer:
-      println("Error: **Friend Unreachable**")
+      println(s"Attempt $invocations: Error(Friend Unreachable)")
       ZIO
         .when(true)(
           ZIO.fail(
-            "Error: **Friend Unreachable**"
+            "Error(Friend Unreachable)"
           )
         )
         .as(???)
@@ -260,9 +260,14 @@ object Friend:
     ZLayer.fromZIO:
       invocations += 1
       if invocations < worksOnAttempt then
-        forcedFailure
-      else
-        ZIO.succeed(BreadFromFriend())
+        forcedFailure(invocations)
+      else{
+        if invocations == 1 then
+          ZIO.succeed(BreadFromFriend())
+        else
+          println(s"Attempt $invocations: Succeeded")
+          ZIO.succeed(BreadFromFriend())
+}
 end Friend
 ```
 
@@ -276,30 +281,29 @@ runDemo:
 
 ## Step 9: Fallback Dependencies
 
-```scala mdoc:silent
-val bread =
-  Friend
-    .bread(worksOnAttempt = 3)
-    .orElse:
-      storeBought
-```
-
 ```scala mdoc
 runDemo:
   ZIO
     .service[Bread]
-    .provide(bread)
+    .provide:
+      Friend
+        .bread(worksOnAttempt = 3)
+        .orElse:
+          storeBought
 ```
 
 ## Step 10: Dependency Retries
 
 ```scala mdoc
-def friendBreadWithRetries(times: Int) =
-  Friend
-    .bread(worksOnAttempt = 3)
-    .retry:
-      Schedule.recurs:
-        times
+runDemo:
+  ZIO
+    .service[Bread]
+    .provide:
+        Friend
+          .bread(worksOnAttempt = 3)
+          .retry:
+            Schedule.recurs:
+              1
 ```
 
 ```scala mdoc
@@ -307,18 +311,11 @@ runDemo:
   ZIO
     .service[Bread]
     .provide:
-      friendBreadWithRetries:
-        1
-```
-
-```scala mdoc
-runDemo:
-  ZIO.service[Bread]
-  .provide:
-    Friend.bread(worksOnAttempt = 3)
-      .retry:
-        Schedule.recurs:
-          2
+      Friend
+        .bread(worksOnAttempt = 3)
+        .retry:
+          Schedule.recurs:
+            2
 ```
 
 ## Step 11: Layer Retry + Fallback?
@@ -330,8 +327,11 @@ runDemo:
   ZIO
     .service[Bread]
     .provide:
-      friendBreadWithRetries:
-        1
+      Friend
+        .bread(worksOnAttempt = 3)
+        .retry:
+          Schedule.recurs:
+            1
       .orElse:
         storeBought
 ```
@@ -373,8 +373,11 @@ runDemo:
         ZIO
           .service[Bread]
           .provide:
-            friendBreadWithRetries:
-              retryConfig.times
+            Friend
+              .bread(worksOnAttempt = 3)
+              .retry:
+                Schedule.recurs:
+                  retryConfig.times
     .provide:
       config
 ```
