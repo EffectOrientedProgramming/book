@@ -102,6 +102,9 @@ val makePopularService =
     val cloudStorage =
       ZIO.service[CloudStorage].run
     PopularService(cloudStorage.retrieve)
+    
+val popularService =
+    ZLayer.fromZIO(makePopularService)
 ```
 
 In this world, each request to our `CloudStorage` provider will cost us one dollar.
@@ -111,7 +114,7 @@ Egregious, but it will help us demonstrate the problem with small, round numbers
 runDemo:
   thunderingHerdsScenario.provide(
     CloudStorage.live,
-    ZLayer.fromZIO(makePopularService)
+    popularService
   )
 ```
 
@@ -156,7 +159,7 @@ runDemo:
 
 We can see that the invoice is only 1 dollar, because only one request reached our `CloudStorage` provider.
 Wonderful!
-In practice, the savings will rarely be *this* extreme, but it is a reassuring to know that we can handle these situations with ease, while maintaining a low cost.
+In practice, the savings will rarely be *this* extreme, but it is a reassuring to know that we can handle these situations with ease, maintaining a low cost.
 
 ## Staying under rate limits
 
@@ -282,14 +285,14 @@ object DelicateResource:
     ZLayer.fromZIO:
       defer:
         ZIO
-          .debug(
-            "Delicate Resource constructed."
-          )
+          .succeed:
+            println:
+              "Delicate Resource constructed."
           .run
         ZIO
-          .debug(
-            "Do not make more than 3 concurrent requests!"
-          )
+          .succeed:
+            println:
+              "Do not make more than 3 concurrent requests!"
           .run
         Live(
           Ref.make[List[Int]](List.empty).run,
@@ -307,11 +310,7 @@ runDemo:
         _ =>
           //          bulkhead:
           delicateResource.request
-      .as("All Requests Succeeded")
-      .catchAll(
-        err => ZIO.succeed(err)
-      )
-      .debug
+      .as("All Requests Succeeded!")
       .run
   .provideSome[Scope]:
     DelicateResource.live
@@ -336,10 +335,6 @@ runDemo:
           bulkhead:
             delicateResource.request
       .as("All Requests Succeeded")
-      .catchAll(
-        err => ZIO.succeed(err)
-      )
-      .debug
       .run
   .provideSome[Scope]:
     DelicateResource.live
