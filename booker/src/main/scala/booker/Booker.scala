@@ -263,7 +263,7 @@ object AddNewChapterApp
                 Seq(View.text(file.toString))
 
             newFileGroup ++ existingFileGroup
-        }: _*
+        }*
     )
 
   override def update(
