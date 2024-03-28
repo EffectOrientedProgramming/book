@@ -193,7 +193,7 @@ object ReorderExistingApp
                 .bordered
             else
               View.text(file.toString)
-        ): _*
+        )*
     )
 
   // note this doesn't actually update anything -
