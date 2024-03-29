@@ -543,12 +543,6 @@ runSpec(
   TestAspect.flaky(10)
 )
 // *Performance Begins*
-// R: Heads
-// R: Heads
-// R: Heads
-// R: Heads
-// R: Heads
-// G: There is an art to building suspense.
 // R: Tails
 // *Performance Begins*
 // R: Tails
@@ -560,28 +554,17 @@ runSpec(
 // *Performance Begins*
 // R: Tails
 // *Performance Begins*
-// R: Heads
 // R: Tails
 // *Performance Begins*
 // R: Heads
 // R: Tails
 // *Performance Begins*
-// R: Heads
-// R: Heads
-// R: Heads
-// R: Heads
+// R: Tails
+// *Performance Begins*
 // R: Tails
 // *Performance Begins*
 // R: Heads
 // R: Heads
-// R: Heads
-// R: Heads
-// R: Heads
-// G: There is an art to building suspense.
-// R: Heads
-// G: Though it can be done by luck alone.
-// R: Tails
-// *Performance Begins*
 // R: Tails
 // *Performance Begins*
 // R: Tails
