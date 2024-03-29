@@ -457,25 +457,57 @@ val coinToss =
 ```
 
 ```scala
+val flipTen =
+  defer:
+    ZIO.collectAllSuccesses:
+      List.fill(10):
+        coinToss.debugDemo
+    .run
+    .size
+```
+
+```scala
 runDemo:
-  // stops on the first failure
-  ZIO.collectAll:
-    LazyList.continually:
-      coinToss.debugDemo("Toss")
-
-  // stops on the first failure
-  //ZIO.collectAll(List.fill(10)(coinToss))
-
-  // collect failures and successes for all items
-  //defer:
-  //  val (failures, successes) = ZIO.partition(List.fill(10)(coinToss))(identity).run
-  //  failures.size -> successes.size
-// Toss: Tails
-// Result: Tails
+  flipTen
+// Tails
+// Tails
+// Heads
+// Heads
+// Tails
+// Tails
+// Heads
+// Tails
+// Heads
+// Tails
+// Result: 4
 ```
 
 ```scala
 import zio.test.TestRandom
+import zio.test.assertTrue
+
+runSpec:
+  defer:
+    TestRandom
+      .feedBooleans(true)
+      .repeatN(9)
+      .run
+    val heads = flipTen.run
+    assertTrue(heads == 10)
+// Heads
+// Heads
+// Heads
+// Heads
+// Heads
+// Heads
+// Heads
+// Heads
+// Heads
+// Heads
+// Result: Test PASSED
+```
+
+```scala
 import zio.test.assertCompletes
 
 val rosencrantzCoinToss =
@@ -512,7 +544,8 @@ val rosencrantzAndGuildensternAreDead =
 runSpec:
   defer:
     TestRandom
-      .feedBooleans(Seq.fill(8)(true)*)
+      .feedBooleans(true)
+      .repeatN(7)
       .run
     rosencrantzAndGuildensternAreDead.run
     assertCompletes
@@ -540,35 +573,9 @@ runSpec(
     assertCompletes
   ,
   TestAspect.withLiveRandom,
-  TestAspect.flaky(10)
+  TestAspect.flaky
 )
-// *Performance Begins*
-// R: Tails
-// *Performance Begins*
-// R: Tails
-// *Performance Begins*
-// R: Tails
-// *Performance Begins*
-// R: Heads
-// R: Tails
-// *Performance Begins*
-// R: Tails
-// *Performance Begins*
-// R: Tails
-// *Performance Begins*
-// R: Heads
-// R: Tails
-// *Performance Begins*
-// R: Tails
-// *Performance Begins*
-// R: Tails
-// *Performance Begins*
-// R: Heads
-// R: Heads
-// R: Tails
-// *Performance Begins*
-// R: Tails
-// Result: Test FAILED
+// Result: Ran 537 times to complete
 ```
 
 
