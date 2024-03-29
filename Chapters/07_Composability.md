@@ -119,6 +119,8 @@ ZIOs compose including errors, async, blocking, resource managed, cancellation, 
 
 The types expand through generic parameters. ie composing a ZIO with an error of `String` with a ZIO with an error of `Int` results in a ZIO with an error of `String | Int`.
 
+{{ todo: example on error channel expansion }}
+
 With functions there is one way to compose.
 `f(g(h))` will sequentially apply the functions from the inside out.  
 Another term for this form of composition is called `andThen` in Scala.

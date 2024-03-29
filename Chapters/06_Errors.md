@@ -1,8 +1,12 @@
 # Errors
 
+1. Why errors as values
 1. Creating & Handling
-1. Error composability
-1. Retry
+   1. Flexible error types
+1. Exhaustive checking
+   1. Covering all possibles (`catchAll` not missing any)
+   1. Do not handle impossible errors (`retry` not working if there is no error)
+1. Collection of fallible operations (`collectAllSuccesses`)
 
 In a language that cannot `throw`, following the execution path is simple, following 2 basic rules:
 
