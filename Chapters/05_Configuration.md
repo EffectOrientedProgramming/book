@@ -423,6 +423,11 @@ extension [R, E, A](z: ZIO[R, E, A])
       e => ZIO.succeed(println(s"$s: $e")),
       r => ZIO.succeed(println(s"$s: $r"))
     )
+  def debugDemo: ZIO[R, E, A] =
+    z.tapBoth(
+      e => ZIO.succeed(println(e)),
+      r => ZIO.succeed(println(r))
+    )
 ```
 
 TODO: Explain why `debugDemo` instead of just `debug`
@@ -442,24 +447,36 @@ val coinToss =
         .run
 ```
 
+```scala mdoc:silent
+val flipTen =
+  defer:
+    ZIO.collectAllSuccesses:
+      List.fill(10):
+        coinToss.debugDemo
+    .run
+    .size
+```
+
 ```scala mdoc
 runDemo:
-  // stops on the first failure
-  ZIO.collectAll:
-    LazyList.continually:
-      coinToss.debugDemo("Toss")
+  flipTen
+```
 
-  // stops on the first failure
-  //ZIO.collectAll(List.fill(10)(coinToss))
+```scala mdoc
+import zio.test.TestRandom
+import zio.test.assertTrue
 
-  // collect failures and successes for all items
-  //defer:
-  //  val (failures, successes) = ZIO.partition(List.fill(10)(coinToss))(identity).run
-  //  failures.size -> successes.size
+runSpec:
+  defer:
+    TestRandom
+      .feedBooleans(true)
+      .repeatN(9)
+      .run
+    val heads = flipTen.run
+    assertTrue(heads == 10)
 ```
 
 ```scala mdoc:silent
-import zio.test.TestRandom
 import zio.test.assertCompletes
 
 val rosencrantzCoinToss =
@@ -496,13 +513,14 @@ val rosencrantzAndGuildensternAreDead =
 runSpec:
   defer:
     TestRandom
-      .feedBooleans(Seq.fill(8)(true)*)
+      .feedBooleans(true)
+      .repeatN(7)
       .run
     rosencrantzAndGuildensternAreDead.run
     assertCompletes
 ```
 
-```scala mdoc
+```scala mdoc:silent
 import zio.test.TestAspect
 
 runSpec(
@@ -511,8 +529,9 @@ runSpec(
     assertCompletes
   ,
   TestAspect.withLiveRandom,
-  TestAspect.flaky(10)
+  TestAspect.flaky
 )
+// Result: Ran 537 times to complete
 ```
 
 
