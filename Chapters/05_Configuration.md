@@ -450,11 +450,12 @@ val coinToss =
 ```scala mdoc:silent
 val flipTen =
   defer:
-    ZIO.collectAllSuccesses:
-      List.fill(10):
-        coinToss.debugDemo
-    .run
-    .size
+    ZIO
+      .collectAllSuccesses:
+        List.fill(10):
+          coinToss.debugDemo
+      .run
+      .size
 ```
 
 ```scala mdoc
@@ -469,10 +470,13 @@ import zio.test.assertTrue
 runSpec:
   defer:
     TestRandom
-      .feedBooleans(true)
-      .repeatN(9)
+      .feedBooleans:
+        true
+      .repeatN:
+        9
       .run
-    val heads = flipTen.run
+    val heads =
+      flipTen.run
     assertTrue(heads == 10)
 ```
 
@@ -480,7 +484,8 @@ runSpec:
 import zio.test.assertCompletes
 
 val rosencrantzCoinToss =
-  coinToss.debugDemo("R")
+  coinToss.debugDemo:
+    "R"
 
 val rosencrantzAndGuildensternAreDead =
   defer:
@@ -513,8 +518,10 @@ val rosencrantzAndGuildensternAreDead =
 runSpec:
   defer:
     TestRandom
-      .feedBooleans(true)
-      .repeatN(7)
+      .feedBooleans:
+        true
+      .repeatN:
+        7
       .run
     rosencrantzAndGuildensternAreDead.run
     assertCompletes
@@ -547,29 +554,32 @@ ZIO gives you built-in methods to support this.
 
 Even time can be simulated as using the clock is an effect.
 
+```scala mdoc:silent
+val nightlyBatch =
+  ZIO
+    .sleep:
+      24.hours
+    .debugDemo:
+      "Parsing CSV"
+```
+
+```scala mdoc:silent
+import zio.test.TestClock
+
+val timeTravel =
+  TestClock.adjust:
+    24.hours
+```
+
 ```scala mdoc
-import zio.test.*
-
 runSpec:
-  val slowOperation =
-    ZIO.sleep:
-      2.seconds
-
   defer:
-    val fork =
-      slowOperation
-        .timeout:
-          1.second
-        .fork
-        .run
-    TestClock
-      .adjust:
-        2.seconds
+    nightlyBatch
+      .race:
+        timeTravel
       .run
-    val result =
-      fork.join.run
-    assertTrue:
-      result.isEmpty
+
+    assertCompletes
 ```
 
 By default in ZIO Test, the clock does not change unless instructed to.

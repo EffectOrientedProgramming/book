@@ -102,9 +102,9 @@ val makePopularService =
     val cloudStorage =
       ZIO.service[CloudStorage].run
     PopularService(cloudStorage.retrieve)
-    
+
 val popularService =
-    ZLayer.fromZIO(makePopularService)
+  ZLayer.fromZIO(makePopularService)
 ```
 
 In this world, each request to our `CloudStorage` provider will cost us one dollar.
@@ -112,10 +112,8 @@ Egregious, but it will help us demonstrate the problem with small, round numbers
 
 ```scala mdoc
 runDemo:
-  thunderingHerdsScenario.provide(
-    CloudStorage.live,
-    popularService
-  )
+  thunderingHerdsScenario
+    .provide(CloudStorage.live, popularService)
 ```
 
 We can see that the invoice is 100 dollars, because every single request reached our `CloudStorage` provider.

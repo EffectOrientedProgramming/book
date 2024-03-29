@@ -6,10 +6,7 @@ import zio.test.ReporterEventRenderer.ConsoleEventRenderer
 
 object ZioTestExecution:
   def runSpecAsApp(
-      spec: Spec[
-        TestEnvironment & Scope,
-        Any
-      ],
+      spec: Spec[TestEnvironment & Scope, Any],
       console: Console =
         Console.ConsoleLive,
       aspects: Chunk[
