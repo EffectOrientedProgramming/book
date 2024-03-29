@@ -2,6 +2,7 @@ import BuildTooling.*
 
 name := "EffectOrientedProgramming"
 
+// todo: 3.4.1 breaks the 06_Errors chapter
 inThisBuild(scalaVersion := "3.4.0")
 
 initialize := {

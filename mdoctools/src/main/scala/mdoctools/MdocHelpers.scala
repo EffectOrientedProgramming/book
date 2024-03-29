@@ -42,7 +42,7 @@ def runSpec[E](
 
   val liveEnvironment: Layer[
     Nothing,
-    Clock with Console with System with Random
+    Clock & Console & System & Random
   ] =
     implicit val trace =
       Trace.empty

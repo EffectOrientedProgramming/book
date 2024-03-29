@@ -7,7 +7,7 @@ import zio.test.ReporterEventRenderer.ConsoleEventRenderer
 object ZioTestExecution:
   def runSpecAsApp(
       spec: Spec[
-        TestEnvironment with Scope,
+        TestEnvironment & Scope,
         Any
       ],
       console: Console =
@@ -20,10 +20,10 @@ object ZioTestExecution:
         ZTestEventHandler.silent
   )(implicit
       trace: Trace
-  ): URIO[TestEnvironment with Scope, Summary] =
+  ): URIO[TestEnvironment & Scope, Summary] =
     for
       runtime <-
-        ZIO.runtime[TestEnvironment with Scope]
+        ZIO.runtime[TestEnvironment & Scope]
 
       scopeEnv: ZEnvironment[Scope] =
         runtime.environment

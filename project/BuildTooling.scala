@@ -315,7 +315,6 @@ object BuildTooling {
             zioVersion % Test,
           "nl.vroste" %% "rezilience"   % "0.9.4"
         ),
-      scalaVersion := "3.4.1",
       scalacOptions -= "-explain-types",
       scalacOptions -= "-explain",
       fork := true,
