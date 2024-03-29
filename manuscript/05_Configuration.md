@@ -210,7 +210,7 @@ runDemo:
       oven,
       toaster
     )
-// error: 
+// error:
 // 
 // 
 // ──── ZLAYER ERROR ────────────────────────────────────────────────────
@@ -224,7 +224,9 @@ runDemo:
 // 
 // ──────────────────────────────────────────────────────────────────────
 // 
-//
+// 
+// extension (z: ZIO.type)
+//               ^
 ```
 Unfortunately our program is now ambiguous.
 It cannot decide if we should be making `Toast` in the oven, `Bread` in the toaster, or any other combination.
@@ -459,26 +461,27 @@ val coinToss =
 ```scala
 val flipTen =
   defer:
-    ZIO.collectAllSuccesses:
-      List.fill(10):
-        coinToss.debugDemo
-    .run
-    .size
+    ZIO
+      .collectAllSuccesses:
+        List.fill(10):
+          coinToss.debugDemo
+      .run
+      .size
 ```
 
 ```scala
 runDemo:
   flipTen
 // Tails
+// Heads
+// Tails
+// Tails
+// Tails
 // Tails
 // Heads
 // Heads
 // Tails
-// Tails
 // Heads
-// Tails
-// Heads
-// Tails
 // Result: 4
 ```
 
@@ -489,10 +492,13 @@ import zio.test.assertTrue
 runSpec:
   defer:
     TestRandom
-      .feedBooleans(true)
-      .repeatN(9)
+      .feedBooleans:
+        true
+      .repeatN:
+        9
       .run
-    val heads = flipTen.run
+    val heads =
+      flipTen.run
     assertTrue(heads == 10)
 // Heads
 // Heads
@@ -511,7 +517,8 @@ runSpec:
 import zio.test.assertCompletes
 
 val rosencrantzCoinToss =
-  coinToss.debugDemo("R")
+  coinToss.debugDemo:
+    "R"
 
 val rosencrantzAndGuildensternAreDead =
   defer:
@@ -544,8 +551,10 @@ val rosencrantzAndGuildensternAreDead =
 runSpec:
   defer:
     TestRandom
-      .feedBooleans(true)
-      .repeatN(7)
+      .feedBooleans:
+        true
+      .repeatN:
+        7
       .run
     rosencrantzAndGuildensternAreDead.run
     assertCompletes
@@ -592,28 +601,32 @@ ZIO gives you built-in methods to support this.
 Even time can be simulated as using the clock is an effect.
 
 ```scala
-import zio.test.*
+val nightlyBatch =
+  ZIO
+    .sleep:
+      24.hours
+    .debugDemo:
+      "Parsing CSV"
+```
 
+```scala
+import zio.test.TestClock
+
+val timeTravel =
+  TestClock.adjust:
+    24.hours
+```
+
+```scala
 runSpec:
-  val slowOperation =
-    ZIO.sleep:
-      2.seconds
-
   defer:
-    val fork =
-      slowOperation
-        .timeout:
-          1.second
-        .fork
-        .run
-    TestClock
-      .adjust:
-        2.seconds
+    nightlyBatch
+      .race:
+        timeTravel
       .run
-    val result =
-      fork.join.run
-    assertTrue:
-      result.isEmpty
+
+    assertCompletes
+// Parsing CSV: ()
 // Result: Test PASSED
 ```
 

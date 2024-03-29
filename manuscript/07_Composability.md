@@ -43,9 +43,9 @@ ZIO
 //   trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:16)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:16)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$15215/0x0000000802f7f440@26c55d
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$15241/0x0000000803d57040@51408207
 //   ),
-//   successK = zio.ZIO$$$Lambda$15219/0x000000080303a840@4a649eb9
+//   successK = zio.ZIO$$$Lambda$15243/0x0000000803d55840@1bca98bf
 // )
 ```
 
@@ -139,6 +139,8 @@ The number of combinations is something like:
 ZIOs compose including errors, async, blocking, resource managed, cancellation, eitherness, environmental requirements.
 
 The types expand through generic parameters. ie composing a ZIO with an error of `String` with a ZIO with an error of `Int` results in a ZIO with an error of `String | Int`.
+
+{{ todo: example on error channel expansion }}
 
 With functions there is one way to compose.
 `f(g(h))` will sequentially apply the functions from the inside out.  
@@ -321,7 +323,7 @@ runDemo:
   closeableFileZ
 // Opening file!
 // Closing file!
-// Result: repl.MdocSession$MdocApp$$anon$27@6635f06b
+// Result: repl.MdocSession$MdocApp$$anon$27@73016eaa
 ```
 
 Since that is not terribly useful, let's start calling some methods on our managed file.
