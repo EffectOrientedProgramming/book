@@ -122,25 +122,20 @@ def calculateTemp(): String =
 class GpsException()     extends Exception
 class NetworkException() extends Exception
 
-
 def render(value: String) =
   s"Temperature: $value"
 
 ```
 
 ```scala mdoc
-def currentTemperatureUnsafe(
-    scenario: Scenario
-): String =
-  resetScenario(scenario)
+def currentTemperatureUnsafe(): String =
   render:
     calculateTemp()
-
 
 runScenario(
   scenario = Scenario.HappyPath,
   ZIO.succeed:
-    currentTemperatureUnsafe
+    currentTemperatureUnsafe()
 )
 ```
 
@@ -149,10 +144,16 @@ If the network is unavailable, what is the behavior for the caller?
 This can take many forms.
 If we don't make any attempt to handle our problem, the whole program blows up and shows the gory details to the user.
 
-```scala mdoc:crash
+```scala mdoc
 // Note - Can't make this output prettier/simpler because it's *not* using ZIO
-currentTemperatureUnsafe:
-  Scenario.NetworkError
+// Actually, now that we're using ZIO, we can make this output prettier.
+// But maybe we should use a different runScenario method that _doesn't_ use ZIO?
+  
+runScenario(
+  scenario = Scenario.NetworkError,
+  ZIO.succeed:
+    currentTemperatureUnsafe()
+)
 ```
 
 ## Returning `null` 
@@ -163,7 +164,6 @@ We could take the bare-minimum approach of catching the `Exception` and returnin
 def currentTemperatureNull(
     scenario: Scenario
 ): String =
-
   resetScenario(scenario)
   render:
     try
@@ -306,8 +306,9 @@ TODO {{Update verbiage now that ZIO section is first}}
 ### ZIO-First Error Handling
 
 ```scala mdoc
-def getTemperatureZ(scenario: Scenario) =
-  resetScenario(scenario)
+// TODO We hide the original implementation of this function, but show this one.
+// Is that a problem? Seems unbalanced
+val getTemperatureZ =
   getScenario() match
     case Scenario.GPSError =>
       ZIO.fail:
@@ -320,28 +321,31 @@ def getTemperatureZ(scenario: Scenario) =
       ZIO.succeed:
         "35 degrees"
 
-runDemo:
-  getTemperatureZ:
-    Scenario.HappyPath
+runScenario(
+  Scenario.HappyPath,
+  getTemperatureZ
+)
 ```
 
 ```scala mdoc:fail
 // TODO make MDoc:fail adhere to line limits?
-runDemo:
-  getTemperatureZ:
-    Scenario.HappyPath
-  .catchAll:
-    case ex: NetworkException =>
-      ZIO.succeed:
-        "Network Unavailable"
+runScenario(
+  Scenario.HappyPath,
+  getTemperatureZ
+    .catchAll:
+      case ex: NetworkException =>
+        ZIO.succeed:
+          "Network Unavailable"
+)
 ```
 
 TODO Demonstrate ZIO calculating the error types without an explicit annotation being provided
 
 ```scala mdoc
-runDemo:
-  getTemperatureZ:
-    Scenario.GPSError
+runScenario(
+  Scenario.GPSError,
+  getTemperatureZ
+)
 ```
 
 {#wrapping-legacy-code}
