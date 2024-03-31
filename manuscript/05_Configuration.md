@@ -477,12 +477,12 @@ runDemo:
 // Heads
 // Heads
 // Heads
-// Tails
+// Heads
 // Tails
 // Tails
 // Heads
 // Heads
-// Result: 6
+// Result: 7
 ```
 
 ```scala
