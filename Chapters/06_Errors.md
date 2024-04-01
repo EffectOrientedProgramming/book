@@ -44,56 +44,44 @@ enum Scenario:
     GPSError
 //  case NumberOfSlowCall(ref: Ref[Int])
 //  case WorksOnTry(attempts: Int, ref: Ref[Int])
-    
+
 import zio.Runtime.default.unsafe
 
 val invocations: Ref[Scenario] =
-    Unsafe.unsafe(
-      (u: Unsafe) =>
-        given Unsafe =
-          u
-        unsafe
-          .run(
-            Ref
-              .make[Scenario](Scenario.HappyPath)
-          )
-          .getOrThrowFiberFailure()
-    )
-def runScenario[E, A](
-  scenario: Scenario,
-  logic: => ZIO[Scope, E, A]
-): Unit =
-    Unsafe.unsafe {
-      (u: Unsafe) =>
-        given Unsafe =
-          u
-        val res =
-          unsafe
-            .run(
-              Rendering
-                .renderEveryPossibleOutcomeZio(
-                  defer:
-    //                  val invocations = Ref.make(0).run
-                    resetScenario(scenario)
-    //                  invocations.set(s).run
-                    logic.run
-                  .provide(Scope.default)
-                )
-                .withConsole(OurConsole)
-            )
-            .getOrThrowFiberFailure()
-        println("Result: " + res)
-    }
-def resetScenario(scenario: Scenario) =
   Unsafe.unsafe(
     (u: Unsafe) =>
       given Unsafe =
         u
       unsafe
-        .run(invocations.set(scenario))
+        .run(
+          Ref.make[Scenario](Scenario.HappyPath)
+        )
         .getOrThrowFiberFailure()
   )
-  
+def runScenario[E, A](
+    scenario: Scenario,
+    logic: => ZIO[Scope, E, A]
+): Unit =
+  Unsafe.unsafe {
+    (u: Unsafe) =>
+      given Unsafe =
+        u
+      val res =
+        unsafe
+          .run(
+            Rendering
+              .renderEveryPossibleOutcomeZio(
+                defer:
+                  invocations.set(scenario).run
+                  logic.run
+                .provide(Scope.default)
+              )
+              .withConsole(OurConsole)
+          )
+          .getOrThrowFiberFailure()
+      println("Result: " + res)
+  }
+
 def getScenario() =
   Unsafe.unsafe(
     (u: Unsafe) =>
@@ -104,11 +92,9 @@ def getScenario() =
         .getOrThrowFiberFailure()
   )
 
-
 // TODO Hide definition? Then we won't see the internals of the scenario stuff.
 // This would also makes the exceptions more surprising
 def calculateTemp(): String =
-
   getScenario() match
     case Scenario.GPSError =>
       throw GpsException()
@@ -124,7 +110,6 @@ class NetworkException() extends Exception
 
 def render(value: String) =
   s"Temperature: $value"
-
 ```
 
 ```scala mdoc
@@ -133,7 +118,8 @@ def currentTemperatureUnsafe(): String =
     calculateTemp()
 
 runScenario(
-  scenario = Scenario.HappyPath,
+  scenario =
+    Scenario.HappyPath,
   ZIO.succeed:
     currentTemperatureUnsafe()
 )
@@ -148,9 +134,10 @@ If we don't make any attempt to handle our problem, the whole program blows up a
 // Note - Can't make this output prettier/simpler because it's *not* using ZIO
 // Actually, now that we're using ZIO, we can make this output prettier.
 // But maybe we should use a different runScenario method that _doesn't_ use ZIO?
-  
+
 runScenario(
-  scenario = Scenario.NetworkError,
+  scenario =
+    Scenario.NetworkError,
   ZIO.succeed:
     currentTemperatureUnsafe()
 )
@@ -161,10 +148,7 @@ runScenario(
 We could take the bare-minimum approach of catching the `Exception` and returning `null`:
 
 ```scala mdoc
-def currentTemperatureNull(
-    scenario: Scenario
-): String =
-  resetScenario(scenario)
+def currentTemperatureNull(): String =
   render:
     try
       calculateTemp()
@@ -172,8 +156,12 @@ def currentTemperatureNull(
       case ex: Exception =>
         null
 
-currentTemperatureNull:
-  Scenario.NetworkError
+runScenario(
+  scenario =
+    Scenario.NetworkError,
+  ZIO.succeed:
+    currentTemperatureNull()
+)
 ```
 
 This is *slightly* better, as the user can at least see the outer structure of our UI element, but it still leaks out code-specific details world.
@@ -183,10 +171,7 @@ This is *slightly* better, as the user can at least see the outer structure of o
 Maybe we could fallback to a `sentinel` value, such as `0` or `-1` to indicate a failure?
 
 ```scala mdoc:nest
-def currentTemperature(
-    scenario: Scenario
-): String =
-  resetScenario(scenario)
+def currentTemperature(): String =
   render:
     try
       calculateTemp()
@@ -194,8 +179,11 @@ def currentTemperature(
       case ex: Exception =>
         "-1 degrees"
 
-currentTemperature:
-  Scenario.NetworkError
+runScenario(
+  Scenario.NetworkError,
+  ZIO.succeed:
+    currentTemperature()
+)
 ```
 
 Clearly, this isn't acceptable, as both of these common sentinel values are valid temperatures.
@@ -204,10 +192,7 @@ Clearly, this isn't acceptable, as both of these common sentinel values are vali
 We can take a more honest and accurate approach in this situation.
 
 ```scala mdoc:nest
-def currentTemperature(
-    scenario: Scenario
-): String =
-  resetScenario(scenario)
+def currentTemperature(): String =
   render:
     try
       calculateTemp()
@@ -215,8 +200,11 @@ def currentTemperature(
       case ex: Exception =>
         "Unavailable"
 
-currentTemperature:
-  Scenario.NetworkError
+runScenario(
+  Scenario.NetworkError,
+  ZIO.succeed:
+    currentTemperature()
+)
 ```
 
 We have improved the failure behavior significantly; is it sufficient for all cases?
@@ -225,10 +213,7 @@ In this situation, do we show the same message to the user? Ideally, we would sh
 The Network issue is transient, but the GPS problem is likely permanent.
 
 ```scala mdoc:nest
-def currentTemperature(
-    scenario: Scenario
-): String =
-  resetScenario(scenario)
+def currentTemperature(): String =
   try
     render:
       calculateTemp()
@@ -238,11 +223,17 @@ def currentTemperature(
     case ex: GpsException =>
       "GPS problem"
 
-currentTemperature:
-  Scenario.NetworkError
+runScenario(
+  Scenario.NetworkError,
+  ZIO.succeed:
+    currentTemperature()
+)
 
-currentTemperature:
-  Scenario.GPSError
+runScenario(
+  Scenario.GPSError,
+  ZIO.succeed:
+    currentTemperature()
+)
 ```
 
 Wonderful!
@@ -252,23 +243,10 @@ We have specific messages for all relevant error cases. However, this still suff
 - If we realize it can fail, we must dig through the implementation to discover the multiple failure values
 - We never have certainty about the failure paths of our full application, or any subset of it.
 
-{{ TODO Tear apart exceptions more }}
-
-Encountering an error during a function call generally means two things:
-
-1. You can't continue executing the function in the normal fashion.
-
-2. You can't return a normal result.
-
 ## More Problems with Exceptions
 
 Many languages use *exceptions* for handling errors.
 An exception *throws* out of the current execution path to locate a user-written *handler* to deal with the error.
-There are two goals for exceptions:
-
-1. Separate error-handling code from "success-path" code, so the success-path code is easier to understand and reason about.
-
-2. Reduce redundant error-handling code by handling associated errors in a single place.
 
 Exceptions have problems:
 
@@ -281,7 +259,7 @@ Exceptions have problems:
    statically-typed error management solution can ensure---at compile
    time---that all errors are handled.
 
-1. They don't scale, because its difficult to know what exceptions a function can throw.
+1. They do not scale, because it is difficult to know what exceptions a function can throw.
    {{Need to think about this more to make the case.}}
 
 1. Difficult or impossible to retry an operation if it fails.
@@ -289,7 +267,7 @@ Exceptions have problems:
    This assumes the error is so critical there's no way to get back to where the exception occurred.
    If you're performing an operation that you'd like to retry if it fails, exceptions don't help much.
 
-Exceptions were a valiant attempt to produce a consistent error-reporting interface, and they are definitely better than what's in C.
+Exceptions were a valiant attempt to produce a consistent error-reporting interface, and they are definitely better than what came before.
 But they don't end up solving the problem very well, and you just don't know what you're going to get when you use exceptions.
 
 
@@ -321,31 +299,24 @@ val getTemperatureZ =
       ZIO.succeed:
         "35 degrees"
 
-runScenario(
-  Scenario.HappyPath,
-  getTemperatureZ
-)
+runScenario(Scenario.HappyPath, getTemperatureZ)
 ```
 
 ```scala mdoc:fail
 // TODO make MDoc:fail adhere to line limits?
 runScenario(
   Scenario.HappyPath,
-  getTemperatureZ
-    .catchAll:
-      case ex: NetworkException =>
-        ZIO.succeed:
-          "Network Unavailable"
+  getTemperatureZ.catchAll:
+    case ex: NetworkException =>
+      ZIO.succeed:
+        "Network Unavailable"
 )
 ```
 
 TODO Demonstrate ZIO calculating the error types without an explicit annotation being provided
 
 ```scala mdoc
-runScenario(
-  Scenario.GPSError,
-  getTemperatureZ
-)
+runScenario(Scenario.GPSError, getTemperatureZ)
 ```
 
 {#wrapping-legacy-code}
@@ -353,23 +324,15 @@ runScenario(
 
 If we are unable to re-write the fallible function, we can still wrap the call.
 
-{{TODO }}
-
-```scala mdoc
-def calculateTempWrapped(scenario: Scenario) =
-  resetScenario(scenario)
+```scala mdoc:silent
+val calculateTempWrapped =
   ZIO.attempt:
     calculateTemp()
 ```
 
-
-```scala mdoc
-def displayTemperatureZWrapped(
-    behavior: Scenario
-) =
-  calculateTempWrapped:
-    behavior
-  .catchAll:
+```scala mdoc:silent
+val displayTemperatureZWrapped =
+  calculateTempWrapped.catchAll:
     case ex: NetworkException =>
       ZIO.succeed:
         "Network Unavailable"
@@ -379,58 +342,57 @@ def displayTemperatureZWrapped(
 ```
 
 ```scala mdoc
-runDemo:
-  displayTemperatureZWrapped:
-    Scenario.HappyPath
+runScenario(
+  Scenario.HappyPath,
+  displayTemperatureZWrapped
+)
 ```
 
 ```scala mdoc
-runDemo:
-  displayTemperatureZWrapped:
-    Scenario.NetworkError
+runScenario(
+  Scenario.NetworkError,
+  displayTemperatureZWrapped
+)
 ```
 
 This is decent, but does not provide the maximum possible guarantees. Look at what happens if we forget to handle one of our errors.
 
-```scala mdoc
-def getTemperatureZGpsGap(behavior: Scenario) =
-  calculateTempWrapped:
-    behavior
-  .catchAll:
+```scala mdoc:silent
+val getTemperatureZGpsGap =
+  calculateTempWrapped.catchAll:
     case ex: NetworkException =>
       ZIO.succeed:
         "Network Unavailable"
 ```
 
 ```scala mdoc
-runDemo:
-  getTemperatureZGpsGap:
-    Scenario.GPSError
+runScenario(
+  Scenario.GPSError,
+  getTemperatureZGpsGap
+)
 ```
 
 The compiler does not catch this bug, and instead fails at runtime.
 Take extra care when interacting with legacy code, since we cannot automatically recognize these situations at compile time.
 We can provide a fallback case that will report anything we missed:
 
-```scala mdoc
-def getTemperatureZWithFallback(
-    behavior: Scenario
-) =
-  calculateTempWrapped:
-    behavior
-  .catchAll:
+```scala mdoc:silent
+val getTemperatureZWithFallback =
+  calculateTempWrapped.catchAll:
     case ex: NetworkException =>
       ZIO.succeed:
         "Network Unavailable"
     case other =>
+      // TODO Decide if succeed is right
       ZIO.succeed:
         "Error: " + other
 ```
 
 ```scala mdoc
-runDemo:
-  getTemperatureZWithFallback:
-    Scenario.GPSError
+runScenario(
+  Scenario.GPSError,
+  getTemperatureZWithFallback
+)
 ```
 
 This lets us avoid the most egregious gaps in functionality, but it does not take full advantage of ZIO's type-safety.
