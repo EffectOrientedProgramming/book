@@ -158,51 +158,6 @@ runScenario(
 )
 ```
 
-## Returning `null` 
-
-We could take the bare-minimum approach of catching the `Exception` and returning `null`:
-
-```scala mdoc
-def currentTemperatureNull(): String =
-  render:
-    try
-      calculateTemp()
-    catch
-      case ex: Exception =>
-        null
-
-runScenario(
-  scenario =
-    Scenario.NetworkError,
-  ZIO.succeed:
-    currentTemperatureNull()
-)
-```
-
-This is *slightly* better, as the user can at least see the outer structure of our UI element, but it still leaks out code-specific details world.
-
-## Sentinel Values
-
-Maybe we could fallback to a `sentinel` value, such as `0` or `-1` to indicate a failure?
-
-```scala mdoc:nest
-def currentTemperature(): String =
-  render:
-    try
-      calculateTemp()
-    catch
-      case ex: Exception =>
-        "-1 degrees"
-
-runScenario(
-  Scenario.NetworkError,
-  ZIO.succeed:
-    currentTemperature()
-)
-```
-
-Clearly, this isn't acceptable, as both of these common sentinel values are valid temperatures.
-
 ## Diligent Catching, without any hints.
 We can take a more honest and accurate approach in this situation.
 
