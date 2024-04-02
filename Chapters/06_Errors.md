@@ -3,39 +3,24 @@
 1. Why errors as values
 1. Creating & Handling
    1. Flexible error types
-1. Exhaustive checking
-   1. Covering all possibles (`catchAll` not missing any)
-   1. Do not handle impossible errors (`retry` not working if there is no error)
+1. Exhaustive checking DONE
+   1. Covering all possibles (`catchAll` not missing any) DONE
+   1. Do not handle impossible errors (`retry` not working if there is no error) DONE
 1. Collection of fallible operations (`collectAllSuccesses`)
 
-In a language that cannot `throw`, following the execution path is simple, following 2 basic rules:
+## Our program for this chapter
 
-- At a branch, execute first match
-- Otherwise, Read everything:
-  - left-to-right
-  - top-to-bottom,
-
-Once you add `throw`, the rules are more complicated
-
-- At a branch, execute first match
-- Otherwise, Read everything
-  - left-to-right
-  - top-to-bottom
-- Unless we `throw`, jumping through a different dimension
-
-
-## Historic approaches to Error-handling
-If you are not interested in the discouraged ways to handle errors, and just want to see the ZIO approach, jump down to
-[ZIO Error Handling](#zio-error-handling)
-
-## Throwing Exceptions
-
-In the past, some programs have thrown exceptions to indicate failures.
-Imagine a program that displays the local temperature the user based on GPS position and a network call. There are distinct levels of problems in any given program. They require different types of handling by the programmer.
+We want to show the user a page that shows the current temperature at their location
+It will look like this
 
 ```text
 Temperature: 30 degrees
 ```
+
+There are 2 error situations we need to handle:
+
+ - Network call to weather service fails.
+ - A fault in our GPS hardware
 
 ```scala mdoc:invisible
 enum Scenario:
@@ -91,6 +76,36 @@ def getScenario() =
         .run(invocations.get)
         .getOrThrowFiberFailure()
   )
+  
+  
+```
+
+## Historic approaches to Error-handling
+If you are not interested in the discouraged ways to handle errors, and just want to see the ZIO approach, jump down to
+[ZIO Error Handling](#zio-error-handling)
+
+## Throwing Exceptions
+
+Throwing exceptions is one way indicate failure.
+
+In a language that cannot `throw`, following the execution path is simple, following 2 basic rules:
+
+- At a branch, execute first match
+- Otherwise, Read everything:
+  - left-to-right
+  - top-to-bottom,
+
+Once you add `throw`, the rules are more complicated
+
+- At a branch, execute first match
+- Otherwise, Read everything
+  - left-to-right
+  - top-to-bottom
+- Unless we `throw`, jumping through a different dimension
+
+
+
+```scala mdoc:invisible
 
 // TODO Hide definition? Then we won't see the internals of the scenario stuff.
 // This would also makes the exceptions more surprising
@@ -305,7 +320,7 @@ runScenario(Scenario.HappyPath, getTemperatureZ)
 ```scala mdoc:fail
 // TODO make MDoc:fail adhere to line limits?
 runScenario(
-  Scenario.HappyPath,
+  Scenario.GPSError,
   getTemperatureZ.catchAll:
     case ex: NetworkException =>
       ZIO.succeed:
@@ -313,11 +328,42 @@ runScenario(
 )
 ```
 
-TODO Demonstrate ZIO calculating the error types without an explicit annotation being provided
-
 ```scala mdoc
 runScenario(Scenario.GPSError, getTemperatureZ)
 ```
+
+```scala mdoc:silent
+val renderTempZTotal =
+  getTemperatureZ.catchAll:
+    case ex: NetworkException =>
+      ZIO.succeed:
+        "Network Unavailable"
+    case ex: GpsException =>
+      ZIO.succeed:
+        "New GPS Hardware needed"
+```
+
+```scala mdoc
+runScenario(
+  Scenario.GPSError,
+  renderTempZTotal
+)
+```
+
+Now that we have handled all of our errors, we know we are showing the user a sensible message.
+Therefore - it would not make sense to retry this rendering.
+Note - this is different from retrying the call to get the temperature itself.
+
+```scala mdoc:fail
+runScenario(
+  Scenario.GPSError,
+  renderTempZTotal
+    .retryN(10)
+)
+```
+
+Thanks to the type management provided by our effect library
+, the compiler recognizes that this `retryN` can never be used and prevents us from adding it.
 
 {#wrapping-legacy-code}
 ### Wrapping Legacy Code
@@ -355,29 +401,28 @@ runScenario(
 )
 ```
 
-This is decent, but does not provide the maximum possible guarantees. Look at what happens if we forget to handle one of our errors.
+This is decent, but does not provide the maximum possible guarantees. 
+Look at what happens if we forget to handle one of our errors.
 
-```scala mdoc:silent
-val getTemperatureZGpsGap =
-  calculateTempWrapped.catchAll:
-    case ex: NetworkException =>
-      ZIO.succeed:
-        "Network Unavailable"
-```
 
 ```scala mdoc
 runScenario(
   Scenario.GPSError,
-  getTemperatureZGpsGap
+  calculateTempWrapped.catchAll:
+    case ex: NetworkException =>
+      ZIO.succeed:
+        "Network Unavailable"
 )
 ```
 
 The compiler does not catch this bug, and instead fails at runtime.
-Take extra care when interacting with legacy code, since we cannot automatically recognize these situations at compile time.
+Take extra care when interacting with legacy code
+, since we cannot automatically recognize these situations at compile time.
 We can provide a fallback case that will report anything we missed:
 
-```scala mdoc:silent
-val getTemperatureZWithFallback =
+```scala mdoc
+runScenario(
+  Scenario.GPSError,
   calculateTempWrapped.catchAll:
     case ex: NetworkException =>
       ZIO.succeed:
@@ -386,12 +431,6 @@ val getTemperatureZWithFallback =
       // TODO Decide if succeed is right
       ZIO.succeed:
         "Error: " + other
-```
-
-```scala mdoc
-runScenario(
-  Scenario.GPSError,
-  getTemperatureZWithFallback
 )
 ```
 
