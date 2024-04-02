@@ -67,8 +67,8 @@ runDemo:
     ZIO.fail("Youch!").run
     fiber1.join.run
     fiber2.join.run
-// Interrupt Fiber 1
 // Interrupt Fiber 2
+// Interrupt Fiber 1
 // Result: Youch!
 ```
 
@@ -93,7 +93,7 @@ runDemo:
       .timed
       .debug("Time:")
       .run
-// Result: (PT0.000515973S,Some(**TODO**))
+// Result: (PT0.000490354S,Some(**TODO**))
 ```
 We can see 2 significant behaviors here:
 

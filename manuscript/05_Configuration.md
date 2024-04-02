@@ -475,14 +475,14 @@ runDemo:
 // Tails
 // Heads
 // Tails
-// Tails
-// Heads
-// Heads
-// Heads
 // Heads
 // Heads
 // Tails
-// Result: 6
+// Heads
+// Tails
+// Tails
+// Tails
+// Result: 4
 ```
 
 ```scala

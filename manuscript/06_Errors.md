@@ -7,10 +7,33 @@
 1. Why errors as values
 1. Creating & Handling
    1. Flexible error types
-1. Exhaustive checking
-   1. Covering all possibles (`catchAll` not missing any)
-   1. Do not handle impossible errors (`retry` not working if there is no error)
+1. Exhaustive checking DONE
+   1. Covering all possibles (`catchAll` not missing any) DONE
+   1. Do not handle impossible errors (`retry` not working if there is no error) DONE
 1. Collection of fallible operations (`collectAllSuccesses`)
+
+## Our program for this chapter
+
+We want to show the user a page that shows the current temperature at their location
+It will look like this
+
+```text
+Temperature: 30 degrees
+```
+
+There are 2 error situations we need to handle:
+
+ - Network call to weather service fails.
+ - A fault in our GPS hardware
+
+
+## Historic approaches to Error-handling
+If you are not interested in the discouraged ways to handle errors, and just want to see the ZIO approach, jump down to
+[ZIO Error Handling](#zio-error-handling)
+
+## Throwing Exceptions
+
+Throwing exceptions is one way indicate failure.
 
 In a language that cannot `throw`, following the execution path is simple, following 2 basic rules:
 
@@ -28,18 +51,6 @@ Once you add `throw`, the rules are more complicated
 - Unless we `throw`, jumping through a different dimension
 
 
-## Historic approaches to Error-handling
-If you are not interested in the discouraged ways to handle errors, and just want to see the ZIO approach, jump down to
-[ZIO Error Handling](#zio-error-handling)
-
-## Throwing Exceptions
-
-In the past, some programs have thrown exceptions to indicate failures.
-Imagine a program that displays the local temperature the user based on GPS position and a network call. There are distinct levels of problems in any given program. They require different types of handling by the programmer.
-
-```text
-Temperature: 30 degrees
-```
 
 
 ```scala
@@ -82,53 +93,6 @@ runScenario(
 )
 // Result: Defect: NetworkException
 ```
-
-## Returning `null` 
-
-We could take the bare-minimum approach of catching the `Exception` and returning `null`:
-
-```scala
-def currentTemperatureNull(): String =
-  render:
-    try
-      calculateTemp()
-    catch
-      case ex: Exception =>
-        null
-
-runScenario(
-  scenario =
-    Scenario.NetworkError,
-  ZIO.succeed:
-    currentTemperatureNull()
-)
-// Result: Temperature: null
-```
-
-This is *slightly* better, as the user can at least see the outer structure of our UI element, but it still leaks out code-specific details world.
-
-## Sentinel Values
-
-Maybe we could fallback to a `sentinel` value, such as `0` or `-1` to indicate a failure?
-
-```scala
-def currentTemperature(): String =
-  render:
-    try
-      calculateTemp()
-    catch
-      case ex: Exception =>
-        "-1 degrees"
-
-runScenario(
-  Scenario.NetworkError,
-  ZIO.succeed:
-    currentTemperature()
-)
-// Result: Temperature: -1 degrees
-```
-
-Clearly, this isn't acceptable, as both of these common sentinel values are valid temperatures.
 
 ## Diligent Catching, without any hints.
 We can take a more honest and accurate approach in this situation.
@@ -244,11 +208,11 @@ val getTemperatureZ =
       ZIO.succeed:
         "35 degrees"
 // getTemperatureZ: ZIO[Any, GpsException | NetworkException, String] = OnSuccess(
-//   trace = "repl.MdocSession.MdocApp.<local MdocApp>.getTemperatureZ(06_Errors.md:218)",
+//   trace = "repl.MdocSession.MdocApp.<local MdocApp>.getTemperatureZ(06_Errors.md:178)",
 //   first = GenerateStackTrace(
-//     trace = "repl.MdocSession.MdocApp.<local MdocApp>.getTemperatureZ(06_Errors.md:218)"
+//     trace = "repl.MdocSession.MdocApp.<local MdocApp>.getTemperatureZ(06_Errors.md:178)"
 //   ),
-//   successK = zio.ZIO$$$Lambda$15388/0x0000000803e5f040@3abfe53f
+//   successK = zio.ZIO$$$Lambda$15368/0x0000000803051840@30a65e6a
 // )
 
 runScenario(Scenario.HappyPath, getTemperatureZ)
@@ -258,25 +222,66 @@ runScenario(Scenario.HappyPath, getTemperatureZ)
 ```scala
 // TODO make MDoc:fail adhere to line limits?
 runScenario(
-  Scenario.HappyPath,
+  Scenario.GPSError,
   getTemperatureZ.catchAll:
     case ex: NetworkException =>
       ZIO.succeed:
         "Network Unavailable"
 )
-// error: 
+// error:
 // match may not be exhaustive.
 // 
 // It would fail on pattern case: _: GpsException
-//
+// 
+//     case ex: NetworkException =>
+//     ^
 ```
-
-TODO Demonstrate ZIO calculating the error types without an explicit annotation being provided
 
 ```scala
 runScenario(Scenario.GPSError, getTemperatureZ)
 // Result: repl.MdocSession$MdocApp$GpsException
 ```
+
+```scala
+val renderTempZTotal =
+  getTemperatureZ.catchAll:
+    case ex: NetworkException =>
+      ZIO.succeed:
+        "Network Unavailable"
+    case ex: GpsException =>
+      ZIO.succeed:
+        "New GPS Hardware needed"
+```
+
+```scala
+runScenario(
+  Scenario.GPSError,
+  renderTempZTotal
+)
+// Result: New GPS Hardware needed
+```
+
+Now that we have handled all of our errors, we know we are showing the user a sensible message.
+Therefore - it would not make sense to retry this rendering.
+Note - this is different from retrying the call to get the temperature itself.
+
+```scala
+runScenario(
+  Scenario.GPSError,
+  renderTempZTotal
+    .retryN(10)
+)
+// error: 
+// This error handling operation assumes your effect can fail. However, your effect has Nothing for the error type, which means it cannot fail, so there is no need to handle the failure. To find out which method you can use instead of this operation, please see the reference chart at: https://zio.dev/can_fail.
+// I found:
+// 
+//     CanFail.canFail[E](/* missing */summon[scala.util.NotGiven[E =:= Nothing]])
+// 
+// But no implicit values were found that match type scala.util.NotGiven[E =:= Nothing].
+```
+
+Thanks to the type management provided by our effect library
+, the compiler recognizes that this `retryN` can never be used and prevents us from adding it.
 
 {#wrapping-legacy-code}
 ### Wrapping Legacy Code
@@ -316,30 +321,29 @@ runScenario(
 // Result: Network Unavailable
 ```
 
-This is decent, but does not provide the maximum possible guarantees. Look at what happens if we forget to handle one of our errors.
+This is decent, but does not provide the maximum possible guarantees. 
+Look at what happens if we forget to handle one of our errors.
 
-```scala
-val getTemperatureZGpsGap =
-  calculateTempWrapped.catchAll:
-    case ex: NetworkException =>
-      ZIO.succeed:
-        "Network Unavailable"
-```
 
 ```scala
 runScenario(
   Scenario.GPSError,
-  getTemperatureZGpsGap
+  calculateTempWrapped.catchAll:
+    case ex: NetworkException =>
+      ZIO.succeed:
+        "Network Unavailable"
 )
 // Result: Defect: GpsException
 ```
 
 The compiler does not catch this bug, and instead fails at runtime.
-Take extra care when interacting with legacy code, since we cannot automatically recognize these situations at compile time.
+Take extra care when interacting with legacy code
+, since we cannot automatically recognize these situations at compile time.
 We can provide a fallback case that will report anything we missed:
 
 ```scala
-val getTemperatureZWithFallback =
+runScenario(
+  Scenario.GPSError,
   calculateTempWrapped.catchAll:
     case ex: NetworkException =>
       ZIO.succeed:
@@ -348,12 +352,6 @@ val getTemperatureZWithFallback =
       // TODO Decide if succeed is right
       ZIO.succeed:
         "Error: " + other
-```
-
-```scala
-runScenario(
-  Scenario.GPSError,
-  getTemperatureZWithFallback
 )
 // Result: Error: repl.MdocSession$MdocApp$GpsException
 ```
