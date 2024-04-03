@@ -472,16 +472,16 @@ val flipTen =
 ```scala
 runDemo:
   flipTen
-// Heads
-// Heads
-// Heads
 // Tails
+// Heads
 // Heads
 // Tails
 // Tails
+// Heads
 // Tails
 // Tails
 // Tails
+// Heads
 // Result: 4
 ```
 

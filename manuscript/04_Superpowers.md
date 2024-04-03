@@ -253,7 +253,7 @@ runScenario(
     effect6
 )
 // Log: Signup initiated for Morty
-// Result: (PT0.001275682S,User saved)
+// Result: (PT0.001157452S,User saved)
 ```
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.
 

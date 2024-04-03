@@ -41,25 +41,26 @@ Once you add `throw`, the world gets more complicated.
 
 - Unless we `throw`, jumping through a different dimension
 
+TODO Prose transition here
+
+
+We have an existing `getTemperature` function that can fail in unspecified ways.
 
 ```scala
-class GpsException()     extends Exception
-class NetworkException() extends Exception
-
 def render(value: String) =
   s"Temperature: $value"
 ```
 
 ```scala
-def currentTemperatureUnsafe(): String =
+def temperatureApp(): String =
   render:
-    calculateTemp()
+    getTemperature()
 
 runScenario(
   scenario =
     Scenario.HappyPath,
   ZIO.attempt:
-    currentTemperatureUnsafe()
+    temperatureApp()
 )
 // Temperature: 35 degrees
 ```
@@ -73,7 +74,7 @@ runScenario(
   scenario =
     Scenario.NetworkError,
   ZIO.succeed:
-    currentTemperatureUnsafe()
+    temperatureApp()
 )
 // Defect: NetworkException
 ```
@@ -85,10 +86,10 @@ If you have been burned in the past by functions that throw surprise exceptions
 For this program, it could look like:
 
 ```scala
-def currentTemperature(): String =
+def temperatureApp(): String =
     try
       render:
-        calculateTemp()
+        getTemperature()
     catch
       case ex: Exception =>
         "Failure"
@@ -96,7 +97,7 @@ def currentTemperature(): String =
 runScenario(
   Scenario.NetworkError,
   ZIO.succeed:
-    currentTemperature()
+    temperatureApp()
 )
 // Failure
 ```
@@ -107,27 +108,27 @@ In this situation, do we show the same message to the user? Ideally, we would sh
 The Network issue is transient, but the GPS problem is likely permanent.
 
 ```scala
-def currentTemperature(): String =
+def temperatureApp(): String =
   try
     render:
-      calculateTemp()
+      getTemperature()
   catch
     case ex: NetworkException =>
       "Network Unavailable"
-    case ex: GpsException =>
+    case ex: GpsFail =>
       "GPS Hardware Failure"
 
 runScenario(
   Scenario.NetworkError,
   ZIO.succeed:
-    currentTemperature()
+    temperatureApp()
 )
 // Network Unavailable
 
 runScenario(
   Scenario.GPSError,
   ZIO.succeed:
-    currentTemperature()
+    temperatureApp()
 )
 // GPS Hardware Failure
 ```
@@ -135,9 +136,9 @@ runScenario(
 Wonderful!
 We have specific messages for all relevant error cases. However, this still suffers from downsides that become more painful as the codebase grows.
 
-- We do not know if `currentTemperature` can fail
+- We do not know if `temperatureApp` can fail
 - Once we know it can fail, we must dig through the documentation or implementation to discover the different possibilities
-- Because every function that is called by `currentTemperature` can call other functions, which can call other functions, and so on,
+- Because every function that is called by `temperatureApp` can call other functions, which can call other functions, and so on,
    we are never sure that we have found all the failure paths in our application
 
 ## More Problems with Exceptions
@@ -151,95 +152,88 @@ Exceptions have other problems:
 Exceptions were a valiant attempt to produce a consistent error-reporting interface, and they are better than what came before.
 You just don't know what you're going to get when you use exceptions.
 
-## ZIO Error Handling
 
-Now we will explore how ZIO enables more powerful, uniform error-handling.
+## ZIO-First Error Handling
 
-TODO {{Update verbiage now that ZIO section is first}}
+ZIO enables more powerful, uniform error-handling.
 
-- [ZIO Error Handling](#zio-error-handling)
-- [Wrapping Legacy Code](#wrapping-legacy-code)
-
-{#zio-error-handling}
-### ZIO-First Error Handling
 
 ```scala
-// TODO We hide the original implementation of this function, but show this one.
-// Is that a problem? Seems unbalanced
-val getTemperatureZ =
-  getScenario() match
-    case Scenario.GPSError =>
-      ZIO.fail:
-        GpsException()
-    case Scenario.NetworkError =>
-      // TODO Use a non-exceptional error
-      ZIO.fail:
-        NetworkException()
-    case Scenario.HappyPath =>
-      ZIO.succeed:
-        "35 degrees"
-// getTemperatureZ: ZIO[Any, GpsException | NetworkException, String] = OnSuccess(
-//   trace = "repl.MdocSession.MdocApp.<local MdocApp>.getTemperatureZ(06_Errors.md:178)",
-//   first = GenerateStackTrace(
-//     trace = "repl.MdocSession.MdocApp.<local MdocApp>.getTemperatureZ(06_Errors.md:178)"
-//   ),
-//   successK = zio.ZIO$$$Lambda$15353/0x0000000803f04040@5d6ce76
-// )
-
 runScenario(Scenario.HappyPath, getTemperatureZ)
-// repl.MdocSession$MdocApp$GpsException
+// Temperature: 35 degrees
 ```
+
+Running the ZIO version without handling any errors
+```scala
+runScenario(
+  Scenario.NetworkError,
+  getTemperatureZ
+)
+// repl.MdocSession$MdocApp$NetworkException
+```
+
+This is not an error that we want to show the user.
+Instead, we want to handle all of our internal errors, and make sure that they result in a user-friendly error message.
 
 ```scala
 // TODO make MDoc:fail adhere to line limits?
 runScenario(
-  Scenario.GPSError,
+  Scenario.NetworkError,
   getTemperatureZ.catchAll:
     case ex: NetworkException =>
       ZIO.succeed:
         "Network Unavailable"
 )
-// error:
+// error: 
 // match may not be exhaustive.
 // 
-// It would fail on pattern case: _: GpsException
-// 
-//     case ex: NetworkException =>
-//     ^
+// It would fail on pattern case: _: GpsFail
+//
 ```
 
-```scala
-runScenario(Scenario.GPSError, getTemperatureZ)
-// repl.MdocSession$MdocApp$GpsException
-```
+ZIO distinguishes itself here by alerting us that we have not caught all possible errors.
+The compiler prevents us from executing non-exhaustive blocks inside of a `catchAll`.
 
 ```scala
-val renderTempZTotal =
+val temperatureAppZ =
   getTemperatureZ.catchAll:
     case ex: NetworkException =>
       ZIO.succeed:
         "Network Unavailable"
-    case ex: GpsException =>
+    case ex: GpsFail =>
       ZIO.succeed:
-        "New GPS Hardware needed"
+        "GPS Hardware Failure"
 ```
 
 ```scala
 runScenario(
   Scenario.GPSError,
-  renderTempZTotal
+  temperatureAppZ
 )
-// New GPS Hardware needed
+// GPS Hardware Failure
 ```
 
 Now that we have handled all of our errors, we know we are showing the user a sensible message.
-Therefore - it would not make sense to retry this rendering.
-Note - this is different from retrying the call to get the temperature itself.
+
+### Retrying
+
+If we call our original function without catching the errors, we can retry the operation:
+```scala
+runScenario(
+  Scenario.NetworkError,
+  getTemperatureZ.retryN(2)
+)
+// repl.MdocSession$MdocApp$NetworkException
+```
+In this situation, it did not resolve the problem.
+
+If you have caught all of your errors
+  , then there is no remaining error to retry
 
 ```scala
 runScenario(
   Scenario.GPSError,
-  renderTempZTotal
+  temperatureAppZ
     .retryN(10)
 )
 // error: 
@@ -251,18 +245,17 @@ runScenario(
 // But no implicit values were found that match type scala.util.NotGiven[E =:= Nothing].
 ```
 
-Thanks to the type management provided by our effect library
-, the compiler recognizes that this `retryN` can never be used and prevents us from adding it.
+Because of the type management provided by the effect library
+, the compiler recognizes that this `retryN` can never be used and prevents us from calling it.
 
-{#wrapping-legacy-code}
-### Wrapping Legacy Code
+## Wrapping Legacy Code
 
 If we are unable to re-write the fallible function, we can still wrap the call.
 
 ```scala
 val calculateTempWrapped =
   ZIO.attempt:
-    calculateTemp()
+    getTemperature()
 ```
 
 ```scala
@@ -271,7 +264,7 @@ val displayTemperatureZWrapped =
     case ex: NetworkException =>
       ZIO.succeed:
         "Network Unavailable"
-    case ex: GpsException =>
+    case ex: GpsFail =>
       ZIO.succeed:
         "GPS problem"
 ```
@@ -304,7 +297,7 @@ runScenario(
       ZIO.succeed:
         "Network Unavailable"
 )
-// Defect: GpsException
+// Defect: GpsFail
 ```
 
 The compiler does not catch this bug, and instead fails at runtime.
@@ -324,7 +317,7 @@ runScenario(
       ZIO.succeed:
         "Error: " + other
 )
-// Error: repl.MdocSession$MdocApp$GpsException
+// Error: repl.MdocSession$MdocApp$GpsFail
 ```
 
 This lets us avoid the most egregious gaps in functionality, but it does not take full advantage of ZIO's type-safety.
