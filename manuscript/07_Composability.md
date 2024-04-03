@@ -43,9 +43,9 @@ ZIO
 //   trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:16)",
 //   first = Sync(
 //     trace = "repl.MdocSession.MdocApp.res1(07_Composability.md:16)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$15323/0x0000000803e9c040@4589f252
+//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$15328/0x0000000803e08440@59082b17
 //   ),
-//   successK = zio.ZIO$$$Lambda$15325/0x0000000803e9a840@5d416e59
+//   successK = zio.ZIO$$$Lambda$15330/0x0000000803e0a040@75abd3a7
 // )
 ```
 
@@ -323,7 +323,7 @@ runDemo:
   closeableFileZ
 // Opening file!
 // Closing file!
-// Result: repl.MdocSession$MdocApp$$anon$27@70da4d7f
+// Result: repl.MdocSession$MdocApp$$anon$27@432b222c
 ```
 
 Since that is not terribly useful, let's start calling some methods on our managed file.

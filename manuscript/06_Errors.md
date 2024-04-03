@@ -215,26 +215,15 @@ runScenario(
 
 Now that we have handled all of our errors, we know we are showing the user a sensible message.
 
-### Retrying
-
-If we call our original function without catching the errors, we can retry the operation:
-```scala
-runScenario(
-  Scenario.NetworkError,
-  getTemperatureZ.retryN(2)
-)
-// repl.MdocSession$MdocApp$NetworkException
-```
-In this situation, it did not resolve the problem.
-
-If you have caught all of your errors
-  , then there is no remaining error to retry
+Further, this is tracked by the compiler, which will prevent us from invoking `.catchAll` again.
 
 ```scala
 runScenario(
   Scenario.GPSError,
-  temperatureAppZ
-    .retryN(10)
+  temperatureAppZ.catchAll:
+    case ex: Exception => 
+      ZIO.succeed:
+        "This cannot happen"
 )
 // error: 
 // This error handling operation assumes your effect can fail. However, your effect has Nothing for the error type, which means it cannot fail, so there is no need to handle the failure. To find out which method you can use instead of this operation, please see the reference chart at: https://zio.dev/can_fail.
@@ -244,6 +233,17 @@ runScenario(
 // 
 // But no implicit values were found that match type scala.util.NotGiven[E =:= Nothing].
 ```
+
+This will also prevent calls to other methods that depend on a non-`Nothing` error type.
+
+- retry*
+- orElse*
+- mapError
+- fold*
+- merge
+- refine*
+- tapError*
+
 
 Because of the type management provided by the effect library
 , the compiler recognizes that this `retryN` can never be used and prevents us from calling it.
