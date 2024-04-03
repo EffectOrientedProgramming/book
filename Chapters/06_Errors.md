@@ -292,27 +292,28 @@ runScenario(
 
 Now that we have handled all of our errors, we know we are showing the user a sensible message.
 
-### Retrying
-
-If we call our original function without catching the errors, we can retry the operation:
-```scala mdoc
-runScenario(
-  Scenario.NetworkError,
-  getTemperatureZ.retryN(2)
-)
-```
-In this situation, it did not resolve the problem.
-
-If you have caught all of your errors
-  , then there is no remaining error to retry
+Further, this is tracked by the compiler, which will prevent us from invoking `.catchAll` again.
 
 ```scala mdoc:fail
 runScenario(
   Scenario.GPSError,
-  temperatureAppZ
-    .retryN(10)
+  temperatureAppZ.catchAll:
+    case ex: Exception => 
+      ZIO.succeed:
+        "This cannot happen"
 )
 ```
+
+This will also prevent calls to other methods that depend on a non-`Nothing` error type.
+
+- retry*
+- orElse*
+- mapError
+- fold*
+- merge
+- refine*
+- tapError*
+
 
 Because of the type management provided by the effect library
 , the compiler recognizes that this `retryN` can never be used and prevents us from calling it.
