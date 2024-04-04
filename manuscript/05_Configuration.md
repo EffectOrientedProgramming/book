@@ -473,14 +473,14 @@ val flipTen =
 runDemo:
   flipTen
 // Heads
+// Heads
+// Tails
+// Heads
 // Tails
 // Heads
 // Tails
 // Tails
-// Heads
 // Tails
-// Tails
-// Heads
 // Heads
 // Result: 5
 ```
