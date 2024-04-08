@@ -1,9 +1,25 @@
 # Reliability
 
-Reliability is the ability of a system to perform and maintain its functions in routine circumstances, as well as hostile or unexpected circumstances. 
-It is a measure of the quality of a system and is a key factor in the success of any system.
-It can cover a wide range of topics, from the ability to handle errors, to the ability to handle high loads, to the ability to handle malicious attacks.
-We will not cover all of these topics, but will highlight some important ones that ZIO handles nicely.
+[[Attempt by Bruce to create a chapter introduction]]
+
+Reliability is a broad term with multiple meanings.
+It is the ability of a system to perform and maintain routine functionality, in normal circumstances as well as high loads or hostile situations.
+
+A basic meaning of reliability could be that your system builds and runs without any failures for all of its specified use cases.
+If failures do occur, the system either recovers or shuts down in a well-defined manner.
+
+Effects are the parts of your system that are unpredictable.
+When we talk about reliability in terms of effects, the goal is to mitigate these unpredictabilities.
+For example, if you make a request of a remote service, you don't know if the network is working or if that service is online.
+Also, the service might be under a heavy load and will take a while to respond.
+What we want is to be able to make a request and get a result in a reasonable amount of time.
+If this is a problem, there are reliability strategies that generally involve inserting an intermediary that compensates for those issues.
+For example, it might try one service, and if it doesn't get a response soon enough it makes other requests to other services.
+
+In traditional coding, inserting these intermediaries can be a difficult and time-consuming process, often involving re-architecting to adapt to the new strategy.
+If that strategy doesn't work, further rewriting may be required to try different strategies.
+In a functional effect-based system, the goal is to be able to easily incorporate reliability strategies, and to easily change them if an approach doesn't work.
+In this chapter we show ZIO components that can be attached to effects in order to improve their reliability.
 
 ## Caching
 Putting a cache in front of a service can resolve many issues.
