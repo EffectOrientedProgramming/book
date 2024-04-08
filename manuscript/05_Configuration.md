@@ -474,14 +474,14 @@ runDemo:
   flipTen
 // Heads
 // Heads
-// Tails
-// Heads
-// Tails
 // Heads
 // Tails
 // Tails
 // Tails
+// Tails
 // Heads
+// Heads
+// Tails
 // Result: 5
 ```
 
