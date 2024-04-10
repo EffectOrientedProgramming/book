@@ -83,7 +83,7 @@ As an example in real-life, just saying the words "You are getting a raise" crea
 Effects that only read data from external systems are also unpredictable.
 For example, getting a random number from the system is usually unpredictable.
 
-In systems there are many types of Effects, like:
+In systems there are many types of Effects, like:  
 - Accepting user input
 - Reading from a file
 - Getting the current time from the system clock
@@ -93,7 +93,7 @@ In systems there are many types of Effects, like:
 - Mutating a variable
 - Saving to a database
 
-These can also have domain specific forms, like:
+These can also have domain specific forms, like:  
 - Sensing slippage in an anti-lock braking system
 - Getting the current price of a stock
 - Detecting the current from a pacemaker
