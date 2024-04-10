@@ -473,16 +473,16 @@ val flipTen =
 runDemo:
   flipTen
 // Tails
-// Tails
 // Heads
-// Heads
-// Tails
 // Tails
 // Heads
 // Tails
-// Tails
 // Heads
-// Result: 4
+// Tails
+// Tails
+// Tails
+// Tails
+// Result: 3
 ```
 
 ```scala
