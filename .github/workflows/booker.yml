@@ -49,12 +49,12 @@ jobs:
         shell: cmd
         run: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-          ./bin/sbt.bat booker/graalvm-native-image:packageBin
+          ./sbt.bat booker/graalvm-native-image:packageBin
 
       - name: build for linux or mac
         if: matrix.os != 'windows'
         run: |
-          ./bin/sbt booker/graalvm-native-image:packageBin
+          ./sbt booker/graalvm-native-image:packageBin
 
       - name: run upx on ${{ matrix.os }}
         uses: svenstaro/upx-action@v2

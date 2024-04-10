@@ -1,6 +1,7 @@
-amends "package://pkg.pkl-lang.org/github.com/jamesward/pklgha/pklgha@0.0.7#/GitHubAction.pkl"
+// pkl eval --format yaml -o test.yml test.pkl
 
-import "package://pkg.pkl-lang.org/github.com/jamesward/pklgha/pklgha@0.0.7#/GitHubActionScala.pkl"
+amends "package://pkg.pkl-lang.org/github.com/jamesward/pklgha/pklgha@0.0.13#/GitHubAction.pkl"
+import "package://pkg.pkl-lang.org/github.com/jamesward/pklgha/pklgha@0.0.13#/GitHubAction.pkl"
 
 on {
   push {
@@ -12,5 +13,5 @@ on {
 }
 
 jobs {
-  ["test"] = GitHubActionScala.sbtTest("test genManuscript")
+  ["test"] = GitHubAction.Scala.sbtTestJob("test genManuscript", null, null)
 }

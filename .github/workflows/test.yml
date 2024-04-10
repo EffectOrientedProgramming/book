@@ -1,7 +1,7 @@
 # Generated file. DO NOT EDIT.
 'on':
   push: {}
-  pull_request: []
+  pull_request: {}
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -10,6 +10,6 @@ jobs:
     - uses: actions/setup-java@v4
       with:
         distribution: temurin
-        java-version: '11'
+        java-version: '20'
         cache: sbt
-    - run: ./bin/sbt test genManuscript
+    - run: sbt test genManuscript

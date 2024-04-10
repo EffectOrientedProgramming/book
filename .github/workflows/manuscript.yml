@@ -16,13 +16,13 @@ jobs:
         cache: 'sbt'
 
     - run: |
-        ./bin/sbt genManuscript
+        ./sbt genManuscript
         mkdir manuscript/resources
         mv manuscript/images manuscript/resources/ 2>/dev/null
 
     - name: generate and test examples
       run: |
-        bin/sbt generateExamples
+        ./sbt generateExamples
         cd Examples
       # ../bin/sbt test # Disabled, because we can't run examples with compilation errors
 
