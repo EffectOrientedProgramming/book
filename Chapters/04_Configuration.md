@@ -579,6 +579,9 @@ runSpec:
     assertCompletes
 ```
 
+The `race` is between `nightlyBatch` and `timeTravel`.
+It completes when the first Effect succeeds and cancels the losing Effect, using the Effect System's cancellation mechanism.
+
 By default in ZIO Test, the clock does not change unless instructed to.
 Calling a time based effect like `timeout` would hang indefinitely with a warning like:
 ```

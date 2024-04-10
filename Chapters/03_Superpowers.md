@@ -297,7 +297,9 @@ val effect3 =
     5.seconds
 ```
 
-If the effect does not complete within 5 seconds, it fails.
+If the effect does not complete within 5 seconds, it is canceled.
+Cancellation will shut down the effect in a predictable way.
+The Effect System supports predictable cancellation of Effects.
 Like the other capabilities for error handling, timeouts can be added to any Effect.
 
 ```scala mdoc
