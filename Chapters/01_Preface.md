@@ -23,7 +23,8 @@ If you use Scala, you can use an Effect System, of which there are a number of o
 If you are not using Scala, the concepts of Effect Systems may only be useful when your language or a library supports them.
 However, learning the concepts now will help you prepare for that eventuality.
 
-While Scala knowledge is not required to learn the concepts, this book assumes you are familiar with:  
+While Scala knowledge is not required to learn the concepts, this book assumes you are familiar with:
+
 - Functions
 - Strong static typing
 - Chaining operations on objects (`"asdf ".trim.length`)
