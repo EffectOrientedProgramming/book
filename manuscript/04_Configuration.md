@@ -475,14 +475,14 @@ runDemo:
 // Tails
 // Tails
 // Heads
+// Heads
+// Tails
 // Tails
 // Heads
 // Tails
 // Tails
-// Tails
 // Heads
-// Tails
-// Result: 3
+// Result: 4
 ```
 
 ```scala
@@ -626,6 +626,9 @@ runSpec:
 // Parsing CSV: ()
 // Result: Test PASSED
 ```
+
+The `race` is between `nightlyBatch` and `timeTravel`.
+It completes when the first Effect succeeds and cancels the losing Effect, using the Effect System's cancellation mechanism.
 
 By default in ZIO Test, the clock does not change unless instructed to.
 Calling a time based effect like `timeout` would hang indefinitely with a warning like:

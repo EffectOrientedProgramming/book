@@ -5,8 +5,7 @@
 04_Configuration.md
 05_Errors.md
 06_Composability.md
-07_Interruption.md
-08_State.md
-09_Reliability.md
-10_ZIO_and_ZLayer.md
-11_Appendix_RunningEffects.md
+07_State.md
+08_Reliability.md
+09_ZIO_and_ZLayer.md
+10_Appendix_RunningEffects.md
