@@ -4,10 +4,6 @@
 
 By Bill Frasure, Bruce Eckel and James Ward
 
-{{ These are the new ISBNs }}
-
-> **Copyright ©2021, MindView LLC.**
->
 > **eBook ISBN 978-0-9818725-6-8**
 >
 > **Print Book ISBN 978-0-9818725-7-5**
@@ -57,6 +53,8 @@ Visit us at www.EffectOrientedProgramming.com.
 
 ## Source Code
 
+{{ todo: link to code example repo }}
+
 All the source code for this book is available as copyrighted freeware,
 distributed via [Github](https://github.com/EffectOrientedProgramming/EOPCode).
 To ensure you have the most current version, this is the official code
@@ -69,6 +67,8 @@ permission. (As long as this book is cited, using examples from the book in
 most media is generally not a problem.)
 
 In each source-code file you find a reference to the following copyright notice:
+
+{{ todo: update example repo urls }}
 
 ```text
 // Copyright.txt
@@ -146,7 +146,3 @@ If you think you've found an error in the Source Code,
 please submit a correction at:
 https://github.com/EffectOrientedProgramming/EOPCode/issues
 ```
-
-You may use the code in your projects and in the classroom (including your
-presentation materials) as long as the copyright notice that appears in each
-source file is retained.

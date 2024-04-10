@@ -326,7 +326,7 @@ C> The employee was prompted to choose between the options "test missile alert" 
 
 Here is the system's control screen:
 
-![](images/HawaiiAlertSystem.jpg)
+![](../Chapters/images/HawaiiAlertSystem.jpg)
 
 This cluster of inconsistently named links increased the likelihood of mistakes.
 Basic changes would drastically simplify proper use of the alerts.

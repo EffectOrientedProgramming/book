@@ -470,14 +470,11 @@ import zio.test.assertTrue
 runSpec:
   defer:
     TestRandom
-      .feedBooleans:
-        true
-      .repeatN:
-        9
+      .feedBooleans(true)
+      .repeatN(9)
       .run
-    val heads =
-      flipTen.run
-    assertTrue(heads == 10)
+    assertTrue:
+      flipTen.run == 10
 ```
 
 ```scala mdoc:silent

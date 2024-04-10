@@ -1,44 +1,52 @@
 # Preface
 
-## Goals
-Emphasize composability as a prime value for building reliable systems
-Demonstrate that Effects let us reach new levels of composability.
-Accomplish these goals without using fundamental/infamous concepts
+Effects are the unpredictable parts of systems.
+Traditional programs do not isolate these unpredictable parts, making it hard to manage them.
+Effect Systems partition the unpredictable parts and manage them separately from the predictable ones.
 
-  - `flatmap`
-  - `monads`
-  - `map`
-  - `for` comprehensions
+With Effect Systems, developers can more easily build systems that are reliable, resilient, and testable.
+
+Effect Oriented Programming is a new paradigm for programming with Effect Systems.
+
+Many bleeding-edge languages now have ways to manage Effects (e.g. OCaml, Unison, and Roc).
+But not every programming language has an Effect System.
+Some languages have built-in support for managing Effects while others have support through libraries.
 
 ## Who is the book is for
 
-This book uses Scala 3 but the focus is not on the language.
-The code examples should be relatable to programmers who are familiar with:
-  - Chaining operations on objects (`"asdf ".trim.length`)
-  - Strong static typing
-  - Functions that take parameters, can be named, and referenced
-  - TODO
+This book focuses on the concepts of Effect Systems, rather than language and library specifics.
+Since Effect Systems are a new and emerging paradigm, we have limited choices.
+We use Scala 3 and an Effect System library called ZIO to convey the concepts of Effect Oriented Programming.
 
-This book also uses Scala ZIO, an effect-oriented library for Scala, but it does not go into depth on ZIO.  
-To learn ZIO, visit zio.dev 
+If you use Scala, you can use an Effect System, of which there are a number of options (ZIO, Cats Effects, and Kyo).
+
+If you are not using Scala, the concepts of Effect Systems may only be useful when your language or a library supports them.
+However, learning the concepts now will help you prepare for that eventuality.
+
+While Scala knowledge is not required to learn the concepts, this book assumes you are familiar with:
+  - Functions
+  - Strong static typing
+  - Chaining operations on objects (`"asdf ".trim.length`)
 
 
 ## Code examples
 
 The code examples are available at: TODO
 
-The code in this book uses language syntax that might be unfamiliar.
-
-* significant indentation
-* colon syntax
-
-### Teaching With This Book
-
-You may use the examples, exercises and solutions in classroom and other educational situations as long as you cite this book as the source.
-See the [Copyright]({{???}}) page for further details.
-
-The primary goal of the copyright is to ensure that the source of the code is properly cited, and to prevent you from republishing the code without permission.
-As long as this book is cited, using examples from the book in most media is generally not a problem.
+The code in this book uses a Scala 3 language syntax that might be unfamiliar, even to Scala developers.
+Since our focus is on the concepts of Effect Oriented Programming we've tried to make the code examples very readable, even on mobile devices.
+To accomplish this, when functions have single parameters we generally use Scala 3's Significant Indentation style.
+For example:
+```scala mdoc:silent
+ZIO.debug:
+  "hello, world"
+```
+The parameter to the `ZIO.debug` function is specified on a new line instead of the usual parens (`ZIO.debug("hello, world")`)
+The colon (`:`) indicates that the function parameter will use the significant indentation syntax.
+For multi-parameter functions and in cases where the single parameter is very short and does not contain nested function calls, we use the traditional syntax:
+```scala mdoc:silent
+ZIO.debug(1)
+```
 
 ## Acknowledgements
 
