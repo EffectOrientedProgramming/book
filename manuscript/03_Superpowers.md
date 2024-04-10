@@ -4,231 +4,282 @@
 [Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/03_Superpowers.md)
 
 
-TODO: A couple sentences about the superpowers
+Effects enable us to progressively add capabilities to increase reliability and control the unpredictable aspects.
+In this chapter you will see that once we've defined parts of a program in terms of Effects, we gain some superpowers.
+The reason we call it "superpowers" is that the capabilities you will see can be attached to **any** Effect.
+For recurring concerns in our program, we do not want to create a bespoke solution for each context.
+To illustrate this we will show a few examples of common capabilities applied to Effects.
+Let's start with the "happy path" where we save a user to a database
+(an Effect)
+and then gradually add superpowers.
 
-
-## Building a Resilient Process in stages
-We want to evolve our process from a simple happy path to a more resilient process.
-Progressive enhancement through adding capabilities
-
-TODO: Is "Step" necessary? Some other word?
-
-## Step 1: Happy Path
+To start with we save a user to a database:
 
 ```scala
-runDemo:
-  saveUser:
-    "mrsdavis"
-// User saved
+val userName =
+  "Morty"
 ```
 
 
-## Step 2: Provide Error Fallback Value
-
 ```scala
-object DatabaseError
-object TimeoutError
+val effect0 =
+  saveUser:
+    userName
 ```
 
+
+This `val` contains the logic of the Effect.
+The Effect does not execute until we explicitly run it.
+
 ```scala
-runDemo:
-  saveUser:
-    "Robert'); DROP TABLE USERS"
-  .orElseFail:
+runScenario(
+  scenario =
+    HappyPath,
+  logic =
+    effect0
+)
+// Result: User saved
+```
+
+`runScenario(scenario = HappyPath)` runs our Effect in the "happy path" so that it will not fail.
+This allows us to simulate failure scenarios in the next examples.
+
+In real systems, assuming the "happy path" causes strange errors for users because the errors are unhandled.
+
+We can also run `effect` in a scenario that will cause it to fail.
+
+```scala
+runScenario(
+  scenario =
+    DoesNotWorkInitially,
+  logic =
+    effect0
+)
+// Log: **Database crashed!!**
+// Result: **Database crashed!!**
+```
+
+`runScenario(scenario = DoesNotWorkInitially)` runs our Effect but it fails.
+The output logs the failure and the program produces the failure as the result of execution.
+
+## Superpower: What if Failure is Temporary?
+
+Sometimes things work when you keep trying.  
+We can attach a `retry` to our first Effect.
+`retry` accepts a `Schedule` that determines when to retry.
+
+```scala
+import Schedule.{recurs, spaced}
+val effect1 =
+  effect0.retry:
+    recurs(3) && spaced(1.second)
+```
+
+The Effect with the retry behavior becomes a new Effect and can optionally be assigned to a `val` (as is done here).
+`recurs(3)` builds a `Schedule` that happens 3 times.
+`spaced(1.second)` is a `Schedule` that happens once per second, forever.
+By combining them, we get a `Schedule` that does something only 3 times and once per second.
+Schedules can be applied to many different capabilities.
+We do this because we assume the failure will likely be resolved within 3 seconds.
+
+```scala
+runScenario(
+  scenario =
+    DoesNotWorkInitially,
+  logic =
+    effect1
+)
+// Log: **Database crashed!!**
+// Log: **Database crashed!!**
+// Result: User saved
+```
+
+The output shows that running the Effect failed twice trying to save the user, then it succeeded.
+
+### What If It Never Succeeds?
+
+```scala
+runScenario(
+  scenario =
+    NeverWorks,
+  logic =
+    effect1
+)
+// Log: **Database crashed!!**
+// Log: **Database crashed!!**
+// Log: **Database crashed!!**
+// Log: **Database crashed!!**
+// Result: **Database crashed!!**
+```
+
+In the `NeverWorks` scenarios, the Effect failed its initial attempt, and failed the subsequent three retries.
+It eventually returns the DB error to the user.
+
+## Superpower: Users Like Nice Error Messages
+
+Let's handle the error and return something nicer:
+
+```scala
+val effect2 =
+  effect1.orElseFail:
     "ERROR: User could not be saved"
-// DatabaseError
-// ERROR: User could not be saved
-```
-
-## Step 3: Retry Upon Failure
-
-
-```scala
-import zio.Schedule.{recurs, spaced}
-val aFewTimes =
-  // TODO Restore original spacing when done
-  // editing
-  // recurs(3) && spaced(1.second)
-  recurs(3) && spaced(1.millis)
 ```
 
 ```scala
-runDemo:
-  saveUser:
-    "morty"
-  .retry:
-    aFewTimes
-  .orElseSucceed:
-    "ERROR: User could not be saved"
-// DatabaseError
-// DatabaseError
-// User saved
+runScenario(
+  scenario =
+    NeverWorks,
+  logic =
+    effect2
+)
+// Log: **Database crashed!!**
+// Log: **Database crashed!!**
+// Log: **Database crashed!!**
+// Log: **Database crashed!!**
+// Result: ERROR: User could not be saved
 ```
 
-## Step 4: Fallback after multiple failures
+**Any** fallible Effect can attach a variety of error handling capabilities.
+`orElseFail` transforms any failure into a user-friendly form.
+We added the capability without restructuring the original Effect.
+This is just one way to handle errors.
+ZIO provides many variations, which we will not cover exhaustively.
 
+The `orElseFail` is combined with the prior Effect that has the retry,
+  creating another new Effect that has both error handling capabilities.
+Like `retry`, the `orElseFail` can be added to any fallible Effect.
+
+Not only can capabilities be added to any Effect, Effects can be combined and modified, producing new Effects.
+
+## Superpower: Things Can Take a Long Time
 
 ```scala
-runDemo:
-  saveUser:
-    "morty"
-  .retry:
-    aFewTimes
-  .orElseSucceed:
-    "ERROR: User could not be saved"
-// DatabaseError
-// DatabaseError
-// DatabaseError
-// DatabaseError
-// ERROR: User could not be saved
+val effect3 =
+  effect2.timeoutFail("Save timed out"):
+    5.seconds
 ```
 
-## Step 5: Timeouts
-
-
+If the effect does not complete within 5 seconds, it fails.
+Like the other capabilities for error handling, timeouts can be added to any Effect.
 
 ```scala
-// TODO Restore real value when done editing
-val timeLimit = 5.millis
-// timeLimit: Duration = PT0.005S
-//  5.seconds
-
-// first is slow - with timeout and retry
-runDemo:
-  saveUser:
-    "morty"
-  .timeoutFail(TimeoutError)(timeLimit)
-    .retry:
-      aFewTimes
-    .orElseSucceed:
-      "ERROR: User could not be saved"
-// Interrupting slow request
-// Database Timeout
-// User saved
+runScenario(
+  scenario =
+    FirstIsSlow,
+  logic =
+    effect3
+)
+// Log: Interrupting slow request
+// Result: Save timed out
 ```
 
-## Step 6: Fallback Effect
+Running the new Effect in the `FirstIsSlow` scenario causes it to take longer than the 5 second timeout.
 
+## Superpower: Fallback From Failure
+
+In some cases there may be a fallback for a failed Effect.
 
 ```scala
-// fails - with retry and fallback
-runDemo:
-  saveUser:
-    "morty"
-  .timeoutFail(TimeoutError)(timeLimit)
-    .retry:
-      aFewTimes
-    .orElse:
-      sendToManualQueue:
-        "morty"
-    .orElseSucceed: // TODO Delete?
-      "ERROR: User could not be saved, even to the fallback system"
-// DatabaseError
-// DatabaseError
-// DatabaseError
-// DatabaseError
-// User sent to manual setup queue
+val effect4 =
+  effect3.orElse:
+    sendToManualQueue:
+      userName
 ```
 
-## Step 7: Concurrently Execute Effect 
-TODO Consider deleting. Uses an extension
-
+The `orElse` creates a new Effect with a fallback.
+The `sendToManualQueue` simulates alternative fallback logic.
 
 ```scala
-// concurrently save & send analytics
-runDemo:
-  saveUser:
-    "morty"
-    // todo: maybe this hidden extension method
-    // goes too far with functionality that
-    // doesn't really exist
-    // TODO Should we fireAndForget before the
-    // retries/fallbacks?
-  .fireAndForget:
-    userSignupInitiated:
-      "morty"
-  .timeoutFail(TimeoutError)(timeLimit)
-    .retry:
-      aFewTimes
-    .orElse:
-      sendToManualQueue:
-        "morty"
-    .orElseSucceed:
-      "ERROR: User could not be saved"
-// User saved
+runScenario(
+  scenario =
+    NeverWorks,
+  logic =
+    effect4
+)
+// Log: **Database crashed!!**
+// Log: **Database crashed!!**
+// Log: **Database crashed!!**
+// Log: **Database crashed!!**
+// Result: User sent to manual setup queue
 ```
 
+We run the effect again in the `NeverWorks` scenario,
+  causing it to execute the fallback Effect.
 
-## Step 8: Ignore failures in Concurrent Effect 
+## Superpower: Add Some Logging
 
-Feeling a bit "meh" about this step.
+Effects can be run concurrently and as an example,
+  we can at the same time as the user is being saved,
+  send an event to another system.
 
 ```scala
-// concurrently save & send analytics, ignoring analytics failures
-runDemo:
-  // TODO Consider how to dedup strings
-  saveUser:
-    "mrsdavis"
-  .timeoutFail(TimeoutError)(timeLimit)
-    .retry:
-      aFewTimes
-    .orElse:
-      sendToManualQueue:
-        "mrsdavis"
-    .tapBoth(
-      error =>
-        userSignUpFailed("mrsdavis", error),
-      success =>
-        userSignupSucceeded("mrsdavis", success)
-    )
-    .orElseSucceed:
-      "ERROR: User could not be saved"
-// Analytics sent for signup completion
-// User saved
+val effect5 =
+  effect4.fireAndForget:
+    logUserSignup
 ```
 
-## Step 9: Rate Limit TODO 
+`fireAndForget` is a convenience method we defined (in hidden code) that makes it easy to run two effects in parallel and ignore any failures on the `logUserSignup` Effect.
 
+```scala
+runScenario(
+  scenario =
+    HappyPath,
+  logic =
+    effect5
+)
+// Log: Signup initiated for Morty
+// Result: User saved
+```
 
-TODO Slot these in:
+We run the effect again in the `HappyPath` scenario to demonstrate running the Effects in parallel.
 
-### Time
-#### Measuring Time
-Since there is already a `.timed` method available directly on `ZIO` instances, it might seem redundant to have a `timed` `TestAspect`.
-However, they are distinct enough to justify their existence.
-`ZIO`s `.timed` methods changes the result type of your code by adding the duration to a tuple in the result.
-This is useful, but requires the calling code to handle this new result type.
-`TestAspect.timed` is a non-invasive way to measure the duration of a test.
-The timing information will be managed behind the scenes, and printed in the test output, without changing any other behavior.
+We can add all sorts of custom behavior to our Effect type,
+  and then invoke them regardless of error and result types.
 
-#### Restricting Time
-Sometimes, it's not enough to simply track the time that a test takes.
-If you have specific Service Level Agreements (SLAs) that you need to meet, you want your tests to help ensure that you are meeting them.
-However, even if you don't have contracts bearing down on you, there are still good reasons to ensure that your tests complete in a timely manner.
-Services like GitHub Actions will automatically cancel your build if it takes too long, but this only happens at a very coarse level.
-It simply kills the job and won't actually help you find the specific test responsible.
+## Superpower: How Long Do Things Take?
 
-A common technique is to define a base test class for your project that all of your tests extend.
-In this class, you can set a default upper limit on test duration.
-When a test violates this limit, it will fail with a helpful error message.
+For diagnostic information you can track timing:
 
-This helps you to identify tests that have completely locked up, or are taking an unreasonable amount of time to complete.
+```scala
+val effect6 =
+  effect5.timed
+```
 
-For example, if you are running your tests in a CI/CD pipeline, you want to ensure that your tests complete quickly, so that you can get feedback as soon as possible.
-you can use `TestAspect.timeout` to ensure that your tests complete within a certain time frame.
+```scala
+runScenario(
+  scenario =
+    HappyPath,
+  logic =
+    effect6
+)
+// Log: Signup initiated for Morty
+// Result: (PT0.001145003S,User saved)
+```
+We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.
 
-### Flakiness
-Commonly, as a project grows, the supporting tests become more and more flaky.
-This can be caused by a number of factors:
+## Superpower: Maybe We Don't Want To Run Anything
 
-- The code is using shared, live services
-  Shared resources, such as a database or a file system, might be altered by other processes.
-  These could be other tests in the project, or even unrelated processes running on the same machine.
+Now that we have added all of these superpowers to our process,
+  our lead engineer lets us known that a certain user should be prevented from using our system.
 
-- The code is not thread safe
-  Other processes running simultaneously might alter the expected state of the system.
+```scala
+val effect7 =
+  effect6.when(userName != "Morty")
+```
 
-- Resource limitations
-  A team of engineers might be able to successfully run the entire test suite on their personal machines.
-  However, the CI/CD system might not have enough resources to run the tests triggered by everyone pushing to the repository.
-  Your tests might be occasionally failing due to timeouts or lack of memory.
+```scala
+runScenario(
+  scenario =
+    HappyPath,
+  logic =
+    effect7
+)
+// Result: None
+```
+We can add behavior to the end of our complex Effect,
+  that prevents it from ever executing in the first place.
+
+## Many More Superpowers
+
+These examples have shown only a glimpse into the superpowers we can add to **any** Effect.
+There are even more we will explore in the following chapters.
