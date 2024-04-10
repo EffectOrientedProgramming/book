@@ -474,15 +474,15 @@ runDemo:
   flipTen
 // Tails
 // Heads
+// Tails
 // Heads
-// Heads
-// Tails
-// Tails
-// Tails
 // Heads
 // Tails
 // Heads
-// Result: 5
+// Tails
+// Heads
+// Heads
+// Result: 6
 ```
 
 ```scala
