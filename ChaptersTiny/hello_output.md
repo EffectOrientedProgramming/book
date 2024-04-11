@@ -1,48 +1,22 @@
-
 ```scala mdoc
-runDemo(Console.printLine("hi!!!"))
+println("hello, world")
+```
+
+```scala mdoc:runzio
+Console.printLine("hi!!!")
 ```
 
 ```scala mdoc
-runDemo(Console.printLine("hello!"))
+runDemo:
+  Console.printLine("asdf")
 ```
 
-
-```scala mdoc
-runDemo(
-  ZIO
-    .succeed(scala.Console.println("Failure!!!"))
-)
-```
-          
-
-```scala mdoc
-runDemo(ZIO.succeed(println("hi")))
+```scala mdoc:testzio
+assertTrue:
+  "asdf" == "zxcv"
 ```
 
-Passing test
-```scala mdoc
-import zio.test.assertTrue
-runSpec(
-  defer:
-    Console.printLine("Spec stuff!").orDie.run
-    assertTrue(1 == 1)
-)
-```
-Failing test
-```scala mdoc
-runSpec(
-  defer:
-    Console.printLine("Spec stuff!").orDie.run
-    assertTrue(1 == 2)
-)
-```
-
-Failing test as plain demo
-```scala mdoc
-runDemo(
-  defer:
-    Console.printLine("Spec stuff!").orDie.run
-    assertTrue(1 == 2)
-)
+```scala mdoc:testzio
+assertTrue:
+  "asdf" == "asdf"
 ```
