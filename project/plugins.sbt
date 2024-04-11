@@ -1,5 +1,5 @@
 addSbtPlugin(
-  "org.typelevel" % "sbt-tpolecat" % "0.5.0"
+  "org.typelevel" % "sbt-tpolecat" % "0.5.1"
 )
 
 addSbtPlugin(
