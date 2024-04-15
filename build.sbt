@@ -167,12 +167,26 @@ genManuscript := {
   //produceLeanpubManuscript(mdocOut.value)
 }
 
-lazy val mdocRun = taskKey[Unit]("mdoc")
-mdocRun := Def.taskDyn {
-  val examplesDir = "Examples"
+val examplesDir = "Examples"
 
+lazy val mdocRun = taskKey[Unit]("mdoc run")
+mdocRun := Def.taskDyn {
   Def.task {
     (Compile / runMain).toTask(s" mdoc.mdocRun $examplesDir").value
+  }
+}.value
+
+lazy val mdocRunForce = taskKey[Unit]("mdoc run with force")
+mdocRunForce := Def.taskDyn {
+  Def.task {
+    (Compile / runMain).toTask(s" mdoc.mdocRunForce $examplesDir").value
+  }
+}.value
+
+lazy val mdocWatch = taskKey[Unit]("mdoc watch")
+mdocWatch := Def.taskDyn {
+  Def.task {
+    (Compile / runMain).toTask(s" mdoc.mdocWatch $examplesDir").value
   }
 }.value
 
