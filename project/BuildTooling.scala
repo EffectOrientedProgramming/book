@@ -277,7 +277,7 @@ object BuildTooling {
 
   // TODO Make a Versions object?
   val zioVersion =
-    "2.0.21"
+    "2.0.22"
 
   lazy val commonSettings =
     Seq(
