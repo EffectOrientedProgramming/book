@@ -27,6 +27,13 @@ The `ZIOAppDefault` trait sets up the ZIO runtime which interprets ZIOs and prov
 If you are learning ZIO, you should start your exploration with `ZIOAppDefault`.
 It is the standard, simplest way to start executing your recipes.
 
+For this book we shorten the definition for running ZIO Effects to:
+```scala mdoc:runzio
+def run =
+  ZIO.debug:
+    "hello, world"
+```
+
 ```scala mdoc
 // NOTE We cannot execute invoke main on this
 // because it crashes mdoc in the CI process
@@ -44,17 +51,6 @@ In other words, it can accept `ZIO[Any, _, _]`.
 
 There is a more flexible `ZIOApp` that facilitates sharing layers between applications, but this is advanced and not necessary for most applications.
 
-### runDemo
-While the `ZIOApp*` types are great for building real applications, they are not ideal for demonstrating code for a book.
-We created the `runDemo` function to streamline this use-case.
-It is a function that takes a ZIO and executes it in a runtime, returning the result.
-It uses most of the same techniques that are used in `ZIOAppDefault`, but is more single purpose, always immediately executing the ZIO provided to it.
-
-```scala mdoc
-runDemo:
-  ZIO.debug:
-    "hello, world"
-```
 
 ## Testing code
 
@@ -67,8 +63,7 @@ When you run the same `ZIO` in these 2 contexts, the only thing that changes are
 > TODO - Decide which scenario to test
 
 
-```scala mdoc
-import zio.test._
+```scala mdoc:compile-only
 object TestingZIOs extends ZIOSpecDefault:
   def spec =
     test("Hello Tests"):
@@ -78,10 +73,9 @@ object TestingZIOs extends ZIOSpecDefault:
           Random.nextIntBounded(10).run > 10
 ```
 
-### runSpec
-
-```scala mdoc
-runSpec:
+For this book we can shorten the test definition to:
+```scala mdoc:testzio
+test("random is random"):
   defer:
     assertTrue:
       Random.nextIntBounded(10).run < 10
@@ -91,8 +85,8 @@ TODO Justify defer syntax over for-comp for multi-statement assertions
 I think this example completes the objective
 TODO Change this to a Console app, where the logic & testing is more visceral
 
-```scala mdoc
-runSpec:
+```scala mdoc:testzio
+test("random is still random"):
   defer:
     assertTrue:
       Random.nextIntBetween(0, 10).run <= 10 &&
@@ -116,17 +110,21 @@ val logic =
       .run
   .orDie
 ```
+
 If we try to run this code in the same way as most of the examples in this book, we encounter a problem.
-```scala mdoc
-runDemo:
-  logic.timeout(1.second)
+
+```scala mdoc:compile-only
+object HelloWorldWithTimeout extends zio.ZIOAppDefault:
+  def run =
+    logic.timeout(1.second)
 ```
+
 We cannot execute this code and render the results for the book because it requires interaction with a user.
 However, even if you are not trying to write demo code for a book, it is very limiting to need a user at the keyboard for your program to execute.
 Even for the smallest programs, it is slow, error-prone, and boring.
 
-```scala mdoc
-runSpec:
+```scala mdoc:testzio
+test("console works"):
   defer:
     TestConsole
       .feedLines:
@@ -152,16 +150,16 @@ In this case you can use ZIO's `Unsafe` utility which is called `Unsafe` to indi
 To do the same `ZIO.debug` with `Unsafe` do:
 
 ```scala mdoc
-Unsafe.unsafe {
-  implicit u: Unsafe =>
-    Runtime
-      .default
-      .unsafe
-      .run:
-        ZIO.debug:
-          "hello, world"
-      .getOrThrowFiberFailure()
-}
+val out =
+  Unsafe.unsafe:
+    implicit u: Unsafe =>
+      Runtime
+        .default
+        .unsafe
+        .run:
+          ZIO.debug:
+            "hello, world"
+        .getOrThrowFiberFailure()
 ```
 
 If needed you can even interop to Scala Futures through `Unsafe`, transforming the output of a ZIO into a Future.

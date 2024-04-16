@@ -126,8 +126,8 @@ val popularService =
 In this world, each request to our `CloudStorage` provider will cost us one dollar.
 Egregious, but it will help us demonstrate the problem with small, round numbers.
 
-```scala mdoc
-runDemo:
+```scala mdoc:runzio
+def run =
   thunderingHerdsScenario
     .provide(CloudStorage.live, popularService)
 ```
@@ -163,8 +163,8 @@ The only changes required are:
 
 Now when we run the same scenario, with our cache in place:
 
-```scala mdoc
-runDemo:
+```scala mdoc:runzio
+def run =
   thunderingHerdsScenario.provide(
     CloudStorage.live,
     ZLayer.fromZIO(makeCachedPopularService)
@@ -220,8 +220,8 @@ extension (rateLimiter: RateLimiter)
     .repeatN(2) // Repeats as fast as allowed
 ```
 
-```scala mdoc
-runDemo:
+```scala mdoc:runzio
+def run =
   defer:
     val rateLimiter =
       makeRateLimiter.run
@@ -232,8 +232,8 @@ runDemo:
       .run
 ```
 
-```scala mdoc
-runDemo:
+```scala mdoc:runzio
+def run =
   defer:
     val rateLimiter =
       makeRateLimiter.run
@@ -255,6 +255,8 @@ If we want to ensure we don't accidentally DDOS a service, we can restrict the n
 ```scala mdoc:invisible
 trait DelicateResource:
   val request: ZIO[Any, String, Int]
+end DelicateResource
+
 // It can represent any service outside of our control
 // that has usage constraints
 case class Live(
@@ -292,8 +294,6 @@ case class Live(
   private def removeRequest(i: Int) =
     currentRequests.update(_ diff List(i))
 
-end DelicateResource
-
 object DelicateResource:
   val live =
     ZLayer.fromZIO:
@@ -314,8 +314,8 @@ object DelicateResource:
         )
 ```
 
-```scala mdoc
-runDemo:
+```scala mdoc:runzio
+def run =
   defer:
     val delicateResource =
       ZIO.service[DelicateResource].run
@@ -330,10 +330,10 @@ runDemo:
     DelicateResource.live
 ```
 
-```scala mdoc
+```scala mdoc:runzio
 import nl.vroste.rezilience.Bulkhead
 
-runDemo:
+def run =
   defer:
     val bulkhead: Bulkhead =
       Bulkhead
@@ -493,8 +493,8 @@ val repeatSchedule =
     Schedule.spaced(50.millis)
 ```
 
-```scala mdoc
-runDemo:
+```scala mdoc:runzio
+def run =
   defer:
     val numCalls =
       Ref.make[Int](0).run
@@ -529,8 +529,8 @@ val makeCircuitBreaker =
   )
 ```
 
-```scala mdoc
-runDemo:
+```scala mdoc:runzio
+def run =
   defer:
     val cb =
       makeCircuitBreaker.run
@@ -578,8 +578,8 @@ val logicThatSporadicallyLocksUp =
         10.millis
 ```
 
-```scala mdoc
-runDemo:
+```scala mdoc:runzio
+def run =
   defer:
     val contractBreaches =
       Ref.make(0).run

@@ -22,7 +22,7 @@ ZIO
   .retryN(100)
 ```
 
-```scala mdoc
+```scala mdoc:compile-only
 ZIO
   .attempt(println("This might work"))
   .retryN(100)
@@ -136,8 +136,8 @@ def textAlert(message: String) =
     s"Texting story: $message"
 ```
 
-```scala mdoc
-runDemo:
+```scala mdoc:runzio
+def run =
   defer:
     val topStory =
       findTopNewsStory.run
@@ -151,7 +151,7 @@ The methods for composability depend on the desired behavior.
 For example, to compose a ZIO that can produce an error with a ZIO that logs the error and then produces a default value, you can use the `catchAll` like:
 
 
-```scala mdoc
+```scala mdoc:runzio
 // TODO Consider deleting .as
 //   The problem is we can't return literals in zio-direct.
 def logAndProvideDefault(e: Throwable) =
@@ -161,7 +161,7 @@ def logAndProvideDefault(e: Throwable) =
     .as:
       "default value"
 
-runDemo:
+def run =
   ZIO
     .attempt:
       ???
@@ -207,7 +207,7 @@ def getHeadLine(): Future[String] =
     )
 ```
 
-```scala mdoc:silent
+```scala mdoc:compile-only
 getHeadLine(): Future[String]
 ```
 
@@ -230,25 +230,19 @@ val getHeadlineZ =
         HeadlineNotAvailable()
 ```
 
-```scala mdoc
-runDemo:
+```scala mdoc:runzio
+def run =
   getHeadlineZ
 ```
 Now let's confirm the behavior when the headline is not available.
 
-```scala mdoc
+```scala mdoc:runzio
 // This controls some invisible machinery
 headLineAvailable =
   false
 
-runDemo:
+def run =
   getHeadlineZ
-```
-
-```scala mdoc:invisible
-// TODO We showed this being toggled off - would it be appropriate to show it turning back on?
-headLineAvailable =
-  true
 ```
 
 ### Option Interop
@@ -285,14 +279,18 @@ def topicOfInterestZ(headline: String) =
       NoInterestingTopic()
 ```
 
-```scala mdoc
-runDemo:
+```scala mdoc:runzio
+// This controls some invisible machinery
+headLineAvailable =
+  true
+
+def run =
   topicOfInterestZ:
     "stock market crash!"
 ```
 
-```scala mdoc
-runDemo:
+```scala mdoc:runzio
+def run =
   topicOfInterestZ:
     "boring and inane content"
 ```
@@ -345,7 +343,7 @@ def closeableFile() =
 
 We have an existing function that produces an `AutoCloseable`.
 
-```scala mdoc:silent
+```scala mdoc:compile-only
 closeableFile(): AutoCloseable
 ```
 
@@ -363,20 +361,20 @@ Once we do this, the `ZIO` runtime will manage the lifecycle of this object via 
 TODO Link to docs for this?
 In the simplest case, we open and close the file, with no logic while it is iopen.
 
-```scala mdoc
-runDemo:
+```scala mdoc:runzio
+def run =
   closeableFileZ
 ```
 
 Since that is not terribly useful, let's start calling some methods on our managed file.
 
 
-```scala mdoc:silent
+```scala mdoc:compile-only
 closeableFile().contains("something"): Boolean
 ```
 
-```scala mdoc
-runDemo:
+```scala mdoc:runzio
+def run =
   defer:
     val file =
       closeableFileZ.run
@@ -384,7 +382,7 @@ runDemo:
       "topicOfInterest"
 ```
 
-```scala mdoc:silent
+```scala mdoc:compile-only
 closeableFile().write("asdf"): Try[String]
 ```
 
@@ -400,8 +398,8 @@ def writeToFileZ(
     .orDie
 ```
 
-```scala mdoc
-runDemo:
+```scala mdoc:runzio
+def run =
   defer:
     val file =
       closeableFileZ.run
@@ -427,7 +425,7 @@ def summaryFor(
           "obscureTopic"
 ```
 
-```scala mdoc:silent
+```scala mdoc:compile-only
 summaryFor("stock market"): Either[
   NoRecordsAvailable,
   String
@@ -441,14 +439,14 @@ def summaryForZ(topic: String) =
       topic
 ```
 
-```scala mdoc
-runDemo:
+```scala mdoc:runzio
+def run =
   summaryForZ:
     "stock market"
 ```
 
-```scala mdoc
-runDemo:
+```scala mdoc:runzio
+def run =
   summaryForZ:
     "obscureTopic"
 ```
@@ -486,8 +484,8 @@ val researchWorkflow =
 ```
 
 
-```scala mdoc
-runDemo:
+```scala mdoc:runzio
+def run =
   researchWorkflow
     // todo: some error handling to show that
     // the errors weren't lost along the way

@@ -14,9 +14,9 @@ object LineLength:
     columnWidth - defectPrefix.length
 
 object Rendering:
-  def renderEveryPossibleOutcomeZio[E, A](
-      z: => ZIO[Any, E, A]
-  ): ZIO[Any, java.io.IOException, String] =
+  def renderEveryPossibleOutcomeZio[R, E, A](
+      z: => ZIO[R, E, A]
+  ): ZIO[R, E, String] =
     z.map(
         result => result.toString
       )

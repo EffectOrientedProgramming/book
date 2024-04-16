@@ -47,8 +47,8 @@ val unreliableCounting =
     "Final count: " + ZIO.succeed(counter).run
 ```
 
-```scala mdoc
-runDemo:
+```scala mdoc:runzio
+def run =
   unreliableCounting
 ```
 
@@ -65,7 +65,7 @@ We need to fully embrace the ZIO components, utilizing `Ref` for correct mutatio
 
 ## Reliable State
 
-```scala mdoc
+```scala mdoc:runzio
 lazy val reliableCounting =
   def incrementCounter(counter: Ref[Int]) =
     counter.update:
@@ -82,7 +82,7 @@ lazy val reliableCounting =
       .run
     "Final count: " + counter.get.run
 
-runDemo:
+def run =
   reliableCounting
 ```
 Now we can say with full confidence that our final count is 100000.
@@ -118,8 +118,10 @@ def update(counter: Ref[Int]) =
       expensiveCalculation()
       sendNotification()
       previousValue + 1
+```
 
-runDemo:
+```scala mdoc:runzio
+def run =
   defer:
     val counter =
       Ref.make(0).run
@@ -168,8 +170,8 @@ val sideEffectingUpdatesSync =
     s"Final count: $finalCount"
 ```
 
-```scala mdoc
-runDemo:
+```scala mdoc:runzio
+def run =
   sideEffectingUpdatesSync
 ```
 

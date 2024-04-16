@@ -40,13 +40,13 @@ class ErrorsStaticConfigProvider(scenario: ErrorsScenario) extends ConfigProvide
   override def load[A](config: Config[A])(implicit trace: Trace): IO[Config.Error, A] =
     ZIO.succeed(Some(scenario).asInstanceOf[A])
 
-val happyPath =
+val errorsHappyPath =
   Runtime.setConfigProvider(ErrorsStaticConfigProvider(ErrorsScenario.HappyPath))
 
-val networkError =
+val errorsNetworkError =
   Runtime.setConfigProvider(ErrorsStaticConfigProvider(ErrorsScenario.NetworkError))
   
-val gpsError =
+val errorsGpsError =
   Runtime.setConfigProvider(ErrorsStaticConfigProvider(ErrorsScenario.GPSError))
 
 // TODO Hide definition? Then we won't see the internals of the scenario stuff.
@@ -215,7 +215,7 @@ val getTemperature: ZIO[Any, GpsFail | NetworkException, String] =
 
 ```scala mdoc:runzio
 override val bootstrap =
-  happyPath
+  errorsHappyPath
 
 def run =
   getTemperature
@@ -224,7 +224,7 @@ def run =
 Running the ZIO version without handling any errors
 ```scala mdoc:runzio
 override val bootstrap =
-  networkError
+  errorsNetworkError
 
 def run =
   getTemperature
@@ -233,10 +233,9 @@ def run =
 This is not an error that we want to show the user.
 Instead, we want to handle all of our internal errors, and make sure that they result in a user-friendly error message.
 
-{ TODO: fail failure }
-```todo
-// TODO make MDoc:fail adhere to line limits?
-val temperatureAppIncomplete =
+{{ TODO: mdoc seems to have a bug and is not outputting the compiler warning }}
+```scala mdoc:warn
+val bad =
   getTemperature.catchAll:
     case ex: NetworkException =>
       ZIO.succeed:
@@ -259,7 +258,7 @@ val temperatureAppComplete =
 
 ```scala mdoc:runzio
 override val bootstrap =
-  gpsError
+  errorsGpsError
 
 def run =
   temperatureAppComplete
@@ -269,16 +268,11 @@ Now that we have handled all of our errors, we know we are showing the user a se
 
 Further, this is tracked by the compiler, which will prevent us from invoking `.catchAll` again.
 
-{ TODO: fail failure }
-```todo
-override val bootstrap =
-  gpsError
-
-def run =
-  temperatureAppZ.catchAll:
-    case ex: Exception => 
-      ZIO.succeed:
-        "This cannot happen"
+```scala mdoc:fail
+temperatureAppComplete.catchAll:
+  case ex: Exception => 
+    ZIO.succeed:
+      "This cannot happen"
 ```
 
 The compiler also ensures that we only call the following methods on effects that can fail:
