@@ -2,12 +2,11 @@ package mdoc
 
 import io.methvin.watcher.DirectoryChangeEvent
 import io.methvin.watcher.DirectoryChangeEvent.EventType
-import mdoc.internal.cli.{Context, InputFile}
+import mdoc.internal.cli.{Context, InputFile, Settings}
 import mdoc.internal.io.MdocFileListener
 import mdoc.internal.livereload.UndertowLiveReload
 import mdoc.internal.markdown.{MarkdownFile, Processor}
-import mdoc.parser.MarkdownPart
-import mdoc.parser.{CodeFence, Text}
+import mdoc.parser.{CodeFence, MarkdownPart, Text}
 
 import java.nio.file.{Files, Path}
 import java.util.concurrent.Executors
@@ -15,267 +14,207 @@ import scala.meta.Input
 import scala.meta.internal.io.FileIO
 import scala.meta.io.AbsolutePath
 import scala.jdk.StreamConverters.*
-//import scala.jdk.CollectionConverters.*
 
-def processFile(inputFile: InputFile, examplesDir: AbsolutePath, mainSettings: MainSettings): Unit =
+// todo: get rid of mutables
+def embed(codeFence: CodeFence, num: Int): CodeFence =
+  val sb = StringBuilder()
+  codeFence.renderToString(sb)
 
-//  println(inputFile)
-//  println(examplesDir)
+  if codeFence.getMdocMode.contains("runzio") then
+    val pre = s"class Example$num extends ToRun:"
+    val post = s"Example$num().getOrThrowFiberFailure()"
+    val newBody = pre +: codeFence.body.value.linesIterator.toSeq.map("  " + _) :+ post
+//    codeFence.newInfo = Some("scala mdoc:runzio")
+//    codeFence.newBody = Some(newBody.mkString("\n"))
+    codeFence.copy(info = Text("scala mdoc:runzio\n"), body = Text(newBody.mkString("\n")))
+  else if codeFence.getMdocMode.contains("testzio") then
+    val pre =
+      s"""class Spec$num extends ToRun:
+         |  def run =
+         |    mdoctools.ZioTestExecution
+         |      .runSpecAsApp(t)
+         |      .provide(
+         |        ZLayer.succeed(Clock.ClockLive),
+         |        ZLayer.succeed(System.SystemLive),
+         |        ZLayer.succeed(Random.RandomLive),
+         |        ZLayer.succeed(Console.ConsoleLive),
+         |        TestEnvironment.live,
+         |        Scope.default
+         |      ).unit
+         |  val t =""".stripMargin
+
+    val post = s"Spec$num().getOrThrowFiberFailure()"
+    val newBody = pre +: codeFence.body.value.linesIterator.toSeq.map("    " + _) :+ post
+    codeFence.newInfo = Some("scala mdoc:testzio")
+    codeFence.newBody = Some(newBody.mkString("\n"))
+    codeFence
+  else
+    codeFence
+
+// todo: get rid of mutables
+def unembed(codeFence: CodeFence): CodeFence =
+  if codeFence.getMdocMode.contains("runzio") then
+    val newBody = codeFence.newPart.getOrElse(codeFence.body.value).linesIterator.filterNot { line =>
+      line.contains("ToRun:") || line.contains("getOrThrowFiberFailure()")
+    }.map(_.stripPrefix("  ")).mkString("\n")
+
+    codeFence.newBody = Some(newBody)
+    codeFence.newPart = None
+    codeFence.newInfo = Some("scala mdoc:runzio")
+    codeFence
+  else if codeFence.getMdocMode.contains("testzio") then
+    val newBody = codeFence.body.value.linesIterator.drop(13).filterNot { line =>
+      line.contains("getOrThrowFiberFailure()")
+    }.map(_.stripPrefix("    ")).mkString("\n").replaceAll("(\\u001B\\[\\d+m)", "") // remove the escape coloring
+    codeFence.newBody = Some(newBody)
+    codeFence.newPart = None
+    codeFence.newInfo = Some("scala mdoc:testzio")
+    codeFence
+  else
+    codeFence
+
+def parsedToRunnable(markdownFile: MarkdownFile, settings: Settings): MarkdownFile =
+  val runnableParts = markdownFile.parts.zipWithIndex.map {
+    case (codeFence: CodeFence, num) =>
+      embed(
+        codeFence,
+        num
+      )
+    case (m: MarkdownPart, _) =>
+      m
+  }
+
+  val runnableMarkdownFile = markdownFile.copy(parts = runnableParts)
+
+  val newInputString = runnableMarkdownFile.renderToString
+  val newInput = Input.String(newInputString)
+
+  // todo: reparsing loses the original code but maybe we can avoid the reparse
+  MarkdownFile
+    .parse(newInput, markdownFile.file, settings)
+
+def partsToExamples(markdownFile: MarkdownFile, baseName: String): (String, String) =
+  val (runParts, testParts, otherParts) = markdownFile.parts.foldLeft((Seq.empty[CodeFence], Seq.empty[CodeFence], Seq.empty[CodeFence])) { (acc, part) =>
+    part match
+      case codeFence: CodeFence if codeFence.getMdocMode.contains("runzio") =>
+        (acc._1 :+ codeFence, acc._2, acc._3)
+      case codeFence: CodeFence if codeFence.getMdocMode.contains("testzio") =>
+        (acc._1, acc._2 :+ codeFence, acc._3)
+      case codeFence: CodeFence if codeFence.info.value.contains("scala") =>
+        (acc._1, acc._2, acc._3 :+ codeFence)
+      case _ =>
+        (acc._1, acc._2, acc._3)
+  }
+
+  // todo: this approach loses the ordering of the original
+  val runCode = if runParts.isEmpty then
+    ""
+  else
+    // todo: sandbox so otherParts across chapters do not conflict
+    val otherPartsCode = otherParts.map(_.body.value).mkString("\n\n")
+
+    runParts.zipWithIndex.map { (part, num) =>
+      val body = part.newBody.getOrElse(part.body.value)
+      val indented = body.linesIterator.map("  " + _).mkString("\n")
+        s"""object Example${baseName}_$num extends ZIOAppDefault:
+           |$indented
+           |""".stripMargin
+    }.mkString(
+      s"""import zio.*
+         |import zio.direct.*
+         |
+         |$otherPartsCode
+         |
+         |""".stripMargin,
+      "\n\n",
+      ""
+    )
+
+  val testCode = if testParts.isEmpty then
+    ""
+  else
+    testParts.map { part =>
+      part.newBody.getOrElse(part.body.value).linesIterator.map("    " + _).mkString("\n")
+    }.mkString(
+      s"""import zio.*
+         |import zio.direct.*
+         |import zio.test.*
+         |
+         |object Example${baseName}Spec extends ZIOSpecDefault:
+         |  def spec = suite(\"suite\"):
+         |""".stripMargin,
+      "\n    +\n",
+      "\n"
+    )
+
+  (runCode, testCode)
+
+
+def processFile(inputFile: InputFile, examplesDir: AbsolutePath, mainSettings: MainSettings): Unit | (AbsolutePath, Option[AbsolutePath], Option[AbsolutePath]) =
+  mainSettings.reporter.reset()
+
+  val newSettings = mainSettings.settings.copy(
+    scalacOptions = mainSettings.settings.scalacOptions.replace("-unchecked", "").replace("-deprecation", ""),
+    postModifiers = List(RunZIOPostModifier(), TestZIOPostModifier()) // we use the PostModifiers so we can keep passing the "scala mdoc:runzio" and "scala mdoc:testzio" through
+  )
 
   val source =
     FileIO.slurp(
       inputFile.inputFile,
-      mainSettings.settings.charset
+      newSettings.charset
     )
-
-  //  println(source)
 
   val input =
     Input.VirtualFile(
       inputFile.inputFile.toString(),
       source
     )
-  //  println(input)
 
   val parsed =
     MarkdownFile
-      .parse(input, inputFile, mainSettings.settings)
+      .parse(input, inputFile, newSettings)
 
-  // todo: there doesn't seem to be a way to maintain the origin info (ie "scala mdoc:runzio")
-  //   so later in rendering we have to look in the body for runDemo, runSpec
-  def embed(codeFence: CodeFence, pre: String, post: String): CodeFence =
-    val newBody = pre +: codeFence.body.value.linesIterator.toSeq.map("  " + _) :+ post
-    codeFence.newInfo = Some("scala mdoc")
-    codeFence.newBody = Some(newBody.mkString("\n"))
-    codeFence
+  val runnableMarkdown = parsedToRunnable(parsed, newSettings)
+  //println(runnableMarkdown.renderToString)
 
-  val newParts = parsed.parts.zipWithIndex.map {
-    case (codeFence: CodeFence, i: Int) if codeFence.getMdocMode.contains("runzio") =>
-      embed(
-        codeFence,
-        s"class Example$i extends ToRun:",
-        s"Example$i().getOrThrowFiberFailure()"
-      )
-
-    case (m: MarkdownPart, _) =>
-      m
-    /*
-    case codeFence: CodeFence if codeFence.getMdocMode.contains("testzio") =>
-      embed(codeFence, "runSpec:")
-    case codeFence: CodeFence =>
-      codeFence
-    case text: Text =>
-      text
-
-     */
-  }
-
-  val newInputString: StringBuilder = StringBuilder()
-  newInputString.append(
-    """```scala mdoc:invisible
-      |trait ToRun:
-      |  val bootstrap: ZLayer[Any, Nothing, Any] = ZLayer.empty
-      |  def run: ZIO[Any, Exception, Unit]
-      |
-      |  def getOrThrowFiberFailure(): Unit =
-      |    Unsafe.unsafe { implicit unsafe =>
-      |      Runtime.unsafe.fromLayer(bootstrap).unsafe.run(run).getOrThrowFiberFailure()
-      |    }
-      |```
-      |""".stripMargin
-  )
-  newParts.foreach { part =>
-    part.renderToString(newInputString)
-  }
-
-  val newInput = input.copy(value = newInputString.toString)
-  //println(s"newInput = $newInput")
-
-  val newParsed = MarkdownFile.parse(newInput, inputFile, mainSettings.settings)
-  //val parsedPre = parsed.copy(parts = newParts)//, input = newInput)
-  //parsedPre.appendText("asdfzxcv")
-  //println(parsedPre)
-
-//  val newParsedParts = newParsed.parts.map {
-//    case codeFence: CodeFence if codeFence.getMdocMode.contains("runzio") || codeFence.getMdocMode.contains("testzio") =>
-//      val newCodeFence = codeFence.copy(info = Text("scala mdoc"))
-//      newCodeFence.newInfo = Some(codeFence.info.value)
-//      newCodeFence
-//    case other =>
-//      other
-//  }
-//  val newParsedWithUpdatedInfo = newParsed.copy(parts = newParsedParts)
-//
-//  newParsedWithUpdatedInfo.parts.foreach {
-//    case part: CodeFence =>
-//      println(part.newInfo)
-//    case _ =>
-//      ()
-//  }
-
-  val context = Context.fromSettings(mainSettings.settings, mainSettings.reporter)
+  val context = Context.fromSettings(newSettings, mainSettings.reporter)
 
   val processor = new Processor()(context.get)
-  val processed = processor.processDocument(newParsed)
+  val processed = processor.processDocument(runnableMarkdown)
 
-//  processed.parts.foreach {
-//    case part: CodeFence =>
-//      println(part.newInfo)
-//    case _ =>
-//      ()
-//  }
-
-//  def unembed(codeFence: CodeFence): CodeFence =
-//    codeFence.copy(
-//      body = codeFence.newBody.fold(Text("")) { body =>
-//        Text(body.linesIterator.drop(1).map(_.stripPrefix("  ")).mkString("\n"))
-//      }
-//    )
-
-  val forManuscript = processed.parts.map {
-    //case codeFence: CodeFence if codeFence.newInfo.contains("scala mdoc:runDemo") || codeFence.body.value.startsWith("runSpec:") =>
-    case codeFence: CodeFence if codeFence.newBody.exists(_.contains("ToRun:")) =>
-      codeFence.copy(
-        body = codeFence.newBody.fold(Text("")) { body =>
-          val lines = body.linesIterator.filterNot { line =>
-            line.contains("ToRun:") || line.contains("getOrThrowFiberFailure()")
-          }.map(_.stripPrefix("  ")).mkString("\n")
-          Text(lines)
-        }
-      )
-    case codeFence: CodeFence =>
-      codeFence
-    case text: Text =>
-      text
+  val withoutRunnableParts = processed.parts.map {
+    case codeFence: CodeFence => unembed(codeFence)
+    case m: MarkdownPart => m
   }
 
-  val manuscript = StringBuilder()
-  forManuscript.foreach { part =>
-    part.renderToString(manuscript)
-  }
+  val withoutRunnable = runnableMarkdown.copy(parts = withoutRunnableParts)
 
-  // todo: we could maybe turn the escape coloring into spans
-  val asciiManuscript = manuscript.toString.replaceAll("(\\u001B\\[\\d+m)", "") // remove the escape coloring
+  if mainSettings.reporter.hasErrors then
+    println("Not writing outputs due to errors")
+    // todo: show just the error block?
+    //println(runnableMarkdown.renderToString)
+  else
+    // write manuscript
+    Files.createDirectories(inputFile.outputFile.toNIO.getParent)
+    Files.write(inputFile.outputFile.toNIO, withoutRunnable.renderToString.getBytes(mainSettings.settings.charset))
 
-  Files.createDirectories(inputFile.outputFile.toNIO.getParent)
-  Files.write(inputFile.outputFile.toNIO, asciiManuscript.getBytes(mainSettings.settings.charset))
-//
-//  type RunDemo = CodeFence
-//  type RunSpec = CodeFence
-//
+    val baseName = withoutRunnable.file.inputFile.toFile.getName.replace(".md", "")
+    val (runParts, testParts) = partsToExamples(withoutRunnable, baseName)
 
+    // todo: the code fences remain scala mdoc:runzio and not sure if that is a problem for leanpub
+    val runOut = Option.when(runParts.nonEmpty):
+      val mainFile = examplesDir.resolve(s"src/main/scala/Example$baseName.scala")
+      Files.createDirectories(mainFile.toNIO.getParent)
+      Files.write(mainFile.toNIO, runParts.getBytes(mainSettings.settings.charset))
+      mainFile
 
-  /*
-  val (runDemoParts, runSpecParts, otherParts) = processed.parts.foldLeft((Seq.empty[RunDemo], Seq.empty[RunSpec], Seq.empty[MarkdownPart])) { (acc, part) =>
-    part match
-      case codeFence: CodeFence if codeFence.body.value.startsWith("runDemo:") =>
-        (acc._1 :+ codeFence, acc._2, acc._3)
-      case codeFence: CodeFence if codeFence.body.value.startsWith("runSpec:") =>
-        (acc._1, acc._2 :+ codeFence, acc._3)
-      case codeFence: CodeFence =>
-        (acc._1, acc._2, acc._3 :+ part)
-      case _ =>
-        (acc._1, acc._2, acc._3)
-  }
+    val testOut = Option.when(testParts.nonEmpty):
+      val testFile = examplesDir.resolve(s"src/test/scala/Example${baseName}Spec.scala")
+      Files.createDirectories(testFile.toNIO.getParent)
+      Files.write(testFile.toNIO, testParts.getBytes(mainSettings.settings.charset))
+      testFile
 
-   */
-
-
-  // drop the ToRun
-  val forExamples = processed.parts.drop(1).map {
-    case codeFence: CodeFence if codeFence.newBody.exists(_.contains("ToRun:")) =>
-      codeFence.newBody.fold("") { body =>
-        body.replace("class Example", "object Example").replace("ToRun", "ZIOAppDefault").linesIterator.filterNot { line =>
-          line.contains("getOrThrowFiberFailure")
-        }.mkString("\n")
-      }
-    case codeFence: CodeFence =>
-      codeFence.newBody.getOrElse(codeFence.body.value)
-    case text: Text =>
-      ""
-  }.filterNot(_.isEmpty).mkString(
-    """import zio.*
-      |import zio.direct.*
-      |
-      |""".stripMargin,
-    "\n\n",
-    ""
-  )
-
-  val baseName = inputFile.inputFile.toFile.getName.replace(".md", "")
-
-  /*
-  val runDemosSeq: Seq[String] = runDemoParts.zipWithIndex.map { (codeFence, i) =>
-    val lines = Seq(
-      s"object Example${baseName}_$i extends ZIOAppDefault:",
-      //s"  def run ="
-    )
-    val newBody = lines ++: unembed(codeFence).body.value.linesIterator.toSeq.map { line =>
-      if !line.startsWith("//") then
-        "    " + line
-      else
-        line
-    }
-    newBody.mkString("\n")
-  }
-
-  val runDemos = runDemosSeq.mkString(
-    """
-      |import zio.*
-      |import zio.direct.*
-      |
-      |""".stripMargin,
-    "\n\n",
-    ""
-  )
-
-   */
-  //println(forExamples)
-
-  val mainFile = examplesDir.resolve(s"src/main/scala/Example$baseName.scala")
-  Files.createDirectories(mainFile.toNIO.getParent)
-  Files.write(mainFile.toNIO, forExamples.getBytes(mainSettings.settings.charset))
-
-//
-//  val other = StringBuilder()
-//  otherParts.foreach { part =>
-//    part.renderToString(other)
-//  }
-//
-//  // todo: what to do with these?
-//  //println(other)
-//
-//  val runSpecs: String = runSpecParts.zipWithIndex.map { (codeFence, i) =>
-//    val lines = Seq(
-//      s"    test(\"test$i\"):"
-//    )
-//    val newBody = lines ++: unembed(codeFence).body.value.linesIterator.toSeq.map { line =>
-//      "      " + line
-//    }
-//    newBody.mkString("\n")
-//  }.mkString(
-//    s"""
-//      |import zio.test.*
-//      |
-//      |object Example${baseName}Spec extends ZIOSpecDefault:
-//      |  def spec = suite(\"suite\")(
-//      |""".stripMargin,
-//    """
-//      |    ,
-//      |""".stripMargin,
-//    """
-//      |  )
-//      |""".stripMargin
-//  ).replaceAll("(\\u001B\\[\\d+m)", "") // remove the escape coloring
-//
-//  if runSpecParts.nonEmpty then {
-//    val testFile = examplesDir.resolve(s"src/test/scala/Example${baseName}Spec.scala")
-//    Files.createDirectories(testFile.toNIO.getParent)
-//    Files.write(testFile.toNIO, runSpecs.getBytes(mainSettings.settings.charset))
-//    ()
-//  }
-
-  ()
+    (inputFile.outputFile, runOut, testOut)
 
 def fileChange(event: DirectoryChangeEvent, mainSettings: MainSettings, examplesDir: String, force: Boolean): Option[AbsolutePath] = {
   val inputFile =
@@ -284,11 +223,24 @@ def fileChange(event: DirectoryChangeEvent, mainSettings: MainSettings, examples
       mainSettings.settings
     )
 
-  val needsUpdate = force || inputFile.inputFile.toFile.lastModified() > inputFile.outputFile.toFile.lastModified()
+  val needsUpdate = force || !inputFile.outputFile.toFile.exists() || inputFile.inputFile.toFile.lastModified() > inputFile.outputFile.toFile.lastModified()
   if event.path().toString.endsWith(".md") && needsUpdate then {
-    println(s"Processing ${event.path()}")
+    println("Processing:")
+    println("  " + inputFile.inputFile.toRelative)
 
-    processFile(inputFile, AbsolutePath(examplesDir), mainSettings)
+    processFile(inputFile, AbsolutePath(examplesDir), mainSettings) match
+      case (manuscriptFile, maybeMainFile, maybeTestFile) =>
+        println("Done:")
+        println("  " + manuscriptFile.toRelative)
+        maybeMainFile.foreach { mainFile =>
+          println("  " + mainFile.toRelative)
+        }
+        maybeTestFile.foreach { testFile =>
+          println("  " + testFile.toRelative)
+        }
+        println()
+      case _ =>
+        ()
 
     // we use the lastModified to determine if the manuscript is up-to-date
     event.path().toFile.setLastModified(inputFile.outputFile.toFile.lastModified())
@@ -311,7 +263,7 @@ def mdocRun(examplesDir: String) =
   val mainSettings =
     mdoc
       .MainSettings()
-      .withArgs(List("--verbose"))
+      //.withArgs(List("--verbose"))
 
   processDir(examplesDir, mainSettings)
 
@@ -332,13 +284,14 @@ def mdocWatch(examplesDir: String) =
       .MainSettings()
       //.withArgs(List("--verbose"))
 
-  processDir(examplesDir, mainSettings)
-
   val livereload = UndertowLiveReload(
     mainSettings.settings.out.head.toNIO,
     reporter = mainSettings.reporter,
   )
   livereload.start()
+
+  // process the markdowns before setting up the watcher
+  processDir(examplesDir, mainSettings)
 
   val executor = Executors.newFixedThreadPool(1)
   val watcher = MdocFileListener.create(mainSettings.settings.in, executor, java.lang.System.in) { directoryChangeEvent =>

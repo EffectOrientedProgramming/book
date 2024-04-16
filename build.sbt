@@ -3,7 +3,7 @@
 name := "EffectOrientedProgramming"
 
 // todo: 3.4.1 breaks the 06_Errors chapter
-inThisBuild(scalaVersion := "3.4.0")
+inThisBuild(scalaVersion := "3.4.1")
 
 initialize := {
   initialize.value
@@ -13,8 +13,8 @@ initialize := {
 }
 
 // This tells mdoc which folder to analyze
-//mdocIn := file("Chapters")
-mdocIn := file("ChaptersTiny")
+mdocIn := file("Chapters")
+//mdocIn := file("ChaptersWorking")
 // This is where the generated markdown files will be placed,
 // after the scala blocks has been compiled/executed
 mdocOut := file("manuscript")

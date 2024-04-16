@@ -1,5 +1,114 @@
 # Superpowers with Effects
 
+```scala mdoc:invisible
+enum Scenario:
+  case HappyPath
+  case NeverWorks
+  case NumberOfSlowCall(ref: Ref[Int])
+  case WorksOnTry(attempts: Int, ref: Ref[Int])
+
+val scenarioConfig: Config[Option[Scenario]] =
+  Config.Optional[Scenario](Config.fail("no default scenario"))
+
+class StaticConfigProvider(scenario: Scenario) extends ConfigProvider:
+  override def load[A](config: Config[A])(implicit trace: Trace): IO[Config.Error, A] =
+    ZIO.succeed(Some(scenario).asInstanceOf[A])
+
+val happyPath =
+  Runtime.setConfigProvider(StaticConfigProvider(Scenario.HappyPath))
+
+val neverWorks =
+  Runtime.setConfigProvider(StaticConfigProvider(Scenario.NeverWorks))
+
+val doesNotWorkInitially =
+  val scenario =
+  Unsafe.unsafe {
+    implicit unsafe =>
+      Scenario.WorksOnTry(
+        3,
+        Runtime
+          .default
+          .unsafe
+          .run(Ref.make(0))
+          .getOrThrow()
+      )
+  }
+  Runtime.setConfigProvider(StaticConfigProvider(scenario))
+
+val firstIsSlow =
+  val scenario =
+    Unsafe.unsafe {
+      implicit unsafe =>
+        Scenario.NumberOfSlowCall(
+          Runtime
+            .default
+            .unsafe
+            .run(Ref.make(0))
+            .getOrThrow()
+        )
+    }
+  Runtime.setConfigProvider(StaticConfigProvider(scenario))
+
+def saveUser(username: String) =
+  val succeed =
+    ZIO.succeed:
+      "User saved"
+  val fail =
+    ZIO
+      .fail:
+        "**Database crashed!!**"
+      .tapError:
+        error =>
+          Console.printLine:
+            "Log: " + error
+  defer:
+    val maybeScenario = ZIO.config(scenarioConfig).run
+    maybeScenario.getOrElse(Scenario.HappyPath) match
+      case Scenario.HappyPath =>
+        succeed.run
+
+      case Scenario.NeverWorks =>
+        fail.run
+   
+      case scenario: Scenario.NumberOfSlowCall =>
+        val numCalls =
+          scenario.ref.getAndUpdate(_ + 1).run
+        if numCalls == 0 then
+          ZIO.never.run
+        else
+          Console.printLine("Log: Database Timeout").run
+          succeed.run
+    
+      case Scenario.WorksOnTry(attempts, ref) =>
+        val numCalls =
+          ref.getAndUpdate(_ + 1).run
+        if numCalls == attempts then
+          succeed.run
+        else
+          fail.run
+  .onInterrupt:
+    ZIO.debug("Log: Interrupting slow request")
+end saveUser
+
+def sendToManualQueue(username: String) =
+  ZIO
+    .attempt("User sent to manual setup queue")
+
+val logUserSignup =
+  Console.printLine:
+    s"Log: Signup initiated for $userName"
+  .orDie
+
+// TODO Decide how much to explain this in the
+// prose,
+// without revealing the implementation
+extension [R, E, A](z: ZIO[R, E, A])
+  def fireAndForget(
+      background: ZIO[R, Nothing, Any]
+  ) =
+    z.zipParLeft(background.forkDaemon)
+```
+
 Effects enable us to progressively add capabilities to increase reliability and control the unpredictable aspects.
 In this chapter you will see that once we've defined parts of a program in terms of Effects, we gain some superpowers.
 The reason we call it "superpowers" is that the capabilities you will see can be attached to **any** Effect.
@@ -16,164 +125,6 @@ val userName =
   "Morty"
 ```
 
-```scala mdoc:invisible
-object HiddenPrelude:
-  enum Scenario:
-    case HappyPath
-    case NeverWorks
-    case NumberOfSlowCall(ref: Ref[Int])
-    case WorksOnTry(attempts: Int, ref: Ref[Int])
-
-  import zio.Runtime.default.unsafe
-  val invocations: Ref[Scenario] =
-    Unsafe.unsafe(
-      (u: Unsafe) =>
-        given Unsafe =
-          u
-        unsafe
-          .run(
-            Ref
-              .make[Scenario](Scenario.HappyPath)
-          )
-          .getOrThrowFiberFailure()
-    )
-
-  def resetScenario(scenario: Scenario) =
-    Unsafe.unsafe(
-      (u: Unsafe) =>
-        given Unsafe =
-          u
-        unsafe
-          .run(invocations.set(scenario))
-          .getOrThrowFiberFailure()
-    )
-
-  object Scenario:
-    val FirstIsSlow =
-      Unsafe.unsafe {
-        implicit unsafe =>
-          NumberOfSlowCall(
-            Runtime
-              .default
-              .unsafe
-              .run(Ref.make(0))
-              .getOrThrow()
-          )
-      }
-
-    val DoesNotWorkInitially =
-      Unsafe.unsafe {
-        implicit unsafe =>
-          WorksOnTry(
-            3,
-            Runtime
-              .default
-              .unsafe
-              .run(Ref.make(0))
-              .getOrThrow()
-          )
-      }
-  end Scenario
-
-  def runScenario[E, A](
-      scenario: Scenario,
-      logic: => ZIO[Scope, E, A]
-  ): Unit =
-    Unsafe.unsafe {
-      (u: Unsafe) =>
-        given Unsafe =
-          u
-        val res =
-          unsafe
-            .run(
-              Rendering
-                .renderEveryPossibleOutcomeZio(
-                  defer:
-//                  val invocations = Ref.make(0).run
-                    resetScenario(scenario)
-//                  invocations.set(s).run
-                    logic.run
-                  .provide(Scope.default)
-                )
-                .withConsole(OurConsole)
-            )
-            .getOrThrowFiberFailure()
-        println("Result: " + res)
-    }
-
-  def saveUser(username: String) =
-    val succeed =
-      ZIO.succeed:
-        "User saved"
-    val fail =
-      ZIO
-        .fail:
-          "**Database crashed!!**"
-        .tapError:
-          error =>
-            ZIO.succeed:
-              println:
-                "Log: " + error
-
-    defer:
-      invocations.get.run match
-        case Scenario.HappyPath =>
-          succeed.run
-        case Scenario.NeverWorks =>
-          fail.run
-
-        case scenario: Scenario.NumberOfSlowCall =>
-          val numCalls =
-            scenario.ref.getAndUpdate(_ + 1).run
-          if numCalls == 0 then
-            ZIO.never.run
-          else
-            ZIO
-              .succeed:
-                println:
-                  "Log: Database Timeout"
-              .run
-
-            succeed.run
-
-        case Scenario
-              .WorksOnTry(attempts, ref) =>
-          val numCalls =
-            ref.getAndUpdate(_ + 1).run
-          if numCalls == attempts then
-            succeed.run
-          else
-            fail.run
-    .onInterrupt(
-      ZIO.debug("Log: Interrupting slow request")
-    )
-  end saveUser
-
-  def sendToManualQueue(username: String) =
-    ZIO
-      .attempt("User sent to manual setup queue")
-
-  val logUserSignup =
-    ZIO.succeed(
-      println(
-        s"Log: Signup initiated for $userName"
-      )
-    )
-
-  // TODO Decide how much to explain this in the
-  // prose,
-  // without revealing the implementation
-  extension [R, E, A](z: ZIO[R, E, A])
-    def fireAndForget(
-        background: ZIO[R, Nothing, Any]
-    ) =
-      z.zipParLeft(background.forkDaemon)
-
-end HiddenPrelude
-
-import HiddenPrelude.*
-import Scenario.*
-```
 
 ```scala mdoc:silent
 val effect0 =
@@ -181,33 +132,44 @@ val effect0 =
     userName
 ```
 
-
-This `val` contains the logic of the Effect.
 The Effect does not execute until we explicitly run it.
-
-```scala mdoc
-runScenario(
-  scenario =
-    HappyPath,
-  logic =
+Effects can be run as "main" programs, embedded in other programs, or in tests.
+Normally to run an Effect with ZIO as a "main" program we do this:
+```scala
+object MyApp extends ZIOAppDefault:
+  def run =
     effect0
-)
 ```
 
-`runScenario(scenario = HappyPath)` runs our Effect in the "happy path" so that it will not fail.
+In this book, to avoid the excess lines, we can shorten this to:
+```scala mdoc:runzio
+def run =
+  effect0
+```
+
+By default, the `saveUser` Effect runs in the "happy path" so that it will not fail.
+
+We can explicitly specify the way in which this Effect will run by overriding the `bootstrap` value: 
+```scala mdoc:runzio
+override val bootstrap =
+  happyPath
+
+def run =
+  effect0
+```
+
 This allows us to simulate failure scenarios in the next examples.
 
 In real systems, assuming the "happy path" causes strange errors for users because the errors are unhandled.
 
 We can also run `effect` in a scenario that will cause it to fail.
 
-```scala mdoc
-runScenario(
-  scenario =
-    DoesNotWorkInitially,
-  logic =
-    effect0
-)
+```scala mdoc:runzio
+override val bootstrap =
+  neverWorks
+
+def run =
+  effect0
 ```
 
 `runScenario(scenario = DoesNotWorkInitially)` runs our Effect but it fails.
@@ -233,26 +195,24 @@ By combining them, we get a `Schedule` that does something only 3 times and once
 Schedules can be applied to many different capabilities.
 We do this because we assume the failure will likely be resolved within 3 seconds.
 
-```scala mdoc
-runScenario(
-  scenario =
-    DoesNotWorkInitially,
-  logic =
-    effect1
-)
+```scala mdoc:runzio
+override val bootstrap =
+  doesNotWorkInitially
+
+def run =
+  effect1
 ```
 
 The output shows that running the Effect failed twice trying to save the user, then it succeeded.
 
 ### What If It Never Succeeds?
 
-```scala mdoc
-runScenario(
-  scenario =
-    NeverWorks,
-  logic =
-    effect1
-)
+```scala mdoc:runzio
+override val bootstrap =
+  neverWorks
+
+def run =
+  effect1
 ```
 
 In the `NeverWorks` scenarios, the Effect failed its initial attempt, and failed the subsequent three retries.
@@ -268,13 +228,12 @@ val effect2 =
     "ERROR: User could not be saved"
 ```
 
-```scala mdoc
-runScenario(
-  scenario =
-    NeverWorks,
-  logic =
-    effect2
-)
+```scala mdoc:runzio
+override val bootstrap =
+  neverWorks
+
+def run =
+  effect2
 ```
 
 **Any** fallible Effect can attach a variety of error handling capabilities.
@@ -302,13 +261,12 @@ Cancellation will shut down the effect in a predictable way.
 The Effect System supports predictable cancellation of Effects.
 Like the other capabilities for error handling, timeouts can be added to any Effect.
 
-```scala mdoc
-runScenario(
-  scenario =
-    FirstIsSlow,
-  logic =
-    effect3
-)
+```scala mdoc:runzio
+override val bootstrap =
+  firstIsSlow
+
+def run =
+  effect3
 ```
 
 Running the new Effect in the `FirstIsSlow` scenario causes it to take longer than the 5 second timeout.
@@ -327,13 +285,12 @@ val effect4 =
 The `orElse` creates a new Effect with a fallback.
 The `sendToManualQueue` simulates alternative fallback logic.
 
-```scala mdoc
-runScenario(
-  scenario =
-    NeverWorks,
-  logic =
-    effect4
-)
+```scala mdoc:runzio
+override val bootstrap =
+  neverWorks
+
+def run =
+  effect4
 ```
 
 We run the effect again in the `NeverWorks` scenario,
@@ -353,13 +310,12 @@ val effect5 =
 
 `fireAndForget` is a convenience method we defined (in hidden code) that makes it easy to run two effects in parallel and ignore any failures on the `logUserSignup` Effect.
 
-```scala mdoc
-runScenario(
-  scenario =
-    HappyPath,
-  logic =
-    effect5
-)
+```scala mdoc:runzio
+override val bootstrap =
+  happyPath
+
+def run =
+  effect5
 ```
 
 We run the effect again in the `HappyPath` scenario to demonstrate running the Effects in parallel.
@@ -376,13 +332,12 @@ val effect6 =
   effect5.timed
 ```
 
-```scala mdoc
-runScenario(
-  scenario =
-    HappyPath,
-  logic =
-    effect6
-)
+```scala mdoc:runzio
+override val bootstrap =
+  happyPath
+
+def run =
+  effect6
 ```
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.
 
@@ -396,13 +351,12 @@ val effect7 =
   effect6.when(userName != "Morty")
 ```
 
-```scala mdoc
-runScenario(
-  scenario =
-    HappyPath,
-  logic =
-    effect7
-)
+```scala mdoc:runzio
+override val bootstrap =
+  happyPath
+
+def run =
+  effect7
 ```
 We can add behavior to the end of our complex Effect,
   that prevents it from ever executing in the first place.

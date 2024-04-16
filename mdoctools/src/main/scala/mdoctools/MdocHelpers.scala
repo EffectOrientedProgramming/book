@@ -83,3 +83,14 @@ def runSpec[E](
       )
   )
 end runSpec
+
+trait ToRun:
+  val bootstrap: ZLayer[Any, Nothing, Any] = ZLayer.empty
+  def run: ZIO[Any, Any, Any]
+
+  def getOrThrowFiberFailure(): Unit =
+    Unsafe.unsafe { implicit unsafe =>
+      val e = mdoctools.Rendering.renderEveryPossibleOutcomeZio(run)
+      val result = Runtime.unsafe.fromLayer(bootstrap).unsafe.run(e).getOrThrowFiberFailure()
+      println(s"Result: $result")
+    }
