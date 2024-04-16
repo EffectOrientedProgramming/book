@@ -49,28 +49,6 @@ val networkError =
 val gpsError =
   Runtime.setConfigProvider(ErrorsStaticConfigProvider(ErrorsScenario.GPSError))
 
-//
-//val happyPath =
-//  Runtime.setConfigProvider(StaticConfigProvider(Scenario.HappyPath))
-//
-//val neverWorks =
-//  Runtime.setConfigProvider(StaticConfigProvider(Scenario.NeverWorks))
-//
-//val doesNotWorkInitially =
-//  val scenario =
-//  Unsafe.unsafe {
-//    implicit unsafe =>
-//      Scenario.WorksOnTry(
-//        3,
-//        Runtime
-//          .default
-//          .unsafe
-//          .run(Ref.make(0))
-//          .getOrThrow()
-//      )
-//  }
-//  Runtime.setConfigProvider(StaticConfigProvider(scenario))
-
 // TODO Hide definition? Then we won't see the internals of the scenario stuff.
 // This would also makes the exceptions more surprising
 def getTemperatureOrThrow(): String =
