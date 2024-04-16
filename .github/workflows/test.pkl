@@ -13,5 +13,14 @@ on {
 }
 
 jobs {
-  ["test"] = GitHubAction.Scala.sbtTestJob("test genManuscript", null, null)
+  ["test"] = new {
+    `runs-on` = "ubuntu-latest"
+
+    steps = (GitHubAction.Scala.sbtTestSteps("test genManuscript", null, null)) {
+      new {
+        run = "sbt test"
+        `working-directory` = "Examples"
+      }
+    }
+  }
 }
