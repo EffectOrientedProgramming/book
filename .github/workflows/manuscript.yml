@@ -31,6 +31,10 @@ jobs:
         git add .
         git commit -m "updated examples"
         git push
+        cd ..
+        git add examples
+        git commit -m "updated examples"
+        git push
 
     - uses: test-room-7/action-update-file@v1
       with:
