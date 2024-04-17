@@ -4,6 +4,8 @@
 [Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/03_Superpowers.md)
 
 
+
+
 Effects enable us to progressively add capabilities to increase reliability and control the unpredictable aspects.
 In this chapter you will see that once we've defined parts of a program in terms of Effects, we gain some superpowers.
 The reason we call it "superpowers" is that the capabilities you will see can be attached to **any** Effect.
@@ -27,35 +29,46 @@ val effect0 =
     userName
 ```
 
-
-This `val` contains the logic of the Effect.
 The Effect does not execute until we explicitly run it.
-
+Effects can be run as "main" programs, embedded in other programs, or in tests.
+Normally to run an Effect with ZIO as a "main" program we do this:
 ```scala
-runScenario(
-  scenario =
-    HappyPath,
-  logic =
+object MyApp extends ZIOAppDefault:
+  def run =
     effect0
-)
+```
+
+In this book, to avoid the excess lines, we can shorten this to:
+```scala mdoc:runzio
+def run =
+  effect0
 // Result: User saved
 ```
 
-`runScenario(scenario = HappyPath)` runs our Effect in the "happy path" so that it will not fail.
+By default, the `saveUser` Effect runs in the "happy path" so that it will not fail.
+
+We can explicitly specify the way in which this Effect will run by overriding the `bootstrap` value: 
+```scala mdoc:runzio
+override val bootstrap =
+  happyPath
+
+def run =
+  effect0
+// Result: User saved
+```
+
 This allows us to simulate failure scenarios in the next examples.
 
 In real systems, assuming the "happy path" causes strange errors for users because the errors are unhandled.
 
 We can also run `effect` in a scenario that will cause it to fail.
 
-```scala
-runScenario(
-  scenario =
-    DoesNotWorkInitially,
-  logic =
-    effect0
-)
-// Log: **Database crashed!!**
+```scala mdoc:runzio
+override val bootstrap =
+  neverWorks
+
+def run =
+  effect0
 // Result: **Database crashed!!**
 ```
 
@@ -82,15 +95,12 @@ By combining them, we get a `Schedule` that does something only 3 times and once
 Schedules can be applied to many different capabilities.
 We do this because we assume the failure will likely be resolved within 3 seconds.
 
-```scala
-runScenario(
-  scenario =
-    DoesNotWorkInitially,
-  logic =
-    effect1
-)
-// Log: **Database crashed!!**
-// Log: **Database crashed!!**
+```scala mdoc:runzio
+override val bootstrap =
+  doesNotWorkInitially
+
+def run =
+  effect1
 // Result: User saved
 ```
 
@@ -98,17 +108,12 @@ The output shows that running the Effect failed twice trying to save the user, t
 
 ### What If It Never Succeeds?
 
-```scala
-runScenario(
-  scenario =
-    NeverWorks,
-  logic =
-    effect1
-)
-// Log: **Database crashed!!**
-// Log: **Database crashed!!**
-// Log: **Database crashed!!**
-// Log: **Database crashed!!**
+```scala mdoc:runzio
+override val bootstrap =
+  neverWorks
+
+def run =
+  effect1
 // Result: **Database crashed!!**
 ```
 
@@ -125,17 +130,12 @@ val effect2 =
     "ERROR: User could not be saved"
 ```
 
-```scala
-runScenario(
-  scenario =
-    NeverWorks,
-  logic =
-    effect2
-)
-// Log: **Database crashed!!**
-// Log: **Database crashed!!**
-// Log: **Database crashed!!**
-// Log: **Database crashed!!**
+```scala mdoc:runzio
+override val bootstrap =
+  neverWorks
+
+def run =
+  effect2
 // Result: ERROR: User could not be saved
 ```
 
@@ -164,14 +164,12 @@ Cancellation will shut down the effect in a predictable way.
 The Effect System supports predictable cancellation of Effects.
 Like the other capabilities for error handling, timeouts can be added to any Effect.
 
-```scala
-runScenario(
-  scenario =
-    FirstIsSlow,
-  logic =
-    effect3
-)
-// Log: Interrupting slow request
+```scala mdoc:runzio
+override val bootstrap =
+  firstIsSlow
+
+def run =
+  effect3
 // Result: Save timed out
 ```
 
@@ -191,17 +189,12 @@ val effect4 =
 The `orElse` creates a new Effect with a fallback.
 The `sendToManualQueue` simulates alternative fallback logic.
 
-```scala
-runScenario(
-  scenario =
-    NeverWorks,
-  logic =
-    effect4
-)
-// Log: **Database crashed!!**
-// Log: **Database crashed!!**
-// Log: **Database crashed!!**
-// Log: **Database crashed!!**
+```scala mdoc:runzio
+override val bootstrap =
+  neverWorks
+
+def run =
+  effect4
 // Result: User sent to manual setup queue
 ```
 
@@ -222,14 +215,12 @@ val effect5 =
 
 `fireAndForget` is a convenience method we defined (in hidden code) that makes it easy to run two effects in parallel and ignore any failures on the `logUserSignup` Effect.
 
-```scala
-runScenario(
-  scenario =
-    HappyPath,
-  logic =
-    effect5
-)
-// Log: Signup initiated for Morty
+```scala mdoc:runzio
+override val bootstrap =
+  happyPath
+
+def run =
+  effect5
 // Result: User saved
 ```
 
@@ -247,15 +238,13 @@ val effect6 =
   effect5.timed
 ```
 
-```scala
-runScenario(
-  scenario =
-    HappyPath,
-  logic =
-    effect6
-)
-// Log: Signup initiated for Morty
-// Result: (PT0.001263099S,User saved)
+```scala mdoc:runzio
+override val bootstrap =
+  happyPath
+
+def run =
+  effect6
+// Result: (PT0.000650162S,User saved)
 ```
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.
 
@@ -269,13 +258,12 @@ val effect7 =
   effect6.when(userName != "Morty")
 ```
 
-```scala
-runScenario(
-  scenario =
-    HappyPath,
-  logic =
-    effect7
-)
+```scala mdoc:runzio
+override val bootstrap =
+  happyPath
+
+def run =
+  effect7
 // Result: None
 ```
 We can add behavior to the end of our complex Effect,

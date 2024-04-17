@@ -43,7 +43,6 @@ Once you add `throw`, the world gets more complicated.
 
 TODO Prose transition here
 
-
 We have an existing `getTemperatureOrThrow` function that can fail in unspecified ways.
 
 ```scala
@@ -51,32 +50,31 @@ def render(value: String) =
   s"Temperature: $value"
 ```
 
+
 ```scala
 def temperatureApp(): String =
   render:
     getTemperatureOrThrow()
+```
 
-runScenario(
-  scenario =
-    Scenario.HappyPath,
+```scala mdoc:runzio
+def run =
   ZIO.attempt:
     temperatureApp()
-)
-// Temperature: 35 degrees
+// Result: Temperature: 35 degrees
 ```
 
 On the happy path, everything looks as desired.
 If the network is unavailable, what is the behavior for the caller?
 If we don't make any attempt to handle our problem, the whole program blows up and shows the gory details to the user.
 
-```scala
-runScenario(
-  scenario =
-    Scenario.NetworkError,
+```scala mdoc:runzio
+scenario = ErrorsScenario.NetworkError
+  
+def run =
   ZIO.succeed:
     temperatureApp()
-)
-// Defect: NetworkException
+// Result: Defect: NetworkException
 ```
 
 ## Manual Error Discovery
@@ -86,20 +84,22 @@ If you have been burned in the past by functions that throw surprise exceptions
 For this program, it could look like:
 
 ```scala
-def temperatureApp(): String =
+def temperatureCatchingApp(): String =
     try
       render:
         getTemperatureOrThrow()
     catch
       case ex: Exception =>
         "Failure"
+```
 
-runScenario(
-  Scenario.NetworkError,
+```scala mdoc:runzio
+scenario = ErrorsScenario.NetworkError
+
+def run =
   ZIO.succeed:
-    temperatureApp()
-)
-// Failure
+    temperatureCatchingApp()
+// Result: Failure
 ```
 
 We have improved the failure behavior significantly; is it sufficient for all cases?
@@ -108,7 +108,7 @@ In this situation, do we show the same message to the user? Ideally, we would sh
 The Network issue is transient, but the GPS problem is likely permanent.
 
 ```scala
-def temperatureApp(): String =
+def temperatureCatchingMoreApp(): String =
   try
     render:
       getTemperatureOrThrow()
@@ -117,20 +117,24 @@ def temperatureApp(): String =
       "Network Unavailable"
     case ex: GpsFail =>
       "GPS Hardware Failure"
+```
 
-runScenario(
-  Scenario.NetworkError,
-  ZIO.succeed:
-    temperatureApp()
-)
-// Network Unavailable
+```scala mdoc:runzio
+scenario = ErrorsScenario.NetworkError
 
-runScenario(
-  Scenario.GPSError,
+def run =
   ZIO.succeed:
-    temperatureApp()
-)
-// GPS Hardware Failure
+    temperatureCatchingMoreApp()
+// Result: Network Unavailable
+```
+
+```scala mdoc:runzio
+scenario = ErrorsScenario.GPSError
+
+def run =
+  ZIO.succeed:
+    temperatureCatchingMoreApp()
+// Result: GPS Hardware Failure
 ```
 
 Wonderful!
@@ -158,36 +162,35 @@ You just don't know what you're going to get when you use exceptions.
 ZIO enables more powerful, uniform error-handling.
 
 
-```scala
-runScenario(Scenario.HappyPath, getTemperatureZio)
-// Temperature: 35 degrees
+```scala mdoc:runzio
+override val bootstrap =
+  errorsHappyPath
+
+def run =
+  getTemperature
+// Result: Temperature: 35 degrees
 ```
 
 Running the ZIO version without handling any errors
-```scala
-runScenario(
-  Scenario.NetworkError,
-  getTemperatureZio
-)
-// repl.MdocSession$MdocApp$NetworkException
+```scala mdoc:runzio
+override val bootstrap =
+  errorsNetworkError
+
+def run =
+  getTemperature
+// Result: repl.MdocSession$MdocApp$NetworkException
 ```
 
 This is not an error that we want to show the user.
 Instead, we want to handle all of our internal errors, and make sure that they result in a user-friendly error message.
 
+{{ TODO: mdoc seems to have a bug and is not outputting the compiler warning }}
 ```scala
-// TODO make MDoc:fail adhere to line limits?
-runScenario(
-  Scenario.NetworkError,
-  getTemperatureZio.catchAll:
+val bad =
+  getTemperature.catchAll:
     case ex: NetworkException =>
       ZIO.succeed:
         "Network Unavailable"
-)
-// error: 
-// match may not be exhaustive.
-// 
-// It would fail on pattern case: _: GpsFail
 //
 ```
 
@@ -195,8 +198,8 @@ ZIO distinguishes itself here by alerting us that we have not caught all possibl
 The compiler prevents us from executing non-exhaustive blocks inside of a `catchAll`.
 
 ```scala
-val temperatureAppZ =
-  getTemperatureZio.catchAll:
+val temperatureAppComplete =
+  getTemperature.catchAll:
     case ex: NetworkException =>
       ZIO.succeed:
         "Network Unavailable"
@@ -205,12 +208,13 @@ val temperatureAppZ =
         "GPS Hardware Failure"
 ```
 
-```scala
-runScenario(
-  Scenario.GPSError,
-  temperatureAppZ
-)
-// GPS Hardware Failure
+```scala mdoc:runzio
+override val bootstrap =
+  errorsGpsError
+
+def run =
+  temperatureAppComplete
+// Result: GPS Hardware Failure
 ```
 
 Now that we have handled all of our errors, we know we are showing the user a sensible message.
@@ -218,13 +222,10 @@ Now that we have handled all of our errors, we know we are showing the user a se
 Further, this is tracked by the compiler, which will prevent us from invoking `.catchAll` again.
 
 ```scala
-runScenario(
-  Scenario.GPSError,
-  temperatureAppZ.catchAll:
-    case ex: Exception => 
-      ZIO.succeed:
-        "This cannot happen"
-)
+temperatureAppComplete.catchAll:
+  case ex: Exception => 
+    ZIO.succeed:
+      "This cannot happen"
 // error: 
 // This error handling operation assumes your effect can fail. However, your effect has Nothing for the error type, which means it cannot fail, so there is no need to handle the failure. To find out which method you can use instead of this operation, please see the reference chart at: https://zio.dev/can_fail.
 // I found:
@@ -267,35 +268,35 @@ val displayTemperatureZWrapped =
         "GPS problem"
 ```
 
-```scala
-runScenario(
-  Scenario.HappyPath,
+```scala mdoc:runzio
+scenario = ErrorsScenario.HappyPath
+
+def run =
   displayTemperatureZWrapped
-)
-// 35 degrees
+// Result: 35 degrees
 ```
 
-```scala
-runScenario(
-  Scenario.NetworkError,
+```scala mdoc:runzio
+scenario = ErrorsScenario.NetworkError
+
+def run =
   displayTemperatureZWrapped
-)
-// Network Unavailable
+// Result: Network Unavailable
 ```
 
 This is decent, but does not provide the maximum possible guarantees. 
 Look at what happens if we forget to handle one of our errors.
 
 
-```scala
-runScenario(
-  Scenario.GPSError,
+```scala mdoc:runzio
+scenario = ErrorsScenario.GPSError
+
+def run =
   getTemperatureWrapped.catchAll:
     case ex: NetworkException =>
       ZIO.succeed:
         "Network Unavailable"
-)
-// Defect: GpsFail
+// Result: Defect: GpsFail
 ```
 
 The compiler does not catch this bug, and instead fails at runtime.
@@ -303,9 +304,10 @@ Take extra care when interacting with legacy code
 , since we cannot automatically recognize these situations at compile time.
 We can provide a fallback case that will report anything we missed:
 
-```scala
-runScenario(
-  Scenario.GPSError,
+```scala mdoc:runzio
+scenario = ErrorsScenario.GPSError
+
+def run =
   getTemperatureWrapped.catchAll:
     case ex: NetworkException =>
       ZIO.succeed:
@@ -313,9 +315,7 @@ runScenario(
     case other =>
       ZIO.succeed:
         "Unknown Error"
-)
-// Unknown Error
+// Result: Unknown Error
 ```
 
 This lets us avoid the most egregious gaps in functionality, but does not take full advantage of ZIO's type-safety.
-

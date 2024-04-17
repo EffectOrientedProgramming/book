@@ -77,8 +77,8 @@ val popularService =
 In this world, each request to our `CloudStorage` provider will cost us one dollar.
 Egregious, but it will help us demonstrate the problem with small, round numbers.
 
-```scala
-runDemo:
+```scala mdoc:runzio
+def run =
   thunderingHerdsScenario
     .provide(CloudStorage.live, popularService)
 // Result: Amount owed: $100
@@ -115,8 +115,8 @@ The only changes required are:
 
 Now when we run the same scenario, with our cache in place:
 
-```scala
-runDemo:
+```scala mdoc:runzio
+def run =
   thunderingHerdsScenario.provide(
     CloudStorage.live,
     ZLayer.fromZIO(makeCachedPopularService)
@@ -155,8 +155,8 @@ extension (rateLimiter: RateLimiter)
     .repeatN(2) // Repeats as fast as allowed
 ```
 
-```scala
-runDemo:
+```scala mdoc:runzio
+def run =
   defer:
     val rateLimiter =
       makeRateLimiter.run
@@ -172,8 +172,8 @@ runDemo:
 // Result: ()
 ```
 
-```scala
-runDemo:
+```scala mdoc:runzio
+def run =
   defer:
     val rateLimiter =
       makeRateLimiter.run
@@ -204,8 +204,8 @@ If we want to ensure we don't accidentally DDOS a service, we can restrict the n
 
 
 
-```scala
-runDemo:
+```scala mdoc:runzio
+def run =
   defer:
     val delicateResource =
       ZIO.service[DelicateResource].run
@@ -223,10 +223,10 @@ runDemo:
 // Result: Killed the server!!
 ```
 
-```scala
+```scala mdoc:runzio
 import nl.vroste.rezilience.Bulkhead
 
-runDemo:
+def run =
   defer:
     val bulkhead: Bulkhead =
       Bulkhead
@@ -259,8 +259,8 @@ val repeatSchedule =
     Schedule.spaced(50.millis)
 ```
 
-```scala
-runDemo:
+```scala mdoc:runzio
+def run =
   defer:
     val numCalls =
       Ref.make[Int](0).run
@@ -296,8 +296,8 @@ val makeCircuitBreaker =
   )
 ```
 
-```scala
-runDemo:
+```scala mdoc:runzio
+def run =
   defer:
     val cb =
       makeCircuitBreaker.run
@@ -321,15 +321,15 @@ runDemo:
     val made =
       numCalls.get.run
     s"Calls prevented: $prevented Calls made: $made"
-// Result: Calls prevented: 75 Calls made: 66
+// Result: Calls prevented: 74 Calls made: 67
 ```
 
 ## Hedging
 
 
 
-```scala
-runDemo:
+```scala mdoc:runzio
+def run =
   defer:
     val contractBreaches =
       Ref.make(0).run

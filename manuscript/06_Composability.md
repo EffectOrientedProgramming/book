@@ -31,22 +31,14 @@ ZIO
 //     CanFail.canFail[E](/* missing */summon[scala.util.NotGiven[E =:= Nothing]])
 // 
 // But no implicit values were found that match type scala.util.NotGiven[E =:= Nothing].
-//       new Exception("Headline not available")
-//                                              ^
+// var headLineAvailable =
+//                        ^
 ```
 
 ```scala
 ZIO
   .attempt(println("This might work"))
   .retryN(100)
-// res1: ZIO[Any, Throwable, Unit] = OnSuccess(
-//   trace = "repl.MdocSession.MdocApp.res1(06_Composability.md:16)",
-//   first = Sync(
-//     trace = "repl.MdocSession.MdocApp.res1(06_Composability.md:16)",
-//     eval = zio.ZIOCompanionVersionSpecific$$Lambda$15432/0x0000000103e09440@310f91ab
-//   ),
-//   successK = zio.ZIO$$$Lambda$15434/0x0000000103e0e840@430d27a7
-// )
 ```
 
 is this about surfacing the hidden information through a "bookkeeper" that conveys the
@@ -148,8 +140,8 @@ Another term for this form of composition is called `andThen` in Scala.
 
 With ZIO you can use `zio-direct` to compose ZIOs sequentially with:
 
-```scala
-runDemo:
+```scala mdoc:runzio
+def run =
   defer:
     val topStory =
       findTopNewsStory.run
@@ -165,7 +157,7 @@ The methods for composability depend on the desired behavior.
 For example, to compose a ZIO that can produce an error with a ZIO that logs the error and then produces a default value, you can use the `catchAll` like:
 
 
-```scala
+```scala mdoc:runzio
 // TODO Consider deleting .as
 //   The problem is we can't return literals in zio-direct.
 def logAndProvideDefault(e: Throwable) =
@@ -175,7 +167,7 @@ def logAndProvideDefault(e: Throwable) =
     .as:
       "default value"
 
-runDemo:
+def run =
   ZIO
     .attempt:
       ???
@@ -233,23 +225,22 @@ val getHeadlineZ =
         HeadlineNotAvailable()
 ```
 
-```scala
-runDemo:
+```scala mdoc:runzio
+def run =
   getHeadlineZ
 // Result: stock market crash!
 ```
 Now let's confirm the behavior when the headline is not available.
 
-```scala
+```scala mdoc:runzio
 // This controls some invisible machinery
 headLineAvailable =
   false
 
-runDemo:
+def run =
   getHeadlineZ
 // Result: HeadlineNotAvailable()
 ```
-
 
 ### Option Interop
 `Option` is the simplest of the alternate types you will encounter.
@@ -278,15 +269,19 @@ def topicOfInterestZ(headline: String) =
       NoInterestingTopic()
 ```
 
-```scala
-runDemo:
+```scala mdoc:runzio
+// This controls some invisible machinery
+headLineAvailable =
+  true
+
+def run =
   topicOfInterestZ:
     "stock market crash!"
 // Result: stock market
 ```
 
-```scala
-runDemo:
+```scala mdoc:runzio
+def run =
   topicOfInterestZ:
     "boring and inane content"
 // Result: NoInterestingTopic()
@@ -318,12 +313,12 @@ Once we do this, the `ZIO` runtime will manage the lifecycle of this object via 
 TODO Link to docs for this?
 In the simplest case, we open and close the file, with no logic while it is iopen.
 
-```scala
-runDemo:
+```scala mdoc:runzio
+def run =
   closeableFileZ
 // Opening file!
 // Closing file!
-// Result: repl.MdocSession$MdocApp$$anon$27@a8c3c7e
+// Result: repl.MdocSession$MdocApp$$anon$19@1505ef7
 ```
 
 Since that is not terribly useful, let's start calling some methods on our managed file.
@@ -333,8 +328,8 @@ Since that is not terribly useful, let's start calling some methods on our manag
 closeableFile().contains("something"): Boolean
 ```
 
-```scala
-runDemo:
+```scala mdoc:runzio
+def run =
   defer:
     val file =
       closeableFileZ.run
@@ -362,8 +357,8 @@ def writeToFileZ(
     .orDie
 ```
 
-```scala
-runDemo:
+```scala mdoc:runzio
+def run =
   defer:
     val file =
       closeableFileZ.run
@@ -393,15 +388,15 @@ def summaryForZ(topic: String) =
       topic
 ```
 
-```scala
-runDemo:
+```scala mdoc:runzio
+def run =
   summaryForZ:
     "stock market"
 // Result: detailed history of stock market
 ```
 
-```scala
-runDemo:
+```scala mdoc:runzio
+def run =
   summaryForZ:
     "obscureTopic"
 // Result: NoRecordsAvailable(obscureTopic)
@@ -440,8 +435,8 @@ val researchWorkflow =
 ```
 
 
-```scala
-runDemo:
+```scala mdoc:runzio
+def run =
   researchWorkflow
     // todo: some error handling to show that
     // the errors weren't lost along the way
