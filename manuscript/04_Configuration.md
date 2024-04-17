@@ -468,10 +468,10 @@ val flipTen =
 ```scala mdoc:runzio
 def run =
   flipTen
-// Heads
-// Heads
-// Heads
 // Tails
+// Heads
+// Heads
+// Heads
 // Heads
 // Heads
 // Heads
