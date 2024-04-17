@@ -15,9 +15,7 @@ project/metals.sbt
 /manuscript/
 .env
 cs.exe
-/Examples/src/main/scala/*.scala
-/Examples/mdoctools/src/main/scala/*.scala
-/Examples/mdoctools/target/*
+/Examples/src/
 /*/target/
 /MdToSourcePlugin/project/target/
 /MdToSourcePlugin/project/project/
@@ -28,3 +26,4 @@ illustratedPrimer/tailwind.config.js
 mdoctools/target/*
 mdoctools/project/target/*
 mdoctools/project/
+ChaptersTiny/

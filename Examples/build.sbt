@@ -2,66 +2,16 @@ ThisBuild / scalaVersion := "3.4.1"
 
 val zioVersion = "2.0.22"
 
-lazy val mdoctools = (project in file("mdoctools"))
-  .settings(
-    libraryDependencies ++= Seq(
-      "dev.zio" %% "zio" % zioVersion,
-      "dev.zio" %% "zio-test" % zioVersion,
-  ),
-  scalacOptions +=
-    Seq(
-      "java.lang",
-      "scala",
-      "scala.Predef",
-      "zio",
-    ).mkString(
-      start = "-Yimports:",
-      sep = ",",
-      end = ""
-    )
-)
-
-lazy val root = (project in file("."))
-  .dependsOn(mdoctools)
-
-scalacOptions +=
-  Seq(
-    "java.lang",
-    "scala",
-    "scala.Predef",
-    "zio",
-    "zio.direct",
-    "mdoctools",
-  ).mkString(
-    start = "-Yimports:",
-    sep = ",",
-    end = ""
-  )
-
 libraryDependencies ++= Seq(
   "dev.zio" %% "zio" % zioVersion,
+  "dev.zio" %% "zio-direct" % "1.0.0-RC7",
+  "dev.zio" %% "zio-config" % "4.0.1",
+  "dev.zio" %% "zio-config-magnolia" % "4.0.1",
+  "dev.zio" %% "zio-config-typesafe" % "4.0.1",
   "dev.zio" %% "zio-cache" % "0.2.3",
-  "dev.zio" %% "zio-concurrent" % zioVersion,
-  "dev.zio" %%
-    "zio-direct" % "1.0.0-RC7" excludeAll
-    (
-      "com.geirsson",
-      "metaconfig-typesafe-config"
-    ) excludeAll
-    (
-      "com.geirsson",
-      "metaconfig-core"
-    ) excludeAll
-    ("org.typelevel", "paiges-core"),
-  "dev.zio" %% "zio-logging" % "2.1.16",
-  "dev.zio" %% "zio-streams" % zioVersion,
-  "dev.zio" %% "zio-test" % zioVersion,
+  "nl.vroste" %% "rezilience" % "0.9.4",
+  "dev.zio" %% "zio-test" % zioVersion % Test,
   "dev.zio" %% "zio-test-sbt" % zioVersion % Test,
-  "dev.zio" %% "zio-prelude" % "1.0.0-RC21",
-
-  "io.github.scottweaver" %% "zio-2-0-testcontainers-postgresql" % "0.9.0",
-  "io.github.scottweaver" %% "zio-2-0-db-migration-aspect" % "0.9.0",
-  "io.getquill" %% "quill-jdbc" % "3.7.2.Beta1.4",
-  "io.getquill" %% "quill-jdbc-zio" % "4.8.0",
-  "io.getquill" %% "quill-zio" % "4.8.0",
 )
+
+fork := true

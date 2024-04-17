@@ -62,8 +62,8 @@ object Dough:
 ## Step 1: Provide Dependency Layers to Effects
 We must provide all required dependencies to an effect before you can run it.
 
-```scala mdoc
-runDemo:
+```scala mdoc:runzio
+def run =
   ZIO
     .serviceWithZIO[Dough]:
       dough => dough.letRise
@@ -83,11 +83,10 @@ TODO: Can we avoid the `.provide()` and still get a good compile error in mdoc
 TODO: Strip `repl.MdocSession.MdocApp.` from output. Remove caret indicator from output.
 
 ```scala mdoc:fail
-runDemo:
-  ZIO
-    .serviceWithZIO[Dough]:
-      dough => dough.letRise
-    .provide()
+ZIO
+  .serviceWithZIO[Dough]:
+    dough => dough.letRise
+  .provide()
 ```
 
 ## Step 3: Dependencies can "automatically" assemble to fulfill the needs of an effect
@@ -119,8 +118,8 @@ Something around how like typical DI, the "graph" of dependencies gets resolved 
 This typically happens in some completely new/custom phase, that does follow standard code paths.
 Dependencies on effects propagate to effects which use effects.
 
-```scala mdoc
-runDemo:
+```scala mdoc:runzio
+def run =
   ZIO
     .service[Bread]
     .provide(Bread.homemade, Dough.fresh, oven)
@@ -145,8 +144,8 @@ In this case both `Toast.make` and `Bread.homemade` require `Heat`.
 
 Notice - Even though we provide the same dependencies in this example, oven is _also_ required by `Toast.make`
 
-```scala mdoc
-runDemo:
+```scala mdoc:runzio
+def run =
   ZIO
     .service[Toast]
     .provide(
@@ -166,8 +165,8 @@ val toaster =
   ZLayer.derive[Heat]
 ```
 
-```scala mdoc
-runDemo:
+```scala mdoc:runzio
+def run =
   ZIO
     .service[Heat]
     .provide:
@@ -177,16 +176,15 @@ runDemo:
 ## Step 5: Dependencies must be fulfilled by unique types
 
 ```scala mdoc:fail
-runDemo:
-  ZIO
-    .service[Toast]
-    .provide(
-      Toast.make,
-      Dough.fresh,
-      Bread.homemade,
-      oven,
-      toaster
-    )
+ZIO
+  .service[Toast]
+  .provide(
+    Toast.make,
+    Dough.fresh,
+    Bread.homemade,
+    oven,
+    toaster
+  )
 ```
 Unfortunately our program is now ambiguous.
 It cannot decide if we should be making `Toast` in the oven, `Bread` in the toaster, or any other combination.
@@ -194,8 +192,8 @@ It cannot decide if we should be making `Toast` in the oven, `Bread` in the toas
 ## Step 6: Providing Dependencies at Different Levels
 This enables other effects that use them to provide their own dependencies of the same type
 
-```scala mdoc
-runDemo:
+```scala mdoc:runzio
+def run =
   ZIO
     .serviceWithZIO[Bread]:
       bread =>
@@ -226,8 +224,8 @@ val storeBought =
     buyBread
 ```
 
-```scala mdoc
-runDemo:
+```scala mdoc:runzio
+def run =
   ZIO
     .service[Bread]
     .provide:
@@ -271,8 +269,8 @@ object Friend:
 end Friend
 ```
 
-```scala mdoc
-runDemo:
+```scala mdoc:runzio
+def run =
   ZIO
     .service[Bread]
     .provide:
@@ -283,8 +281,8 @@ runDemo:
 
 ## Step 9: Fallback Dependencies
 
-```scala mdoc
-runDemo:
+```scala mdoc:runzio
+def run =
   ZIO
     .service[Bread]
     .provide:
@@ -298,8 +296,8 @@ runDemo:
 
 ## Step 10: Dependency Retries
 
-```scala mdoc
-runDemo:
+```scala mdoc:runzio
+def run =
   ZIO
     .service[Bread]
     .provide:
@@ -312,8 +310,8 @@ runDemo:
             1
 ```
 
-```scala mdoc
-runDemo:
+```scala mdoc:runzio
+def run =
   ZIO
     .service[Bread]
     .provide:
@@ -330,8 +328,8 @@ runDemo:
 
 Maybe retry on the ZLayer eg. (BreadDough.rancid, Heat.brokenFor10Seconds)
 
-```scala mdoc
-runDemo:
+```scala mdoc:runzio
+def run =
   ZIO
     .service[Bread]
     .provide:
@@ -375,8 +373,8 @@ val config =
         configProvider
 ```
 
-```scala mdoc
-runDemo:
+```scala mdoc:runzio
+def run =
   ZIO
     .serviceWithZIO[RetryConfig]:
       retryConfig =>
@@ -458,16 +456,13 @@ val flipTen =
       .size
 ```
 
-```scala mdoc
-runDemo:
+```scala mdoc:runzio
+def run =
   flipTen
 ```
 
-```scala mdoc
-import zio.test.TestRandom
-import zio.test.assertTrue
-
-runSpec:
+```scala mdoc:testzio
+test("flips"):
   defer:
     TestRandom
       .feedBooleans(true)
@@ -478,8 +473,6 @@ runSpec:
 ```
 
 ```scala mdoc:silent
-import zio.test.assertCompletes
-
 val rosencrantzCoinToss =
   coinToss.debugDemo:
     "R"
@@ -511,8 +504,8 @@ val rosencrantzAndGuildensternAreDead =
     rosencrantzCoinToss.run
 ```
 
-```scala mdoc
-runSpec:
+```scala mdoc:testzio
+test("play"):
   defer:
     TestRandom
       .feedBooleans:
@@ -524,20 +517,24 @@ runSpec:
     assertCompletes
 ```
 
-```scala mdoc:silent
-import zio.test.TestAspect
+{{ TODO: Somehow truncate the output }}
+[//]: # (```scala mdoc:testzio)
 
-runSpec(
-  defer:
-    rosencrantzAndGuildensternAreDead.run
-    assertCompletes
-  ,
-  TestAspect.withLiveRandom,
-  TestAspect.flaky
-)
-// Result: Ran 537 times to complete
-```
+[//]: # (TestAspect.withLiveRandom:)
 
+[//]: # (  TestAspect.flaky:)
+
+[//]: # (    test&#40;"flaky plan"&#41;:)
+
+[//]: # (      defer:)
+
+[//]: # (        rosencrantzAndGuildensternAreDead.run)
+
+[//]: # (        assertCompletes)
+
+[//]: # (// Result: Ran 537 times to complete)
+
+[//]: # (```)
 
 The `Random` Effect uses an injected something which when running the ZIO uses the system's unpredictable random number generator.  In ZIO Test the `Random` Effect uses a different something which can predictably generate "random" numbers.  `TestRandom` provides a way to define what those numbers are.  This example feeds in the `Int`s `1` and `2` so the first time we ask for a random number we get `1` and the second time we get `2`.
 
@@ -560,16 +557,12 @@ val nightlyBatch =
       "Parsing CSV"
 ```
 
-```scala mdoc:silent
-import zio.test.TestClock
+```scala mdoc:testzio
+test("time"):
+  val timeTravel =
+    TestClock.adjust:
+      24.hours
 
-val timeTravel =
-  TestClock.adjust:
-    24.hours
-```
-
-```scala mdoc
-runSpec:
   defer:
     nightlyBatch
       .race:

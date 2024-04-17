@@ -13,3 +13,5 @@ jobs:
         java-version: '20'
         cache: sbt
     - run: sbt test genManuscript
+    - run: sbt test
+      working-directory: Examples

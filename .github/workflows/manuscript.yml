@@ -17,16 +17,15 @@ jobs:
 
     - run: |
         ./sbt genManuscript
-        mkdir manuscript/resources
-        mv manuscript/images manuscript/resources/ 2>/dev/null
 
-    - name: generate and test examples
-      run: |
-        ./sbt generateExamples
-        cd Examples
-      # ../bin/sbt test # Disabled, because we can't run examples with compilation errors
-
-    # todo: publish examples
+    - uses: nkoppel/push-files-to-another-repository@1.1.0
+      env:
+        API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        source-files: 'Examples/'
+        destination-username: 'EffectOrientedProgramming'
+        destination-repository: 'examples'
+        commit-email: '${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com'
 
     - uses: test-room-7/action-update-file@v1
       with:
