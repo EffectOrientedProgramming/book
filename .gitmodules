@@ -7,3 +7,4 @@
 [submodule "examples"]
 	path = examples
 	url = https://github.com/EffectOrientedProgramming/examples
+    update = merge
