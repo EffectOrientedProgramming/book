@@ -2,6 +2,8 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - examples
 
 jobs:
   gen-and-preview:
