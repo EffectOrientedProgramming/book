@@ -468,17 +468,17 @@ val flipTen =
 ```scala
 def run =
   flipTen
-// Heads
 // Tails
 // Tails
-// Tails
-// Heads
 // Tails
 // Tails
 // Heads
 // Tails
+// Tails
 // Heads
-// Result: 4
+// Tails
+// Heads
+// Result: 3
 ```
 
 ```scala
