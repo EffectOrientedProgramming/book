@@ -18,6 +18,13 @@ jobs:
         java-version: '11'
         cache: 'sbt'
 
+    # by default the examples submodule is detached
+    # so get it's main
+    - run: |
+        cd examples
+        git checkout main
+        cd ..
+
     - run: |
         ./sbt genManuscript
 
@@ -27,7 +34,6 @@ jobs:
         cd examples
         git config --global user.name 'James Ward'
         git config --global user.email 'jamesward@users.noreply.github.com'
-        git checkout main
         git add .
         git commit -m "updated examples"
         git push
