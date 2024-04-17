@@ -469,16 +469,16 @@ val flipTen =
 def run =
   flipTen
 // Tails
-// Heads
-// Heads
-// Heads
-// Heads
+// Tails
 // Tails
 // Heads
 // Heads
 // Tails
 // Heads
-// Result: 7
+// Tails
+// Heads
+// Tails
+// Result: 4
 ```
 
 ```scala
@@ -490,7 +490,7 @@ test("flips 10 times"):
       .run
     assertTrue:
       flipTen.run == 10
-// spec190: ToTest[Nothing, Nothing] = mdoctools.ToTest@47c67c19
+// spec190: ToTest[Nothing, Nothing] = mdoctools.ToTest@3c205a8e
 // Heads
 // Heads
 // Heads
@@ -501,7 +501,6 @@ test("flips 10 times"):
 // Heads
 // Heads
 // Heads
-// + flips 10 times
 // Result: Test PASSED
 ```
 
@@ -548,7 +547,7 @@ test("rosencrantzAndGuildensternAreDead finishes"):
       .run
     rosencrantzAndGuildensternAreDead.run
     assertCompletes
-// spec194: ToTest[String, Nothing] = mdoctools.ToTest@63b2ce4
+// spec194: ToTest[String, Nothing] = mdoctools.ToTest@3de41291
 // *Performance Begins*
 // R: Heads
 // R: Heads
@@ -561,7 +560,6 @@ test("rosencrantzAndGuildensternAreDead finishes"):
 // R: Heads
 // G: ...probability
 // R: Heads
-// + rosencrantzAndGuildensternAreDead finishes
 // Result: Test PASSED
 ```
 
@@ -618,9 +616,8 @@ test("batch runs after 24 hours"):
       .run
 
     assertCompletes
-// spec229: ToTest[Nothing, Nothing] = mdoctools.ToTest@673f8424
+// spec229: ToTest[Nothing, Nothing] = mdoctools.ToTest@615d500e
 // Parsing CSV: ()
-// + batch runs after 24 hours
 // Result: Test PASSED
 ```
 
