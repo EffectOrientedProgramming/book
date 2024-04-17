@@ -25,6 +25,7 @@ jobs:
         source-files: 'Examples/'
         destination-username: 'EffectOrientedProgramming'
         destination-repository: 'examples'
+        destination_branch: 'main'
         commit-email: '${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com'
 
     - uses: test-room-7/action-update-file@v1

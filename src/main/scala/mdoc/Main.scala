@@ -297,7 +297,8 @@ def partsToExamples(
          |""".stripMargin,
           "\n    + ",
           "\n"
-        ).replace("+     ", "+ ") // hackier
+        )
+        .replace("+     ", "+ ") // hackier
 
   (runCode, testCode)
 end partsToExamples
