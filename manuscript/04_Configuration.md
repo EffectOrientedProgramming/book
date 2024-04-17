@@ -468,17 +468,17 @@ val flipTen =
 ```scala mdoc:runzio
 def run =
   flipTen
-// Tails
-// Heads
-// Heads
-// Heads
-// Heads
-// Heads
-// Heads
 // Heads
 // Heads
 // Tails
-// Result: 8
+// Tails
+// Tails
+// Tails
+// Heads
+// Tails
+// Heads
+// Tails
+// Result: 4
 ```
 
 ```scala mdoc:testzio
@@ -490,7 +490,7 @@ test("flips 10 times"):
       .run
     assertTrue:
       flipTen.run == 10
-// spec190: ToTest[Nothing, Nothing] = mdoctools.ToTest@5673aca9
+// spec190: ToTest[Nothing, Nothing] = mdoctools.ToTest@12643e97
 // Heads
 // Heads
 // Heads
@@ -501,6 +501,7 @@ test("flips 10 times"):
 // Heads
 // Heads
 // Heads
+// + flips 10 times
 // Result: Test PASSED
 ```
 
@@ -547,7 +548,7 @@ test("rosencrantzAndGuildensternAreDead finishes"):
       .run
     rosencrantzAndGuildensternAreDead.run
     assertCompletes
-// spec194: ToTest[String, Nothing] = mdoctools.ToTest@1f9f8683
+// spec194: ToTest[String, Nothing] = mdoctools.ToTest@673f8424
 // *Performance Begins*
 // R: Heads
 // R: Heads
@@ -560,6 +561,7 @@ test("rosencrantzAndGuildensternAreDead finishes"):
 // R: Heads
 // G: ...probability
 // R: Heads
+// + rosencrantzAndGuildensternAreDead finishes
 // Result: Test PASSED
 ```
 
@@ -616,8 +618,9 @@ test("batch runs after 24 hours"):
       .run
 
     assertCompletes
-// spec229: ToTest[Nothing, Nothing] = mdoctools.ToTest@3de41291
+// spec229: ToTest[Nothing, Nothing] = mdoctools.ToTest@580936b0
 // Parsing CSV: ()
+// + batch runs after 24 hours
 // Result: Test PASSED
 ```
 

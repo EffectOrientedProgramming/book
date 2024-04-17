@@ -244,7 +244,7 @@ override val bootstrap =
 
 def run =
   effect6
-// Result: (PT0.000619889S,User saved)
+// Result: (PT0.000708038S,User saved)
 ```
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.
 
