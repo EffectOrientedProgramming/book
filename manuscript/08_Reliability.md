@@ -186,15 +186,15 @@ def run =
       .timedSecondsDebug:
         "Total time"
       .run
-// James called API [took 0s]
-// Bill called API [took 1s]
-// Bruce called API [took 2s]
-// James called API [took 3s]
+// Bill called API [took 0s]
+// Bruce called API [took 1s]
+// James called API [took 2s]
 // Bill called API [took 3s]
 // Bruce called API [took 3s]
 // James called API [took 3s]
 // Bill called API [took 3s]
 // Bruce called API [took 3s]
+// James called API [took 3s]
 // Total time [took 8s]
 // Result: List((), (), ())
 ```
