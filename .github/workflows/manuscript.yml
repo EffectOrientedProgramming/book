@@ -20,7 +20,7 @@ jobs:
 
     - uses: nkoppel/push-files-to-another-repository@v1.1.2
       env:
-        API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
+        API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
       with:
         source-files: 'Examples/'
         destination-username: 'EffectOrientedProgramming'
