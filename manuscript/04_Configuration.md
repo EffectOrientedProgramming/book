@@ -470,14 +470,14 @@ def run =
   flipTen
 // Heads
 // Heads
-// Heads
-// Heads
-// Tails
-// Heads
 // Tails
 // Tails
 // Heads
+// Heads
 // Tails
+// Tails
+// Heads
+// Heads
 // Result: 6
 ```
 
@@ -490,7 +490,7 @@ test("flips 10 times"):
       .run
     assertTrue:
       flipTen.run == 10
-// spec190: ToTest[Nothing, Nothing] = mdoctools.ToTest@177dcd77
+// spec190: ToTest[Nothing, Nothing] = mdoctools.ToTest@1e5975db
 // Heads
 // Heads
 // Heads
@@ -501,6 +501,7 @@ test("flips 10 times"):
 // Heads
 // Heads
 // Heads
+// + flips 10 times
 // Result: Test PASSED
 ```
 
@@ -547,7 +548,7 @@ test("rosencrantzAndGuildensternAreDead finishes"):
       .run
     rosencrantzAndGuildensternAreDead.run
     assertCompletes
-// spec194: ToTest[String, Nothing] = mdoctools.ToTest@42fa4f9d
+// spec194: ToTest[String, Nothing] = mdoctools.ToTest@190f1d4a
 // *Performance Begins*
 // R: Heads
 // R: Heads
@@ -560,6 +561,7 @@ test("rosencrantzAndGuildensternAreDead finishes"):
 // R: Heads
 // G: ...probability
 // R: Heads
+// + rosencrantzAndGuildensternAreDead finishes
 // Result: Test PASSED
 ```
 
@@ -616,8 +618,9 @@ test("batch runs after 24 hours"):
       .run
 
     assertCompletes
-// spec229: ToTest[Nothing, Nothing] = mdoctools.ToTest@5f97adc9
+// spec229: ToTest[Nothing, Nothing] = mdoctools.ToTest@73707d4
 // Parsing CSV: ()
+// + batch runs after 24 hours
 // Result: Test PASSED
 ```
 
