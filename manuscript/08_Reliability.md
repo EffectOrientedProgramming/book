@@ -360,7 +360,7 @@ def run =
       .get
       .debug("Contract Breaches")
       .run
-// Result: 0
+// Result: 2
 ```
 
 #### Restricting Time
