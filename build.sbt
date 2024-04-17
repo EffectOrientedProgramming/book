@@ -19,7 +19,7 @@ mdocIn := file("Chapters")
 mdocOut := file("manuscript")
 
 // Tells our example extraction code where to put the extracted examples
-val examplesDir = "Examples"
+val examplesDir = "examples"
 
 val zioVersion = "2.0.22"
 

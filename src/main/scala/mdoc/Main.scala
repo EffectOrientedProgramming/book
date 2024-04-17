@@ -378,6 +378,19 @@ def processFile(
       withoutRunnableParts
     )
 
+  val manuscriptMarkdown =
+    runnableMarkdown.copy(
+      parts =
+        withoutRunnableParts.map {
+          case codeFence: CodeFence =>
+            // turn scala mdoc(*) into just scala
+            codeFence.newInfo = Some(codeFence.info.value.takeWhile(_ != ' ') + "\n")
+            codeFence
+          case p: MarkdownPart =>
+            p
+        }
+    )
+
   if mainSettings.reporter.hasErrors then
     println("Not writing outputs due to errors")
     // todo: show just the error block?
@@ -389,7 +402,7 @@ def processFile(
     )
     Files.write(
       inputFile.outputFile.toNIO,
-      withoutRunnable
+      manuscriptMarkdown
         .renderToString
         .getBytes(mainSettings.settings.charset)
     )

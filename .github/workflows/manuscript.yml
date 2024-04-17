@@ -17,19 +17,6 @@ jobs:
 
     - run: |
         ./sbt genManuscript
-        # the .gitignore prevents the next step from
-        # getting the ignored Examples/src dir
-        rm .gitignore
-
-    - uses: datalbry/copy_folder_to_another_repo_action@1.0.1
-      env:
-        API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
-      with:
-        source_folder: 'Examples/src'
-        destination_folder: 'src'
-        destination_repo: 'EffectOrientedProgramming/examples'
-        destination_branch: 'main'
-        user_email: '${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com'
 
     - uses: test-room-7/action-update-file@v1
       with:
