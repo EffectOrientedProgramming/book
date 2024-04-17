@@ -17,12 +17,15 @@ jobs:
 
     - run: |
         ./sbt genManuscript
+        # the .gitignore prevents the next step from
+        # getting the ignored Examples/src dir
+        rm .gitignore
 
     - uses: nkoppel/push-files-to-another-repository@v1.1.2
       env:
         API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
       with:
-        source-files: 'Examples/*'
+        source-files: 'Examples/* Examples/.gitignore'
         destination-username: 'EffectOrientedProgramming'
         destination-repository: 'examples'
         destination-branch: 'main'
