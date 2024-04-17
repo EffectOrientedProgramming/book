@@ -16,10 +16,24 @@ jobs {
   ["test"] = new {
     `runs-on` = "ubuntu-latest"
 
-    steps = (GitHubAction.Scala.sbtTestSteps("test genManuscript", null, null)) {
+    steps {
+      new {
+        uses = "actions/checkout@v4"
+        with {
+          ["submodules"] = "recursive"
+          ["token"] = "${{ secrets.API_TOKEN_GITHUB }}"
+        }
+      }
+
+      GitHubAction.Java.setupJava(null, "21", "sbt")
+
+      new {
+        run = "sbt test genManuscript"
+      }
+
       new {
         run = "sbt test"
-        `working-directory` = "Examples"
+        `working-directory` = "examples"
       }
     }
   }

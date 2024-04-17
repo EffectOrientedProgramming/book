@@ -7,11 +7,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        token: ${{ secrets.API_TOKEN_GITHUB }}
     - uses: actions/setup-java@v4
       with:
         distribution: temurin
-        java-version: '20'
+        java-version: '21'
         cache: sbt
     - run: sbt test genManuscript
     - run: sbt test
-      working-directory: Examples
+      working-directory: examples
