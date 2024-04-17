@@ -1,5 +1,6 @@
 # Superpowers with Effects
 
+
 ```scala mdoc:invisible
 enum Scenario:
   case HappyPath
@@ -7,6 +8,10 @@ enum Scenario:
   case NumberOfSlowCall(ref: Ref[Int])
   case WorksOnTry(attempts: Int, ref: Ref[Int])
 
+// This configuration is used by effects to get the scenario that
+// may have been passed in via `bootstrap`
+// The configuration is optional and the default of `Config.fail`
+// sets the Option to None.
 val scenarioConfig: Config[Option[Scenario]] =
   Config.Optional[Scenario](Config.fail("no default scenario"))
 

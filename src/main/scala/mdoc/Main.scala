@@ -295,9 +295,9 @@ def partsToExamples(
          |object Example${baseName}Spec extends ZIOSpecDefault:
          |  def spec = suite(\"suite\"):
          |""".stripMargin,
-          "\n    +\n",
+          "\n    + ",
           "\n"
-        )
+        ).replace("+     ", "+ ") // hackier
 
   (runCode, testCode)
 end partsToExamples

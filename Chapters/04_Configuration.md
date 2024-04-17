@@ -462,7 +462,7 @@ def run =
 ```
 
 ```scala mdoc:testzio
-test("flips"):
+test("flips 10 times"):
   defer:
     TestRandom
       .feedBooleans(true)
@@ -505,7 +505,7 @@ val rosencrantzAndGuildensternAreDead =
 ```
 
 ```scala mdoc:testzio
-test("play"):
+test("rosencrantzAndGuildensternAreDead finishes"):
   defer:
     TestRandom
       .feedBooleans:
@@ -558,7 +558,7 @@ val nightlyBatch =
 ```
 
 ```scala mdoc:testzio
-test("time"):
+test("batch runs after 24 hours"):
   val timeTravel =
     TestClock.adjust:
       24.hours
