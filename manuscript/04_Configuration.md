@@ -469,16 +469,16 @@ val flipTen =
 def run =
   flipTen
 // Heads
-// Tails
-// Tails
-// Tails
+// Heads
+// Heads
 // Heads
 // Tails
 // Heads
 // Tails
+// Tails
 // Heads
-// Heads
-// Result: 5
+// Tails
+// Result: 6
 ```
 
 ```scala
