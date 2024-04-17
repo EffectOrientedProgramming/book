@@ -148,7 +148,6 @@ def run =
     textAlert:
       topStory
     .run
-// Texting story: Battery Breakthrough
 // Result: ()
 ```
 
@@ -173,7 +172,6 @@ def run =
       ???
     .catchAll:
       logAndProvideDefault
-// an implementation is missing
 // Result: default value
 ```
 
@@ -318,7 +316,7 @@ def run =
   closeableFileZ
 // Opening file!
 // Closing file!
-// Result: repl.MdocSession$MdocApp$$anon$19@4e3f9546
+// Result: repl.MdocSession$MdocApp$$anon$19@3cde22d9
 ```
 
 Since that is not terribly useful, let's start calling some methods on our managed file.
