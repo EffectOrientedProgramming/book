@@ -85,7 +85,7 @@ test("random is random"):
   defer:
     assertTrue:
       Random.nextIntBounded(10).run < 10
-// spec50: ToTest[Nothing, Nothing] = mdoctools.ToTest@117782a
+// spec50: ToTest[Nothing, Nothing] = mdoctools.ToTest@121476da
 // Result: Test PASSED
 ```
 
@@ -100,7 +100,7 @@ test("random is still random"):
       Random.nextIntBetween(0, 10).run <= 10 &&
       Random.nextIntBetween(10, 20).run <= 20 &&
       Random.nextIntBetween(20, 30).run <= 30
-// spec56: ToTest[Nothing, Nothing] = mdoctools.ToTest@4dc2c42b
+// spec56: ToTest[Nothing, Nothing] = mdoctools.ToTest@3c83e4b
 // Result: Test PASSED
 ```
 
@@ -151,7 +151,7 @@ test("console works"):
           |""".stripMargin
     assertTrue:
       capturedOutput == expectedOutput
-// spec70: ToTest[Nothing, Nothing] = mdoctools.ToTest@57e117da
+// spec70: ToTest[Nothing, Nothing] = mdoctools.ToTest@9352f58
 // Result: Test PASSED
 ```
 
