@@ -20,6 +20,11 @@ jobs:
 
     - run: |
         ./sbt genManuscript
+
+    - name: Update Examples
+      continue-on-error: true
+      run: |
+        git submodule update --init --recursive
         cd examples
         git config --global user.name 'James Ward'
         git config --global user.email 'jamesward@users.noreply.github.com'
