@@ -25,7 +25,8 @@ jobs:
       env:
         API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
       with:
-        source_folder: 'Examples'
+        source_folder: 'Examples/src'
+        destination_folder: 'src'
         destination_repo: 'EffectOrientedProgramming/examples'
         destination_branch: 'main'
         user_email: '${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com'
