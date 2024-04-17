@@ -140,7 +140,7 @@ Another term for this form of composition is called `andThen` in Scala.
 
 With ZIO you can use `zio-direct` to compose ZIOs sequentially with:
 
-```scala mdoc:runzio
+```scala
 def run =
   defer:
     val topStory =
@@ -156,7 +156,7 @@ The methods for composability depend on the desired behavior.
 For example, to compose a ZIO that can produce an error with a ZIO that logs the error and then produces a default value, you can use the `catchAll` like:
 
 
-```scala mdoc:runzio
+```scala
 // TODO Consider deleting .as
 //   The problem is we can't return literals in zio-direct.
 def logAndProvideDefault(e: Throwable) =
@@ -223,14 +223,14 @@ val getHeadlineZ =
         HeadlineNotAvailable()
 ```
 
-```scala mdoc:runzio
+```scala
 def run =
   getHeadlineZ
 // Result: stock market crash!
 ```
 Now let's confirm the behavior when the headline is not available.
 
-```scala mdoc:runzio
+```scala
 // This controls some invisible machinery
 headLineAvailable =
   false
@@ -267,7 +267,7 @@ def topicOfInterestZ(headline: String) =
       NoInterestingTopic()
 ```
 
-```scala mdoc:runzio
+```scala
 // This controls some invisible machinery
 headLineAvailable =
   true
@@ -278,7 +278,7 @@ def run =
 // Result: stock market
 ```
 
-```scala mdoc:runzio
+```scala
 def run =
   topicOfInterestZ:
     "boring and inane content"
@@ -311,12 +311,12 @@ Once we do this, the `ZIO` runtime will manage the lifecycle of this object via 
 TODO Link to docs for this?
 In the simplest case, we open and close the file, with no logic while it is iopen.
 
-```scala mdoc:runzio
+```scala
 def run =
   closeableFileZ
 // Opening file!
 // Closing file!
-// Result: repl.MdocSession$MdocApp$$anon$19@350db1e3
+// Result: repl.MdocSession$MdocApp$$anon$19@4a7fb8d3
 ```
 
 Since that is not terribly useful, let's start calling some methods on our managed file.
@@ -326,7 +326,7 @@ Since that is not terribly useful, let's start calling some methods on our manag
 closeableFile().contains("something"): Boolean
 ```
 
-```scala mdoc:runzio
+```scala
 def run =
   defer:
     val file =
@@ -355,7 +355,7 @@ def writeToFileZ(
     .orDie
 ```
 
-```scala mdoc:runzio
+```scala
 def run =
   defer:
     val file =
@@ -386,14 +386,14 @@ def summaryForZ(topic: String) =
       topic
 ```
 
-```scala mdoc:runzio
+```scala
 def run =
   summaryForZ:
     "stock market"
 // Result: detailed history of stock market
 ```
 
-```scala mdoc:runzio
+```scala
 def run =
   summaryForZ:
     "obscureTopic"
@@ -433,7 +433,7 @@ val researchWorkflow =
 ```
 
 
-```scala mdoc:runzio
+```scala
 def run =
   researchWorkflow
     // todo: some error handling to show that

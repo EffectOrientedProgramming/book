@@ -51,10 +51,10 @@ val unreliableCounting =
     "Final count: " + ZIO.succeed(counter).run
 ```
 
-```scala mdoc:runzio
+```scala
 def run =
   unreliableCounting
-// Result: Final count: 97147
+// Result: Final count: 99123
 ```
 
 Due to the unpredictable nature of shared mutable state, we do not know exactly what the final count above is.
@@ -63,6 +63,7 @@ However, conflicts are extremely likely, so some of our writes get clobbered by 
 Ultimately, we lose information with this approach.
 
 ```
+
 TODO Consider making a diagram parallel writes
 ```
 Performing our side effects inside ZIO's does not magically make them safe.
@@ -70,7 +71,7 @@ We need to fully embrace the ZIO components, utilizing `Ref` for correct mutatio
 
 ## Reliable State
 
-```scala mdoc:runzio
+```scala
 lazy val reliableCounting =
   def incrementCounter(counter: Ref[Int]) =
     counter.update:
@@ -126,7 +127,7 @@ def update(counter: Ref[Int]) =
       previousValue + 1
 ```
 
-```scala mdoc:runzio
+```scala
 def run =
   defer:
     val counter =
@@ -187,7 +188,7 @@ val sideEffectingUpdatesSync =
     s"Final count: $finalCount"
 ```
 
-```scala mdoc:runzio
+```scala
 def run =
   sideEffectingUpdatesSync
 // Alert: updating count!

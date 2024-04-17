@@ -15,6 +15,7 @@ We want to show the user a page that shows the current temperature at their loca
 It will look like this
 
 ```text
+
 Temperature: 30 degrees
 ```
 
@@ -57,7 +58,7 @@ def temperatureApp(): String =
     getTemperatureOrThrow()
 ```
 
-```scala mdoc:runzio
+```scala
 def run =
   ZIO.attempt:
     temperatureApp()
@@ -68,7 +69,7 @@ On the happy path, everything looks as desired.
 If the network is unavailable, what is the behavior for the caller?
 If we don't make any attempt to handle our problem, the whole program blows up and shows the gory details to the user.
 
-```scala mdoc:runzio
+```scala
 scenario = ErrorsScenario.NetworkError
   
 def run =
@@ -93,7 +94,7 @@ def temperatureCatchingApp(): String =
         "Failure"
 ```
 
-```scala mdoc:runzio
+```scala
 scenario = ErrorsScenario.NetworkError
 
 def run =
@@ -119,7 +120,7 @@ def temperatureCatchingMoreApp(): String =
       "GPS Hardware Failure"
 ```
 
-```scala mdoc:runzio
+```scala
 scenario = ErrorsScenario.NetworkError
 
 def run =
@@ -128,7 +129,7 @@ def run =
 // Result: Network Unavailable
 ```
 
-```scala mdoc:runzio
+```scala
 scenario = ErrorsScenario.GPSError
 
 def run =
@@ -162,7 +163,7 @@ You just don't know what you're going to get when you use exceptions.
 ZIO enables more powerful, uniform error-handling.
 
 
-```scala mdoc:runzio
+```scala
 override val bootstrap =
   errorsHappyPath
 
@@ -172,7 +173,7 @@ def run =
 ```
 
 Running the ZIO version without handling any errors
-```scala mdoc:runzio
+```scala
 override val bootstrap =
   errorsNetworkError
 
@@ -208,7 +209,7 @@ val temperatureAppComplete =
         "GPS Hardware Failure"
 ```
 
-```scala mdoc:runzio
+```scala
 override val bootstrap =
   errorsGpsError
 
@@ -268,7 +269,7 @@ val displayTemperatureZWrapped =
         "GPS problem"
 ```
 
-```scala mdoc:runzio
+```scala
 scenario = ErrorsScenario.HappyPath
 
 def run =
@@ -276,7 +277,7 @@ def run =
 // Result: 35 degrees
 ```
 
-```scala mdoc:runzio
+```scala
 scenario = ErrorsScenario.NetworkError
 
 def run =
@@ -288,7 +289,7 @@ This is decent, but does not provide the maximum possible guarantees.
 Look at what happens if we forget to handle one of our errors.
 
 
-```scala mdoc:runzio
+```scala
 scenario = ErrorsScenario.GPSError
 
 def run =
@@ -304,7 +305,7 @@ Take extra care when interacting with legacy code
 , since we cannot automatically recognize these situations at compile time.
 We can provide a fallback case that will report anything we missed:
 
-```scala mdoc:runzio
+```scala
 scenario = ErrorsScenario.GPSError
 
 def run =

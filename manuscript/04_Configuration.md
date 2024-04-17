@@ -66,7 +66,7 @@ object Dough:
 ## Step 1: Provide Dependency Layers to Effects
 We must provide all required dependencies to an effect before you can run it.
 
-```scala mdoc:runzio
+```scala
 def run =
   ZIO
     .serviceWithZIO[Dough]:
@@ -138,7 +138,7 @@ Something around how like typical DI, the "graph" of dependencies gets resolved 
 This typically happens in some completely new/custom phase, that does follow standard code paths.
 Dependencies on effects propagate to effects which use effects.
 
-```scala mdoc:runzio
+```scala
 def run =
   ZIO
     .service[Bread]
@@ -165,7 +165,7 @@ In this case both `Toast.make` and `Bread.homemade` require `Heat`.
 
 Notice - Even though we provide the same dependencies in this example, oven is _also_ required by `Toast.make`
 
-```scala mdoc:runzio
+```scala
 def run =
   ZIO
     .service[Toast]
@@ -187,7 +187,7 @@ val toaster =
   ZLayer.derive[Heat]
 ```
 
-```scala mdoc:runzio
+```scala
 def run =
   ZIO
     .service[Heat]
@@ -230,7 +230,7 @@ It cannot decide if we should be making `Toast` in the oven, `Bread` in the toas
 ## Step 6: Providing Dependencies at Different Levels
 This enables other effects that use them to provide their own dependencies of the same type
 
-```scala mdoc:runzio
+```scala
 def run =
   ZIO
     .serviceWithZIO[Bread]:
@@ -263,7 +263,7 @@ val storeBought =
     buyBread
 ```
 
-```scala mdoc:runzio
+```scala
 def run =
   ZIO
     .service[Bread]
@@ -277,7 +277,7 @@ def run =
 Since dependencies can be built with effects, this means that they can fail.
 
 
-```scala mdoc:runzio
+```scala
 def run =
   ZIO
     .service[Bread]
@@ -291,7 +291,7 @@ def run =
 
 ## Step 9: Fallback Dependencies
 
-```scala mdoc:runzio
+```scala
 def run =
   ZIO
     .service[Bread]
@@ -308,7 +308,7 @@ def run =
 
 ## Step 10: Dependency Retries
 
-```scala mdoc:runzio
+```scala
 def run =
   ZIO
     .service[Bread]
@@ -325,7 +325,7 @@ def run =
 // Result: Error(Friend Unreachable)
 ```
 
-```scala mdoc:runzio
+```scala
 def run =
   ZIO
     .service[Bread]
@@ -347,7 +347,7 @@ def run =
 
 Maybe retry on the ZLayer eg. (BreadDough.rancid, Heat.brokenFor10Seconds)
 
-```scala mdoc:runzio
+```scala
 def run =
   ZIO
     .service[Bread]
@@ -395,7 +395,7 @@ val config =
         configProvider
 ```
 
-```scala mdoc:runzio
+```scala
 def run =
   ZIO
     .serviceWithZIO[RetryConfig]:
@@ -465,23 +465,23 @@ val flipTen =
       .size
 ```
 
-```scala mdoc:runzio
+```scala
 def run =
   flipTen
 // Heads
-// Heads
-// Tails
-// Tails
 // Tails
 // Tails
 // Heads
+// Heads
 // Tails
 // Heads
 // Tails
-// Result: 4
+// Tails
+// Heads
+// Result: 5
 ```
 
-```scala mdoc:testzio
+```scala
 test("flips 10 times"):
   defer:
     TestRandom
@@ -490,7 +490,7 @@ test("flips 10 times"):
       .run
     assertTrue:
       flipTen.run == 10
-// spec190: ToTest[Nothing, Nothing] = mdoctools.ToTest@12643e97
+// spec190: ToTest[Nothing, Nothing] = mdoctools.ToTest@69ef1ff1
 // Heads
 // Heads
 // Heads
@@ -537,7 +537,7 @@ val rosencrantzAndGuildensternAreDead =
     rosencrantzCoinToss.run
 ```
 
-```scala mdoc:testzio
+```scala
 test("rosencrantzAndGuildensternAreDead finishes"):
   defer:
     TestRandom
@@ -548,7 +548,7 @@ test("rosencrantzAndGuildensternAreDead finishes"):
       .run
     rosencrantzAndGuildensternAreDead.run
     assertCompletes
-// spec194: ToTest[String, Nothing] = mdoctools.ToTest@673f8424
+// spec194: ToTest[String, Nothing] = mdoctools.ToTest@73707d4
 // *Performance Begins*
 // R: Heads
 // R: Heads
@@ -605,7 +605,7 @@ val nightlyBatch =
       "Parsing CSV"
 ```
 
-```scala mdoc:testzio
+```scala
 test("batch runs after 24 hours"):
   val timeTravel =
     TestClock.adjust:
@@ -618,7 +618,7 @@ test("batch runs after 24 hours"):
       .run
 
     assertCompletes
-// spec229: ToTest[Nothing, Nothing] = mdoctools.ToTest@580936b0
+// spec229: ToTest[Nothing, Nothing] = mdoctools.ToTest@62b5606a
 // Parsing CSV: ()
 // + batch runs after 24 hours
 // Result: Test PASSED
@@ -630,6 +630,7 @@ It completes when the first Effect succeeds and cancels the losing Effect, using
 By default in ZIO Test, the clock does not change unless instructed to.
 Calling a time based effect like `timeout` would hang indefinitely with a warning like:
 ```
+
 Warning: A test is using time, but is not advancing the test clock, which may result in the test hanging. 
 Use TestClock.adjust to manually advance the time.
 ```

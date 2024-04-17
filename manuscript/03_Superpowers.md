@@ -33,13 +33,14 @@ The Effect does not execute until we explicitly run it.
 Effects can be run as "main" programs, embedded in other programs, or in tests.
 Normally to run an Effect with ZIO as a "main" program we do this:
 ```scala
+
 object MyApp extends ZIOAppDefault:
   def run =
     effect0
 ```
 
 In this book, to avoid the excess lines, we can shorten this to:
-```scala mdoc:runzio
+```scala
 def run =
   effect0
 // Result: User saved
@@ -48,7 +49,7 @@ def run =
 By default, the `saveUser` Effect runs in the "happy path" so that it will not fail.
 
 We can explicitly specify the way in which this Effect will run by overriding the `bootstrap` value: 
-```scala mdoc:runzio
+```scala
 override val bootstrap =
   happyPath
 
@@ -63,7 +64,7 @@ In real systems, assuming the "happy path" causes strange errors for users becau
 
 We can also run `effect` in a scenario that will cause it to fail.
 
-```scala mdoc:runzio
+```scala
 override val bootstrap =
   neverWorks
 
@@ -95,7 +96,7 @@ By combining them, we get a `Schedule` that does something only 3 times and once
 Schedules can be applied to many different capabilities.
 We do this because we assume the failure will likely be resolved within 3 seconds.
 
-```scala mdoc:runzio
+```scala
 override val bootstrap =
   doesNotWorkInitially
 
@@ -108,7 +109,7 @@ The output shows that running the Effect failed twice trying to save the user, t
 
 ### What If It Never Succeeds?
 
-```scala mdoc:runzio
+```scala
 override val bootstrap =
   neverWorks
 
@@ -130,7 +131,7 @@ val effect2 =
     "ERROR: User could not be saved"
 ```
 
-```scala mdoc:runzio
+```scala
 override val bootstrap =
   neverWorks
 
@@ -164,7 +165,7 @@ Cancellation will shut down the effect in a predictable way.
 The Effect System supports predictable cancellation of Effects.
 Like the other capabilities for error handling, timeouts can be added to any Effect.
 
-```scala mdoc:runzio
+```scala
 override val bootstrap =
   firstIsSlow
 
@@ -189,7 +190,7 @@ val effect4 =
 The `orElse` creates a new Effect with a fallback.
 The `sendToManualQueue` simulates alternative fallback logic.
 
-```scala mdoc:runzio
+```scala
 override val bootstrap =
   neverWorks
 
@@ -215,7 +216,7 @@ val effect5 =
 
 `fireAndForget` is a convenience method we defined (in hidden code) that makes it easy to run two effects in parallel and ignore any failures on the `logUserSignup` Effect.
 
-```scala mdoc:runzio
+```scala
 override val bootstrap =
   happyPath
 
@@ -238,13 +239,13 @@ val effect6 =
   effect5.timed
 ```
 
-```scala mdoc:runzio
+```scala
 override val bootstrap =
   happyPath
 
 def run =
   effect6
-// Result: (PT0.000708038S,User saved)
+// Result: (PT0.000519348S,User saved)
 ```
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.
 
@@ -258,7 +259,7 @@ val effect7 =
   effect6.when(userName != "Morty")
 ```
 
-```scala mdoc:runzio
+```scala
 override val bootstrap =
   happyPath
 

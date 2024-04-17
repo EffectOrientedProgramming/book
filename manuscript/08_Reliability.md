@@ -77,7 +77,7 @@ val popularService =
 In this world, each request to our `CloudStorage` provider will cost us one dollar.
 Egregious, but it will help us demonstrate the problem with small, round numbers.
 
-```scala mdoc:runzio
+```scala
 def run =
   thunderingHerdsScenario
     .provide(CloudStorage.live, popularService)
@@ -115,7 +115,7 @@ The only changes required are:
 
 Now when we run the same scenario, with our cache in place:
 
-```scala mdoc:runzio
+```scala
 def run =
   thunderingHerdsScenario.provide(
     CloudStorage.live,
@@ -155,7 +155,7 @@ extension (rateLimiter: RateLimiter)
     .repeatN(2) // Repeats as fast as allowed
 ```
 
-```scala mdoc:runzio
+```scala
 def run =
   defer:
     val rateLimiter =
@@ -172,7 +172,7 @@ def run =
 // Result: ()
 ```
 
-```scala mdoc:runzio
+```scala
 def run =
   defer:
     val rateLimiter =
@@ -186,15 +186,15 @@ def run =
       .timedSecondsDebug:
         "Total time"
       .run
-// Bruce called API [took 0s]
-// James called API [took 1s]
-// Bill called API [took 2s]
-// Bruce called API [took 3s]
-// James called API [took 3s]
+// Bill called API [took 0s]
+// Bruce called API [took 1s]
+// James called API [took 2s]
 // Bill called API [took 3s]
 // Bruce called API [took 3s]
 // James called API [took 3s]
 // Bill called API [took 3s]
+// Bruce called API [took 3s]
+// James called API [took 3s]
 // Total time [took 8s]
 // Result: List((), (), ())
 ```
@@ -204,7 +204,7 @@ If we want to ensure we don't accidentally DDOS a service, we can restrict the n
 
 
 
-```scala mdoc:runzio
+```scala
 def run =
   defer:
     val delicateResource =
@@ -223,7 +223,7 @@ def run =
 // Result: Killed the server!!
 ```
 
-```scala mdoc:runzio
+```scala
 import nl.vroste.rezilience.Bulkhead
 
 def run =
@@ -259,7 +259,7 @@ val repeatSchedule =
     Schedule.spaced(50.millis)
 ```
 
-```scala mdoc:runzio
+```scala
 def run =
   defer:
     val numCalls =
@@ -296,7 +296,7 @@ val makeCircuitBreaker =
   )
 ```
 
-```scala mdoc:runzio
+```scala
 def run =
   defer:
     val cb =
@@ -328,7 +328,7 @@ def run =
 
 
 
-```scala mdoc:runzio
+```scala
 def run =
   defer:
     val contractBreaches =

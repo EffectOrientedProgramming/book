@@ -32,7 +32,7 @@ If you are learning ZIO, you should start your exploration with `ZIOAppDefault`.
 It is the standard, simplest way to start executing your recipes.
 
 For this book we shorten the definition for running ZIO Effects to:
-```scala mdoc:runzio
+```scala
 def run =
   ZIO.debug:
     "hello, world"
@@ -80,7 +80,7 @@ object TestingZIOs extends ZIOSpecDefault:
 ```
 
 For this book we can shorten the test definition to:
-```scala mdoc:testzio
+```scala
 test("random is random"):
   defer:
     assertTrue:
@@ -93,7 +93,7 @@ TODO Justify defer syntax over for-comp for multi-statement assertions
 I think this example completes the objective
 TODO Change this to a Console app, where the logic & testing is more visceral
 
-```scala mdoc:testzio
+```scala
 test("random is still random"):
   defer:
     assertTrue:
@@ -133,7 +133,7 @@ We cannot execute this code and render the results for the book because it requi
 However, even if you are not trying to write demo code for a book, it is very limiting to need a user at the keyboard for your program to execute.
 Even for the smallest programs, it is slow, error-prone, and boring.
 
-```scala mdoc:testzio
+```scala
 test("console works"):
   defer:
     TestConsole

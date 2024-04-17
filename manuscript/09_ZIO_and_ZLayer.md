@@ -13,6 +13,7 @@ The way we get good compile errors is by having data types which "know" the ...
 
 We need an `Answer` about this scenario.  The scenario requires things and could produce an error.
 ```
+
 trait ZIO[Requirements, Error, Answer]
 ```
 
@@ -20,6 +21,7 @@ trait ZIO[Requirements, Error, Answer]
 The `ZIO` trait is at the center of our Effect-oriented world.
 
 ```scala
+
 trait ZIO[R, E, A]
 ```
 

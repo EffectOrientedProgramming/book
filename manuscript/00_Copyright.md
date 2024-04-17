@@ -75,6 +75,7 @@ In each source-code file you find a reference to the following copyright notice:
 {{ todo: update example repo urls }}
 
 ```text
+
 // Copyright.txt
 This computer source code is Copyright ©2021 MindView LLC.
 All Rights Reserved.
