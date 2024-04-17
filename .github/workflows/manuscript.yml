@@ -22,7 +22,7 @@ jobs:
       env:
         API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
       with:
-        source-files: 'Examples/'
+        source-files: 'Examples/*'
         destination-username: 'EffectOrientedProgramming'
         destination-repository: 'examples'
         destination-branch: 'main'
