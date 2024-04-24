@@ -81,11 +81,11 @@ object TestingZIOs extends ZIOSpecDefault:
 
 For this book we can shorten the test definition to:
 ```scala
-test("random is random"):
-  defer:
-    assertTrue:
-      Random.nextIntBounded(10).run < 10
-// spec50: ToTest[Nothing, Nothing] = mdoctools.ToTest@18056246
+def spec =
+  test("random is random"):
+    defer:
+      assertTrue:
+        Random.nextIntBounded(10).run < 10
 // Result: Test PASSED
 ```
 
@@ -94,13 +94,13 @@ I think this example completes the objective
 TODO Change this to a Console app, where the logic & testing is more visceral
 
 ```scala
-test("random is still random"):
-  defer:
-    assertTrue:
-      Random.nextIntBetween(0, 10).run <= 10 &&
-      Random.nextIntBetween(10, 20).run <= 20 &&
-      Random.nextIntBetween(20, 30).run <= 30
-// spec56: ToTest[Nothing, Nothing] = mdoctools.ToTest@35e12935
+def spec =
+  test("random is still random"):
+    defer:
+      assertTrue:
+        Random.nextIntBetween(0, 10).run <= 10 &&
+        Random.nextIntBetween(10, 20).run <= 20 &&
+        Random.nextIntBetween(20, 30).run <= 30
 // Result: Test PASSED
 ```
 
@@ -134,24 +134,24 @@ However, even if you are not trying to write demo code for a book, it is very li
 Even for the smallest programs, it is slow, error-prone, and boring.
 
 ```scala
-test("console works"):
-  defer:
-    TestConsole
-      .feedLines:
-        "Zeb"
-      .run
-
-    logic.run
-
-    val capturedOutput: String =
-      TestConsole.output.run.mkString
-    val expectedOutput =
-      s"""|Enter your name
-          |Hello Zeb
-          |""".stripMargin
-    assertTrue:
-      capturedOutput == expectedOutput
-// spec70: ToTest[Nothing, Nothing] = mdoctools.ToTest@4869c55d
+def spec =
+  test("console works"):
+    defer:
+      TestConsole
+        .feedLines:
+          "Zeb"
+        .run
+  
+      logic.run
+  
+      val capturedOutput: String =
+        TestConsole.output.run.mkString
+      val expectedOutput =
+        s"""|Enter your name
+            |Hello Zeb
+            |""".stripMargin
+      assertTrue:
+        capturedOutput == expectedOutput
 // Result: Test PASSED
 ```
 

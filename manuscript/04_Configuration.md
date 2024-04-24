@@ -469,28 +469,28 @@ val flipTen =
 def run =
   flipTen
 // Tails
+// Tails
+// Heads
+// Heads
+// Tails
+// Heads
+// Tails
 // Heads
 // Heads
 // Heads
-// Tails
-// Heads
-// Tails
-// Tails
-// Tails
-// Tails
-// Result: 4
+// Result: 6
 ```
 
 ```scala
-test("flips 10 times"):
-  defer:
-    TestRandom
-      .feedBooleans(true)
-      .repeatN(9)
-      .run
-    assertTrue:
-      flipTen.run == 10
-// spec190: ToTest[Nothing, Nothing] = mdoctools.ToTest@291f204b
+def spec =
+  test("flips 10 times"):
+    defer:
+      TestRandom
+        .feedBooleans(true)
+        .repeatN(9)
+        .run
+      assertTrue:
+        flipTen.run == 10
 // Heads
 // Heads
 // Heads
@@ -501,7 +501,6 @@ test("flips 10 times"):
 // Heads
 // Heads
 // Heads
-// + flips 10 times
 // Result: Test PASSED
 ```
 
@@ -538,17 +537,17 @@ val rosencrantzAndGuildensternAreDead =
 ```
 
 ```scala
-test("rosencrantzAndGuildensternAreDead finishes"):
-  defer:
-    TestRandom
-      .feedBooleans:
-        true
-      .repeatN:
-        7
-      .run
-    rosencrantzAndGuildensternAreDead.run
-    assertCompletes
-// spec194: ToTest[String, Nothing] = mdoctools.ToTest@33deeb18
+def spec =
+  test("rosencrantzAndGuildensternAreDead finishes"):
+    defer:
+      TestRandom
+        .feedBooleans:
+          true
+        .repeatN:
+          7
+        .run
+      rosencrantzAndGuildensternAreDead.run
+      assertCompletes
 // *Performance Begins*
 // R: Heads
 // R: Heads
@@ -561,31 +560,30 @@ test("rosencrantzAndGuildensternAreDead finishes"):
 // R: Heads
 // G: ...probability
 // R: Heads
-// + rosencrantzAndGuildensternAreDead finishes
 // Result: Test PASSED
 ```
 
-{{ TODO: Somehow truncate the output }}
 ```scala
-test("flaky plan"):
-  defer:
-    rosencrantzAndGuildensternAreDead.run
-    assertCompletes
-@@ TestAspect.withLiveRandom
-@@ TestAspect.flaky(500)
-// spec197: ToTest[String, Nothing] = mdoctools.ToTest@5c909d4d
+def spec =
+  test("flaky plan"):
+    defer:
+      rosencrantzAndGuildensternAreDead.run
+      assertCompletes
+  @@ TestAspect.withLiveRandom
+  @@ TestAspect.flaky(Int.MaxValue)
+// *Performance Begins*
+// R: Tails
 // *Performance Begins*
 // R: Heads
 // R: Heads
 // R: Tails
-// *Performance Begins*
 // ...
-//   	at repl.MdocSession.MdocApp.debugDemo(<input>:404)
-//   	at repl.MdocSession.MdocApp.rosencrantzAndGuildensternAreDead(<input>:482)
-//   	at zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19)
-//   	at zio.direct.ZioMonad.Success.$anon.map(ZioMonad.scala:18)
-//   	at repl.MdocSession.MdocApp.spec197(<input>:536)
-// Result: Test FAILED
+// R: Heads
+// G: Though it can be done by luck alone.
+// R: Heads
+// G: ...probability
+// R: Heads
+// Result: Test PASSED
 ```
 
 The `Random` Effect uses an injected something which when running the ZIO uses the system's unpredictable random number generator.  In ZIO Test the `Random` Effect uses a different something which can predictably generate "random" numbers.  `TestRandom` provides a way to define what those numbers are.  This example feeds in the `Int`s `1` and `2` so the first time we ask for a random number we get `1` and the second time we get `2`.
@@ -610,21 +608,20 @@ val nightlyBatch =
 ```
 
 ```scala
-test("batch runs after 24 hours"):
-  val timeTravel =
-    TestClock.adjust:
-      24.hours
-
-  defer:
-    nightlyBatch
-      .race:
-        timeTravel
-      .run
-
-    assertCompletes
-// spec213: ToTest[Nothing, Nothing] = mdoctools.ToTest@264f5eda
+def spec =
+  test("batch runs after 24 hours"):
+    val timeTravel =
+      TestClock.adjust:
+        24.hours
+  
+    defer:
+      nightlyBatch
+        .race:
+          timeTravel
+        .run
+  
+      assertCompletes
 // Parsing CSV: ()
-// + batch runs after 24 hours
 // Result: Test PASSED
 ```
 
