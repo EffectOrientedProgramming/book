@@ -469,13 +469,13 @@ val flipTen =
 def run =
   flipTen
 // Tails
+// Heads
+// Heads
+// Heads
 // Tails
 // Heads
-// Heads
 // Tails
 // Tails
-// Heads
-// Heads
 // Tails
 // Tails
 // Result: 4
@@ -490,7 +490,7 @@ test("flips 10 times"):
       .run
     assertTrue:
       flipTen.run == 10
-// spec190: ToTest[Nothing, Nothing] = mdoctools.ToTest@177dcd77
+// spec190: ToTest[Nothing, Nothing] = mdoctools.ToTest@291f204b
 // Heads
 // Heads
 // Heads
@@ -501,6 +501,7 @@ test("flips 10 times"):
 // Heads
 // Heads
 // Heads
+// + flips 10 times
 // Result: Test PASSED
 ```
 
@@ -547,7 +548,7 @@ test("rosencrantzAndGuildensternAreDead finishes"):
       .run
     rosencrantzAndGuildensternAreDead.run
     assertCompletes
-// spec194: ToTest[String, Nothing] = mdoctools.ToTest@42fa4f9d
+// spec194: ToTest[String, Nothing] = mdoctools.ToTest@33deeb18
 // *Performance Begins*
 // R: Heads
 // R: Heads
@@ -560,27 +561,32 @@ test("rosencrantzAndGuildensternAreDead finishes"):
 // R: Heads
 // G: ...probability
 // R: Heads
+// + rosencrantzAndGuildensternAreDead finishes
 // Result: Test PASSED
 ```
 
 {{ TODO: Somehow truncate the output }}
-[//]: # (```scala mdoc:testzio)
-
-[//]: # (TestAspect.withLiveRandom:)
-
-[//]: # (  TestAspect.flaky:)
-
-[//]: # (    test&#40;"flaky plan"&#41;:)
-
-[//]: # (      defer:)
-
-[//]: # (        rosencrantzAndGuildensternAreDead.run)
-
-[//]: # (        assertCompletes)
-
-[//]: # (// Result: Ran 537 times to complete)
-
-[//]: # (```)
+```scala
+test("flaky plan"):
+  defer:
+    rosencrantzAndGuildensternAreDead.run
+    assertCompletes
+@@ TestAspect.withLiveRandom
+@@ TestAspect.flaky(500)
+// spec197: ToTest[String, Nothing] = mdoctools.ToTest@5c909d4d
+// *Performance Begins*
+// R: Heads
+// R: Heads
+// R: Tails
+// *Performance Begins*
+// ...
+//   	at repl.MdocSession.MdocApp.debugDemo(<input>:404)
+//   	at repl.MdocSession.MdocApp.rosencrantzAndGuildensternAreDead(<input>:482)
+//   	at zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19)
+//   	at zio.direct.ZioMonad.Success.$anon.map(ZioMonad.scala:18)
+//   	at repl.MdocSession.MdocApp.spec197(<input>:536)
+// Result: Test FAILED
+```
 
 The `Random` Effect uses an injected something which when running the ZIO uses the system's unpredictable random number generator.  In ZIO Test the `Random` Effect uses a different something which can predictably generate "random" numbers.  `TestRandom` provides a way to define what those numbers are.  This example feeds in the `Int`s `1` and `2` so the first time we ask for a random number we get `1` and the second time we get `2`.
 
@@ -616,8 +622,9 @@ test("batch runs after 24 hours"):
       .run
 
     assertCompletes
-// spec229: ToTest[Nothing, Nothing] = mdoctools.ToTest@5f97adc9
+// spec213: ToTest[Nothing, Nothing] = mdoctools.ToTest@264f5eda
 // Parsing CSV: ()
+// + batch runs after 24 hours
 // Result: Test PASSED
 ```
 
