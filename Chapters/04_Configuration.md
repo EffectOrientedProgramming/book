@@ -518,23 +518,14 @@ test("rosencrantzAndGuildensternAreDead finishes"):
 ```
 
 {{ TODO: Somehow truncate the output }}
-[//]: # (```scala mdoc:testzio)
-
-[//]: # (TestAspect.withLiveRandom:)
-
-[//]: # (  TestAspect.flaky:)
-
-[//]: # (    test&#40;"flaky plan"&#41;:)
-
-[//]: # (      defer:)
-
-[//]: # (        rosencrantzAndGuildensternAreDead.run)
-
-[//]: # (        assertCompletes)
-
-[//]: # (// Result: Ran 537 times to complete)
-
-[//]: # (```)
+```scala mdoc:testzio
+test("flaky plan"):
+  defer:
+    rosencrantzAndGuildensternAreDead.run
+    assertCompletes
+@@ TestAspect.withLiveRandom
+@@ TestAspect.flaky(500)
+```
 
 The `Random` Effect uses an injected something which when running the ZIO uses the system's unpredictable random number generator.  In ZIO Test the `Random` Effect uses a different something which can predictably generate "random" numbers.  `TestRandom` provides a way to define what those numbers are.  This example feeds in the `Int`s `1` and `2` so the first time we ask for a random number we get `1` and the second time we get `2`.
 

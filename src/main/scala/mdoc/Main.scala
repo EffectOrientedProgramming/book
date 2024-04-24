@@ -114,7 +114,7 @@ def unembed(codeFence: CodeFence): CodeFence =
       .getMdocMode
       .contains("testzio")
   then
-    val newBody =
+    val linesWithoutMdocGunk =
       codeFence
         .newPart
         .getOrElse(codeFence.body.value)
@@ -122,11 +122,30 @@ def unembed(codeFence: CodeFence): CodeFence =
         .filterNot {
           line =>
             line.contains("ToTest:") ||
-            line.contains(
-              "getOrThrowFiberFailure()"
-            )
+              line.contains(
+                "getOrThrowFiberFailure()"
+              )
         }
         .map(_.stripPrefix("  "))
+        .toSeq
+
+    val outputLines =
+      linesWithoutMdocGunk.reverse.takeWhile(_.startsWith("//")).reverse
+
+    val codeLines =
+      linesWithoutMdocGunk.dropRight(outputLines.length)
+
+    val truncatedOutputLines =
+      if (outputLines.length >= 20) then
+        outputLines.take(6) ++ Seq("// ...") ++ outputLines.takeRight(6)
+      else
+        outputLines
+
+    val truncatedLines =
+      codeLines ++ truncatedOutputLines
+
+    val newBody =
+      truncatedLines
         .mkString("\n")
         .replaceAll(
           "(\\u001B\\[\\d+m)",
@@ -575,7 +594,7 @@ def mdocRunForce(
 ) =
   val mainSettings =
     mdoc.MainSettings()
-    // .withArgs(List("--verbose"))
+      //.withArgs(List("--verbose"))
 
   val directoryChangeEvent =
     DirectoryChangeEvent(
