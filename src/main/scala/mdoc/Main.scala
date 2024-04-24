@@ -296,27 +296,31 @@ def partsToExamples(
       ""
     else
       testParts
+        .zipWithIndex
         .map {
-          part =>
-            part
-              .newBody
-              .getOrElse(part.body.value)
-              .linesIterator
-              .map("    " + _)
-              .mkString("\n")
+          (part, num) =>
+            val body =
+              part
+                .newBody
+                .getOrElse(part.body.value)
+            val indented =
+              body
+                .linesIterator
+                .map("  " + _)
+                .mkString("\n")
+            s"""object Example${baseName}_${num} extends ZIOSpecDefault:
+               |$indented
+               |""".stripMargin
         }
         .mkString(
           s"""import zio.*
-         |import zio.direct.*
-         |import zio.test.*
-         |
-         |object Example${baseName}Spec extends ZIOSpecDefault:
-         |  def spec = suite(\"suite\"):
-         |""".stripMargin,
-          "\n    + ",
-          "\n"
+             |import zio.direct.*
+             |import zio.test.*
+             |
+             |""".stripMargin,
+          "\n\n",
+          ""
         )
-        .replace("+     ", "+ ") // hackier
 
   (runCode, testCode)
 end partsToExamples
@@ -368,7 +372,7 @@ def processFile(
 
   val runnableMarkdown =
     parsedToRunnable(parsed, newSettings)
-  println(runnableMarkdown.renderToString)
+//  println(runnableMarkdown.renderToString)
 
   val context =
     Context.fromSettings(
@@ -550,9 +554,11 @@ def processDir(
     force: Boolean =
       false
 ): Unit =
+  import scala.collection.parallel.ParSeq
+
   Files
     .list(mainSettings.settings.in.head.toNIO)
-    .toScala(LazyList)
+    .toScala(ParSeq)
     .foreach {
       file =>
         val directoryChangeEvent =

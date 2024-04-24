@@ -75,10 +75,11 @@ object TestingZIOs extends ZIOSpecDefault:
 
 For this book we can shorten the test definition to:
 ```scala mdoc:testzio
-test("random is random"):
-  defer:
-    assertTrue:
-      Random.nextIntBounded(10).run < 10
+def spec =
+  test("random is random"):
+    defer:
+      assertTrue:
+        Random.nextIntBounded(10).run < 10
 ```
 
 TODO Justify defer syntax over for-comp for multi-statement assertions
@@ -86,12 +87,13 @@ I think this example completes the objective
 TODO Change this to a Console app, where the logic & testing is more visceral
 
 ```scala mdoc:testzio
-test("random is still random"):
-  defer:
-    assertTrue:
-      Random.nextIntBetween(0, 10).run <= 10 &&
-      Random.nextIntBetween(10, 20).run <= 20 &&
-      Random.nextIntBetween(20, 30).run <= 30
+def spec =
+  test("random is still random"):
+    defer:
+      assertTrue:
+        Random.nextIntBetween(0, 10).run <= 10 &&
+        Random.nextIntBetween(10, 20).run <= 20 &&
+        Random.nextIntBetween(20, 30).run <= 30
 ```
 
 Consider a `Console` application:
@@ -124,23 +126,24 @@ However, even if you are not trying to write demo code for a book, it is very li
 Even for the smallest programs, it is slow, error-prone, and boring.
 
 ```scala mdoc:testzio
-test("console works"):
-  defer:
-    TestConsole
-      .feedLines:
-        "Zeb"
-      .run
-
-    logic.run
-
-    val capturedOutput: String =
-      TestConsole.output.run.mkString
-    val expectedOutput =
-      s"""|Enter your name
-          |Hello Zeb
-          |""".stripMargin
-    assertTrue:
-      capturedOutput == expectedOutput
+def spec =
+  test("console works"):
+    defer:
+      TestConsole
+        .feedLines:
+          "Zeb"
+        .run
+  
+      logic.run
+  
+      val capturedOutput: String =
+        TestConsole.output.run.mkString
+      val expectedOutput =
+        s"""|Enter your name
+            |Hello Zeb
+            |""".stripMargin
+      assertTrue:
+        capturedOutput == expectedOutput
 ```
 
 ## Interop with existing/legacy code via Unsafe

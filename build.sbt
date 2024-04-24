@@ -42,6 +42,7 @@ scalacOptions +=
 
 libraryDependencies ++=
   Seq(
+    "org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.4",
     "dev.zio" %% "zio"       % zioVersion,
     "dev.zio" %% "zio-cache" % "0.2.3",
     "dev.zio" %% "zio-config" % "4.0.1",
