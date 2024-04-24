@@ -32,8 +32,9 @@ trait ToRun:
     }
 end ToRun
 
-class ToTest[E, A](spec: Spec[Scope, E])
-    extends ToRun:
+abstract class ToTest[E, A] extends ToRun:
+  def spec: Spec[TestEnvironment & Scope, Any]
+
   def run =
     val liveEnvironment: Layer[
       Nothing,

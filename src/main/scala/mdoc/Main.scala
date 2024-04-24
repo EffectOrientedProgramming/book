@@ -62,10 +62,9 @@ def embed(
       .contains("testzio")
   then
     val pre =
-      s"val spec$num = mdoctools.ToTest:"
-
+      s"class Example${num}Spec extends mdoctools.ToTest:"
     val post =
-      s"spec$num.getOrThrowFiberFailure()"
+      s"Example${num}Spec().getOrThrowFiberFailure()"
     val newBody =
       pre +:
         codeFence
@@ -369,7 +368,7 @@ def processFile(
 
   val runnableMarkdown =
     parsedToRunnable(parsed, newSettings)
-  // println(runnableMarkdown.renderToString)
+  println(runnableMarkdown.renderToString)
 
   val context =
     Context.fromSettings(

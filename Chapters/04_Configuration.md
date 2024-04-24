@@ -462,14 +462,15 @@ def run =
 ```
 
 ```scala mdoc:testzio
-test("flips 10 times"):
-  defer:
-    TestRandom
-      .feedBooleans(true)
-      .repeatN(9)
-      .run
-    assertTrue:
-      flipTen.run == 10
+def spec =
+  test("flips 10 times"):
+    defer:
+      TestRandom
+        .feedBooleans(true)
+        .repeatN(9)
+        .run
+      assertTrue:
+        flipTen.run == 10
 ```
 
 ```scala mdoc:silent
@@ -505,26 +506,28 @@ val rosencrantzAndGuildensternAreDead =
 ```
 
 ```scala mdoc:testzio
-test("rosencrantzAndGuildensternAreDead finishes"):
-  defer:
-    TestRandom
-      .feedBooleans:
-        true
-      .repeatN:
-        7
-      .run
-    rosencrantzAndGuildensternAreDead.run
-    assertCompletes
+def spec =
+  test("rosencrantzAndGuildensternAreDead finishes"):
+    defer:
+      TestRandom
+        .feedBooleans:
+          true
+        .repeatN:
+          7
+        .run
+      rosencrantzAndGuildensternAreDead.run
+      assertCompletes
 ```
 
 {{ TODO: Somehow truncate the output }}
 ```scala mdoc:testzio
-test("flaky plan"):
-  defer:
-    rosencrantzAndGuildensternAreDead.run
-    assertCompletes
-@@ TestAspect.withLiveRandom
-@@ TestAspect.flaky(500)
+def spec =
+  test("flaky plan"):
+    defer:
+      rosencrantzAndGuildensternAreDead.run
+      assertCompletes
+  @@ TestAspect.withLiveRandom
+  @@ TestAspect.flaky(500)
 ```
 
 The `Random` Effect uses an injected something which when running the ZIO uses the system's unpredictable random number generator.  In ZIO Test the `Random` Effect uses a different something which can predictably generate "random" numbers.  `TestRandom` provides a way to define what those numbers are.  This example feeds in the `Int`s `1` and `2` so the first time we ask for a random number we get `1` and the second time we get `2`.
@@ -549,18 +552,19 @@ val nightlyBatch =
 ```
 
 ```scala mdoc:testzio
-test("batch runs after 24 hours"):
-  val timeTravel =
-    TestClock.adjust:
-      24.hours
-
-  defer:
-    nightlyBatch
-      .race:
-        timeTravel
-      .run
-
-    assertCompletes
+def spec =
+  test("batch runs after 24 hours"):
+    val timeTravel =
+      TestClock.adjust:
+        24.hours
+  
+    defer:
+      nightlyBatch
+        .race:
+          timeTravel
+        .run
+  
+      assertCompletes
 ```
 
 The `race` is between `nightlyBatch` and `timeTravel`.
