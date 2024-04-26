@@ -165,10 +165,6 @@ def run =
         "System"
       .timedSecondsDebug("Result")
       .run
-// System called API [took 0s]
-// System called API [took 1s]
-// System called API [took 1s]
-// Result [took 2s]
 // Result: ()
 ```
 
@@ -186,16 +182,6 @@ def run =
       .timedSecondsDebug:
         "Total time"
       .run
-// Bill called API [took 0s]
-// Bill called API [took 1s]
-// Bruce called API [took 2s]
-// James called API [took 3s]
-// Bill called API [took 3s]
-// Bruce called API [took 3s]
-// James called API [took 3s]
-// Bruce called API [took 2s]
-// James called API [took 2s]
-// Total time [took 8s]
 // Result: List((), (), ())
 ```
 
@@ -245,8 +231,6 @@ def run =
       .run
   .provideSome[Scope]:
     DelicateResource.live
-// Delicate Resource constructed.
-// Do not make more than 3 concurrent requests!
 // Result: All Requests Succeeded
 ```
 

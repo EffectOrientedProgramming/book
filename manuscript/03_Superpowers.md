@@ -70,6 +70,7 @@ override val bootstrap =
 
 def run =
   effect0
+// Log: **Database crashed!!**
 // Result: **Database crashed!!**
 ```
 
@@ -102,6 +103,7 @@ override val bootstrap =
 
 def run =
   effect1
+// Log: **Database crashed!!**
 // Result: User saved
 ```
 
@@ -115,6 +117,7 @@ override val bootstrap =
 
 def run =
   effect1
+// Log: **Database crashed!!**
 // Result: **Database crashed!!**
 ```
 
@@ -137,6 +140,7 @@ override val bootstrap =
 
 def run =
   effect2
+// Log: **Database crashed!!**
 // Result: ERROR: User could not be saved
 ```
 
@@ -245,7 +249,7 @@ override val bootstrap =
 
 def run =
   effect6
-// Result: (PT0.000402365S,User saved)
+// Result: (PT0.000451091S,User saved)
 ```
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.
 

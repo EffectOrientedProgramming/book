@@ -321,7 +321,6 @@ def run =
           Schedule.recurs:
             1
 // Attempt 1: Error(Friend Unreachable)
-// Attempt 2: Error(Friend Unreachable)
 // Result: Error(Friend Unreachable)
 ```
 
@@ -339,7 +338,6 @@ def run =
             2
 // Attempt 1: Error(Friend Unreachable)
 // Attempt 2: Error(Friend Unreachable)
-// Attempt 3: Succeeded
 // Result: BreadFromFriend()
 ```
 
@@ -413,8 +411,6 @@ def run =
     .provide:
       config
 // Attempt 1: Error(Friend Unreachable)
-// Attempt 2: Error(Friend Unreachable)
-// Attempt 3: Succeeded
 // Result: BreadFromFriend()
 ```
 
@@ -469,14 +465,14 @@ val flipTen =
 def run =
   flipTen
 // Tails
-// Tails
 // Heads
 // Heads
 // Tails
 // Heads
+// Heads
 // Tails
 // Heads
-// Heads
+// Tails
 // Heads
 // Result: 6
 ```
@@ -491,16 +487,6 @@ def spec =
         .run
       assertTrue:
         flipTen.run == 10
-// Heads
-// Heads
-// Heads
-// Heads
-// Heads
-// Heads
-// Heads
-// Heads
-// Heads
-// Heads
 // Result: Test PASSED
 ```
 
@@ -548,18 +534,6 @@ def spec =
         .run
       rosencrantzAndGuildensternAreDead.run
       assertCompletes
-// *Performance Begins*
-// R: Heads
-// R: Heads
-// R: Heads
-// R: Heads
-// R: Heads
-// G: There is an art to building suspense.
-// R: Heads
-// G: Though it can be done by luck alone.
-// R: Heads
-// G: ...probability
-// R: Heads
 // Result: Test PASSED
 ```
 
@@ -571,18 +545,6 @@ def spec =
       assertCompletes
   @@ TestAspect.withLiveRandom
   @@ TestAspect.flaky(Int.MaxValue)
-// *Performance Begins*
-// R: Tails
-// *Performance Begins*
-// R: Heads
-// R: Heads
-// R: Tails
-// ...
-// R: Heads
-// G: Though it can be done by luck alone.
-// R: Heads
-// G: ...probability
-// R: Heads
 // Result: Test PASSED
 ```
 
@@ -621,7 +583,6 @@ def spec =
         .run
   
       assertCompletes
-// Parsing CSV: ()
 // Result: Test PASSED
 ```
 
