@@ -21,6 +21,7 @@ trait ToRun:
           mdoctools
             .Rendering
             .renderEveryPossibleOutcomeZio(run)
+            .withConsole(OurConsole)
         val result =
           Runtime
             .unsafe

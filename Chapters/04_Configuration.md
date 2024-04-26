@@ -241,9 +241,9 @@ case class BreadFromFriend() extends Bread()
 object Friend:
   def forcedFailure(invocations: Int) =
     defer:
-      println(
+      Console.printLine(
         s"Attempt $invocations: Error(Friend Unreachable)"
-      )
+      ).run
       ZIO
         .when(true)(
           ZIO.fail("Error(Friend Unreachable)")
@@ -262,10 +262,10 @@ object Friend:
       else if invocations == 1 then
         ZIO.succeed(BreadFromFriend())
       else
-        println(
+        Console.printLine(
           s"Attempt $invocations: Succeeded"
-        )
-        ZIO.succeed(BreadFromFriend())
+        ).orDie.as:
+          BreadFromFriend()
 end Friend
 ```
 
@@ -413,18 +413,18 @@ An example of this is Random numbers.  Randomness is inherently unpredictable.  
 ```scala mdoc:invisible
 extension (z: ZIO.type)
   def debugDemo(s: String): UIO[Unit] =
-    ZIO.succeed(println(s))
+    Console.printLine(s).orDie
 
 extension [R, E, A](z: ZIO[R, E, A])
   def debugDemo(s: String): ZIO[R, E, A] =
     z.tapBoth(
-      e => ZIO.succeed(println(s"$s: $e")),
-      r => ZIO.succeed(println(s"$s: $r"))
+      e => Console.printLine(s"$s: $e").orDie,
+      r => Console.printLine(s"$s: $r").orDie
     )
   def debugDemo: ZIO[R, E, A] =
     z.tapBoth(
-      e => ZIO.succeed(println(e)),
-      r => ZIO.succeed(println(r))
+      e => Console.printLine(e).orDie,
+      r => Console.printLine(r).orDie
     )
 ```
 

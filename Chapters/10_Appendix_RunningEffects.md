@@ -39,9 +39,7 @@ def run =
 // because it crashes mdoc in the CI process
 object RunningZIOs extends ZIOAppDefault:
   def run =
-    //  TODO Console/debug don't work
-    ZIO.attempt:
-      println:
+    Console.printLine:
         "Hello World!"
 ```
 

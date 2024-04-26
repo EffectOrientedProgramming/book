@@ -121,22 +121,27 @@ def unembed(codeFence: CodeFence): CodeFence =
         .filterNot {
           line =>
             line.contains("ToTest:") ||
-              line.contains(
-                "getOrThrowFiberFailure()"
-              )
+            line.contains(
+              "getOrThrowFiberFailure()"
+            )
         }
         .map(_.stripPrefix("  "))
         .toSeq
 
     val outputLines =
-      linesWithoutMdocGunk.reverse.takeWhile(_.startsWith("//")).reverse
+      linesWithoutMdocGunk
+        .reverse
+        .takeWhile(_.startsWith("//"))
+        .reverse
 
     val codeLines =
-      linesWithoutMdocGunk.dropRight(outputLines.length)
+      linesWithoutMdocGunk
+        .dropRight(outputLines.length)
 
     val truncatedOutputLines =
-      if (outputLines.length >= 20) then
-        outputLines.take(6) ++ Seq("// ...") ++ outputLines.takeRight(6)
+      if outputLines.length >= 20 then
+        outputLines.take(6) ++ Seq("// ...") ++
+          outputLines.takeRight(6)
       else
         outputLines
 
@@ -325,6 +330,20 @@ def partsToExamples(
   (runCode, testCode)
 end partsToExamples
 
+def processMarkdown(
+    settings: Settings,
+    reporter: Reporter,
+    runnableMarkdown: MarkdownFile
+) =
+  val context =
+    Context.fromSettings(settings, reporter)
+
+  val processor =
+    new Processor()(context.get)
+  val processed =
+    processor.processDocument(runnableMarkdown)
+  processed
+
 def processFile(
     inputFile: InputFile,
     examplesDir: AbsolutePath,
@@ -374,16 +393,12 @@ def processFile(
     parsedToRunnable(parsed, newSettings)
 //  println(runnableMarkdown.renderToString)
 
-  val context =
-    Context.fromSettings(
+  val processed: MarkdownFile =
+    processMarkdown(
       newSettings,
-      mainSettings.reporter
+      mainSettings.reporter,
+      runnableMarkdown
     )
-
-  val processor =
-    new Processor()(context.get)
-  val processed =
-    processor.processDocument(runnableMarkdown)
 
   val withoutRunnableParts =
     processed
@@ -401,16 +416,21 @@ def processFile(
     )
 
   val manuscriptMarkdown =
-    runnableMarkdown.copy(
-      parts =
-        withoutRunnableParts.map {
-          case codeFence: CodeFence =>
-            // turn scala mdoc(*) into just scala
-            codeFence.newInfo = Some(codeFence.info.value.takeWhile(_ != ' ') + "\n")
-            codeFence
-          case p: MarkdownPart =>
-            p
-        }
+    runnableMarkdown.copy(parts =
+      withoutRunnableParts.map {
+        case codeFence: CodeFence =>
+          // turn scala mdoc(*) into just scala
+          codeFence.newInfo =
+            Some(
+              codeFence
+                .info
+                .value
+                .takeWhile(_ != ' ') + "\n"
+            )
+          codeFence
+        case p: MarkdownPart =>
+          p
+      }
     )
 
   if mainSettings.reporter.hasErrors then
@@ -577,6 +597,7 @@ def processDir(
           force
         )
     }
+end processDir
 
 @main
 def mdocRun(examplesDir: String) =
@@ -599,7 +620,7 @@ def mdocRunForce(
 ) =
   val mainSettings =
     mdoc.MainSettings()
-      //.withArgs(List("--verbose"))
+    // .withArgs(List("--verbose"))
 
   val directoryChangeEvent =
     DirectoryChangeEvent(

@@ -188,11 +188,10 @@ extension [R, E, A](z: ZIO[R, E, A])
     z.timed
       .tap:
         (duration, _) =>
-          println(
+          Console.printLine(
             message + " [took " +
               duration.getSeconds + "s]"
-          )
-          ZIO.unit
+          ).orDie
       .map(_._2)
 ```
 
@@ -298,16 +297,12 @@ object DelicateResource:
   val live =
     ZLayer.fromZIO:
       defer:
-        ZIO
-          .succeed:
-            println:
-              "Delicate Resource constructed."
-          .run
-        ZIO
-          .succeed:
-            println:
-              "Do not make more than 3 concurrent requests!"
-          .run
+        Console.printLine:
+          "Delicate Resource constructed."
+        .run
+        Console.printLine:
+          "Do not make more than 3 concurrent requests!"
+        .run
         Live(
           Ref.make[List[Int]](List.empty).run,
           Ref.make(true).run
