@@ -410,25 +410,6 @@ With ZIO Test we can use predictable replacements for the standard systems effec
 
 An example of this is Random numbers.  Randomness is inherently unpredictable.  But in ZIO Test, without changing our Effects we can change the underlying systems with something predictable:
 
-```scala mdoc:invisible
-extension (z: ZIO.type)
-  def debugDemo(s: String): UIO[Unit] =
-    Console.printLine(s).orDie
-
-extension [R, E, A](z: ZIO[R, E, A])
-  def debugDemo(s: String): ZIO[R, E, A] =
-    z.tapBoth(
-      e => Console.printLine(s"$s: $e").orDie,
-      r => Console.printLine(s"$s: $r").orDie
-    )
-  def debugDemo: ZIO[R, E, A] =
-    z.tapBoth(
-      e => Console.printLine(e).orDie,
-      r => Console.printLine(r).orDie
-    )
-```
-
-TODO: Explain why `debugDemo` instead of just `debug`
 
 ```scala mdoc:silent
 val coinToss =
@@ -451,7 +432,7 @@ val flipTen =
     ZIO
       .collectAllSuccesses:
         List.fill(10):
-          coinToss.debugDemo
+          coinToss.debug
       .run
       .size
 ```
@@ -475,31 +456,31 @@ def spec =
 
 ```scala mdoc:silent
 val rosencrantzCoinToss =
-  coinToss.debugDemo:
+  coinToss.debug:
     "R"
 
 val rosencrantzAndGuildensternAreDead =
   defer:
     ZIO
-      .debugDemo:
+      .debug:
         "*Performance Begins*"
       .run
     rosencrantzCoinToss.repeatN(4).run
 
     ZIO
-      .debugDemo:
+      .debug:
         "G: There is an art to building suspense."
       .run
     rosencrantzCoinToss.run
 
     ZIO
-      .debugDemo:
+      .debug:
         "G: Though it can be done by luck alone."
       .run
     rosencrantzCoinToss.run
 
     ZIO
-      .debugDemo:
+      .debug:
         "G: ...probability"
       .run
     rosencrantzCoinToss.run
@@ -546,7 +527,7 @@ val nightlyBatch =
   ZIO
     .sleep:
       24.hours
-    .debugDemo:
+    .debug:
       "Parsing CSV"
 ```
 
@@ -558,10 +539,9 @@ def spec =
         24.hours
   
     defer:
-      nightlyBatch
-        .race:
-          timeTravel
-        .run
+      val fork = nightlyBatch.fork.run
+      timeTravel.run
+      fork.join.run
   
       assertCompletes
 ```

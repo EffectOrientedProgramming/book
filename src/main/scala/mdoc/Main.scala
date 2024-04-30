@@ -40,7 +40,7 @@ def embed(
     val pre =
       s"class Example$num extends mdoctools.ToRun:"
     val post =
-      s"Example$num().getOrThrowFiberFailure()"
+      s"Example$num().runAndPrintOutput()"
     val newBody =
       pre +:
         codeFence
@@ -64,7 +64,7 @@ def embed(
     val pre =
       s"class Example${num}Spec extends mdoctools.ToTest:"
     val post =
-      s"Example${num}Spec().getOrThrowFiberFailure()"
+      s"Example${num}Spec().runAndPrintOutput()"
     val newBody =
       pre +:
         codeFence
@@ -96,7 +96,7 @@ def unembed(codeFence: CodeFence): CodeFence =
           line =>
             line.contains("ToRun:") ||
             line.contains(
-              "getOrThrowFiberFailure()"
+              "runAndPrintOutput()"
             )
         }
         .map(_.stripPrefix("  "))
@@ -122,7 +122,7 @@ def unembed(codeFence: CodeFence): CodeFence =
           line =>
             line.contains("ToTest:") ||
             line.contains(
-              "getOrThrowFiberFailure()"
+              "runAndPrintOutput()"
             )
         }
         .map(_.stripPrefix("  "))

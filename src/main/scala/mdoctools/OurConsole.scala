@@ -1,9 +1,10 @@
 package mdoctools
 
-import java.io.IOException
+import java.io.{IOException, PrintStream}
 
 // This is an insane "solution" to mdoc gobbling ZIO console output when run more than once in watch mode
-object OurConsole extends Console:
+// This takes an optional out PrintStream that enables capturing the mdoc override of the out PrintStream and using it
+class OurConsole(out: Option[PrintStream] = None) extends Console:
   override def print(line: => Any)(implicit
       trace: Trace
   ): IO[IOException, Unit] =
@@ -17,7 +18,11 @@ object OurConsole extends Console:
   override def printLine(line: => Any)(implicit
       trace: Trace
   ): IO[IOException, Unit] =
-    ZIO.succeed(println(line))
+    ZIO.succeed:
+      out.fold(scala.Console.println(line)):
+        myOut =>
+          scala.Console.withOut(myOut):
+            scala.Console.println(line)
 
   override def printLineError(line: => Any)(
       implicit trace: Trace

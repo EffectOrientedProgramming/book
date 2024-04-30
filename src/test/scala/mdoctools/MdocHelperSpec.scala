@@ -1,5 +1,7 @@
 package mdoctools
 
+import java.io.{ByteArrayOutputStream, PrintStream}
+
 object MdocHelperSpec extends ZIOSpecDefault:
   object MdocSession:
     object App:
@@ -12,7 +14,13 @@ object MdocHelperSpec extends ZIOSpecDefault:
       test("ToRun works with an Error channel"):
         class Foo extends ToRun:
           def run = Console.printLine("asdf")
-        Foo().getOrThrowFiberFailure()
+
+        val myOut = new ByteArrayOutputStream()
+        val myPs = new PrintStream(myOut)
+
+        scala.Console.withOut(myPs):
+          Foo().getOrThrowFiberFailure()
+
         assertCompletes
       +
       test("ToRun works with a Nothing in Error channel"):
@@ -26,6 +34,53 @@ object MdocHelperSpec extends ZIOSpecDefault:
           def run = ZIO.scope
         Foo().getOrThrowFiberFailure()
         assertCompletes
+      +
+      test("ToRun debug"):
+        // note that ZIO.debug calls scala.Console.println so it doesn't use OurConsole
+        class Foo extends ToRun:
+          def run = ZIO.succeed("asdf").debug
+
+        val myOut = new ByteArrayOutputStream()
+        val myPs = new PrintStream(myOut)
+
+        defer:
+          // override the out with one we can capture
+          val result = scala.Console.withOut(myPs):
+            Foo().getOrThrowFiberFailure()
+          val out = myOut.toString
+          assertTrue:
+            out.contains("asdf")
+      +
+      test("OurClock is fast"):
+        defer:
+          val out1 = ZIO.sleep(10.seconds).timed.withClock(mdoctools.OurClock).run
+          val out2 = ZIO.sleep(100.seconds).timed.withClock(mdoctools.OurClock).run
+          assertTrue(
+            out1._1.getSeconds >= 10L && out1._1.getSeconds < 13L, // the first effect has some overhead so we give it some extra room
+            out2._1.getSeconds >= 100L && out1._1.getSeconds < 101L
+          )
+      +
+      test("ToTest"):
+        class FooSpec extends mdoctools.ToTest:
+          def spec =
+            test("hello"):
+              defer:
+                Console.printLine("hello, world").run
+                assertCompletes
+
+        val myOut = new ByteArrayOutputStream()
+        val myPs = new PrintStream(myOut)
+
+        defer:
+          // override the out with one we can capture
+          val result = scala.Console.withOut(myPs):
+            FooSpec().run
+          .run
+          val out = myOut.toString
+          assertTrue:
+            result.isInstanceOf[Summary] &&
+            out.contains("hello, world") &&
+            out.contains("\u001B[32m+\u001B[0m hello")
 //      test(
 //        "Intercept and format MatchError from unhandled RuntimeException"
 //      ) {

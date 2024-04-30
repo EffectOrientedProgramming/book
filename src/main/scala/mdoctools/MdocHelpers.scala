@@ -1,5 +1,10 @@
 package mdoctools
 
+import zio.internal.ExecutionMetrics
+import zio.test.ReporterEventRenderer.ConsoleEventRenderer
+
+import java.util.concurrent.{LinkedBlockingQueue, ThreadPoolExecutor, TimeUnit}
+
 extension [R, E, A](z: ZLayer[R, E, A])
   def tapWithMessage(
       message: String
@@ -12,66 +17,117 @@ extension [R, E, A](z: ZLayer[R, E, A])
 trait ToRun:
   val bootstrap: ZLayer[Any, Nothing, Any] =
     ZLayer.empty
+
   def run: ZIO[Scope, Any | Nothing, Any]
 
-  def getOrThrowFiberFailure(): Unit =
+  def runAndPrintOutput(): Unit =
     Unsafe.unsafe {
       implicit unsafe =>
-        val e =
-          mdoctools
-            .Rendering
-            .renderEveryPossibleOutcomeZio(run)
-            .withConsole(OurConsole)
-        val result =
-          Runtime
-            .unsafe
-            .fromLayer(bootstrap)
-            .unsafe
-            .run(e.provide(Scope.default))
-            .getOrThrowFiberFailure()
+        val result = runSync:
+          Rendering.renderEveryPossibleOutcomeZio
         println(s"Result: $result")
+    }
+
+  def runSync(modifier: ZIO[?, ?, ?] => ZIO[?, ?, ?] = identity)(implicit unsafe: Unsafe): Exit[Any, Any] =
+    // override the PrintStream in OurConsole with the one that mdoc sets
+    val ourConsole = OurConsole(Some(scala.Console.out))
+
+    // using the ThreadPoolExecutor prevents the overwriting of scala.Console.out
+    val myBootstrap =
+      Runtime
+        .setExecutor(
+          Executor.fromThreadPoolExecutor(
+            new ThreadPoolExecutor(
+              5,
+              10,
+              5000,
+              TimeUnit.MILLISECONDS,
+              new LinkedBlockingQueue[Runnable]()
+            )
+          )
+        )
+
+    val e =
+      run
+        .withConsole(ourConsole)
+        .withClock(OurClock)
+    Runtime
+      .unsafe
+      .fromLayer(myBootstrap ++ bootstrap)
+      .unsafe
+      .run(e.provide(Scope.default))
+
+  def getOrThrowFiberFailure(): Any =
+    Unsafe.unsafe {
+      implicit unsafe =>
+        runSync().getOrThrowFiberFailure()
     }
 end ToRun
 
-abstract class ToTest[E, A] extends ToRun:
+abstract class ToTest extends ToRun:
   def spec: Spec[TestEnvironment & Scope, Any]
 
-  def run =
-    val liveEnvironment: Layer[
+  // todo: E A instead of Any
+  override def run: ZIO[Scope, Any | Nothing, Any] =
+    // override the PrintStream in OurConsole with the one that mdoc sets
+    val ourConsole = OurConsole(Some(scala.Console.out))
+
+    val ourEnvironment = ZEnvironment[
+      Clock,
+      Console,
+      System,
+      Random
+    ](
+      OurClock,
+      ourConsole,
+      System.SystemLive,
+      Random.RandomLive
+    )
+
+    val ourEnvironmentLayer: Layer[
       Nothing,
       Clock & Console & System & Random
     ] =
       implicit val trace =
         Trace.empty
       ZLayer.succeedEnvironment(
-        ZEnvironment[
-          Clock,
-          Console,
-          System,
-          Random
-        ](
-          Clock
-            .ClockLive, // TODO Should this be OurClock
-          Console.ConsoleLive,
-          System.SystemLive,
-          Random.RandomLive
-        )
+        ourEnvironment
       )
-    end liveEnvironment
 
-    ZioTestExecution
-      .runSpecAsApp(spec)
-      .provide(
-        liveEnvironment,
-        TestEnvironment.live,
-        Scope.default
+    val executionEventSinkLayer =
+      ExecutionEventSink.live(
+        ourConsole,
+        ConsoleEventRenderer
       )
-      .map(
-        result =>
-          if (result.failureDetails.isBlank)
-            "Test PASSED"
-          else
-            "Test FAILED"
+
+    val ourTestEnvironmentLayer: ZLayer[Clock & Console & System & Random, Nothing, TestEnvironment] =
+      Annotations.live ++
+      Live.default ++
+      Sized.live(100) ++
+      TestConfig.live(100, 100, 200, 1000) ++
+      ((Live.default ++ Annotations.live) >>> TestConsole.debug) ++
+      TestRandom.deterministic ++
+      TestSystem.default
+
+    val specLayers =
+      ourEnvironmentLayer >>> ourTestEnvironmentLayer
+
+    val testExecutor: TestExecutor[TestEnvironment & Scope, Any] =
+      TestExecutor.default[TestEnvironment, Any](
+        specLayers,
+        Scope.default ++ specLayers,
+        executionEventSinkLayer,
+        ZTestEventHandler.silent
       )
-  end run
-end ToTest
+
+    val runner =
+      TestRunner(testExecutor)
+
+    defer:
+      val wrappedSpec = spec.execute(ExecutionStrategy.Sequential).provide(Scope.default ++ specLayers).withConsole(ourConsole).run
+      val summary = runner.run("none", wrappedSpec, ExecutionStrategy.Sequential).withConsole(ourConsole).run
+      summary.status match
+        case Summary.Success =>
+          ZIO.succeed(summary).run
+        case Summary.Failure =>
+          ZIO.fail(summary.failureDetails).run
