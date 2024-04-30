@@ -149,7 +149,7 @@ def run =
       topStory
     .run
 // Texting story: Battery Breakthrough
-// Result: ()
+// Result: Success(())
 ```
 
 There are many other ways you can compose ZIOs.
@@ -174,7 +174,7 @@ def run =
     .catchAll:
       logAndProvideDefault
 // an implementation is missing
-// Result: default value
+// Result: Success(default value)
 ```
 
 ## All The Thing Example
@@ -228,7 +228,7 @@ val getHeadlineZ =
 ```scala
 def run =
   getHeadlineZ
-// Result: stock market crash!
+// Result: Success(stock market crash!)
 ```
 Now let's confirm the behavior when the headline is not available.
 
@@ -239,7 +239,12 @@ headLineAvailable =
 
 def run =
   getHeadlineZ
-// Result: HeadlineNotAvailable()
+// Result: Failure(Fail(HeadlineNotAvailable(),Stack trace for thread "zio-fiber-200376":
+// 	at repl.MdocSession.MdocApp.getHeadlineZ(<input>:117)
+// 	at repl.MdocSession.MdocApp.getHeadlineZ(<input>:120)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:63)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:64)
+// 	at mdoctools.ToRun.runSync(MdocHelpers.scala:69)))
 ```
 
 ### Option Interop
@@ -277,14 +282,18 @@ headLineAvailable =
 def run =
   topicOfInterestZ:
     "stock market crash!"
-// Result: stock market
+// Result: Success(stock market)
 ```
 
 ```scala
 def run =
   topicOfInterestZ:
     "boring and inane content"
-// Result: NoInterestingTopic()
+// Result: Failure(Fail(NoInterestingTopic(),Stack trace for thread "zio-fiber-200390":
+// 	at repl.MdocSession.MdocApp.topicOfInterestZ(<input>:179)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:63)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:64)
+// 	at mdoctools.ToRun.runSync(MdocHelpers.scala:69)))
 ```
 
 ### AutoCloseable Interop
@@ -318,7 +327,7 @@ def run =
   closeableFileZ
 // Opening file!
 // Closing file!
-// Result: repl.MdocSession$MdocApp$$anon$19@fdd4514
+// Result: Success(repl.MdocSession$MdocApp$$anon$19@59ada2ef)
 ```
 
 Since that is not terribly useful, let's start calling some methods on our managed file.
@@ -338,7 +347,7 @@ def run =
 // Opening file!
 // Searching file for: topicOfInterest
 // Closing file!
-// Result: false
+// Result: Success(false)
 ```
 
 ```scala
@@ -366,7 +375,7 @@ def run =
 // Opening file!
 // Writing to file: New data on topic
 // Closing file!
-// Result: New data on topic
+// Result: Success(New data on topic)
 ```
 
 ```scala
@@ -392,14 +401,18 @@ def summaryForZ(topic: String) =
 def run =
   summaryForZ:
     "stock market"
-// Result: detailed history of stock market
+// Result: Success(detailed history of stock market)
 ```
 
 ```scala
 def run =
   summaryForZ:
     "obscureTopic"
-// Result: NoRecordsAvailable(obscureTopic)
+// Result: Failure(Fail(NoRecordsAvailable(obscureTopic),Stack trace for thread "zio-fiber-200454":
+// 	at repl.MdocSession.MdocApp.summaryForZ(<input>:380)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:63)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:64)
+// 	at mdoctools.ToRun.runSync(MdocHelpers.scala:69)))
 ```
 
 Now that we have all of these well-defined effects, we can wield them in any combination and sequence we desire.
@@ -451,7 +464,7 @@ def run =
 // Searching file for: stock market
 // Writing to file: detailed history of stock market
 // Closing file!
-// Result: detailed history of stock market
+// Result: Success(detailed history of stock market)
 ```
 
 

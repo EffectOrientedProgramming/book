@@ -43,7 +43,7 @@ In this book, to avoid the excess lines, we can shorten this to:
 ```scala
 def run =
   effect0
-// Result: User saved
+// Result: Success(User saved)
 ```
 
 By default, the `saveUser` Effect runs in the "happy path" so that it will not fail.
@@ -55,7 +55,7 @@ override val bootstrap =
 
 def run =
   effect0
-// Result: User saved
+// Result: Success(User saved)
 ```
 
 This allows us to simulate failure scenarios in the next examples.
@@ -71,7 +71,13 @@ override val bootstrap =
 def run =
   effect0
 // Log: **Database crashed!!**
-// Result: **Database crashed!!**
+// Result: Failure(Fail(**Database crashed!!**,Stack trace for thread "zio-fiber-193":
+// 	at repl.MdocSession.MdocApp.saveUser.fail(<input>:74)
+// 	at repl.MdocSession.MdocApp.saveUser.fail(<input>:78)
+// 	at repl.MdocSession.MdocApp.saveUser(<input>:105)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:63)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:64)
+// 	at mdoctools.ToRun.runSync(MdocHelpers.scala:69)))
 ```
 
 `runScenario(scenario = DoesNotWorkInitially)` runs our Effect but it fails.
@@ -104,7 +110,9 @@ override val bootstrap =
 def run =
   effect1
 // Log: **Database crashed!!**
-// Result: User saved
+// Log: **Database crashed!!**
+// Log: **Database crashed!!**
+// Result: Success(User saved)
 ```
 
 The output shows that running the Effect failed twice trying to save the user, then it succeeded.
@@ -118,7 +126,17 @@ override val bootstrap =
 def run =
   effect1
 // Log: **Database crashed!!**
-// Result: **Database crashed!!**
+// Log: **Database crashed!!**
+// Log: **Database crashed!!**
+// Log: **Database crashed!!**
+// Result: Failure(Fail(**Database crashed!!**,Stack trace for thread "zio-fiber-1040":
+// 	at repl.MdocSession.MdocApp.saveUser.fail(<input>:74)
+// 	at repl.MdocSession.MdocApp.saveUser.fail(<input>:78)
+// 	at repl.MdocSession.MdocApp.saveUser(<input>:105)
+// 	at repl.MdocSession.MdocApp.effect1(<input>:193)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:63)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:64)
+// 	at mdoctools.ToRun.runSync(MdocHelpers.scala:69)))
 ```
 
 In the `NeverWorks` scenarios, the Effect failed its initial attempt, and failed the subsequent three retries.
@@ -141,7 +159,14 @@ override val bootstrap =
 def run =
   effect2
 // Log: **Database crashed!!**
-// Result: ERROR: User could not be saved
+// Log: **Database crashed!!**
+// Log: **Database crashed!!**
+// Log: **Database crashed!!**
+// Result: Failure(Fail(ERROR: User could not be saved,Stack trace for thread "zio-fiber-1300":
+// 	at repl.MdocSession.MdocApp.effect2(<input>:231)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:63)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:64)
+// 	at mdoctools.ToRun.runSync(MdocHelpers.scala:69)))
 ```
 
 **Any** fallible Effect can attach a variety of error handling capabilities.
@@ -175,7 +200,12 @@ override val bootstrap =
 
 def run =
   effect3
-// Result: Save timed out
+// Log: Interrupting slow request
+// Result: Failure(Fail(Save timed out,Stack trace for thread "zio-fiber-1581":
+// 	at repl.MdocSession.MdocApp.effect3(<input>:254)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:63)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:64)
+// 	at mdoctools.ToRun.runSync(MdocHelpers.scala:69)))
 ```
 
 Running the new Effect in the `FirstIsSlow` scenario causes it to take longer than the 5 second timeout.
@@ -200,7 +230,11 @@ override val bootstrap =
 
 def run =
   effect4
-// Result: User sent to manual setup queue
+// Log: **Database crashed!!**
+// Log: **Database crashed!!**
+// Log: **Database crashed!!**
+// Log: **Database crashed!!**
+// Result: Success(User sent to manual setup queue)
 ```
 
 We run the effect again in the `NeverWorks` scenario,
@@ -226,7 +260,8 @@ override val bootstrap =
 
 def run =
   effect5
-// Result: User saved
+// Log: Signup initiated for Morty
+// Result: Success(User sent to manual setup queue)
 ```
 
 We run the effect again in the `HappyPath` scenario to demonstrate running the Effects in parallel.
@@ -249,7 +284,7 @@ override val bootstrap =
 
 def run =
   effect6
-// Result: (PT0.000451091S,User saved)
+// Result: Success((PT0.047501388S,User sent to manual setup queue))
 ```
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.
 
@@ -269,7 +304,7 @@ override val bootstrap =
 
 def run =
   effect7
-// Result: None
+// Result: Success(None)
 ```
 We can add behavior to the end of our complex Effect,
   that prevents it from ever executing in the first place.

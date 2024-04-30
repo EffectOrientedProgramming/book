@@ -62,7 +62,7 @@ def temperatureApp(): String =
 def run =
   ZIO.attempt:
     temperatureApp()
-// Result: Temperature: 35 degrees
+// Result: Success(Temperature: 35 degrees)
 ```
 
 On the happy path, everything looks as desired.
@@ -75,7 +75,11 @@ scenario = ErrorsScenario.NetworkError
 def run =
   ZIO.succeed:
     temperatureApp()
-// Result: Defect: NetworkException
+// Result: Failure(Die(repl.MdocSession$MdocApp$NetworkException,Stack trace for thread "zio-fiber-20":
+// 	at repl.MdocSession.MdocApp.Example53.run(<input>:92)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:63)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:64)
+// 	at mdoctools.ToRun.runSync(MdocHelpers.scala:69)))
 ```
 
 ## Manual Error Discovery
@@ -100,7 +104,7 @@ scenario = ErrorsScenario.NetworkError
 def run =
   ZIO.succeed:
     temperatureCatchingApp()
-// Result: Failure
+// Result: Success(Failure)
 ```
 
 We have improved the failure behavior significantly; is it sufficient for all cases?
@@ -126,7 +130,7 @@ scenario = ErrorsScenario.NetworkError
 def run =
   ZIO.succeed:
     temperatureCatchingMoreApp()
-// Result: Network Unavailable
+// Result: Success(Network Unavailable)
 ```
 
 ```scala
@@ -135,7 +139,7 @@ scenario = ErrorsScenario.GPSError
 def run =
   ZIO.succeed:
     temperatureCatchingMoreApp()
-// Result: GPS Hardware Failure
+// Result: Success(GPS Hardware Failure)
 ```
 
 Wonderful!
@@ -169,7 +173,7 @@ override val bootstrap =
 
 def run =
   getTemperature
-// Result: Temperature: 35 degrees
+// Result: Success(Temperature: 35 degrees)
 ```
 
 Running the ZIO version without handling any errors
@@ -179,7 +183,11 @@ override val bootstrap =
 
 def run =
   getTemperature
-// Result: repl.MdocSession$MdocApp$NetworkException
+// Result: Failure(Fail(repl.MdocSession$MdocApp$NetworkException,Stack trace for thread "zio-fiber-497":
+// 	at repl.MdocSession.MdocApp.getTemperature(<input>:172)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:63)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:64)
+// 	at mdoctools.ToRun.runSync(MdocHelpers.scala:69)))
 ```
 
 This is not an error that we want to show the user.
@@ -215,7 +223,7 @@ override val bootstrap =
 
 def run =
   temperatureAppComplete
-// Result: GPS Hardware Failure
+// Result: Success(GPS Hardware Failure)
 ```
 
 Now that we have handled all of our errors, we know we are showing the user a sensible message.
@@ -274,7 +282,7 @@ scenario = ErrorsScenario.HappyPath
 
 def run =
   displayTemperatureZWrapped
-// Result: 35 degrees
+// Result: Success(35 degrees)
 ```
 
 ```scala
@@ -282,7 +290,7 @@ scenario = ErrorsScenario.NetworkError
 
 def run =
   displayTemperatureZWrapped
-// Result: Network Unavailable
+// Result: Success(Network Unavailable)
 ```
 
 This is decent, but does not provide the maximum possible guarantees. 
@@ -297,7 +305,11 @@ def run =
     case ex: NetworkException =>
       ZIO.succeed:
         "Network Unavailable"
-// Result: Defect: GpsFail
+// Result: Failure(Die(scala.MatchError: repl.MdocSession$MdocApp$GpsFail (of class repl.MdocSession$MdocApp$GpsFail),Stack trace for thread "zio-fiber-747":
+// 	at repl.MdocSession.MdocApp.getTemperatureWrapped(<input>:265)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:63)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:64)
+// 	at mdoctools.ToRun.runSync(MdocHelpers.scala:69)))
 ```
 
 The compiler does not catch this bug, and instead fails at runtime.
@@ -316,7 +328,7 @@ def run =
     case other =>
       ZIO.succeed:
         "Unknown Error"
-// Result: Unknown Error
+// Result: Success(Unknown Error)
 ```
 
 This lets us avoid the most egregious gaps in functionality, but does not take full advantage of ZIO's type-safety.

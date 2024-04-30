@@ -37,7 +37,7 @@ def run =
   ZIO.debug:
     "hello, world"
 // hello, world
-// Result: ()
+// Result: Success(())
 ```
 
 ```scala
@@ -84,7 +84,8 @@ def spec =
     defer:
       assertTrue:
         Random.nextIntBounded(10).run < 10
-// Result: Test PASSED
+// + random is random
+// Result: Success(Summary(1,0,0,,PT0.02816S))
 ```
 
 TODO Justify defer syntax over for-comp for multi-statement assertions
@@ -99,7 +100,8 @@ def spec =
         Random.nextIntBetween(0, 10).run <= 10 &&
         Random.nextIntBetween(10, 20).run <= 20 &&
         Random.nextIntBetween(20, 30).run <= 30
-// Result: Test PASSED
+// + random is still random
+// Result: Success(Summary(1,0,0,,PT0.031408S))
 ```
 
 Consider a `Console` application:
@@ -150,7 +152,19 @@ def spec =
             |""".stripMargin
       assertTrue:
         capturedOutput == expectedOutput
-// Result: Test PASSED
+// - console works
+//   Exception in thread "zio-fiber-204277" scala.NotImplementedError: an implementation is missing
+//   	at scala.Predef$.$qmark$qmark$qmark(Predef.scala:344)
+//   	at mdoctools.OurConsole.print(OurConsole.scala:14)
+//   	at zio.Console$.print$$anonfun$6(Console.scala:122)
+//   	at zio.ZIO$.consoleWith$$anonfun$1(ZIO.scala:3045)
+// ...
+//   	at zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19)
+//   	at repl.MdocSession.MdocApp.Example70Spec.spec(<input>:125),Stack trace for thread "zio-fiber-204260":
+// 	at mdoctools.ToTest.run(MdocHelpers.scala:146)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:63)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:64)
+// 	at mdoctools.ToRun.runSync(MdocHelpers.scala:69)))
 ```
 
 ## Interop with existing/legacy code via Unsafe

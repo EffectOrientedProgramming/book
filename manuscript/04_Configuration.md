@@ -74,7 +74,7 @@ def run =
     .provide:
       Dough.fresh
 // Dough is rising
-// Result: ()
+// Result: Success(())
 ```
 
 
@@ -143,7 +143,7 @@ def run =
   ZIO
     .service[Bread]
     .provide(Bread.homemade, Dough.fresh, oven)
-// Result: BreadHomeMade(Heat(),Dough())
+// Result: Success(BreadHomeMade(Heat(),Dough()))
 ```
 
 ## Step 4: Different effects can require the same dependency
@@ -175,7 +175,7 @@ def run =
       Dough.fresh,
       oven
     )
-// Result: Toast(Heat(),BreadHomeMade(Heat(),Dough()))
+// Result: Success(Toast(Heat(),BreadHomeMade(Heat(),Dough())))
 ```
 
 However, the oven uses a lot of energy to make `Toast`.
@@ -193,7 +193,7 @@ def run =
     .service[Heat]
     .provide:
       toaster
-// Result: Heat()
+// Result: Success(Heat())
 ```
 
 ## Step 5: Dependencies must be fulfilled by unique types
@@ -244,7 +244,7 @@ def run =
               bread
           )
     .provide(Bread.homemade, Dough.fresh, oven)
-// Result: Toast(Heat(),BreadHomeMade(Heat(),Dough()))
+// Result: Success(Toast(Heat(),BreadHomeMade(Heat(),Dough())))
 ```
 
 ## Step 7: Effects can Construct Dependencies
@@ -269,7 +269,7 @@ def run =
     .service[Bread]
     .provide:
       storeBought
-// Result: BreadStoreBought()
+// Result: Success(BreadStoreBought())
 ```
 
 
@@ -286,7 +286,18 @@ def run =
         3
       )
 // Attempt 1: Error(Friend Unreachable)
-// Result: Error(Friend Unreachable)
+// Result: Failure(Fail(Error(Friend Unreachable),Stack trace for thread "zio-fiber-200184":
+// 	at repl.MdocSession.MdocApp.Friend.forcedFailure(<input>:201)
+// 	at zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19)
+// 	at repl.MdocSession.MdocApp.Friend.bread(<input>:226)
+// 	at repl.MdocSession.MdocApp.Example132.run(<input>:235)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:63)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:64)
+// 	at mdoctools.ToRun.runSync(MdocHelpers.scala:69)
+// 	at repl.MdocSession.MdocApp.Example132.run(<input>:235)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:63)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:64)
+// 	at mdoctools.ToRun.runSync(MdocHelpers.scala:69)))
 ```
 
 ## Step 9: Fallback Dependencies
@@ -303,7 +314,7 @@ def run =
         .orElse:
           storeBought
 // Attempt 1: Error(Friend Unreachable)
-// Result: BreadStoreBought()
+// Result: Success(BreadStoreBought())
 ```
 
 ## Step 10: Dependency Retries
@@ -321,7 +332,41 @@ def run =
           Schedule.recurs:
             1
 // Attempt 1: Error(Friend Unreachable)
-// Result: Error(Friend Unreachable)
+// Attempt 2: Error(Friend Unreachable)
+// Result: Failure(Fail(Error(Friend Unreachable),Stack trace for thread "zio-fiber-200192":
+// 	at repl.MdocSession.MdocApp.Example140.run(<input>:281)
+// 	at repl.MdocSession.MdocApp.Example140.run(<input>:272)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:63)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:64)
+// 	at mdoctools.ToRun.runSync(MdocHelpers.scala:69)
+// 	at repl.MdocSession.MdocApp.Example140.run(<input>:272)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:63)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:64)
+// 	at mdoctools.ToRun.runSync(MdocHelpers.scala:69)
+// 	at repl.MdocSession.MdocApp.Example140.run(<input>:272)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:63)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:64)
+// 	at mdoctools.ToRun.runSync(MdocHelpers.scala:69)
+// 	at repl.MdocSession.MdocApp.Example140.run(<input>:272)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:63)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:64)
+// 	at mdoctools.ToRun.runSync(MdocHelpers.scala:69)
+// 	at repl.MdocSession.MdocApp.Example140.run(<input>:272)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:63)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:64)
+// 	at mdoctools.ToRun.runSync(MdocHelpers.scala:69)
+// 	at repl.MdocSession.MdocApp.Example140.run(<input>:272)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:63)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:64)
+// 	at mdoctools.ToRun.runSync(MdocHelpers.scala:69)
+// 	at repl.MdocSession.MdocApp.Example140.run(<input>:272)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:63)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:64)
+// 	at mdoctools.ToRun.runSync(MdocHelpers.scala:69)
+// 	at repl.MdocSession.MdocApp.Example140.run(<input>:272)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:63)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:64)
+// 	at mdoctools.ToRun.runSync(MdocHelpers.scala:69)))
 ```
 
 ```scala
@@ -338,7 +383,8 @@ def run =
             2
 // Attempt 1: Error(Friend Unreachable)
 // Attempt 2: Error(Friend Unreachable)
-// Result: BreadFromFriend()
+// Attempt 3: Succeeded
+// Result: Success(BreadFromFriend())
 ```
 
 ## Step 11: Layer Retry + Fallback?
@@ -361,7 +407,7 @@ def run =
           storeBought
 // Attempt 1: Error(Friend Unreachable)
 // Attempt 2: Error(Friend Unreachable)
-// Result: BreadStoreBought()
+// Result: Success(BreadStoreBought())
 ```
 
 ## Step 12: Externalize Config for Retries
@@ -411,7 +457,9 @@ def run =
     .provide:
       config
 // Attempt 1: Error(Friend Unreachable)
-// Result: BreadFromFriend()
+// Attempt 2: Error(Friend Unreachable)
+// Attempt 3: Succeeded
+// Result: Success(BreadFromFriend())
 ```
 
 ## Testing Effects
@@ -432,8 +480,6 @@ With ZIO Test we can use predictable replacements for the standard systems effec
 
 An example of this is Random numbers.  Randomness is inherently unpredictable.  But in ZIO Test, without changing our Effects we can change the underlying systems with something predictable:
 
-
-TODO: Explain why `debugDemo` instead of just `debug`
 
 ```scala
 val coinToss =
@@ -456,7 +502,7 @@ val flipTen =
     ZIO
       .collectAllSuccesses:
         List.fill(10):
-          coinToss.debugDemo
+          coinToss.debug
       .run
       .size
 ```
@@ -464,17 +510,53 @@ val flipTen =
 ```scala
 def run =
   flipTen
-// Tails
 // Heads
+// <FAIL> Fail(Tails,Stack trace for thread "zio-fiber-200208":
+// 	at repl.MdocSession.MdocApp.coinToss(<input>:395)
+// 	at repl.MdocSession.MdocApp.flipTen(<input>:412)
+// 	at zio.direct.ZioMonad.Success.$anon.map(ZioMonad.scala:18)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:63)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:64)
+// 	at mdoctools.ToRun.runSync(MdocHelpers.scala:69))
 // Heads
-// Tails
+// <FAIL> Fail(Tails,Stack trace for thread "zio-fiber-200208":
+// 	at repl.MdocSession.MdocApp.coinToss(<input>:395)
+// 	at repl.MdocSession.MdocApp.flipTen(<input>:412)
+// 	at zio.direct.ZioMonad.Success.$anon.map(ZioMonad.scala:18)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:63)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:64)
+// 	at mdoctools.ToRun.runSync(MdocHelpers.scala:69))
+// <FAIL> Fail(Tails,Stack trace for thread "zio-fiber-200208":
+// 	at repl.MdocSession.MdocApp.coinToss(<input>:395)
+// 	at repl.MdocSession.MdocApp.flipTen(<input>:412)
+// 	at zio.direct.ZioMonad.Success.$anon.map(ZioMonad.scala:18)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:63)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:64)
+// 	at mdoctools.ToRun.runSync(MdocHelpers.scala:69))
 // Heads
+// <FAIL> Fail(Tails,Stack trace for thread "zio-fiber-200208":
+// 	at repl.MdocSession.MdocApp.coinToss(<input>:395)
+// 	at repl.MdocSession.MdocApp.flipTen(<input>:412)
+// 	at zio.direct.ZioMonad.Success.$anon.map(ZioMonad.scala:18)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:63)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:64)
+// 	at mdoctools.ToRun.runSync(MdocHelpers.scala:69))
+// <FAIL> Fail(Tails,Stack trace for thread "zio-fiber-200208":
+// 	at repl.MdocSession.MdocApp.coinToss(<input>:395)
+// 	at repl.MdocSession.MdocApp.flipTen(<input>:412)
+// 	at zio.direct.ZioMonad.Success.$anon.map(ZioMonad.scala:18)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:63)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:64)
+// 	at mdoctools.ToRun.runSync(MdocHelpers.scala:69))
+// <FAIL> Fail(Tails,Stack trace for thread "zio-fiber-200208":
+// 	at repl.MdocSession.MdocApp.coinToss(<input>:395)
+// 	at repl.MdocSession.MdocApp.flipTen(<input>:412)
+// 	at zio.direct.ZioMonad.Success.$anon.map(ZioMonad.scala:18)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:63)
+// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:64)
+// 	at mdoctools.ToRun.runSync(MdocHelpers.scala:69))
 // Heads
-// Tails
-// Heads
-// Tails
-// Heads
-// Result: 6
+// Result: Success(4)
 ```
 
 ```scala
@@ -487,36 +569,47 @@ def spec =
         .run
       assertTrue:
         flipTen.run == 10
-// Result: Test PASSED
+// Heads
+// Heads
+// Heads
+// Heads
+// Heads
+// Heads
+// Heads
+// Heads
+// Heads
+// Heads
+// + flips 10 times
+// Result: Success(Summary(1,0,0,,PT0.266605S))
 ```
 
 ```scala
 val rosencrantzCoinToss =
-  coinToss.debugDemo:
+  coinToss.debug:
     "R"
 
 val rosencrantzAndGuildensternAreDead =
   defer:
     ZIO
-      .debugDemo:
+      .debug:
         "*Performance Begins*"
       .run
     rosencrantzCoinToss.repeatN(4).run
 
     ZIO
-      .debugDemo:
+      .debug:
         "G: There is an art to building suspense."
       .run
     rosencrantzCoinToss.run
 
     ZIO
-      .debugDemo:
+      .debug:
         "G: Though it can be done by luck alone."
       .run
     rosencrantzCoinToss.run
 
     ZIO
-      .debugDemo:
+      .debug:
         "G: ...probability"
       .run
     rosencrantzCoinToss.run
@@ -534,7 +627,20 @@ def spec =
         .run
       rosencrantzAndGuildensternAreDead.run
       assertCompletes
-// Result: Test PASSED
+// *Performance Begins*
+// R: Heads
+// R: Heads
+// R: Heads
+// R: Heads
+// R: Heads
+// G: There is an art to building suspense.
+// R: Heads
+// G: Though it can be done by luck alone.
+// R: Heads
+// G: ...probability
+// R: Heads
+// + rosencrantzAndGuildensternAreDead finishes
+// Result: Success(Summary(1,0,0,,PT0.090591S))
 ```
 
 ```scala
@@ -545,7 +651,19 @@ def spec =
       assertCompletes
   @@ TestAspect.withLiveRandom
   @@ TestAspect.flaky(Int.MaxValue)
-// Result: Test PASSED
+// *Performance Begins*
+// <FAIL> R: Fail(Tails,Stack trace for thread "zio-fiber-200553":
+// 	at repl.MdocSession.MdocApp.coinToss(<input>:395)
+// 	at repl.MdocSession.MdocApp.rosencrantzCoinToss(<input>:457)
+// 	at repl.MdocSession.MdocApp.rosencrantzAndGuildensternAreDead(<input>:462)
+// 	at zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19)
+// ...
+// G: Though it can be done by luck alone.
+// R: Heads
+// G: ...probability
+// R: Heads
+// + flaky plan
+// Result: Success(Summary(1,0,0,,PT0.034061S))
 ```
 
 The `Random` Effect uses an injected something which when running the ZIO uses the system's unpredictable random number generator.  In ZIO Test the `Random` Effect uses a different something which can predictably generate "random" numbers.  `TestRandom` provides a way to define what those numbers are.  This example feeds in the `Int`s `1` and `2` so the first time we ask for a random number we get `1` and the second time we get `2`.
@@ -565,7 +683,7 @@ val nightlyBatch =
   ZIO
     .sleep:
       24.hours
-    .debugDemo:
+    .debug:
       "Parsing CSV"
 ```
 
@@ -577,13 +695,14 @@ def spec =
         24.hours
   
     defer:
-      nightlyBatch
-        .race:
-          timeTravel
-        .run
+      val fork = nightlyBatch.fork.run
+      timeTravel.run
+      fork.join.run
   
       assertCompletes
-// Result: Test PASSED
+// Parsing CSV: ()
+// + batch runs after 24 hours
+// Result: Success(Summary(1,0,0,,PT0.03427S))
 ```
 
 The `race` is between `nightlyBatch` and `timeTravel`.
