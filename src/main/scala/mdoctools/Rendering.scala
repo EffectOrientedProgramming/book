@@ -16,7 +16,7 @@ object LineLength:
 object Rendering:
   def renderEveryPossibleOutcomeZio[R, E, A](
       z: => ZIO[R, E, A]
-  ): ZIO[R, E, String] =
+  ): ZIO[R, Nothing, String] =
     z.map(
         result => result.toString
       )
