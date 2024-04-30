@@ -71,13 +71,7 @@ override val bootstrap =
 def run =
   effect0
 // Log: **Database crashed!!**
-// Result: Failure(Fail(**Database crashed!!**,Stack trace for thread "zio-fiber-352578":
-// 	at repl.MdocSession.MdocApp.saveUser.fail(<input>:74)
-// 	at repl.MdocSession.MdocApp.saveUser.fail(<input>:78)
-// 	at repl.MdocSession.MdocApp.saveUser(<input>:105)
-// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:63)
-// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:64)
-// 	at mdoctools.ToRun.runSync(MdocHelpers.scala:69)))
+// Result: Success(**Database crashed!!**)
 ```
 
 `runScenario(scenario = DoesNotWorkInitially)` runs our Effect but it fails.
@@ -129,14 +123,7 @@ def run =
 // Log: **Database crashed!!**
 // Log: **Database crashed!!**
 // Log: **Database crashed!!**
-// Result: Failure(Fail(**Database crashed!!**,Stack trace for thread "zio-fiber-352586":
-// 	at repl.MdocSession.MdocApp.saveUser.fail(<input>:74)
-// 	at repl.MdocSession.MdocApp.saveUser.fail(<input>:78)
-// 	at repl.MdocSession.MdocApp.saveUser(<input>:105)
-// 	at repl.MdocSession.MdocApp.effect1(<input>:193)
-// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:63)
-// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:64)
-// 	at mdoctools.ToRun.runSync(MdocHelpers.scala:69)))
+// Result: Success(**Database crashed!!**)
 ```
 
 In the `NeverWorks` scenarios, the Effect failed its initial attempt, and failed the subsequent three retries.
@@ -162,11 +149,7 @@ def run =
 // Log: **Database crashed!!**
 // Log: **Database crashed!!**
 // Log: **Database crashed!!**
-// Result: Failure(Fail(ERROR: User could not be saved,Stack trace for thread "zio-fiber-352590":
-// 	at repl.MdocSession.MdocApp.effect2(<input>:231)
-// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:63)
-// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:64)
-// 	at mdoctools.ToRun.runSync(MdocHelpers.scala:69)))
+// Result: Success(ERROR: User could not be saved)
 ```
 
 **Any** fallible Effect can attach a variety of error handling capabilities.
@@ -201,11 +184,7 @@ override val bootstrap =
 def run =
   effect3
 // Log: Interrupting slow request
-// Result: Failure(Fail(Save timed out,Stack trace for thread "zio-fiber-352594":
-// 	at repl.MdocSession.MdocApp.effect3(<input>:254)
-// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:63)
-// 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:64)
-// 	at mdoctools.ToRun.runSync(MdocHelpers.scala:69)))
+// Result: Success(Save timed out)
 ```
 
 Running the new Effect in the `FirstIsSlow` scenario causes it to take longer than the 5 second timeout.
@@ -260,8 +239,8 @@ override val bootstrap =
 
 def run =
   effect5
-// Log: Signup initiated for Morty
 // Result: Success(User sent to manual setup queue)
+// Log: Signup initiated for Morty
 ```
 
 We run the effect again in the `HappyPath` scenario to demonstrate running the Effects in parallel.
@@ -285,7 +264,10 @@ override val bootstrap =
 def run =
   effect6
 // Log: Signup initiated for Morty
-// Result: Success((PT0.120468404S,User sent to manual setup queue))
+// TODO Handle long line. 
+// Truncating for now: 
+// (PT5.008269627S,User sent to manual setup queue)
+// Result: Success((PT5.008269627S,User sent to manual setup queu)
 ```
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.
 
