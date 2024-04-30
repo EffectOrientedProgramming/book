@@ -28,7 +28,7 @@ trait ToRun:
         println(s"Result: $result")
     }
 
-  def runSync(modifier: ZIO[?, ?, ?] => ZIO[?, ?, ?] = identity)(implicit unsafe: Unsafe): Exit[Any, Any] =
+  def runSync[R,E,A](modifier: ZIO[Scope, Any|Nothing, Any] => ZIO[Scope, Any|Nothing, Any] = identity)(implicit unsafe: Unsafe): Exit[Any, Any] =
     // override the PrintStream in OurConsole with the one that mdoc sets
     val ourConsole = OurConsole(Some(scala.Console.out))
 
@@ -48,9 +48,10 @@ trait ToRun:
         )
 
     val e =
-      run
-        .withConsole(ourConsole)
-        .withClock(OurClock)
+      modifier:
+        run
+      .withConsole(ourConsole)
+      .withClock(OurClock)
     Runtime
       .unsafe
       .fromLayer(myBootstrap ++ bootstrap)
