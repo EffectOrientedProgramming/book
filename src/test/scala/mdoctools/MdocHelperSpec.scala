@@ -19,7 +19,7 @@ object MdocHelperSpec extends ZIOSpecDefault:
         val myPs = new PrintStream(myOut)
 
         scala.Console.withOut(myPs):
-          Foo().getOrThrowFiberFailure()
+          Foo().runAndPrintOutput()
 
         assertCompletes
       +
@@ -43,13 +43,13 @@ object MdocHelperSpec extends ZIOSpecDefault:
       test("ToRun works with a Nothing in Error channel"):
         class Foo extends ToRun:
           def run = ZIO.unit
-        Foo().getOrThrowFiberFailure()
+        Foo().runAndPrintOutput()
         assertCompletes
       +
       test("ToRun works with needing a Scope"):
         class Foo extends ToRun:
           def run = ZIO.scope
-        Foo().getOrThrowFiberFailure()
+        Foo().runAndPrintOutput()
         assertCompletes
       +
       test("ToRun debug"):
@@ -63,7 +63,7 @@ object MdocHelperSpec extends ZIOSpecDefault:
         defer:
           // override the out with one we can capture
           val result = scala.Console.withOut(myPs):
-            Foo().getOrThrowFiberFailure()
+            Foo().runAndPrintOutput()
           val out = myOut.toString
           assertTrue:
             out.contains("asdf")

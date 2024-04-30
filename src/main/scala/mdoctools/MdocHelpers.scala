@@ -1,6 +1,5 @@
 package mdoctools
 
-import zio.internal.ExecutionMetrics
 import zio.test.ReporterEventRenderer.ConsoleEventRenderer
 
 import java.util.concurrent.{LinkedBlockingQueue, ThreadPoolExecutor, TimeUnit}
@@ -21,48 +20,39 @@ trait ToRun:
   def run: ZIO[Scope, Any | Nothing, Any]
 
   def runAndPrintOutput(): Unit =
-    Unsafe.unsafe {
-      implicit unsafe =>
-        val result = runSync:
-          Rendering.renderEveryPossibleOutcomeZio
-        println(s"Result: $result")
-    }
-
-  def runSync[R,E,A](modifier: ZIO[Scope, Any|Nothing, Any] => ZIO[Scope, Any|Nothing, Any] = identity)(implicit unsafe: Unsafe): Exit[Any, Any] =
     // override the PrintStream in OurConsole with the one that mdoc sets
     val ourConsole = OurConsole(Some(scala.Console.out))
 
-    // using the ThreadPoolExecutor prevents the overwriting of scala.Console.out
-    val myBootstrap =
-      Runtime
-        .setExecutor(
-          Executor.fromThreadPoolExecutor(
-            new ThreadPoolExecutor(
-              5,
-              10,
-              5000,
-              TimeUnit.MILLISECONDS,
-              new LinkedBlockingQueue[Runnable]()
-            )
-          )
-        )
-
-    val e =
-      modifier:
-        run
-      .withConsole(ourConsole)
-      .withClock(OurClock)
-    Runtime
-      .unsafe
-      .fromLayer(myBootstrap ++ bootstrap)
-      .unsafe
-      .run(e.provide(Scope.default))
-
-  def getOrThrowFiberFailure(): Any =
-    Unsafe.unsafe {
+    Unsafe.unsafe:
       implicit unsafe =>
-        runSync().getOrThrowFiberFailure()
-    }
+        // using the ThreadPoolExecutor prevents the overwriting of scala.Console.out
+        val myBootstrap =
+          Runtime
+            .setExecutor(
+              Executor.fromThreadPoolExecutor(
+                new ThreadPoolExecutor(
+                  5,
+                  10,
+                  5000,
+                  TimeUnit.MILLISECONDS,
+                  new LinkedBlockingQueue[Runnable]()
+                )
+              )
+            )
+
+        val e =
+          Rendering.renderEveryPossibleOutcomeZio:
+            run
+          .withConsole(ourConsole)
+          .withClock(OurClock)
+
+        val result = Runtime
+          .unsafe
+          .fromLayer(myBootstrap ++ bootstrap)
+          .unsafe
+          .run(e.provide(Scope.default))
+
+        println(s"Result: $result")
 end ToRun
 
 abstract class ToTest extends ToRun:

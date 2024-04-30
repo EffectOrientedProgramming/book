@@ -17,7 +17,7 @@ object MainSpec extends ZIOSpecDefault:
             |  def run =
             |    Console.printLine("hello, world")
             |
-            |Foo().getOrThrowFiberFailure()
+            |Foo().runAndPrintOutput()
             |```
             |""".stripMargin
 
