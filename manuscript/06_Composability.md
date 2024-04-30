@@ -239,7 +239,7 @@ headLineAvailable =
 
 def run =
   getHeadlineZ
-// Result: Failure(Fail(HeadlineNotAvailable(),Stack trace for thread "zio-fiber-200376":
+// Result: Failure(Fail(HeadlineNotAvailable(),Stack trace for thread "zio-fiber-352640":
 // 	at repl.MdocSession.MdocApp.getHeadlineZ(<input>:117)
 // 	at repl.MdocSession.MdocApp.getHeadlineZ(<input>:120)
 // 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:63)
@@ -289,7 +289,7 @@ def run =
 def run =
   topicOfInterestZ:
     "boring and inane content"
-// Result: Failure(Fail(NoInterestingTopic(),Stack trace for thread "zio-fiber-200390":
+// Result: Failure(Fail(NoInterestingTopic(),Stack trace for thread "zio-fiber-352648":
 // 	at repl.MdocSession.MdocApp.topicOfInterestZ(<input>:179)
 // 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:63)
 // 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:64)
@@ -327,7 +327,7 @@ def run =
   closeableFileZ
 // Opening file!
 // Closing file!
-// Result: Success(repl.MdocSession$MdocApp$$anon$19@59ada2ef)
+// Result: Success(repl.MdocSession$MdocApp$$anon$19@41d97a4b)
 ```
 
 Since that is not terribly useful, let's start calling some methods on our managed file.
@@ -408,7 +408,7 @@ def run =
 def run =
   summaryForZ:
     "obscureTopic"
-// Result: Failure(Fail(NoRecordsAvailable(obscureTopic),Stack trace for thread "zio-fiber-200454":
+// Result: Failure(Fail(NoRecordsAvailable(obscureTopic),Stack trace for thread "zio-fiber-352668":
 // 	at repl.MdocSession.MdocApp.summaryForZ(<input>:380)
 // 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:63)
 // 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:64)

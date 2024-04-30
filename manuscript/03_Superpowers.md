@@ -71,7 +71,7 @@ override val bootstrap =
 def run =
   effect0
 // Log: **Database crashed!!**
-// Result: Failure(Fail(**Database crashed!!**,Stack trace for thread "zio-fiber-193":
+// Result: Failure(Fail(**Database crashed!!**,Stack trace for thread "zio-fiber-352578":
 // 	at repl.MdocSession.MdocApp.saveUser.fail(<input>:74)
 // 	at repl.MdocSession.MdocApp.saveUser.fail(<input>:78)
 // 	at repl.MdocSession.MdocApp.saveUser(<input>:105)
@@ -129,7 +129,7 @@ def run =
 // Log: **Database crashed!!**
 // Log: **Database crashed!!**
 // Log: **Database crashed!!**
-// Result: Failure(Fail(**Database crashed!!**,Stack trace for thread "zio-fiber-1040":
+// Result: Failure(Fail(**Database crashed!!**,Stack trace for thread "zio-fiber-352586":
 // 	at repl.MdocSession.MdocApp.saveUser.fail(<input>:74)
 // 	at repl.MdocSession.MdocApp.saveUser.fail(<input>:78)
 // 	at repl.MdocSession.MdocApp.saveUser(<input>:105)
@@ -162,7 +162,7 @@ def run =
 // Log: **Database crashed!!**
 // Log: **Database crashed!!**
 // Log: **Database crashed!!**
-// Result: Failure(Fail(ERROR: User could not be saved,Stack trace for thread "zio-fiber-1300":
+// Result: Failure(Fail(ERROR: User could not be saved,Stack trace for thread "zio-fiber-352590":
 // 	at repl.MdocSession.MdocApp.effect2(<input>:231)
 // 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:63)
 // 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:64)
@@ -201,7 +201,7 @@ override val bootstrap =
 def run =
   effect3
 // Log: Interrupting slow request
-// Result: Failure(Fail(Save timed out,Stack trace for thread "zio-fiber-1581":
+// Result: Failure(Fail(Save timed out,Stack trace for thread "zio-fiber-352594":
 // 	at repl.MdocSession.MdocApp.effect3(<input>:254)
 // 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:63)
 // 	at mdoctools.ToRun.runSync.e(MdocHelpers.scala:64)
@@ -284,7 +284,8 @@ override val bootstrap =
 
 def run =
   effect6
-// Result: Success((PT0.047501388S,User sent to manual setup queue))
+// Log: Signup initiated for Morty
+// Result: Success((PT0.120468404S,User sent to manual setup queue))
 ```
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.
 
