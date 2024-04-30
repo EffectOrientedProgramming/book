@@ -23,6 +23,23 @@ object MdocHelperSpec extends ZIOSpecDefault:
 
         assertCompletes
       +
+      test("ToRun works with an Error result"):
+        class Foo extends ToRun:
+          def run = ZIO.fail("asdf")
+
+        val myOut = new ByteArrayOutputStream()
+        val myPs = new PrintStream(myOut)
+
+        scala.Console.withOut(myPs):
+          Foo().runAndPrintOutput()
+
+        val out = myOut.toString
+        println(out)
+        // TODO Make sure this stops wrapping in a Failure(...)
+        // Then we can expand the assert to make sure it doesn't include mdoc bullshit and other stack traces
+        assertTrue: 
+            out.contains("asdf")
+      +
       test("ToRun works with a Nothing in Error channel"):
         class Foo extends ToRun:
           def run = ZIO.unit
