@@ -188,13 +188,13 @@ def run =
       .timedSecondsDebug:
         "Total time"
       .run
+// Bill called API [took 0s]
+// Bill called API [took 1s]
+// Bill called API [took 0s]
 // James called API [took 0s]
 // James called API [took 1s]
-// Bill called API [took 0s]
 // James called API [took 0s]
-// Bill called API [took 1s]
 // Bruce called API [took 0s]
-// Bill called API [took 0s]
 // Bruce called API [took 1s]
 // Bruce called API [took 0s]
 // Total time [took 0s]
@@ -222,16 +222,16 @@ def run =
     DelicateResource.live
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(399)
-// Current requests: : List(882, 399)
-// Current requests: : List(320, 882, 399)
-// Current requests: : List(257, 320, 882, 399)
-// Current requests: : List(353, 882)
-// Current requests: : List(898, 882)
-// Current requests: : List(332, 882)
-// Current requests: : List(596, 882)
-// Current requests: : List(583, 882)
-// Current requests: : List(550, 882)
+// Current requests: : List(903)
+// Current requests: : List(155)
+// Current requests: : List(376)
+// Current requests: : List(288)
+// Current requests: : List(434)
+// Current requests: : List(254)
+// Current requests: : List(596)
+// Current requests: : List(46)
+// Current requests: : List(104)
+// Current requests: : List(142)
 // Result: Success(All Requests Succeeded!)
 ```
 
@@ -259,16 +259,16 @@ def run =
     DelicateResource.live
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(108)
-// Current requests: : List(431, 108)
-// Current requests: : List(417, 431, 108)
-// Current requests: : List(313)
-// Current requests: : List(758)
-// Current requests: : List(637)
-// Current requests: : List(378)
+// Current requests: : List(39)
+// Current requests: : List(457, 39)
+// Current requests: : List(587)
+// Current requests: : List(688)
+// Current requests: : List(796)
+// Current requests: : List(287)
+// Current requests: : List(957)
 // Current requests: : List(443)
-// Current requests: : List(205)
-// Current requests: : List(294)
+// Current requests: : List(666)
+// Current requests: : List(475)
 // Result: Success(All Requests Succeeded)
 ```
 
@@ -382,8 +382,8 @@ def run =
       .get
       .debug("Contract Breaches")
       .run
-// Contract Breaches: 35
-// Result: Success(35)
+// Contract Breaches: 47
+// Result: Success(47)
 ```
 
 #### Restricting Time
