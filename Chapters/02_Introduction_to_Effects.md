@@ -25,7 +25,7 @@ Each time you combine smaller parts to create a larger part, the result inherits
 Instead of multiplying unpredictability, you maintain predictability.
 The resulting system is as predictable as any of its components.
 
-This is what *Functional Programming* together with *Effects Systems* can achieve.
+This is what *Functional Programming* together with *Effect Systems* can achieve.
 This is what we want to teach you in this book.
 
 The biggest impact on you as a programmer is the requirement for patience.
@@ -61,9 +61,9 @@ These programs are unpredictable because the programmer has no control over what
 
 ## What is an Effect?
 
-An *Effect* is an interaction outside your system and inherently unpredictable.
+An *Effect* is an interaction, often with an outside system, that is inherently unpredictable.
 
-Anytime you communicate with an external system,
+Anytime you run an Effect,
   you have changed the world and cannot go back.
 
 If you 3D-print a figurine, you cannot reclaim that material.
@@ -72,11 +72,9 @@ Even if you provide database `DELETE` statements paired with `INSERT` statements
 Another program might read your data before you delete it,
 or a database trigger might activate during an `INSERT`.
 
-Once a program has communicated with an external system, 
-  (i.e. performed an Effect),
-  everything that happens on that external systems is out of the program's control.
+Once our program runs an Effect, the impact is out of our control.
 
-Whether the external system takes any action based on the communication, we have to assume the act of communicating to an external system has modified the external system.
+We must assume that running an Effect modifies an external system.
 
 As an example in real-life, just saying the words "You are getting a raise" creates an "effect" that may not be reversible.
 
@@ -96,12 +94,12 @@ In systems there are many types of Effects, like:
 
 These can also have domain specific forms, like:
 
-- Sensing slippage in an anti-lock braking system
 - Getting the current price of a stock
 - Detecting the current from a pacemaker
 - Checking the temperature of a nuclear reactor
 - 3D printing a model
 - Triggering an alarm
+- Sensing slippage in an anti-lock braking system
 - Stabilizing an airplane
 - Detonating explosives
 
@@ -109,11 +107,8 @@ All of these are unpredictable.
 
 ## Effect Systems Manage Unpredictability
 
-Given that Effects are unpredictable, we can utilize a system that helps us manage that unpredictability.
+Given that Effects are unpredictable, we can utilize operations from an Effect System to manage the unpredictability.
+Effect Systems are designed to make these operations easy.
+For example, any Effect can use a `timeout` to control the Effect's maximum duration.
 
-Once we've isolated Effects, Effect Systems provide strategies to mitigate the unpredictability of external systems.
-For example, in an Effect System, any Effect can have a `timeout` which creates predictability of time.
-There are many different strategies we can apply to Effects to address all the unpredictable aspects.
-The Effect System is designed so that it is easy to apply these strategies.
-
-Applying these strategies with an Effect System starts to feel like a Superpower.
+Applying these operations starts to feel like a superpower.

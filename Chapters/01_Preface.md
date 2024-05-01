@@ -1,12 +1,12 @@
 # Preface
 
-Effects are the unpredictable parts of systems.
+*Effects* are the unpredictable parts of systems.
 Traditional programs do not isolate these unpredictable parts, making it hard to manage them.
-Effect Systems partition the unpredictable parts and manage them separately from the predictable ones.
+*Effect Systems* partition the unpredictable parts and manage them separately from the predictable ones.
 
 With Effect Systems, developers can more easily build systems that are reliable, resilient, and testable.
 
-Effect Oriented Programming is a new paradigm for programming with Effect Systems.
+*Effect Oriented Programming* is a new paradigm for programming with Effect Systems.
 
 Many bleeding-edge languages now have ways to manage Effects (e.g. OCaml, Unison, and Roc).
 But not every programming language has an Effect System.
@@ -31,21 +31,21 @@ While Scala knowledge is not required to learn the concepts, this book assumes y
 
 ## Code examples
 
-The code examples are available at: TODO
+The code examples are available at: [github.com/EffectOrientedProgramming/examples](https://github.com/EffectOrientedProgramming/examples)
 
 The code in this book uses a Scala 3 language syntax that might be unfamiliar, even to Scala developers.
 Since our focus is on the concepts of Effect Oriented Programming we've tried to make the code examples very readable, even on mobile devices.
 To accomplish this, when functions have single parameters we generally use Scala 3's Significant Indentation style.
 For example:
 ```scala mdoc:silent
-ZIO.debug:
+Console.printLine:
   "hello, world"
 ```
 The parameter to the `ZIO.debug` function is specified on a new line instead of the usual parens (`ZIO.debug("hello, world")`)
 The colon (`:`) indicates that the function parameter will use the significant indentation syntax.
 For multi-parameter functions and in cases where the single parameter is very short and does not contain nested function calls, we use the traditional syntax:
 ```scala mdoc:silent
-ZIO.debug(1)
+Console.printLine(1)
 ```
 
 ## Acknowledgements
