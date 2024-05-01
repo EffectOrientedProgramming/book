@@ -38,7 +38,7 @@ object MdocHelperSpec extends ZIOSpecDefault:
         // TODO Make sure this stops wrapping in a Failure(...)
         // Then we can expand the assert to make sure it doesn't include mdoc bullshit and other stack traces
         assertTrue:
-            out == "Result: Success(asdf)\n"
+            out == "Result: asdf\n"
       +
       test("ToRun works with a Nothing in Error channel"):
         class Foo extends ToRun:

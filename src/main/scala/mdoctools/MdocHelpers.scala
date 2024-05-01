@@ -50,7 +50,9 @@ trait ToRun:
           .unsafe
           .fromLayer(myBootstrap ++ bootstrap)
           .unsafe
-          .run(e.provide(Scope.default))
+          .run(e.provide(Scope.default)) match
+          case Exit.Success(value) => value
+          case Exit.Failure(cause) => throw new IllegalStateException("Failed to run")
 
         println(s"Result: $result")
 end ToRun
