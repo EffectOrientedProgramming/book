@@ -74,7 +74,7 @@ def run =
     .provide:
       Dough.fresh
 // Dough is rising
-// Result: Success(())
+// Result: ()
 ```
 
 
@@ -143,7 +143,7 @@ def run =
   ZIO
     .service[Bread]
     .provide(Bread.homemade, Dough.fresh, oven)
-// Result: Success(BreadHomeMade(Heat(),Dough()))
+// Result: BreadHomeMade(Heat(),Dough())
 ```
 
 ## Step 4: Different effects can require the same dependency
@@ -175,7 +175,7 @@ def run =
       Dough.fresh,
       oven
     )
-// Result: Success(Toast(Heat(),BreadHomeMade(Heat(),Dough())))
+// Result: Toast(Heat(),BreadHomeMade(Heat(),Dough()))
 ```
 
 However, the oven uses a lot of energy to make `Toast`.
@@ -193,7 +193,7 @@ def run =
     .service[Heat]
     .provide:
       toaster
-// Result: Success(Heat())
+// Result: Heat()
 ```
 
 ## Step 5: Dependencies must be fulfilled by unique types
@@ -244,7 +244,7 @@ def run =
               bread
           )
     .provide(Bread.homemade, Dough.fresh, oven)
-// Result: Success(Toast(Heat(),BreadHomeMade(Heat(),Dough())))
+// Result: Toast(Heat(),BreadHomeMade(Heat(),Dough()))
 ```
 
 ## Step 7: Effects can Construct Dependencies
@@ -269,7 +269,7 @@ def run =
     .service[Bread]
     .provide:
       storeBought
-// Result: Success(BreadStoreBought())
+// Result: BreadStoreBought()
 ```
 
 
@@ -286,7 +286,7 @@ def run =
         3
       )
 // Attempt 1: Error(Friend Unreachable)
-// Result: Success(Error(Friend Unreachable))
+// Result: Error(Friend Unreachable)
 ```
 
 ## Step 9: Fallback Dependencies
@@ -303,7 +303,7 @@ def run =
         .orElse:
           storeBought
 // Attempt 1: Error(Friend Unreachable)
-// Result: Success(BreadStoreBought())
+// Result: BreadStoreBought()
 ```
 
 ## Step 10: Dependency Retries
@@ -322,7 +322,7 @@ def run =
             1
 // Attempt 1: Error(Friend Unreachable)
 // Attempt 2: Error(Friend Unreachable)
-// Result: Success(Error(Friend Unreachable))
+// Result: Error(Friend Unreachable)
 ```
 
 ```scala
@@ -340,7 +340,7 @@ def run =
 // Attempt 1: Error(Friend Unreachable)
 // Attempt 2: Error(Friend Unreachable)
 // Attempt 3: Succeeded
-// Result: Success(BreadFromFriend())
+// Result: BreadFromFriend()
 ```
 
 ## Step 11: Layer Retry + Fallback?
@@ -363,7 +363,7 @@ def run =
           storeBought
 // Attempt 1: Error(Friend Unreachable)
 // Attempt 2: Error(Friend Unreachable)
-// Result: Success(BreadStoreBought())
+// Result: BreadStoreBought()
 ```
 
 ## Step 12: Externalize Config for Retries
@@ -415,7 +415,7 @@ def run =
 // Attempt 1: Error(Friend Unreachable)
 // Attempt 2: Error(Friend Unreachable)
 // Attempt 3: Succeeded
-// Result: Success(BreadFromFriend())
+// Result: BreadFromFriend()
 ```
 
 ## Testing Effects
@@ -466,7 +466,10 @@ val flipTen =
 ```scala
 def run =
   flipTen
-// <FAIL> Fail(Tails,Stack trace for thread "zio-fiber-200256":
+// Heads
+// Heads
+// Heads
+// <FAIL> Fail(Tails,Stack trace for thread "zio-fiber-200456":
 // 	at repl.MdocSession.MdocApp.coinToss(<input>:395)
 // 	at repl.MdocSession.MdocApp.flipTen(<input>:412)
 // 	at zio.direct.ZioMonad.Success.$anon.map(ZioMonad.scala:18)
@@ -478,7 +481,7 @@ def run =
 // 	at mdoctools.ToRun.runAndPrintOutput.e(MdocHelpers.scala:56)
 // 	at mdoctools.ToRun.runAndPrintOutput.result(MdocHelpers.scala:63))
 // Heads
-// <FAIL> Fail(Tails,Stack trace for thread "zio-fiber-200256":
+// <FAIL> Fail(Tails,Stack trace for thread "zio-fiber-200456":
 // 	at repl.MdocSession.MdocApp.coinToss(<input>:395)
 // 	at repl.MdocSession.MdocApp.flipTen(<input>:412)
 // 	at zio.direct.ZioMonad.Success.$anon.map(ZioMonad.scala:18)
@@ -490,9 +493,18 @@ def run =
 // 	at mdoctools.ToRun.runAndPrintOutput.e(MdocHelpers.scala:56)
 // 	at mdoctools.ToRun.runAndPrintOutput.result(MdocHelpers.scala:63))
 // Heads
-// Heads
-// Heads
-// <FAIL> Fail(Tails,Stack trace for thread "zio-fiber-200256":
+// <FAIL> Fail(Tails,Stack trace for thread "zio-fiber-200456":
+// 	at repl.MdocSession.MdocApp.coinToss(<input>:395)
+// 	at repl.MdocSession.MdocApp.flipTen(<input>:412)
+// 	at zio.direct.ZioMonad.Success.$anon.map(ZioMonad.scala:18)
+// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:22)
+// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:32)
+// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:39)
+// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:46)
+// 	at mdoctools.ToRun.runAndPrintOutput.e(MdocHelpers.scala:55)
+// 	at mdoctools.ToRun.runAndPrintOutput.e(MdocHelpers.scala:56)
+// 	at mdoctools.ToRun.runAndPrintOutput.result(MdocHelpers.scala:63))
+// <FAIL> Fail(Tails,Stack trace for thread "zio-fiber-200456":
 // 	at repl.MdocSession.MdocApp.coinToss(<input>:395)
 // 	at repl.MdocSession.MdocApp.flipTen(<input>:412)
 // 	at zio.direct.ZioMonad.Success.$anon.map(ZioMonad.scala:18)
@@ -504,19 +516,7 @@ def run =
 // 	at mdoctools.ToRun.runAndPrintOutput.e(MdocHelpers.scala:56)
 // 	at mdoctools.ToRun.runAndPrintOutput.result(MdocHelpers.scala:63))
 // Heads
-// Heads
-// <FAIL> Fail(Tails,Stack trace for thread "zio-fiber-200256":
-// 	at repl.MdocSession.MdocApp.coinToss(<input>:395)
-// 	at repl.MdocSession.MdocApp.flipTen(<input>:412)
-// 	at zio.direct.ZioMonad.Success.$anon.map(ZioMonad.scala:18)
-// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:22)
-// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:32)
-// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:39)
-// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:46)
-// 	at mdoctools.ToRun.runAndPrintOutput.e(MdocHelpers.scala:55)
-// 	at mdoctools.ToRun.runAndPrintOutput.e(MdocHelpers.scala:56)
-// 	at mdoctools.ToRun.runAndPrintOutput.result(MdocHelpers.scala:63))
-// Result: Success(6)
+// Result: 6
 ```
 
 ```scala
@@ -540,7 +540,7 @@ def spec =
 // Heads
 // Heads
 // + flips 10 times
-// Result: Success(Summary(1,0,0,,PT0.265311S))
+// Result: Summary(1,0,0,,PT0.515864S)
 ```
 
 ```scala
@@ -600,7 +600,7 @@ def spec =
 // G: ...probability
 // R: Heads
 // + rosencrantzAndGuildensternAreDead finishes
-// Result: Success(Summary(1,0,0,,PT0.054665S))
+// Result: Summary(1,0,0,,PT0.090991S)
 ```
 
 ```scala
@@ -612,18 +612,18 @@ def spec =
   @@ TestAspect.withLiveRandom
   @@ TestAspect.flaky(Int.MaxValue)
 // *Performance Begins*
-// R: Heads
-// R: Heads
-// <FAIL> R: Fail(Tails,Stack trace for thread "zio-fiber-200553":
+// <FAIL> R: Fail(Tails,Stack trace for thread "zio-fiber-275800":
 // 	at repl.MdocSession.MdocApp.coinToss(<input>:395)
 // 	at repl.MdocSession.MdocApp.rosencrantzCoinToss(<input>:457)
+// 	at repl.MdocSession.MdocApp.rosencrantzAndGuildensternAreDead(<input>:462)
+// 	at zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19)
 // ...
 // G: Though it can be done by luck alone.
 // R: Heads
 // G: ...probability
 // R: Heads
 // + flaky plan
-// Result: Success(Summary(1,0,0,,PT0.034285S))
+// Result: Summary(1,0,0,,PT0.099492S)
 ```
 
 The `Random` Effect uses an injected something which when running the ZIO uses the system's unpredictable random number generator.  In ZIO Test the `Random` Effect uses a different something which can predictably generate "random" numbers.  `TestRandom` provides a way to define what those numbers are.  This example feeds in the `Int`s `1` and `2` so the first time we ask for a random number we get `1` and the second time we get `2`.
@@ -662,7 +662,7 @@ def spec =
       assertCompletes
 // Parsing CSV: ()
 // + batch runs after 24 hours
-// Result: Success(Summary(1,0,0,,PT0.04357S))
+// Result: Summary(1,0,0,,PT0.044469S)
 ```
 
 The `race` is between `nightlyBatch` and `timeTravel`.

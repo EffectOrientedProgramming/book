@@ -43,7 +43,7 @@ In this book, to avoid the excess lines, we can shorten this to:
 ```scala
 def run =
   effect0
-// Result: Success(User saved)
+// Result: User saved
 ```
 
 By default, the `saveUser` Effect runs in the "happy path" so that it will not fail.
@@ -55,7 +55,7 @@ override val bootstrap =
 
 def run =
   effect0
-// Result: Success(User saved)
+// Result: User saved
 ```
 
 This allows us to simulate failure scenarios in the next examples.
@@ -71,7 +71,7 @@ override val bootstrap =
 def run =
   effect0
 // Log: **Database crashed!!**
-// Result: Success(**Database crashed!!**)
+// Result: **Database crashed!!**
 ```
 
 `runScenario(scenario = DoesNotWorkInitially)` runs our Effect but it fails.
@@ -106,7 +106,7 @@ def run =
 // Log: **Database crashed!!**
 // Log: **Database crashed!!**
 // Log: **Database crashed!!**
-// Result: Success(User saved)
+// Result: User saved
 ```
 
 The output shows that running the Effect failed twice trying to save the user, then it succeeded.
@@ -123,7 +123,7 @@ def run =
 // Log: **Database crashed!!**
 // Log: **Database crashed!!**
 // Log: **Database crashed!!**
-// Result: Success(**Database crashed!!**)
+// Result: **Database crashed!!**
 ```
 
 In the `NeverWorks` scenarios, the Effect failed its initial attempt, and failed the subsequent three retries.
@@ -149,7 +149,7 @@ def run =
 // Log: **Database crashed!!**
 // Log: **Database crashed!!**
 // Log: **Database crashed!!**
-// Result: Success(ERROR: User could not be saved)
+// Result: ERROR: User could not be saved
 ```
 
 **Any** fallible Effect can attach a variety of error handling capabilities.
@@ -184,7 +184,7 @@ override val bootstrap =
 def run =
   effect3
 // Log: Interrupting slow request
-// Result: Success(Save timed out)
+// Result: Save timed out
 ```
 
 Running the new Effect in the `FirstIsSlow` scenario causes it to take longer than the 5 second timeout.
@@ -213,7 +213,7 @@ def run =
 // Log: **Database crashed!!**
 // Log: **Database crashed!!**
 // Log: **Database crashed!!**
-// Result: Success(User sent to manual setup queue)
+// Result: User sent to manual setup queue
 ```
 
 We run the effect again in the `NeverWorks` scenario,
@@ -240,7 +240,7 @@ override val bootstrap =
 def run =
   effect5
 // Log: Signup initiated for Morty
-// Result: Success(User sent to manual setup queue)
+// Result: User sent to manual setup queue
 ```
 
 We run the effect again in the `HappyPath` scenario to demonstrate running the Effects in parallel.
@@ -263,10 +263,11 @@ override val bootstrap =
 
 def run =
   effect6
+// Log: Signup initiated for Morty
 // TODO Handle long line. 
 // Truncating for now: 
-// (PT0.003503063S,User sent to manual setup queue)
-// Result: Success((PT0.003503063S,User sent to manual setup queu)
+// (PT0.048351094S,User sent to manual setup queue)
+// Result: (PT0.048351094S,User sent to manual setup queu
 ```
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.
 
@@ -286,8 +287,7 @@ override val bootstrap =
 
 def run =
   effect7
-// Log: Signup initiated for Morty
-// Result: Success(None)
+// Result: None
 ```
 We can add behavior to the end of our complex Effect,
   that prevents it from ever executing in the first place.

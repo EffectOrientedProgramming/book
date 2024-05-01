@@ -82,7 +82,7 @@ def run =
   thunderingHerdsScenario
     .provide(CloudStorage.live, popularService)
 // Amount owed: $100
-// Result: Success(Amount owed: $100)
+// Result: Amount owed: $100
 ```
 
 We can see that the invoice is 100 dollars, because every single request reached our `CloudStorage` provider.
@@ -123,7 +123,7 @@ def run =
     ZLayer.fromZIO(makeCachedPopularService)
   )
 // Amount owed: $1
-// Result: Success(Amount owed: $1)
+// Result: Amount owed: $1
 ```
 
 We can see that the invoice is only 1 dollar, because only one request reached our `CloudStorage` provider.
@@ -171,7 +171,7 @@ def run =
 // System called API [took 1s]
 // System called API [took 0s]
 // Result [took 0s]
-// Result: Success(())
+// Result: ()
 ```
 
 ```scala
@@ -189,16 +189,16 @@ def run =
         "Total time"
       .run
 // Bill called API [took 0s]
-// Bill called API [took 1s]
-// Bill called API [took 0s]
-// James called API [took 0s]
 // James called API [took 1s]
-// James called API [took 0s]
 // Bruce called API [took 0s]
-// Bruce called API [took 1s]
+// Bill called API [took 0s]
+// James called API [took 1s]
+// Bruce called API [took 0s]
+// Bill called API [took 0s]
+// James called API [took 1s]
 // Bruce called API [took 0s]
 // Total time [took 0s]
-// Result: Success(List((), (), ()))
+// Result: List((), (), ())
 ```
 
 ## Constraining concurrent requests
@@ -222,17 +222,17 @@ def run =
     DelicateResource.live
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(903)
-// Current requests: : List(155)
-// Current requests: : List(376)
-// Current requests: : List(288)
-// Current requests: : List(434)
-// Current requests: : List(254)
-// Current requests: : List(596)
-// Current requests: : List(46)
-// Current requests: : List(104)
-// Current requests: : List(142)
-// Result: Success(All Requests Succeeded!)
+// Current requests: : List(200)
+// Current requests: : List(516, 200)
+// Current requests: : List(943, 516)
+// Current requests: : List(746, 516)
+// Current requests: : List(39, 516)
+// Current requests: : List(527, 516)
+// Current requests: : List(762, 516)
+// Current requests: : List(138, 516)
+// Current requests: : List(394, 516)
+// Current requests: : List(924, 394, 516)
+// Result: All Requests Succeeded!
 ```
 
 ```scala
@@ -259,17 +259,17 @@ def run =
     DelicateResource.live
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(39)
-// Current requests: : List(457, 39)
-// Current requests: : List(587)
-// Current requests: : List(688)
-// Current requests: : List(796)
-// Current requests: : List(287)
-// Current requests: : List(957)
-// Current requests: : List(443)
-// Current requests: : List(666)
-// Current requests: : List(475)
-// Result: Success(All Requests Succeeded)
+// Current requests: : List(621)
+// Current requests: : List(931)
+// Current requests: : List(561)
+// Current requests: : List(527)
+// Current requests: : List(997)
+// Current requests: : List(880)
+// Current requests: : List(830)
+// Current requests: : List(97)
+// Current requests: : List(853)
+// Current requests: : List(674)
+// Result: All Requests Succeeded
 ```
 
 ## Circuit Breaking
@@ -296,7 +296,7 @@ def run =
       numCalls.get.run
 
     s"Calls made: $made"
-// Result: Success(Calls made: 141)
+// Result: Calls made: 141
 ```
 
 ```scala
@@ -343,7 +343,7 @@ def run =
     val made =
       numCalls.get.run
     s"Calls prevented: $prevented Calls made: $made"
-// Result: Success(Calls prevented: 0 Calls made: 141)
+// Result: Calls prevented: 0 Calls made: 141
 ```
 
 ## Hedging
@@ -382,8 +382,8 @@ def run =
       .get
       .debug("Contract Breaches")
       .run
-// Contract Breaches: 47
-// Result: Success(47)
+// Contract Breaches: 49
+// Result: 49
 ```
 
 #### Restricting Time

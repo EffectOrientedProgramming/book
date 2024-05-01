@@ -149,7 +149,7 @@ def run =
       topStory
     .run
 // Texting story: Battery Breakthrough
-// Result: Success(())
+// Result: ()
 ```
 
 There are many other ways you can compose ZIOs.
@@ -174,7 +174,7 @@ def run =
     .catchAll:
       logAndProvideDefault
 // an implementation is missing
-// Result: Success(default value)
+// Result: default value
 ```
 
 ## All The Thing Example
@@ -228,7 +228,7 @@ val getHeadlineZ =
 ```scala
 def run =
   getHeadlineZ
-// Result: Success(stock market crash!)
+// Result: stock market crash!
 ```
 Now let's confirm the behavior when the headline is not available.
 
@@ -239,7 +239,7 @@ headLineAvailable =
 
 def run =
   getHeadlineZ
-// Result: Success(HeadlineNotAvailable())
+// Result: HeadlineNotAvailable()
 ```
 
 ### Option Interop
@@ -277,14 +277,14 @@ headLineAvailable =
 def run =
   topicOfInterestZ:
     "stock market crash!"
-// Result: Success(stock market)
+// Result: stock market
 ```
 
 ```scala
 def run =
   topicOfInterestZ:
     "boring and inane content"
-// Result: Success(NoInterestingTopic())
+// Result: NoInterestingTopic()
 ```
 
 ### AutoCloseable Interop
@@ -318,7 +318,7 @@ def run =
   closeableFileZ
 // Opening file!
 // Closing file!
-// Result: Success(repl.MdocSession$MdocApp$$anon$19@6ffa7f39)
+// Result: repl.MdocSession$MdocApp$$anon$19@14f249a9
 ```
 
 Since that is not terribly useful, let's start calling some methods on our managed file.
@@ -338,7 +338,7 @@ def run =
 // Opening file!
 // Searching file for: topicOfInterest
 // Closing file!
-// Result: Success(false)
+// Result: false
 ```
 
 ```scala
@@ -366,7 +366,7 @@ def run =
 // Opening file!
 // Writing to file: New data on topic
 // Closing file!
-// Result: Success(New data on topic)
+// Result: New data on topic
 ```
 
 ```scala
@@ -392,14 +392,14 @@ def summaryForZ(topic: String) =
 def run =
   summaryForZ:
     "stock market"
-// Result: Success(detailed history of stock market)
+// Result: detailed history of stock market
 ```
 
 ```scala
 def run =
   summaryForZ:
     "obscureTopic"
-// Result: Success(NoRecordsAvailable(obscureTopic))
+// Result: NoRecordsAvailable(obscureTopic)
 ```
 
 Now that we have all of these well-defined effects, we can wield them in any combination and sequence we desire.
@@ -451,7 +451,7 @@ def run =
 // Searching file for: stock market
 // Writing to file: detailed history of stock market
 // Closing file!
-// Result: Success(detailed history of stock market)
+// Result: detailed history of stock market
 ```
 
 

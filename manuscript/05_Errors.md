@@ -62,7 +62,7 @@ def temperatureApp(): String =
 def run =
   ZIO.attempt:
     temperatureApp()
-// Result: Success(Temperature: 35 degrees)
+// Result: Temperature: 35 degrees
 ```
 
 On the happy path, everything looks as desired.
@@ -75,7 +75,7 @@ scenario = ErrorsScenario.NetworkError
 def run =
   ZIO.succeed:
     temperatureApp()
-// Result: Success(Defect: NetworkException)
+// Result: Defect: NetworkException
 ```
 
 ## Manual Error Discovery
@@ -100,7 +100,7 @@ scenario = ErrorsScenario.NetworkError
 def run =
   ZIO.succeed:
     temperatureCatchingApp()
-// Result: Success(Failure)
+// Result: Failure
 ```
 
 We have improved the failure behavior significantly; is it sufficient for all cases?
@@ -126,7 +126,7 @@ scenario = ErrorsScenario.NetworkError
 def run =
   ZIO.succeed:
     temperatureCatchingMoreApp()
-// Result: Success(Network Unavailable)
+// Result: Network Unavailable
 ```
 
 ```scala
@@ -135,7 +135,7 @@ scenario = ErrorsScenario.GPSError
 def run =
   ZIO.succeed:
     temperatureCatchingMoreApp()
-// Result: Success(GPS Hardware Failure)
+// Result: GPS Hardware Failure
 ```
 
 Wonderful!
@@ -169,7 +169,7 @@ override val bootstrap =
 
 def run =
   getTemperature
-// Result: Success(Temperature: 35 degrees)
+// Result: Temperature: 35 degrees
 ```
 
 Running the ZIO version without handling any errors
@@ -179,7 +179,7 @@ override val bootstrap =
 
 def run =
   getTemperature
-// Result: Success(repl.MdocSession$MdocApp$NetworkException)
+// Result: repl.MdocSession$MdocApp$NetworkException
 ```
 
 This is not an error that we want to show the user.
@@ -215,7 +215,7 @@ override val bootstrap =
 
 def run =
   temperatureAppComplete
-// Result: Success(GPS Hardware Failure)
+// Result: GPS Hardware Failure
 ```
 
 Now that we have handled all of our errors, we know we are showing the user a sensible message.
@@ -274,7 +274,7 @@ scenario = ErrorsScenario.HappyPath
 
 def run =
   displayTemperatureZWrapped
-// Result: Success(35 degrees)
+// Result: 35 degrees
 ```
 
 ```scala
@@ -282,7 +282,7 @@ scenario = ErrorsScenario.NetworkError
 
 def run =
   displayTemperatureZWrapped
-// Result: Success(Network Unavailable)
+// Result: Network Unavailable
 ```
 
 This is decent, but does not provide the maximum possible guarantees. 
@@ -297,7 +297,7 @@ def run =
     case ex: NetworkException =>
       ZIO.succeed:
         "Network Unavailable"
-// Result: Success(Defect: GpsFail)
+// Result: Defect: GpsFail
 ```
 
 The compiler does not catch this bug, and instead fails at runtime.
@@ -316,7 +316,7 @@ def run =
     case other =>
       ZIO.succeed:
         "Unknown Error"
-// Result: Success(Unknown Error)
+// Result: Unknown Error
 ```
 
 This lets us avoid the most egregious gaps in functionality, but does not take full advantage of ZIO's type-safety.
