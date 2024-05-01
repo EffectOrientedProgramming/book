@@ -57,10 +57,8 @@ Visit us at www.EffectOrientedProgramming.com.
 
 ## Source Code
 
-{{ todo: link to code example repo }}
-
 All the source code for this book is available as copyrighted freeware,
-distributed via [Github](https://github.com/EffectOrientedProgramming/EOPCode).
+distributed via [GitHub](https://github.com/EffectOrientedProgramming/examples).
 To ensure you have the most current version, this is the official code
 distribution site. You may use this code in classroom and other educational
 situations as long as you cite this book as the source.
@@ -71,8 +69,6 @@ permission. (As long as this book is cited, using examples from the book in
 most media is generally not a problem.)
 
 In each source-code file you find a reference to the following copyright notice:
-
-{{ todo: update example repo urls }}
 
 ```text
 
@@ -145,9 +141,9 @@ the sole distribution point for electronic copies of the
 Source Code, where it is freely available under the terms
 stated above:
 
-  https://github.com/EffectOrientedProgramming/EOPCode
+  https://github.com/EffectOrientedProgramming/examples
 
 If you think you've found an error in the Source Code,
 please submit a correction at:
-https://github.com/EffectOrientedProgramming/EOPCode/issues
+https://github.com/EffectOrientedProgramming/examples/issues
 ```

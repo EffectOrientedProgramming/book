@@ -468,8 +468,18 @@ def run =
   flipTen
 // Heads
 // Heads
-// Heads
-// <FAIL> Fail(Tails,Stack trace for thread "zio-fiber-200456":
+// <FAIL> Fail(Tails,Stack trace for thread "zio-fiber-200208":
+// 	at repl.MdocSession.MdocApp.coinToss(<input>:395)
+// 	at repl.MdocSession.MdocApp.flipTen(<input>:412)
+// 	at zio.direct.ZioMonad.Success.$anon.map(ZioMonad.scala:18)
+// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:22)
+// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:32)
+// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:39)
+// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:46)
+// 	at mdoctools.ToRun.runAndPrintOutput.e(MdocHelpers.scala:55)
+// 	at mdoctools.ToRun.runAndPrintOutput.e(MdocHelpers.scala:56)
+// 	at mdoctools.ToRun.runAndPrintOutput.result(MdocHelpers.scala:63))
+// <FAIL> Fail(Tails,Stack trace for thread "zio-fiber-200208":
 // 	at repl.MdocSession.MdocApp.coinToss(<input>:395)
 // 	at repl.MdocSession.MdocApp.flipTen(<input>:412)
 // 	at zio.direct.ZioMonad.Success.$anon.map(ZioMonad.scala:18)
@@ -481,7 +491,19 @@ def run =
 // 	at mdoctools.ToRun.runAndPrintOutput.e(MdocHelpers.scala:56)
 // 	at mdoctools.ToRun.runAndPrintOutput.result(MdocHelpers.scala:63))
 // Heads
-// <FAIL> Fail(Tails,Stack trace for thread "zio-fiber-200456":
+// Heads
+// <FAIL> Fail(Tails,Stack trace for thread "zio-fiber-200208":
+// 	at repl.MdocSession.MdocApp.coinToss(<input>:395)
+// 	at repl.MdocSession.MdocApp.flipTen(<input>:412)
+// 	at zio.direct.ZioMonad.Success.$anon.map(ZioMonad.scala:18)
+// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:22)
+// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:32)
+// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:39)
+// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:46)
+// 	at mdoctools.ToRun.runAndPrintOutput.e(MdocHelpers.scala:55)
+// 	at mdoctools.ToRun.runAndPrintOutput.e(MdocHelpers.scala:56)
+// 	at mdoctools.ToRun.runAndPrintOutput.result(MdocHelpers.scala:63))
+// <FAIL> Fail(Tails,Stack trace for thread "zio-fiber-200208":
 // 	at repl.MdocSession.MdocApp.coinToss(<input>:395)
 // 	at repl.MdocSession.MdocApp.flipTen(<input>:412)
 // 	at zio.direct.ZioMonad.Success.$anon.map(ZioMonad.scala:18)
@@ -493,7 +515,7 @@ def run =
 // 	at mdoctools.ToRun.runAndPrintOutput.e(MdocHelpers.scala:56)
 // 	at mdoctools.ToRun.runAndPrintOutput.result(MdocHelpers.scala:63))
 // Heads
-// <FAIL> Fail(Tails,Stack trace for thread "zio-fiber-200456":
+// <FAIL> Fail(Tails,Stack trace for thread "zio-fiber-200208":
 // 	at repl.MdocSession.MdocApp.coinToss(<input>:395)
 // 	at repl.MdocSession.MdocApp.flipTen(<input>:412)
 // 	at zio.direct.ZioMonad.Success.$anon.map(ZioMonad.scala:18)
@@ -504,19 +526,7 @@ def run =
 // 	at mdoctools.ToRun.runAndPrintOutput.e(MdocHelpers.scala:55)
 // 	at mdoctools.ToRun.runAndPrintOutput.e(MdocHelpers.scala:56)
 // 	at mdoctools.ToRun.runAndPrintOutput.result(MdocHelpers.scala:63))
-// <FAIL> Fail(Tails,Stack trace for thread "zio-fiber-200456":
-// 	at repl.MdocSession.MdocApp.coinToss(<input>:395)
-// 	at repl.MdocSession.MdocApp.flipTen(<input>:412)
-// 	at zio.direct.ZioMonad.Success.$anon.map(ZioMonad.scala:18)
-// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:22)
-// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:32)
-// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:39)
-// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:46)
-// 	at mdoctools.ToRun.runAndPrintOutput.e(MdocHelpers.scala:55)
-// 	at mdoctools.ToRun.runAndPrintOutput.e(MdocHelpers.scala:56)
-// 	at mdoctools.ToRun.runAndPrintOutput.result(MdocHelpers.scala:63))
-// Heads
-// Result: 6
+// Result: 5
 ```
 
 ```scala
@@ -540,7 +550,7 @@ def spec =
 // Heads
 // Heads
 // + flips 10 times
-// Result: Summary(1,0,0,,PT0.515864S)
+// Result: Summary(1,0,0,,PT0.263971S)
 ```
 
 ```scala
@@ -600,7 +610,7 @@ def spec =
 // G: ...probability
 // R: Heads
 // + rosencrantzAndGuildensternAreDead finishes
-// Result: Summary(1,0,0,,PT0.090991S)
+// Result: Summary(1,0,0,,PT0.163274S)
 ```
 
 ```scala
@@ -612,7 +622,7 @@ def spec =
   @@ TestAspect.withLiveRandom
   @@ TestAspect.flaky(Int.MaxValue)
 // *Performance Begins*
-// <FAIL> R: Fail(Tails,Stack trace for thread "zio-fiber-275800":
+// <FAIL> R: Fail(Tails,Stack trace for thread "zio-fiber-200553":
 // 	at repl.MdocSession.MdocApp.coinToss(<input>:395)
 // 	at repl.MdocSession.MdocApp.rosencrantzCoinToss(<input>:457)
 // 	at repl.MdocSession.MdocApp.rosencrantzAndGuildensternAreDead(<input>:462)
@@ -623,7 +633,7 @@ def spec =
 // G: ...probability
 // R: Heads
 // + flaky plan
-// Result: Summary(1,0,0,,PT0.099492S)
+// Result: Summary(1,0,0,,PT0.053279S)
 ```
 
 The `Random` Effect uses an injected something which when running the ZIO uses the system's unpredictable random number generator.  In ZIO Test the `Random` Effect uses a different something which can predictably generate "random" numbers.  `TestRandom` provides a way to define what those numbers are.  This example feeds in the `Int`s `1` and `2` so the first time we ask for a random number we get `1` and the second time we get `2`.
@@ -662,7 +672,7 @@ def spec =
       assertCompletes
 // Parsing CSV: ()
 // + batch runs after 24 hours
-// Result: Summary(1,0,0,,PT0.044469S)
+// Result: Summary(1,0,0,,PT0.029248S)
 ```
 
 The `race` is between `nightlyBatch` and `timeTravel`.

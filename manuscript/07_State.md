@@ -54,7 +54,7 @@ val unreliableCounting =
 ```scala
 def run =
   unreliableCounting
-// Result: Final count: 99967
+// Result: Final count: 99972
 ```
 
 Due to the unpredictable nature of shared mutable state, we do not know exactly what the final count above is.
@@ -139,7 +139,6 @@ def run =
     val finalCount =
       counter.get.run
     s"Final count: $finalCount"
-// Alert: updating count!
 // Alert: updating count!
 // Alert: updating count!
 // Alert: updating count!
