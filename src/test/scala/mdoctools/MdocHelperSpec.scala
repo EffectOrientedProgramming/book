@@ -70,12 +70,26 @@ object MdocHelperSpec extends ZIOSpecDefault:
       +
       test("OurClock is fast"):
         defer:
-          val out1 = ZIO.sleep(10.seconds).timed.withClock(mdoctools.OurClock).run
-          val out2 = ZIO.sleep(100.seconds).timed.withClock(mdoctools.OurClock).run
+          val out1 = ZIO.sleep(10.seconds).timed.withClock(mdoctools.OurClock()).run
+          val out2 = ZIO.sleep(100.seconds).timed.withClock(mdoctools.OurClock()).run
           assertTrue(
             out1._1.getSeconds >= 10L && out1._1.getSeconds < 13L, // the first effect has some overhead so we give it some extra room
             out2._1.getSeconds >= 100L && out1._1.getSeconds < 101L
           )
+      //@@ TestAspect.nonFlaky
+      +
+      test("OurClock works with timeouts"):
+        defer:
+          val out = ZIO.sleep(10.seconds).timeout(1.second).withClock(mdoctools.OurClock()).run
+          assertTrue(
+            out.isEmpty
+          )
+      +
+      test("OurClock works with long sleeps"):
+        defer:
+          val out = ZIO.sleep(24.hours).withClock(mdoctools.OurClock()).run
+          assertCompletes
+      @@ TestAspect.timeout(1.second)
       +
       test("ToTest"):
         class FooSpec extends mdoctools.ToTest:

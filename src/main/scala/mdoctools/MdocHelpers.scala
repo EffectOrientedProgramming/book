@@ -44,7 +44,7 @@ trait ToRun:
           Rendering.renderEveryPossibleOutcomeZio:
             run
           .withConsole(ourConsole)
-          .withClock(OurClock)
+          .withClock(OurClock())
 
         val result = Runtime
           .unsafe
@@ -71,7 +71,7 @@ abstract class ToTest extends ToRun:
       System,
       Random
     ](
-      OurClock,
+      OurClock(),
       ourConsole,
       System.SystemLive,
       Random.RandomLive

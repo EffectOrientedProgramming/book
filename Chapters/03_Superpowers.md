@@ -6,7 +6,7 @@
 enum Scenario:
   case HappyPath
   case NeverWorks
-  case NumberOfSlowCall(ref: Ref[Int])
+  case Slow
   case WorksOnTry(attempts: Int, ref: Ref[Int])
 
 // This configuration is used by effects to get the scenario that
@@ -26,6 +26,9 @@ val happyPath =
 val neverWorks =
   Runtime.setConfigProvider(StaticConfigProvider(Scenario.NeverWorks))
 
+val slow =
+  Runtime.setConfigProvider(StaticConfigProvider(Scenario.Slow))
+
 val doesNotWorkInitially =
   val scenario =
   Unsafe.unsafe {
@@ -39,20 +42,6 @@ val doesNotWorkInitially =
           .getOrThrow()
       )
   }
-  Runtime.setConfigProvider(StaticConfigProvider(scenario))
-
-val firstIsSlow =
-  val scenario =
-    Unsafe.unsafe {
-      implicit unsafe =>
-        Scenario.NumberOfSlowCall(
-          Runtime
-            .default
-            .unsafe
-            .run(Ref.make(0))
-            .getOrThrow()
-        )
-    }
   Runtime.setConfigProvider(StaticConfigProvider(scenario))
 
 def saveUser(username: String) =
@@ -76,14 +65,12 @@ def saveUser(username: String) =
       case Scenario.NeverWorks =>
         fail.run
    
-      case scenario: Scenario.NumberOfSlowCall =>
-        val numCalls =
-          scenario.ref.getAndUpdate(_ + 1).run
-        if numCalls == 0 then
-          ZIO.never.run
-        else
-          Console.printLine("Log: Database Timeout").run
-          succeed.run
+      case Scenario.Slow =>
+        ZIO.sleep(1.minute)
+          .onInterrupt:
+            ZIO.debug("Log: Interrupting slow request")
+          .run
+        succeed.run
     
       case Scenario.WorksOnTry(attempts, ref) =>
         val numCalls =
@@ -92,8 +79,6 @@ def saveUser(username: String) =
           succeed.run
         else
           fail.run
-  .onInterrupt:
-    ZIO.debug("Log: Interrupting slow request")
 end saveUser
 
 def sendToManualQueue(username: String) =
@@ -260,11 +245,11 @@ val effect3 =
 If the effect does not complete within the time limit, it is canceled and returns our error message.
 Timeouts can be added to any Effect.
 
-Running the new Effect in the `firstIsSlow` scenario causes it to take longer than the time limit:
+Running the new Effect in the `slow` scenario causes it to take longer than the time limit:
 
 ```scala mdoc:runzio
 override val bootstrap =
-  firstIsSlow
+  slow
 
 def run =
   effect3
