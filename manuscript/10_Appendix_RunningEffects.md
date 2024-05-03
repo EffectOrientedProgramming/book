@@ -85,7 +85,7 @@ def spec =
       assertTrue:
         Random.nextIntBounded(10).run < 10
 // + random is random
-// Result: Summary(1,0,0,,PT0.042082S)
+// Result: Summary(1,0,0,,PT0.037843S)
 ```
 
 TODO Justify defer syntax over for-comp for multi-statement assertions
@@ -101,7 +101,7 @@ def spec =
         Random.nextIntBetween(10, 20).run <= 20 &&
         Random.nextIntBetween(20, 30).run <= 30
 // + random is still random
-// Result: Summary(1,0,0,,PT0.032772S)
+// Result: Summary(1,0,0,,PT0.035712S)
 ```
 
 Consider a `Console` application:
@@ -153,7 +153,7 @@ def spec =
       assertTrue:
         capturedOutput == expectedOutput
 // - console works
-//   Exception in thread "zio-fiber-206179" scala.NotImplementedError: an implementation is missing
+//   Exception in thread "zio-fiber-354648" scala.NotImplementedError: an implementation is missing
 //   	at scala.Predef$.$qmark$qmark$qmark(Predef.scala:344)
 //   	at mdoctools.OurConsole.print(OurConsole.scala:14)
 //   	at zio.Console$.print$$anonfun$6(Console.scala:122)
