@@ -6,27 +6,10 @@ contracts are what makes composability work at scale
 our effects put in place contracts on how things can compose
 exceptions do not put in place a contract
 
-maybe something about how exceptions do not convey a contract in either direction. 
-Anything can be wrapped with a try.  
-Things that produce exceptions don't need to be wrapped with trys.
-
 possible example of Scope for Environment contracts
 
 possible contract on provide for things not needed
 
-
-
-```scala mdoc:fail
-ZIO
-  .succeed(println("Always gonna work"))
-  .retryN(100)
-```
-
-```scala mdoc:compile-only
-ZIO
-  .attempt(println("This might work"))
-  .retryN(100)
-```
 
 is this about surfacing the hidden information through a "bookkeeper" that conveys the
 constraints to the caller
@@ -50,8 +33,6 @@ ZIOs compose including errors, async, blocking, resource managed, cancellation, 
     1. Limitations of Functions & SDTs
     1. Some intro to Universal Effect Data Types ie ZIO
     1. The ways in which ZIOs compose (contrasted to limitations)
-    1. Note: Merge chapters: composability, Unit, The_ZIO_Type
-    1. Note: Avoid explicit anonymous sum & product types at this point
 
 ## Alternatives and their downsides
 
@@ -178,7 +159,7 @@ By utilizing some clever type-level, compile-time techniques
 
 ## Future interop
 
-###
+
 ```scala mdoc
 import scala.concurrent.Future
 ```
@@ -406,6 +387,9 @@ def run =
     writeToFileZ(file, "New data on topic").run
 ```
 
+
+### Either Interop
+
 ```scala mdoc
 case class NoRecordsAvailable(topic: String)
 ```
@@ -501,26 +485,6 @@ def run =
 
 ....
 
-
-## Hedging 
-TODO Determine final location for Hedging
-### Why?
-This technique snips off the most extreme end of the latency tail.
-
-Determine the average response time for the top 50% of your requests.
-If you make a call that does not get a response within this average delay, make an additional, identical request.
-However, you do not give up on the 1st request, since it might respond immediately after sending the 2nd.
-Instead, you want to race them and use the first response you get
-
-To be clear - this technique will not reduce the latency of the fastest requests at all.
-It only alleviates the pain of the slowest responses.
-
-You have `1/n` chance of getting the worst case response time.
-This approach turns that into a `1/n^2` chance.
-The cost of this is only ~3% more total requests made. *Citations needed*
-
-Further, if this is not enough to completely eliminate your extreme tail, you can employ the exact same technique once more.
-Then, you end up with `1/n^3` chance of getting that worst performance.
 
 ## Repeats
 

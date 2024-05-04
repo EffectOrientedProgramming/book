@@ -3,7 +3,7 @@
 1. Why errors as values
 1. Creating & Handling
    1. Flexible error types
-1. Collection of fallible operations (`collectAllSuccesses`)
+
 
 ## Our program for this chapter
 
@@ -110,7 +110,9 @@ def run =
     temperatureApp()
 ```
 
-## Manual Error Discovery
+### Manual Error Discovery
+
+Exceptions do not convey a contract in either direction. 
 
 If you have been burned in the past by functions that throw surprise exceptions
   , you might defensively catch `Exception`s all over your program.
@@ -175,7 +177,7 @@ We have specific messages for all relevant error cases. However, this still suff
 - Because every function that is called by `temperatureApp` can call other functions, which can call other functions, and so on,
    we are never sure that we have found all the failure paths in our application
 
-## More Problems with Exceptions
+### More Problems
 
 Exceptions have other problems:
 
@@ -355,3 +357,29 @@ def run =
 ```
 
 This lets us avoid the most egregious gaps in functionality, but does not take full advantage of ZIO's type-safety.
+
+## ZIO super powers for errors
+
+### Prevents Overly-Defensive Programming
+
+Anything can be wrapped with a try/catch. 
+Things that produce exceptions don't need to be wrapped with trys.
+
+You are forbidden from `retry`'ing effects that cannot fail.
+
+```scala mdoc:fail
+ZIO
+  .succeed(println("Always gonna work"))
+  .retryN(100)
+```
+
+```scala mdoc:compile-only
+ZIO
+  .attempt(println("This might work"))
+  .retryN(100)
+```
+
+### Flexible error types
+
+### Collections of Error
+eg `collectAllSuccesses`
