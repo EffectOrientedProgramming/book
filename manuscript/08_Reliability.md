@@ -222,12 +222,11 @@ def run =
     DelicateResource.live
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(686)
-// Current requests: : List(292, 686)
-// Current requests: : List(678, 292, 686)
-// Current requests: : List(524, 678, 292, 686)
-// Current requests: : List(896, 686)
-// Result: Server was killed by another request!!
+// Current requests: : List(541)
+// Current requests: : List(674, 541)
+// Current requests: : List(282, 674, 541)
+// Current requests: : List(202, 282, 674, 541)
+// Result: Killed the server!!
 ```
 
 ```scala
@@ -254,16 +253,16 @@ def run =
     DelicateResource.live
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(816)
-// Current requests: : List(952, 816)
-// Current requests: : List(934)
-// Current requests: : List(232)
-// Current requests: : List(538, 232)
-// Current requests: : List(628)
-// Current requests: : List(632, 628)
-// Current requests: : List(698, 632, 628)
-// Current requests: : List(936)
-// Current requests: : List(721)
+// Current requests: : List(495)
+// Current requests: : List(161, 495)
+// Current requests: : List(811, 161, 495)
+// Current requests: : List(308, 161)
+// Current requests: : List(540, 308)
+// Current requests: : List(169, 540, 308)
+// Current requests: : List(276, 169)
+// Current requests: : List(978, 276)
+// Current requests: : List(486, 978, 276)
+// Current requests: : List(623, 486, 978)
 // Result: All Requests Succeeded
 ```
 
@@ -343,6 +342,23 @@ def run =
 
 ## Hedging
 
+This technique snips off the most extreme end of the latency tail.
+
+Determine the average response time for the top 50% of your requests.
+If you make a call that does not get a response within this average delay, make an additional, identical request.
+However, you do not give up on the 1st request, since it might respond immediately after sending the 2nd.
+Instead, you want to race them and use the first response you get
+
+To be clear - this technique will not reduce the latency of the fastest requests at all.
+It only alleviates the pain of the slowest responses.
+
+You have `1/n` chance of getting the worst case response time.
+This approach turns that into a `1/n^2` chance.
+The cost of this is only ~3% more total requests made. *Citations needed*
+
+Further, if this is not enough to completely eliminate your extreme tail, you can employ the exact same technique once more.
+Then, you end up with `1/n^3` chance of getting that worst performance.
+
 
 
 ```scala
@@ -377,11 +393,11 @@ def run =
       .get
       .debug("Contract Breaches")
       .run
-// Contract Breaches: 1
-// Result: 1
+// Contract Breaches: 0
+// Result: 0
 ```
 
-#### Restricting Time
+## Restricting Time
 Sometimes, it's not enough to simply track the time that a test takes.
 If you have specific Service Level Agreements (SLAs) that you need to meet, you want your tests to help ensure that you are meeting them.
 However, even if you don't have contracts bearing down on you, there are still good reasons to ensure that your tests complete in a timely manner.
@@ -397,7 +413,7 @@ This helps you to identify tests that have completely locked up, or are taking a
 For example, if you are running your tests in a CI/CD pipeline, you want to ensure that your tests complete quickly, so that you can get feedback as soon as possible.
 you can use `TestAspect.timeout` to ensure that your tests complete within a certain time frame.
 
-### Flakiness
+## Flakiness
 Commonly, as a project grows, the supporting tests become more and more flaky.
 This can be caused by a number of factors:
 

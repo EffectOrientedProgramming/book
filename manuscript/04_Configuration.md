@@ -466,7 +466,54 @@ val flipTen =
 ```scala
 def run =
   flipTen
-// <FAIL> Fail(Tails,Stack trace for thread "zio-fiber-200371":
+// Heads
+// <FAIL> Fail(Tails,Stack trace for thread "zio-fiber-200191":
+// 	at repl.MdocSession.MdocApp.coinToss(<input>:395)
+// 	at repl.MdocSession.MdocApp.flipTen(<input>:412)
+// 	at zio.direct.ZioMonad.Success.$anon.map(ZioMonad.scala:18)
+// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:22)
+// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:32)
+// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:39)
+// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:46)
+// 	at mdoctools.ToRun.runAndPrintOutput.e(MdocHelpers.scala:55)
+// 	at mdoctools.ToRun.runAndPrintOutput.e(MdocHelpers.scala:56)
+// 	at mdoctools.ToRun.runAndPrintOutput.result(MdocHelpers.scala:63))
+// <FAIL> Fail(Tails,Stack trace for thread "zio-fiber-200191":
+// 	at repl.MdocSession.MdocApp.coinToss(<input>:395)
+// 	at repl.MdocSession.MdocApp.flipTen(<input>:412)
+// 	at zio.direct.ZioMonad.Success.$anon.map(ZioMonad.scala:18)
+// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:22)
+// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:32)
+// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:39)
+// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:46)
+// 	at mdoctools.ToRun.runAndPrintOutput.e(MdocHelpers.scala:55)
+// 	at mdoctools.ToRun.runAndPrintOutput.e(MdocHelpers.scala:56)
+// 	at mdoctools.ToRun.runAndPrintOutput.result(MdocHelpers.scala:63))
+// Heads
+// <FAIL> Fail(Tails,Stack trace for thread "zio-fiber-200191":
+// 	at repl.MdocSession.MdocApp.coinToss(<input>:395)
+// 	at repl.MdocSession.MdocApp.flipTen(<input>:412)
+// 	at zio.direct.ZioMonad.Success.$anon.map(ZioMonad.scala:18)
+// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:22)
+// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:32)
+// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:39)
+// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:46)
+// 	at mdoctools.ToRun.runAndPrintOutput.e(MdocHelpers.scala:55)
+// 	at mdoctools.ToRun.runAndPrintOutput.e(MdocHelpers.scala:56)
+// 	at mdoctools.ToRun.runAndPrintOutput.result(MdocHelpers.scala:63))
+// <FAIL> Fail(Tails,Stack trace for thread "zio-fiber-200191":
+// 	at repl.MdocSession.MdocApp.coinToss(<input>:395)
+// 	at repl.MdocSession.MdocApp.flipTen(<input>:412)
+// 	at zio.direct.ZioMonad.Success.$anon.map(ZioMonad.scala:18)
+// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:22)
+// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:32)
+// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:39)
+// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:46)
+// 	at mdoctools.ToRun.runAndPrintOutput.e(MdocHelpers.scala:55)
+// 	at mdoctools.ToRun.runAndPrintOutput.e(MdocHelpers.scala:56)
+// 	at mdoctools.ToRun.runAndPrintOutput.result(MdocHelpers.scala:63))
+// Heads
+// <FAIL> Fail(Tails,Stack trace for thread "zio-fiber-200191":
 // 	at repl.MdocSession.MdocApp.coinToss(<input>:395)
 // 	at repl.MdocSession.MdocApp.flipTen(<input>:412)
 // 	at zio.direct.ZioMonad.Success.$anon.map(ZioMonad.scala:18)
@@ -479,24 +526,7 @@ def run =
 // 	at mdoctools.ToRun.runAndPrintOutput.result(MdocHelpers.scala:63))
 // Heads
 // Heads
-// Heads
-// Heads
-// Heads
-// Heads
-// Heads
-// Heads
-// <FAIL> Fail(Tails,Stack trace for thread "zio-fiber-200371":
-// 	at repl.MdocSession.MdocApp.coinToss(<input>:395)
-// 	at repl.MdocSession.MdocApp.flipTen(<input>:412)
-// 	at zio.direct.ZioMonad.Success.$anon.map(ZioMonad.scala:18)
-// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:22)
-// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:32)
-// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:39)
-// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:46)
-// 	at mdoctools.ToRun.runAndPrintOutput.e(MdocHelpers.scala:55)
-// 	at mdoctools.ToRun.runAndPrintOutput.e(MdocHelpers.scala:56)
-// 	at mdoctools.ToRun.runAndPrintOutput.result(MdocHelpers.scala:63))
-// Result: 8
+// Result: 5
 ```
 
 ```scala
@@ -520,7 +550,7 @@ def spec =
 // Heads
 // Heads
 // + flips 10 times
-// Result: Summary(1,0,0,,PT0.257851S)
+// Result: Summary(1,0,0,,PT0.496949S)
 ```
 
 ```scala
@@ -580,7 +610,7 @@ def spec =
 // G: ...probability
 // R: Heads
 // + rosencrantzAndGuildensternAreDead finishes
-// Result: Summary(1,0,0,,PT0.112369S)
+// Result: Summary(1,0,0,,PT0.089237S)
 ```
 
 ```scala
@@ -592,18 +622,18 @@ def spec =
   @@ TestAspect.withLiveRandom
   @@ TestAspect.flaky(Int.MaxValue)
 // *Performance Begins*
-// <FAIL> R: Fail(Tails,Stack trace for thread "zio-fiber-224839":
+// R: Heads
+// <FAIL> R: Fail(Tails,Stack trace for thread "zio-fiber-200552":
 // 	at repl.MdocSession.MdocApp.coinToss(<input>:395)
 // 	at repl.MdocSession.MdocApp.rosencrantzCoinToss(<input>:457)
 // 	at repl.MdocSession.MdocApp.rosencrantzAndGuildensternAreDead(<input>:462)
-// 	at zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19)
 // ...
 // G: Though it can be done by luck alone.
 // R: Heads
 // G: ...probability
 // R: Heads
 // + flaky plan
-// Result: Summary(1,0,0,,PT0.054179S)
+// Result: Summary(1,0,0,,PT0.030378S)
 ```
 
 The `Random` Effect uses an injected something which when running the ZIO uses the system's unpredictable random number generator.  In ZIO Test the `Random` Effect uses a different something which can predictably generate "random" numbers.  `TestRandom` provides a way to define what those numbers are.  This example feeds in the `Int`s `1` and `2` so the first time we ask for a random number we get `1` and the second time we get `2`.
@@ -642,7 +672,7 @@ def spec =
       assertCompletes
 // Parsing CSV: ()
 // + batch runs after 24 hours
-// Result: Summary(1,0,0,,PT0.028474S)
+// Result: Summary(1,0,0,,PT0.095126S)
 ```
 
 The `race` is between `nightlyBatch` and `timeTravel`.
