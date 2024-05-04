@@ -257,8 +257,10 @@ override val bootstrap =
 
 def run =
   effect6
-// Result: (PT5.041619036S,User saved)
-// Log: Signup initiated for Morty
+// TODO Handle long line. 
+// Truncating for now: 
+// (PT5.047433407S,Please manually provision Morty)
+// Result: (PT5.047433407S,Please manually provision Mort
 ```
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.
 
@@ -278,6 +280,7 @@ override val bootstrap =
 
 def run =
   effect7
+// Log: Signup initiated for Morty
 // Result: None
 ```
 We can add behavior to the end of our complex Effect,

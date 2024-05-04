@@ -189,9 +189,9 @@ def run =
         "Total time"
       .run
 // Bill called API [took 0s]
-// Bruce called API [took 0s]
+// Bruce called API [took 1s]
 // James called API [took 0s]
-// Bill called API [took -1s]
+// Bill called API [took 0s]
 // Bruce called API [took 0s]
 // James called API [took 0s]
 // Bill called API [took -1s]
@@ -222,11 +222,11 @@ def run =
     DelicateResource.live
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(52)
-// Current requests: : List(493, 52)
-// Current requests: : List(228, 131, 493)
-// Current requests: : List(96, 753, 228, 131, 493)
-// Result: Server was killed by another request!!
+// Current requests: : List(729)
+// Current requests: : List(812, 729)
+// Current requests: : List(233, 812, 729)
+// Current requests: : List(176, 233, 812, 729)
+// Result: Killed the server!!
 ```
 
 ```scala
@@ -253,16 +253,16 @@ def run =
     DelicateResource.live
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(57)
-// Current requests: : List(459, 57)
-// Current requests: : List(126, 459, 57)
-// Current requests: : List(402)
-// Current requests: : List(910, 402)
-// Current requests: : List(667, 910)
-// Current requests: : List(188, 667, 910)
-// Current requests: : List(590, 188)
-// Current requests: : List(219, 590)
-// Current requests: : List(189, 219)
+// Current requests: : List(107)
+// Current requests: : List(229, 107)
+// Current requests: : List(501, 229, 107)
+// Current requests: : List(7, 501, 229)
+// Current requests: : List(126)
+// Current requests: : List(299, 126)
+// Current requests: : List(968, 299, 126)
+// Current requests: : List(423, 968, 126)
+// Current requests: : List(431, 423)
+// Current requests: : List(900, 431, 423)
 // Result: All Requests Succeeded
 ```
 
