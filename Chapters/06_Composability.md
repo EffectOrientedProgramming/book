@@ -4,16 +4,10 @@ Good contracts make good composability.
 
 contracts are what makes composability work at scale
 our effects put in place contracts on how things can compose
-exceptions do not put in place a contract
-
-possible example of Scope for Environment contracts
-
-possible contract on provide for things not needed
 
 
 is this about surfacing the hidden information through a "bookkeeper" that conveys the
 constraints to the caller
-
 
 
 An essential part of creating programs is the ability to combine small pieces into larger pieces.  
@@ -27,11 +21,7 @@ For example, functions that use resources which need to be opened and closed, do
 ZIOs compose including errors, async, blocking, resource managed, cancellation, eitherness, environmental requirements.
 
 
-## Alternatives and their downsides
-
-Other framings/techniques and their pros/cons:
-
-### Plain functions that return Unit
+### Plain functions that return Unit TODO Incorporate to AllTheThings
 
 `Unit` can be viewed as the bare minimum of effect tracking.
 
@@ -51,17 +41,6 @@ Alternatively, if there are no arguments to the function, then the input is `Uni
 
 Unfortunately, we can't do things like timeout/race/etc these functions. 
 We can either execute them, or not, and that's about it, without resorting to additional tools for manipulating their execution.
-
-### Final Collective Criticism
-- All of these types must be manually transformed into the other types
-
-Each of these approaches gives you benefits, but you can't assemble them all together.
-Instead of the best of all worlds, you get the pain of all worlds.
-eg `Closeable[Future[Either[Throwable, A]]]`
-The ordering of the nesting is significant, and not easily changed.
-
-The number of combinations is something like:
-  PairsIn(numberOfConcepts)
 
 ## Universal Composability with ZIO
 
@@ -136,7 +115,15 @@ TODO:
 Downsides:
 - We cannot union these error possibilities and track them in the type system
 - Cannot attach behavior to deferred functions
+- do not put in place a contract
 
+### Plain blocking functions
+TODO Demonstrate `ZIO.attemptBlockingInterrupt`
+
+- We can't indicate if they block or not
+- Too many concurrent blocking operations can prevent progress of other operations
+- Very difficult to manage
+- Blocking performance varies wildly between environments
 
 ### Future interop
 
@@ -421,6 +408,17 @@ def run =
     writeToFileZ(file, "New data on topic").run
 ```
 
+### Final Collective Criticism
+Each of original approaches gives you benefits, but you can't easily assemble a program that utilizes all of them.
+They must be manually transformed into each other .
+
+Instead of the best of all worlds, you get the pain of all worlds.
+eg `Closeable[Future[Either[Throwable, A]]]`
+The ordering of the nesting is significant, and not easily changed.
+
+The number of combinations is something like:
+  PairsIn(numberOfConcepts)
+
 
 ### Fully Composed
 
@@ -470,9 +468,6 @@ def run =
       case NoInterestingTopic() =>
         "No Interesting topic found"
 ```
-
-
-....
 
 
 ## Repeats
