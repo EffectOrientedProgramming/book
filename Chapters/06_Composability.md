@@ -26,13 +26,6 @@ For example, functions that use resources which need to be opened and closed, do
 
 ZIOs compose including errors, async, blocking, resource managed, cancellation, eitherness, environmental requirements.
 
-## Composability Explanation
-
-1. But Functions & Specialized Data Types Don't Compose for Effects
-  1. Composability
-    1. Limitations of Functions & SDTs
-    1. Some intro to Universal Effect Data Types ie ZIO
-    1. The ways in which ZIOs compose (contrasted to limitations)
 
 ## Alternatives and their downsides
 
@@ -59,32 +52,8 @@ Alternatively, if there are no arguments to the function, then the input is `Uni
 Unfortunately, we can't do things like timeout/race/etc these functions. 
 We can either execute them, or not, and that's about it, without resorting to additional tools for manipulating their execution.
 
-### Plain functions that throw Exceptions
-
-- We cannot union these error possibilities and track them in the type system
-- Cannot attach behavior to deferred functions
-
-
-
-### Plain functions that block
-
-- We can't indicate if they block or not
-- Too many concurrent blocking operations can prevent progress of other operations
-- Very difficult to manage
-- Blocking performance varies wildly between environments
-
-### Functions that return Either/Option/Try/etc
-
-- We can manage the errors in the type system, but we can't interrupt the code that is producing these values
+### Final Collective Criticism
 - All of these types must be manually transformed into the other types
-- Execution is not deferred
-
-### Implicits
-  - Are not automatically managed by the compiler, you must explicitly add each one to your parent function
-  - Resolving the origin of a provided implicit can be challenging
-
-### Try-with-resources / AutoCloseable
-
 
 Each of these approaches gives you benefits, but you can't assemble them all together.
 Instead of the best of all worlds, you get the pain of all worlds.
@@ -156,8 +125,20 @@ Thankfully, ZIO provides numerous conversion methods that simplify these interac
 By utilizing some clever type-level, compile-time techniques
   (which we will not cover here),
   ZIO is able to use a single interface - `ZIO.from` to handle many of these cases.
+  
 
-## Future interop
+### Plain functions that throw Exceptions
+TODO:
+ - original function
+ - wrapped function
+ - add to AllTheTHings
+
+Downsides:
+- We cannot union these error possibilities and track them in the type system
+- Cannot attach behavior to deferred functions
+
+
+### Future interop
 
 
 ```scala mdoc
@@ -229,7 +210,10 @@ def run =
 ### Option Interop
 `Option` is the simplest of the alternate types you will encounter.
 It does not deal with asynchronicity, error types, or anything else.
-It merely indicates if you have a value.
+It merely indicates that a value might not be available.
+
+- Execution is not deferred
+- Cannot interrupt the code that is producing these values
 
 ```scala mdoc:invisible
 def findTopicOfInterest(
@@ -274,6 +258,56 @@ def run =
 def run =
   topicOfInterestZ:
     "boring and inane content"
+```
+
+### Either Interop
+
+- Execution is not deferred
+- Cannot interrupt the code that is producing these values
+
+```scala mdoc
+case class NoRecordsAvailable(topic: String)
+```
+
+```scala mdoc:invisible
+import scala.util.Either
+def summaryFor(
+    topic: String
+): Either[NoRecordsAvailable, String] =
+  topic match
+    case "stock market" =>
+      Right:
+        s"detailed history of $topic"
+    case "obscureTopic" =>
+      Left:
+        NoRecordsAvailable:
+          "obscureTopic"
+```
+
+```scala mdoc:compile-only
+summaryFor("stock market"): Either[
+  NoRecordsAvailable,
+  String
+]
+```
+
+```scala mdoc
+def summaryForZ(topic: String) =
+  ZIO.from:
+    summaryFor:
+      topic
+```
+
+```scala mdoc:runzio
+def run =
+  summaryForZ:
+    "stock market"
+```
+
+```scala mdoc:runzio
+def run =
+  summaryForZ:
+    "obscureTopic"
 ```
 
 ### AutoCloseable Interop
@@ -388,52 +422,7 @@ def run =
 ```
 
 
-### Either Interop
-
-```scala mdoc
-case class NoRecordsAvailable(topic: String)
-```
-
-```scala mdoc:invisible
-import scala.util.Either
-def summaryFor(
-    topic: String
-): Either[NoRecordsAvailable, String] =
-  topic match
-    case "stock market" =>
-      Right:
-        s"detailed history of $topic"
-    case "obscureTopic" =>
-      Left:
-        NoRecordsAvailable:
-          "obscureTopic"
-```
-
-```scala mdoc:compile-only
-summaryFor("stock market"): Either[
-  NoRecordsAvailable,
-  String
-]
-```
-
-```scala mdoc
-def summaryForZ(topic: String) =
-  ZIO.from:
-    summaryFor:
-      topic
-```
-
-```scala mdoc:runzio
-def run =
-  summaryForZ:
-    "stock market"
-```
-
-```scala mdoc:runzio
-def run =
-  summaryForZ:
-    "obscureTopic"
-```
+### Fully Composed
 
 Now that we have all of these well-defined effects, we can wield them in any combination and sequence we desire.
 
@@ -491,6 +480,6 @@ def run =
 Repeating is a form of composability, because you are composing a program with itself
 
 
-### Injecting Behavior before/after/around
+## Injecting Behavior before/after/around
 
 
