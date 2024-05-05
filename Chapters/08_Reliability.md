@@ -232,6 +232,7 @@ def run =
 ```
 
 ```scala mdoc:runzio
+// TODO Fix output after switching to OurClock
 def run =
   defer:
     val rateLimiter =
