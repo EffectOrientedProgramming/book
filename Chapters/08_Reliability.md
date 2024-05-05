@@ -177,6 +177,12 @@ In practice, the savings will rarely be *this* extreme, but it is a reassuring t
 
 ## Staying under rate limits
 
+Rate limits are a common way to structure agreements between services.
+In the worst case, going above this limit could overwhelm the service and make it crash.
+At the very least, you will be charged more for exceeding it.
+
+TODO Show un-limited demo first?
+
 ```scala mdoc:invisible
 val expensiveApiCall =
   ZIO.unit
@@ -195,6 +201,13 @@ extension [R, E, A](z: ZIO[R, E, A])
       .map(_._2)
 ```
 
+### Constructing a RateLimiter
+Defining your rate limiter requires only the 2 pieces of information that should be codified in your service agreement:
+
+```
+$maxRequests / $interval
+```
+
 ```scala mdoc:silent
 import nl.vroste.rezilience.RateLimiter
 
@@ -208,12 +221,9 @@ val makeRateLimiter =
 ```
 
 ```scala mdoc:silent
-// shows extension function definition
-// so that we can explain timedSecondsDebug
-extension (rateLimiter: RateLimiter)
-  def makeCalls(name: String) =
-    rateLimiter:
-      expensiveApiCall
+// TODO explain timedSecondsDebug
+def makeCalls(name: String) =
+  expensiveApiCall
     .timedSecondsDebug:
       s"$name called API"
     .repeatN(2) // Repeats as fast as allowed
@@ -224,11 +234,11 @@ def run =
   defer:
     val rateLimiter =
       makeRateLimiter.run
-    rateLimiter
-      .makeCalls:
+    rateLimiter:
+      makeCalls:
         "System"
-      .timedSecondsDebug("Result")
-      .run
+    .timedSecondsDebug("Result")
+    .run
 ```
 
 ```scala mdoc:runzio
@@ -242,7 +252,9 @@ def run =
 
     ZIO
       .foreachPar(people):
-        rateLimiter.makeCalls
+        person =>
+          rateLimiter:
+            makeCalls(person)
       .timedSecondsDebug:
         "Total time"
       .run
