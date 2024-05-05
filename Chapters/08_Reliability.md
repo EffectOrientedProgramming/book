@@ -229,6 +229,9 @@ def makeCalls(name: String) =
     .repeatN(2) // Repeats as fast as allowed
 ```
 
+Now, we wrap our unrestricted logic with our `RateLimiter`.
+Even though the original code loops as fast the CPU allows, it will now adhere to our limit.
+
 ```scala mdoc:runzio
 def run =
   defer:
@@ -240,6 +243,9 @@ def run =
     .timedSecondsDebug("Result")
     .run
 ```
+
+Most impressively, we can use the same `RateLimiter` across our application.
+No matter the different users/features trying to hit the same resource, they will all be limited such that the entire application respects the rate limit.
 
 ```scala mdoc:runzio
 // TODO Fix output after switching to OurClock
@@ -282,7 +288,7 @@ case class Live(
 
       if (currentRequests.get.run.length > 3)
         alive.set(false).run
-        ZIO.fail("Killed the server!!").run
+        ZIO.fail("Crashed the server!!").run
 
       // Add request to current requests
       currentRequests
@@ -299,7 +305,7 @@ case class Live(
       else
         ZIO
           .fail(
-            "Server was killed by another request!!"
+            "Server crashed from requests!!"
           )
           .run
 
@@ -322,6 +328,8 @@ object DelicateResource:
         )
 ```
 
+First, we demonstrate the unrestricted behavior:
+
 ```scala mdoc:runzio
 def run =
   defer:
@@ -330,7 +338,6 @@ def run =
     ZIO
       .foreachPar(1 to 10):
         _ =>
-          //          bulkhead:
           delicateResource.request
       .as("All Requests Succeeded!")
       .run
@@ -338,17 +345,24 @@ def run =
     DelicateResource.live
 ```
 
-```scala mdoc:runzio
-import nl.vroste.rezilience.Bulkhead
+We execute too many concurrent requests, and crash the server.
+To prevent this, we need a `Bulkhead`.
 
+```scala mdoc
+import nl.vroste.rezilience.Bulkhead
+val makeOurBulkhead =
+  Bulkhead
+    .make(maxInFlightCalls = 3)
+```
+
+Next, we wrap our original request with this `Bulkhead`.
+
+```scala mdoc:runzio
 def run =
   defer:
-    val bulkhead: Bulkhead =
-      Bulkhead
-        .make(maxInFlightCalls =
-          3
-        )
-        .run
+    val bulkhead =
+      makeOurBulkhead.run
+
     val delicateResource =
       ZIO.service[DelicateResource].run
     ZIO
@@ -362,7 +376,12 @@ def run =
     DelicateResource.live
 ```
 
+With this small adjustment, we now have a complex, concurrent guarantee.
+
 ## Circuit Breaking
+Often, when a request fails, it is reasonable to immediately retry.
+However, if we aggressively retry in an unrestricted way, we might actually make the problem worse by increasing the load on the struggling service.
+Ideally, we would allow some number of aggressive retries, but then start blocking additional requests until the service has a chance to recover.
 
 ```scala mdoc:invisible
 import zio.Ref
@@ -495,11 +514,15 @@ private case class ExpiringValue[A](
 )
 ```
 
+In this scenario, we are going to repeat our call many times in quick succession. 
+
 ```scala mdoc:silent
 val repeatSchedule =
   Schedule.recurs(140) &&
     Schedule.spaced(50.millis)
 ```
+
+When unrestrained, the code will let all the requests through to the degraded service.
 
 ```scala mdoc:runzio
 def run =
@@ -517,6 +540,8 @@ def run =
 
     s"Calls made: $made"
 ```
+
+Now we will build our `CircuitBreaker`
 
 ```scala mdoc:silent
 import nl.vroste.rezilience.{
@@ -536,6 +561,8 @@ val makeCircuitBreaker =
       Retry.Schedules.common()
   )
 ```
+
+Once again, the only thing that we need to do is wrap our original effect with the `CircuitBreaker`.
 
 ```scala mdoc:runzio
 def run =
@@ -563,6 +590,8 @@ def run =
       numCalls.get.run
     s"Calls prevented: $prevented Calls made: $made"
 ```
+{{TODO Fix output after `OurClock` changes}}
+Now we see that our code prevented the majority of the doomed calls to the external service.
 
 ## Hedging
 
