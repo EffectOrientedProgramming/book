@@ -189,14 +189,14 @@ def run =
         "Total time"
       .run
 // Bill called API [took 0s]
-// Bruce called API [took 0s]
-// Bill called API [took -1s]
 // James called API [took 0s]
 // Bruce called API [took 0s]
-// Bill called API [took 0s]
-// James called API [took -1s]
+// Bill called API [took -1s]
+// James called API [took 1s]
 // Bruce called API [took 0s]
-// James called API [took -1s]
+// Bill called API [took 0s]
+// James called API [took 1s]
+// Bruce called API [took 0s]
 // Total time [took 0s]
 // Result: List((), (), ())
 ```
@@ -222,11 +222,11 @@ def run =
     DelicateResource.live
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(576)
-// Current requests: : List(527, 576)
-// Current requests: : List(326, 527, 576)
-// Current requests: : List(118, 326, 527, 576)
-// Result: Server was killed by another request!!
+// Current requests: : List(111)
+// Current requests: : List(165, 111)
+// Current requests: : List(548, 165, 111)
+// Current requests: : List(329, 548, 165, 111)
+// Result: Killed the server!!
 ```
 
 ```scala
@@ -253,16 +253,16 @@ def run =
     DelicateResource.live
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(452)
-// Current requests: : List(51, 452)
-// Current requests: : List(998, 51)
-// Current requests: : List(600)
-// Current requests: : List(552, 600)
-// Current requests: : List(905)
-// Current requests: : List(209, 905)
-// Current requests: : List(815, 209)
-// Current requests: : List(58)
-// Current requests: : List(354)
+// Current requests: : List(988)
+// Current requests: : List(10, 988)
+// Current requests: : List(952, 10, 988)
+// Current requests: : List(413, 952, 10)
+// Current requests: : List(599)
+// Current requests: : List(690, 599)
+// Current requests: : List(224, 690, 599)
+// Current requests: : List(265, 224)
+// Current requests: : List(725)
+// Current requests: : List(762)
 // Result: All Requests Succeeded
 ```
 
@@ -393,8 +393,8 @@ def run =
       .get
       .debug("Contract Breaches")
       .run
-// Contract Breaches: 1
-// Result: 1
+// Contract Breaches: 0
+// Result: 0
 ```
 
 ## Restricting Time
