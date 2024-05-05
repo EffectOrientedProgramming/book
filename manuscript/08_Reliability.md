@@ -132,6 +132,20 @@ In practice, the savings will rarely be *this* extreme, but it is a reassuring t
 
 ## Staying under rate limits
 
+Rate limits are a common way to structure agreements between services.
+In the worst case, going above this limit could overwhelm the service and make it crash.
+At the very least, you will be charged more for exceeding it.
+
+TODO Show un-limited demo first?
+
+
+### Constructing a RateLimiter
+Defining your rate limiter requires only the 2 pieces of information that should be codified in your service agreement:
+
+```
+
+$maxRequests / $interval
+```
 
 ```scala
 import nl.vroste.rezilience.RateLimiter
@@ -146,12 +160,9 @@ val makeRateLimiter =
 ```
 
 ```scala
-// shows extension function definition
-// so that we can explain timedSecondsDebug
-extension (rateLimiter: RateLimiter)
-  def makeCalls(name: String) =
-    rateLimiter:
-      expensiveApiCall
+// TODO explain timedSecondsDebug
+def makeCalls(name: String) =
+  expensiveApiCall
     .timedSecondsDebug:
       s"$name called API"
     .repeatN(2) // Repeats as fast as allowed
@@ -162,19 +173,20 @@ def run =
   defer:
     val rateLimiter =
       makeRateLimiter.run
-    rateLimiter
-      .makeCalls:
+    rateLimiter:
+      makeCalls:
         "System"
-      .timedSecondsDebug("Result")
-      .run
+    .timedSecondsDebug("Result")
+    .run
 // System called API [took 0s]
-// System called API [took 1s]
+// System called API [took 0s]
 // System called API [took 0s]
 // Result [took 0s]
 // Result: ()
 ```
 
 ```scala
+// TODO Fix output after switching to OurClock
 def run =
   defer:
     val rateLimiter =
@@ -184,19 +196,21 @@ def run =
 
     ZIO
       .foreachPar(people):
-        rateLimiter.makeCalls
+        person =>
+          rateLimiter:
+            makeCalls(person)
       .timedSecondsDebug:
         "Total time"
       .run
 // Bill called API [took 0s]
-// James called API [took 0s]
-// Bruce called API [took 0s]
 // Bill called API [took -1s]
-// James called API [took 1s]
-// Bruce called API [took 0s]
 // Bill called API [took 0s]
-// James called API [took 1s]
 // Bruce called API [took 0s]
+// Bruce called API [took 0s]
+// Bruce called API [took 0s]
+// James called API [took 0s]
+// James called API [took 0s]
+// James called API [took 0s]
 // Total time [took 0s]
 // Result: List((), (), ())
 ```
@@ -222,10 +236,11 @@ def run =
     DelicateResource.live
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(111)
-// Current requests: : List(165, 111)
-// Current requests: : List(548, 165, 111)
-// Current requests: : List(329, 548, 165, 111)
+// Current requests: : List(38)
+// Current requests: : List(703, 38)
+// Current requests: : List(200, 703)
+// Current requests: : List(315, 200, 703)
+// Current requests: : List(113, 315, 200, 703)
 // Result: Killed the server!!
 ```
 
@@ -253,16 +268,16 @@ def run =
     DelicateResource.live
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(988)
-// Current requests: : List(10, 988)
-// Current requests: : List(952, 10, 988)
-// Current requests: : List(413, 952, 10)
-// Current requests: : List(599)
-// Current requests: : List(690, 599)
-// Current requests: : List(224, 690, 599)
-// Current requests: : List(265, 224)
-// Current requests: : List(725)
-// Current requests: : List(762)
+// Current requests: : List(74)
+// Current requests: : List(661, 74)
+// Current requests: : List(454, 661, 74)
+// Current requests: : List(210, 74)
+// Current requests: : List(140)
+// Current requests: : List(165, 140)
+// Current requests: : List(163, 165, 140)
+// Current requests: : List(807, 163)
+// Current requests: : List(614, 807)
+// Current requests: : List(969, 614)
 // Result: All Requests Succeeded
 ```
 
@@ -393,8 +408,8 @@ def run =
       .get
       .debug("Contract Breaches")
       .run
-// Contract Breaches: 0
-// Result: 0
+// Contract Breaches: 1
+// Result: 1
 ```
 
 ## Restricting Time
