@@ -299,7 +299,7 @@ def run =
   closeableFileZ
 // Opening file!
 // Closing file!
-// Result: repl.MdocSession$MdocApp$$anon$18@6d771d9a
+// Result: repl.MdocSession$MdocApp$$anon$18@33f75620
 ```
 
 Since that is not terribly useful, let's start calling some methods on our managed file.
@@ -373,9 +373,7 @@ val researchWorkflow =
       getHeadlineZ.run
 
     val topic: String =
-      topicOfInterestZ:
-        headline
-      .run
+      topicOfInterestZ(headline).run
 
     val summaryFile: CloseableFile =
       closeableFileZ.run
@@ -386,9 +384,7 @@ val researchWorkflow =
 
     if (topicIsFresh)
       val newInfo =
-        summaryForZ:
-          topic
-        .run
+        summaryForZ(topic).run
 
       writeToFileZ(summaryFile, newInfo).run
       newInfo
