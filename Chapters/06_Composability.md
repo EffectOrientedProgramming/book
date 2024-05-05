@@ -431,9 +431,7 @@ val researchWorkflow =
       getHeadlineZ.run
 
     val topic: String =
-      topicOfInterestZ:
-        headline
-      .run
+      topicOfInterestZ(headline).run
 
     val summaryFile: CloseableFile =
       closeableFileZ.run
@@ -444,9 +442,7 @@ val researchWorkflow =
 
     if (topicIsFresh)
       val newInfo =
-        summaryForZ:
-          topic
-        .run
+        summaryForZ(topic).run
 
       writeToFileZ(summaryFile, newInfo).run
       newInfo

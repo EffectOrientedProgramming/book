@@ -2,8 +2,9 @@ package mdoc
 
 
 def longVanillaFunction() =
+  println("LongProcess: start")
   Thread.sleep(3000)
-  println("done!!!")
+  println("LongProcess: end")
 
 
 // TODO Incorporate into Composability/AllTheThings
@@ -13,7 +14,7 @@ object Cancel extends ZIOAppDefault {
         // This does not get interrupted
       longVanillaFunction()
       )(ZIO.debug("cleaning up"))
-    .timeout(50.millis)
+    .timeout(100.millis)
 
 }
 
