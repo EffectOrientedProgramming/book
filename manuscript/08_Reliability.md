@@ -168,6 +168,9 @@ def makeCalls(name: String) =
     .repeatN(2) // Repeats as fast as allowed
 ```
 
+Now, we wrap our unrestricted logic with our `RateLimiter`.
+Even though the original code loops as fast the CPU allows, it will now adhere to our limit.
+
 ```scala
 def run =
   defer:
@@ -184,6 +187,9 @@ def run =
 // Result [took 0s]
 // Result: ()
 ```
+
+Most impressively, we can use the same `RateLimiter` across our application.
+No matter the different users/features trying to hit the same resource, they will all be limited such that the entire application respects the rate limit.
 
 ```scala
 // TODO Fix output after switching to OurClock
@@ -203,9 +209,9 @@ def run =
         "Total time"
       .run
 // Bill called API [took 0s]
-// Bill called API [took -1s]
 // Bill called API [took 0s]
-// Bruce called API [took 0s]
+// Bill called API [took 0s]
+// Bruce called API [took -1s]
 // Bruce called API [took 0s]
 // Bruce called API [took 0s]
 // James called API [took 0s]
@@ -220,6 +226,8 @@ If we want to ensure we don't accidentally DDOS a service, we can restrict the n
 
 
 
+First, we demonstrate the unrestricted behavior:
+
 ```scala
 def run =
   defer:
@@ -228,7 +236,6 @@ def run =
     ZIO
       .foreachPar(1 to 10):
         _ =>
-          //          bulkhead:
           delicateResource.request
       .as("All Requests Succeeded!")
       .run
@@ -236,25 +243,43 @@ def run =
     DelicateResource.live
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(38)
-// Current requests: : List(703, 38)
-// Current requests: : List(200, 703)
-// Current requests: : List(315, 200, 703)
-// Current requests: : List(113, 315, 200, 703)
-// Result: Killed the server!!
+// Current requests: : List(60)
+// Current requests: : List(943, 60)
+// Current requests: : List(121, 943, 60)
+// Current requests: : List(802, 121, 943, 60)
+// Result: Crashed the server!!
 ```
+
+We execute too many concurrent requests, and crash the server.
+To prevent this, we need a `Bulkhead`.
 
 ```scala
 import nl.vroste.rezilience.Bulkhead
+val makeOurBulkhead =
+  Bulkhead
+    .make(maxInFlightCalls = 3)
+// makeOurBulkhead: ZIO[Scope, Nothing, Bulkhead] = OnSuccess(
+//   trace = "nl.vroste.rezilience.Bulkhead.make(Bulkhead.scala:116)",
+//   first = OnSuccess(
+//     trace = "nl.vroste.rezilience.Bulkhead.make(Bulkhead.scala:80)",
+//     first = Sync(
+//       trace = "nl.vroste.rezilience.Bulkhead.make(Bulkhead.scala:80)",
+//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$3421/0x0000000800d70840@7943ae0f
+//     ),
+//     successK = zio.Queue$$$Lambda$5566/0x00000008013e9040@276cf025
+//   ),
+//   successK = nl.vroste.rezilience.Bulkhead$$$Lambda$5999/0x00000008014fd840@58333a20
+// )
+```
 
+Next, we wrap our original request with this `Bulkhead`.
+
+```scala
 def run =
   defer:
-    val bulkhead: Bulkhead =
-      Bulkhead
-        .make(maxInFlightCalls =
-          3
-        )
-        .run
+    val bulkhead =
+      makeOurBulkhead.run
+
     val delicateResource =
       ZIO.service[DelicateResource].run
     ZIO
@@ -268,27 +293,36 @@ def run =
     DelicateResource.live
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(74)
-// Current requests: : List(661, 74)
-// Current requests: : List(454, 661, 74)
-// Current requests: : List(210, 74)
-// Current requests: : List(140)
-// Current requests: : List(165, 140)
-// Current requests: : List(163, 165, 140)
-// Current requests: : List(807, 163)
-// Current requests: : List(614, 807)
-// Current requests: : List(969, 614)
+// Current requests: : List(784)
+// Current requests: : List(965, 784)
+// Current requests: : List(576, 965, 784)
+// Current requests: : List(163, 784)
+// Current requests: : List(515)
+// Current requests: : List(295, 515)
+// Current requests: : List(393, 295, 515)
+// Current requests: : List(341)
+// Current requests: : List(295, 341)
+// Current requests: : List(282, 295, 341)
 // Result: All Requests Succeeded
 ```
 
-## Circuit Breaking
+With this small adjustment, we now have a complex, concurrent guarantee.
 
+## Circuit Breaking
+Often, when a request fails, it is reasonable to immediately retry.
+However, if we aggressively retry in an unrestricted way, we might actually make the problem worse by increasing the load on the struggling service.
+Ideally, we would allow some number of aggressive retries, but then start blocking additional requests until the service has a chance to recover.
+
+
+In this scenario, we are going to repeat our call many times in quick succession. 
 
 ```scala
 val repeatSchedule =
   Schedule.recurs(140) &&
     Schedule.spaced(50.millis)
 ```
+
+When unrestrained, the code will let all the requests through to the degraded service.
 
 ```scala
 def run =
@@ -308,6 +342,8 @@ def run =
 // Result: Calls made: 141
 ```
 
+Now we will build our `CircuitBreaker`
+
 ```scala
 import nl.vroste.rezilience.{
   CircuitBreaker,
@@ -326,6 +362,8 @@ val makeCircuitBreaker =
       Retry.Schedules.common()
   )
 ```
+
+Once again, the only thing that we need to do is wrap our original effect with the `CircuitBreaker`.
 
 ```scala
 def run =
@@ -354,6 +392,8 @@ def run =
     s"Calls prevented: $prevented Calls made: $made"
 // Result: Calls prevented: 0 Calls made: 141
 ```
+{{TODO Fix output after `OurClock` changes}}
+Now we see that our code prevented the majority of the doomed calls to the external service.
 
 ## Hedging
 
@@ -408,8 +448,8 @@ def run =
       .get
       .debug("Contract Breaches")
       .run
-// Contract Breaches: 1
-// Result: 1
+// Contract Breaches: 0
+// Result: 0
 ```
 
 ## Restricting Time
