@@ -14,35 +14,48 @@ enum Scenario:
 // The configuration is optional and the default of `Config.fail`
 // sets the Option to None.
 val scenarioConfig: Config[Option[Scenario]] =
-  Config.Optional[Scenario](Config.fail("no default scenario"))
+  Config.Optional[Scenario](
+    Config.fail("no default scenario")
+  )
 
-class StaticConfigProvider(scenario: Scenario) extends ConfigProvider:
-  override def load[A](config: Config[A])(implicit trace: Trace): IO[Config.Error, A] =
+class StaticConfigProvider(scenario: Scenario)
+    extends ConfigProvider:
+  override def load[A](config: Config[A])(
+      implicit trace: Trace
+  ): IO[Config.Error, A] =
     ZIO.succeed(Some(scenario).asInstanceOf[A])
 
 val happyPath =
-  Runtime.setConfigProvider(StaticConfigProvider(Scenario.HappyPath))
+  Runtime.setConfigProvider(
+    StaticConfigProvider(Scenario.HappyPath)
+  )
 
 val neverWorks =
-  Runtime.setConfigProvider(StaticConfigProvider(Scenario.NeverWorks))
+  Runtime.setConfigProvider(
+    StaticConfigProvider(Scenario.NeverWorks)
+  )
 
 val slow =
-  Runtime.setConfigProvider(StaticConfigProvider(Scenario.Slow))
+  Runtime.setConfigProvider(
+    StaticConfigProvider(Scenario.Slow)
+  )
 
 val doesNotWorkInitially =
   val scenario =
-  Unsafe.unsafe {
-    implicit unsafe =>
-      Scenario.WorksOnTry(
-        3,
-        Runtime
-          .default
-          .unsafe
-          .run(Ref.make(1))
-          .getOrThrow()
-      )
-  }
-  Runtime.setConfigProvider(StaticConfigProvider(scenario))
+    Unsafe.unsafe {
+      implicit unsafe =>
+        Scenario.WorksOnTry(
+          3,
+          Runtime
+            .default
+            .unsafe
+            .run(Ref.make(1))
+            .getOrThrow()
+        )
+    }
+  Runtime.setConfigProvider(
+    StaticConfigProvider(scenario)
+  )
 
 def saveUser(username: String) =
   val succeed =
@@ -57,21 +70,26 @@ def saveUser(username: String) =
           Console.printLine:
             "Log: " + error
   defer:
-    val maybeScenario = ZIO.config(scenarioConfig).run
-    maybeScenario.getOrElse(Scenario.HappyPath) match
+    val maybeScenario =
+      ZIO.config(scenarioConfig).run
+    maybeScenario
+      .getOrElse(Scenario.HappyPath) match
       case Scenario.HappyPath =>
         succeed.run
 
       case Scenario.NeverWorks =>
         fail.run
-   
+
       case Scenario.Slow =>
-        ZIO.sleep(1.minute)
+        ZIO
+          .sleep(1.minute)
           .onInterrupt:
-            ZIO.debug("Log: Interrupting slow request")
+            ZIO.debug(
+              "Log: Interrupting slow request"
+            )
           .run
         succeed.run
-    
+
       case Scenario.WorksOnTry(attempts, ref) =>
         val numCalls =
           ref.getAndUpdate(_ + 1).run
@@ -79,16 +97,19 @@ def saveUser(username: String) =
           succeed.run
         else
           fail.run
+    end match
 end saveUser
 
 def sendToManualQueue(username: String) =
-  ZIO
-    .attempt(s"Please manually provision $username")
+  ZIO.attempt(
+    s"Please manually provision $username"
+  )
 
 val logUserSignup =
-  Console.printLine:
-    s"Log: Signup initiated for $userName"
-  .orDie
+  Console
+    .printLine:
+      s"Log: Signup initiated for $userName"
+    .orDie
 
 // TODO Decide how much to explain this in the
 // prose,
@@ -237,9 +258,8 @@ The `timeoutFail` operation can be chained to our previous Effect to specify a m
 
 ```scala mdoc:silent
 val effect3 =
-  effect2
-    .timeoutFail("*** Save timed out ***"):
-      5.seconds
+  effect2.timeoutFail("*** Save timed out ***"):
+    5.seconds
 ```
 
 If the effect does not complete within the time limit, it is canceled and returns our error message.

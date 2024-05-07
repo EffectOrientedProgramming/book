@@ -40,7 +40,7 @@ def run =
 object RunningZIOs extends ZIOAppDefault:
   def run =
     Console.printLine:
-        "Hello World!"
+      "Hello World!"
 ```
 
 
@@ -90,8 +90,9 @@ def spec =
     defer:
       assertTrue:
         Random.nextIntBetween(0, 10).run <= 10 &&
-        Random.nextIntBetween(10, 20).run <= 20 &&
-        Random.nextIntBetween(20, 30).run <= 30
+        Random.nextIntBetween(10, 20).run <=
+          20 &&
+          Random.nextIntBetween(20, 30).run <= 30
 ```
 
 Consider a `Console` application:
@@ -114,7 +115,8 @@ val logic =
 If we try to run this code in the same way as most of the examples in this book, we encounter a problem.
 
 ```scala mdoc:compile-only
-object HelloWorldWithTimeout extends zio.ZIOAppDefault:
+object HelloWorldWithTimeout
+    extends zio.ZIOAppDefault:
   def run =
     logic.timeout(1.second)
 ```
@@ -131,9 +133,9 @@ def spec =
         .feedLines:
           "Zeb"
         .run
-  
+
       logic.run
-  
+
       val capturedOutput: String =
         TestConsole.output.run.mkString
       val expectedOutput =

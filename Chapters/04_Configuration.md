@@ -241,9 +241,11 @@ case class BreadFromFriend() extends Bread()
 object Friend:
   def forcedFailure(invocations: Int) =
     defer:
-      Console.printLine(
-        s"Attempt $invocations: Error(Friend Unreachable)"
-      ).run
+      Console
+        .printLine(
+          s"Attempt $invocations: Error(Friend Unreachable)"
+        )
+        .run
       ZIO
         .when(true)(
           ZIO.fail("Error(Friend Unreachable)")
@@ -262,10 +264,13 @@ object Friend:
       else if invocations == 1 then
         ZIO.succeed(BreadFromFriend())
       else
-        Console.printLine(
-          s"Attempt $invocations: Succeeded"
-        ).orDie.as:
-          BreadFromFriend()
+        Console
+          .printLine(
+            s"Attempt $invocations: Succeeded"
+          )
+          .orDie
+          .as:
+            BreadFromFriend()
 end Friend
 ```
 
@@ -488,7 +493,9 @@ val rosencrantzAndGuildensternAreDead =
 
 ```scala mdoc:testzio
 def spec =
-  test("rosencrantzAndGuildensternAreDead finishes"):
+  test(
+    "rosencrantzAndGuildensternAreDead finishes"
+  ):
     defer:
       TestRandom
         .feedBooleans:
@@ -506,8 +513,8 @@ def spec =
     defer:
       rosencrantzAndGuildensternAreDead.run
       assertCompletes
-  @@ TestAspect.withLiveRandom
-  @@ TestAspect.flaky(Int.MaxValue)
+  @@ TestAspect.withLiveRandom @@
+    TestAspect.flaky(Int.MaxValue)
 ```
 
 The `Random` Effect uses an injected something which when running the ZIO uses the system's unpredictable random number generator.  In ZIO Test the `Random` Effect uses a different something which can predictably generate "random" numbers.  `TestRandom` provides a way to define what those numbers are.  This example feeds in the `Int`s `1` and `2` so the first time we ask for a random number we get `1` and the second time we get `2`.
@@ -537,12 +544,13 @@ def spec =
     val timeTravel =
       TestClock.adjust:
         24.hours
-  
+
     defer:
-      val fork = nightlyBatch.fork.run
+      val fork =
+        nightlyBatch.fork.run
       timeTravel.run
       fork.join.run
-  
+
       assertCompletes
 ```
 

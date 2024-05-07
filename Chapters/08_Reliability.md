@@ -194,10 +194,12 @@ extension [R, E, A](z: ZIO[R, E, A])
     z.timed
       .tap:
         (duration, _) =>
-          Console.printLine(
-            message + " [took " +
-              duration.getSeconds + "s]"
-          ).orDie
+          Console
+            .printLine(
+              message + " [took " +
+                duration.getSeconds + "s]"
+            )
+            .orDie
       .map(_._2)
 ```
 
@@ -241,7 +243,7 @@ def run =
       makeCalls:
         "System"
     .timedSecondsDebug("Result")
-    .run
+      .run
 ```
 
 Most impressively, we can use the same `RateLimiter` across our application.
@@ -272,7 +274,6 @@ If we want to ensure we don't accidentally DDOS a service, we can restrict the n
 ```scala mdoc:invisible
 trait DelicateResource:
   val request: ZIO[Any, String, Int]
-end DelicateResource
 
 // It can represent any service outside of our control
 // that has usage constraints
@@ -303,24 +304,25 @@ case class Live(
         res
       else
         ZIO
-          .fail(
-            "Server crashed from requests!!"
-          )
+          .fail("Server crashed from requests!!")
           .run
 
   private def removeRequest(i: Int) =
     currentRequests.update(_ diff List(i))
+end Live
 
 object DelicateResource:
   val live =
     ZLayer.fromZIO:
       defer:
-        Console.printLine:
-          "Delicate Resource constructed."
-        .run
-        Console.printLine:
-          "Do not make more than 3 concurrent requests!"
-        .run
+        Console
+          .printLine:
+            "Delicate Resource constructed."
+          .run
+        Console
+          .printLine:
+            "Do not make more than 3 concurrent requests!"
+          .run
         Live(
           Ref.make[List[Int]](List.empty).run,
           Ref.make(true).run
@@ -336,8 +338,7 @@ def run =
       ZIO.service[DelicateResource].run
     ZIO
       .foreachPar(1 to 10):
-        _ =>
-          delicateResource.request
+        _ => delicateResource.request
       .as("All Requests Succeeded!")
       .run
   .provideSome[Scope]:
@@ -350,8 +351,9 @@ To prevent this, we need a `Bulkhead`.
 ```scala mdoc
 import nl.vroste.rezilience.Bulkhead
 val makeOurBulkhead =
-  Bulkhead
-    .make(maxInFlightCalls = 3)
+  Bulkhead.make(maxInFlightCalls =
+    3
+  )
 ```
 
 Next, we wrap our original request with this `Bulkhead`.

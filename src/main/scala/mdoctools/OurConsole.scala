@@ -4,7 +4,10 @@ import java.io.{IOException, PrintStream}
 
 // This is an insane "solution" to mdoc gobbling ZIO console output when run more than once in watch mode
 // This takes an optional out PrintStream that enables capturing the mdoc override of the out PrintStream and using it
-class OurConsole(out: Option[PrintStream] = None) extends Console:
+class OurConsole(
+    out: Option[PrintStream] =
+      None
+) extends Console:
   override def print(line: => Any)(implicit
       trace: Trace
   ): IO[IOException, Unit] =
@@ -21,8 +24,10 @@ class OurConsole(out: Option[PrintStream] = None) extends Console:
     ZIO.succeed:
       out.fold(scala.Console.println(line)):
         myOut =>
-          scala.Console.withOut(myOut):
-            scala.Console.println(line)
+          scala
+            .Console
+            .withOut(myOut):
+              scala.Console.println(line)
 
   override def printLineError(line: => Any)(
       implicit trace: Trace

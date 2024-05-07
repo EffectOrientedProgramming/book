@@ -35,9 +35,18 @@ def embed(
     StringBuilder()
   codeFence.renderToString(sb)
 
-  if codeFence.getMdocMode.exists(_.startsWith("runzio"))
+  if codeFence
+      .getMdocMode
+      .exists(_.startsWith("runzio"))
   then
-    val useLiveClockString = if codeFence.getMdocMode.contains("runzio:liveclock") then "(useLiveClock = true)" else ""
+    val useLiveClockString =
+      if codeFence
+          .getMdocMode
+          .contains("runzio:liveclock")
+      then
+        "(useLiveClock = true)"
+      else
+        ""
     val pre =
       s"class Example$num extends mdoctools.ToRun$useLiveClockString:"
     val post =
@@ -96,9 +105,7 @@ def unembed(codeFence: CodeFence): CodeFence =
         .filterNot {
           line =>
             line.contains("ToRun") ||
-            line.contains(
-              "runAndPrintOutput()"
-            )
+            line.contains("runAndPrintOutput()")
         }
         .map(_.stripPrefix("  "))
         .mkString("\n")
@@ -122,9 +129,7 @@ def unembed(codeFence: CodeFence): CodeFence =
         .filterNot {
           line =>
             line.contains("ToTest:") ||
-            line.contains(
-              "runAndPrintOutput()"
-            )
+            line.contains("runAndPrintOutput()")
         }
         .map(_.stripPrefix("  "))
         .toSeq
@@ -345,7 +350,12 @@ def processMarkdown(
     processor.processDocument(runnableMarkdown)
   processed
 
-def processFile(input: Input, inputFile: InputFile, settings: Settings, reporter: Reporter): (MarkdownFile, MarkdownFile) =
+def processFile(
+    input: Input,
+    inputFile: InputFile,
+    settings: Settings,
+    reporter: Reporter
+): (MarkdownFile, MarkdownFile) =
 
   val parsed =
     MarkdownFile
@@ -396,6 +406,7 @@ def processFile(input: Input, inputFile: InputFile, settings: Settings, reporter
     )
 
   manuscriptMarkdown -> withoutRunnable
+end processFile
 
 def processFile(
     inputFile: InputFile,
@@ -439,7 +450,12 @@ def processFile(
     )
 
   val (manuscriptMarkdown, withoutRunnable) =
-    processFile(input, inputFile, newSettings, mainSettings.reporter)
+    processFile(
+      input,
+      inputFile,
+      newSettings,
+      mainSettings.reporter
+    )
 
   if mainSettings.reporter.hasErrors then
     println("Not writing outputs due to errors")
