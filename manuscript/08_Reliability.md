@@ -44,8 +44,8 @@ val thunderingHerdsScenario =
       ZIO.service[PopularService].run
 
     ZIO // All requests arrives nearly at once
-      .foreachPar(List.fill(100)(())):
-        _ => // james don't like
+      .collectAllPar:
+        List.fill(100):
           popularService.retrieve:
             Path.of("awesomeMemes")
       .run
@@ -192,7 +192,6 @@ Most impressively, we can use the same `RateLimiter` across our application.
 No matter the different users/features trying to hit the same resource, they will all be limited such that the entire application respects the rate limit.
 
 ```scala
-// TODO Fix output after switching to OurClock
 def run =
   defer:
     val rateLimiter =
@@ -208,16 +207,16 @@ def run =
       .timedSecondsDebug:
         "Total time"
       .run
+// James called API [took 0s]
+// James called API [took 0s]
+// James called API [took 0s]
+// Bruce called API [took 0s]
+// Bruce called API [took 0s]
+// Bruce called API [took 0s]
 // Bill called API [took 0s]
-// Bill called API [took -1s]
 // Bill called API [took 0s]
-// Bruce called API [took 0s]
-// Bruce called API [took 0s]
-// Bruce called API [took 0s]
-// James called API [took 0s]
-// James called API [took 0s]
-// James called API [took 0s]
-// Total time [took 0s]
+// Bill called API [took 0s]
+// Total time [took 2s]
 // Result: List((), (), ())
 ```
 
@@ -243,13 +242,12 @@ def run =
     DelicateResource.live
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(377)
-// Current requests: : List(455, 377)
-// Current requests: : List(212, 455, 377)
-// Current requests: : List(288, 212, 455, 377)
-// Current requests: : List(282, 288, 212, 455)
-// Current requests: : List(176, 282, 288, 212)
-// Result: Server crashed from requests!!
+// Current requests: : List(875)
+// Current requests: : List(51, 875)
+// Current requests: : List(96, 51, 875)
+// Current requests: : List(797, 96, 51, 875)
+// Current requests: : List(754, 797, 96, 51, 875)
+// Result: Crashed the server!!
 ```
 
 We execute too many concurrent requests, and crash the server.
@@ -266,11 +264,11 @@ val makeOurBulkhead =
 //     trace = "nl.vroste.rezilience.Bulkhead.make(Bulkhead.scala:80)",
 //     first = Sync(
 //       trace = "nl.vroste.rezilience.Bulkhead.make(Bulkhead.scala:80)",
-//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$3400/0x0000000800da7040@6d3dc013
+//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$3626/0x0000000800e69840@6121aaaa
 //     ),
-//     successK = zio.Queue$$$Lambda$5554/0x00000008013ea840@6560ce2f
+//     successK = zio.Queue$$$Lambda$5566/0x0000000801415040@79e473cf
 //   ),
-//   successK = nl.vroste.rezilience.Bulkhead$$$Lambda$5998/0x0000000801507040@1b313049
+//   successK = nl.vroste.rezilience.Bulkhead$$$Lambda$6017/0x0000000800f1b840@21fdcba0
 // )
 ```
 
@@ -295,16 +293,16 @@ def run =
     DelicateResource.live
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(993)
-// Current requests: : List(503, 993)
-// Current requests: : List(469, 503, 993)
-// Current requests: : List(307)
-// Current requests: : List(214, 307)
-// Current requests: : List(425, 214, 307)
-// Current requests: : List(129)
-// Current requests: : List(556, 129)
-// Current requests: : List(581, 556, 129)
-// Current requests: : List(756)
+// Current requests: : List(823)
+// Current requests: : List(143, 823)
+// Current requests: : List(55, 143, 823)
+// Current requests: : List(651)
+// Current requests: : List(938, 651)
+// Current requests: : List(5, 938, 651)
+// Current requests: : List(862)
+// Current requests: : List(346, 862)
+// Current requests: : List(858, 346, 862)
+// Current requests: : List(24)
 // Result: All Requests Succeeded
 ```
 
@@ -392,7 +390,7 @@ def run =
     val made =
       numCalls.get.run
     s"Calls prevented: $prevented Calls made: $made"
-// Result: Calls prevented: 0 Calls made: 141
+// Result: Calls prevented: 75 Calls made: 66
 ```
 {{TODO Fix output after `OurClock` changes}}
 Now we see that our code prevented the majority of the doomed calls to the external service.
