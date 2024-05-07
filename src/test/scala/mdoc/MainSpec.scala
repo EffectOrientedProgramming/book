@@ -3,7 +3,9 @@ package mdoc
 import mdoc.internal.cli.InputFile
 import mdoc.internal.markdown.MarkdownFile
 
+import java.nio.file.Files
 import scala.meta.Input
+import scala.meta.io.AbsolutePath
 
 object MainSpec extends ZIOSpecDefault:
   def spec =
@@ -80,6 +82,41 @@ object MainSpec extends ZIOSpecDefault:
           outString.contains("// hello, debug") &&
           outString.contains("// hello, world") &&
           outString.contains("// \u001B[32m+\u001B[0m foo")
+      +
+      test("mdoc:runzio:liveclock"):
+        val mainSettings = MainSettings()
+
+        val newSettings =
+          mainSettings
+            .settings
+            .copy(
+              postModifiers =
+                List(
+                  RunZIOPostModifier(),
+                  TestZIOPostModifier()
+                )
+            )
+
+        val source =
+          """```scala mdoc:runzio:liveclock
+            |def run = ZIO.sleep(1.second).timed
+            |```
+            |""".stripMargin
+
+        val input =
+          Input.VirtualFile(
+            "foo.md",
+            source
+          )
+
+        val inputFile =
+          InputFile.fromRelativeFilename("foo.md", mainSettings.settings)
+
+        val (manuscriptMarkdown, _) = processFile(input, inputFile, newSettings, mainSettings.reporter)
+
+        val rendered = manuscriptMarkdown.renderToString
+        assertTrue:
+          rendered.contains("// Result: (PT1")
       +
       test("mdoc test with TestClock"):
         val mainSettings = MainSettings()

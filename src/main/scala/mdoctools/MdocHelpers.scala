@@ -13,7 +13,7 @@ extension [R, E, A](z: ZLayer[R, E, A])
     )
 //    z.zipParLeft(background.forkDaemon)
 
-trait ToRun:
+trait ToRun(useLiveClock: Boolean = false):
   val bootstrap: ZLayer[Any, Nothing, Any] =
     ZLayer.empty
 
@@ -22,6 +22,7 @@ trait ToRun:
   def runAndPrintOutput(): Unit =
     // override the PrintStream in OurConsole with the one that mdoc sets
     val ourConsole = OurConsole(Some(scala.Console.out))
+    val ourClock = OurClock(useLiveClock)
 
     Unsafe.unsafe:
       implicit unsafe =>
@@ -44,7 +45,7 @@ trait ToRun:
           Rendering.renderEveryPossibleOutcomeZio:
             run
           .withConsole(ourConsole)
-          .withClock(OurClock())
+          .withClock(ourClock)
 
         val result = Runtime
           .unsafe

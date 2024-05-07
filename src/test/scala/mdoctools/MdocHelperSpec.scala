@@ -87,9 +87,24 @@ object MdocHelperSpec extends ZIOSpecDefault:
       +
       test("OurClock works with long sleeps"):
         defer:
-          val out = ZIO.sleep(24.hours).withClock(mdoctools.OurClock()).run
+          ZIO.sleep(24.hours).withClock(mdoctools.OurClock()).run
           assertCompletes
       @@ TestAspect.timeout(1.second)
+      +
+      test("OurClock can be disabled"):
+        defer:
+          ZIO.sleep(1.second).withClock(mdoctools.OurClock(useLive = true)).run
+          assertCompletes
+      @@ TestAspect.nonTermination(1.second)
+      +
+      test("ToRun can disable OurClock"):
+        class Foo extends ToRun(useLiveClock = true):
+          def run = ZIO.sleep(1.second)
+
+        Foo().runAndPrintOutput()
+
+        assertCompletes
+      @@ TestAspect.nonTermination(1.second)
       +
       test("ToTest"):
         class FooSpec extends mdoctools.ToTest:

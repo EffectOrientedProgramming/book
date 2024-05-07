@@ -35,10 +35,11 @@ def embed(
     StringBuilder()
   codeFence.renderToString(sb)
 
-  if codeFence.getMdocMode.contains("runzio")
+  if codeFence.getMdocMode.exists(_.startsWith("runzio"))
   then
+    val useLiveClockString = if codeFence.getMdocMode.contains("runzio:liveclock") then "(useLiveClock = true)" else ""
     val pre =
-      s"class Example$num extends mdoctools.ToRun:"
+      s"class Example$num extends mdoctools.ToRun$useLiveClockString:"
     val post =
       s"Example$num().runAndPrintOutput()"
     val newBody =
@@ -94,7 +95,7 @@ def unembed(codeFence: CodeFence): CodeFence =
         .linesIterator
         .filterNot {
           line =>
-            line.contains("ToRun:") ||
+            line.contains("ToRun") ||
             line.contains(
               "runAndPrintOutput()"
             )
@@ -344,6 +345,58 @@ def processMarkdown(
     processor.processDocument(runnableMarkdown)
   processed
 
+def processFile(input: Input, inputFile: InputFile, settings: Settings, reporter: Reporter): (MarkdownFile, MarkdownFile) =
+
+  val parsed =
+    MarkdownFile
+      .parse(input, inputFile, settings)
+
+  val runnableMarkdown =
+    parsedToRunnable(parsed, settings)
+  //  println(runnableMarkdown.renderToString)
+
+  val processed: MarkdownFile =
+    processMarkdown(
+      settings,
+      reporter,
+      runnableMarkdown
+    )
+
+  val withoutRunnableParts =
+    processed
+      .parts
+      .map {
+        case codeFence: CodeFence =>
+          unembed(codeFence)
+        case m: MarkdownPart =>
+          m
+      }
+
+  val withoutRunnable =
+    runnableMarkdown.copy(parts =
+      withoutRunnableParts
+    )
+
+  val manuscriptMarkdown =
+    runnableMarkdown.copy(parts =
+      withoutRunnableParts.map {
+        case codeFence: CodeFence =>
+          // turn scala mdoc(*) into just scala
+          codeFence.newInfo =
+            Some(
+              codeFence
+                .info
+                .value
+                .takeWhile(_ != ' ') + "\n"
+            )
+          codeFence
+        case p: MarkdownPart =>
+          p
+      }
+    )
+
+  manuscriptMarkdown -> withoutRunnable
+
 def processFile(
     inputFile: InputFile,
     examplesDir: AbsolutePath,
@@ -385,53 +438,8 @@ def processFile(
       source
     )
 
-  val parsed =
-    MarkdownFile
-      .parse(input, inputFile, newSettings)
-
-  val runnableMarkdown =
-    parsedToRunnable(parsed, newSettings)
-//  println(runnableMarkdown.renderToString)
-
-  val processed: MarkdownFile =
-    processMarkdown(
-      newSettings,
-      mainSettings.reporter,
-      runnableMarkdown
-    )
-
-  val withoutRunnableParts =
-    processed
-      .parts
-      .map {
-        case codeFence: CodeFence =>
-          unembed(codeFence)
-        case m: MarkdownPart =>
-          m
-      }
-
-  val withoutRunnable =
-    runnableMarkdown.copy(parts =
-      withoutRunnableParts
-    )
-
-  val manuscriptMarkdown =
-    runnableMarkdown.copy(parts =
-      withoutRunnableParts.map {
-        case codeFence: CodeFence =>
-          // turn scala mdoc(*) into just scala
-          codeFence.newInfo =
-            Some(
-              codeFence
-                .info
-                .value
-                .takeWhile(_ != ' ') + "\n"
-            )
-          codeFence
-        case p: MarkdownPart =>
-          p
-      }
-    )
+  val (manuscriptMarkdown, withoutRunnable) =
+    processFile(input, inputFile, newSettings, mainSettings.reporter)
 
   if mainSettings.reporter.hasErrors then
     println("Not writing outputs due to errors")

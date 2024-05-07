@@ -93,8 +93,8 @@ val thunderingHerdsScenario =
       ZIO.service[PopularService].run
 
     ZIO // All requests arrives nearly at once
-      .foreachPar(List.fill(100)(())):
-        _ => // james don't like
+      .collectAllPar:
+        List.fill(100):
           popularService.retrieve:
             Path.of("awesomeMemes")
       .run
@@ -232,7 +232,7 @@ def makeCalls(name: String) =
 Now, we wrap our unrestricted logic with our `RateLimiter`.
 Even though the original code loops as fast the CPU allows, it will now adhere to our limit.
 
-```scala mdoc:runzio
+```scala mdoc:runzio:liveclock
 def run =
   defer:
     val rateLimiter =
@@ -247,8 +247,7 @@ def run =
 Most impressively, we can use the same `RateLimiter` across our application.
 No matter the different users/features trying to hit the same resource, they will all be limited such that the entire application respects the rate limit.
 
-```scala mdoc:runzio
-// TODO Fix output after switching to OurClock
+```scala mdoc:runzio:liveclock
 def run =
   defer:
     val rateLimiter =
@@ -330,7 +329,7 @@ object DelicateResource:
 
 First, we demonstrate the unrestricted behavior:
 
-```scala mdoc:runzio
+```scala mdoc:runzio:liveclock
 def run =
   defer:
     val delicateResource =
@@ -357,7 +356,7 @@ val makeOurBulkhead =
 
 Next, we wrap our original request with this `Bulkhead`.
 
-```scala mdoc:runzio
+```scala mdoc:runzio:liveclock
 def run =
   defer:
     val bulkhead =
@@ -524,7 +523,7 @@ val repeatSchedule =
 
 When unrestrained, the code will let all the requests through to the degraded service.
 
-```scala mdoc:runzio
+```scala mdoc:runzio:liveclock
 def run =
   defer:
     val numCalls =
@@ -564,7 +563,7 @@ val makeCircuitBreaker =
 
 Once again, the only thing that we need to do is wrap our original effect with the `CircuitBreaker`.
 
-```scala mdoc:runzio
+```scala mdoc:runzio:liveclock
 def run =
   defer:
     val cb =
@@ -632,7 +631,7 @@ val logicThatSporadicallyLocksUp =
         10.millis
 ```
 
-```scala mdoc:runzio
+```scala mdoc:runzio:liveclock
 def run =
   defer:
     val contractBreaches =
