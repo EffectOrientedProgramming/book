@@ -160,9 +160,8 @@ The `timeoutFail` operation can be chained to our previous Effect to specify a m
 
 ```scala
 val effect3 =
-  effect2
-    .timeoutFail("*** Save timed out ***"):
-      5.seconds
+  effect2.timeoutFail("*** Save timed out ***"):
+    5.seconds
 ```
 
 If the effect does not complete within the time limit, it is canceled and returns our error message.
@@ -176,6 +175,7 @@ override val bootstrap =
 
 def run =
   effect3
+// Log: Interrupting slow request
 // Result: *** Save timed out ***
 ```
 
@@ -202,6 +202,7 @@ override val bootstrap =
 
 def run =
   effect4
+// Log: **Database crashed!!**
 // Log: **Database crashed!!**
 // Result: Please manually provision Morty
 ```
@@ -231,7 +232,7 @@ override val bootstrap =
 def run =
   effect5
 // Log: Signup initiated for Morty
-// Result: User saved
+// Result: Please manually provision Morty
 ```
 
 We run the effect again in the `HappyPath` scenario to demonstrate running the Effects in parallel.
@@ -254,8 +255,7 @@ override val bootstrap =
 
 def run =
   effect6
-// Log: Signup initiated for Morty
-// Result: (PT5.04634349S,User saved)
+// Result: (PT5.057745708S,User saved)
 ```
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.
 

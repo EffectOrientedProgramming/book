@@ -70,8 +70,9 @@ If the network is unavailable, what is the behavior for the caller?
 If we don't make any attempt to handle our problem, the whole program blows up and shows the gory details to the user.
 
 ```scala
-scenario = ErrorsScenario.NetworkError
-  
+scenario =
+  ErrorsScenario.NetworkError
+
 def run =
   ZIO.succeed:
     temperatureApp()
@@ -88,16 +89,17 @@ For this program, it could look like:
 
 ```scala
 def temperatureCatchingApp(): String =
-    try
-      render:
-        getTemperatureOrThrow()
-    catch
-      case ex: Exception =>
-        "Failure"
+  try
+    render:
+      getTemperatureOrThrow()
+  catch
+    case ex: Exception =>
+      "Failure"
 ```
 
 ```scala
-scenario = ErrorsScenario.NetworkError
+scenario =
+  ErrorsScenario.NetworkError
 
 def run =
   ZIO.succeed:
@@ -123,7 +125,8 @@ def temperatureCatchingMoreApp(): String =
 ```
 
 ```scala
-scenario = ErrorsScenario.NetworkError
+scenario =
+  ErrorsScenario.NetworkError
 
 def run =
   ZIO.succeed:
@@ -132,7 +135,8 @@ def run =
 ```
 
 ```scala
-scenario = ErrorsScenario.GPSError
+scenario =
+  ErrorsScenario.GPSError
 
 def run =
   ZIO.succeed:
@@ -226,7 +230,7 @@ Further, this is tracked by the compiler, which will prevent us from invoking `.
 
 ```scala
 temperatureAppComplete.catchAll:
-  case ex: Exception => 
+  case ex: Exception =>
     ZIO.succeed:
       "This cannot happen"
 // error: 
@@ -272,7 +276,8 @@ val displayTemperatureZWrapped =
 ```
 
 ```scala
-scenario = ErrorsScenario.HappyPath
+scenario =
+  ErrorsScenario.HappyPath
 
 def run =
   displayTemperatureZWrapped
@@ -280,7 +285,8 @@ def run =
 ```
 
 ```scala
-scenario = ErrorsScenario.NetworkError
+scenario =
+  ErrorsScenario.NetworkError
 
 def run =
   displayTemperatureZWrapped
@@ -292,7 +298,8 @@ Look at what happens if we forget to handle one of our errors.
 
 
 ```scala
-scenario = ErrorsScenario.GPSError
+scenario =
+  ErrorsScenario.GPSError
 
 def run =
   getTemperatureWrapped.catchAll:
@@ -308,7 +315,8 @@ Take extra care when interacting with legacy code
 We can provide a fallback case that will report anything we missed:
 
 ```scala
-scenario = ErrorsScenario.GPSError
+scenario =
+  ErrorsScenario.GPSError
 
 def run =
   getTemperatureWrapped.catchAll:

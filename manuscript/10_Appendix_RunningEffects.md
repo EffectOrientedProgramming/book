@@ -46,7 +46,7 @@ def run =
 object RunningZIOs extends ZIOAppDefault:
   def run =
     Console.printLine:
-        "Hello World!"
+      "Hello World!"
 ```
 
 
@@ -85,7 +85,7 @@ def spec =
       assertTrue:
         Random.nextIntBounded(10).run < 10
 // + random is random
-// Result: Summary(1,0,0,,PT0.441685S)
+// Result: Summary(1,0,0,,PT0.366311S)
 ```
 
 TODO Justify defer syntax over for-comp for multi-statement assertions
@@ -98,10 +98,11 @@ def spec =
     defer:
       assertTrue:
         Random.nextIntBetween(0, 10).run <= 10 &&
-        Random.nextIntBetween(10, 20).run <= 20 &&
-        Random.nextIntBetween(20, 30).run <= 30
+        Random.nextIntBetween(10, 20).run <=
+          20 &&
+          Random.nextIntBetween(20, 30).run <= 30
 // + random is still random
-// Result: Summary(1,0,0,,PT0.106966S)
+// Result: Summary(1,0,0,,PT0.108801S)
 ```
 
 Consider a `Console` application:
@@ -124,7 +125,8 @@ val logic =
 If we try to run this code in the same way as most of the examples in this book, we encounter a problem.
 
 ```scala
-object HelloWorldWithTimeout extends zio.ZIOAppDefault:
+object HelloWorldWithTimeout
+    extends zio.ZIOAppDefault:
   def run =
     logic.timeout(1.second)
 ```
@@ -141,9 +143,9 @@ def spec =
         .feedLines:
           "Zeb"
         .run
-  
+
       logic.run
-  
+
       val capturedOutput: String =
         TestConsole.output.run.mkString
       val expectedOutput =
@@ -153,17 +155,17 @@ def spec =
       assertTrue:
         capturedOutput == expectedOutput
 // - console works
-//   Exception in thread "zio-fiber-405" scala.NotImplementedError: an implementation is missing
+//   Exception in thread "zio-fiber-357" scala.NotImplementedError: an implementation is missing
 //   	at scala.Predef$.$qmark$qmark$qmark(Predef.scala:344)
 //   	at mdoctools.OurConsole.print(OurConsole.scala:14)
 //   	at zio.Console$.print$$anonfun$6(Console.scala:122)
 //   	at zio.ZIO$.consoleWith$$anonfun$1(ZIO.scala:3045)
 //   	at zio.FiberRef$unsafe$$anon$2.getWith$$anonfun$1(FiberRef.scala:474)
-//   	at repl.MdocSession.MdocApp.logic(<input>:82)
+//   	at repl.MdocSession.MdocApp.logic(<input>:83)
 //   	at zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19)
-//   	at repl.MdocSession.MdocApp.logic(<input>:92)
+//   	at repl.MdocSession.MdocApp.logic(<input>:93)
 //   	at zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19)
-//   	at repl.MdocSession.MdocApp.Example70Spec.spec(<input>:125)
+//   	at repl.MdocSession.MdocApp.Example70Spec.spec(<input>:127)
 // Result: 
 // - console works
 //   Exception i

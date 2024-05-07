@@ -180,7 +180,7 @@ def run =
       makeCalls:
         "System"
     .timedSecondsDebug("Result")
-    .run
+      .run
 // System called API [took 0s]
 // System called API [took 0s]
 // System called API [took 0s]
@@ -207,15 +207,15 @@ def run =
       .timedSecondsDebug:
         "Total time"
       .run
-// James called API [took 0s]
-// James called API [took 0s]
-// James called API [took 0s]
-// Bruce called API [took 0s]
-// Bruce called API [took 0s]
-// Bruce called API [took 0s]
 // Bill called API [took 0s]
 // Bill called API [took 0s]
 // Bill called API [took 0s]
+// Bruce called API [took 0s]
+// Bruce called API [took 0s]
+// Bruce called API [took 0s]
+// James called API [took 0s]
+// James called API [took 0s]
+// James called API [took 0s]
 // Total time [took 2s]
 // Result: List((), (), ())
 ```
@@ -234,19 +234,17 @@ def run =
       ZIO.service[DelicateResource].run
     ZIO
       .foreachPar(1 to 10):
-        _ =>
-          delicateResource.request
+        _ => delicateResource.request
       .as("All Requests Succeeded!")
       .run
   .provideSome[Scope]:
     DelicateResource.live
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(875)
-// Current requests: : List(51, 875)
-// Current requests: : List(96, 51, 875)
-// Current requests: : List(797, 96, 51, 875)
-// Current requests: : List(754, 797, 96, 51, 875)
+// Current requests: : List(915)
+// Current requests: : List(342, 915)
+// Current requests: : List(17, 342, 915)
+// Current requests: : List(866, 17, 342, 915)
 // Result: Crashed the server!!
 ```
 
@@ -256,19 +254,20 @@ To prevent this, we need a `Bulkhead`.
 ```scala
 import nl.vroste.rezilience.Bulkhead
 val makeOurBulkhead =
-  Bulkhead
-    .make(maxInFlightCalls = 3)
+  Bulkhead.make(maxInFlightCalls =
+    3
+  )
 // makeOurBulkhead: ZIO[Scope, Nothing, Bulkhead] = OnSuccess(
 //   trace = "nl.vroste.rezilience.Bulkhead.make(Bulkhead.scala:116)",
 //   first = OnSuccess(
 //     trace = "nl.vroste.rezilience.Bulkhead.make(Bulkhead.scala:80)",
 //     first = Sync(
 //       trace = "nl.vroste.rezilience.Bulkhead.make(Bulkhead.scala:80)",
-//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$3626/0x0000000800e69840@6121aaaa
+//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$3679/0x0000000800ea4040@52dd3839
 //     ),
-//     successK = zio.Queue$$$Lambda$5566/0x0000000801415040@79e473cf
+//     successK = zio.Queue$$$Lambda$4995/0x000000080126a040@6ef68556
 //   ),
-//   successK = nl.vroste.rezilience.Bulkhead$$$Lambda$6017/0x0000000800f1b840@21fdcba0
+//   successK = nl.vroste.rezilience.Bulkhead$$$Lambda$5840/0x00000008014b9840@5be858f5
 // )
 ```
 
@@ -293,16 +292,16 @@ def run =
     DelicateResource.live
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(823)
-// Current requests: : List(143, 823)
-// Current requests: : List(55, 143, 823)
-// Current requests: : List(651)
-// Current requests: : List(938, 651)
-// Current requests: : List(5, 938, 651)
-// Current requests: : List(862)
-// Current requests: : List(346, 862)
-// Current requests: : List(858, 346, 862)
-// Current requests: : List(24)
+// Current requests: : List(893)
+// Current requests: : List(449, 893)
+// Current requests: : List(294, 449, 893)
+// Current requests: : List(218)
+// Current requests: : List(818, 218)
+// Current requests: : List(478, 818, 218)
+// Current requests: : List(842)
+// Current requests: : List(506, 842)
+// Current requests: : List(837, 506, 842)
+// Current requests: : List(313, 837, 506)
 // Result: All Requests Succeeded
 ```
 
