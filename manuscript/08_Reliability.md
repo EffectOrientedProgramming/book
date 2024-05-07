@@ -209,9 +209,9 @@ def run =
         "Total time"
       .run
 // Bill called API [took 0s]
+// Bill called API [took -1s]
 // Bill called API [took 0s]
-// Bill called API [took 0s]
-// Bruce called API [took -1s]
+// Bruce called API [took 0s]
 // Bruce called API [took 0s]
 // Bruce called API [took 0s]
 // James called API [took 0s]
@@ -243,11 +243,13 @@ def run =
     DelicateResource.live
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(60)
-// Current requests: : List(943, 60)
-// Current requests: : List(121, 943, 60)
-// Current requests: : List(802, 121, 943, 60)
-// Result: Crashed the server!!
+// Current requests: : List(377)
+// Current requests: : List(455, 377)
+// Current requests: : List(212, 455, 377)
+// Current requests: : List(288, 212, 455, 377)
+// Current requests: : List(282, 288, 212, 455)
+// Current requests: : List(176, 282, 288, 212)
+// Result: Server crashed from requests!!
 ```
 
 We execute too many concurrent requests, and crash the server.
@@ -264,11 +266,11 @@ val makeOurBulkhead =
 //     trace = "nl.vroste.rezilience.Bulkhead.make(Bulkhead.scala:80)",
 //     first = Sync(
 //       trace = "nl.vroste.rezilience.Bulkhead.make(Bulkhead.scala:80)",
-//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$3421/0x0000000800d70840@7943ae0f
+//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$3400/0x0000000800da7040@6d3dc013
 //     ),
-//     successK = zio.Queue$$$Lambda$5566/0x00000008013e9040@276cf025
+//     successK = zio.Queue$$$Lambda$5554/0x00000008013ea840@6560ce2f
 //   ),
-//   successK = nl.vroste.rezilience.Bulkhead$$$Lambda$5999/0x00000008014fd840@58333a20
+//   successK = nl.vroste.rezilience.Bulkhead$$$Lambda$5998/0x0000000801507040@1b313049
 // )
 ```
 
@@ -293,16 +295,16 @@ def run =
     DelicateResource.live
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(784)
-// Current requests: : List(965, 784)
-// Current requests: : List(576, 965, 784)
-// Current requests: : List(163, 784)
-// Current requests: : List(515)
-// Current requests: : List(295, 515)
-// Current requests: : List(393, 295, 515)
-// Current requests: : List(341)
-// Current requests: : List(295, 341)
-// Current requests: : List(282, 295, 341)
+// Current requests: : List(993)
+// Current requests: : List(503, 993)
+// Current requests: : List(469, 503, 993)
+// Current requests: : List(307)
+// Current requests: : List(214, 307)
+// Current requests: : List(425, 214, 307)
+// Current requests: : List(129)
+// Current requests: : List(556, 129)
+// Current requests: : List(581, 556, 129)
+// Current requests: : List(756)
 // Result: All Requests Succeeded
 ```
 
