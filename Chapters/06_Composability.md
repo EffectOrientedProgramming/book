@@ -1,129 +1,38 @@
 # Composability
 
-Good contracts make good composability.
-
-contracts are what makes composability work at scale
-our effects put in place contracts on how things can compose
-
-
-is this about surfacing the hidden information through a "bookkeeper" that conveys the
-constraints to the caller
-
-
 An essential part of creating programs is the ability to combine small pieces into larger pieces.  
-Different languages / paradigms provide different ways to accomplish these combinations.  
-Objects can be combined by creating objects that contain other objects.  
-Functions can be combined by creating new functions that call other functions.  
-These are types of "composition" but these traditional approaches do not address all of the aspects of a program.
+We call this *composability*.
+This might seem so simple that it must be a solved problem.
 
-For example, functions that use resources which need to be opened and closed, do not compose.
+Languages and libraries provide different ways to enable composability.
 
-ZIOs compose including errors, async, blocking, resource managed, cancellation, eitherness, environmental requirements.
+- Objects can be composed by putting objects inside other objects.
+- Functions can be composed by calling functions within other functions.
+
+These approaches do not address all aspects of composition.
+For example, you cannot compose functions using resources that need to be opened and closed.
+Issues that complicate composition include:
+
+- errors
+- async
+- blocking
+- managed resource
+- cancellation
+- either-ness
+- environmental requirements
+
+These concepts and their competing solutions will be expanded on and contrasted with ZIO throughout this chapter.
 
 
-### Plain functions that return Unit TODO Incorporate to AllTheThings
+## Universal Composability with ZIO (All The Thing Example)
 
-`Unit` can be viewed as the bare minimum of effect tracking.
-
-Consider a function
-
-```scala mdoc
-def saveInformation(info: String): Unit =
-  ???
-```
-
-If we look only at the types, this function is an `Any=>Unit`.
-`Unit` is the single, blunt tool to indicate effectful functions in plain Scala.
-When we see it, we know that *some* type of side-effect is being performed.
-
-When a function returns `Unit`, we know that the only reason we are calling the function is to perform an effect.
-Alternatively, if there are no arguments to the function, then the input is `Unit`, indicating that an effect is used to _produce_ the result.
-
-Unfortunately, we can't do things like timeout/race/etc these functions. 
-We can either execute them, or not, and that's about it, without resorting to additional tools for manipulating their execution.
-
-## Universal Composability with ZIO
-
-ZIOs compose including errors, async, blocking, resource managed, cancellation, eitherness, environmental requirements.
-
-The types expand through generic parameters. ie composing a ZIO with an error of `String` with a ZIO with an error of `Int` results in a ZIO with an error of `String | Int`.
-
-{{ todo: example on error channel expansion }}
-
-With functions there is one way to compose.
-`f(g(h))` will sequentially apply the functions from the inside out.  
-Another term for this form of composition is called `andThen` in Scala.
-
-With ZIO you can use `zio-direct` to compose ZIOs sequentially with:
-```scala mdoc:invisible
-val findTopNewsStory =
-  ZIO.succeed:
-    "Battery Breakthrough"
-
-def textAlert(message: String) =
-  Console.printLine:
-    s"Texting story: $message"
-```
-
-```scala mdoc:runzio
-def run =
-  defer:
-    val topStory =
-      findTopNewsStory.run
-    textAlert:
-      topStory
-    .run
-```
-
-There are many other ways you can compose ZIOs.
+ZIOs compose in a way that covers all of these concerns.
 The methods for composability depend on the desired behavior.
-For example, to compose a ZIO that can produce an error with a ZIO that logs the error and then produces a default value, you can use the `catchAll` like:
 
-
-```scala mdoc:runzio
-// TODO Consider deleting .as
-//   The problem is we can't return literals in zio-direct.
-def logAndProvideDefault(e: Throwable) =
-  Console
-    .printLine:
-      e.getMessage
-    .as:
-      "default value"
-
-def run =
-  ZIO
-    .attempt:
-      ???
-    .catchAll:
-      logAndProvideDefault
-```
-
-## All The Thing Example
-When writing substantial, complex applications, you will quickly encounter APIs that that return data types with less power than ZIO.
-Thankfully, ZIO provides numerous conversion methods that simplify these interactions.
-By utilizing some clever type-level, compile-time techniques
-  (which we will not cover here),
-  ZIO is able to use a single interface - `ZIO.from` to handle many of these cases.
+When writing substantial, complex applications
+  , you will encounter APIs that that return limited data types.
   
-
-### Plain functions that throw Exceptions
-TODO:
- - original function
- - wrapped function
- - add to AllTheTHings
-
-Downsides:
-- We cannot union these error possibilities and track them in the type system
-- Cannot attach behavior to deferred functions
-- do not put in place a contract
-
-### Plain blocking functions
-TODO Demonstrate `ZIO.attemptBlockingInterrupt`
-
-- We can't indicate if they block or not
-- Too many concurrent blocking operations can prevent progress of other operations
-- Very difficult to manage
-- Blocking performance varies wildly between environments
+ZIO provides conversion methods that take these limited data types and turn them into its single, universally composable type.
 
 ### Future interop
 
@@ -258,7 +167,7 @@ case class NoRecordsAvailable(topic: String)
 
 ```scala mdoc:invisible
 import scala.util.Either
-def summaryFor(
+def wikiArticle(
     topic: String
 ): Either[NoRecordsAvailable, String] =
   topic match
@@ -272,28 +181,28 @@ def summaryFor(
 ```
 
 ```scala mdoc:compile-only
-summaryFor("stock market"): Either[
+wikiArticle("stock market"): Either[
   NoRecordsAvailable,
   String
 ]
 ```
 
 ```scala mdoc
-def summaryForZ(topic: String) =
+def wikiArticleZ(topic: String) =
   ZIO.from:
-    summaryFor:
+    wikiArticle:
       topic
 ```
 
 ```scala mdoc:runzio
 def run =
-  summaryForZ:
+  wikiArticleZ:
     "stock market"
 ```
 
 ```scala mdoc:runzio
 def run =
-  summaryForZ:
+  wikiArticleZ:
     "obscureTopic"
 ```
 
@@ -310,6 +219,7 @@ trait CloseableFile extends AutoCloseable:
   // raw Boolean?
   def contains(searchTerm: String): Boolean
   def write(entry: String): Try[String]
+  def summaryFor(searchTerm: String): String
 
 def closeableFile() =
   new CloseableFile:
@@ -325,6 +235,14 @@ def closeableFile() =
       println:
         "Searching file for: " + searchTerm
       searchTerm == "stock market"
+      
+    override def summaryFor(searchTerm: String): String =
+      if (searchTerm == "stock market") 
+        "stock markets are neat"
+      else
+        throw Exception(s"No summary available for $searchTerm")
+      
+    
 
     override def write(
         entry: String
@@ -408,6 +326,99 @@ def run =
     writeToFileZ(file, "New data on topic").run
 ```
 
+### Plain functions that throw Exceptions
+
+```scala mdoc:compile-only
+closeableFile().summaryFor("asdf"): String
+```
+
+```scala mdoc
+case class NoSummaryAvailable(topic: String) 
+def summaryForZ(
+    file: CloseableFile,
+    // TODO Consider making a CloseableFileZ
+    topic: String
+) =
+  ZIO.attempt:
+    file.summaryFor(topic)
+  .mapError(_ => NoSummaryAvailable(topic))
+    
+
+
+```
+
+TODO:
+ - original function: File.summaryFor
+ - wrap with ZIO
+ - call zio version in AllTheThings
+
+Downsides:
+- We cannot union these error possibilities and track them in the type system
+- Cannot attach behavior to deferred functions
+- do not put in place a contract
+
+### Plain blocking functions
+TODO Decide example functionality
+- AI analysis of news content?
+
+TODO Prose about the long-running AI process here
+```scala mdoc:invisible
+def summarize(article: String): String =
+  println("AI summarizing: start")
+  // Represents the AI taking a long time to summarize the content
+  if (!article.contains("stock market")) 
+    Thread.sleep(1000)
+  
+  println("AI summarizing: complete")
+  s"TODO Summarized content"
+```
+
+
+```scala mdoc:compile-only
+// TODO Can we use silent instead of compile-only above?
+summarize("some topic"): String
+```
+
+This gets interrupted, although it takes a big performance hit
+```scala mdoc
+case class AIFailure()
+
+def summarizeZ(article: String) =
+  ZIO
+    .attemptBlockingInterrupt:
+      summarize(article)
+    .onInterrupt(ZIO.debug("Interrupted summarize"))
+    .mapError(_ => AIFailure())
+```
+
+
+- We can't indicate if they block or not
+- Too many concurrent blocking operations can prevent progress of other operations
+- Very difficult to manage
+- Blocking performance varies wildly between environments
+
+### Sequencing 
+Another term for this form of composition is called `andThen` in Scala.
+
+With ZIO you can use `zio-direct` to compose ZIOs sequentially with:
+```scala mdoc:invisible
+val findTopNewsStory =
+  ZIO.succeed:
+    "Battery Breakthrough"
+
+def textAlert(message: String) =
+  Console.printLine:
+    s"Texting story: $message"
+```
+
+```scala mdoc:runzio
+def run =
+  defer:
+    val topStory =
+      findTopNewsStory.run
+    textAlert(topStory).run
+```
+
 ### Final Collective Criticism
 Each of original approaches gives you benefits, but you can't easily assemble a program that utilizes all of them.
 They must be manually transformed into each other .
@@ -425,7 +436,7 @@ The number of combinations is something like:
 Now that we have all of these well-defined effects, we can wield them in any combination and sequence we desire.
 
 ```scala mdoc:silent
-val researchWorkflow =
+val researchHeadline =
   defer:
     val headline: String =
       getHeadlineZ.run
@@ -441,19 +452,20 @@ val researchWorkflow =
         topic
 
     if (topicIsFresh)
-      val newInfo =
-        summaryForZ(topic).run
+      val wikiArticle =
+        wikiArticleZ(topic).run
 
-      writeToFileZ(summaryFile, newInfo).run
-      newInfo
+      val summary = summarizeZ(wikiArticle).run
+      writeToFileZ(summaryFile, summary).run
+      summary
     else
-      "Topic was already covered"
+      summaryForZ(summaryFile, topic).run
 ```
 
 
 ```scala mdoc:runzio
 def run =
-  researchWorkflow
+  researchHeadline
     // todo: some error handling to show that
     // the errors weren't lost along the way
     .mapError:
@@ -463,6 +475,10 @@ def run =
         s"No records for $topic"
       case NoInterestingTopic() =>
         "No Interesting topic found"
+      case AIFailure() =>
+        "Error during AI summary"
+      case NoSummaryAvailable(topic) =>
+        s"No summary available for $topic"
 ```
 
 
@@ -474,3 +490,59 @@ Repeating is a form of composability, because you are composing a program with i
 ## Injecting Behavior before/after/around
 
 
+# Graveyard candidates
+
+## Contract-based prose
+Good contracts make good composability.
+
+contracts are what makes composability work at scale
+our effects put in place contracts on how things can compose
+
+
+is this about surfacing the hidden information through a "bookkeeper" that conveys the
+constraints to the caller
+
+
+
+### Plain functions that return Unit TODO Incorporate to AllTheThings
+
+`Unit` can be viewed as the bare minimum of effect tracking.
+
+Consider a function
+
+```scala mdoc
+def saveInformation(info: String): Unit =
+  ???
+```
+
+If we look only at the types, this function is an `String=>Unit`.
+`Unit` is the single, blunt tool to indicate effectful functions in plain Scala.
+When we see it, we know that *some* type of side-effect is being performed.
+
+When a function returns `Unit`, we know that the only reason we are calling the function is to perform an effect.
+Alternatively, if there are no arguments to the function, then the input is `Unit`, indicating that an effect is used to _produce_ the result.
+
+Unfortunately, we can't do things like timeout/race/etc these functions. 
+We can either execute them, or not, and that's about it, without resorting to additional tools for manipulating their execution.
+
+
+### CatchAll log example
+For example, to compose a ZIO that can produce an error with a ZIO that logs the error and then produces a default value, you can use the `catchAll` like:
+
+```scala mdoc:runzio
+// TODO Consider deleting .as
+//   The problem is we can't return literals in zio-direct.
+def logAndProvideDefault(e: Throwable) =
+  Console
+    .printLine:
+      e.getMessage
+    .as:
+      "default value"
+
+def run =
+  ZIO
+    .attempt:
+      ???
+    .catchAll:
+      logAndProvideDefault
+```
