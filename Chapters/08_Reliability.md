@@ -34,7 +34,7 @@ Putting a cache in front of a slow, brittle, or expensive service can be a great
 import zio.{ZIO, ZLayer}
 import zio.cache.{Cache, Lookup}
 
-import java.nio.file.Path
+import java.nio.file.{Path, Paths}
 
 case class FSLive(requests: Ref[Int])
     extends CloudStorage:
@@ -96,7 +96,7 @@ val thunderingHerdsScenario =
       .collectAllPar:
         List.fill(100):
           popularService.retrieve:
-            Path.of("awesomeMemes")
+            Paths.get("awesomeMemes")
       .run
 
     val cloudStorage =
