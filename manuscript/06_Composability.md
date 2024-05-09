@@ -213,7 +213,7 @@ def run =
   closeableFileZ
 // Opening file!
 // Closing file!
-// Result: repl.MdocSession$MdocApp$$anon$18@548e17be
+// Result: repl.MdocSession$MdocApp$$anon$18@4d2d96c1
 ```
 
 Since that is not terribly useful, let's start calling some methods on our managed file.
