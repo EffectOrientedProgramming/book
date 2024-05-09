@@ -469,11 +469,39 @@ def run =
 // Heads
 // Heads
 // Heads
-// Heads
-// Heads
-// Heads
-// Heads
-// <FAIL> Fail(Tails,Stack trace for thread "zio-fiber-200573":
+// <FAIL> Fail(Tails,Stack trace for thread "zio-fiber-2066137662":
+// 	at repl.MdocSession.MdocApp.coinToss(<input>:400)
+// 	at repl.MdocSession.MdocApp.flipTen(<input>:417)
+// 	at zio.direct.ZioMonad.Success.$anon.map(ZioMonad.scala:18)
+// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:22)
+// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:32)
+// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:39)
+// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:46)
+// <FAIL> Fail(Tails,Stack trace for thread "zio-fiber-2066137662":
+// 	at repl.MdocSession.MdocApp.coinToss(<input>:400)
+// 	at repl.MdocSession.MdocApp.flipTen(<input>:417)
+// 	at zio.direct.ZioMonad.Success.$anon.map(ZioMonad.scala:18)
+// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:22)
+// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:32)
+// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:39)
+// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:46)
+// <FAIL> Fail(Tails,Stack trace for thread "zio-fiber-2066137662":
+// 	at repl.MdocSession.MdocApp.coinToss(<input>:400)
+// 	at repl.MdocSession.MdocApp.flipTen(<input>:417)
+// 	at zio.direct.ZioMonad.Success.$anon.map(ZioMonad.scala:18)
+// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:22)
+// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:32)
+// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:39)
+// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:46)
+// <FAIL> Fail(Tails,Stack trace for thread "zio-fiber-2066137662":
+// 	at repl.MdocSession.MdocApp.coinToss(<input>:400)
+// 	at repl.MdocSession.MdocApp.flipTen(<input>:417)
+// 	at zio.direct.ZioMonad.Success.$anon.map(ZioMonad.scala:18)
+// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:22)
+// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:32)
+// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:39)
+// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:46)
+// <FAIL> Fail(Tails,Stack trace for thread "zio-fiber-2066137662":
 // 	at repl.MdocSession.MdocApp.coinToss(<input>:400)
 // 	at repl.MdocSession.MdocApp.flipTen(<input>:417)
 // 	at zio.direct.ZioMonad.Success.$anon.map(ZioMonad.scala:18)
@@ -483,7 +511,7 @@ def run =
 // 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:46)
 // Heads
 // Heads
-// Result: 9
+// Result: 5
 ```
 
 ```scala
@@ -507,7 +535,7 @@ def spec =
 // Heads
 // Heads
 // + flips 10 times
-// Result: Summary(1,0,0,,PT0.047607S)
+// Result: Summary(1,0,0,,PT0.064386S)
 ```
 
 ```scala
@@ -569,7 +597,7 @@ def spec =
 // G: ...probability
 // R: Heads
 // + rosencrantzAndGuildensternAreDead finishes
-// Result: Summary(1,0,0,,PT0.044512S)
+// Result: Summary(1,0,0,,PT0.052219S)
 ```
 
 ```scala
@@ -582,17 +610,17 @@ def spec =
     TestAspect.flaky(Int.MaxValue)
 // *Performance Begins*
 // R: Heads
-// R: Heads
-// <FAIL> R: Fail(Tails,Stack trace for thread "zio-fiber-200870":
+// <FAIL> R: Fail(Tails,Stack trace for thread "zio-fiber-2127771280":
 // 	at repl.MdocSession.MdocApp.coinToss(<input>:400)
 // 	at repl.MdocSession.MdocApp.rosencrantzCoinToss(<input>:462)
+// 	at repl.MdocSession.MdocApp.rosencrantzAndGuildensternAreDead(<input>:467)
 // ...
 // G: Though it can be done by luck alone.
 // R: Heads
 // G: ...probability
 // R: Heads
 // + flaky plan
-// Result: Summary(1,0,0,,PT0.040742S)
+// Result: Summary(1,0,0,,PT0.03981S)
 ```
 
 The `Random` Effect uses an injected something which when running the ZIO uses the system's unpredictable random number generator.  In ZIO Test the `Random` Effect uses a different something which can predictably generate "random" numbers.  `TestRandom` provides a way to define what those numbers are.  This example feeds in the `Int`s `1` and `2` so the first time we ask for a random number we get `1` and the second time we get `2`.
@@ -632,7 +660,7 @@ def spec =
       assertCompletes
 // Parsing CSV: ()
 // + batch runs after 24 hours
-// Result: Summary(1,0,0,,PT0.02171S)
+// Result: Summary(1,0,0,,PT0.0316S)
 ```
 
 The `race` is between `nightlyBatch` and `timeTravel`.

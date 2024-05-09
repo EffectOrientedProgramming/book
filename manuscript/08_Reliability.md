@@ -207,15 +207,15 @@ def run =
       .timedSecondsDebug:
         "Total time"
       .run
-// Bill called API [took 0s]
-// Bill called API [took 0s]
-// Bill called API [took 0s]
 // Bruce called API [took 0s]
 // Bruce called API [took 0s]
 // Bruce called API [took 0s]
 // James called API [took 0s]
 // James called API [took 0s]
 // James called API [took 0s]
+// Bill called API [took 0s]
+// Bill called API [took 0s]
+// Bill called API [took 0s]
 // Total time [took 2s]
 // Result: List((), (), ())
 ```
@@ -241,10 +241,10 @@ def run =
     DelicateResource.live
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(948)
-// Current requests: : List(975, 948)
-// Current requests: : List(35, 975, 948)
-// Current requests: : List(237, 35, 975, 948)
+// Current requests: : List(795)
+// Current requests: : List(293, 795)
+// Current requests: : List(406, 293, 795)
+// Current requests: : List(722, 406, 293, 795)
 // Result: Crashed the server!!
 ```
 
@@ -257,17 +257,17 @@ val makeOurBulkhead =
   Bulkhead.make(maxInFlightCalls =
     3
   )
-// makeOurBulkhead: ZIO[Scope, Nothing, Bulkhead] = OnSuccess(
+// makeOurBulkhead: ZIO[Scope, Nothing, Bulkhead] = FlatMap(
 //   trace = "nl.vroste.rezilience.Bulkhead.make(Bulkhead.scala:116)",
-//   first = OnSuccess(
+//   first = FlatMap(
 //     trace = "nl.vroste.rezilience.Bulkhead.make(Bulkhead.scala:80)",
 //     first = Sync(
 //       trace = "nl.vroste.rezilience.Bulkhead.make(Bulkhead.scala:80)",
-//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$3409/0x0000000800d70040@4765a396
+//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$3717/0x0000000800e99840@4b1807d5
 //     ),
-//     successK = zio.Queue$$$Lambda$5524/0x00000008013be840@d1b37df
+//     successK = zio.Queue$$$Lambda$5685/0x0000000801425840@69cc2d3
 //   ),
-//   successK = nl.vroste.rezilience.Bulkhead$$$Lambda$6087/0x000000080153c840@4620f593
+//   successK = nl.vroste.rezilience.Bulkhead$$$Lambda$6144/0x0000000801551840@79f27b9
 // )
 ```
 
@@ -292,16 +292,16 @@ def run =
     DelicateResource.live
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(440)
-// Current requests: : List(254, 440)
-// Current requests: : List(484, 254, 440)
-// Current requests: : List(753)
-// Current requests: : List(48, 753)
-// Current requests: : List(165, 48, 753)
-// Current requests: : List(161, 165, 48)
-// Current requests: : List(534, 161)
-// Current requests: : List(753, 534, 161)
-// Current requests: : List(609, 753)
+// Current requests: : List(759)
+// Current requests: : List(160, 759)
+// Current requests: : List(161, 160, 759)
+// Current requests: : List(243)
+// Current requests: : List(994, 243)
+// Current requests: : List(262, 994, 243)
+// Current requests: : List(289, 262, 994)
+// Current requests: : List(725, 289)
+// Current requests: : List(40, 725, 289)
+// Current requests: : List(649, 725)
 // Result: All Requests Succeeded
 ```
 
