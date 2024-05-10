@@ -3,7 +3,6 @@ package mdoc
 import mdoc.internal.cli.InputFile
 import mdoc.internal.markdown.MarkdownFile
 
-import java.nio.file.Files
 import scala.meta.Input
 import scala.meta.io.AbsolutePath
 
@@ -55,152 +54,153 @@ object MainSpec extends ZIOSpecDefault:
       // @@ TestAspect.nonFlaky @@
       // TestAspect.repeats(100)
       +
-        test("mdoc test gets console output"):
-          val mainSettings =
-            MainSettings()
-          // .withArgs(List("--verbose"))
+      test("mdoc test gets console output"):
+        val mainSettings =
+          MainSettings()
+        // .withArgs(List("--verbose"))
 
-          val source =
-            """```scala mdoc
-            |class FooSpec extends mdoctools.ToTest:
-            |  def spec =
-            |    test("foo"):
-            |      defer:
-            |        ZIO.succeed("hello, debug").debug.run
-            |        Console.printLine("hello, world").run
-            |        assertCompletes
-            |
-            |FooSpec().runAndPrintOutput()
-            |```
-            |""".stripMargin
+        val source =
+          """```scala mdoc
+          |class FooSpec extends mdoctools.ToTest:
+          |  def spec =
+          |    test("foo"):
+          |      defer:
+          |        ZIO.succeed("hello, debug").debug.run
+          |        Console.printLine("hello, world").run
+          |        assertCompletes
+          |
+          |FooSpec().runAndPrintOutput()
+          |```
+          |""".stripMargin
 
-          val input =
-            Input.VirtualFile("foo.md", source)
+        val input =
+          Input.VirtualFile("foo.md", source)
 
-          val inputFile =
-            InputFile.fromRelativeFilename(
-              "foo.md",
-              mainSettings.settings
-            )
+        val inputFile =
+          InputFile.fromRelativeFilename(
+            "foo.md",
+            mainSettings.settings
+          )
 
-          val markdown =
-            MarkdownFile.parse(
-              input,
-              inputFile,
-              mainSettings.settings
-            )
+        val markdown =
+          MarkdownFile.parse(
+            input,
+            inputFile,
+            mainSettings.settings
+          )
 
-          val out =
-            mdoc.processMarkdown(
-              mainSettings.settings,
-              mainSettings.reporter,
-              markdown
-            )
+        val out =
+          mdoc.processMarkdown(
+            mainSettings.settings,
+            mainSettings.reporter,
+            markdown
+          )
 
-          val outString =
-            out.renderToString
+        val outString =
+          out.renderToString
 
-          assertTrue:
-            outString
-              .contains("// hello, debug") &&
-            outString
-              .contains("// hello, world") &&
-            outString.contains(
-              "// \u001B[32m+\u001B[0m foo"
-            )
-        +
-        test("mdoc:runzio:liveclock"):
-          val mainSettings =
-            MainSettings()
+        assertTrue:
+          outString
+            .contains("// hello, debug") &&
+          outString
+            .contains("// hello, world") &&
+          outString.contains(
+            "// \u001B[32m+\u001B[0m foo"
+          )
+      +
+      test("mdoc:runzio:liveclock"):
+        val mainSettings =
+          MainSettings()
 
-          val newSettings =
-            mainSettings
-              .settings
-              .copy(postModifiers =
-                List(
-                  RunZIOPostModifier(),
-                  TestZIOPostModifier()
-                )
+        val newSettings =
+          mainSettings
+            .settings
+            .copy(postModifiers =
+              List(
+                RunZIOPostModifier(),
+                TestZIOPostModifier()
               )
-
-          val source =
-            """```scala mdoc:runzio:liveclock
-            |def run = ZIO.sleep(1.second).timed
-            |```
-            |""".stripMargin
-
-          val input =
-            Input.VirtualFile("foo.md", source)
-
-          val inputFile =
-            InputFile.fromRelativeFilename(
-              "foo.md",
-              mainSettings.settings
             )
 
-          val (manuscriptMarkdown, _) =
-            processFile(
-              input,
-              inputFile,
-              newSettings,
-              mainSettings.reporter
-            )
+        val source =
+          """```scala mdoc:runzio:liveclock
+          |def run = ZIO.sleep(1.second).timed
+          |```
+          |""".stripMargin
 
-          val rendered =
-            manuscriptMarkdown.renderToString
-          assertTrue:
-            rendered.contains("// Result: (PT1")
-        +
-        test("mdoc test with TestClock"):
-          val mainSettings =
-            MainSettings()
+        val input =
+          Input.VirtualFile("foo.md", source)
+
+        val inputFile =
+          InputFile.fromRelativeFilename(
+            "foo.md",
+            mainSettings.settings
+          )
+
+        val (manuscriptMarkdown, _) =
+          processFile(
+            input,
+            inputFile,
+            newSettings,
+            mainSettings.reporter
+          )
+
+        val rendered =
+          manuscriptMarkdown.renderToString
+        assertTrue:
+          rendered.contains("// Result: (PT1")
+      +
+      test("mdoc test with TestClock"):
+        val mainSettings =
+          MainSettings()
 //          .withArgs(List("--verbose"))
 
-          val source =
-            """```scala mdoc
-            |class FooSpec extends mdoctools.ToTest:
-            |  def spec =
-            |    test("foo"):
-            |      defer:
-            |        val fork = Console.printLine("hello, world").delay(24.hours).fork.run
-            |        TestClock.adjust(24.hours).run
-            |        fork.join.run
-            |        assertCompletes
-            |
-            |FooSpec().runAndPrintOutput()
-            |```
-            |""".stripMargin
+        val source =
+          """```scala mdoc
+          |class FooSpec extends mdoctools.ToTest:
+          |  def spec =
+          |    test("foo"):
+          |      defer:
+          |        val fork = Console.printLine("hello, world").delay(24.hours).fork.run
+          |        TestClock.adjust(24.hours).run
+          |        fork.join.run
+          |        assertCompletes
+          |
+          |FooSpec().runAndPrintOutput()
+          |```
+          |""".stripMargin
 
-          val input =
-            Input.VirtualFile("foo.md", source)
+        val input =
+          Input.VirtualFile("foo.md", source)
 
-          val inputFile =
-            InputFile.fromRelativeFilename(
-              "foo.md",
-              mainSettings.settings
-            )
+        val inputFile =
+          InputFile.fromRelativeFilename(
+            "foo.md",
+            mainSettings.settings
+          )
 
-          val markdown =
-            MarkdownFile.parse(
-              input,
-              inputFile,
-              mainSettings.settings
-            )
+        val markdown =
+          MarkdownFile.parse(
+            input,
+            inputFile,
+            mainSettings.settings
+          )
 
-          val out =
-            mdoc.processMarkdown(
-              mainSettings.settings,
-              mainSettings.reporter,
-              markdown
-            )
+        val out =
+          mdoc.processMarkdown(
+            mainSettings.settings,
+            mainSettings.reporter,
+            markdown
+          )
 
-          val outString =
-            out.renderToString
+        val outString =
+          out.renderToString
 
-          assertTrue:
-            outString
-              .contains("// hello, world") &&
-            outString.contains(
-              "// \u001B[32m+\u001B[0m foo"
-            )
+        assertTrue:
+          outString
+            .contains("// hello, world") &&
+          outString.contains(
+            "// \u001B[32m+\u001B[0m foo"
+          )
+    @@ TestAspect.sequential
 end MainSpec

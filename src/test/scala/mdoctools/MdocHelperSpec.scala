@@ -15,9 +15,6 @@ object MdocHelperSpec extends ZIOSpecDefault:
 
   def spec =
     suite("mdoc.MdocHelperSpec"):
-      test("asdf"):
-        ZIO.unit *> assertCompletes
-      +
       test("ToRun works with an Error channel"):
         class Foo extends ToRun:
           def run =
