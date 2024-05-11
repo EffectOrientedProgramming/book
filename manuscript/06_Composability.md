@@ -40,7 +40,6 @@ ZIO provides conversion methods that take these limited data types and turn them
 
 ### Future interop
 
-
 ```scala
 import scala.concurrent.Future
 ```
@@ -213,7 +212,7 @@ def run =
   closeableFileZ
 // Opening file!
 // Closing file!
-// Result: repl.MdocSession$MdocApp$$anon$18@110bd954
+// Result: repl.MdocSession$MdocApp$$anon$18@25dbac92
 ```
 
 Since that is not terribly useful, let's start calling some methods on our managed file.
