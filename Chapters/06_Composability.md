@@ -26,6 +26,12 @@ These concepts and their competing solutions will be expanded on and contrasted 
 
 ## Universal Composability with ZIO (All The Thing Example)
 
+```scala mdoc:invisible
+enum Scenario:
+  case StockMarketHeadline
+  case HeadlineUnavailable
+```
+
 ZIOs compose in a way that covers all of these concerns.
 The methods for composability depend on the desired behavior.
 
@@ -51,12 +57,10 @@ The original asynchronous datatype in Scala has several undesirable characterist
 There is a function that returns a Future:
 
 ```scala mdoc:invisible
-var headLineAvailable =
-  true
 // TODO If we make this function accept the "mock" result and return that, then
 //  we can leverage that to hit all of the possible paths in AllTheThings.
-def getHeadLine(): Future[String] =
-  if (headLineAvailable)
+def getHeadLine(scenario: Scenario): Future[String] =
+  if (scenario == Scenario.StockMarketHeadline)
     Future.successful("stock market crash!")
   else
     Future.failed(
@@ -65,7 +69,7 @@ def getHeadLine(): Future[String] =
 ```
 
 ```scala mdoc:compile-only
-getHeadLine(): Future[String]
+getHeadLine(???): Future[String]
 ```
 
 TODO This is repetitive after listing the downsides above.
@@ -78,10 +82,10 @@ By wrapping this in `ZIO.from`, it will:
 
 ```scala mdoc:silent
 case class HeadlineNotAvailable()
-val getHeadlineZ =
+def getHeadlineZ(scenario: Scenario) =
   ZIO
     .from:
-      getHeadLine()
+      getHeadLine(scenario)
     .mapError:
       case _: Throwable =>
         HeadlineNotAvailable()
@@ -89,7 +93,7 @@ val getHeadlineZ =
 
 ```scala mdoc:runzio
 def run =
-  getHeadlineZ
+  getHeadlineZ(Scenario.StockMarketHeadline)
 ```
 Now let's confirm the behavior when the headline is not available.
 
@@ -99,7 +103,7 @@ headLineAvailable =
   false
 
 def run =
-  getHeadlineZ
+  getHeadlineZ(Scenario.HeadlineUnavailable)
 ```
 
 ### Option Interop
@@ -278,7 +282,7 @@ val closeableFileZ =
 
 Once we do this, the `ZIO` runtime will manage the lifecycle of this object via the `Scope` mechanism.
 TODO Link to docs for this?
-In the simplest case, we open and close the file, with no logic while it is iopen.
+In the simplest case, we open and close the file, with no logic while it is open.
 
 ```scala mdoc:runzio
 def run =
@@ -435,10 +439,10 @@ The number of combinations is something like:
 Now that we have all of these well-defined effects, we can wield them in any combination and sequence we desire.
 
 ```scala mdoc:silent
-val researchHeadline =
+def researchHeadline(scenario: Scenario) =
   defer:
     val headline: String =
-      getHeadlineZ.run
+      getHeadlineZ(scenario).run
 
     val topic: String =
       topicOfInterestZ(headline).run
@@ -463,8 +467,9 @@ val researchHeadline =
 
 
 ```scala mdoc:runzio
+// todo intermediate value with error handling before we start demo'ing all paths
 def run =
-  researchHeadline
+  researchHeadline(Scenario.StockMarketHeadline)
     // todo: some error handling to show that
     // the errors weren't lost along the way
     .mapError:
