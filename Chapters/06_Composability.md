@@ -36,7 +36,6 @@ ZIO provides conversion methods that take these limited data types and turn them
 
 ### Future interop
 
-
 ```scala mdoc
 import scala.concurrent.Future
 ```
