@@ -473,16 +473,16 @@ def run =
   flipTen
 // Heads
 // Tails
-// Heads
-// Tails
-// Tails
-// Tails
-// Heads
 // Tails
 // Tails
 // Heads
-// Num Heads = 4
-// Result: 4
+// Tails
+// Heads
+// Heads
+// Heads
+// Heads
+// Num Heads = 6
+// Result: 6
 ```
 
 ```scala
@@ -507,7 +507,7 @@ def spec =
 // Heads
 // Num Heads = 10
 // + flips 10 times
-// Result: Summary(1,0,0,,PT0.053776S)
+// Result: Summary(1,0,0,,PT0.04028S)
 ```
 
 ```scala
@@ -568,7 +568,7 @@ def spec =
 // Heads
 // R: Heads
 // + rosencrantzAndGuildensternAreDead finishes
-// Result: Summary(1,0,0,,PT0.054009S)
+// Result: Summary(1,0,0,,PT0.037369S)
 ```
 
 ```scala
@@ -582,16 +582,16 @@ def spec =
 // *Performance Begins*
 // Heads
 // R: Heads
-// Heads
-// R: Heads
 // Tails
+// <FAIL> R: Fail(Tails,Stack trace for thread "zio-fiber-1737228851":
+// 	at repl.MdocSession.MdocApp.coinToss(<input>:400)
 // ...
 // R: Heads
 // G: ...probability
 // Heads
 // R: Heads
 // + flaky plan
-// Result: Summary(1,0,0,,PT0.034007S)
+// Result: Summary(1,0,0,,PT0.044782S)
 ```
 
 The `Random` Effect uses an injected something which when running the ZIO uses the system's unpredictable random number generator.  In ZIO Test the `Random` Effect uses a different something which can predictably generate "random" numbers.  `TestRandom` provides a way to define what those numbers are.  This example feeds in the `Int`s `1` and `2` so the first time we ask for a random number we get `1` and the second time we get `2`.
@@ -631,7 +631,7 @@ def spec =
       assertCompletes
 // Parsing CSV: ()
 // + batch runs after 24 hours
-// Result: Summary(1,0,0,,PT0.025811S)
+// Result: Summary(1,0,0,,PT0.026415S)
 ```
 
 The `race` is between `nightlyBatch` and `timeTravel`.

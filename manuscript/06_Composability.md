@@ -30,6 +30,7 @@ These concepts and their competing solutions will be expanded on and contrasted 
 
 ## Universal Composability with ZIO (All The Thing Example)
 
+
 ZIOs compose in a way that covers all of these concerns.
 The methods for composability depend on the desired behavior.
 
@@ -56,7 +57,7 @@ There is a function that returns a Future:
 
 
 ```scala
-getHeadLine(): Future[String]
+getHeadLine(???): Future[String]
 ```
 
 TODO This is repetitive after listing the downsides above.
@@ -69,10 +70,10 @@ By wrapping this in `ZIO.from`, it will:
 
 ```scala
 case class HeadlineNotAvailable()
-val getHeadlineZ =
+def getHeadlineZ(scenario: Scenario) =
   ZIO
     .from:
-      getHeadLine()
+      getHeadLine(scenario)
     .mapError:
       case _: Throwable =>
         HeadlineNotAvailable()
@@ -80,18 +81,14 @@ val getHeadlineZ =
 
 ```scala
 def run =
-  getHeadlineZ
+  getHeadlineZ(Scenario.StockMarketHeadline)
 // Result: stock market crash!
 ```
 Now let's confirm the behavior when the headline is not available.
 
 ```scala
-// This controls some invisible machinery
-headLineAvailable =
-  false
-
 def run =
-  getHeadlineZ
+  getHeadlineZ(Scenario.HeadlineUnavailable)
 // Result: HeadlineNotAvailable()
 ```
 
@@ -126,10 +123,6 @@ def topicOfInterestZ(headline: String) =
 ```
 
 ```scala
-// This controls some invisible machinery
-headLineAvailable =
-  true
-
 def run =
   topicOfInterestZ:
     "stock market crash!"
@@ -154,7 +147,7 @@ case class NoRecordsAvailable(topic: String)
 
 
 ```scala
-wikiArticle("stock market"): Either[
+wikiArticle(???): Either[
   NoRecordsAvailable,
   String
 ]
@@ -205,14 +198,14 @@ val closeableFileZ =
 
 Once we do this, the `ZIO` runtime will manage the lifecycle of this object via the `Scope` mechanism.
 TODO Link to docs for this?
-In the simplest case, we open and close the file, with no logic while it is iopen.
+In the simplest case, we open and close the file, with no logic while it is open.
 
 ```scala
 def run =
   closeableFileZ
 // Opening file!
 // Closing file!
-// Result: repl.MdocSession$MdocApp$$anon$18@25dbac92
+// Result: repl.MdocSession$MdocApp$$anon$17@7c7630ec
 ```
 
 Since that is not terribly useful, let's start calling some methods on our managed file.
@@ -353,10 +346,10 @@ The number of combinations is something like:
 Now that we have all of these well-defined effects, we can wield them in any combination and sequence we desire.
 
 ```scala
-val researchHeadline =
+def researchHeadlineRaw(scenario: Scenario) =
   defer:
     val headline: String =
-      getHeadlineZ.run
+      getHeadlineZ(scenario).run
 
     val topic: String =
       topicOfInterestZ(headline).run
@@ -379,12 +372,9 @@ val researchHeadline =
       summaryForZ(summaryFile, topic).run
 ```
 
-
 ```scala
-def run =
-  researchHeadline
-    // todo: some error handling to show that
-    // the errors weren't lost along the way
+def researchHeadline(scenario: Scenario) =
+  researchHeadlineRaw(scenario)
     .mapError:
       case HeadlineNotAvailable() =>
         "Could not fetch headline"
@@ -396,6 +386,12 @@ def run =
         "Error during AI summary"
       case NoSummaryAvailable(topic) =>
         s"No summary available for $topic"
+```
+
+```scala
+def run =
+  researchHeadline:
+    Scenario.StockMarketHeadline
 // Opening file!
 // Searching file for: stock market
 // AI summarizing: start
@@ -403,6 +399,13 @@ def run =
 // Writing to file: TODO Summarized content
 // Closing file!
 // Result: TODO Summarized content
+```
+
+```scala
+def run =
+  researchHeadline:
+    Scenario.HeadlineUnavailable
+// Result: Could not fetch headline
 ```
 
 
