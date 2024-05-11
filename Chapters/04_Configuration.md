@@ -47,7 +47,7 @@ TODO Values to convey:
 - Layer Resourcefulness
    - Layers can have setup & teardown (open & close)
 
-```scala mdoc
+```scala mdoc:silent
 // Explain private constructor approach
 case class Dough():
   val letRise =
@@ -101,7 +101,7 @@ val oven =
 ```
 
 
-```scala mdoc
+```scala mdoc:silent
 trait Bread
 
 case class BreadHomeMade(
@@ -129,7 +129,7 @@ def run =
 Eventually, we grow tired of eating plain `Bread` and decide to start making `Toast`.
 Both of these processes require `Heat`.
 
-```scala mdoc
+```scala mdoc:silent
 case class Toast(heat: Heat, bread: Bread)
 
 object Toast:
