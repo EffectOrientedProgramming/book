@@ -241,10 +241,10 @@ def run =
     DelicateResource.live
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(898)
-// Current requests: : List(595, 898)
-// Current requests: : List(41, 595, 898)
-// Current requests: : List(324, 41, 595, 898)
+// Current requests: : List(464)
+// Current requests: : List(377, 464)
+// Current requests: : List(362, 377, 464)
+// Current requests: : List(164, 362, 377, 464)
 // Result: Crashed the server!!
 ```
 
@@ -263,11 +263,11 @@ val makeOurBulkhead =
 //     trace = "nl.vroste.rezilience.Bulkhead.make(Bulkhead.scala:80)",
 //     first = Sync(
 //       trace = "nl.vroste.rezilience.Bulkhead.make(Bulkhead.scala:80)",
-//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$3683/0x0000000800e8b040@5816cbab
+//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$3363/0x0000000800d79c40@1df8596d
 //     ),
-//     successK = zio.Queue$$$Lambda$5624/0x000000080141a840@2c1ac679
+//     successK = zio.Queue$$$Lambda$5513/0x00000008013d5040@40834407
 //   ),
-//   successK = nl.vroste.rezilience.Bulkhead$$$Lambda$6110/0x0000000800b61840@6264bf2d
+//   successK = nl.vroste.rezilience.Bulkhead$$$Lambda$6043/0x0000000801530040@2510efa1
 // )
 ```
 
@@ -292,16 +292,16 @@ def run =
     DelicateResource.live
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(168)
-// Current requests: : List(424, 168)
-// Current requests: : List(151, 424, 168)
-// Current requests: : List(264)
-// Current requests: : List(68, 264)
-// Current requests: : List(413, 68, 264)
-// Current requests: : List(55)
-// Current requests: : List(208, 55)
-// Current requests: : List(372, 208, 55)
-// Current requests: : List(826)
+// Current requests: : List(963, 604)
+// Current requests: : List(604)
+// Current requests: : List(362, 963, 604)
+// Current requests: : List(850)
+// Current requests: : List(420, 850)
+// Current requests: : List(858, 420, 850)
+// Current requests: : List(92)
+// Current requests: : List(377, 92)
+// Current requests: : List(214, 377, 92)
+// Current requests: : List(548)
 // Result: All Requests Succeeded
 ```
 
