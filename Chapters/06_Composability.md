@@ -98,10 +98,6 @@ def run =
 Now let's confirm the behavior when the headline is not available.
 
 ```scala mdoc:runzio
-// This controls some invisible machinery
-headLineAvailable =
-  false
-
 def run =
   getHeadlineZ(Scenario.HeadlineUnavailable)
 ```
@@ -144,10 +140,6 @@ def topicOfInterestZ(headline: String) =
 ```
 
 ```scala mdoc:runzio
-// This controls some invisible machinery
-headLineAvailable =
-  true
-
 def run =
   topicOfInterestZ:
     "stock market crash!"
@@ -184,7 +176,7 @@ def wikiArticle(
 ```
 
 ```scala mdoc:compile-only
-wikiArticle("stock market"): Either[
+wikiArticle(???): Either[
   NoRecordsAvailable,
   String
 ]
@@ -439,7 +431,7 @@ The number of combinations is something like:
 Now that we have all of these well-defined effects, we can wield them in any combination and sequence we desire.
 
 ```scala mdoc:silent
-def researchHeadline(scenario: Scenario) =
+def researchHeadlineRaw(scenario: Scenario) =
   defer:
     val headline: String =
       getHeadlineZ(scenario).run
@@ -465,13 +457,9 @@ def researchHeadline(scenario: Scenario) =
       summaryForZ(summaryFile, topic).run
 ```
 
-
-```scala mdoc:runzio
-// todo intermediate value with error handling before we start demo'ing all paths
-def run =
-  researchHeadline(Scenario.StockMarketHeadline)
-    // todo: some error handling to show that
-    // the errors weren't lost along the way
+```scala mdoc
+def researchHeadline(scenario: Scenario) =
+  researchHeadlineRaw(scenario)
     .mapError:
       case HeadlineNotAvailable() =>
         "Could not fetch headline"
@@ -483,6 +471,18 @@ def run =
         "Error during AI summary"
       case NoSummaryAvailable(topic) =>
         s"No summary available for $topic"
+```
+
+```scala mdoc:runzio
+def run =
+  researchHeadline:
+    Scenario.StockMarketHeadline
+```
+
+```scala mdoc:runzio
+def run =
+  researchHeadline:
+    Scenario.HeadlineUnavailable
 ```
 
 
