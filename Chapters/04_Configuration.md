@@ -420,11 +420,13 @@ An example of this is Random numbers.  Randomness is inherently unpredictable.  
 val coinToss =
   defer:
     if Random.nextBoolean.run then
+      ZIO.debug("Heads").run
       ZIO
         .succeed:
           "Heads"
         .run
     else
+      ZIO.debug("Tails").run
       ZIO
         .fail:
           "Tails"
@@ -434,12 +436,15 @@ val coinToss =
 ```scala mdoc:silent
 val flipTen =
   defer:
-    ZIO
-      .collectAllSuccesses:
-        List.fill(10):
-          coinToss.debug
-      .run
-      .size
+    val numHeads =
+      ZIO
+        .collectAllSuccesses:
+          List.fill(10):
+            coinToss
+        .run
+        .size
+    ZIO.debug(s"Num Heads = $numHeads").run
+    numHeads
 ```
 
 ```scala mdoc:runzio
