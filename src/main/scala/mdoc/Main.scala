@@ -48,9 +48,9 @@ def embed(
       else
         ""
     val pre =
-      s"class Example$num extends mdoctools.ToRun$useLiveClockString:"
+      s"class Chapter$num extends mdoctools.ToRun$useLiveClockString:"
     val post =
-      s"Example$num().runAndPrintOutput()"
+      s"Chapter$num().runAndPrintOutput()"
     val newBody =
       pre +:
         codeFence
@@ -72,9 +72,9 @@ def embed(
       .contains("testzio")
   then
     val pre =
-      s"class Example${num}Spec extends mdoctools.ToTest:"
+      s"class Chapter${num}Spec extends mdoctools.ToTest:"
     val post =
-      s"Example${num}Spec().runAndPrintOutput()"
+      s"Chapter${num}Spec().runAndPrintOutput()"
     val newBody =
       pre +:
         codeFence
@@ -203,17 +203,23 @@ def parsedToRunnable(
     .parse(newInput, markdownFile.file, settings)
 end parsedToRunnable
 
+case class RunnableCodeFence(codeFence: CodeFence, num: Int)
+
 def partsToExamples(
     markdownFile: MarkdownFile,
     baseName: String
 ): (String, String) =
-  val (runParts, testParts, otherParts) =
+  def runnableCodeFence(codeFence: CodeFence, mainCodeFences: Seq[CodeFence | RunnableCodeFence]): RunnableCodeFence =
+    val rcfs = mainCodeFences.collect:
+      case rcf: RunnableCodeFence => rcf
+    RunnableCodeFence(codeFence, rcfs.size)
+
+  val (mainParts, testParts) =
     markdownFile
       .parts
       .foldLeft(
         (
-          Seq.empty[CodeFence],
-          Seq.empty[CodeFence],
+          Seq.empty[CodeFence | RunnableCodeFence],
           Seq.empty[CodeFence]
         )
       ) {
@@ -224,9 +230,8 @@ def partsToExamples(
                   .getMdocMode
                   .contains("runzio") =>
               (
-                acc._1 :+ codeFence,
-                acc._2,
-                acc._3
+                acc._1 :+ runnableCodeFence(codeFence, acc._1),
+                acc._2
               )
             case codeFence: CodeFence
                 if codeFence
@@ -234,8 +239,7 @@ def partsToExamples(
                   .contains("testzio") =>
               (
                 acc._1,
-                acc._2 :+ codeFence,
-                acc._3
+                acc._2 :+ codeFence
               )
             case codeFence: CodeFence
                 if codeFence
@@ -253,49 +257,39 @@ def partsToExamples(
                       "mdoc:compile-only"
                     ) =>
               (
-                acc._1,
-                acc._2,
-                acc._3 :+ codeFence
+                acc._1 :+ codeFence,
+                acc._2
               )
             case _ =>
-              (acc._1, acc._2, acc._3)
+              (acc._1, acc._2)
       }
 
-  // todo: this approach loses the ordering of
-  // the original
   val runCode =
-    if runParts.isEmpty then
+    if mainParts.isEmpty then
       ""
     else
       // todo: sandbox so otherParts across
       // chapters do not conflict
-      val otherPartsCode =
-        otherParts
-          .map(_.body.value)
-          .mkString("\n\n")
+      mainParts.map:
+        case rcf: RunnableCodeFence =>
+          val body =
+            rcf.codeFence
+              .newBody
+              .getOrElse(rcf.codeFence.body.value)
+          val indented =
+            body
+              .linesIterator
+              .map("  " + _)
+              .mkString("\n")
+          s"""object Chapter${baseName}_${rcf.num} extends ZIOAppDefault:
+             |$indented
+             |""".stripMargin
 
-      runParts
-        .zipWithIndex
-        .map {
-          (part, num) =>
-            val body =
-              part
-                .newBody
-                .getOrElse(part.body.value)
-            val indented =
-              body
-                .linesIterator
-                .map("  " + _)
-                .mkString("\n")
-            s"""object Example${baseName}_$num extends ZIOAppDefault:
-           |$indented
-           |""".stripMargin
-        }
-        .mkString(
+        case codeFence: CodeFence =>
+          codeFence.body.value
+      .mkString(
           s"""import zio.*
          |import zio.direct.*
-         |
-         |$otherPartsCode
          |
          |""".stripMargin,
           "\n\n",
@@ -319,7 +313,7 @@ def partsToExamples(
                 .linesIterator
                 .map("  " + _)
                 .mkString("\n")
-            s"""object Example${baseName}_${num} extends ZIOSpecDefault:
+            s"""object Chapter${baseName}_$num extends ZIOSpecDefault:
                |$indented
                |""".stripMargin
         }
@@ -482,24 +476,24 @@ def processFile(
         .replace(".md", "")
 
     // todo: filter mdoc:fails
-    val (runParts, testParts) =
+    val (mainParts, testParts) =
       partsToExamples(withoutRunnable, baseName)
 
     // todo: the code fences remain scala
     // mdoc:runzio and not sure if that is a
     // problem for leanpub
     val runOut =
-      Option.when(runParts.nonEmpty):
+      Option.when(mainParts.nonEmpty):
         val mainFile =
           examplesDir.resolve(
-            s"src/main/scala/Example$baseName.scala"
+            s"src/main/scala/Chapter$baseName.scala"
           )
         Files.createDirectories(
           mainFile.toNIO.getParent
         )
         Files.write(
           mainFile.toNIO,
-          runParts.getBytes(
+          mainParts.getBytes(
             mainSettings.settings.charset
           )
         )
@@ -509,7 +503,7 @@ def processFile(
       Option.when(testParts.nonEmpty):
         val testFile =
           examplesDir.resolve(
-            s"src/test/scala/Example${baseName}Spec.scala"
+            s"src/test/scala/Chapter${baseName}Spec.scala"
           )
         Files.createDirectories(
           testFile.toNIO.getParent
@@ -546,9 +540,10 @@ def fileChange(
   if event.path().toString.endsWith(".md") &&
     needsUpdate
   then
-    println("Processing:")
     println(
-      "  " + inputFile.inputFile.toRelative
+      s"""Processing:
+        |  ${inputFile.inputFile.toRelative}
+        |""".stripMargin
     )
 
     processFile(

@@ -3,6 +3,7 @@ package mdoc
 import mdoc.internal.cli.InputFile
 import mdoc.internal.markdown.MarkdownFile
 
+import java.nio.file.Files
 import scala.meta.Input
 import scala.meta.io.AbsolutePath
 
@@ -202,5 +203,68 @@ object MainSpec extends ZIOSpecDefault:
           outString.contains(
             "// \u001B[32m+\u001B[0m foo"
           )
+      +
+      test("ordering"):
+        val newIn = Files.createTempDirectory("chapters")
+
+        val mainSettings =
+          MainSettings()
+            .withIn(newIn)
+
+        val newSettings =
+          mainSettings
+            .settings
+            .copy(postModifiers =
+              List(
+                RunZIOPostModifier(),
+                TestZIOPostModifier()
+              )
+            )
+
+        val source =
+          """```scala mdoc:invisible
+            |val foo = "foo"
+            |```
+            |
+            |```scala mdoc:runzio
+            |def run = ZIO.debug(foo)
+            |```
+            |
+            |```scala mdoc:silent
+            |val asdf = "asdf"
+            |```
+            |
+            |```scala mdoc:runzio
+            |def run = ZIO.debug(asdf)
+            |```
+            |""".stripMargin
+
+        Files.write(newIn.resolve("foo.md"), source.getBytes)
+
+        val inputFile =
+          InputFile.fromRelativeFilename(
+            "foo.md",
+            mainSettings.settings
+          )
+
+        val examplesDir = Files.createTempDirectory("examples")
+
+        val examplesPath = AbsolutePath(examplesDir)
+
+        processFile(
+          inputFile,
+          examplesPath,
+          mainSettings
+        )
+
+        import scala.jdk.CollectionConverters.*
+
+        val exampleSrc = Files.readAllLines(examplesDir.resolve("src/main/scala/Chapterfoo.scala")).asScala
+
+        assertTrue(
+          exampleSrc.indexWhere(_.contains("val foo")) < exampleSrc.indexWhere(_.contains("Chapterfoo_0")) &&
+          exampleSrc.indexWhere(_.contains("Chapterfoo_0")) < exampleSrc.indexWhere(_.contains("val asdf")) &&
+          exampleSrc.indexWhere(_.contains("val asdf")) < exampleSrc.indexWhere(_.contains("Chapterfoo_1"))
+        )
     @@ TestAspect.sequential
 end MainSpec
