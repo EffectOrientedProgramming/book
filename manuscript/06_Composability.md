@@ -142,13 +142,8 @@ def run =
 - Cannot interrupt the code that is producing these values
 
 ```scala
-case class NoRecordsAvailable(topic: String)
-```
-
-
-```scala
 wikiArticle(???): Either[
-  NoRecordsAvailable,
+  Scenario.NoWikiArticleAvailable,
   String
 ]
 ```
@@ -171,7 +166,10 @@ def run =
 def run =
   wikiArticleZ:
     "obscureTopic"
-// Result: NoRecordsAvailable(obscureTopic)
+// TODO Handle long line. 
+// Truncating for now: 
+// Defect: scala.MatchError: obscureTopic (of clas
+// Result: Defect: scala.MatchError: obscureTopic (of cla
 ```
 
 ### AutoCloseable Interop
@@ -205,7 +203,7 @@ def run =
   closeableFileZ
 // Opening file!
 // Closing file!
-// Result: repl.MdocSession$MdocApp$$anon$17@7c7630ec
+// Result: repl.MdocSession$MdocApp$$anon$18@3bc40fe2
 ```
 
 Since that is not terribly useful, let's start calling some methods on our managed file.
@@ -378,14 +376,14 @@ def researchHeadline(scenario: Scenario) =
     .mapError:
       case HeadlineNotAvailable() =>
         "Could not fetch headline"
-      case NoRecordsAvailable(topic) =>
-        s"No records for $topic"
       case NoInterestingTopic() =>
         "No Interesting topic found"
       case AIFailure() =>
         "Error during AI summary"
       case NoSummaryAvailable(topic) =>
         s"No summary available for $topic"
+      case Scenario.NoWikiArticleAvailable() =>
+        "No wiki article available"
 ```
 
 ```scala
@@ -406,6 +404,16 @@ def run =
   researchHeadline:
     Scenario.HeadlineUnavailable
 // Result: Could not fetch headline
+```
+
+```scala
+def run =
+  researchHeadline:
+    Scenario.NoWikiArticleAvailable()
+// Opening file!
+// Searching file for: barn
+// Closing file!
+// Result: No wiki article available
 ```
 
 

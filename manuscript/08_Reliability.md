@@ -207,15 +207,15 @@ def run =
       .timedSecondsDebug:
         "Total time"
       .run
-// Bruce called API [took 0s]
-// Bruce called API [took 0s]
-// Bruce called API [took 0s]
-// James called API [took 0s]
-// James called API [took 0s]
-// James called API [took 0s]
 // Bill called API [took 0s]
 // Bill called API [took 0s]
 // Bill called API [took 0s]
+// James called API [took 0s]
+// James called API [took 0s]
+// James called API [took 0s]
+// Bruce called API [took 0s]
+// Bruce called API [took 0s]
+// Bruce called API [took 0s]
 // Total time [took 2s]
 // Result: List((), (), ())
 ```
@@ -241,10 +241,11 @@ def run =
     DelicateResource.live
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(802)
-// Current requests: : List(30, 802)
-// Current requests: : List(608, 30, 802)
-// Current requests: : List(199, 608, 30, 802)
+// Current requests: : List(823, 617)
+// Current requests: : List(617)
+// Current requests: : List(536, 823, 617)
+// Current requests: : List(174, 536, 823, 617)
+// Current requests: : List(279, 174, 536, 823, 617)
 // Result: Crashed the server!!
 ```
 
@@ -263,11 +264,11 @@ val makeOurBulkhead =
 //     trace = "nl.vroste.rezilience.Bulkhead.make(Bulkhead.scala:80)",
 //     first = Sync(
 //       trace = "nl.vroste.rezilience.Bulkhead.make(Bulkhead.scala:80)",
-//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$3729/0x0000000800ead040@3b4a7ad9
+//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$3669/0x0000000800ec1c40@7c0b789
 //     ),
-//     successK = zio.Queue$$$Lambda$5056/0x0000000801276040@11094658
+//     successK = zio.Queue$$$Lambda$5587/0x0000000801417040@463c614b
 //   ),
-//   successK = nl.vroste.rezilience.Bulkhead$$$Lambda$5918/0x00000008014c2840@259f8151
+//   successK = nl.vroste.rezilience.Bulkhead$$$Lambda$6074/0x0000000801554040@6a297871
 // )
 ```
 
@@ -292,16 +293,16 @@ def run =
     DelicateResource.live
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(980)
-// Current requests: : List(869, 980)
-// Current requests: : List(33, 869, 980)
-// Current requests: : List(795)
-// Current requests: : List(225, 795)
-// Current requests: : List(224, 225, 795)
-// Current requests: : List(581)
-// Current requests: : List(523, 581)
-// Current requests: : List(371, 523, 581)
-// Current requests: : List(631)
+// Current requests: : List(67)
+// Current requests: : List(506, 67)
+// Current requests: : List(895, 506, 67)
+// Current requests: : List(267)
+// Current requests: : List(90, 267)
+// Current requests: : List(447, 90, 267)
+// Current requests: : List(437)
+// Current requests: : List(712, 437)
+// Current requests: : List(218, 712, 437)
+// Current requests: : List(509)
 // Result: All Requests Succeeded
 ```
 
