@@ -69,14 +69,13 @@ By wrapping this in `ZIO.from`, it will:
 - Give us the ability to customize the error type
 
 ```scala
-case class HeadlineNotAvailable()
 def getHeadlineZ(scenario: Scenario) =
   ZIO
     .from:
       getHeadLine(scenario)
     .mapError:
       case _: Throwable =>
-        HeadlineNotAvailable()
+        Scenario.HeadlineNotAvailable()
 ```
 
 ```scala
@@ -88,7 +87,7 @@ Now let's confirm the behavior when the headline is not available.
 
 ```scala
 def run =
-  getHeadlineZ(Scenario.HeadlineUnavailable)
+  getHeadlineZ(Scenario.HeadlineNotAvailable())
 // Result: HeadlineNotAvailable()
 ```
 
@@ -112,14 +111,13 @@ If you want to treat the case of a missing value as an error, you can again use 
 ZIO will convert `None` into a generic error type, giving you the opportunity to define a more specific error type.
 
 ```scala
-case class NoInterestingTopic()
 def topicOfInterestZ(headline: String) =
   ZIO
     .from:
       findTopicOfInterest:
         headline
     .orElseFail:
-      NoInterestingTopic()
+      Scenario.NoInterestingTopic()
 ```
 
 ```scala
@@ -203,7 +201,7 @@ def run =
   closeableFileZ
 // Opening file!
 // Closing file!
-// Result: repl.MdocSession$MdocApp$$anon$19@616bcdcf
+// Result: repl.MdocSession$MdocApp$$anon$19@24a2eef7
 ```
 
 Since that is not terribly useful, let's start calling some methods on our managed file.
@@ -378,9 +376,9 @@ def researchHeadlineRaw(scenario: Scenario) =
 def researchHeadline(scenario: Scenario) =
   researchHeadlineRaw(scenario)
     .mapError:
-      case HeadlineNotAvailable() =>
+      case Scenario.HeadlineNotAvailable() =>
         "Could not fetch headline"
-      case NoInterestingTopic() =>
+      case Scenario.NoInterestingTopic() =>
         "No Interesting topic found"
       case Scenario.AITooSlow() =>
         "Error during AI summary"
@@ -398,15 +396,15 @@ def run =
 // Searching file for: stock market
 // AI summarizing: start
 // AI summarizing: complete
-// Writing to file: market is not rational
+// Interrupt AI!
 // Closing file!
-// Result: market is not rational
+// Result: Error during AI summary
 ```
 
 ```scala
 def run =
   researchHeadline:
-    Scenario.HeadlineUnavailable
+    Scenario.HeadlineNotAvailable()
 // Result: Could not fetch headline
 ```
 
