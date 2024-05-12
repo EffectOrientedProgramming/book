@@ -203,7 +203,7 @@ def run =
   closeableFileZ
 // Opening file!
 // Closing file!
-// Result: repl.MdocSession$MdocApp$$anon$18@3bc40fe2
+// Result: repl.MdocSession$MdocApp$$anon$19@2f89e657
 ```
 
 Since that is not terribly useful, let's start calling some methods on our managed file.
@@ -296,14 +296,14 @@ summarize("some topic"): String
 
 This gets interrupted, although it takes a big performance hit
 ```scala
-case class AIFailure()
-
 def summarizeZ(article: String) =
   ZIO
     .attemptBlockingInterrupt:
       summarize(article)
-    .onInterrupt(ZIO.debug("Interrupted summarize"))
-    .mapError(_ => AIFailure())
+    .onInterrupt:
+      ZIO.debug("Interrupt AI!")
+    .orDie // TODO Confirm we don't care about this case. 
+    .timeoutFail(Scenario.AITooSlow())(50.millis)
 ```
 
 
@@ -378,7 +378,7 @@ def researchHeadline(scenario: Scenario) =
         "Could not fetch headline"
       case NoInterestingTopic() =>
         "No Interesting topic found"
-      case AIFailure() =>
+      case Scenario.AITooSlow() =>
         "Error during AI summary"
       case NoSummaryAvailable(topic) =>
         s"No summary available for $topic"
@@ -394,9 +394,9 @@ def run =
 // Searching file for: stock market
 // AI summarizing: start
 // AI summarizing: complete
-// Writing to file: TODO Summarized content
+// Interrupt AI!
 // Closing file!
-// Result: TODO Summarized content
+// Result: Error during AI summary
 ```
 
 ```scala
@@ -414,6 +414,18 @@ def run =
 // Searching file for: barn
 // Closing file!
 // Result: No wiki article available
+```
+
+```scala
+def run =
+  researchHeadline:
+    Scenario.AITooSlow()
+// Opening file!
+// Searching file for: space
+// AI summarizing: start
+// Interrupt AI!
+// Closing file!
+// Result: Error during AI summary
 ```
 
 
