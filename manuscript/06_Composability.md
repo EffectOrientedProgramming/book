@@ -203,7 +203,7 @@ def run =
   closeableFileZ
 // Opening file!
 // Closing file!
-// Result: repl.MdocSession$MdocApp$$anon$19@74c46129
+// Result: repl.MdocSession$MdocApp$$anon$19@616bcdcf
 ```
 
 Since that is not terribly useful, let's start calling some methods on our managed file.
@@ -398,9 +398,9 @@ def run =
 // Searching file for: stock market
 // AI summarizing: start
 // AI summarizing: complete
-// Interrupt AI!
+// Writing to file: market is not rational
 // Closing file!
-// Result: Error during AI summary
+// Result: market is not rational
 ```
 
 ```scala
