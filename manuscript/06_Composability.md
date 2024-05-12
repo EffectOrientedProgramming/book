@@ -203,7 +203,7 @@ def run =
   closeableFileZ
 // Opening file!
 // Closing file!
-// Result: repl.MdocSession$MdocApp$$anon$19@2f89e657
+// Result: repl.MdocSession$MdocApp$$anon$19@74c46129
 ```
 
 Since that is not terribly useful, let's start calling some methods on our managed file.
@@ -346,13 +346,13 @@ Now that we have all of these well-defined effects, we can wield them in any com
 ```scala
 def researchHeadlineRaw(scenario: Scenario) =
   defer:
-    val headline: String =
+    val headline: String = // Was a Future
       getHeadlineZ(scenario).run
 
-    val topic: String =
-      topicOfInterestZ(headline).run
+    val topic: String = // Was an Option
+      topicOfInterestZ(headline).run 
 
-    val summaryFile: CloseableFile =
+    val summaryFile: CloseableFile = // Was an AutoCloseable
       closeableFileZ.run
 
     val topicIsFresh: Boolean =
@@ -360,13 +360,17 @@ def researchHeadlineRaw(scenario: Scenario) =
         topic
 
     if (topicIsFresh)
-      val wikiArticle =
+      val wikiArticle = // Was an Either
         wikiArticleZ(topic).run
 
-      val summary = summarizeZ(wikiArticle).run
+      val summary =  // Was slow, blocking
+        summarizeZ(wikiArticle).run
+        
+      // Was a Try
       writeToFileZ(summaryFile, summary).run
       summary
     else
+      // Was throwing
       summaryForZ(summaryFile, topic).run
 ```
 

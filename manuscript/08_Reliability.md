@@ -241,10 +241,10 @@ def run =
     DelicateResource.live
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(119)
-// Current requests: : List(139, 119)
-// Current requests: : List(151, 139, 119)
-// Current requests: : List(444, 151, 139, 119)
+// Current requests: : List(81)
+// Current requests: : List(809, 81)
+// Current requests: : List(288, 809, 81)
+// Current requests: : List(877, 288, 809, 81)
 // Result: Crashed the server!!
 ```
 
@@ -263,11 +263,11 @@ val makeOurBulkhead =
 //     trace = "nl.vroste.rezilience.Bulkhead.make(Bulkhead.scala:80)",
 //     first = Sync(
 //       trace = "nl.vroste.rezilience.Bulkhead.make(Bulkhead.scala:80)",
-//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$3684/0x0000000800ec3040@49705505
+//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$3713/0x0000000800eb3840@246e51c1
 //     ),
-//     successK = zio.Queue$$$Lambda$5633/0x000000080143b040@436debb2
+//     successK = zio.Queue$$$Lambda$5661/0x0000000801436840@6c10b0df
 //   ),
-//   successK = nl.vroste.rezilience.Bulkhead$$$Lambda$6112/0x0000000801570840@4366fd1c
+//   successK = nl.vroste.rezilience.Bulkhead$$$Lambda$6141/0x000000080156a840@3dfb223c
 // )
 ```
 
@@ -292,16 +292,16 @@ def run =
     DelicateResource.live
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(69)
-// Current requests: : List(818, 69)
-// Current requests: : List(288, 818, 69)
-// Current requests: : List(928)
-// Current requests: : List(901, 928)
-// Current requests: : List(950, 901, 928)
-// Current requests: : List(194)
-// Current requests: : List(976, 194)
-// Current requests: : List(549, 976, 194)
-// Current requests: : List(888)
+// Current requests: : List(765)
+// Current requests: : List(615, 765)
+// Current requests: : List(220, 615, 765)
+// Current requests: : List(893)
+// Current requests: : List(315, 893)
+// Current requests: : List(338, 315, 893)
+// Current requests: : List(933, 338, 315)
+// Current requests: : List(749, 933)
+// Current requests: : List(637, 749, 933)
+// Current requests: : List(299)
 // Result: All Requests Succeeded
 ```
 
@@ -389,7 +389,7 @@ def run =
     val made =
       numCalls.get.run
     s"Calls prevented: $prevented Calls made: $made"
-// Result: Calls prevented: 75 Calls made: 66
+// Result: Calls prevented: 74 Calls made: 67
 ```
 {{TODO Fix output after `OurClock` changes}}
 Now we see that our code prevented the majority of the doomed calls to the external service.
