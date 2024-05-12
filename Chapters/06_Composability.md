@@ -29,7 +29,8 @@ These concepts and their competing solutions will be expanded on and contrasted 
 ```scala mdoc:invisible
 enum Scenario: // TODO Could these instances _also_ be the error types??
   case StockMarketHeadline
-  case HeadlineUnavailable
+  case HeadlineNotAvailable()
+  case NoInterestingTopic()
   case NoWikiArticleAvailable()
   case AITooSlow()
 ```
@@ -63,7 +64,7 @@ There is a function that returns a Future:
 //  we can leverage that to hit all of the possible paths in AllTheThings.
 def getHeadLine(scenario: Scenario): Future[String] =
   scenario match
-      case Scenario.HeadlineUnavailable =>
+      case Scenario.HeadlineNotAvailable() =>
         Future.failed:
           new Exception("Headline not available")
       case Scenario.StockMarketHeadline => 
@@ -114,14 +115,13 @@ By wrapping this in `ZIO.from`, it will:
 - Give us the ability to customize the error type
 
 ```scala mdoc:silent
-case class HeadlineNotAvailable()
 def getHeadlineZ(scenario: Scenario) =
   ZIO
     .from:
       getHeadLine(scenario)
     .mapError:
       case _: Throwable =>
-        HeadlineNotAvailable()
+        Scenario.HeadlineNotAvailable()
 ```
 
 ```scala mdoc:runzio
@@ -132,7 +132,7 @@ Now let's confirm the behavior when the headline is not available.
 
 ```scala mdoc:runzio
 def run =
-  getHeadlineZ(Scenario.HeadlineUnavailable)
+  getHeadlineZ(Scenario.HeadlineNotAvailable())
 ```
 
 ### Option Interop
@@ -155,14 +155,13 @@ If you want to treat the case of a missing value as an error, you can again use 
 ZIO will convert `None` into a generic error type, giving you the opportunity to define a more specific error type.
 
 ```scala mdoc
-case class NoInterestingTopic()
 def topicOfInterestZ(headline: String) =
   ZIO
     .from:
       findTopicOfInterest:
         headline
     .orElseFail:
-      NoInterestingTopic()
+      Scenario.NoInterestingTopic()
 ```
 
 ```scala mdoc:runzio
@@ -482,9 +481,9 @@ def researchHeadlineRaw(scenario: Scenario) =
 def researchHeadline(scenario: Scenario) =
   researchHeadlineRaw(scenario)
     .mapError:
-      case HeadlineNotAvailable() =>
+      case Scenario.HeadlineNotAvailable() =>
         "Could not fetch headline"
-      case NoInterestingTopic() =>
+      case Scenario.NoInterestingTopic() =>
         "No Interesting topic found"
       case Scenario.AITooSlow() =>
         "Error during AI summary"
@@ -503,7 +502,7 @@ def run =
 ```scala mdoc:runzio
 def run =
   researchHeadline:
-    Scenario.HeadlineUnavailable
+    Scenario.HeadlineNotAvailable()
 ```
 
 ```scala mdoc:runzio
