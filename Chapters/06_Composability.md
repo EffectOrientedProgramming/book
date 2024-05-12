@@ -216,6 +216,7 @@ TODO Decide whether to show nested files example to highlight this weakness
 ```scala mdoc:invisible
 import scala.util.Try
 
+// TODO Different name to make less confusable with AutoCloseable?
 trait CloseableFile extends AutoCloseable:
   // TODO Return existing entry, rather than a
   // raw Boolean?
@@ -374,8 +375,12 @@ def summarize(article: String): String =
   if (article.contains("space")) 
     Thread.sleep(1000)
   
+  
   println("AI summarizing: complete")
-  s"TODO Summarized content"
+  if (article.contains("stock market"))
+     s"market is not rational"
+  else 
+    s"TODO summarize $article"
 ```
 
 
@@ -445,13 +450,13 @@ Now that we have all of these well-defined effects, we can wield them in any com
 ```scala mdoc:silent
 def researchHeadlineRaw(scenario: Scenario) =
   defer:
-    val headline: String =
+    val headline: String = // Was a Future
       getHeadlineZ(scenario).run
 
-    val topic: String =
-      topicOfInterestZ(headline).run
+    val topic: String = // Was an Option
+      topicOfInterestZ(headline).run 
 
-    val summaryFile: CloseableFile =
+    val summaryFile: CloseableFile = // Was an AutoCloseable
       closeableFileZ.run
 
     val topicIsFresh: Boolean =
@@ -459,13 +464,17 @@ def researchHeadlineRaw(scenario: Scenario) =
         topic
 
     if (topicIsFresh)
-      val wikiArticle =
+      val wikiArticle = // Was an Either
         wikiArticleZ(topic).run
 
-      val summary = summarizeZ(wikiArticle).run
+      val summary =  // Was slow, blocking
+        summarizeZ(wikiArticle).run
+        
+      // Was a Try
       writeToFileZ(summaryFile, summary).run
       summary
     else
+      // Was throwing
       summaryForZ(summaryFile, topic).run
 ```
 
@@ -485,7 +494,7 @@ def researchHeadline(scenario: Scenario) =
         "No wiki article available"
 ```
 
-```scala mdoc:runzio
+```scala mdoc:runzio:liveclock
 def run =
   researchHeadline:
     Scenario.StockMarketHeadline
