@@ -27,9 +27,10 @@ These concepts and their competing solutions will be expanded on and contrasted 
 ## Universal Composability with ZIO (All The Thing Example)
 
 ```scala mdoc:invisible
-enum Scenario:
+enum Scenario: // TODO Could these instances _also_ be the error types??
   case StockMarketHeadline
   case HeadlineUnavailable
+  case NoWikiArticleAvailable()
 ```
 
 ZIOs compose in a way that covers all of these concerns.
@@ -60,12 +61,43 @@ There is a function that returns a Future:
 // TODO If we make this function accept the "mock" result and return that, then
 //  we can leverage that to hit all of the possible paths in AllTheThings.
 def getHeadLine(scenario: Scenario): Future[String] =
-  if (scenario == Scenario.StockMarketHeadline)
-    Future.successful("stock market crash!")
-  else
-    Future.failed(
-      new Exception("Headline not available")
-    )
+  scenario match
+      case Scenario.HeadlineUnavailable =>
+        Future.failed:
+          new Exception("Headline not available")
+      case Scenario.StockMarketHeadline => 
+        Future.successful("stock market crash!")
+      case Scenario.NoWikiArticleAvailable() =>
+        Future.successful("Fred built a barn.")
+    
+def findTopicOfInterest(
+    content: String
+): Option[String] =
+  Option.when(content.contains("stock market")):
+    "stock market"
+  .orElse(
+      Option.when(content.contains("space")):
+        "space"
+  )
+  .orElse(
+      Option.when(content.contains("barn")):
+        "barn"
+  )
+  
+import scala.util.Either
+def wikiArticle(
+    topic: String
+): Either[Scenario.NoWikiArticleAvailable, String] =
+  topic match
+    case "stock market" | "space" =>
+      Right:
+        s"detailed history of $topic"
+    
+    case "barn" =>
+      Left:
+        Scenario.NoWikiArticleAvailable()
+//        NoRecordsAvailable:
+//          "obscureTopic"
 ```
 
 ```scala mdoc:compile-only
@@ -110,13 +142,6 @@ It merely indicates that a value might not be available.
 - Execution is not deferred
 - Cannot interrupt the code that is producing these values
 
-```scala mdoc:invisible
-def findTopicOfInterest(
-    content: String
-): Option[String] =
-  Option.when(content.contains("stock market")):
-    "stock market"
-```
 
 ```scala mdoc:silent
 // TODO Discuss colon clashing in this example
@@ -156,28 +181,9 @@ def run =
 - Execution is not deferred
 - Cannot interrupt the code that is producing these values
 
-```scala mdoc
-case class NoRecordsAvailable(topic: String)
-```
-
-```scala mdoc:invisible
-import scala.util.Either
-def wikiArticle(
-    topic: String
-): Either[NoRecordsAvailable, String] =
-  topic match
-    case "stock market" =>
-      Right:
-        s"detailed history of $topic"
-    case "obscureTopic" =>
-      Left:
-        NoRecordsAvailable:
-          "obscureTopic"
-```
-
 ```scala mdoc:compile-only
 wikiArticle(???): Either[
-  NoRecordsAvailable,
+  Scenario.NoWikiArticleAvailable,
   String
 ]
 ```
@@ -229,7 +235,8 @@ def closeableFile() =
     ): Boolean =
       println:
         "Searching file for: " + searchTerm
-      searchTerm == "stock market"
+      searchTerm == "stock market" || searchTerm == "barn"
+      
       
     override def summaryFor(searchTerm: String): String =
       if (searchTerm == "stock market") 
@@ -463,14 +470,14 @@ def researchHeadline(scenario: Scenario) =
     .mapError:
       case HeadlineNotAvailable() =>
         "Could not fetch headline"
-      case NoRecordsAvailable(topic) =>
-        s"No records for $topic"
       case NoInterestingTopic() =>
         "No Interesting topic found"
       case AIFailure() =>
         "Error during AI summary"
       case NoSummaryAvailable(topic) =>
         s"No summary available for $topic"
+      case Scenario.NoWikiArticleAvailable() =>
+        "No wiki article available"
 ```
 
 ```scala mdoc:runzio
@@ -483,6 +490,12 @@ def run =
 def run =
   researchHeadline:
     Scenario.HeadlineUnavailable
+```
+
+```scala mdoc:runzio
+def run =
+  researchHeadline:
+    Scenario.NoWikiArticleAvailable()
 ```
 
 
