@@ -288,7 +288,9 @@ def partsToExamples(
         case codeFence: CodeFence =>
           codeFence.body.value
       .mkString(
-          s"""import zio.*
+          s"""package Chapter$baseName
+         |
+         |import zio.*
          |import zio.direct.*
          |
          |""".stripMargin,
@@ -318,7 +320,9 @@ def partsToExamples(
                |""".stripMargin
         }
         .mkString(
-          s"""import zio.*
+          s"""package Chapter$baseName
+             |
+             |import zio.*
              |import zio.direct.*
              |import zio.test.*
              |
