@@ -31,6 +31,7 @@ enum Scenario: // TODO Could these instances _also_ be the error types??
   case StockMarketHeadline
   case HeadlineUnavailable
   case NoWikiArticleAvailable()
+  case AITooSlow()
 ```
 
 ZIOs compose in a way that covers all of these concerns.
@@ -69,6 +70,8 @@ def getHeadLine(scenario: Scenario): Future[String] =
         Future.successful("stock market crash!")
       case Scenario.NoWikiArticleAvailable() =>
         Future.successful("Fred built a barn.")
+      case Scenario.AITooSlow() =>
+        Future.successful("space is big!")
     
 def findTopicOfInterest(
     content: String
@@ -96,8 +99,6 @@ def wikiArticle(
     case "barn" =>
       Left:
         Scenario.NoWikiArticleAvailable()
-//        NoRecordsAvailable:
-//          "obscureTopic"
 ```
 
 ```scala mdoc:compile-only
@@ -235,20 +236,21 @@ def closeableFile() =
     ): Boolean =
       println:
         "Searching file for: " + searchTerm
-      searchTerm == "stock market" || searchTerm == "barn"
+      searchTerm == "stock market" || searchTerm == "barn" || searchTerm == "space"
       
       
     override def summaryFor(searchTerm: String): String =
       if (searchTerm == "stock market") 
         "stock markets are neat"
+      else if (searchTerm == "space")
+        "space is huge"
       else
         throw Exception(s"No summary available for $searchTerm")
-      
-    
 
     override def write(
         entry: String
-    ): Try[String] =
+    ): Try[String] ={
+      // TODO Properly error for an enum case
       if (entry == "stock market")
         Try(
           throw new Exception(
@@ -261,6 +263,7 @@ def closeableFile() =
           entry :: contents
         Try(entry)
       }
+}
 ```
 
 We have an existing function that produces an `AutoCloseable`.
@@ -368,7 +371,7 @@ TODO Prose about the long-running AI process here
 def summarize(article: String): String =
   println("AI summarizing: start")
   // Represents the AI taking a long time to summarize the content
-  if (!article.contains("stock market")) 
+  if (article.contains("space")) 
     Thread.sleep(1000)
   
   println("AI summarizing: complete")
@@ -383,14 +386,16 @@ summarize("some topic"): String
 
 This gets interrupted, although it takes a big performance hit
 ```scala mdoc
-case class AIFailure()
 
 def summarizeZ(article: String) =
   ZIO
     .attemptBlockingInterrupt:
       summarize(article)
-    .onInterrupt(ZIO.debug("Interrupted summarize"))
-    .mapError(_ => AIFailure())
+    .onInterrupt:
+      ZIO.debug("Interrupt AI!")
+    .orDie // TODO Confirm we don't care about this case. 
+    .timeoutFail(Scenario.AITooSlow())(50.millis)
+      
 ```
 
 
@@ -472,7 +477,7 @@ def researchHeadline(scenario: Scenario) =
         "Could not fetch headline"
       case NoInterestingTopic() =>
         "No Interesting topic found"
-      case AIFailure() =>
+      case Scenario.AITooSlow() =>
         "Error during AI summary"
       case NoSummaryAvailable(topic) =>
         s"No summary available for $topic"
@@ -496,6 +501,12 @@ def run =
 def run =
   researchHeadline:
     Scenario.NoWikiArticleAvailable()
+```
+
+```scala mdoc:runzio
+def run =
+  researchHeadline:
+    Scenario.AITooSlow()
 ```
 
 
