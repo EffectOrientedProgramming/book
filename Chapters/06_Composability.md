@@ -236,7 +236,7 @@ def closeableFile() =
     ): Boolean =
       println:
         "Searching file for: " + searchTerm
-      searchTerm == "stock market" || searchTerm == "barn" || searchTerm == "space"
+      searchTerm == "wheel"
       
       
     override def summaryFor(searchTerm: String): String =
@@ -458,11 +458,14 @@ def researchHeadlineRaw(scenario: Scenario) =
     val summaryFile: CloseableFile = // Was an AutoCloseable
       closeableFileZ.run
 
-    val topicIsFresh: Boolean =
+    val knownTopic: Boolean =
       summaryFile.contains:
         topic
 
-    if (topicIsFresh)
+    if (knownTopic)
+      // Was throwing
+      summaryForZ(summaryFile, topic).run
+    else
       val wikiArticle = // Was an Either
         wikiArticleZ(topic).run
 
@@ -472,9 +475,6 @@ def researchHeadlineRaw(scenario: Scenario) =
       // Was a Try
       writeToFileZ(summaryFile, summary).run
       summary
-    else
-      // Was throwing
-      summaryForZ(summaryFile, topic).run
 ```
 
 ```scala mdoc
