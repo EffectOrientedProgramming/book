@@ -44,6 +44,13 @@ When writing substantial, complex applications
   
 ZIO provides conversion methods that take these limited data types and turn them into its single, universally composable type.
 
+### Existing Code
+
+We will utilize several pre-defined functions that leverage less-complete effect alternatives.
+
+```scala mdoc:invisible
+```
+
 ### Future interop
 
 ```scala mdoc
