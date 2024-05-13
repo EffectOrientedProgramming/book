@@ -49,25 +49,7 @@ ZIO provides conversion methods that take these limited data types and turn them
 We will utilize several pre-defined functions that leverage less-complete effect alternatives.
 
 ```scala mdoc:invisible
-```
-
-### Future interop
-
-```scala mdoc
 import scala.concurrent.Future
-```
-
-The original asynchronous datatype in Scala has several undesirable characteristics:
-
-- Cleanup is not guaranteed
-- Start executing immediately
-- Must all fail with Exception
-- Needs `ExecutionContext`s passed everywhere
-
-
-There is a function that returns a Future:
-
-```scala mdoc:invisible
 // TODO If we make this function accept the "mock" result and return that, then
 //  we can leverage that to hit all of the possible paths in AllTheThings.
 def getHeadLine(scenario: Scenario): Future[String] =
@@ -115,6 +97,24 @@ def wikiArticle(
       Left:
         Scenario.NoWikiArticleAvailable()
 ```
+
+```
+
+### Future interop
+
+```scala mdoc
+import scala.concurrent.Future
+```
+
+The original asynchronous datatype in Scala has several undesirable characteristics:
+
+- Cleanup is not guaranteed
+- Start executing immediately
+- Must all fail with Exception
+- Needs `ExecutionContext`s passed everywhere
+
+
+There is a function that returns a Future:
 
 ```scala mdoc:compile-only
 getHeadLine(???): Future[String]
