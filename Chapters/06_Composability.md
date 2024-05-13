@@ -88,6 +88,7 @@ import scala.util.Either
 def wikiArticle(
     topic: String
 ): Either[Scenario.NoWikiArticleAvailable, String] =
+  println(s"Wiki - articleFor $topic")
   topic match
     case "stock market" | "space" =>
       Right:
@@ -241,21 +242,22 @@ def closeableFile() =
   new CloseableFile:
     var contents: List[String] =
       List("Medical Breakthrough!")
-    println("Opening file!")
+    println("File - OPEN")
     override def close =
-      println("Closing file!")
+      println("File - CLOSE")
 
     override def contains(
         searchTerm: String
     ): Boolean =
       println:
-        "Searching file for: " + searchTerm
+        s"File - contains($searchTerm)"
       searchTerm match
         case "wheel" | "unicode" => true
         case _ => false
       
       
     override def summaryFor(searchTerm: String): String ={
+      println(s"File - summaryFor($searchTerm)")
       if (searchTerm == "unicode")
         throw Exception(s"No summary available for $searchTerm")
       else if (searchTerm == "stock market") 
@@ -277,7 +279,7 @@ def closeableFile() =
           )
         )
       else {
-        println("Writing to file: " + entry)
+        println("File - write: " + entry)
         contents =
           entry :: contents
         Try(entry)
@@ -388,13 +390,12 @@ TODO Decide example functionality
 TODO Prose about the long-running AI process here
 ```scala mdoc:invisible
 def summarize(article: String): String =
-  println("AI summarizing: start")
+  println(s"AI - summarize - start")
   // Represents the AI taking a long time to summarize the content
   if (article.contains("space")) 
     Thread.sleep(1000)
   
-  
-  println("AI summarizing: complete")
+  println(s"AI - summarize - end")
   if (article.contains("stock market"))
      s"market is not rational"
   else 
@@ -415,7 +416,7 @@ def summarizeZ(article: String) =
     .attemptBlockingInterrupt:
       summarize(article)
     .onInterrupt:
-      ZIO.debug("Interrupt AI!")
+      ZIO.debug("AI **INTERRUPTED**")
     .orDie // TODO Confirm we don't care about this case. 
     .timeoutFail(Scenario.AITooSlow())(50.millis)
       
