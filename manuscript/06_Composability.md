@@ -39,9 +39,17 @@ When writing substantial, complex applications
   
 ZIO provides conversion methods that take these limited data types and turn them into its single, universally composable type.
 
+### Existing Code
+
+We will utilize several pre-defined functions that leverage less-complete effect alternatives.
+
+
+```
+
+
 ### Future interop
 
-```scala
+```scala mdoc
 import scala.concurrent.Future
 ```
 
@@ -54,7 +62,6 @@ The original asynchronous datatype in Scala has several undesirable characterist
 
 
 There is a function that returns a Future:
-
 
 ```scala
 getHeadLine(???): Future[String]
@@ -157,6 +164,7 @@ def wikiArticleZ(topic: String) =
 def run =
   wikiArticleZ:
     "stock market"
+// Wiki - articleFor stock market
 // Result: detailed history of stock market
 ```
 
@@ -164,6 +172,7 @@ def run =
 def run =
   wikiArticleZ:
     "obscureTopic"
+// Wiki - articleFor obscureTopic
 // TODO Handle long line. 
 // Truncating for now: 
 // Defect: scala.MatchError: obscureTopic (of clas
@@ -199,9 +208,9 @@ In the simplest case, we open and close the file, with no logic while it is open
 ```scala
 def run =
   closeableFileZ
-// Opening file!
-// Closing file!
-// Result: repl.MdocSession$MdocApp$$anon$19@2d2d7f93
+// File - OPEN
+// File - CLOSE
+// Result: repl.MdocSession$MdocApp$$anon$19@5e11fe5c
 ```
 
 Since that is not terribly useful, let's start calling some methods on our managed file.
@@ -218,9 +227,9 @@ def run =
       closeableFileZ.run
     file.contains:
       "topicOfInterest"
-// Opening file!
-// Searching file for: topicOfInterest
-// Closing file!
+// File - OPEN
+// File - contains(topicOfInterest)
+// File - CLOSE
 // Result: false
 ```
 
@@ -246,9 +255,9 @@ def run =
     val file =
       closeableFileZ.run
     writeToFileZ(file, "New data on topic").run
-// Opening file!
-// Writing to file: New data on topic
-// Closing file!
+// File - OPEN
+// File - write: New data on topic
+// File - CLOSE
 // Result: New data on topic
 ```
 
@@ -299,7 +308,7 @@ def summarizeZ(article: String) =
     .attemptBlockingInterrupt:
       summarize(article)
     .onInterrupt:
-      ZIO.debug("Interrupt AI!")
+      ZIO.debug("AI **INTERRUPTED**")
     .orDie // TODO Confirm we don't care about this case. 
     .timeoutFail(Scenario.AITooSlow())(50.millis)
 ```
@@ -373,6 +382,7 @@ def researchHeadlineRaw(scenario: Scenario) =
 ```
 
 ```scala
+// TODO Should the error-handling completeness be shown later?
 def researchHeadline(scenario: Scenario) =
   researchHeadlineRaw(scenario)
     .mapError:
@@ -399,9 +409,10 @@ def run =
 def run =
   researchHeadline:
     Scenario.SummaryReadThrows()
-// Opening file!
-// Searching file for: unicode
-// Closing file!
+// File - OPEN
+// File - contains(unicode)
+// File - summaryFor(unicode)
+// File - CLOSE
 // Result: No summary available for unicode
 ```
 
@@ -409,9 +420,10 @@ def run =
 def run =
   researchHeadline:
     Scenario.NoWikiArticleAvailable()
-// Opening file!
-// Searching file for: barn
-// Closing file!
+// File - OPEN
+// File - contains(barn)
+// Wiki - articleFor barn
+// File - CLOSE
 // Result: No wiki article available
 ```
 
@@ -419,11 +431,11 @@ def run =
 def run =
   researchHeadline:
     Scenario.AITooSlow()
-// Opening file!
-// Searching file for: space
-// AI summarizing: start
-// Interrupt AI!
-// Closing file!
+// File - OPEN
+// File - contains(space)
+// Wiki - articleFor space
+// AI - summarize - start
+// File - CLOSE
 // Result: Error during AI summary
 ```
 
@@ -433,12 +445,13 @@ And finally, we see the longest, successful pathway through our application:
 def run =
   researchHeadline:
     Scenario.StockMarketHeadline()
-// Opening file!
-// Searching file for: stock market
-// AI summarizing: start
-// AI summarizing: complete
-// Writing to file: market is not rational
-// Closing file!
+// File - OPEN
+// File - contains(stock market)
+// Wiki - articleFor stock market
+// AI - summarize - start
+// AI - summarize - end
+// File - write: market is not rational
+// File - CLOSE
 // Result: market is not rational
 ```
 
