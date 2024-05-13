@@ -28,7 +28,7 @@ These concepts and their competing solutions will be expanded on and contrasted 
 
 ```scala mdoc:invisible
 enum Scenario: // TODO Could these instances _also_ be the error types??
-  case StockMarketHeadline
+  case StockMarketHeadline()
   case HeadlineNotAvailable()
   case NoInterestingTopic()
   case NoWikiArticleAvailable()
@@ -68,7 +68,7 @@ def getHeadLine(scenario: Scenario): Future[String] =
       case Scenario.HeadlineNotAvailable() =>
         Future.failed:
           new Exception("Headline not available")
-      case Scenario.StockMarketHeadline => 
+      case Scenario.StockMarketHeadline() => 
         Future.successful("stock market crash!")
       case Scenario.NoWikiArticleAvailable() =>
         Future.successful("Fred built a barn.")
@@ -133,7 +133,7 @@ def getHeadlineZ(scenario: Scenario) =
 
 ```scala mdoc:runzio
 def run =
-  getHeadlineZ(Scenario.StockMarketHeadline)
+  getHeadlineZ(Scenario.StockMarketHeadline())
 ```
 Now let's confirm the behavior when the headline is not available.
 
@@ -505,12 +505,6 @@ def researchHeadline(scenario: Scenario) =
         "No wiki article available"
 ```
 
-```scala mdoc:runzio:liveclock
-def run =
-  researchHeadline:
-    Scenario.StockMarketHeadline
-```
-
 ```scala mdoc:runzio
 def run =
   researchHeadline:
@@ -533,6 +527,14 @@ def run =
 def run =
   researchHeadline:
     Scenario.AITooSlow()
+```
+
+And finally, we see the longest, successful pathway through our application:
+
+```scala mdoc:runzio:liveclock
+def run =
+  researchHeadline:
+    Scenario.StockMarketHeadline()
 ```
 
 
