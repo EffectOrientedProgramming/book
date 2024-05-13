@@ -201,7 +201,7 @@ def run =
   closeableFileZ
 // Opening file!
 // Closing file!
-// Result: repl.MdocSession$MdocApp$$anon$19@36a03b63
+// Result: repl.MdocSession$MdocApp$$anon$20@21243cdb
 ```
 
 Since that is not terribly useful, let's start calling some methods on our managed file.
@@ -406,6 +406,16 @@ def run =
   researchHeadline:
     Scenario.HeadlineNotAvailable()
 // Result: Could not fetch headline
+```
+
+```scala
+def run =
+  researchHeadline:
+    Scenario.SummaryReadThrows()
+// Opening file!
+// Searching file for: unicode
+// Closing file!
+// Result: No summary available for unicode
 ```
 
 ```scala

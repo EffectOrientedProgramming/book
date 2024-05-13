@@ -207,12 +207,12 @@ def run =
       .timedSecondsDebug:
         "Total time"
       .run
-// Bruce called API [took 0s]
-// Bruce called API [took 0s]
-// Bruce called API [took 0s]
 // Bill called API [took 0s]
 // Bill called API [took 0s]
 // Bill called API [took 0s]
+// Bruce called API [took 0s]
+// Bruce called API [took 0s]
+// Bruce called API [took 0s]
 // James called API [took 0s]
 // James called API [took 0s]
 // James called API [took 0s]
@@ -241,10 +241,10 @@ def run =
     DelicateResource.live
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(212)
-// Current requests: : List(646, 212)
-// Current requests: : List(101, 646, 212)
-// Current requests: : List(36, 101, 646, 212)
+// Current requests: : List(300)
+// Current requests: : List(11, 300)
+// Current requests: : List(477, 11, 300)
+// Current requests: : List(266, 477, 11, 300)
 // Result: Crashed the server!!
 ```
 
@@ -263,11 +263,11 @@ val makeOurBulkhead =
 //     trace = "nl.vroste.rezilience.Bulkhead.make(Bulkhead.scala:80)",
 //     first = Sync(
 //       trace = "nl.vroste.rezilience.Bulkhead.make(Bulkhead.scala:80)",
-//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$3418/0x0000000800d80040@43332a36
+//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$3714/0x0000000800ecdc40@63f52b90
 //     ),
-//     successK = zio.Queue$$$Lambda$5606/0x00000008013f9040@1291a1bb
+//     successK = zio.Queue$$$Lambda$5677/0x0000000801451040@3374a4c5
 //   ),
-//   successK = nl.vroste.rezilience.Bulkhead$$$Lambda$6125/0x0000000801530840@11c749e8
+//   successK = nl.vroste.rezilience.Bulkhead$$$Lambda$6162/0x0000000801583040@53ac6af9
 // )
 ```
 
@@ -292,16 +292,16 @@ def run =
     DelicateResource.live
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(586)
-// Current requests: : List(387, 586)
-// Current requests: : List(852, 387, 586)
-// Current requests: : List(271)
-// Current requests: : List(203, 271)
-// Current requests: : List(47, 203, 271)
-// Current requests: : List(164)
-// Current requests: : List(635, 164)
-// Current requests: : List(875, 635, 164)
-// Current requests: : List(275)
+// Current requests: : List(954)
+// Current requests: : List(218, 954)
+// Current requests: : List(162, 218, 954)
+// Current requests: : List(46)
+// Current requests: : List(460, 46)
+// Current requests: : List(653, 460, 46)
+// Current requests: : List(280, 653)
+// Current requests: : List(143, 280)
+// Current requests: : List(479, 143, 280)
+// Current requests: : List(92)
 // Result: All Requests Succeeded
 ```
 
