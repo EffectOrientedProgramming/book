@@ -498,6 +498,7 @@ def researchHeadlineRaw(scenario: Scenario) =
 ```
 
 ```scala mdoc
+// TODO Should the error-handling completeness be shown later?
 def researchHeadline(scenario: Scenario) =
   researchHeadlineRaw(scenario)
     .mapError:
