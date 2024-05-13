@@ -33,6 +33,7 @@ enum Scenario: // TODO Could these instances _also_ be the error types??
   case NoInterestingTopic()
   case NoWikiArticleAvailable()
   case AITooSlow()
+  case SummaryReadThrows()
 ```
 
 ZIOs compose in a way that covers all of these concerns.
@@ -73,6 +74,8 @@ def getHeadLine(scenario: Scenario): Future[String] =
         Future.successful("Fred built a barn.")
       case Scenario.AITooSlow() =>
         Future.successful("space is big!")
+      case Scenario.SummaryReadThrows() =>
+        Future.successful("new unicode released!")
     
 def findTopicOfInterest(
     content: String
@@ -86,6 +89,10 @@ def findTopicOfInterest(
   .orElse(
       Option.when(content.contains("barn")):
         "barn"
+  )
+  .orElse(
+      Option.when(content.contains("unicode")):
+        "unicode"
   )
   
 import scala.util.Either
@@ -236,16 +243,21 @@ def closeableFile() =
     ): Boolean =
       println:
         "Searching file for: " + searchTerm
-      searchTerm == "wheel"
+      searchTerm match
+        case "wheel" | "unicode" => true
+        case _ => false
       
       
-    override def summaryFor(searchTerm: String): String =
-      if (searchTerm == "stock market") 
+    override def summaryFor(searchTerm: String): String ={
+      if (searchTerm == "unicode")
+        throw Exception(s"No summary available for $searchTerm")
+      else if (searchTerm == "stock market") 
         "stock markets are neat"
       else if (searchTerm == "space")
         "space is huge"
       else
-        throw Exception(s"No summary available for $searchTerm")
+        ???
+}
 
     override def write(
         entry: String
@@ -503,6 +515,12 @@ def run =
 def run =
   researchHeadline:
     Scenario.HeadlineNotAvailable()
+```
+
+```scala mdoc:runzio
+def run =
+  researchHeadline:
+    Scenario.SummaryReadThrows()
 ```
 
 ```scala mdoc:runzio
