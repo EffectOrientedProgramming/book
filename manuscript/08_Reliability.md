@@ -210,12 +210,12 @@ def run =
 // Bill called API [took 0s]
 // Bill called API [took 0s]
 // Bill called API [took 0s]
-// Bruce called API [took 0s]
-// Bruce called API [took 0s]
-// Bruce called API [took 0s]
 // James called API [took 0s]
 // James called API [took 0s]
 // James called API [took 0s]
+// Bruce called API [took 0s]
+// Bruce called API [took 0s]
+// Bruce called API [took 0s]
 // Total time [took 2s]
 // Result: List((), (), ())
 ```
@@ -241,10 +241,13 @@ def run =
     DelicateResource.live
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(647)
-// Current requests: : List(428, 647)
-// Current requests: : List(405, 428, 647)
-// Current requests: : List(105, 405, 428, 647)
+// Current requests: : List(753, 532)
+// Current requests: : List(532)
+// Current requests: : List(441, 753, 532)
+// Current requests: : List(184, 441, 753, 532)
+// Current requests: : List(404, 184, 441, 753, 532)
+// Current requests: : List(608, 404, 184, 441, 753, 532)
+// Current requests: : List(753, 608, 404, 184, 441, 753, 532)
 // Result: Crashed the server!!
 ```
 
@@ -263,11 +266,11 @@ val makeOurBulkhead =
 //     trace = "nl.vroste.rezilience.Bulkhead.make(Bulkhead.scala:80)",
 //     first = Sync(
 //       trace = "nl.vroste.rezilience.Bulkhead.make(Bulkhead.scala:80)",
-//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$3409/0x0000000800d66040@1ffda27
+//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$3418/0x0000000800d6f840@2362ef93
 //     ),
-//     successK = zio.Queue$$$Lambda$5581/0x00000008013e1840@420c34dc
+//     successK = zio.Queue$$$Lambda$5561/0x00000008013d9840@38a9533a
 //   ),
-//   successK = nl.vroste.rezilience.Bulkhead$$$Lambda$6118/0x0000000801543840@584baffe
+//   successK = nl.vroste.rezilience.Bulkhead$$$Lambda$6076/0x000000080152f040@4514632e
 // )
 ```
 
@@ -292,16 +295,16 @@ def run =
     DelicateResource.live
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(383)
-// Current requests: : List(413, 383)
-// Current requests: : List(399, 413, 383)
-// Current requests: : List(769)
-// Current requests: : List(940, 769)
-// Current requests: : List(547, 940, 769)
-// Current requests: : List(67, 547, 940)
-// Current requests: : List(376, 67)
-// Current requests: : List(142, 376, 67)
-// Current requests: : List(924)
+// Current requests: : List(380)
+// Current requests: : List(651, 380)
+// Current requests: : List(76, 651, 380)
+// Current requests: : List(529)
+// Current requests: : List(686, 529)
+// Current requests: : List(569, 686, 529)
+// Current requests: : List(97)
+// Current requests: : List(703, 97)
+// Current requests: : List(62, 703, 97)
+// Current requests: : List(827)
 // Result: All Requests Succeeded
 ```
 
@@ -447,8 +450,8 @@ def run =
       .get
       .debug("Contract Breaches")
       .run
-// Contract Breaches: 1
-// Result: 1
+// Contract Breaches: 0
+// Result: 0
 ```
 
 ## Restricting Time

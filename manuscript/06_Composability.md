@@ -445,6 +445,8 @@ def run =
 ```scala
 def run =
   researchHeadline:
+    // TODO Handle inconsistency in this example
+    // AI keeps timing out
     Scenario.DiskFull()
 // File - OPEN
 // File - contains(genome)
