@@ -538,6 +538,8 @@ def run =
 ```scala mdoc:runzio
 def run =
   researchHeadline:
+    // TODO Handle inconsistency in this example
+    // AI keeps timing out
     Scenario.DiskFull()
 ```
 
