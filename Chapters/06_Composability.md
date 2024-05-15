@@ -34,6 +34,7 @@ enum Scenario: // TODO Could these instances _also_ be the error types??
   case NoWikiArticleAvailable()
   case AITooSlow()
   case SummaryReadThrows()
+  case DiskFull()
 ```
 
 ZIOs compose in a way that covers all of these concerns.
@@ -58,39 +59,28 @@ def getHeadLine(scenario: Scenario): Future[String] =
         Future.failed:
           new Exception("Headline not available")
       case Scenario.StockMarketHeadline() => 
-        Future.successful("stock market crash!")
+        Future.successful("stock market rising!")
       case Scenario.NoWikiArticleAvailable() =>
         Future.successful("Fred built a barn.")
       case Scenario.AITooSlow() =>
         Future.successful("space is big!")
       case Scenario.SummaryReadThrows() =>
         Future.successful("new unicode released!")
+      case Scenario.DiskFull() =>
+        Future.successful("human genome sequenced")
     
-def findTopicOfInterest(
-    content: String
-): Option[String] =
-  Option.when(content.contains("stock market")):
-    "stock market"
-  .orElse(
-      Option.when(content.contains("space")):
-        "space"
-  )
-  .orElse(
-      Option.when(content.contains("barn")):
-        "barn"
-  )
-  .orElse(
-      Option.when(content.contains("unicode")):
-        "unicode"
-  )
+def findTopicOfInterest(content: String): Option[String] = {
+  val topics = List("stock market", "space", "barn", "unicode", "genome")
+  topics.find(content.contains)
+}
   
 import scala.util.Either
 def wikiArticle(
     topic: String
 ): Either[Scenario.NoWikiArticleAvailable, String] =
-  println(s"Wiki - articleFor $topic")
+  println(s"Wiki - articleFor($topic)")
   topic match
-    case "stock market" | "space" =>
+    case "stock market" | "space" | "genome" =>
       Right:
         s"detailed history of $topic"
     
@@ -99,7 +89,6 @@ def wikiArticle(
         Scenario.NoWikiArticleAvailable()
 ```
 
-```
 
 ### Future interop
 
@@ -160,8 +149,7 @@ It merely indicates that a value might not be available.
 
 
 ```scala mdoc:silent
-// TODO Discuss colon clashing in this example
-val _: Option[String] =
+val result: Option[String] =
   findTopicOfInterest:
     "content"
 ```
@@ -182,7 +170,7 @@ def topicOfInterestZ(headline: String) =
 ```scala mdoc:runzio
 def run =
   topicOfInterestZ:
-    "stock market crash!"
+    "stock market rising!"
 ```
 
 ```scala mdoc:runzio
@@ -196,11 +184,13 @@ def run =
 - Execution is not deferred
 - Cannot interrupt the code that is producing these values
 
+We have an existing function `wikiArticle` that checks for articles on a topic:
+
 ```scala mdoc:compile-only
-wikiArticle(???): Either[
+val wikiResult: Either[
   Scenario.NoWikiArticleAvailable,
   String
-]
+] = wikiArticle("stock market")
 ```
 
 ```scala mdoc
@@ -219,27 +209,28 @@ def run =
 ```scala mdoc:runzio
 def run =
   wikiArticleZ:
-    "obscureTopic"
+    "barn"
 ```
 
 ### AutoCloseable Interop
 Java/Scala provide the `AutoCloseable` interface for defining finalizer behavior on objects.
 While this is a big improvement over manually managing this in ad-hoc ways, the static scoping of this mechanism makes it clunky to use.
+
 TODO Decide whether to show nested files example to highlight this weakness
 
 ```scala mdoc:invisible
 import scala.util.Try
 
 // TODO Different name to make less confusable with AutoCloseable?
-trait CloseableFile extends AutoCloseable:
+trait File extends AutoCloseable:
   // TODO Return existing entry, rather than a
   // raw Boolean?
   def contains(searchTerm: String): Boolean
   def write(entry: String): Try[String]
   def summaryFor(searchTerm: String): String
 
-def closeableFile() =
-  new CloseableFile:
+def openFile() =
+  new File:
     var contents: List[String] =
       List("Medical Breakthrough!")
     println("File - OPEN")
@@ -271,8 +262,7 @@ def closeableFile() =
     override def write(
         entry: String
     ): Try[String] ={
-      // TODO Properly error for an enum case
-      if (entry == "stock market")
+      if (entry.contains("genome"))
         Try(
           throw new Exception(
             "Stock market already exists!"
@@ -287,10 +277,12 @@ def closeableFile() =
 }
 ```
 
+
 We have an existing function that produces an `AutoCloseable`.
 
 ```scala mdoc:compile-only
-closeableFile(): AutoCloseable
+val file: AutoCloseable =
+  openFile()
 ```
 
 Since `AutoCloseable` is a trait that can be implemented by arbitrary classes, we can't rely on `ZIO.from` to automatically manage this conversion for us.
@@ -300,24 +292,13 @@ In this situation, we should use the explicit `ZIO.fromAutoCloseable` function.
 val closeableFileZ =
   ZIO.fromAutoCloseable:
     ZIO.succeed:
-      closeableFile()
+      openFile()
 ```
 
 Once we do this, the `ZIO` runtime will manage the lifecycle of this object via the `Scope` mechanism.
 TODO Link to docs for this?
-In the simplest case, we open and close the file, with no logic while it is open.
 
-```scala mdoc:runzio
-def run =
-  closeableFileZ
-```
-
-Since that is not terribly useful, let's start calling some methods on our managed file.
-
-
-```scala mdoc:compile-only
-closeableFile().contains("something"): Boolean
-```
+Now we open a `File`, and check if it contains a topic of interest.
 
 ```scala mdoc:runzio
 def run =
@@ -329,19 +310,20 @@ def run =
 ```
 
 ```scala mdoc:compile-only
-closeableFile().write("asdf"): Try[String]
+val writeResult: Try[String] =
+  openFile().write("asdf")
 ```
 
 ```scala mdoc
 def writeToFileZ(
-    file: CloseableFile,
+    file: File,
     content: String
 ) =
   ZIO
     .from:
       file.write:
         content
-    .orDie
+    .mapError( _ => Scenario.DiskFull())
 ```
 
 ```scala mdoc:runzio
@@ -352,16 +334,40 @@ def run =
     writeToFileZ(file, "New data on topic").run
 ```
 
+Now we highlight the difference between the static scoping of `Using` or `ZIO.fromAutoCloseable`.
+
+```scala mdoc:silent
+import scala.util.Using
+import java.io.FileReader
+
+Using(openFile()) { file1 =>
+  Using(openFile()) { file2 =>
+    // TODO Use reader1 and reader2
+  }
+}
+```
+
+
+```scala mdoc:runzio
+def run =
+  defer:
+    val file1 =
+      closeableFileZ.run
+    val file2 =
+      closeableFileZ.run
+```
+
+
 ### Plain functions that throw Exceptions
 
 ```scala mdoc:compile-only
-closeableFile().summaryFor("asdf"): String
+openFile().summaryFor("asdf"): String
 ```
 
 ```scala mdoc
 case class NoSummaryAvailable(topic: String) 
 def summaryForZ(
-    file: CloseableFile,
+    file: File,
     // TODO Consider making a CloseableFileZ
     topic: String
 ) =
@@ -393,13 +399,17 @@ def summarize(article: String): String =
   println(s"AI - summarize - start")
   // Represents the AI taking a long time to summarize the content
   if (article.contains("space")) 
+    // This should go away when our clock is less dumb
+    println("printing because our test clock is insane")
     Thread.sleep(1000)
   
   println(s"AI - summarize - end")
   if (article.contains("stock market"))
      s"market is not rational"
-  else 
-    s"TODO summarize $article"
+  else if (article.contains("genome"))
+    "The human genome is huge!"
+  else
+    ???
 ```
 
 
@@ -467,15 +477,15 @@ The number of combinations is something like:
 Now that we have all of these well-defined effects, we can wield them in any combination and sequence we desire.
 
 ```scala mdoc:silent
-def researchHeadlineRaw(scenario: Scenario) =
+def researchHeadline(scenario: Scenario) =
   defer:
-    val headline: String = // Was a Future
+    val headline: String =
       getHeadlineZ(scenario).run
 
-    val topic: String = // Was an Option
+    val topic: String = 
       topicOfInterestZ(headline).run 
 
-    val summaryFile: CloseableFile = // Was an AutoCloseable
+    val summaryFile: File = 
       closeableFileZ.run
 
     val knownTopic: Boolean =
@@ -483,35 +493,16 @@ def researchHeadlineRaw(scenario: Scenario) =
         topic
 
     if (knownTopic)
-      // Was throwing
       summaryForZ(summaryFile, topic).run
     else
-      val wikiArticle = // Was an Either
+      val wikiArticle: String = 
         wikiArticleZ(topic).run
 
-      val summary =  // Was slow, blocking
+      val summary: String =  
         summarizeZ(wikiArticle).run
         
-      // Was a Try
       writeToFileZ(summaryFile, summary).run
       summary
-```
-
-```scala mdoc
-// TODO Should the error-handling completeness be shown later?
-def researchHeadline(scenario: Scenario) =
-  researchHeadlineRaw(scenario)
-    .mapError:
-      case Scenario.HeadlineNotAvailable() =>
-        "Could not fetch headline"
-      case Scenario.NoInterestingTopic() =>
-        "No Interesting topic found"
-      case Scenario.AITooSlow() =>
-        "Error during AI summary"
-      case NoSummaryAvailable(topic) =>
-        s"No summary available for $topic"
-      case Scenario.NoWikiArticleAvailable() =>
-        "No wiki article available"
 ```
 
 ```scala mdoc:runzio
@@ -536,6 +527,12 @@ def run =
 def run =
   researchHeadline:
     Scenario.AITooSlow()
+```
+
+```scala mdoc:runzio
+def run =
+  researchHeadline:
+    Scenario.DiskFull()
 ```
 
 And finally, we see the longest, successful pathway through our application:
