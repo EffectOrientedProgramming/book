@@ -44,12 +44,10 @@ ZIO provides conversion methods that take these limited data types and turn them
 We will utilize several pre-defined functions that leverage less-complete effect alternatives.
 
 
-```
-
 
 ### Future interop
 
-```scala mdoc
+```scala
 import scala.concurrent.Future
 ```
 
@@ -88,7 +86,7 @@ def getHeadlineZ(scenario: Scenario) =
 ```scala
 def run =
   getHeadlineZ(Scenario.StockMarketHeadline())
-// Result: stock market crash!
+// Result: stock market rising!
 ```
 Now let's confirm the behavior when the headline is not available.
 
@@ -108,8 +106,7 @@ It merely indicates that a value might not be available.
 
 
 ```scala
-// TODO Discuss colon clashing in this example
-val _: Option[String] =
+val result: Option[String] =
   findTopicOfInterest:
     "content"
 ```
@@ -130,7 +127,7 @@ def topicOfInterestZ(headline: String) =
 ```scala
 def run =
   topicOfInterestZ:
-    "stock market crash!"
+    "stock market rising!"
 // Result: stock market
 ```
 
@@ -146,11 +143,13 @@ def run =
 - Execution is not deferred
 - Cannot interrupt the code that is producing these values
 
+We have an existing function `wikiArticle` that checks for articles on a topic:
+
 ```scala
-wikiArticle(???): Either[
+val wikiResult: Either[
   Scenario.NoWikiArticleAvailable,
   String
-]
+] = wikiArticle("stock market")
 ```
 
 ```scala
@@ -164,31 +163,31 @@ def wikiArticleZ(topic: String) =
 def run =
   wikiArticleZ:
     "stock market"
-// Wiki - articleFor stock market
+// Wiki - articleFor(stock market)
 // Result: detailed history of stock market
 ```
 
 ```scala
 def run =
   wikiArticleZ:
-    "obscureTopic"
-// Wiki - articleFor obscureTopic
-// TODO Handle long line. 
-// Truncating for now: 
-// Defect: scala.MatchError: obscureTopic (of clas
-// Result: Defect: scala.MatchError: obscureTopic (of cla
+    "barn"
+// Wiki - articleFor(barn)
+// Result: NoWikiArticleAvailable()
 ```
 
 ### AutoCloseable Interop
 Java/Scala provide the `AutoCloseable` interface for defining finalizer behavior on objects.
 While this is a big improvement over manually managing this in ad-hoc ways, the static scoping of this mechanism makes it clunky to use.
+
 TODO Decide whether to show nested files example to highlight this weakness
+
 
 
 We have an existing function that produces an `AutoCloseable`.
 
 ```scala
-closeableFile(): AutoCloseable
+val file: AutoCloseable =
+  openFile()
 ```
 
 Since `AutoCloseable` is a trait that can be implemented by arbitrary classes, we can't rely on `ZIO.from` to automatically manage this conversion for us.
@@ -198,27 +197,13 @@ In this situation, we should use the explicit `ZIO.fromAutoCloseable` function.
 val closeableFileZ =
   ZIO.fromAutoCloseable:
     ZIO.succeed:
-      closeableFile()
+      openFile()
 ```
 
 Once we do this, the `ZIO` runtime will manage the lifecycle of this object via the `Scope` mechanism.
 TODO Link to docs for this?
-In the simplest case, we open and close the file, with no logic while it is open.
 
-```scala
-def run =
-  closeableFileZ
-// File - OPEN
-// File - CLOSE
-// Result: repl.MdocSession$MdocApp$$anon$19@5e11fe5c
-```
-
-Since that is not terribly useful, let's start calling some methods on our managed file.
-
-
-```scala
-closeableFile().contains("something"): Boolean
-```
+Now we open a `File`, and check if it contains a topic of interest.
 
 ```scala
 def run =
@@ -234,19 +219,20 @@ def run =
 ```
 
 ```scala
-closeableFile().write("asdf"): Try[String]
+val writeResult: Try[String] =
+  openFile().write("asdf")
 ```
 
 ```scala
 def writeToFileZ(
-    file: CloseableFile,
+    file: File,
     content: String
 ) =
   ZIO
     .from:
       file.write:
         content
-    .orDie
+    .mapError( _ => Scenario.DiskFull())
 ```
 
 ```scala
@@ -261,16 +247,45 @@ def run =
 // Result: New data on topic
 ```
 
+Now we highlight the difference between the static scoping of `Using` or `ZIO.fromAutoCloseable`.
+
+```scala
+import scala.util.Using
+import java.io.FileReader
+
+Using(openFile()) { file1 =>
+  Using(openFile()) { file2 =>
+    // TODO Use reader1 and reader2
+  }
+}
+```
+
+
+```scala
+def run =
+  defer:
+    val file1 =
+      closeableFileZ.run
+    val file2 =
+      closeableFileZ.run
+// File - OPEN
+// File - OPEN
+// File - CLOSE
+// File - CLOSE
+// Result: ()
+```
+
+
 ### Plain functions that throw Exceptions
 
 ```scala
-closeableFile().summaryFor("asdf"): String
+openFile().summaryFor("asdf"): String
 ```
 
 ```scala
 case class NoSummaryAvailable(topic: String) 
 def summaryForZ(
-    file: CloseableFile,
+    file: File,
     // TODO Consider making a CloseableFileZ
     topic: String
 ) =
@@ -351,15 +366,15 @@ The number of combinations is something like:
 Now that we have all of these well-defined effects, we can wield them in any combination and sequence we desire.
 
 ```scala
-def researchHeadlineRaw(scenario: Scenario) =
+def researchHeadline(scenario: Scenario) =
   defer:
-    val headline: String = // Was a Future
+    val headline: String =
       getHeadlineZ(scenario).run
 
-    val topic: String = // Was an Option
+    val topic: String = 
       topicOfInterestZ(headline).run 
 
-    val summaryFile: CloseableFile = // Was an AutoCloseable
+    val summaryFile: File = 
       closeableFileZ.run
 
     val knownTopic: Boolean =
@@ -367,42 +382,23 @@ def researchHeadlineRaw(scenario: Scenario) =
         topic
 
     if (knownTopic)
-      // Was throwing
       summaryForZ(summaryFile, topic).run
     else
-      val wikiArticle = // Was an Either
+      val wikiArticle: String = 
         wikiArticleZ(topic).run
 
-      val summary =  // Was slow, blocking
+      val summary: String =  
         summarizeZ(wikiArticle).run
         
-      // Was a Try
       writeToFileZ(summaryFile, summary).run
       summary
-```
-
-```scala
-// TODO Should the error-handling completeness be shown later?
-def researchHeadline(scenario: Scenario) =
-  researchHeadlineRaw(scenario)
-    .mapError:
-      case Scenario.HeadlineNotAvailable() =>
-        "Could not fetch headline"
-      case Scenario.NoInterestingTopic() =>
-        "No Interesting topic found"
-      case Scenario.AITooSlow() =>
-        "Error during AI summary"
-      case NoSummaryAvailable(topic) =>
-        s"No summary available for $topic"
-      case Scenario.NoWikiArticleAvailable() =>
-        "No wiki article available"
 ```
 
 ```scala
 def run =
   researchHeadline:
     Scenario.HeadlineNotAvailable()
-// Result: Could not fetch headline
+// Result: HeadlineNotAvailable()
 ```
 
 ```scala
@@ -413,7 +409,7 @@ def run =
 // File - contains(unicode)
 // File - summaryFor(unicode)
 // File - CLOSE
-// Result: No summary available for unicode
+// Result: NoSummaryAvailable(unicode)
 ```
 
 ```scala
@@ -422,9 +418,9 @@ def run =
     Scenario.NoWikiArticleAvailable()
 // File - OPEN
 // File - contains(barn)
-// Wiki - articleFor barn
+// Wiki - articleFor(barn)
 // File - CLOSE
-// Result: No wiki article available
+// Result: NoWikiArticleAvailable()
 ```
 
 ```scala
@@ -433,10 +429,25 @@ def run =
     Scenario.AITooSlow()
 // File - OPEN
 // File - contains(space)
-// Wiki - articleFor space
+// Wiki - articleFor(space)
 // AI - summarize - start
+// printing because our test clock is insane
+// AI **INTERRUPTED**
 // File - CLOSE
-// Result: Error during AI summary
+// Result: AITooSlow()
+```
+
+```scala
+def run =
+  researchHeadline:
+    Scenario.DiskFull()
+// File - OPEN
+// File - contains(genome)
+// Wiki - articleFor(genome)
+// AI - summarize - start
+// AI - summarize - end
+// File - CLOSE
+// Result: DiskFull()
 ```
 
 And finally, we see the longest, successful pathway through our application:
@@ -447,7 +458,7 @@ def run =
     Scenario.StockMarketHeadline()
 // File - OPEN
 // File - contains(stock market)
-// Wiki - articleFor stock market
+// Wiki - articleFor(stock market)
 // AI - summarize - start
 // AI - summarize - end
 // File - write: market is not rational

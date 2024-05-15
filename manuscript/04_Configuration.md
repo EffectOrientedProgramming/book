@@ -472,17 +472,17 @@ val flipTen =
 def run =
   flipTen
 // Tails
-// Heads
-// Tails
-// Tails
-// Tails
 // Tails
 // Heads
-// Heads
+// Tails
 // Heads
 // Tails
-// Num Heads = 4
-// Result: 4
+// Heads
+// Tails
+// Heads
+// Heads
+// Num Heads = 5
+// Result: 5
 ```
 
 ```scala
@@ -507,7 +507,7 @@ def spec =
 // Heads
 // Num Heads = 10
 // + flips 10 times
-// Result: Summary(1,0,0,,PT0.058452S)
+// Result: Summary(1,0,0,,PT0.059266S)
 ```
 
 ```scala
@@ -568,7 +568,7 @@ def spec =
 // Heads
 // R: Heads
 // + rosencrantzAndGuildensternAreDead finishes
-// Result: Summary(1,0,0,,PT0.032588S)
+// Result: Summary(1,0,0,,PT0.044655S)
 ```
 
 ```scala
@@ -580,18 +580,18 @@ def spec =
   @@ TestAspect.withLiveRandom @@
     TestAspect.flaky(Int.MaxValue)
 // *Performance Begins*
+// Heads
+// R: Heads
+// Heads
+// R: Heads
 // Tails
-// <FAIL> R: Fail(Tails,Stack trace for thread "zio-fiber-937709898":
-// 	at repl.MdocSession.MdocApp.coinToss(<input>:400)
-// 	at repl.MdocSession.MdocApp.rosencrantzCoinToss(<input>:467)
-// 	at repl.MdocSession.MdocApp.rosencrantzAndGuildensternAreDead(<input>:472)
 // ...
 // R: Heads
 // G: ...probability
 // Heads
 // R: Heads
 // + flaky plan
-// Result: Summary(1,0,0,,PT0.049722S)
+// Result: Summary(1,0,0,,PT0.026149S)
 ```
 
 The `Random` Effect uses an injected something which when running the ZIO uses the system's unpredictable random number generator.  In ZIO Test the `Random` Effect uses a different something which can predictably generate "random" numbers.  `TestRandom` provides a way to define what those numbers are.  This example feeds in the `Int`s `1` and `2` so the first time we ask for a random number we get `1` and the second time we get `2`.
@@ -631,7 +631,7 @@ def spec =
       assertCompletes
 // Parsing CSV: ()
 // + batch runs after 24 hours
-// Result: Summary(1,0,0,,PT0.040513S)
+// Result: Summary(1,0,0,,PT0.035209S)
 ```
 
 The `race` is between `nightlyBatch` and `timeTravel`.

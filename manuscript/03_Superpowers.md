@@ -233,7 +233,7 @@ override val bootstrap =
 def run =
   effect5
 // Log: Signup initiated for Morty
-// Result: User saved
+// Result: Please manually provision Morty
 ```
 
 We run the effect again in the `HappyPath` scenario to demonstrate running the Effects in parallel.
@@ -257,7 +257,7 @@ override val bootstrap =
 def run =
   effect6
 // Log: Signup initiated for Morty
-// Result: (PT5.086245156S,User saved)
+// Result: (PT5.051698652S,User saved)
 ```
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.
 
