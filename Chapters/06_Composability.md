@@ -90,7 +90,7 @@ def wikiArticle(
 ```
 
 
-### Future interop
+### Future
 
 ```scala mdoc
 import scala.concurrent.Future
@@ -139,7 +139,7 @@ def run =
   getHeadlineZ(Scenario.HeadlineNotAvailable())
 ```
 
-### Option Interop
+### Option
 `Option` is the simplest of the alternate types you will encounter.
 It does not deal with asynchronicity, error types, or anything else.
 It merely indicates that a value might not be available.
@@ -179,7 +179,7 @@ def run =
     "boring and inane content"
 ```
 
-### Either Interop
+### Either
 
 - Execution is not deferred
 - Cannot interrupt the code that is producing these values
@@ -212,7 +212,7 @@ def run =
     "barn"
 ```
 
-### AutoCloseable Interop
+### AutoCloseable
 Java/Scala provide the `AutoCloseable` interface for defining finalizer behavior on objects.
 While this is a big improvement over manually managing this in ad-hoc ways, the static scoping of this mechanism makes it clunky to use.
 
@@ -309,6 +309,33 @@ def run =
       "topicOfInterest"
 ```
 
+Now we highlight the difference between the static scoping of `Using` or `ZIO.fromAutoCloseable`.
+
+```scala mdoc:silent
+import scala.util.Using
+import java.io.FileReader
+
+Using(openFile()) { file1 =>
+  Using(openFile()) { file2 =>
+    // TODO Use reader1 and reader2
+  }
+}
+```
+
+
+```scala mdoc:runzio
+def run =
+  defer:
+    val file1 =
+      closeableFileZ.run
+    val file2 =
+      closeableFileZ.run
+```
+
+### Try
+We continue using our `File`, but now we write to it.
+The existing API uses a `Try` to indicate success or failure.
+
 ```scala mdoc:compile-only
 val writeResult: Try[String] =
   openFile().write("asdf")
@@ -334,31 +361,9 @@ def run =
     writeToFileZ(file, "New data on topic").run
 ```
 
-Now we highlight the difference between the static scoping of `Using` or `ZIO.fromAutoCloseable`.
-
-```scala mdoc:silent
-import scala.util.Using
-import java.io.FileReader
-
-Using(openFile()) { file1 =>
-  Using(openFile()) { file2 =>
-    // TODO Use reader1 and reader2
-  }
-}
-```
 
 
-```scala mdoc:runzio
-def run =
-  defer:
-    val file1 =
-      closeableFileZ.run
-    val file2 =
-      closeableFileZ.run
-```
-
-
-### Plain functions that throw Exceptions
+### Functions that throw
 
 ```scala mdoc:compile-only
 openFile().summaryFor("asdf"): String
@@ -389,7 +394,8 @@ Downsides:
 - Cannot attach behavior to deferred functions
 - do not put in place a contract
 
-### Plain blocking functions
+### Slow, blocking functions
+
 TODO Decide example functionality
 - AI analysis of news content?
 
