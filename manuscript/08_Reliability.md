@@ -210,12 +210,12 @@ def run =
 // Bill called API [took 0s]
 // Bill called API [took 0s]
 // Bill called API [took 0s]
-// James called API [took 0s]
-// James called API [took 0s]
-// James called API [took 0s]
 // Bruce called API [took 0s]
 // Bruce called API [took 0s]
 // Bruce called API [took 0s]
+// James called API [took 0s]
+// James called API [took 0s]
+// James called API [took 0s]
 // Total time [took 2s]
 // Result: List((), (), ())
 ```
@@ -241,10 +241,10 @@ def run =
     DelicateResource.live
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(71)
-// Current requests: : List(194, 71)
-// Current requests: : List(481, 194, 71)
-// Current requests: : List(80, 481, 194, 71)
+// Current requests: : List(647)
+// Current requests: : List(428, 647)
+// Current requests: : List(405, 428, 647)
+// Current requests: : List(105, 405, 428, 647)
 // Result: Crashed the server!!
 ```
 
@@ -263,11 +263,11 @@ val makeOurBulkhead =
 //     trace = "nl.vroste.rezilience.Bulkhead.make(Bulkhead.scala:80)",
 //     first = Sync(
 //       trace = "nl.vroste.rezilience.Bulkhead.make(Bulkhead.scala:80)",
-//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$3434/0x0000000800d6cc40@67ce53e2
+//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$3409/0x0000000800d66040@1ffda27
 //     ),
-//     successK = zio.Queue$$$Lambda$5565/0x00000008013d0040@33708f10
+//     successK = zio.Queue$$$Lambda$5581/0x00000008013e1840@420c34dc
 //   ),
-//   successK = nl.vroste.rezilience.Bulkhead$$$Lambda$6049/0x0000000801504840@331094a3
+//   successK = nl.vroste.rezilience.Bulkhead$$$Lambda$6118/0x0000000801543840@584baffe
 // )
 ```
 
@@ -292,16 +292,16 @@ def run =
     DelicateResource.live
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(556)
-// Current requests: : List(339, 556)
-// Current requests: : List(504, 339, 556)
-// Current requests: : List(598)
-// Current requests: : List(316, 598)
-// Current requests: : List(232, 316, 598)
-// Current requests: : List(433, 232)
-// Current requests: : List(403, 433, 232)
-// Current requests: : List(706, 403, 433)
-// Current requests: : List(358)
+// Current requests: : List(383)
+// Current requests: : List(413, 383)
+// Current requests: : List(399, 413, 383)
+// Current requests: : List(769)
+// Current requests: : List(940, 769)
+// Current requests: : List(547, 940, 769)
+// Current requests: : List(67, 547, 940)
+// Current requests: : List(376, 67)
+// Current requests: : List(142, 376, 67)
+// Current requests: : List(924)
 // Result: All Requests Succeeded
 ```
 
@@ -389,7 +389,7 @@ def run =
     val made =
       numCalls.get.run
     s"Calls prevented: $prevented Calls made: $made"
-// Result: Calls prevented: 75 Calls made: 66
+// Result: Calls prevented: 74 Calls made: 67
 ```
 {{TODO Fix output after `OurClock` changes}}
 Now we see that our code prevented the majority of the doomed calls to the external service.
@@ -447,8 +447,8 @@ def run =
       .get
       .debug("Contract Breaches")
       .run
-// Contract Breaches: 0
-// Result: 0
+// Contract Breaches: 1
+// Result: 1
 ```
 
 ## Restricting Time

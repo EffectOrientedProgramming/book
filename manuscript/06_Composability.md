@@ -45,7 +45,7 @@ We will utilize several pre-defined functions that leverage less-complete effect
 
 
 
-### Future interop
+### Future
 
 ```scala
 import scala.concurrent.Future
@@ -96,7 +96,7 @@ def run =
 // Result: HeadlineNotAvailable()
 ```
 
-### Option Interop
+### Option
 `Option` is the simplest of the alternate types you will encounter.
 It does not deal with asynchronicity, error types, or anything else.
 It merely indicates that a value might not be available.
@@ -138,7 +138,7 @@ def run =
 // Result: NoInterestingTopic()
 ```
 
-### Either Interop
+### Either
 
 - Execution is not deferred
 - Cannot interrupt the code that is producing these values
@@ -175,7 +175,7 @@ def run =
 // Result: NoWikiArticleAvailable()
 ```
 
-### AutoCloseable Interop
+### AutoCloseable
 Java/Scala provide the `AutoCloseable` interface for defining finalizer behavior on objects.
 While this is a big improvement over manually managing this in ad-hoc ways, the static scoping of this mechanism makes it clunky to use.
 
@@ -218,6 +218,38 @@ def run =
 // Result: false
 ```
 
+Now we highlight the difference between the static scoping of `Using` or `ZIO.fromAutoCloseable`.
+
+```scala
+import scala.util.Using
+import java.io.FileReader
+
+Using(openFile()) { file1 =>
+  Using(openFile()) { file2 =>
+    // TODO Use reader1 and reader2
+  }
+}
+```
+
+
+```scala
+def run =
+  defer:
+    val file1 =
+      closeableFileZ.run
+    val file2 =
+      closeableFileZ.run
+// File - OPEN
+// File - OPEN
+// File - CLOSE
+// File - CLOSE
+// Result: ()
+```
+
+### Try
+We continue using our `File`, but now we write to it.
+The existing API uses a `Try` to indicate success or failure.
+
 ```scala
 val writeResult: Try[String] =
   openFile().write("asdf")
@@ -247,36 +279,9 @@ def run =
 // Result: New data on topic
 ```
 
-Now we highlight the difference between the static scoping of `Using` or `ZIO.fromAutoCloseable`.
-
-```scala
-import scala.util.Using
-import java.io.FileReader
-
-Using(openFile()) { file1 =>
-  Using(openFile()) { file2 =>
-    // TODO Use reader1 and reader2
-  }
-}
-```
 
 
-```scala
-def run =
-  defer:
-    val file1 =
-      closeableFileZ.run
-    val file2 =
-      closeableFileZ.run
-// File - OPEN
-// File - OPEN
-// File - CLOSE
-// File - CLOSE
-// Result: ()
-```
-
-
-### Plain functions that throw Exceptions
+### Functions that throw
 
 ```scala
 openFile().summaryFor("asdf"): String
@@ -304,7 +309,8 @@ Downsides:
 - Cannot attach behavior to deferred functions
 - do not put in place a contract
 
-### Plain blocking functions
+### Slow, blocking functions
+
 TODO Decide example functionality
 - AI analysis of news content?
 
@@ -432,7 +438,6 @@ def run =
 // Wiki - articleFor(space)
 // AI - summarize - start
 // printing because our test clock is insane
-// AI **INTERRUPTED**
 // File - CLOSE
 // Result: AITooSlow()
 ```
@@ -447,7 +452,7 @@ def run =
 // AI - summarize - start
 // AI - summarize - end
 // File - CLOSE
-// Result: DiskFull()
+// Result: AITooSlow()
 ```
 
 And finally, we see the longest, successful pathway through our application:
