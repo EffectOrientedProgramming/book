@@ -439,6 +439,9 @@ An example of this is Random numbers.  Randomness is inherently unpredictable.  
 
 ```scala
 val coinToss =
+  // TODO: This is the first place we use defer.
+  // We need to deliberately, and explicitly,
+  // introduce it.
   defer:
     if Random.nextBoolean.run then
       ZIO.debug("Heads").run
@@ -472,17 +475,17 @@ val flipTen =
 def run =
   flipTen
 // Tails
-// Heads
-// Tails
 // Tails
 // Heads
-// Tails
-// Tails
 // Heads
 // Tails
+// Heads
+// Heads
 // Tails
-// Num Heads = 3
-// Result: 3
+// Heads
+// Heads
+// Num Heads = 6
+// Result: 6
 ```
 
 ```scala
@@ -507,7 +510,7 @@ def spec =
 // Heads
 // Num Heads = 10
 // + flips 10 times
-// Result: Summary(1,0,0,,PT0.074199S)
+// Result: Summary(1,0,0,,PT0.044246S)
 ```
 
 ```scala
@@ -568,7 +571,7 @@ def spec =
 // Heads
 // R: Heads
 // + rosencrantzAndGuildensternAreDead finishes
-// Result: Summary(1,0,0,,PT0.050097S)
+// Result: Summary(1,0,0,,PT0.037646S)
 ```
 
 ```scala
@@ -583,15 +586,15 @@ def spec =
 // Heads
 // R: Heads
 // Tails
-// <FAIL> R: Fail(Tails,Stack trace for thread "zio-fiber-1851810409":
-// 	at repl.MdocSession.MdocApp.coinToss(<input>:400)
+// <FAIL> R: Fail(Tails,Stack trace for thread "zio-fiber-13649844":
+// 	at repl.MdocSession.MdocApp.coinToss(<input>:403)
 // ...
 // R: Heads
 // G: ...probability
 // Heads
 // R: Heads
 // + flaky plan
-// Result: Summary(1,0,0,,PT0.027066S)
+// Result: Summary(1,0,0,,PT0.030302S)
 ```
 
 The `Random` Effect uses an injected something which when running the ZIO uses the system's unpredictable random number generator.  In ZIO Test the `Random` Effect uses a different something which can predictably generate "random" numbers.  `TestRandom` provides a way to define what those numbers are.  This example feeds in the `Int`s `1` and `2` so the first time we ask for a random number we get `1` and the second time we get `2`.
@@ -631,7 +634,7 @@ def spec =
       assertCompletes
 // Parsing CSV: ()
 // + batch runs after 24 hours
-// Result: Summary(1,0,0,,PT0.039197S)
+// Result: Summary(1,0,0,,PT0.050514S)
 ```
 
 The `race` is between `nightlyBatch` and `timeTravel`.

@@ -149,7 +149,8 @@ We have an existing function `wikiArticle` that checks for articles on a topic:
 val wikiResult: Either[
   Scenario.NoWikiArticleAvailable,
   String
-] = wikiArticle("stock market")
+] =
+  wikiArticle("stock market")
 ```
 
 ```scala
@@ -224,10 +225,12 @@ Now we highlight the difference between the static scoping of `Using` or `ZIO.fr
 import scala.util.Using
 import java.io.FileReader
 
-Using(openFile()) { file1 =>
-  Using(openFile()) { file2 =>
-    // TODO Use reader1 and reader2
-  }
+Using(openFile()) {
+  file1 =>
+    Using(openFile()) {
+      file2 =>
+        // TODO Use reader1 and reader2
+    }
 }
 ```
 
@@ -256,15 +259,14 @@ val writeResult: Try[String] =
 ```
 
 ```scala
-def writeToFileZ(
-    file: File,
-    content: String
-) =
+def writeToFileZ(file: File, content: String) =
   ZIO
     .from:
       file.write:
         content
-    .mapError( _ => Scenario.DiskFull())
+    .mapError(
+      _ => Scenario.DiskFull()
+    )
 ```
 
 ```scala
@@ -288,15 +290,18 @@ openFile().summaryFor("asdf"): String
 ```
 
 ```scala
-case class NoSummaryAvailable(topic: String) 
+case class NoSummaryAvailable(topic: String)
 def summaryForZ(
     file: File,
     // TODO Consider making a CloseableFileZ
     topic: String
 ) =
-  ZIO.attempt:
-    file.summaryFor(topic)
-  .mapError(_ => NoSummaryAvailable(topic))
+  ZIO
+    .attempt:
+      file.summaryFor(topic)
+    .mapError(
+      _ => NoSummaryAvailable(topic)
+    )
 ```
 
 TODO:
@@ -330,7 +335,7 @@ def summarizeZ(article: String) =
       summarize(article)
     .onInterrupt:
       ZIO.debug("AI **INTERRUPTED**")
-    .orDie // TODO Confirm we don't care about this case. 
+    .orDie // TODO Confirm we don't care about this case.
     .timeoutFail(Scenario.AITooSlow())(50.millis)
 ```
 
@@ -377,10 +382,10 @@ def researchHeadline(scenario: Scenario) =
     val headline: String =
       getHeadlineZ(scenario).run
 
-    val topic: String = 
-      topicOfInterestZ(headline).run 
+    val topic: String =
+      topicOfInterestZ(headline).run
 
-    val summaryFile: File = 
+    val summaryFile: File =
       closeableFileZ.run
 
     val knownTopic: Boolean =
@@ -390,12 +395,12 @@ def researchHeadline(scenario: Scenario) =
     if (knownTopic)
       summaryForZ(summaryFile, topic).run
     else
-      val wikiArticle: String = 
+      val wikiArticle: String =
         wikiArticleZ(topic).run
 
-      val summary: String =  
+      val summary: String =
         summarizeZ(wikiArticle).run
-        
+
       writeToFileZ(summaryFile, summary).run
       summary
 ```
@@ -438,6 +443,7 @@ def run =
 // Wiki - articleFor(space)
 // AI - summarize - start
 // printing because our test clock is insane
+// AI **INTERRUPTED**
 // File - CLOSE
 // Result: AITooSlow()
 ```
@@ -491,12 +497,8 @@ contracts are what makes composability work at scale
 our effects put in place contracts on how things can compose
 
 
-is this about surfacing the hidden information through a "bookkeeper" that conveys the
-constraints to the caller
-
-
-
 ### Plain functions that return Unit TODO Incorporate to AllTheThings
+{{TODO Decide if this section is worth keeping. If so, where?}}
 
 `Unit` can be viewed as the bare minimum of effect tracking.
 
@@ -516,27 +518,3 @@ Alternatively, if there are no arguments to the function, then the input is `Uni
 
 Unfortunately, we can't do things like timeout/race/etc these functions. 
 We can either execute them, or not, and that's about it, without resorting to additional tools for manipulating their execution.
-
-
-### CatchAll log example
-For example, to compose a ZIO that can produce an error with a ZIO that logs the error and then produces a default value, you can use the `catchAll` like:
-
-```scala
-// TODO Consider deleting .as
-//   The problem is we can't return literals in zio-direct.
-def logAndProvideDefault(e: Throwable) =
-  Console
-    .printLine:
-      e.getMessage
-    .as:
-      "default value"
-
-def run =
-  ZIO
-    .attempt:
-      ???
-    .catchAll:
-      logAndProvideDefault
-// an implementation is missing
-// Result: default value
-```
