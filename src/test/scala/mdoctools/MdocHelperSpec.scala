@@ -32,174 +32,171 @@ object MdocHelperSpec extends ZIOSpecDefault:
 
         assertCompletes
       +
-      test("ToRun works with an Error result"):
-        class Foo extends ToRun:
-          def run =
-            ZIO.fail("asdf")
+        test("ToRun works with an Error result"):
+          class Foo extends ToRun:
+            def run =
+              ZIO.fail("asdf")
 
-        val myOut =
-          new ByteArrayOutputStream()
-        val myPs =
-          new PrintStream(myOut)
+          val myOut =
+            new ByteArrayOutputStream()
+          val myPs =
+            new PrintStream(myOut)
 
-        scala
-          .Console
-          .withOut(myPs):
-            Foo().runAndPrintOutput()
+          scala
+            .Console
+            .withOut(myPs):
+              Foo().runAndPrintOutput()
 
-        val out =
-          myOut.toString
-        println(out)
-        // TODO Make sure this stops wrapping
-        // in a Failure(...)
-        // Then we can expand the assert to
-        // make sure it doesn't include mdoc
-        // bullshit and other stack traces
-        assertTrue:
-          out == "Result: asdf\n"
-      +
-      test(
-        "ToRun works with a Nothing in Error channel"
-      ):
-        class Foo extends ToRun:
-          def run =
-            ZIO.unit
-        Foo().runAndPrintOutput()
-        assertCompletes
-      +
-      test("ToRun works with needing a Scope"):
-        class Foo extends ToRun:
-          def run =
-            ZIO.scope
-        Foo().runAndPrintOutput()
-        assertCompletes
-      +
-      test("ToRun debug"):
-        // note that ZIO.debug calls
-        // scala.Console.println so it doesn't
-        // use OurConsole
-        class Foo extends ToRun:
-          def run =
-            ZIO.succeed("asdf").debug
-
-        val myOut =
-          new ByteArrayOutputStream()
-        val myPs =
-          new PrintStream(myOut)
-
-        defer:
-          // override the out with one we can
-          // capture
-          val result =
-            scala
-              .Console
-              .withOut(myPs):
-                Foo().runAndPrintOutput()
           val out =
             myOut.toString
+          println(out)
+          // TODO Make sure this stops wrapping
+          // in a Failure(...)
+          // Then we can expand the assert to
+          // make sure it doesn't include mdoc
+          // bullshit and other stack traces
           assertTrue:
-            out.contains("asdf")
-      +
-      test("OurClock is fast"):
-        defer:
-          val out1 =
-            ZIO
-              .sleep(10.seconds)
-              .timed
-              .withClock(mdoctools.OurClock())
-              .run
-          val out2 =
-            ZIO
-              .sleep(100.seconds)
-              .timed
-              .withClock(mdoctools.OurClock())
-              .run
-          assertTrue(
-            out1._1.getSeconds >= 10L &&
-              out1._1.getSeconds <
-              13L, // the first effect has some overhead so we give it some extra room
-            out2._1.getSeconds >= 100L &&
-              out1._1.getSeconds < 101L
-          )
-      // @@ TestAspect.nonFlaky
-      +
-      test("OurClock works with timeouts"):
-        defer:
-          val out =
-            ZIO
-              .sleep(10.seconds)
-              .timeout(1.second)
-              .withClock(mdoctools.OurClock())
-              .run
-          assertTrue(out.isEmpty)
-      +
-      test("OurClock works with long sleeps"):
-        defer:
-          ZIO
-            .sleep(24.hours)
-            .withClock(mdoctools.OurClock())
-            .run
+            out == "Result: asdf\n"
+        +
+        test(
+          "ToRun works with a Nothing in Error channel"
+        ):
+          class Foo extends ToRun:
+            def run =
+              ZIO.unit
+          Foo().runAndPrintOutput()
           assertCompletes
-      @@ TestAspect.timeout(1.second)
-      +
-      test("OurClock can be disabled"):
-        defer:
-          ZIO
-            .sleep(1.second)
-            .withClock(
-              mdoctools.OurClock(useLive =
-                true
+        +
+        test("ToRun works with needing a Scope"):
+          class Foo extends ToRun:
+            def run =
+              ZIO.scope
+          Foo().runAndPrintOutput()
+          assertCompletes
+        +
+        test("ToRun debug"):
+          // note that ZIO.debug calls
+          // scala.Console.println so it doesn't
+          // use OurConsole
+          class Foo extends ToRun:
+            def run =
+              ZIO.succeed("asdf").debug
+
+          val myOut =
+            new ByteArrayOutputStream()
+          val myPs =
+            new PrintStream(myOut)
+
+          defer:
+            // override the out with one we can
+            // capture
+            val result =
+              scala
+                .Console
+                .withOut(myPs):
+                  Foo().runAndPrintOutput()
+            val out =
+              myOut.toString
+            assertTrue:
+              out.contains("asdf")
+        +
+        test("OurClock is fast"):
+          defer:
+            val out1 =
+              ZIO
+                .sleep(10.seconds)
+                .timed
+                .withClock(mdoctools.OurClock())
+                .run
+            val out2 =
+              ZIO
+                .sleep(100.seconds)
+                .timed
+                .withClock(mdoctools.OurClock())
+                .run
+            assertTrue(
+              out1._1.getSeconds >= 10L &&
+                out1._1.getSeconds <
+                13L, // the first effect has some overhead so we give it some extra room
+              out2._1.getSeconds >= 100L &&
+                out1._1.getSeconds < 101L
+            )
+        // @@ TestAspect.nonFlaky
+        +
+        test("OurClock works with timeouts"):
+          defer:
+            val out =
+              ZIO
+                .sleep(10.seconds)
+                .timeout(1.second)
+                .withClock(mdoctools.OurClock())
+                .run
+            assertTrue(out.isEmpty)
+        +
+        test("OurClock works with long sleeps"):
+          defer:
+            ZIO
+              .sleep(24.hours)
+              .withClock(mdoctools.OurClock())
+              .run
+            assertCompletes
+        @@ TestAspect.timeout(1.second) +
+        test("OurClock can be disabled"):
+          defer:
+            ZIO
+              .sleep(1.second)
+              .withClock(
+                mdoctools.OurClock(useLive =
+                  true
+                )
               )
-            )
-            .run
-          assertCompletes
-      @@ TestAspect.nonTermination(1.second)
-      +
-      test("ToRun can disable OurClock"):
-        class Foo
-            extends ToRun(useLiveClock =
-              true
-            ):
-          def run =
-            ZIO.sleep(1.second)
-
-        Foo().runAndPrintOutput()
-
-        assertCompletes
-      @@ TestAspect.nonTermination(1.second)
-      +
-      test("ToTest"):
-        class FooSpec extends mdoctools.ToTest:
-          def spec =
-            test("hello"):
-              defer:
-                Console
-                  .printLine("hello, world")
-                  .run
-                assertCompletes
-
-        val myOut =
-          new ByteArrayOutputStream()
-        val myPs =
-          new PrintStream(myOut)
-
-        defer:
-          // override the out with one we can
-          // capture
-          val result =
-            scala
-              .Console
-              .withOut(myPs):
-                FooSpec().run
               .run
-          val out =
-            myOut.toString
-          assertTrue:
-            result.isInstanceOf[Summary] &&
-            out.contains("hello, world") &&
-            out.contains(
-              "\u001B[32m+\u001B[0m hello"
-            )
+            assertCompletes
+        @@ TestAspect.nonTermination(1.second) +
+        test("ToRun can disable OurClock"):
+          class Foo
+              extends ToRun(useLiveClock =
+                true
+              ):
+            def run =
+              ZIO.sleep(1.second)
+
+          Foo().runAndPrintOutput()
+
+          assertCompletes
+        @@ TestAspect.nonTermination(1.second) +
+        test("ToTest"):
+          class FooSpec extends mdoctools.ToTest:
+            def spec =
+              test("hello"):
+                defer:
+                  Console
+                    .printLine("hello, world")
+                    .run
+                  assertCompletes
+
+          val myOut =
+            new ByteArrayOutputStream()
+          val myPs =
+            new PrintStream(myOut)
+
+          defer:
+            // override the out with one we can
+            // capture
+            val result =
+              scala
+                .Console
+                .withOut(myPs):
+                  FooSpec().run
+                .run
+            val out =
+              myOut.toString
+            assertTrue:
+              result.isInstanceOf[Summary] &&
+              out.contains("hello, world") &&
+              out.contains(
+                "\u001B[32m+\u001B[0m hello"
+              )
     @@ TestAspect.sequential
 end MdocHelperSpec
 //      test(

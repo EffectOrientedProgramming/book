@@ -570,7 +570,8 @@ def run =
   defer:
     val cb =
       makeCircuitBreaker.run
-    // TODO Can we move these Refs into the external system?
+    // TODO Can we move these Refs into the
+    // external system?
     val numCalls =
       Ref.make[Int](0).run
     val numPrevented =
