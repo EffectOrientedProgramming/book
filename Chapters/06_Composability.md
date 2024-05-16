@@ -569,12 +569,8 @@ contracts are what makes composability work at scale
 our effects put in place contracts on how things can compose
 
 
-is this about surfacing the hidden information through a "bookkeeper" that conveys the
-constraints to the caller
-
-
-
 ### Plain functions that return Unit TODO Incorporate to AllTheThings
+{{TODO Decide if this section is worth keeping. If so, where?}}
 
 `Unit` can be viewed as the bare minimum of effect tracking.
 
@@ -594,25 +590,3 @@ Alternatively, if there are no arguments to the function, then the input is `Uni
 
 Unfortunately, we can't do things like timeout/race/etc these functions. 
 We can either execute them, or not, and that's about it, without resorting to additional tools for manipulating their execution.
-
-
-### CatchAll log example
-For example, to compose a ZIO that can produce an error with a ZIO that logs the error and then produces a default value, you can use the `catchAll` like:
-
-```scala mdoc:runzio
-// TODO Consider deleting .as
-//   The problem is we can't return literals in zio-direct.
-def logAndProvideDefault(e: Throwable) =
-  Console
-    .printLine:
-      e.getMessage
-    .as:
-      "default value"
-
-def run =
-  ZIO
-    .attempt:
-      ???
-    .catchAll:
-      logAndProvideDefault
-```

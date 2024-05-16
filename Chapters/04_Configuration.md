@@ -418,6 +418,8 @@ An example of this is Random numbers.  Randomness is inherently unpredictable.  
 
 ```scala mdoc:silent
 val coinToss =
+  // TODO: This is the first place we use defer. 
+  //   We need to deliberately, and explicitly, introduce it.
   defer:
     if Random.nextBoolean.run then
       ZIO.debug("Heads").run
