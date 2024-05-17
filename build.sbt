@@ -9,7 +9,7 @@ initialize := {
   assert(current.get(0).get >= required.get(0).get, s"Java $required or above required")
 }
 
-scalaVersion := "3.4.1"
+scalaVersion := "3.4.2"
 
 // This tells mdoc which folder to analyze
 mdocIn := file("Chapters")
