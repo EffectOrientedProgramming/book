@@ -326,7 +326,7 @@ def run =
 
 Now we highlight the difference between the static scoping of `Using` or `ZIO.fromAutoCloseable`.
 
-```scala mdoc:silent
+```scala mdoc:compile-only
 import scala.util.Using
 import java.io.FileReader
 
