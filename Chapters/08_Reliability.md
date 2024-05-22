@@ -227,7 +227,7 @@ def makeCalls(name: String) =
 Now, we wrap our unrestricted logic with our `RateLimiter`.
 Even though the original code loops as fast the CPU allows, it will now adhere to our limit.
 
-```scala mdoc:runzio:liveclock
+```scala mdoc:runzio
 def run =
   defer:
     val rateLimiter =
@@ -242,7 +242,7 @@ def run =
 Most impressively, we can use the same `RateLimiter` across our application.
 No matter the different users/features trying to hit the same resource, they will all be limited such that the entire application respects the rate limit.
 
-```scala mdoc:runzio:liveclock
+```scala mdoc:runzio
 def run =
   defer:
     val rateLimiter =
@@ -324,7 +324,7 @@ object DelicateResource:
 
 First, we demonstrate the unrestricted behavior:
 
-```scala mdoc:runzio:liveclock
+```scala mdoc:runzio
 def run =
   defer:
     val delicateResource =
@@ -352,7 +352,7 @@ val makeOurBulkhead =
 
 Next, we wrap our original request with this `Bulkhead`.
 
-```scala mdoc:runzio:liveclock
+```scala mdoc:runzio
 def run =
   defer:
     val bulkhead =
@@ -521,7 +521,7 @@ val repeatSchedule =
 
 When unrestrained, the code will let all the requests through to the degraded service.
 
-```scala mdoc:runzio:liveclock
+```scala mdoc:runzio
 def run =
   defer:
     val numCalls =
@@ -560,7 +560,7 @@ val makeCircuitBreaker =
 
 Once again, the only thing that we need to do is wrap our original effect with the `CircuitBreaker`.
 
-```scala mdoc:runzio:liveclock
+```scala mdoc:runzio
 import CircuitBreaker.CircuitBreakerOpen
 def run =
   defer:
@@ -631,7 +631,7 @@ val logicThatSporadicallyLocksUp =
         10.millis
 ```
 
-```scala mdoc:runzio:liveclock
+```scala mdoc:runzio
 def run =
   defer:
     val contractBreaches =
