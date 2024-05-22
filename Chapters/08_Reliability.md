@@ -1,34 +1,27 @@
 # Reliability
 
-[[Attempt by Bruce to create a chapter introduction]]
-
-Reliability is a broad term with multiple meanings.
-It is the ability of a system to perform and maintain routine functionality, in normal circumstances as well as high loads or hostile situations.
-
-A basic meaning of reliability could be that your system builds and runs without any failures for all of its specified use cases.
+For our purposes,
+  A reliable system behaves predictably in normal circumstances as well as high loads or even hostile situations.
 If failures do occur, the system either recovers or shuts down in a well-defined manner.
 
 Effects are the parts of your system that are unpredictable.
 When we talk about reliability in terms of effects, the goal is to mitigate these unpredictabilities.
 For example, if you make a request of a remote service, you don't know if the network is working or if that service is online.
-Also, the service might be under a heavy load and will take a while to respond.
-What we want is to be able to make a request and get a result in a reasonable amount of time.
-If this is a problem, there are reliability strategies that generally involve inserting an intermediary that compensates for those issues.
-For example, it might try one service, and if it doesn't get a response soon enough it makes other requests to other services.
+Also, the service might be under a heavy load and slow to respond.
+There are strategies to compensate for those issues without invasive restructuring.
+For example, we can attach fallback behavior: 
+  make a request to our preferred service, and if we don't get a response soon enough, make a request to a secondary service.
 
-In traditional coding, inserting these intermediaries can be a difficult and time-consuming process, often involving re-architecting to adapt to the new strategy.
-If that strategy doesn't work, further rewriting may be required to try different strategies.
-In a functional effect-based system, the goal is to be able to easily incorporate reliability strategies, and to easily change them if an approach doesn't work.
-In this chapter we show ZIO components that can be attached to effects in order to improve their reliability.
+Traditional coding often requires extensive re-architecting to apply and adapt reliability strategies, and further rewriting if they fail. 
+In a functional effect-based system, reliability strategies can be easily incorporated and modified.
+This chapter demonstrates components that enhance effect reliability.
 
 ## Caching
-Putting a cache in front of a service can resolve many issues.
+Putting a cache in front of a service can resolve when a service is:
 
-- If the service is slow, the cache can speed up the response time.
-- If the service is brittle, the cache can provide a stable response and minimize the risk of overwhelming the resource.
-- If the service is expensive, the cache can reduce the number of calls to it, and thus reduce your operating cost.
-
-Putting a cache in front of a slow, brittle, or expensive service can be a great way to improve performance and reliability.
+- Slow: the cache can speed up the response time.
+- Brittle: the cache can provide a stable response and minimize the risk of overwhelming the resource.
+- Expensive: the cache can reduce the number of calls to it, and thus reduce your operating cost.
 
 ```scala mdoc:invisible
 import zio.{ZIO, ZLayer}
@@ -85,6 +78,9 @@ case class PopularService(
 ```
 
 To demonstrate, we will take one of the worst case scenarios that your service might encounter: the thundering herd problem.
+If you have a steady stream of requests coming in, any naive cache can store the result after the first request, and then be ready to serve it to all subsequent requests.
+However, it is possible that all the requests will arrive before the first one has been served and cached the value.
+In this case, a naive cache would allow all of them to trigger their own request to your underlying slow/brittle/expensive service and then they would all update the cache with the same value.
 
 ```scala mdoc:silent
 val thunderingHerdsScenario =
@@ -105,9 +101,6 @@ val thunderingHerdsScenario =
     cloudStorage.invoice.run
 ```
 
-If you have a steady stream of requests coming in, any naive cache can store the result after the first request, and then be ready to serve it to all subsequent requests.
-However, it is possible that all the requests will arrive before the first one has been served and cached the value.
-In this case, a naive cache would allow all of them to trigger their own request to your underlying slow/brittle/expensive service and then they would all update the cache with the same value.
 Thankfully, ZIO provides capabilities that make it easy to capture simultaneous requests to the same resource, and make sure that only one request is made to the underlying service.
 
 We will first show the uncached service:
