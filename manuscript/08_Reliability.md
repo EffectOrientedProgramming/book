@@ -53,7 +53,7 @@ val thunderingHerdsScenario =
     val cloudStorage =
       ZIO.service[CloudStorage].run
 
-    cloudStorage.invoice.debug.run
+    cloudStorage.invoice.run
 ```
 
 If you have a steady stream of requests coming in, any naive cache can store the result after the first request, and then be ready to serve it to all subsequent requests.
@@ -81,7 +81,6 @@ Egregious, but it will help us demonstrate the problem with small, round numbers
 def run =
   thunderingHerdsScenario
     .provide(CloudStorage.live, popularService)
-// Amount owed: $100
 // Result: Amount owed: $100
 ```
 
@@ -122,7 +121,6 @@ def run =
     CloudStorage.live,
     ZLayer.fromZIO(makeCachedPopularService)
   )
-// Amount owed: $1
 // Result: Amount owed: $1
 ```
 
@@ -210,12 +208,12 @@ def run =
 // Bill called API [took 0s]
 // Bill called API [took 0s]
 // Bill called API [took 0s]
-// Bruce called API [took 0s]
-// Bruce called API [took 0s]
-// Bruce called API [took 0s]
 // James called API [took 0s]
 // James called API [took 0s]
 // James called API [took 0s]
+// Bruce called API [took 0s]
+// Bruce called API [took 0s]
+// Bruce called API [took 0s]
 // Total time [took 2s]
 // Result: List((), (), ())
 ```
@@ -237,15 +235,16 @@ def run =
         _ => delicateResource.request
       .as("All Requests Succeeded!")
       .run
-  .provideSome[Scope]:
+  .provide(
     DelicateResource.live
+  )
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(418)
-// Current requests: : List(86, 418)
-// Current requests: : List(524, 86, 418)
-// Current requests: : List(714, 524, 86, 418)
-// Current requests: : List(797, 714, 524, 86, 418)
+// Current requests: : List(881)
+// Current requests: : List(989, 881)
+// Current requests: : List(108, 989, 881)
+// Current requests: : List(673, 108, 989, 881)
+// Current requests: : List(458, 673, 108, 989, 881)
 // Result: Crashed the server!!
 ```
 
@@ -258,18 +257,6 @@ val makeOurBulkhead =
   Bulkhead.make(maxInFlightCalls =
     3
   )
-// makeOurBulkhead: ZIO[Scope, Nothing, Bulkhead] = FlatMap(
-//   trace = "nl.vroste.rezilience.Bulkhead.make(Bulkhead.scala:116)",
-//   first = FlatMap(
-//     trace = "nl.vroste.rezilience.Bulkhead.make(Bulkhead.scala:80)",
-//     first = Sync(
-//       trace = "nl.vroste.rezilience.Bulkhead.make(Bulkhead.scala:80)",
-//       eval = zio.ZIOCompanionVersionSpecific$$Lambda$3302/0x0000000800cef840@40748203
-//     ),
-//     successK = zio.Queue$$$Lambda$5760/0x000000080142d040@4984cf43
-//   ),
-//   successK = nl.vroste.rezilience.Bulkhead$$$Lambda$6232/0x000000080155c840@3efdd0a4
-// )
 ```
 
 Next, we wrap our original request with this `Bulkhead`.
@@ -289,20 +276,22 @@ def run =
             delicateResource.request
       .as("All Requests Succeeded")
       .run
-  .provideSome[Scope]:
-    DelicateResource.live
+  .provide(
+    DelicateResource.live,
+    Scope.default
+  )
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(645)
-// Current requests: : List(12, 645)
-// Current requests: : List(337, 12, 645)
-// Current requests: : List(452)
-// Current requests: : List(68, 452)
-// Current requests: : List(956, 68, 452)
-// Current requests: : List(913, 956)
-// Current requests: : List(72, 913)
-// Current requests: : List(846, 72, 913)
-// Current requests: : List(114)
+// Current requests: : List(955)
+// Current requests: : List(122, 955)
+// Current requests: : List(630, 122, 955)
+// Current requests: : List(142)
+// Current requests: : List(503, 142)
+// Current requests: : List(302, 503, 142)
+// Current requests: : List(494)
+// Current requests: : List(898, 494)
+// Current requests: : List(186, 898, 494)
+// Current requests: : List(905)
 // Result: All Requests Succeeded
 ```
 
@@ -350,7 +339,6 @@ import nl.vroste.rezilience.{
   TrippingStrategy,
   Retry
 }
-import nl.vroste.rezilience.CircuitBreaker.CircuitBreakerOpen
 
 val makeCircuitBreaker =
   CircuitBreaker.make(
@@ -366,6 +354,7 @@ val makeCircuitBreaker =
 Once again, the only thing that we need to do is wrap our original effect with the `CircuitBreaker`.
 
 ```scala
+import CircuitBreaker.CircuitBreakerOpen
 def run =
   defer:
     val cb =
@@ -392,7 +381,7 @@ def run =
     val made =
       numCalls.get.run
     s"Calls prevented: $prevented Calls made: $made"
-// Result: Calls prevented: 74 Calls made: 67
+// Result: Calls prevented: 75 Calls made: 66
 ```
 {{TODO Fix output after `OurClock` changes}}
 Now we see that our code prevented the majority of the doomed calls to the external service.

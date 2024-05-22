@@ -233,7 +233,7 @@ override val bootstrap =
 def run =
   effect5
 // Log: Signup initiated for Morty
-// Result: User saved
+// Result: Please manually provision Morty
 ```
 
 We run the effect again in the `HappyPath` scenario to demonstrate running the Effects in parallel.
@@ -256,7 +256,7 @@ override val bootstrap =
 
 def run =
   effect6
-// Result: (PT5.034513568S,User saved)
+// Result: (PT5.032807209S,User saved)
 ```
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.
 
@@ -293,3 +293,108 @@ graph TD
 
 These examples have shown only a glimpse into the superpowers we can add to **any** Effect.
 There are even more we will explore in the following chapters.
+
+## Deferred Execution Enables many of the Superpowers
+
+If these effects were all executed immediately, we would not be able to freely tack on new behaviors.
+We cannot timeout something that might have already started running, or even worse - completed, before we get our hands on it.
+We cannot retry something if we are only holding on to the completed result.
+We cannot parallelize operations if they have already started single-threaded execution.
+
+We need to be holding on to a value that represents something that _can_ be run, but hasn't yet.
+If we have that, then our Effect System can freely add behavior before/after that value.
+
+### defer/run example
+When we make a defer block, nothing inside of it will be executed yet.
+```scala
+val program =
+  defer:
+    Console.printLine("Hello").run
+    val subject = "world"
+    Console.printLine(subject).run
+```
+
+The `.run` method is only available on our Effect values.
+We explicitly call `.run` whenever we want to sequence our effects.
+If we do not call `.run`, then we are just going to have an un-executed effect.
+We want this explicit control, so that we can manipulate our effects up until it is time to run them.
+
+For example, we can repeat our un-executed effect:
+
+```scala
+val programManipulatingBeforeRun =
+  defer:
+    Console.printLine("Hello").repeatN(3).run
+```
+
+We *cannot* repeat our executed effect.
+
+```scala
+val programManipulatingBeforeRun =
+  defer:
+    Console.printLine("Hello").run.repeatN(3)
+// error:
+// value repeatN is not a member of Unit
+// class Chapter198 extends mdoctools.ToRun:
+//                                   ^
+```
+
+Note that these calls to `.run` are all within a `defer` block, so when `program` is defined, we still have not actually executed anything.
+We have described a program that knows the order in which to execute our individual effects *when the program is executed*.
+
+```scala
+val surroundedProgram =
+  defer:
+    Console.printLine("**Before**").run
+    program.run
+    Console.printLine("**After**").run
+```
+
+Even now, we have not executed anything.
+It is only when we pass our completed program over to the effect system that the program is executed.
+
+```scala
+def run = surroundedProgram
+// Log: Signup initiated for Morty
+// **Before**
+// Hello
+// world
+// **After**
+// Result: ()
+```
+
+```scala
+// TODO Decide where to put this
+val program =
+  defer:
+    println("hi").run
+    (1 + 1).run
+// error:
+// value run is not a member of Unit.
+// An extension method was tried, but could not be fully constructed:
+// 
+//     run[R, E, A](println("hi"))
+// 
+//     failed with:
+// 
+//         Found:    Unit
+//         Required: ZIO[Nothing, Any, Any]
+//     println("hi").run
+//     ^^^^^^^^^^^^^^^^^
+// error:
+// value run is not a member of Int.
+// An extension method was tried, but could not be fully constructed:
+// 
+//     run[R, E, A](1.+(1))
+// 
+//     failed with:
+// 
+//         Found:    (2 : Int)
+//         Required: ZIO[Nothing, Any, Any]
+//     (1 + 1).run
+//     ^^^^^^^^^^^
+```
+
+### Explain the 2 versions of run and how they came to be
+### Interpreter
+
