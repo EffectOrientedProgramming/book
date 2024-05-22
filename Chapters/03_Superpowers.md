@@ -98,6 +98,7 @@ def saveUser(username: String) =
         else
           fail.run
     end match
+  end saveUser
 end saveUser
 
 def sendToManualQueue(username: String) =
@@ -397,7 +398,8 @@ When we make a defer block, nothing inside of it will be executed yet.
 val program =
   defer:
     Console.printLine("Hello").run
-    val subject = "world"
+    val subject =
+      "world"
     Console.printLine(subject).run
 ```
 
@@ -437,7 +439,8 @@ Even now, we have not executed anything.
 It is only when we pass our completed program over to the effect system that the program is executed.
 
 ```scala mdoc:runzio
-def run = surroundedProgram
+def run =
+  surroundedProgram
 ```
 
 ```scala mdoc:fail

@@ -79,8 +79,10 @@ case class PopularService(
 
 To demonstrate, we will take one of the worst case scenarios that your service might encounter: the thundering herd problem.
 If you have a steady stream of requests coming in, any naive cache can store the result after the first request, and then be ready to serve it to all subsequent requests.
-However, it is possible that all the requests will arrive before the first one has been served and cached the value.
-In this case, a naive cache would allow all of them to trigger their own request to your underlying slow/brittle/expensive service and then they would all update the cache with the same value.
+However, it is possible that all the requests will arrive before the first one has been served and the value has been cached.
+In this case, a naive cache would cause each request to call the underlying slow/brittle/expensive service and then they would each update the cache with the identical value.
+
+Here is what that looks like:
 
 ```scala mdoc:silent
 val thunderingHerdsScenario =
@@ -88,7 +90,8 @@ val thunderingHerdsScenario =
     val popularService =
       ZIO.service[PopularService].run
 
-    ZIO // All requests arrives nearly at once
+    // All requests arrive at once
+    ZIO
       .collectAllPar:
         List.fill(100):
           popularService.retrieve:
@@ -101,9 +104,7 @@ val thunderingHerdsScenario =
     cloudStorage.invoice.run
 ```
 
-Thankfully, ZIO provides capabilities that make it easy to capture simultaneous requests to the same resource, and make sure that only one request is made to the underlying service.
-
-We will first show the uncached service:
+We first show the uncached service:
 
 ```scala mdoc:silent
 val makePopularService =
@@ -111,23 +112,24 @@ val makePopularService =
     val cloudStorage =
       ZIO.service[CloudStorage].run
     PopularService(cloudStorage.retrieve)
-
-val popularService =
-  ZLayer.fromZIO(makePopularService)
 ```
+To construct a `PopularService`, we give it the effect that looks up content.
+In this version, it goes directly to the `CloudStorage` provider.
 
-In this world, each request to our `CloudStorage` provider will cost us one dollar.
-Egregious, but it will help us demonstrate the problem with small, round numbers.
+Suppose each request to our `CloudStorage` provider costs one dollar.
 
 ```scala mdoc:runzio
 def run =
   thunderingHerdsScenario
-    .provide(CloudStorage.live, popularService)
+    .provide(
+      CloudStorage.live, 
+      ZLayer.fromZIO(makePopularService)
+    )
 ```
 
-We can see that the invoice is 100 dollars, because every single request reached our `CloudStorage` provider.
+The invoice is 100 dollars because every single request reached our `CloudStorage` provider.
 
-Now we will apply our cache:
+Now let's construct a `PopularService` that uses a cache:
 
 ```scala mdoc:silent
 val makeCachedPopularService =
@@ -151,10 +153,10 @@ val makeCachedPopularService =
 
 The only changes required are:
 
-- building our cache with sensible values
-- then passing the `Cache#get` method to our `PopularService` constructor, rather than the bare `CloudStorage#retrieve` method
+- Building the cache with sensible values
+- Passing the `Cache.get` method to the `PopularService` constructor, instead of the bare `CloudStorage.retrieve` method
 
-Now when we run the same scenario, with our cache in place:
+Now we run the same scenario with the cache in place:
 
 ```scala mdoc:runzio
 def run =
@@ -164,9 +166,9 @@ def run =
   )
 ```
 
-We can see that the invoice is only 1 dollar, because only one request reached our `CloudStorage` provider.
+The invoice is only 1 dollar, because only one request reached the `CloudStorage` provider.
 Wonderful!
-In practice, the savings will rarely be *this* extreme, but it is a reassuring to know that we can handle these situations with ease, maintaining a low cost.
+In practice, the savings will rarely be *this* extreme, but it is reassuring to know we can handle these situations with ease.
 
 ## Staying under rate limits
 
@@ -334,9 +336,7 @@ def run =
         _ => delicateResource.request
       .as("All Requests Succeeded!")
       .run
-  .provide(
-    DelicateResource.live
-  )
+  .provide(DelicateResource.live)
 ```
 
 We execute too many concurrent requests, and crash the server.
@@ -367,10 +367,7 @@ def run =
             delicateResource.request
       .as("All Requests Succeeded")
       .run
-  .provide(
-    DelicateResource.live,
-    Scope.default
-  )
+  .provide(DelicateResource.live, Scope.default)
 ```
 
 With this small adjustment, we now have a complex, concurrent guarantee.
