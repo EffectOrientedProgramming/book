@@ -102,7 +102,7 @@ val thunderingHerdsScenario =
     val cloudStorage =
       ZIO.service[CloudStorage].run
 
-    cloudStorage.invoice.debug.run
+    cloudStorage.invoice.run
 ```
 
 If you have a steady stream of requests coming in, any naive cache can store the result after the first request, and then be ready to serve it to all subsequent requests.
@@ -341,14 +341,15 @@ def run =
         _ => delicateResource.request
       .as("All Requests Succeeded!")
       .run
-  .provideSome[Scope]:
+  .provide(
     DelicateResource.live
+  )
 ```
 
 We execute too many concurrent requests, and crash the server.
 To prevent this, we need a `Bulkhead`.
 
-```scala mdoc
+```scala mdoc:silent
 import nl.vroste.rezilience.Bulkhead
 val makeOurBulkhead =
   Bulkhead.make(maxInFlightCalls =
@@ -373,8 +374,10 @@ def run =
             delicateResource.request
       .as("All Requests Succeeded")
       .run
-  .provideSome[Scope]:
-    DelicateResource.live
+  .provide(
+    DelicateResource.live,
+    Scope.default
+  )
 ```
 
 With this small adjustment, we now have a complex, concurrent guarantee.
@@ -550,7 +553,6 @@ import nl.vroste.rezilience.{
   TrippingStrategy,
   Retry
 }
-import nl.vroste.rezilience.CircuitBreaker.CircuitBreakerOpen
 
 val makeCircuitBreaker =
   CircuitBreaker.make(
@@ -566,6 +568,7 @@ val makeCircuitBreaker =
 Once again, the only thing that we need to do is wrap our original effect with the `CircuitBreaker`.
 
 ```scala mdoc:runzio:liveclock
+import CircuitBreaker.CircuitBreakerOpen
 def run =
   defer:
     val cb =
