@@ -4,38 +4,36 @@
 [Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/08_Reliability.md)
 
 
-[[Attempt by Bruce to create a chapter introduction]]
-
-Reliability is a broad term with multiple meanings.
-It is the ability of a system to perform and maintain routine functionality, in normal circumstances as well as high loads or hostile situations.
-
-A basic meaning of reliability could be that your system builds and runs without any failures for all of its specified use cases.
+For our purposes,
+  A reliable system behaves predictably in normal circumstances as well as high loads or even hostile situations.
 If failures do occur, the system either recovers or shuts down in a well-defined manner.
 
 Effects are the parts of your system that are unpredictable.
 When we talk about reliability in terms of effects, the goal is to mitigate these unpredictabilities.
 For example, if you make a request of a remote service, you don't know if the network is working or if that service is online.
-Also, the service might be under a heavy load and will take a while to respond.
-What we want is to be able to make a request and get a result in a reasonable amount of time.
-If this is a problem, there are reliability strategies that generally involve inserting an intermediary that compensates for those issues.
-For example, it might try one service, and if it doesn't get a response soon enough it makes other requests to other services.
+Also, the service might be under a heavy load and slow to respond.
+There are strategies to compensate for those issues without invasive restructuring.
+For example, we can attach fallback behavior: 
+  make a request to our preferred service, and if we don't get a response soon enough, make a request to a secondary service.
 
-In traditional coding, inserting these intermediaries can be a difficult and time-consuming process, often involving re-architecting to adapt to the new strategy.
-If that strategy doesn't work, further rewriting may be required to try different strategies.
-In a functional effect-based system, the goal is to be able to easily incorporate reliability strategies, and to easily change them if an approach doesn't work.
-In this chapter we show ZIO components that can be attached to effects in order to improve their reliability.
+Traditional coding often requires extensive re-architecting to apply and adapt reliability strategies, and further rewriting if they fail. 
+In a functional effect-based system, reliability strategies can be easily incorporated and modified.
+This chapter demonstrates components that enhance effect reliability.
 
 ## Caching
-Putting a cache in front of a service can resolve many issues.
+Putting a cache in front of a service can resolve when a service is:
 
-- If the service is slow, the cache can speed up the response time.
-- If the service is brittle, the cache can provide a stable response and minimize the risk of overwhelming the resource.
-- If the service is expensive, the cache can reduce the number of calls to it, and thus reduce your operating cost.
-
-Putting a cache in front of a slow, brittle, or expensive service can be a great way to improve performance and reliability.
+- Slow: the cache can speed up the response time.
+- Brittle: the cache can provide a stable response and minimize the risk of overwhelming the resource.
+- Expensive: the cache can reduce the number of calls to it, and thus reduce your operating cost.
 
 
 To demonstrate, we will take one of the worst case scenarios that your service might encounter: the thundering herd problem.
+If you have a steady stream of requests coming in, any naive cache can store the result after the first request, and then be ready to serve it to all subsequent requests.
+However, it is possible that all the requests will arrive before the first one has been served and the value has been cached.
+In this case, a naive cache would cause each request to call the underlying slow/brittle/expensive service and then they would each update the cache with the identical value.
+
+Here is what that looks like:
 
 ```scala
 val thunderingHerdsScenario =
@@ -43,7 +41,8 @@ val thunderingHerdsScenario =
     val popularService =
       ZIO.service[PopularService].run
 
-    ZIO // All requests arrives nearly at once
+    // All requests arrive at once
+    ZIO
       .collectAllPar:
         List.fill(100):
           popularService.retrieve:
@@ -56,12 +55,7 @@ val thunderingHerdsScenario =
     cloudStorage.invoice.run
 ```
 
-If you have a steady stream of requests coming in, any naive cache can store the result after the first request, and then be ready to serve it to all subsequent requests.
-However, it is possible that all the requests will arrive before the first one has been served and cached the value.
-In this case, a naive cache would allow all of them to trigger their own request to your underlying slow/brittle/expensive service and then they would all update the cache with the same value.
-Thankfully, ZIO provides capabilities that make it easy to capture simultaneous requests to the same resource, and make sure that only one request is made to the underlying service.
-
-We will first show the uncached service:
+We first show the uncached service:
 
 ```scala
 val makePopularService =
@@ -69,24 +63,25 @@ val makePopularService =
     val cloudStorage =
       ZIO.service[CloudStorage].run
     PopularService(cloudStorage.retrieve)
-
-val popularService =
-  ZLayer.fromZIO(makePopularService)
 ```
+To construct a `PopularService`, we give it the effect that looks up content.
+In this version, it goes directly to the `CloudStorage` provider.
 
-In this world, each request to our `CloudStorage` provider will cost us one dollar.
-Egregious, but it will help us demonstrate the problem with small, round numbers.
+Suppose each request to our `CloudStorage` provider costs one dollar.
 
 ```scala
 def run =
   thunderingHerdsScenario
-    .provide(CloudStorage.live, popularService)
+    .provide(
+      CloudStorage.live, 
+      ZLayer.fromZIO(makePopularService)
+    )
 // Result: Amount owed: $100
 ```
 
-We can see that the invoice is 100 dollars, because every single request reached our `CloudStorage` provider.
+The invoice is 100 dollars because every single request reached our `CloudStorage` provider.
 
-Now we will apply our cache:
+Now let's construct a `PopularService` that uses a cache:
 
 ```scala
 val makeCachedPopularService =
@@ -110,10 +105,10 @@ val makeCachedPopularService =
 
 The only changes required are:
 
-- building our cache with sensible values
-- then passing the `Cache#get` method to our `PopularService` constructor, rather than the bare `CloudStorage#retrieve` method
+- Building the cache with sensible values
+- Passing the `Cache.get` method to the `PopularService` constructor, instead of the bare `CloudStorage.retrieve` method
 
-Now when we run the same scenario, with our cache in place:
+Now we run the same scenario with the cache in place:
 
 ```scala
 def run =
@@ -124,9 +119,9 @@ def run =
 // Result: Amount owed: $1
 ```
 
-We can see that the invoice is only 1 dollar, because only one request reached our `CloudStorage` provider.
+The invoice is only 1 dollar, because only one request reached the `CloudStorage` provider.
 Wonderful!
-In practice, the savings will rarely be *this* extreme, but it is a reassuring to know that we can handle these situations with ease, maintaining a low cost.
+In practice, the savings will rarely be *this* extreme, but it is reassuring to know we can handle these situations with ease.
 
 ## Staying under rate limits
 
@@ -208,13 +203,13 @@ def run =
 // Bill called API [took 0s]
 // Bill called API [took 0s]
 // Bill called API [took 0s]
+// Bruce called API [took -1s]
+// Bruce called API [took 0s]
+// Bruce called API [took 0s]
 // James called API [took 0s]
 // James called API [took 0s]
 // James called API [took 0s]
-// Bruce called API [took 0s]
-// Bruce called API [took 0s]
-// Bruce called API [took 0s]
-// Total time [took 2s]
+// Total time [took 0s]
 // Result: List((), (), ())
 ```
 
@@ -235,17 +230,16 @@ def run =
         _ => delicateResource.request
       .as("All Requests Succeeded!")
       .run
-  .provide(
-    DelicateResource.live
-  )
+  .provide(DelicateResource.live)
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(881)
-// Current requests: : List(989, 881)
-// Current requests: : List(108, 989, 881)
-// Current requests: : List(673, 108, 989, 881)
-// Current requests: : List(458, 673, 108, 989, 881)
-// Result: Crashed the server!!
+// Current requests: : List(161)
+// Current requests: : List(762, 161)
+// Current requests: : List(664, 762, 161)
+// Current requests: : List(688, 664, 762)
+// Current requests: : List(498, 688, 664, 762)
+// Current requests: : List(318, 498, 688, 664)
+// Result: Server crashed from requests!!
 ```
 
 We execute too many concurrent requests, and crash the server.
@@ -276,22 +270,19 @@ def run =
             delicateResource.request
       .as("All Requests Succeeded")
       .run
-  .provide(
-    DelicateResource.live,
-    Scope.default
-  )
+  .provide(DelicateResource.live, Scope.default)
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(955)
-// Current requests: : List(122, 955)
-// Current requests: : List(630, 122, 955)
-// Current requests: : List(142)
-// Current requests: : List(503, 142)
-// Current requests: : List(302, 503, 142)
-// Current requests: : List(494)
-// Current requests: : List(898, 494)
-// Current requests: : List(186, 898, 494)
-// Current requests: : List(905)
+// Current requests: : List(322)
+// Current requests: : List(287, 322)
+// Current requests: : List(918, 287, 322)
+// Current requests: : List(680)
+// Current requests: : List(346, 680)
+// Current requests: : List(879, 346, 680)
+// Current requests: : List(888, 879, 346)
+// Current requests: : List(107, 888)
+// Current requests: : List(840, 107, 888)
+// Current requests: : List(301, 840, 107)
 // Result: All Requests Succeeded
 ```
 
@@ -381,7 +372,7 @@ def run =
     val made =
       numCalls.get.run
     s"Calls prevented: $prevented Calls made: $made"
-// Result: Calls prevented: 75 Calls made: 66
+// Result: Calls prevented: 0 Calls made: 141
 ```
 {{TODO Fix output after `OurClock` changes}}
 Now we see that our code prevented the majority of the doomed calls to the external service.
