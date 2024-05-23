@@ -443,6 +443,7 @@ def run =
 // Wiki - articleFor(space)
 // AI - summarize - start
 // printing because our test clock is insane
+// AI **INTERRUPTED**
 // File - CLOSE
 // Result: AITooSlow()
 ```
@@ -459,7 +460,7 @@ def run =
 // AI - summarize - start
 // AI - summarize - end
 // File - CLOSE
-// Result: DiskFull()
+// Result: AITooSlow()
 ```
 
 And finally, we see the longest, successful pathway through our application:
