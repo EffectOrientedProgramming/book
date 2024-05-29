@@ -1,5 +1,7 @@
 # Reliability
 
+{{ really "advanced recover techniques" as basic ones should have already been covered }}
+
 For our purposes,
   A reliable system behaves predictably in normal circumstances as well as high loads or even hostile situations.
 If failures do occur, the system either recovers or shuts down in a well-defined manner.

@@ -1,5 +1,74 @@
 # Errors
 
+{{ potentially rename to Failure and then consistently use "Errors" or the "Failures" - side note: it is `ZIO.fail` }}
+
+Given that Effects encapsulate the unpredictable parts of a system,
+they must have a way to express errors.
+
+Let's start with a basic Effect that has simulated unpredictability:
+
+```scala mdoc
+def canFail(doIt: Boolean) =
+  if doIt then
+    ZIO.succeed("it works")
+  else
+    ZIO.fail("*** FAIL ***")
+```
+
+Note that this function does not need to be an Effect because there are no unpredictable aspects (don't write code like this - generally you should only use Effects to encapsulate the unpredictable parts, but for this book we need a predictable way to show unpredictability).
+
+First, let's run the `canFail` Effect with an argument of `true` and print its result.
+
+```scala mdoc:runzio
+def run =
+  defer:
+    val success = canFail(doIt = true).run
+    Console.printLine:
+      success
+    .run
+```
+
+Given our controlled behavior of the Effect, we see that as expected the Effect succeeded and its result is printed.
+
+If we now pass `false` to `canFail` the Effect will fail.
+
+```scala mdoc:runzio
+def run =
+  defer:
+    val failure = canFail(doIt = false).run
+    Console.printLine:
+      s"Things went wrong: $failure"
+    .run
+```
+
+We never get to the `Console.printLine` because the `canFail` Effect short-circuits the `run` sequence of Effects, returning the first failure that it encounters.
+Short-circuiting is an essential part Effect Systems because they enable a linear sequence of expressions which helps make code much easier to understand.
+The explicit knowledge of exactly how each Effect can fail is part of definition of the Effect.
+Functions that throw Exceptions can't reliably express the ways they may fail.
+
+Systems need to deal with failures and, ideally, recover from them.
+
+In order for Effect Systems to have recovery operations, they must know when failure happens.
+
+We can apply a very basic recovery operation on the previous example called `flip` which swaps the error and the success values:
+
+```scala mdoc:runzio
+def run =
+  defer:
+    val failure = canFail(doIt = false).flip.run
+    Console.printLine:
+      s"Things went wrong: $failure"
+    .run
+```
+
+Now you can see that the `Console.printLine` works because the `failure` is swapped into the success value, and the short-circuiting never happens.
+Generally `flip` is for test functions because there aren't many use cases for overriding your success value with a failure.
+
+There are other more useful operations to recover from failure including fallbacks, retries, and catchers.
+
+{{ maybe basic retry example building on the previous? }}
+
+
 1. Why errors as values
 1. Creating & Handling
    1. Flexible error types

@@ -73,7 +73,8 @@ trait ToRun(
                 "Failed to run"
               )
 
-        println(s"Result: $result")
+        if result != "()" then
+          println(s"Result: $result")
   end runAndPrintOutput
 end ToRun
 
