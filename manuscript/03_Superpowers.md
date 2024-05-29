@@ -175,7 +175,6 @@ override val bootstrap =
 
 def run =
   effect3
-// Log: Interrupting slow request
 // Result: *** Save timed out ***
 ```
 
@@ -233,7 +232,7 @@ override val bootstrap =
 def run =
   effect5
 // Log: Signup initiated for Morty
-// Result: Please manually provision Morty
+// Result: User saved
 ```
 
 We run the effect again in the `HappyPath` scenario to demonstrate running the Effects in parallel.
@@ -256,7 +255,8 @@ override val bootstrap =
 
 def run =
   effect6
-// Result: (PT5.032807209S,User saved)
+// Result: (PT5.040672476S,User saved)
+// Log: Signup initiated for Morty
 ```
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.
 
@@ -310,7 +310,8 @@ When we make a defer block, nothing inside of it will be executed yet.
 val program =
   defer:
     Console.printLine("Hello").run
-    val subject = "world"
+    val subject =
+      "world"
     Console.printLine(subject).run
 ```
 
@@ -354,13 +355,12 @@ Even now, we have not executed anything.
 It is only when we pass our completed program over to the effect system that the program is executed.
 
 ```scala
-def run = surroundedProgram
-// Log: Signup initiated for Morty
+def run =
+  surroundedProgram
 // **Before**
 // Hello
 // world
 // **After**
-// Result: ()
 ```
 
 ```scala

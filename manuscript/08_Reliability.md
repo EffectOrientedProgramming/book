@@ -4,6 +4,8 @@
 [Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/08_Reliability.md)
 
 
+{{ really "advanced recover techniques" as basic ones should have already been covered }}
+
 For our purposes,
   A reliable system behaves predictably in normal circumstances as well as high loads or even hostile situations.
 If failures do occur, the system either recovers or shuts down in a well-defined manner.
@@ -178,7 +180,6 @@ def run =
 // System called API [took 0s]
 // System called API [took 0s]
 // Result [took 0s]
-// Result: ()
 ```
 
 Most impressively, we can use the same `RateLimiter` across our application.
@@ -203,12 +204,12 @@ def run =
 // Bill called API [took 0s]
 // Bill called API [took 0s]
 // Bill called API [took 0s]
-// James called API [took 0s]
-// James called API [took 0s]
-// James called API [took 0s]
 // Bruce called API [took 0s]
 // Bruce called API [took 0s]
 // Bruce called API [took 0s]
+// James called API [took 0s]
+// James called API [took 0s]
+// James called API [took 0s]
 // Total time [took 2s]
 // Result: List((), (), ())
 ```
@@ -233,12 +234,10 @@ def run =
   .provide(DelicateResource.live)
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(913)
-// Current requests: : List(779, 913)
-// Current requests: : List(765, 779, 913)
-// Current requests: : List(746, 640, 765, 779, 913)
-// Current requests: : List(274, 746, 640, 765, 779, 913)
-// Current requests: : List(640, 765, 779, 913)
+// Current requests: : List(413)
+// Current requests: : List(138, 413)
+// Current requests: : List(272, 138, 413)
+// Current requests: : List(342, 272, 138, 413)
 // Result: Crashed the server!!
 ```
 
@@ -273,16 +272,16 @@ def run =
   .provide(DelicateResource.live, Scope.default)
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(911)
-// Current requests: : List(242, 911)
-// Current requests: : List(9, 242, 911)
-// Current requests: : List(868)
-// Current requests: : List(983, 868)
-// Current requests: : List(633, 983, 868)
-// Current requests: : List(97)
-// Current requests: : List(559, 97)
-// Current requests: : List(331, 559, 97)
-// Current requests: : List(409, 331, 559)
+// Current requests: : List(550)
+// Current requests: : List(403, 550)
+// Current requests: : List(326, 403, 550)
+// Current requests: : List(129)
+// Current requests: : List(33, 129)
+// Current requests: : List(941, 33, 129)
+// Current requests: : List(381)
+// Current requests: : List(545, 381)
+// Current requests: : List(683, 545, 381)
+// Current requests: : List(530)
 // Result: All Requests Succeeded
 ```
 
@@ -372,7 +371,7 @@ def run =
     val made =
       numCalls.get.run
     s"Calls prevented: $prevented Calls made: $made"
-// Result: Calls prevented: 75 Calls made: 66
+// Result: Calls prevented: 74 Calls made: 67
 ```
 {{TODO Fix output after `OurClock` changes}}
 Now we see that our code prevented the majority of the doomed calls to the external service.
