@@ -204,12 +204,12 @@ def run =
 // Bill called API [took 0s]
 // Bill called API [took 0s]
 // Bill called API [took 0s]
-// Bruce called API [took 0s]
-// Bruce called API [took 0s]
-// Bruce called API [took 0s]
 // James called API [took 0s]
 // James called API [took 0s]
 // James called API [took 0s]
+// Bruce called API [took 0s]
+// Bruce called API [took 0s]
+// Bruce called API [took 0s]
 // Total time [took 2s]
 // Result: List((), (), ())
 ```
@@ -234,10 +234,10 @@ def run =
   .provide(DelicateResource.live)
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(413)
-// Current requests: : List(138, 413)
-// Current requests: : List(272, 138, 413)
-// Current requests: : List(342, 272, 138, 413)
+// Current requests: : List(547, 376)
+// Current requests: : List(376)
+// Current requests: : List(757, 547, 376)
+// Current requests: : List(596, 757, 547, 376)
 // Result: Crashed the server!!
 ```
 
@@ -272,16 +272,16 @@ def run =
   .provide(DelicateResource.live, Scope.default)
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(550)
-// Current requests: : List(403, 550)
-// Current requests: : List(326, 403, 550)
-// Current requests: : List(129)
-// Current requests: : List(33, 129)
-// Current requests: : List(941, 33, 129)
-// Current requests: : List(381)
-// Current requests: : List(545, 381)
-// Current requests: : List(683, 545, 381)
-// Current requests: : List(530)
+// Current requests: : List(93)
+// Current requests: : List(516, 93)
+// Current requests: : List(233, 516, 93)
+// Current requests: : List(143)
+// Current requests: : List(509, 143)
+// Current requests: : List(53, 509, 143)
+// Current requests: : List(399)
+// Current requests: : List(712, 399)
+// Current requests: : List(617, 712, 399)
+// Current requests: : List(218)
 // Result: All Requests Succeeded
 ```
 
@@ -371,7 +371,7 @@ def run =
     val made =
       numCalls.get.run
     s"Calls prevented: $prevented Calls made: $made"
-// Result: Calls prevented: 74 Calls made: 67
+// Result: Calls prevented: 75 Calls made: 66
 ```
 {{TODO Fix output after `OurClock` changes}}
 Now we see that our code prevented the majority of the doomed calls to the external service.

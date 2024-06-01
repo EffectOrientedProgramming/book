@@ -34,14 +34,14 @@ These concepts and their competing solutions will be expanded on and contrasted 
 ZIOs compose in a way that covers all of these concerns.
 The methods for composability depend on the desired behavior.
 
-When writing substantial, complex applications
+When writing complex applications
   , you will encounter APIs that that return limited data types.
   
 ZIO provides conversion methods that take these limited data types and turn them into its single, universally composable type.
 
 ### Existing Code
 
-We will utilize several pre-defined functions that leverage less-complete effect alternatives.
+We will utilize several pre-defined functions to highlight less-complete effect alternatives.
 
 
 
@@ -62,7 +62,7 @@ The original asynchronous datatype in Scala has several undesirable characterist
 There is a function that returns a Future:
 
 ```scala
-getHeadLine(???): Future[String]
+val future: Future[String] = getHeadLine(???)
 ```
 
 TODO This is repetitive after listing the downsides above.
@@ -80,20 +80,20 @@ def getHeadlineZ(scenario: Scenario) =
       getHeadLine(scenario)
     .mapError:
       case _: Throwable =>
-        Scenario.HeadlineNotAvailable()
+        Scenario.HeadlineNotAvailable
 ```
 
 ```scala
 def run =
-  getHeadlineZ(Scenario.StockMarketHeadline())
+  getHeadlineZ(Scenario.StockMarketHeadline)
 // Result: stock market rising!
 ```
 Now let's confirm the behavior when the headline is not available.
 
 ```scala
 def run =
-  getHeadlineZ(Scenario.HeadlineNotAvailable())
-// Result: HeadlineNotAvailable()
+  getHeadlineZ(Scenario.HeadlineNotAvailable)
+// Result: HeadlineNotAvailable
 ```
 
 ### Option
@@ -188,17 +188,17 @@ We have an existing function that produces an `AutoCloseable`.
 
 ```scala
 val file: AutoCloseable =
-  openFile()
+  openFile("file1")
 ```
 
 Since `AutoCloseable` is a trait that can be implemented by arbitrary classes, we can't rely on `ZIO.from` to automatically manage this conversion for us.
 In this situation, we should use the explicit `ZIO.fromAutoCloseable` function.
 
 ```scala
-val closeableFileZ =
+def openFileZ(path: String) =
   ZIO.fromAutoCloseable:
     ZIO.succeed:
-      openFile()
+      openFile(path)
 ```
 
 Once we do this, the `ZIO` runtime will manage the lifecycle of this object via the `Scope` mechanism.
@@ -210,7 +210,7 @@ Now we open a `File`, and check if it contains a topic of interest.
 def run =
   defer:
     val file =
-      closeableFileZ.run
+      openFileZ("file1.txt").run
     file.contains:
       "topicOfInterest"
 // File - OPEN
@@ -222,39 +222,57 @@ def run =
 Now we highlight the difference between the static scoping of `Using` or `ZIO.fromAutoCloseable`.
 
 ```scala
+// This was previously-compile only
+// The output is too long to fit on a page, 
+// and beyond our ability to control
+// without resorting to something like pprint.
+
 import scala.util.Using
 import java.io.FileReader
 
-Using(openFile()) {
+Using(openFile("file1.txt")) {
   file1 =>
-    Using(openFile()) {
+    Using(openFile("file2.txt")) {
       file2 =>
-        // TODO Use reader1 and reader2
+        file1.sameContent(file2)
     }
 }
+// File - OPEN
+// File - OPEN
+// side-effect print: comparing content
+// File - CLOSE
+// File - CLOSE
+// res10: Try[Try[Boolean]] = Success(value = Success(value = true))
 ```
+
+With each new file we open, we have to nest our code deeper.
 
 
 ```scala
 def run =
   defer:
     val file1 =
-      closeableFileZ.run
+      openFileZ("file1.txt").run
     val file2 =
-      closeableFileZ.run
+      openFileZ("file2.txt").run
+    file1.sameContent(file2)
 // File - OPEN
 // File - OPEN
+// side-effect print: comparing content
 // File - CLOSE
 // File - CLOSE
+// Result: true
 ```
 
+Our code remains flat.
+
 ### Try
-We continue using our `File`, but now we write to it.
+Next we want to write to our `File`.
 The existing API uses a `Try` to indicate success or failure.
 
 ```scala
 val writeResult: Try[String] =
-  openFile().write("asdf")
+  openFile("file1").write("asdf")
 ```
 
 ```scala
@@ -263,16 +281,15 @@ def writeToFileZ(file: File, content: String) =
     .from:
       file.write:
         content
-    .mapError(
+    .mapError:
       _ => Scenario.DiskFull()
-    )
 ```
 
 ```scala
 def run =
   defer:
     val file =
-      closeableFileZ.run
+      openFileZ("file1").run
     writeToFileZ(file, "New data on topic").run
 // File - OPEN
 // File - write: New data on topic
@@ -285,7 +302,7 @@ def run =
 ### Functions that throw
 
 ```scala
-openFile().summaryFor("asdf"): String
+openFile("file1").summaryFor("asdf"): String
 ```
 
 ```scala
@@ -298,9 +315,8 @@ def summaryForZ(
   ZIO
     .attempt:
       file.summaryFor(topic)
-    .mapError(
+    .mapError:
       _ => NoSummaryAvailable(topic)
-    )
 ```
 
 TODO:
@@ -323,7 +339,10 @@ TODO Prose about the long-running AI process here
 
 ```scala
 // TODO Can we use silent instead of compile-only above?
-summarize("some topic"): String
+val summary: String = summarize("topic")
+// AI - summarize - start
+// AI - summarize - end
+// summary: String = "topic summary"
 ```
 
 This gets interrupted, although it takes a big performance hit
@@ -384,7 +403,12 @@ def researchHeadline(scenario: Scenario) =
       topicOfInterestZ(headline).run
 
     val summaryFile: File =
-      closeableFileZ.run
+      // TODO Use Scenario to determine file?
+      openFileZ("file1.txt").run
+      
+    // TODO Use 2 files at once, to further highlight the dynamic scoping?
+    // Not sure if that is too noisy for this flow
+    // Maybe something like a cache check if time has passed?
 
     val knownTopic: Boolean =
       summaryFile.contains:
@@ -406,8 +430,8 @@ def researchHeadline(scenario: Scenario) =
 ```scala
 def run =
   researchHeadline:
-    Scenario.HeadlineNotAvailable()
-// Result: HeadlineNotAvailable()
+    Scenario.HeadlineNotAvailable
+// Result: HeadlineNotAvailable
 ```
 
 ```scala
@@ -458,7 +482,7 @@ def run =
 // AI - summarize - start
 // AI - summarize - end
 // File - CLOSE
-// Result: DiskFull()
+// Result: AITooSlow()
 ```
 
 And finally, we see the longest, successful pathway through our application:
@@ -466,7 +490,7 @@ And finally, we see the longest, successful pathway through our application:
 ```scala
 def run =
   researchHeadline:
-    Scenario.StockMarketHeadline()
+    Scenario.StockMarketHeadline
 // File - OPEN
 // File - contains(stock market)
 // Wiki - articleFor(stock market)

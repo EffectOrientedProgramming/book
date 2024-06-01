@@ -175,6 +175,7 @@ override val bootstrap =
 
 def run =
   effect3
+// Log: Interrupting slow request
 // Result: *** Save timed out ***
 ```
 
@@ -255,8 +256,8 @@ override val bootstrap =
 
 def run =
   effect6
-// Result: (PT5.040672476S,User saved)
 // Log: Signup initiated for Morty
+// Result: (PT5.027519337S,User saved)
 ```
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.
 
