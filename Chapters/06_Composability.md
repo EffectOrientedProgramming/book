@@ -70,6 +70,8 @@ def getHeadLine(
       Future.successful("space is big!")
     case Scenario.SummaryReadThrows() =>
       Future.successful("new unicode released!")
+    case Scenario.NoInterestingTopic() =>
+      Future.successful("TODO Use boring content here")
     case Scenario.DiskFull() =>
       Future.successful("human genome sequenced")
 
@@ -242,12 +244,24 @@ trait File extends AutoCloseable:
   def contains(searchTerm: String): Boolean
   def write(entry: String): Try[String]
   def summaryFor(searchTerm: String): String
+  def sameContent(other: File): Boolean
+  def content(): String
 
-def openFile() =
+def openFile(path: String) =
   new File:
     var contents: List[String] =
       List("Medical Breakthrough!")
     println("File - OPEN")
+    
+    override def content() =
+      path match
+        case "file1.txt" | "file2.txt"=> "hot dog"
+        case _ => "not hot dog"
+    
+    override def sameContent(other: File): Boolean =
+      println("side-effect print: comparing content")
+      content() == other.content()
+    
     override def close =
       println("File - CLOSE")
 
@@ -256,6 +270,8 @@ def openFile() =
     ): Boolean =
       println:
         s"File - contains($searchTerm)"
+        
+      // todo use path to determine behavior?
       searchTerm match
         case "wheel" | "unicode" =>
           true
@@ -299,17 +315,17 @@ We have an existing function that produces an `AutoCloseable`.
 
 ```scala mdoc:compile-only
 val file: AutoCloseable =
-  openFile()
+  openFile("file1")
 ```
 
 Since `AutoCloseable` is a trait that can be implemented by arbitrary classes, we can't rely on `ZIO.from` to automatically manage this conversion for us.
 In this situation, we should use the explicit `ZIO.fromAutoCloseable` function.
 
 ```scala mdoc:silent
-val closeableFileZ =
+def openFileZ(path: String) =
   ZIO.fromAutoCloseable:
     ZIO.succeed:
-      openFile()
+      openFile(path)
 ```
 
 Once we do this, the `ZIO` runtime will manage the lifecycle of this object via the `Scope` mechanism.
@@ -321,43 +337,53 @@ Now we open a `File`, and check if it contains a topic of interest.
 def run =
   defer:
     val file =
-      closeableFileZ.run
+      openFileZ("file1.txt").run
     file.contains:
       "topicOfInterest"
 ```
 
 Now we highlight the difference between the static scoping of `Using` or `ZIO.fromAutoCloseable`.
 
-```scala mdoc:compile-only
+```scala mdoc
+// This was previously-compile only
+// The output is too long to fit on a page, 
+// and beyond our ability to control
+// without resorting to something like pprint.
+
 import scala.util.Using
 import java.io.FileReader
 
-Using(openFile()) {
+Using(openFile("file1.txt")) {
   file1 =>
-    Using(openFile()) {
+    Using(openFile("file2.txt")) {
       file2 =>
-        // TODO Use reader1 and reader2
+        file1.sameContent(file2)
     }
 }
 ```
+
+With each new file we open, we have to nest our code deeper.
 
 
 ```scala mdoc:runzio
 def run =
   defer:
     val file1 =
-      closeableFileZ.run
+      openFileZ("file1.txt").run
     val file2 =
-      closeableFileZ.run
+      openFileZ("file2.txt").run
+    file1.sameContent(file2)
 ```
 
+Our code remains flat.
+
 ### Try
-We continue using our `File`, but now we write to it.
+Next we want to write to our `File`.
 The existing API uses a `Try` to indicate success or failure.
 
 ```scala mdoc:compile-only
 val writeResult: Try[String] =
-  openFile().write("asdf")
+  openFile("file1").write("asdf")
 ```
 
 ```scala mdoc
@@ -366,16 +392,15 @@ def writeToFileZ(file: File, content: String) =
     .from:
       file.write:
         content
-    .mapError(
+    .mapError:
       _ => Scenario.DiskFull()
-    )
 ```
 
 ```scala mdoc:runzio
 def run =
   defer:
     val file =
-      closeableFileZ.run
+      openFileZ("file1").run
     writeToFileZ(file, "New data on topic").run
 ```
 
@@ -384,7 +409,7 @@ def run =
 ### Functions that throw
 
 ```scala mdoc:compile-only
-openFile().summaryFor("asdf"): String
+openFile("file1").summaryFor("asdf"): String
 ```
 
 ```scala mdoc
@@ -397,9 +422,8 @@ def summaryForZ(
   ZIO
     .attempt:
       file.summaryFor(topic)
-    .mapError(
+    .mapError:
       _ => NoSummaryAvailable(topic)
-    )
 ```
 
 TODO:
@@ -436,14 +460,17 @@ def summarize(article: String): String =
     s"market is not rational"
   else if (article.contains("genome"))
     "The human genome is huge!"
+  else if (article.contains("topic"))
+    "topic summary"
   else
     ???
+
 ```
 
 
-```scala mdoc:compile-only
+```scala mdoc
 // TODO Can we use silent instead of compile-only above?
-summarize("some topic"): String
+val summary: String = summarize("topic")
 ```
 
 This gets interrupted, although it takes a big performance hit
@@ -512,7 +539,10 @@ def researchHeadline(scenario: Scenario) =
       topicOfInterestZ(headline).run
 
     val summaryFile: File =
-      closeableFileZ.run
+      // TODO Use Scenario to determine file?
+      openFileZ("file1.txt").run
+      
+    // TODO Use 2 files at once, to further highlight
 
     val knownTopic: Boolean =
       summaryFile.contains:
