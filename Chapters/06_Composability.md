@@ -28,9 +28,11 @@ These concepts and their competing solutions will be expanded on and contrasted 
 
 ```scala mdoc:invisible
 enum Scenario: // TODO Could these instances _also_ be the error types??
-  case StockMarketHeadline()
-  case HeadlineNotAvailable()
+  case StockMarketHeadline
+  case HeadlineNotAvailable
   case NoInterestingTopic()
+  // There is an Either[NoWikiArticleAvailable,_] in visible code, so if we make it an object,
+  // It will be Either[NoWikiArticleAvailable.type,_] :(
   case NoWikiArticleAvailable()
   case AITooSlow()
   case SummaryReadThrows()
@@ -40,14 +42,14 @@ enum Scenario: // TODO Could these instances _also_ be the error types??
 ZIOs compose in a way that covers all of these concerns.
 The methods for composability depend on the desired behavior.
 
-When writing substantial, complex applications
+When writing complex applications
   , you will encounter APIs that that return limited data types.
   
 ZIO provides conversion methods that take these limited data types and turn them into its single, universally composable type.
 
 ### Existing Code
 
-We will utilize several pre-defined functions that leverage less-complete effect alternatives.
+We will utilize several pre-defined functions to highlight less-complete effect alternatives.
 
 ```scala mdoc:invisible
 import scala.concurrent.Future
@@ -57,10 +59,10 @@ def getHeadLine(
     scenario: Scenario
 ): Future[String] =
   scenario match
-    case Scenario.HeadlineNotAvailable() =>
+    case Scenario.HeadlineNotAvailable =>
       Future.failed:
         new Exception("Headline not available")
-    case Scenario.StockMarketHeadline() =>
+    case Scenario.StockMarketHeadline =>
       Future.successful("stock market rising!")
     case Scenario.NoWikiArticleAvailable() =>
       Future.successful("Fred built a barn.")
@@ -118,7 +120,7 @@ The original asynchronous datatype in Scala has several undesirable characterist
 There is a function that returns a Future:
 
 ```scala mdoc:compile-only
-getHeadLine(???): Future[String]
+val future: Future[String] = getHeadLine(???)
 ```
 
 TODO This is repetitive after listing the downsides above.
@@ -136,18 +138,18 @@ def getHeadlineZ(scenario: Scenario) =
       getHeadLine(scenario)
     .mapError:
       case _: Throwable =>
-        Scenario.HeadlineNotAvailable()
+        Scenario.HeadlineNotAvailable
 ```
 
 ```scala mdoc:runzio
 def run =
-  getHeadlineZ(Scenario.StockMarketHeadline())
+  getHeadlineZ(Scenario.StockMarketHeadline)
 ```
 Now let's confirm the behavior when the headline is not available.
 
 ```scala mdoc:runzio
 def run =
-  getHeadlineZ(Scenario.HeadlineNotAvailable())
+  getHeadlineZ(Scenario.HeadlineNotAvailable)
 ```
 
 ### Option
@@ -532,7 +534,7 @@ def researchHeadline(scenario: Scenario) =
 ```scala mdoc:runzio
 def run =
   researchHeadline:
-    Scenario.HeadlineNotAvailable()
+    Scenario.HeadlineNotAvailable
 ```
 
 ```scala mdoc:runzio
@@ -566,7 +568,7 @@ And finally, we see the longest, successful pathway through our application:
 ```scala mdoc:runzio:liveclock
 def run =
   researchHeadline:
-    Scenario.StockMarketHeadline()
+    Scenario.StockMarketHeadline
 ```
 
 
