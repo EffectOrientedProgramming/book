@@ -6,13 +6,13 @@
 
 TODO: Make an appendix?
 
-
 ## Building applications from scratch
 
 One way to run ZIOs is to use a "main method" program (something you can start in the JVM).
 However, setting up the pieces needed for this is a bit cumbersome if done without helpers.
 
 ### ZIOAppDefault
+
 ZIO provides an easy way to do this with the `ZIOAppDefault` trait.
 
 To use it create a new `object` that extends the `ZIOAppDefault` trait and implements the `run` method.  That method returns a ZIO so you can now give it the example `ZIO.debug` data:
@@ -32,6 +32,7 @@ If you are learning ZIO, you should start your exploration with `ZIOAppDefault`.
 It is the standard, simplest way to start executing your recipes.
 
 For this book we shorten the definition for running ZIO Effects to:
+
 ```scala
 def run =
   ZIO.debug:
@@ -48,12 +49,10 @@ object RunningZIOs extends ZIOAppDefault:
       "Hello World!"
 ```
 
-
 You can provide arbitrary ZIO instances to the run method, as long as you have provided every piece of the environment.
 In other words, it can accept `ZIO[Any, _, _]`.
 
 There is a more flexible `ZIOApp` that facilitates sharing layers between applications, but this is advanced and not necessary for most applications.
-
 
 ## Testing code
 
@@ -64,7 +63,6 @@ Similar to `ZIOAppDefault`, there is a `ZIOSpecDefault` that should be your star
 When you run the same `ZIO` in these 2 contexts, the only thing that changes are the built-in services provided by the runtime.
 
 > TODO - Decide which scenario to test
-
 
 ```scala
 object TestingZIOs extends ZIOSpecDefault:
@@ -77,6 +75,7 @@ object TestingZIOs extends ZIOSpecDefault:
 ```
 
 For this book we can shorten the test definition to:
+
 ```scala
 def spec =
   test("random is random"):
@@ -84,7 +83,7 @@ def spec =
       assertTrue:
         Random.nextIntBounded(10).run < 10
 // + random is random
-// Result: Summary(1,0,0,,PT0.445931S)
+// Result: Summary(1,0,0,,PT0.42179S)
 ```
 
 TODO Justify defer syntax over for-comp for multi-statement assertions
@@ -101,7 +100,7 @@ def spec =
           20 &&
           Random.nextIntBetween(20, 30).run <= 30
 // + random is still random
-// Result: Summary(1,0,0,,PT0.149395S)
+// Result: Summary(1,0,0,,PT0.083306S)
 ```
 
 Consider a `Console` application:
@@ -154,7 +153,7 @@ def spec =
       assertTrue:
         capturedOutput == expectedOutput
 // - console works
-//   Exception in thread "zio-fiber-612460033" scala.NotImplementedError: an implementation is missing
+//   Exception in thread "zio-fiber-356033566" scala.NotImplementedError: an implementation is missing
 //   	at scala.Predef$.$qmark$qmark$qmark(Predef.scala:344)
 //   	at mdoctools.OurConsole.print(OurConsole.scala:14)
 //   	at zio.Console$.print$$anonfun$6(Console.scala:122)
@@ -164,7 +163,7 @@ def spec =
 //   	at zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19)
 //   	at repl.MdocSession.MdocApp.logic(<input>:93)
 //   	at zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19)
-//   	at repl.MdocSession.MdocApp.Chapter70Spec.spec(<input>:127)
+//   	at repl.MdocSession.MdocApp.Chapter69Spec.spec(<input>:127)
 // Result: 
 // - console works
 //   Exception i

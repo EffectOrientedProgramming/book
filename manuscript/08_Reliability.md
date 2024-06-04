@@ -15,14 +15,15 @@ When we talk about reliability in terms of effects, the goal is to mitigate thes
 For example, if you make a request of a remote service, you don't know if the network is working or if that service is online.
 Also, the service might be under a heavy load and slow to respond.
 There are strategies to compensate for those issues without invasive restructuring.
-For example, we can attach fallback behavior: 
+For example, we can attach fallback behavior:
   make a request to our preferred service, and if we don't get a response soon enough, make a request to a secondary service.
 
-Traditional coding often requires extensive re-architecting to apply and adapt reliability strategies, and further rewriting if they fail. 
+Traditional coding often requires extensive re-architecting to apply and adapt reliability strategies, and further rewriting if they fail.
 In a functional effect-based system, reliability strategies can be easily incorporated and modified.
 This chapter demonstrates components that enhance effect reliability.
 
 ## Caching
+
 Putting a cache in front of a service can resolve when a service is:
 
 - Slow: the cache can speed up the response time.
@@ -66,6 +67,7 @@ val makePopularService =
       ZIO.service[CloudStorage].run
     PopularService(cloudStorage.retrieve)
 ```
+
 To construct a `PopularService`, we give it the effect that looks up content.
 In this version, it goes directly to the `CloudStorage` provider.
 
@@ -135,9 +137,10 @@ TODO Show un-limited demo first?
 
 
 ### Constructing a RateLimiter
+
 Defining your rate limiter requires only the 2 pieces of information that should be codified in your service agreement:
 
-```
+```psuedo
 
 $maxRequests / $interval
 ```
@@ -201,22 +204,22 @@ def run =
       .timedSecondsDebug:
         "Total time"
       .run
-// James called API [took 0s]
-// James called API [took 0s]
-// James called API [took 0s]
-// Bruce called API [took 0s]
-// Bruce called API [took 0s]
-// Bruce called API [took 0s]
 // Bill called API [took 0s]
 // Bill called API [took 0s]
 // Bill called API [took 0s]
+// Bruce called API [took 0s]
+// Bruce called API [took 0s]
+// Bruce called API [took 0s]
+// James called API [took 0s]
+// James called API [took 0s]
+// James called API [took 0s]
 // Total time [took 2s]
 // Result: List((), (), ())
 ```
 
 ## Constraining concurrent requests
-If we want to ensure we don't accidentally DDOS a service, we can restrict the number of concurrent requests to it.
 
+If we want to ensure we don't accidentally DDOS a service, we can restrict the number of concurrent requests to it.
 
 
 First, we demonstrate the unrestricted behavior:
@@ -234,10 +237,10 @@ def run =
   .provide(DelicateResource.live)
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(734)
-// Current requests: : List(273, 734)
-// Current requests: : List(710, 273, 734)
-// Current requests: : List(680, 710, 273, 734)
+// Current requests: : List(894)
+// Current requests: : List(710, 894)
+// Current requests: : List(143, 710, 894)
+// Current requests: : List(195, 143, 710, 894)
 // Result: Crashed the server!!
 ```
 
@@ -272,28 +275,29 @@ def run =
   .provide(DelicateResource.live, Scope.default)
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(102)
-// Current requests: : List(295, 102)
-// Current requests: : List(408, 295, 102)
-// Current requests: : List(811)
-// Current requests: : List(199, 811)
-// Current requests: : List(430, 199, 811)
-// Current requests: : List(979, 430)
-// Current requests: : List(769, 979, 430)
-// Current requests: : List(842, 769, 979)
-// Current requests: : List(349)
+// Current requests: : List(12)
+// Current requests: : List(571, 12)
+// Current requests: : List(642, 571, 12)
+// Current requests: : List(181)
+// Current requests: : List(923, 181)
+// Current requests: : List(266, 923, 181)
+// Current requests: : List(968)
+// Current requests: : List(318, 968)
+// Current requests: : List(967, 318, 968)
+// Current requests: : List(281)
 // Result: All Requests Succeeded
 ```
 
 With this small adjustment, we now have a complex, concurrent guarantee.
 
 ## Circuit Breaking
+
 Often, when a request fails, it is reasonable to immediately retry.
 However, if we aggressively retry in an unrestricted way, we might actually make the problem worse by increasing the load on the struggling service.
 Ideally, we would allow some number of aggressive retries, but then start blocking additional requests until the service has a chance to recover.
 
 
-In this scenario, we are going to repeat our call many times in quick succession. 
+In this scenario, we are going to repeat our call many times in quick succession.
 
 ```scala
 val repeatSchedule =
@@ -371,8 +375,9 @@ def run =
     val made =
       numCalls.get.run
     s"Calls prevented: $prevented Calls made: $made"
-// Result: Calls prevented: 75 Calls made: 66
+// Result: Calls prevented: 74 Calls made: 67
 ```
+
 {{TODO Fix output after `OurClock` changes}}
 Now we see that our code prevented the majority of the doomed calls to the external service.
 
@@ -394,7 +399,6 @@ The cost of this is only ~3% more total requests made. *Citations needed*
 
 Further, if this is not enough to completely eliminate your extreme tail, you can employ the exact same technique once more.
 Then, you end up with `1/n^3` chance of getting that worst performance.
-
 
 
 ```scala
@@ -434,6 +438,7 @@ def run =
 ```
 
 ## Restricting Time
+
 Sometimes, it's not enough to simply track the time that a test takes.
 If you have specific Service Level Agreements (SLAs) that you need to meet, you want your tests to help ensure that you are meeting them.
 However, even if you don't have contracts bearing down on you, there are still good reasons to ensure that your tests complete in a timely manner.
@@ -450,6 +455,7 @@ For example, if you are running your tests in a CI/CD pipeline, you want to ensu
 you can use `TestAspect.timeout` to ensure that your tests complete within a certain time frame.
 
 ## Flakiness
+
 Commonly, as a project grows, the supporting tests become more and more flaky.
 This can be caused by a number of factors:
 

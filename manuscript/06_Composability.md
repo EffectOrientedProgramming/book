@@ -27,7 +27,6 @@ Issues that complicate composition include:
 
 These concepts and their competing solutions will be expanded on and contrasted with ZIO throughout this chapter.
 
-
 ## Universal Composability with ZIO (All The Thing Example)
 
 
@@ -44,7 +43,6 @@ ZIO provides conversion methods that take these limited data types and turn them
 We will utilize several pre-defined functions to highlight less-complete effect alternatives.
 
 
-
 ### Future
 
 ```scala
@@ -57,7 +55,6 @@ The original asynchronous datatype in Scala has several undesirable characterist
 - Start executing immediately
 - Must all fail with Exception
 - Needs `ExecutionContext`s passed everywhere
-
 
 There is a function that returns a Future:
 
@@ -100,13 +97,13 @@ def run =
 ```
 
 ### Option
+
 `Option` is the simplest of the alternate types you will encounter.
 It does not deal with asynchronicity, error types, or anything else.
 It merely indicates that a value might not be available.
 
 - Execution is not deferred
 - Cannot interrupt the code that is producing these values
-
 
 ```scala
 val result: Option[String] =
@@ -182,11 +179,11 @@ def run =
 ```
 
 ### AutoCloseable
+
 Java/Scala provide the `AutoCloseable` interface for defining finalizer behavior on objects.
 While this is a big improvement over manually managing this in ad-hoc ways, the static scoping of this mechanism makes it clunky to use.
 
 TODO Decide whether to show nested files example to highlight this weakness
-
 
 
 We have an existing function that produces an `AutoCloseable`.
@@ -246,7 +243,6 @@ Using(openFile("file1.txt")) {
 
 With each new file we open, we have to nest our code deeper.
 
-
 ```scala
 def run =
   defer:
@@ -266,6 +262,7 @@ def run =
 Our code remains flat.
 
 ### Try
+
 Next we want to write to our `File`.
 The existing API uses a `Try` to indicate success or failure.
 
@@ -296,8 +293,6 @@ def run =
 // Result: New data on topic
 ```
 
-
-
 ### Functions that throw
 
 ```scala
@@ -320,11 +315,13 @@ def summaryForZ(
 ```
 
 TODO:
- - original function: File.summaryFor
- - wrap with ZIO
- - call zio version in AllTheThings
+
+- original function: File.summaryFor
+- wrap with ZIO
+- call zio version in AllTheThings
 
 Downsides:
+
 - We cannot union these error possibilities and track them in the type system
 - Cannot attach behavior to deferred functions
 - do not put in place a contract
@@ -332,6 +329,7 @@ Downsides:
 ### Slow, blocking functions
 
 TODO Decide example functionality
+
 - AI analysis of news content?
 
 TODO Prose about the long-running AI process here
@@ -346,6 +344,7 @@ val summary: String = summarize("topic")
 ```
 
 This gets interrupted, although it takes a big performance hit
+
 ```scala
 def summarizeZ(article: String) =
   ZIO
@@ -357,13 +356,12 @@ def summarizeZ(article: String) =
     .timeoutFail(Scenario.AITooSlow())(50.millis)
 ```
 
-
 - We can't indicate if they block or not
 - Too many concurrent blocking operations can prevent progress of other operations
 - Very difficult to manage
 - Blocking performance varies wildly between environments
 
-### Sequencing 
+### Sequencing
 
 Another term for this form of composition is called `andThen` in Scala.
 
@@ -488,8 +486,6 @@ def run =
 // File - OPEN
 // File - contains(space)
 // Wiki - articleFor(space)
-// AI - summarize - start
-// printing because our test clock is insane
 // AI **INTERRUPTED**
 // File - CLOSE
 // Result: AITooSlow()
@@ -506,8 +502,6 @@ def run =
 // File - OPEN
 // File - contains(genome)
 // Wiki - articleFor(genome)
-// AI - summarize - start
-// AI - summarize - end
 // AI **INTERRUPTED**
 // File - CLOSE
 // Result: AITooSlow()
@@ -530,7 +524,6 @@ def run =
 // File - CLOSE
 // Result: market is not rational
 ```
-
 
 ## Repeats
 
@@ -558,5 +551,5 @@ When we see it, we know that *some* type of side-effect is being performed.
 When a function returns `Unit`, we know that the only reason we are calling the function is to perform an effect.
 Alternatively, if there are no arguments to the function, then the input is `Unit`, indicating that an effect is used to _produce_ the result.
 
-Unfortunately, we can't do things like timeout/race/etc these functions. 
+Unfortunately, we can't do things like timeout/race/etc these functions.
 We can either execute them, or not, and that's about it, without resorting to additional tools for manipulating their execution.
