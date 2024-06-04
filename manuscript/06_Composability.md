@@ -38,12 +38,12 @@ When writing complex applications
   
 ZIO provides conversion methods that take these limited data types and turn them into its single, universally composable type.
 
-### Existing Code
+## Existing Code
 
 We will utilize several pre-defined functions to highlight less-complete effect alternatives.
 
 
-### Future
+## Future
 
 ```scala
 import scala.concurrent.Future
@@ -96,7 +96,7 @@ def run =
 // Result: HeadlineNotAvailable
 ```
 
-### Option
+## Option
 
 `Option` is the simplest of the alternate types you will encounter.
 It does not deal with asynchronicity, error types, or anything else.
@@ -140,7 +140,7 @@ def run =
 // Result: NoInterestingTopic()
 ```
 
-### Either
+## Either
 
 - Execution is not deferred
 - Cannot interrupt the code that is producing these values
@@ -178,7 +178,7 @@ def run =
 // Result: NoWikiArticleAvailable()
 ```
 
-### AutoCloseable
+## AutoCloseable
 
 Java/Scala provide the `AutoCloseable` interface for defining finalizer behavior on objects.
 While this is a big improvement over manually managing this in ad-hoc ways, the static scoping of this mechanism makes it clunky to use.
@@ -261,7 +261,7 @@ def run =
 
 Our code remains flat.
 
-### Try
+## Try
 
 Next we want to write to our `File`.
 The existing API uses a `Try` to indicate success or failure.
@@ -293,7 +293,7 @@ def run =
 // Result: New data on topic
 ```
 
-### Functions that throw
+## Functions that throw
 
 ```scala
 val summary: String = 
@@ -326,7 +326,7 @@ Downsides:
 - Cannot attach behavior to deferred functions
 - do not put in place a contract
 
-### Slow, blocking functions
+## Slow, blocking functions
 
 TODO Decide example functionality
 
@@ -361,7 +361,7 @@ def summarizeZ(article: String) =
 - Very difficult to manage
 - Blocking performance varies wildly between environments
 
-### Sequencing
+## Sequencing
 
 Another term for this form of composition is called `andThen` in Scala.
 
@@ -377,14 +377,14 @@ def run =
 // Texting story: Battery Breakthrough
 ```
 
-#### Short-circuiting
+### Short-circuiting
 
 Short-circuiting is an essential part Effect Systems because they enable a linear sequence of expressions which helps make code much easier to understand.
 The explicit knowledge of exactly how each Effect can fail is part of definition of the Effect.
 
 In order for Effect Systems to have recovery operations, they must know when failure happens.
 
-### Final Collective Criticism
+## Final Collective Criticism
 
 Each of original approaches gives you benefits, but you can't easily assemble a program that utilizes all of them.
 They must be manually transformed into each other .
@@ -396,7 +396,7 @@ The ordering of the nesting is significant, and not easily changed.
 The number of combinations is something like:
   PairsIn(numberOfConcepts)
 
-### Fully Composed
+## Fully Composed
 
 Now that we have all of these well-defined effects, we can wield them in any combination and sequence we desire.
 
@@ -502,6 +502,8 @@ def run =
 // File - OPEN
 // File - contains(genome)
 // Wiki - articleFor(genome)
+// AI - summarize - start
+// AI - summarize - end
 // AI **INTERRUPTED**
 // File - CLOSE
 // Result: AITooSlow()
@@ -531,7 +533,7 @@ Repeating is a form of composability, because you are composing a program with i
 
 ## Graveyard candidates
 
-### Plain functions that return Unit
+## Plain functions that return Unit
 
 {{TODO Decide if this section is worth keeping. If so, where?}}
 
