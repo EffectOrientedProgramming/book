@@ -57,7 +57,8 @@ import scala.concurrent.Future
 //  we can leverage that to hit all of the possible paths in AllTheThings.
 def getHeadLine(
     scenario: Scenario
-): Future[String] =
+): Future[String] = {
+  println("Network - Getting headline")
   scenario match
     case Scenario.HeadlineNotAvailable =>
       Future.failed:
@@ -74,10 +75,13 @@ def getHeadLine(
       Future.successful("TODO Use boring content here")
     case Scenario.DiskFull() =>
       Future.successful("human genome sequenced")
+}
 
 def findTopicOfInterest(
     content: String
-): Option[String] =
+): Option[String] = {
+  // TODO Decide best output string here
+  println("Analytics - Scanning")
   val topics =
     List(
       "stock market",
@@ -87,6 +91,7 @@ def findTopicOfInterest(
       "genome"
     )
   topics.find(content.contains)
+}
 
 import scala.util.Either
 def wikiArticle(topic: String): Either[
@@ -147,6 +152,7 @@ def getHeadlineZ(scenario: Scenario) =
 def run =
   getHeadlineZ(Scenario.StockMarketHeadline)
 ```
+
 Now let's confirm the behavior when the headline is not available.
 
 ```scala mdoc:runzio
@@ -296,12 +302,14 @@ def openFile(path: String) =
     override def write(
         entry: String
     ): Try[String] =
-      if (entry.contains("genome"))
+      if (entry.contains("genome")) {
+        println("File - disk full!")
         Try(
           throw new Exception(
-            "Stock market already exists!"
+            "Disk is full!"
           )
         )
+      }
       else {
         println("File - write: " + entry)
         contents =
@@ -409,7 +417,8 @@ def run =
 ### Functions that throw
 
 ```scala mdoc:compile-only
-openFile("file1").summaryFor("asdf"): String
+val summary: String = 
+  openFile("file1").summaryFor("asdf")
 ```
 
 ```scala mdoc
@@ -492,9 +501,11 @@ def summarizeZ(article: String) =
 - Blocking performance varies wildly between environments
 
 ### Sequencing 
+
 Another term for this form of composition is called `andThen` in Scala.
 
 With ZIO you can use `zio-direct` to compose ZIOs sequentially with:
+
 ```scala mdoc:invisible
 val findTopNewsStory =
   ZIO.succeed:
@@ -513,7 +524,15 @@ def run =
     textAlert(topStory).run
 ```
 
+#### Short-circuiting
+
+Short-circuiting is an essential part Effect Systems because they enable a linear sequence of expressions which helps make code much easier to understand.
+The explicit knowledge of exactly how each Effect can fail is part of definition of the Effect.
+
+In order for Effect Systems to have recovery operations, they must know when failure happens.
+
 ### Final Collective Criticism
+
 Each of original approaches gives you benefits, but you can't easily assemble a program that utilizes all of them.
 They must be manually transformed into each other .
 
@@ -523,7 +542,6 @@ The ordering of the nesting is significant, and not easily changed.
 
 The number of combinations is something like:
   PairsIn(numberOfConcepts)
-
 
 ### Fully Composed
 
@@ -572,6 +590,12 @@ def run =
 ```scala mdoc:runzio
 def run =
   researchHeadline:
+    Scenario.NoInterestingTopic()
+```
+
+```scala mdoc:runzio
+def run =
+  researchHeadline:
     Scenario.SummaryReadThrows()
 ```
 
@@ -608,20 +632,10 @@ def run =
 
 Repeating is a form of composability, because you are composing a program with itself
 
+## Graveyard candidates
 
-## Injecting Behavior before/after/around
+### Plain functions that return Unit
 
-
-# Graveyard candidates
-
-## Contract-based prose
-Good contracts make good composability.
-
-contracts are what makes composability work at scale
-our effects put in place contracts on how things can compose
-
-
-### Plain functions that return Unit TODO Incorporate to AllTheThings
 {{TODO Decide if this section is worth keeping. If so, where?}}
 
 `Unit` can be viewed as the bare minimum of effect tracking.
