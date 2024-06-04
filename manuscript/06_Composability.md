@@ -237,12 +237,6 @@ Using(openFile("file1.txt")) {
         file1.sameContent(file2)
     }
 }
-// File - OPEN
-// File - OPEN
-// side-effect print: comparing content
-// File - CLOSE
-// File - CLOSE
-// res10: Try[Try[Boolean]] = Success(value = Success(value = true))
 ```
 
 With each new file we open, we have to nest our code deeper.
