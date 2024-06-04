@@ -232,7 +232,6 @@ override val bootstrap =
 
 def run =
   effect5
-// Log: Signup initiated for Morty
 // Result: User saved
 ```
 
@@ -257,7 +256,7 @@ override val bootstrap =
 def run =
   effect6
 // Log: Signup initiated for Morty
-// Result: (PT5.027519337S,User saved)
+// Result: (PT5.015885801S,User saved)
 ```
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.
 
@@ -358,6 +357,7 @@ It is only when we pass our completed program over to the effect system that the
 ```scala
 def run =
   surroundedProgram
+// Log: Signup initiated for Morty
 // **Before**
 // Hello
 // world

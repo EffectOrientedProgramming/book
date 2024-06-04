@@ -482,7 +482,7 @@ def run =
 // AI - summarize - start
 // AI - summarize - end
 // File - CLOSE
-// Result: AITooSlow()
+// Result: DiskFull()
 ```
 
 And finally, we see the longest, successful pathway through our application:
