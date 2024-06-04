@@ -344,7 +344,7 @@ def run =
 
 Now we highlight the difference between the static scoping of `Using` or `ZIO.fromAutoCloseable`.
 
-```scala mdoc
+```scala mdoc:compile-only
 // This was previously-compile only
 // The output is too long to fit on a page, 
 // and beyond our ability to control
