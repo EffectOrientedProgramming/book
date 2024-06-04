@@ -204,6 +204,7 @@ def run =
   effect4
 // Log: **Database crashed!!**
 // Log: **Database crashed!!**
+// Log: **Database crashed!!**
 // Result: Please manually provision Morty
 ```
 
@@ -232,7 +233,7 @@ override val bootstrap =
 def run =
   effect5
 // Log: Signup initiated for Morty
-// Result: Please manually provision Morty
+// Result: User saved
 ```
 
 We run the effect again in the `HappyPath` scenario to demonstrate running the Effects in parallel.
@@ -255,7 +256,8 @@ override val bootstrap =
 
 def run =
   effect6
-// Result: (PT5.030365439S,User saved)
+// Log: Signup initiated for Morty
+// Result: (PT5.040301861S,User saved)
 ```
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.
 
@@ -356,7 +358,6 @@ It is only when we pass our completed program over to the effect system that the
 ```scala
 def run =
   surroundedProgram
-// Log: Signup initiated for Morty
 // **Before**
 // Hello
 // world

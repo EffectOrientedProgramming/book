@@ -201,15 +201,15 @@ def run =
       .timedSecondsDebug:
         "Total time"
       .run
-// Bill called API [took 0s]
-// Bill called API [took 0s]
-// Bill called API [took 0s]
 // James called API [took 0s]
 // James called API [took 0s]
 // James called API [took 0s]
 // Bruce called API [took 0s]
 // Bruce called API [took 0s]
 // Bruce called API [took 0s]
+// Bill called API [took 0s]
+// Bill called API [took 0s]
+// Bill called API [took 0s]
 // Total time [took 2s]
 // Result: List((), (), ())
 ```
@@ -234,11 +234,10 @@ def run =
   .provide(DelicateResource.live)
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(611)
-// Current requests: : List(308, 26, 611)
-// Current requests: : List(26, 611)
-// Current requests: : List(142, 308, 26, 611)
-// Current requests: : List(725, 142, 308, 26, 611)
+// Current requests: : List(734)
+// Current requests: : List(273, 734)
+// Current requests: : List(710, 273, 734)
+// Current requests: : List(680, 710, 273, 734)
 // Result: Crashed the server!!
 ```
 
@@ -273,16 +272,16 @@ def run =
   .provide(DelicateResource.live, Scope.default)
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(591)
-// Current requests: : List(518, 591)
-// Current requests: : List(86, 518, 591)
-// Current requests: : List(914)
-// Current requests: : List(407, 914)
-// Current requests: : List(520, 407, 914)
-// Current requests: : List(905)
-// Current requests: : List(519, 905)
-// Current requests: : List(720, 519, 905)
-// Current requests: : List(436)
+// Current requests: : List(102)
+// Current requests: : List(295, 102)
+// Current requests: : List(408, 295, 102)
+// Current requests: : List(811)
+// Current requests: : List(199, 811)
+// Current requests: : List(430, 199, 811)
+// Current requests: : List(979, 430)
+// Current requests: : List(769, 979, 430)
+// Current requests: : List(842, 769, 979)
+// Current requests: : List(349)
 // Result: All Requests Succeeded
 ```
 
@@ -372,7 +371,7 @@ def run =
     val made =
       numCalls.get.run
     s"Calls prevented: $prevented Calls made: $made"
-// Result: Calls prevented: 74 Calls made: 67
+// Result: Calls prevented: 75 Calls made: 66
 ```
 {{TODO Fix output after `OurClock` changes}}
 Now we see that our code prevented the majority of the doomed calls to the external service.

@@ -86,13 +86,16 @@ def getHeadlineZ(scenario: Scenario) =
 ```scala
 def run =
   getHeadlineZ(Scenario.StockMarketHeadline)
+// Network - Getting headline
 // Result: stock market rising!
 ```
+
 Now let's confirm the behavior when the headline is not available.
 
 ```scala
 def run =
   getHeadlineZ(Scenario.HeadlineNotAvailable)
+// Network - Getting headline
 // Result: HeadlineNotAvailable
 ```
 
@@ -128,6 +131,7 @@ def topicOfInterestZ(headline: String) =
 def run =
   topicOfInterestZ:
     "stock market rising!"
+// Analytics - Scanning
 // Result: stock market
 ```
 
@@ -135,6 +139,7 @@ def run =
 def run =
   topicOfInterestZ:
     "boring and inane content"
+// Analytics - Scanning
 // Result: NoInterestingTopic()
 ```
 
@@ -296,7 +301,8 @@ def run =
 ### Functions that throw
 
 ```scala
-openFile("file1").summaryFor("asdf"): String
+val summary: String = 
+  openFile("file1").summaryFor("asdf")
 ```
 
 ```scala
@@ -358,9 +364,11 @@ def summarizeZ(article: String) =
 - Blocking performance varies wildly between environments
 
 ### Sequencing 
+
 Another term for this form of composition is called `andThen` in Scala.
 
 With ZIO you can use `zio-direct` to compose ZIOs sequentially with:
+
 
 ```scala
 def run =
@@ -371,7 +379,15 @@ def run =
 // Texting story: Battery Breakthrough
 ```
 
+#### Short-circuiting
+
+Short-circuiting is an essential part Effect Systems because they enable a linear sequence of expressions which helps make code much easier to understand.
+The explicit knowledge of exactly how each Effect can fail is part of definition of the Effect.
+
+In order for Effect Systems to have recovery operations, they must know when failure happens.
+
 ### Final Collective Criticism
+
 Each of original approaches gives you benefits, but you can't easily assemble a program that utilizes all of them.
 They must be manually transformed into each other .
 
@@ -381,7 +397,6 @@ The ordering of the nesting is significant, and not easily changed.
 
 The number of combinations is something like:
   PairsIn(numberOfConcepts)
-
 
 ### Fully Composed
 
@@ -425,13 +440,25 @@ def researchHeadline(scenario: Scenario) =
 def run =
   researchHeadline:
     Scenario.HeadlineNotAvailable
+// Network - Getting headline
 // Result: HeadlineNotAvailable
 ```
 
 ```scala
 def run =
   researchHeadline:
+    Scenario.NoInterestingTopic()
+// Network - Getting headline
+// Analytics - Scanning
+// Result: NoInterestingTopic()
+```
+
+```scala
+def run =
+  researchHeadline:
     Scenario.SummaryReadThrows()
+// Network - Getting headline
+// Analytics - Scanning
 // File - OPEN
 // File - contains(unicode)
 // File - summaryFor(unicode)
@@ -443,6 +470,8 @@ def run =
 def run =
   researchHeadline:
     Scenario.NoWikiArticleAvailable()
+// Network - Getting headline
+// Analytics - Scanning
 // File - OPEN
 // File - contains(barn)
 // Wiki - articleFor(barn)
@@ -454,6 +483,8 @@ def run =
 def run =
   researchHeadline:
     Scenario.AITooSlow()
+// Network - Getting headline
+// Analytics - Scanning
 // File - OPEN
 // File - contains(space)
 // Wiki - articleFor(space)
@@ -470,13 +501,16 @@ def run =
     // TODO Handle inconsistency in this example
     // AI keeps timing out
     Scenario.DiskFull()
+// Network - Getting headline
+// Analytics - Scanning
 // File - OPEN
 // File - contains(genome)
 // Wiki - articleFor(genome)
 // AI - summarize - start
 // AI - summarize - end
+// AI **INTERRUPTED**
 // File - CLOSE
-// Result: DiskFull()
+// Result: AITooSlow()
 ```
 
 And finally, we see the longest, successful pathway through our application:
@@ -485,6 +519,8 @@ And finally, we see the longest, successful pathway through our application:
 def run =
   researchHeadline:
     Scenario.StockMarketHeadline
+// Network - Getting headline
+// Analytics - Scanning
 // File - OPEN
 // File - contains(stock market)
 // Wiki - articleFor(stock market)
@@ -500,20 +536,10 @@ def run =
 
 Repeating is a form of composability, because you are composing a program with itself
 
+## Graveyard candidates
 
-## Injecting Behavior before/after/around
+### Plain functions that return Unit
 
-
-# Graveyard candidates
-
-## Contract-based prose
-Good contracts make good composability.
-
-contracts are what makes composability work at scale
-our effects put in place contracts on how things can compose
-
-
-### Plain functions that return Unit TODO Incorporate to AllTheThings
 {{TODO Decide if this section is worth keeping. If so, where?}}
 
 `Unit` can be viewed as the bare minimum of effect tracking.
