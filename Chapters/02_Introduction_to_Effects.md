@@ -14,8 +14,8 @@ There is no realistic expectation that you will ever achieve a completely bug-fr
   just one that seems to work well enough to meet the requirements.
 This is the reality programmers have come to accept.
 
-If each piece of a traditional system is unpredictable, 
-  when you combine these pieces you get a multiplicative effect 
+If each piece of a traditional system is unpredictable,
+  when you combine these pieces you get a multiplicative effect
   -- the resulting parts are significantly less predictable than their component pieces.
 
 What if we could change our thinking around the problem of building software systems?
@@ -35,9 +35,9 @@ With most languages,
 In Functional Programming we start by examining the impact of each concept on predictability.
 We then combine the smaller concepts, ensuring predictability at each step.
 
-A predictable system isolates parts that are always the same 
-  (called pure functions) 
-  from the parts that are unpredictable 
+A predictable system isolates parts that are always the same
+  (called pure functions)
+  from the parts that are unpredictable
   (effects).
 
 ## Dealing With Unpredictability
@@ -54,7 +54,7 @@ The interactions with external systems can be defined in terms of "Effects".
 Effects create a delineation between the parts of a program that interact with external systems and those that don't.
 
 For example, a program that displays the current date requires something that actually knows the current date.
-The program needs to talk to an external system 
+The program needs to talk to an external system
   (maybe just the operating system)
   to get this information.
 These programs are unpredictable because the programmer has no control over what that external system will say or do.

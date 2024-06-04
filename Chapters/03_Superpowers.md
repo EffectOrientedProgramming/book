@@ -158,6 +158,7 @@ object MyApp extends ZIOAppDefault:
 ```
 
 In this book, to avoid the excess lines, we shorten this to:
+
 ```scala mdoc:runzio
 def run =
   effect0
@@ -165,7 +166,8 @@ def run =
 
 By default, the `saveUser` Effect runs in the "happy path" so it will not fail.
 
-We can explicitly specify the way in which this Effect will run by overriding the `bootstrap` value: 
+We can explicitly specify the way in which this Effect will run by overriding the `bootstrap` value:
+
 ```scala mdoc:runzio
 override val bootstrap =
   happyPath
@@ -179,6 +181,7 @@ Overriding the `bootstrap` value simulates failures in the following examples.
 In real systems, assuming the "happy path" causes strange unhandled errors.
 
 We can also run a scenario that causes failure:
+
 ```scala mdoc:runzio
 override val bootstrap =
   neverWorks
@@ -202,6 +205,7 @@ val effect1 =
 The Effect with the retry behavior becomes a new Effect and can optionally be assigned to a `val` (as is done here).
 
 Now we run the new Effect in a scenario that works on the third try:
+
 ```scala mdoc:runzio
 override val bootstrap =
   doesNotWorkInitially
@@ -281,6 +285,7 @@ The Effect took too long and produced the error.
 
 In some cases there may be fallback behavior for failed Effects.
 One option is to use the `orElse` operation with a fallback Effect:
+
 ```scala mdoc:silent
 val effect4 =
   effect3.orElse:
@@ -347,6 +352,7 @@ override val bootstrap =
 def run =
   effect6
 ```
+
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.
 
 ## Superpower: Maybe We Don't Want To Run Anything
@@ -366,6 +372,7 @@ override val bootstrap =
 def run =
   effect7
 ```
+
 We can add behavior to the end of our complex Effect,
   that prevents it from ever executing in the first place.
 
@@ -392,7 +399,9 @@ We need to be holding on to a value that represents something that _can_ be run,
 If we have that, then our Effect System can freely add behavior before/after that value.
 
 ### defer/run example
+
 When we make a defer block, nothing inside of it will be executed yet.
+
 ```scala mdoc:silent
 val program =
   defer:
@@ -415,7 +424,7 @@ val programManipulatingBeforeRun =
     Console.printLine("Hello").repeatN(3).run
 ```
 
-We *cannot* repeat our executed effect.
+We _cannot_ repeat our executed effect.
 
 ```scala mdoc:fail
 val programManipulatingBeforeRun =
@@ -424,7 +433,7 @@ val programManipulatingBeforeRun =
 ```
 
 Note that these calls to `.run` are all within a `defer` block, so when `program` is defined, we still have not actually executed anything.
-We have described a program that knows the order in which to execute our individual effects *when the program is executed*.
+We have described a program that knows the order in which to execute our individual effects _when the program is executed_.
 
 ```scala mdoc:silent
 val surroundedProgram =
@@ -451,5 +460,5 @@ val program =
 ```
 
 ### Explain the 2 versions of run and how they came to be
-### Interpreter
 
+### Interpreter

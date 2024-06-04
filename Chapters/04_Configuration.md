@@ -23,7 +23,7 @@ An alternative to this approach is to use "Constructor Injection" which avoids s
 
 If instead functionality expressed its dependencies through the type system, the compiler could verify that the needed parts are in-fact available given a particular path of execution (e.g. main app, test suite one, test suite two).
 
-## What ZIO Provides Us.
+## What ZIO Provides Us
 
 With ZIO's approach to dependencies, you get many desirable characteristics at compile-time, using standard language features.
 Your services are defined as classes with constructor arguments, just as in any vanilla Scala application.
@@ -38,14 +38,15 @@ To aid further in understanding your application architecture, you can visualize
 You can also do things that simply are not possible in other approaches, such as sharing a single instance of a dependency across multiple test classes, or even multiple applications.
 
 ## DI-Wow!
+
 TODO Values to convey:
 
 - Layer Graph
-   - Cycles are a compile error
-   - Visualization with Mermaid
-   - test implementations
+  - Cycles are a compile error
+  - Visualization with Mermaid
+  - test implementations
 - Layer Resourcefulness
-   - Layers can have setup & teardown (open & close)
+  - Layers can have setup & teardown (open & close)
 
 ```scala mdoc:silent
 // Explain private constructor approach
@@ -60,6 +61,7 @@ object Dough:
 ```
 
 ## Step 1: Provide Dependency Layers to Effects
+
 We must provide all required dependencies to an effect before you can run it.
 
 ```scala mdoc:runzio
@@ -70,7 +72,6 @@ def run =
     .provide:
       Dough.fresh
 ```
-
 
 ## Step 2: Unresolved Dependencies Are Compile Errors
 
@@ -100,7 +101,6 @@ val oven =
   ZLayer.derive[Heat]
 ```
 
-
 ```scala mdoc:silent
 trait Bread
 
@@ -126,6 +126,7 @@ def run =
 ```
 
 ## Step 4: Different effects can require the same dependency
+
 Eventually, we grow tired of eating plain `Bread` and decide to start making `Toast`.
 Both of these processes require `Heat`.
 
@@ -139,7 +140,7 @@ object Toast:
 
 It is possible to also use the oven to provide `Heat` to make the `Toast`.
 
-The dependencies are tracked by their type. 
+The dependencies are tracked by their type.
 In this case both `Toast.make` and `Bread.homemade` require `Heat`.
 
 Notice - Even though we provide the same dependencies in this example, oven is _also_ required by `Toast.make`
@@ -158,7 +159,6 @@ def run =
 
 However, the oven uses a lot of energy to make `Toast`.
 It would be great if we can instead use our dedicated toaster!
-
 
 ```scala mdoc:silent
 val toaster =
@@ -186,10 +186,12 @@ ZIO
     toaster
   )
 ```
+
 Unfortunately our program is now ambiguous.
 It cannot decide if we should be making `Toast` in the oven, `Bread` in the toaster, or any other combination.
 
 ## Step 6: Providing Dependencies at Different Levels
+
 This enables other effects that use them to provide their own dependencies of the same type
 
 ```scala mdoc:runzio
@@ -232,8 +234,8 @@ def run =
       storeBought
 ```
 
-
 ## Step 8: Dependencies can fail
+
 Since dependencies can be built with effects, this means that they can fail.
 
 ```scala mdoc:invisible
@@ -415,7 +417,6 @@ With ZIO Test we can use predictable replacements for the standard systems effec
 
 An example of this is Random numbers.  Randomness is inherently unpredictable.  But in ZIO Test, without changing our Effects we can change the underlying systems with something predictable:
 
-
 ```scala mdoc:silent
 val coinToss =
   // TODO: This is the first place we use defer.
@@ -567,7 +568,8 @@ It completes when the first Effect succeeds and cancels the losing Effect, using
 
 By default in ZIO Test, the clock does not change unless instructed to.
 Calling a time based effect like `timeout` would hang indefinitely with a warning like:
-```
+
+```terminal
 Warning: A test is using time, but is not advancing the test clock, which may result in the test hanging. 
 Use TestClock.adjust to manually advance the time.
 ```

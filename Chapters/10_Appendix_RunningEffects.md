@@ -2,13 +2,13 @@
 
 TODO: Make an appendix?
 
-
 ## Building applications from scratch
 
 One way to run ZIOs is to use a "main method" program (something you can start in the JVM).
 However, setting up the pieces needed for this is a bit cumbersome if done without helpers.
 
 ### ZIOAppDefault
+
 ZIO provides an easy way to do this with the `ZIOAppDefault` trait.
 
 To use it create a new `object` that extends the `ZIOAppDefault` trait and implements the `run` method.  That method returns a ZIO so you can now give it the example `ZIO.debug` data:
@@ -28,6 +28,7 @@ If you are learning ZIO, you should start your exploration with `ZIOAppDefault`.
 It is the standard, simplest way to start executing your recipes.
 
 For this book we shorten the definition for running ZIO Effects to:
+
 ```scala mdoc:runzio
 def run =
   ZIO.debug:
@@ -43,12 +44,10 @@ object RunningZIOs extends ZIOAppDefault:
       "Hello World!"
 ```
 
-
 You can provide arbitrary ZIO instances to the run method, as long as you have provided every piece of the environment.
 In other words, it can accept `ZIO[Any, _, _]`.
 
 There is a more flexible `ZIOApp` that facilitates sharing layers between applications, but this is advanced and not necessary for most applications.
-
 
 ## Testing code
 
@@ -59,7 +58,6 @@ Similar to `ZIOAppDefault`, there is a `ZIOSpecDefault` that should be your star
 When you run the same `ZIO` in these 2 contexts, the only thing that changes are the built-in services provided by the runtime.
 
 > TODO - Decide which scenario to test
-
 
 ```scala mdoc:compile-only
 object TestingZIOs extends ZIOSpecDefault:
@@ -72,6 +70,7 @@ object TestingZIOs extends ZIOSpecDefault:
 ```
 
 For this book we can shorten the test definition to:
+
 ```scala mdoc:testzio
 def spec =
   test("random is random"):

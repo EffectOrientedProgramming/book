@@ -57,9 +57,10 @@ Each time we publish a copy of this book, the code is re-executed and a differen
 However, conflicts are extremely likely, so some of our writes get clobbered by others, and we end up with less than the expected 100,000.
 Ultimately, we lose information with this approach.
 
-```
+```mermaid
 TODO Consider making a diagram parallel writes
 ```
+
 Performing our side effects inside ZIO's does not magically make them safe.
 We need to fully embrace the ZIO components, utilizing `Ref` for correct mutation.
 
@@ -85,10 +86,11 @@ lazy val reliableCounting =
 def run =
   reliableCounting
 ```
+
 Now we can say with full confidence that our final count is 100000.
 Additionally, these updates happen _without blocking_.
 This is achieved through a strategy called "Compare & Swap", which we will not cover in detail.
-*TODO Link/reference supplemental reading*
+_TODO Link/reference supplemental reading_
 
 ## Unreliable Effects
 
@@ -105,6 +107,7 @@ def expensiveCalculation() =
 ```
 
 Our side effect will be a mock alert that is sent anytime our count is updated:
+
 ```scala mdoc
 def sendNotification() =
   println:
@@ -133,13 +136,13 @@ def run =
       counter.get.run
     s"Final count: $finalCount"
 ```
+
 What is going on?!
 Previously, we were losing updates because of unsafe mutability.
 Now, we have the opposite problem!
 We are sending far more alerts than intended, even though we can see that our final count is 4.
 
-*TODO This section will need significant attention and polish*
-
+_TODO This section will need significant attention and polish_
 Now we must consider the limitations of the "Compare & Swap" system.
 It achieves lock-free performance by letting each fiber freely make their updates, and then doing a last-second check to see if the underlying value changed during its update.
 If the value has not changed, the update is made.
@@ -149,7 +152,6 @@ The higher the parallelism, or the longer the operation takes, the higher the li
 This retry behavior is safe with pure functions, which can be executed an arbitrary number of times.
 However, it is completely inappropriate for effects, which should only be executed a single time.
 For these situations, we need a specialized variation of `Ref`
-
 
 ## Reliable Effects
 

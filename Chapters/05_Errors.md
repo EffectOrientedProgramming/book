@@ -155,7 +155,6 @@ def render(value: String) =
   s"Temperature: $value"
 ```
 
-
 ```scala mdoc:silent
 def temperatureApp(): String =
   render:
@@ -183,7 +182,7 @@ def run =
 
 ### Manual Error Discovery
 
-Exceptions do not convey a contract in either direction. 
+Exceptions do not convey a contract in either direction.
 
 If you have been burned in the past by functions that throw surprise exceptions
   , you might defensively catch `Exception`s all over your program.
@@ -255,13 +254,12 @@ We have specific messages for all relevant error cases. However, this still suff
 
 Exceptions have other problems:
 
-1. The only way to ensure your program won't crash is by testing it through all possible execution paths. 
+1. The only way to ensure your program won't crash is by testing it through all possible execution paths.
 
 1. It is difficult or impossible to retry an operation if it fails.
 
 Exceptions were a valiant attempt to produce a consistent error-reporting interface, and they are better than what came before.
 You just don't know what you're going to get when you use exceptions.
-
 
 ## Error Handling with ZIO
 
@@ -307,6 +305,7 @@ def run =
 ```
 
 Running the ZIO version without handling any errors
+
 ```scala mdoc:runzio
 override val bootstrap =
   errorsNetworkError
@@ -319,6 +318,7 @@ This is not an error that we want to show the user.
 Instead, we want to handle all of our internal errors, and make sure that they result in a user-friendly error message.
 
 {{ TODO: mdoc seems to have a bug and is not outputting the compiler warning }}
+
 ```scala mdoc:warn
 val bad =
   getTemperature.catchAll:
@@ -409,9 +409,8 @@ def run =
   displayTemperatureZWrapped
 ```
 
-This is decent, but does not provide the maximum possible guarantees. 
+This is decent, but does not provide the maximum possible guarantees.
 Look at what happens if we forget to handle one of our errors.
-
 
 ```scala mdoc:runzio
 scenario =
@@ -449,7 +448,7 @@ This lets us avoid the most egregious gaps in functionality, but does not take f
 
 ### Prevents Overly-Defensive Programming
 
-Anything can be wrapped with a try/catch. 
+Anything can be wrapped with a try/catch.
 Things that produce exceptions don't need to be wrapped with trys.
 
 You are forbidden from `retry`'ing effects that cannot fail.
@@ -469,4 +468,5 @@ ZIO
 ### Flexible error types
 
 ### Collections of Error
+
 eg `collectAllSuccesses`
