@@ -17,17 +17,12 @@ By following "Dependency Inversion", you enable "Dependency Injection", which pr
 ... Why is it called "Dependency Injection" ?
 Instead of manually constructing and passing all your dependencies through the application, you have an "Injector" that automatically provides instances where needed.
 
-Understanding these terms is not crucial for writing Effect Oriented code, but we include them to facilitate contrasting this style with others you may have encountered.
-
-Let's consider an example:
-We want to write a function that fetches Accounts from a database
-The necessary parts might be a `DatabaseService` which provides database connections and a `UserService` which provides the access controls.
-By separating these dependencies our from the functionality of fetching accounts, tests can "fake" or "mock" the dependencies to simulate the actual dependency.
+Understanding these terms is not crucial for writing Effect Oriented code, but will help when building the layers in your application.
 
 In the world of Java these dependent parts are usually expressed through annotations (e.g. `@Autowired` in Spring).
-But these approaches are "impure" (require mutability), often rely on runtime magic (e.g. reflection), and require everything that uses the annotations to be created through a Dependency Injection manager, complicating construction flow.  
+But these approaches are require mutability, often rely on runtime magic (e.g. reflection), and require everything to be created through a Dependency Injection manager, complicating construction flow.  
 
-An alternative to this approach is to use "Constructor Injection" which avoids some of the pitfalls associated with "Field Injection" but doesn't resolve some of the underlying issues, including the ability for dependencies to be expressed at compile time.
+An alternative to this approach is to use "Constructor Injection" which avoids some of the pitfalls associated with "Field Injection" but doesn't resolve some of the underlying issues, Importantly, it is difficult or impossible to express our dependencies at compile time.
 
 Instead, if functionality expressed its dependencies through the regular type system, the compiler could verify that the needed parts are available given a particular path of execution (e.g. main app, test suite one, test suite two).
 
@@ -486,12 +481,12 @@ def run =
 // Tails
 // Heads
 // Heads
-// Heads
-// Heads
 // Tails
-// Heads
-// Num Heads = 8
-// Result: 8
+// Tails
+// Tails
+// Tails
+// Num Heads = 5
+// Result: 5
 ```
 
 ```scala
@@ -516,7 +511,7 @@ def spec =
 // Heads
 // Num Heads = 10
 // + flips 10 times
-// Result: Summary(1,0,0,,PT0.066981S)
+// Result: Summary(1,0,0,,PT0.039593S)
 ```
 
 ```scala
@@ -577,7 +572,7 @@ def spec =
 // Heads
 // R: Heads
 // + rosencrantzAndGuildensternAreDead finishes
-// Result: Summary(1,0,0,,PT0.033055S)
+// Result: Summary(1,0,0,,PT0.03355S)
 ```
 
 ```scala
@@ -589,18 +584,18 @@ def spec =
   @@ TestAspect.withLiveRandom @@
     TestAspect.flaky(Int.MaxValue)
 // *Performance Begins*
+// Heads
+// R: Heads
 // Tails
-// <FAIL> R: Fail(Tails,Stack trace for thread "zio-fiber-1578839799":
+// <FAIL> R: Fail(Tails,Stack trace for thread "zio-fiber-1969739710":
 // 	at repl.MdocSession.MdocApp.coinToss(<input>:403)
-// 	at repl.MdocSession.MdocApp.rosencrantzCoinToss(<input>:470)
-// 	at repl.MdocSession.MdocApp.rosencrantzAndGuildensternAreDead(<input>:475)
 // ...
 // R: Heads
 // G: ...probability
 // Heads
 // R: Heads
 // + flaky plan
-// Result: Summary(1,0,0,,PT0.024966S)
+// Result: Summary(1,0,0,,PT0.025212S)
 ```
 
 The `Random` Effect uses an injected something which when running the ZIO uses the system's unpredictable random number generator.  In ZIO Test the `Random` Effect uses a different something which can predictably generate "random" numbers.  `TestRandom` provides a way to define what those numbers are.  This example feeds in the `Int`s `1` and `2` so the first time we ask for a random number we get `1` and the second time we get `2`.
@@ -640,7 +635,7 @@ def spec =
       assertCompletes
 // Parsing CSV: ()
 // + batch runs after 24 hours
-// Result: Summary(1,0,0,,PT0.03372S)
+// Result: Summary(1,0,0,,PT0.020438S)
 ```
 
 The `race` is between `nightlyBatch` and `timeTravel`.

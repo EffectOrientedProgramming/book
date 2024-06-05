@@ -59,7 +59,8 @@ The original asynchronous datatype in Scala has several undesirable characterist
 There is a function that returns a Future:
 
 ```scala
-val future: Future[String] = getHeadLine(???)
+val future: Future[String] =
+  getHeadLine(???)
 ```
 
 TODO This is repetitive after listing the downsides above.
@@ -225,7 +226,7 @@ Now we highlight the difference between the static scoping of `Using` or `ZIO.fr
 
 ```scala
 // This was previously-compile only
-// The output is too long to fit on a page, 
+// The output is too long to fit on a page,
 // and beyond our ability to control
 // without resorting to something like pprint.
 
@@ -296,7 +297,7 @@ def run =
 ## Functions that throw
 
 ```scala
-val summary: String = 
+val summary: String =
   openFile("file1").summaryFor("asdf")
 ```
 
@@ -337,7 +338,8 @@ TODO Prose about the long-running AI process here
 
 ```scala
 // TODO Can we use silent instead of compile-only above?
-val summary: String = summarize("topic")
+val summary: String =
+  summarize("topic")
 // AI - summarize - start
 // AI - summarize - end
 // summary: String = "topic summary"
@@ -412,10 +414,13 @@ def researchHeadline(scenario: Scenario) =
     val summaryFile: File =
       // TODO Use Scenario to determine file?
       openFileZ("file1.txt").run
-      
-    // TODO Use 2 files at once, to further highlight the dynamic scoping?
-    // Not sure if that is too noisy for this flow
-    // Maybe something like a cache check if time has passed?
+
+    // TODO Use 2 files at once, to further
+    // highlight the dynamic scoping?
+    // Not sure if that is too noisy for this
+    // flow
+    // Maybe something like a cache check if time
+    // has passed?
 
     val knownTopic: Boolean =
       summaryFile.contains:
@@ -486,6 +491,8 @@ def run =
 // File - OPEN
 // File - contains(space)
 // Wiki - articleFor(space)
+// AI - summarize - start
+// printing because our test clock is insane
 // AI **INTERRUPTED**
 // File - CLOSE
 // Result: AITooSlow()
