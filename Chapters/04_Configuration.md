@@ -10,7 +10,6 @@ Typically, this approach to breaking things into parts and expressing what they 
 
 By following "Dependency Inversion", you enable "Dependency Injection", which produces more flexible code.
 
-... Why is it called "Dependency Injection" ?
 Instead of manually constructing and passing all your dependencies through the application, you have an "Injector" that automatically provides instances where needed.
 
 Understanding these terms is not crucial for writing Effect Oriented code, but will help when building the layers in your application.
@@ -53,12 +52,13 @@ TODO Values to convey:
 // Explain private constructor approach
 case class Dough():
   val letRise =
-    ZIO.debug:
+    Console.printLine:
       "Dough is rising"
 
 object Dough:
   val fresh =
     ZLayer.derive[Dough]
+      .tap(_ => Console.printLine("Dough: Mixed"))
 ```
 
 ## Step 1: Provide Dependency Layers to Effects
@@ -100,10 +100,14 @@ case class Heat()
 
 val oven =
   ZLayer.derive[Heat]
+    .tap(_ => Console.printLine("Oven: Heated"))
 ```
 
 ```scala mdoc:silent
-trait Bread
+trait Bread {
+  def eat =
+    Console.printLine("Bread: Eating")
+}
 
 case class BreadHomeMade(
     heat: Heat,
@@ -113,6 +117,7 @@ case class BreadHomeMade(
 object Bread:
   val homemade =
     ZLayer.derive[BreadHomeMade]
+      .tap(_ => Console.printLine("BreadHomeMade: Baked"))
 ```
 
 Something around how like typical DI, the "graph" of dependencies gets resolved "for you"
@@ -122,7 +127,8 @@ Dependencies on effects propagate to effects which use effects.
 ```scala mdoc:runzio
 def run =
   ZIO
-    .service[Bread]
+    .serviceWithZIO[Bread]:
+      bread => bread.eat
     .provide(Bread.homemade, Dough.fresh, oven)
 ```
 
@@ -137,6 +143,7 @@ case class Toast(heat: Heat, bread: Bread)
 object Toast:
   val make =
     ZLayer.derive[Toast]
+      .tap(_ => Console.printLine("Toast: Made"))
 ```
 
 It is possible to also use the oven to provide `Heat` to make the `Toast`.
@@ -164,6 +171,7 @@ It would be great if we can instead use our dedicated toaster!
 ```scala mdoc:silent
 val toaster =
   ZLayer.derive[Heat]
+   .tap(_ => Console.printLine("Toaster: Heated"))
 ```
 
 ```scala mdoc:runzio
@@ -193,7 +201,7 @@ It cannot decide if we should be making `Toast` in the oven, `Bread` in the toas
 
 ## Step 6: Providing Dependencies at Different Levels
 
-This enables other effects that use them to provide their own dependencies of the same type
+We can explicitly provide dependencies when needed, to prevent ambiguity.
 
 ```scala mdoc:runzio
 def run =
@@ -225,6 +233,7 @@ val buyBread =
 val storeBought =
   ZLayer.fromZIO:
     buyBread
+  .tap(_ => Console.printLine("BreadStoreBought: Bought"))
 ```
 
 ```scala mdoc:runzio
@@ -571,8 +580,10 @@ By default in ZIO Test, the clock does not change unless instructed to.
 Calling a time based effect like `timeout` would hang indefinitely with a warning like:
 
 ```terminal
-Warning: A test is using time, but is not advancing the test clock, which may result in the test hanging. 
-Use TestClock.adjust to manually advance the time.
+Warning: A test is using time, but is not 
+advancing the test clock, which may result 
+in the test hanging.  Use TestClock.adjust 
+to manually advance the time.
 ```
 
 To test time based effects we need to `fork` those effects so that then we can adjust the clock.
