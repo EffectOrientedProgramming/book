@@ -41,7 +41,7 @@ If we now pass `false` to `canFail` the Effect will fail.
 def run =
   canFail(succeeds = false)
    .debug("Things went wrong")
-// <FAIL> Things went wrong: Fail(*** FAIL ***,Stack trace for thread "zio-fiber-1728743430":
+// <FAIL> Things went wrong: Fail(*** FAIL ***,Stack trace for thread "zio-fiber-796608864":
 // 	at repl.MdocSession.MdocApp.canFail(<input>:11)
 // 	at repl.MdocSession.MdocApp.Chapter23.run(<input>:32)
 // 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:22)
