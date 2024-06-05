@@ -98,7 +98,6 @@ def saveUser(username: String) =
         else
           fail.run
     end match
-  end saveUser
 end saveUser
 
 def sendToManualQueue(username: String) =

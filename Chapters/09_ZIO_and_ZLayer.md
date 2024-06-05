@@ -8,13 +8,13 @@ The way we get good compile errors is by having data types which "know" the ...
 
 We need an `Answer` about this scenario.  The scenario requires things and could produce an error.
 
-```scala
+```scala mdoc:compile-only
 trait ZIO[Requirements, Error, Answer]
 ```
 
 The `ZIO` trait is at the center of our Effect-oriented world.
 
-```scala
+```scala mdoc:compile-only
 trait ZIO[R, E, A]
 ```
 
