@@ -30,8 +30,10 @@ enum Scenario: // TODO Could these instances _also_ be the error types??
   case StockMarketHeadline
   case HeadlineNotAvailable
   case NoInterestingTopic()
-  // There is an Either[NoWikiArticleAvailable,_] in visible code, so if we make it an object,
-  // It will be Either[NoWikiArticleAvailable.type,_] :(
+  // There is an Either[NoWikiArticleAvailable,_]
+  // in visible code, so if we make it an object,
+  // It will be
+  // Either[NoWikiArticleAvailable.type,_] :(
   case NoWikiArticleAvailable()
   case AITooSlow()
   case SummaryReadThrows()
@@ -56,7 +58,7 @@ import scala.concurrent.Future
 //  we can leverage that to hit all of the possible paths in AllTheThings.
 def getHeadLine(
     scenario: Scenario
-): Future[String] = {
+): Future[String] =
   println("Network - Getting headline")
   scenario match
     case Scenario.HeadlineNotAvailable =>
@@ -71,14 +73,16 @@ def getHeadLine(
     case Scenario.SummaryReadThrows() =>
       Future.successful("new unicode released!")
     case Scenario.NoInterestingTopic() =>
-      Future.successful("TODO Use boring content here")
+      Future.successful(
+        "TODO Use boring content here"
+      )
     case Scenario.DiskFull() =>
       Future.successful("human genome sequenced")
-}
+end getHeadLine
 
 def findTopicOfInterest(
     content: String
-): Option[String] = {
+): Option[String] =
   // TODO Decide best output string here
   println("Analytics - Scanning")
   val topics =
@@ -90,7 +94,6 @@ def findTopicOfInterest(
       "genome"
     )
   topics.find(content.contains)
-}
 
 import scala.util.Either
 def wikiArticle(topic: String): Either[
@@ -124,7 +127,8 @@ The original asynchronous datatype in Scala has several undesirable characterist
 There is a function that returns a Future:
 
 ```scala mdoc:compile-only
-val future: Future[String] = getHeadLine(???)
+val future: Future[String] =
+  getHeadLine(???)
 ```
 
 TODO This is repetitive after listing the downsides above.
@@ -256,16 +260,22 @@ def openFile(path: String) =
     var contents: List[String] =
       List("Medical Breakthrough!")
     println("File - OPEN")
-    
+
     override def content() =
       path match
-        case "file1.txt" | "file2.txt"=> "hot dog"
-        case _ => "not hot dog"
-    
-    override def sameContent(other: File): Boolean =
-      println("side-effect print: comparing content")
+        case "file1.txt" | "file2.txt" =>
+          "hot dog"
+        case _ =>
+          "not hot dog"
+
+    override def sameContent(
+        other: File
+    ): Boolean =
+      println(
+        "side-effect print: comparing content"
+      )
       content() == other.content()
-    
+
     override def close =
       println("File - CLOSE")
 
@@ -274,7 +284,7 @@ def openFile(path: String) =
     ): Boolean =
       println:
         s"File - contains($searchTerm)"
-        
+
       // todo use path to determine behavior?
       searchTerm match
         case "wheel" | "unicode" =>
@@ -302,13 +312,8 @@ def openFile(path: String) =
     ): Try[String] =
       if (entry.contains("genome")) {
         println("File - disk full!")
-        Try(
-          throw new Exception(
-            "Disk is full!"
-          )
-        )
-      }
-      else {
+        Try(throw new Exception("Disk is full!"))
+      } else {
         println("File - write: " + entry)
         contents =
           entry :: contents
@@ -351,7 +356,7 @@ Now we highlight the difference between the static scoping of `Using` or `ZIO.fr
 
 ```scala mdoc:compile-only
 // This was previously-compile only
-// The output is too long to fit on a page, 
+// The output is too long to fit on a page,
 // and beyond our ability to control
 // without resorting to something like pprint.
 
@@ -412,7 +417,7 @@ def run =
 ## Functions that throw
 
 ```scala mdoc:compile-only
-val summary: String = 
+val summary: String =
   openFile("file1").summaryFor("asdf")
 ```
 
@@ -472,12 +477,13 @@ def summarize(article: String): String =
     "topic summary"
   else
     ???
-
+end summarize
 ```
 
 ```scala mdoc
 // TODO Can we use silent instead of compile-only above?
-val summary: String = summarize("topic")
+val summary: String =
+  summarize("topic")
 ```
 
 This gets interrupted, although it takes a big performance hit
@@ -557,10 +563,13 @@ def researchHeadline(scenario: Scenario) =
     val summaryFile: File =
       // TODO Use Scenario to determine file?
       openFileZ("file1.txt").run
-      
-    // TODO Use 2 files at once, to further highlight the dynamic scoping?
-    // Not sure if that is too noisy for this flow
-    // Maybe something like a cache check if time has passed?
+
+    // TODO Use 2 files at once, to further
+    // highlight the dynamic scoping?
+    // Not sure if that is too noisy for this
+    // flow
+    // Maybe something like a cache check if time
+    // has passed?
 
     val knownTopic: Boolean =
       summaryFile.contains:

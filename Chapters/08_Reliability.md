@@ -124,11 +124,10 @@ Suppose each request to our `CloudStorage` provider costs one dollar.
 
 ```scala mdoc:runzio
 def run =
-  thunderingHerdsScenario
-    .provide(
-      CloudStorage.live, 
-      ZLayer.fromZIO(makePopularService)
-    )
+  thunderingHerdsScenario.provide(
+    CloudStorage.live,
+    ZLayer.fromZIO(makePopularService)
+  )
 ```
 
 The invoice is 100 dollars because every single request reached our `CloudStorage` provider.

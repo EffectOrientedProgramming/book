@@ -23,8 +23,9 @@ First, let's run the `canFail` Effect with an argument of `true` and print its r
 
 ```scala mdoc:runzio
 def run =
-  canFail(succeeds = true)
-     .debug
+  canFail(succeeds =
+    true
+  ).debug
 ```
 
 Given our controlled behavior of the Effect, we see that the Effect succeeded.
@@ -33,8 +34,9 @@ If we now pass `false` to `canFail` the Effect will fail.
 
 ```scala mdoc:runzio
 def run =
-  canFail(succeeds = false)
-   .debug("Things went wrong")
+  canFail(succeeds =
+    false
+  ).debug("Things went wrong")
 ```
 
 Systems need to deal with failures and, ideally, recover from them.
@@ -42,7 +44,9 @@ We can apply a very basic recovery operation on the previous example called `fli
 
 ```scala mdoc:runzio
 def run =
-  canFail(succeeds = false).flip
+  canFail(succeeds =
+    false
+  ).flip
 ```
 
 Now the code succeeds because the `failure` is swapped into the success value.
