@@ -13,17 +13,12 @@ By following "Dependency Inversion", you enable "Dependency Injection", which pr
 ... Why is it called "Dependency Injection" ?
 Instead of manually constructing and passing all your dependencies through the application, you have an "Injector" that automatically provides instances where needed.
 
-Understanding these terms is not crucial for writing Effect Oriented code, but we include them to facilitate contrasting this style with others you may have encountered.
-
-Let's consider an example:
-We want to write a function that fetches Accounts from a database
-The necessary parts might be a `DatabaseService` which provides database connections and a `UserService` which provides the access controls.
-By separating these dependencies our from the functionality of fetching accounts, tests can "fake" or "mock" the dependencies to simulate the actual dependency.
+Understanding these terms is not crucial for writing Effect Oriented code, but will help when building the layers in your application.
 
 In the world of Java these dependent parts are usually expressed through annotations (e.g. `@Autowired` in Spring).
-But these approaches are "impure" (require mutability), often rely on runtime magic (e.g. reflection), and require everything that uses the annotations to be created through a Dependency Injection manager, complicating construction flow.  
+But these approaches are require mutability, often rely on runtime magic (e.g. reflection), and require everything to be created through a Dependency Injection manager, complicating construction flow.  
 
-An alternative to this approach is to use "Constructor Injection" which avoids some of the pitfalls associated with "Field Injection" but doesn't resolve some of the underlying issues, including the ability for dependencies to be expressed at compile time.
+An alternative to this approach is to use "Constructor Injection" which avoids some of the pitfalls associated with "Field Injection" but doesn't resolve some of the underlying issues, Importantly, it is difficult or impossible to express our dependencies at compile time.
 
 Instead, if functionality expressed its dependencies through the regular type system, the compiler could verify that the needed parts are available given a particular path of execution (e.g. main app, test suite one, test suite two).
 
