@@ -236,10 +236,12 @@ def run =
   .provide(DelicateResource.live)
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(551)
-// Current requests: : List(803, 551)
-// Current requests: : List(137, 803, 551)
-// Current requests: : List(26, 137, 803, 551)
+// Current requests: : List(697)
+// Current requests: : List(972, 697)
+// Current requests: : List(555, 972, 697)
+// Current requests: : List(509, 555, 972, 697)
+// Current requests: : List(198, 509, 555, 972, 697)
+// Current requests: : List(854, 198, 509, 555, 972, 697)
 // Result: Crashed the server!!
 ```
 
@@ -274,16 +276,16 @@ def run =
   .provide(DelicateResource.live, Scope.default)
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(295)
-// Current requests: : List(575, 295)
-// Current requests: : List(575, 575, 295)
-// Current requests: : List(903)
-// Current requests: : List(286, 903)
-// Current requests: : List(189, 286, 903)
-// Current requests: : List(343)
-// Current requests: : List(558, 343)
-// Current requests: : List(396, 558, 343)
-// Current requests: : List(465)
+// Current requests: : List(232)
+// Current requests: : List(710, 326, 232)
+// Current requests: : List(326, 232)
+// Current requests: : List(475)
+// Current requests: : List(255, 475)
+// Current requests: : List(467, 255, 475)
+// Current requests: : List(634)
+// Current requests: : List(489, 634)
+// Current requests: : List(837, 489, 634)
+// Current requests: : List(546)
 // Result: All Requests Succeeded
 ```
 
@@ -374,7 +376,7 @@ def run =
     val made =
       numCalls.get.run
     s"Calls prevented: $prevented Calls made: $made"
-// Result: Calls prevented: 74 Calls made: 67
+// Result: Calls prevented: 75 Calls made: 66
 ```
 
 {{TODO Fix output after `OurClock` changes}}

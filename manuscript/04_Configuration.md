@@ -14,7 +14,6 @@ Typically, this approach to breaking things into parts and expressing what they 
 
 By following "Dependency Inversion", you enable "Dependency Injection", which produces more flexible code.
 
-... Why is it called "Dependency Injection" ?
 Instead of manually constructing and passing all your dependencies through the application, you have an "Injector" that automatically provides instances where needed.
 
 Understanding these terms is not crucial for writing Effect Oriented code, but will help when building the layers in your application.
@@ -57,12 +56,13 @@ TODO Values to convey:
 // Explain private constructor approach
 case class Dough():
   val letRise =
-    ZIO.debug:
+    Console.printLine:
       "Dough is rising"
 
 object Dough:
   val fresh =
     ZLayer.derive[Dough]
+      .tap(_ => Console.printLine("Dough: Mixed"))
 ```
 
 ## Step 1: Provide Dependency Layers to Effects
@@ -76,6 +76,7 @@ def run =
       dough => dough.letRise
     .provide:
       Dough.fresh
+// Dough: Mixed
 // Dough is rising
 ```
 
@@ -119,10 +120,14 @@ case class Heat()
 
 val oven =
   ZLayer.derive[Heat]
+    .tap(_ => Console.printLine("Oven: Heated"))
 ```
 
 ```scala
-trait Bread
+trait Bread {
+  def eat =
+    Console.printLine("Bread: Eating")
+}
 
 case class BreadHomeMade(
     heat: Heat,
@@ -132,6 +137,7 @@ case class BreadHomeMade(
 object Bread:
   val homemade =
     ZLayer.derive[BreadHomeMade]
+      .tap(_ => Console.printLine("BreadHomeMade: Baked"))
 ```
 
 Something around how like typical DI, the "graph" of dependencies gets resolved "for you"
@@ -141,9 +147,13 @@ Dependencies on effects propagate to effects which use effects.
 ```scala
 def run =
   ZIO
-    .service[Bread]
+    .serviceWithZIO[Bread]:
+      bread => bread.eat
     .provide(Bread.homemade, Dough.fresh, oven)
-// Result: BreadHomeMade(Heat(),Dough())
+// Oven: Heated
+// Dough: Mixed
+// BreadHomeMade: Baked
+// Bread: Eating
 ```
 
 ## Step 4: Different effects can require the same dependency
@@ -157,6 +167,7 @@ case class Toast(heat: Heat, bread: Bread)
 object Toast:
   val make =
     ZLayer.derive[Toast]
+      .tap(_ => Console.printLine("Toast: Made"))
 ```
 
 It is possible to also use the oven to provide `Heat` to make the `Toast`.
@@ -176,6 +187,10 @@ def run =
       Dough.fresh,
       oven
     )
+// Oven: Heated
+// Dough: Mixed
+// BreadHomeMade: Baked
+// Toast: Made
 // Result: Toast(Heat(),BreadHomeMade(Heat(),Dough()))
 ```
 
@@ -185,6 +200,7 @@ It would be great if we can instead use our dedicated toaster!
 ```scala
 val toaster =
   ZLayer.derive[Heat]
+   .tap(_ => Console.printLine("Toaster: Heated"))
 ```
 
 ```scala
@@ -193,6 +209,7 @@ def run =
     .service[Heat]
     .provide:
       toaster
+// Toaster: Heated
 // Result: Heat()
 ```
 
@@ -230,7 +247,7 @@ It cannot decide if we should be making `Toast` in the oven, `Bread` in the toas
 
 ## Step 6: Providing Dependencies at Different Levels
 
-This enables other effects that use them to provide their own dependencies of the same type
+We can explicitly provide dependencies when needed, to prevent ambiguity.
 
 ```scala
 def run =
@@ -246,6 +263,11 @@ def run =
               bread
           )
     .provide(Bread.homemade, Dough.fresh, oven)
+// Oven: Heated
+// Dough: Mixed
+// BreadHomeMade: Baked
+// Toaster: Heated
+// Toast: Made
 // Result: Toast(Heat(),BreadHomeMade(Heat(),Dough()))
 ```
 
@@ -263,6 +285,7 @@ val buyBread =
 val storeBought =
   ZLayer.fromZIO:
     buyBread
+  .tap(_ => Console.printLine("BreadStoreBought: Bought"))
 ```
 
 ```scala
@@ -271,6 +294,7 @@ def run =
     .service[Bread]
     .provide:
       storeBought
+// BreadStoreBought: Bought
 // Result: BreadStoreBought()
 ```
 
@@ -305,6 +329,7 @@ def run =
         .orElse:
           storeBought
 // Attempt 1: Error(Friend Unreachable)
+// BreadStoreBought: Bought
 // Result: BreadStoreBought()
 ```
 
@@ -365,6 +390,7 @@ def run =
           storeBought
 // Attempt 1: Error(Friend Unreachable)
 // Attempt 2: Error(Friend Unreachable)
+// BreadStoreBought: Bought
 // Result: BreadStoreBought()
 ```
 
@@ -475,16 +501,16 @@ val flipTen =
 ```scala
 def run =
   flipTen
-// Heads
-// Heads
-// Heads
-// Tails
-// Heads
-// Heads
 // Tails
 // Tails
 // Tails
+// Heads
+// Heads
 // Tails
+// Tails
+// Heads
+// Heads
+// Heads
 // Num Heads = 5
 // Result: 5
 ```
@@ -511,7 +537,7 @@ def spec =
 // Heads
 // Num Heads = 10
 // + flips 10 times
-// Result: Summary(1,0,0,,PT0.039593S)
+// Result: Summary(1,0,0,,PT0.058405S)
 ```
 
 ```scala
@@ -572,7 +598,7 @@ def spec =
 // Heads
 // R: Heads
 // + rosencrantzAndGuildensternAreDead finishes
-// Result: Summary(1,0,0,,PT0.03355S)
+// Result: Summary(1,0,0,,PT0.059032S)
 ```
 
 ```scala
@@ -584,18 +610,18 @@ def spec =
   @@ TestAspect.withLiveRandom @@
     TestAspect.flaky(Int.MaxValue)
 // *Performance Begins*
-// Heads
-// R: Heads
 // Tails
-// <FAIL> R: Fail(Tails,Stack trace for thread "zio-fiber-1969739710":
-// 	at repl.MdocSession.MdocApp.coinToss(<input>:403)
+// <FAIL> R: Fail(Tails,Stack trace for thread "zio-fiber-742220554":
+// 	at repl.MdocSession.MdocApp.coinToss(<input>:413)
+// 	at repl.MdocSession.MdocApp.rosencrantzCoinToss(<input>:480)
+// 	at repl.MdocSession.MdocApp.rosencrantzAndGuildensternAreDead(<input>:485)
 // ...
 // R: Heads
 // G: ...probability
 // Heads
 // R: Heads
 // + flaky plan
-// Result: Summary(1,0,0,,PT0.025212S)
+// Result: Summary(1,0,0,,PT0.028057S)
 ```
 
 The `Random` Effect uses an injected something which when running the ZIO uses the system's unpredictable random number generator.  In ZIO Test the `Random` Effect uses a different something which can predictably generate "random" numbers.  `TestRandom` provides a way to define what those numbers are.  This example feeds in the `Int`s `1` and `2` so the first time we ask for a random number we get `1` and the second time we get `2`.
@@ -635,7 +661,7 @@ def spec =
       assertCompletes
 // Parsing CSV: ()
 // + batch runs after 24 hours
-// Result: Summary(1,0,0,,PT0.020438S)
+// Result: Summary(1,0,0,,PT0.025725S)
 ```
 
 The `race` is between `nightlyBatch` and `timeTravel`.
@@ -646,8 +672,10 @@ Calling a time based effect like `timeout` would hang indefinitely with a warnin
 
 ```terminal
 
-Warning: A test is using time, but is not advancing the test clock, which may result in the test hanging. 
-Use TestClock.adjust to manually advance the time.
+Warning: A test is using time, but is not 
+advancing the test clock, which may result 
+in the test hanging.  Use TestClock.adjust 
+to manually advance the time.
 ```
 
 To test time based effects we need to `fork` those effects so that then we can adjust the clock.
