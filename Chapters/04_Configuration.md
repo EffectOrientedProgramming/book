@@ -1,16 +1,19 @@
 # Configuration
 
-1. Application startup uses the same tools that you utilize for the rest of your application
+Altering the behavior of your application based on values provided at runtime is a perennial challenge in software.
+The techniques for solving this problem are diverse, impressive, and often completely bewildering.
 
 ## General/Historic discussion
 
 One reason to modularize an application into "parts" is that the relationship between the parts can be expressed and also changed depending on the needs for a given execution path.  
-Typically, this approach to breaking things into parts and expressing what they need, is called "Dependency Injection."
+Typically, this approach to breaking things into parts and expressing what they need, is called "Dependency Inversion."
+
+By following "Dependency Inversion", you enable "Dependency Injection", which produces more flexible code.
 
 ... Why is it called "Dependency Injection" ?
-Avoid having to explicitly pass things down the call chain.
+Instead of manually constructing and passing all your dependencies through the application, you have an "Injector" that automatically provides instances where needed.
 
-There is one way to express dependencies.
+Understanding these terms is not crucial for writing Effect Oriented code, but we include them to facilitate contrasting this style with others you may have encountered.
 
 Let's consider an example:
 We want to write a function that fetches Accounts from a database
@@ -19,11 +22,14 @@ By separating these dependencies our from the functionality of fetching accounts
 
 In the world of Java these dependent parts are usually expressed through annotations (e.g. `@Autowired` in Spring).
 But these approaches are "impure" (require mutability), often rely on runtime magic (e.g. reflection), and require everything that uses the annotations to be created through a Dependency Injection manager, complicating construction flow.  
+
 An alternative to this approach is to use "Constructor Injection" which avoids some of the pitfalls associated with "Field Injection" but doesn't resolve some of the underlying issues, including the ability for dependencies to be expressed at compile time.
 
-If instead functionality expressed its dependencies through the type system, the compiler could verify that the needed parts are in-fact available given a particular path of execution (e.g. main app, test suite one, test suite two).
+Instead, if functionality expressed its dependencies through the regular type system, the compiler could verify that the needed parts are available given a particular path of execution (e.g. main app, test suite one, test suite two).
 
 ## What ZIO Provides Us
+
+1. Application startup uses the same tools that you utilize for the rest of your application
 
 With ZIO's approach to dependencies, you get many desirable characteristics at compile-time, using standard language features.
 Your services are defined as classes with constructor arguments, just as in any vanilla Scala application.
