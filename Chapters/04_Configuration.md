@@ -373,18 +373,31 @@ Changing things based on the running environment.
 
 We can use the ZIO Config library to manage these.
 This is one of the few additional libraries that we use on top of core ZIO.
+It is heavily modularized so that you only pull in the integrations for the technologies used in your project.
 
 ```scala mdoc:silent
 import zio.config.*
-import zio.config.magnolia.deriveConfig
-import zio.config.typesafe.*
 ```
+
+This import brings in most of the core Config datatypes and functions that we need.
+Next we make a case class that will hold our values.
 
 ```scala mdoc:silent
 case class RetryConfig(times: Int)
+```
+
+To automatically map values in config files to our case class, we import a macro from the zio-config "magnolia" module.
+
+```scala mdoc:silent
+
+import zio.config.magnolia.deriveConfig
 
 val configDescriptor: Config[RetryConfig] =
   deriveConfig[RetryConfig]
+```
+
+```scala mdoc:silent
+import zio.config.typesafe.*
 ```
 
 ```scala mdoc:silent
