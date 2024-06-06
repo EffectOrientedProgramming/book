@@ -14,7 +14,7 @@ Let's start with a basic Effect that has simulated unpredictability:
 ```scala
 def canFail(succeeds: Boolean) =
   if succeeds then
-    ZIO.succeed("it works")
+    ZIO.succeed("Success!")
   else
     ZIO.fail("*** FAIL ***")
 ```
@@ -29,9 +29,8 @@ First, let's run the `canFail` Effect with an argument of `true` and print its r
 def run =
   canFail(succeeds =
     true
-  ).debug
-// it works
-// Result: it works
+  )
+// Result: Success!
 ```
 
 Given our controlled behavior of the Effect, we see that the Effect succeeded.
@@ -42,14 +41,7 @@ If we now pass `false` to `canFail` the Effect will fail.
 def run =
   canFail(succeeds =
     false
-  ).debug("Things went wrong")
-// <FAIL> Things went wrong: Fail(*** FAIL ***,Stack trace for thread "zio-fiber-481599455":
-// 	at repl.MdocSession.MdocApp.canFail(<input>:11)
-// 	at repl.MdocSession.MdocApp.Chapter23.run(<input>:34)
-// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:22)
-// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:32)
-// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:39)
-// 	at mdoctools.Rendering.renderEveryPossibleOutcomeZio(Rendering.scala:46)
+  )
 // Result: *** FAIL ***
 ```
 
@@ -235,7 +227,7 @@ ZIO enables more powerful, uniform error-handling.
 
 ```scala
 override val bootstrap =
-  errorsHappyPath
+  Scenario.happyPath
 
 def run =
   getTemperature
@@ -246,7 +238,7 @@ Running the ZIO version without handling any errors
 
 ```scala
 override val bootstrap =
-  errorsNetworkError
+  Scenario.networkError
 
 def run =
   getTemperature
@@ -283,7 +275,7 @@ val temperatureAppComplete =
 
 ```scala
 override val bootstrap =
-  errorsGpsError
+  Scenario.gpsError
 
 def run =
   temperatureAppComplete
@@ -425,9 +417,3 @@ ZIO
   .attempt(println("This might work"))
   .retryN(100)
 ```
-
-### Flexible error types
-
-### Collections of Error
-
-eg `collectAllSuccesses`

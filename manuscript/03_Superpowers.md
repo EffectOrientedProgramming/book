@@ -212,8 +212,6 @@ def run =
 // Result: Please manually provision Morty
 ```
 
-{{ todo: we are not seeing the expected number failures due to OurClock and timeoutFail }}
-
 The retries do not succeed so the user is sent to the fallback Effect.
 
 ## Superpower: Add Some Logging
@@ -236,7 +234,6 @@ override val bootstrap =
 
 def run =
   effect5
-// Log: Signup initiated for Morty
 // Result: User saved
 ```
 
@@ -261,7 +258,8 @@ override val bootstrap =
 def run =
   effect6
 // Log: Signup initiated for Morty
-// Result: (PT5.038835133S,User saved)
+// Log: Signup initiated for Morty
+// Result: (PT5.031824795S,User saved)
 ```
 
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.
@@ -345,7 +343,7 @@ val programManipulatingBeforeRun =
     Console.printLine("Hello").run.repeatN(3)
 // error:
 // value repeatN is not a member of Unit
-// class Chapter207 extends mdoctools.ToRun:
+// class Chapter205 extends mdoctools.ToRun:
 //                                   ^
 ```
 
@@ -405,5 +403,3 @@ val program =
 ```
 
 ### Explain the 2 versions of run and how they came to be
-
-### Interpreter

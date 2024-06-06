@@ -263,8 +263,8 @@ def run =
               bread
           )
     .provide(Bread.homemade, Dough.fresh, oven)
-// Oven: Heated
 // Dough: Mixed
+// Oven: Heated
 // BreadHomeMade: Baked
 // Toaster: Heated
 // Toast: Made
@@ -502,17 +502,17 @@ val flipTen =
 def run =
   flipTen
 // Tails
+// Heads
+// Tails
+// Tails
 // Tails
 // Heads
 // Tails
-// Heads
-// Heads
 // Tails
 // Heads
-// Tails
 // Heads
-// Num Heads = 5
-// Result: 5
+// Num Heads = 4
+// Result: 4
 ```
 
 ```scala
@@ -537,7 +537,7 @@ def spec =
 // Heads
 // Num Heads = 10
 // + flips 10 times
-// Result: Summary(1,0,0,,PT0.053845S)
+// Result: Summary(1,0,0,,PT0.061445S)
 ```
 
 ```scala
@@ -598,7 +598,7 @@ def spec =
 // Heads
 // R: Heads
 // + rosencrantzAndGuildensternAreDead finishes
-// Result: Summary(1,0,0,,PT0.060616S)
+// Result: Summary(1,0,0,,PT0.038554S)
 ```
 
 ```scala
@@ -610,18 +610,18 @@ def spec =
   @@ TestAspect.withLiveRandom @@
     TestAspect.flaky(Int.MaxValue)
 // *Performance Begins*
+// Heads
+// R: Heads
 // Tails
-// <FAIL> R: Fail(Tails,Stack trace for thread "zio-fiber-1801559363":
+// <FAIL> R: Fail(Tails,Stack trace for thread "zio-fiber-1706343655":
 // 	at repl.MdocSession.MdocApp.coinToss(<input>:413)
-// 	at repl.MdocSession.MdocApp.rosencrantzCoinToss(<input>:480)
-// 	at repl.MdocSession.MdocApp.rosencrantzAndGuildensternAreDead(<input>:485)
 // ...
 // R: Heads
 // G: ...probability
 // Heads
 // R: Heads
 // + flaky plan
-// Result: Summary(1,0,0,,PT0.039848S)
+// Result: Summary(1,0,0,,PT0.107558S)
 ```
 
 The `Random` Effect uses an injected something which when running the ZIO uses the system's unpredictable random number generator.  In ZIO Test the `Random` Effect uses a different something which can predictably generate "random" numbers.  `TestRandom` provides a way to define what those numbers are.  This example feeds in the `Int`s `1` and `2` so the first time we ask for a random number we get `1` and the second time we get `2`.
@@ -661,7 +661,7 @@ def spec =
       assertCompletes
 // Parsing CSV: ()
 // + batch runs after 24 hours
-// Result: Summary(1,0,0,,PT0.055062S)
+// Result: Summary(1,0,0,,PT0.067447S)
 ```
 
 The `race` is between `nightlyBatch` and `timeTravel`.
