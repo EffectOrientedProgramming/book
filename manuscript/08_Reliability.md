@@ -206,12 +206,12 @@ def run =
 // Bill called API [took 0s]
 // Bill called API [took 0s]
 // Bill called API [took 0s]
-// James called API [took 0s]
-// James called API [took 0s]
-// James called API [took 0s]
 // Bruce called API [took 0s]
 // Bruce called API [took 0s]
 // Bruce called API [took 0s]
+// James called API [took 0s]
+// James called API [took 0s]
+// James called API [took 0s]
 // Total time [took 2s]
 // Result: List((), (), ())
 ```
@@ -236,12 +236,10 @@ def run =
   .provide(DelicateResource.live)
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(212, 92)
-// Current requests: : List(92)
-// Current requests: : List(298, 212, 92)
-// Current requests: : List(701, 423, 298, 212, 92)
-// Current requests: : List(423, 298, 212, 92)
-// Current requests: : List(473, 701, 423, 298, 212, 92)
+// Current requests: : List(198)
+// Current requests: : List(223, 198)
+// Current requests: : List(5, 223, 198)
+// Current requests: : List(895, 5, 223, 198)
 // Result: Crashed the server!!
 ```
 
@@ -276,16 +274,16 @@ def run =
   .provide(DelicateResource.live, Scope.default)
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(701)
-// Current requests: : List(306, 701)
-// Current requests: : List(298, 306, 701)
-// Current requests: : List(344)
-// Current requests: : List(342, 344)
-// Current requests: : List(360, 342, 344)
-// Current requests: : List(948, 360, 342)
-// Current requests: : List(26, 948)
-// Current requests: : List(153, 26, 948)
-// Current requests: : List(124)
+// Current requests: : List(329)
+// Current requests: : List(342, 658, 329)
+// Current requests: : List(658, 329)
+// Current requests: : List(113)
+// Current requests: : List(867, 113)
+// Current requests: : List(438, 867, 113)
+// Current requests: : List(183)
+// Current requests: : List(642, 183)
+// Current requests: : List(998, 642, 183)
+// Current requests: : List(985)
 // Result: All Requests Succeeded
 ```
 
@@ -376,7 +374,7 @@ def run =
     val made =
       numCalls.get.run
     s"Calls prevented: $prevented Calls made: $made"
-// Result: Calls prevented: 75 Calls made: 66
+// Result: Calls prevented: 76 Calls made: 65
 ```
 
 {{TODO Fix output after `OurClock` changes}}

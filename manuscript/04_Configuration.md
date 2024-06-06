@@ -48,7 +48,6 @@ TODO Values to convey:
 - Layer Graph
   - Cycles are a compile error
   - Visualization with Mermaid
-  - test implementations
 - Layer Resourcefulness
   - Layers can have setup & teardown (open & close)
 
@@ -65,7 +64,7 @@ object Dough:
       .tap(_ => Console.printLine("Dough: Mixed"))
 ```
 
-## Step 1: Provide Dependency Layers to Effects
+## Step 1: Provide Dependencies to Effects
 
 We must provide all required dependencies to an effect before you can run it.
 
@@ -80,7 +79,7 @@ def run =
 // Dough is rising
 ```
 
-## Step 2: Unresolved Dependencies Are Compile Errors
+## Step 2: Missing Dependencies Are Compile Errors
 
 If the dependency for an Effect isn't provided, we get a compile error:
 
@@ -111,7 +110,7 @@ ZIO
 //     ^
 ```
 
-## Step 3: Dependencies can "automatically" assemble to fulfill the needs of an effect
+## Step 3: Dependencies can "automatically" assemble
 
 The requirements for each ZIO operation are tracked and combined automatically.
 
@@ -213,7 +212,7 @@ def run =
 // Result: Heat()
 ```
 
-## Step 5: Dependencies must be fulfilled by unique types
+## Step 5: Dependencies must be unique types
 
 ```scala
 ZIO
@@ -245,7 +244,7 @@ ZIO
 Unfortunately our program is now ambiguous.
 It cannot decide if we should be making `Toast` in the oven, `Bread` in the toaster, or any other combination.
 
-## Step 6: Providing Dependencies at Different Levels
+## Step 6: Can Disambiguate Dependencies When Needed
 
 We can explicitly provide dependencies when needed, to prevent ambiguity.
 
@@ -263,8 +262,8 @@ def run =
               bread
           )
     .provide(Bread.homemade, Dough.fresh, oven)
-// Dough: Mixed
 // Oven: Heated
+// Dough: Mixed
 // BreadHomeMade: Baked
 // Toaster: Heated
 // Toast: Made
@@ -272,6 +271,9 @@ def run =
 ```
 
 ## Step 7: Effects can Construct Dependencies
+
+So far, we have focused on providing `Layer`s to Effects, but this can also go the other way!
+If an Effect already has no outstanding dependencies, it can be used to construct a `Layer`.
 
 ```scala
 case class BreadStoreBought() extends Bread
@@ -298,7 +300,7 @@ def run =
 // Result: BreadStoreBought()
 ```
 
-## Step 8: Dependencies can fail
+## Step 8: Dependency construction can fail
 
 Since dependencies can be built with effects, this means that they can fail.
 
@@ -372,7 +374,7 @@ def run =
 
 ## Step 11: Layer Retry + Fallback?
 
-Maybe retry on the ZLayer eg. (BreadDough.rancid, Heat.brokenFor10Seconds)
+Maybe retry on the `Layer` eg. (BreadDough.rancid, Heat.brokenFor10Seconds)
 
 ```scala
 def run =
@@ -402,16 +404,23 @@ Changing things based on the running environment.
 - Config Files
 - Environment Variables
 
+We can use the ZIO Config library to manage these.
+This is one of the few additional libraries that we use on top of core ZIO.
+
 ```scala
 import zio.config.*
 import zio.config.magnolia.deriveConfig
 import zio.config.typesafe.*
+```
 
+```scala
 case class RetryConfig(times: Int)
 
 val configDescriptor: Config[RetryConfig] =
   deriveConfig[RetryConfig]
+```
 
+```scala
 val configProvider =
   ConfigProvider.fromHoconString:
     "{ times: 2 }"
@@ -501,18 +510,18 @@ val flipTen =
 ```scala
 def run =
   flipTen
-// Tails
-// Heads
-// Tails
-// Tails
-// Tails
 // Heads
 // Tails
 // Tails
 // Heads
+// Tails
 // Heads
-// Num Heads = 4
-// Result: 4
+// Heads
+// Heads
+// Heads
+// Heads
+// Num Heads = 7
+// Result: 7
 ```
 
 ```scala
@@ -537,7 +546,7 @@ def spec =
 // Heads
 // Num Heads = 10
 // + flips 10 times
-// Result: Summary(1,0,0,,PT0.061445S)
+// Result: Summary(1,0,0,,PT0.042004S)
 ```
 
 ```scala
@@ -598,7 +607,7 @@ def spec =
 // Heads
 // R: Heads
 // + rosencrantzAndGuildensternAreDead finishes
-// Result: Summary(1,0,0,,PT0.038554S)
+// Result: Summary(1,0,0,,PT0.047304S)
 ```
 
 ```scala
@@ -613,15 +622,15 @@ def spec =
 // Heads
 // R: Heads
 // Tails
-// <FAIL> R: Fail(Tails,Stack trace for thread "zio-fiber-1706343655":
-// 	at repl.MdocSession.MdocApp.coinToss(<input>:413)
+// <FAIL> R: Fail(Tails,Stack trace for thread "zio-fiber-1034571338":
+// 	at repl.MdocSession.MdocApp.coinToss(<input>:417)
 // ...
 // R: Heads
 // G: ...probability
 // Heads
 // R: Heads
 // + flaky plan
-// Result: Summary(1,0,0,,PT0.107558S)
+// Result: Summary(1,0,0,,PT0.036345S)
 ```
 
 The `Random` Effect uses an injected something which when running the ZIO uses the system's unpredictable random number generator.  In ZIO Test the `Random` Effect uses a different something which can predictably generate "random" numbers.  `TestRandom` provides a way to define what those numbers are.  This example feeds in the `Int`s `1` and `2` so the first time we ask for a random number we get `1` and the second time we get `2`.
@@ -661,7 +670,7 @@ def spec =
       assertCompletes
 // Parsing CSV: ()
 // + batch runs after 24 hours
-// Result: Summary(1,0,0,,PT0.067447S)
+// Result: Summary(1,0,0,,PT0.026672S)
 ```
 
 The `race` is between `nightlyBatch` and `timeTravel`.
