@@ -255,14 +255,7 @@ We have specific messages for all relevant error cases. However, this still suff
 - Once we know it can fail, we must dig through the documentation or implementation to discover the different possibilities
 - Because every function that is called by `temperatureApp` can call other functions, which can call other functions, and so on,
    we are never sure that we have found all the failure paths in our application
-
-### More Problems
-
-Exceptions have other problems:
-
-1. The only way to ensure your program won't crash is by testing it through all possible execution paths.
-
-1. It is difficult or impossible to retry an operation if it fails.
+- It is difficult or impossible to retry an operation if it fails.
 
 Exceptions were a valiant attempt to produce a consistent error-reporting interface, and they are better than what came before.
 You just don't know what you're going to get when you use exceptions.
@@ -450,23 +443,4 @@ def run =
 
 This lets us avoid the most egregious gaps in functionality, but does not take full advantage of ZIO's type-safety.
 
-## ZIO super powers for errors
-
-### Prevents Overly-Defensive Programming
-
-Anything can be wrapped with a try/catch.
-Things that produce exceptions don't need to be wrapped with trys.
-
-You are forbidden from `retry`'ing effects that cannot fail.
-
-```scala mdoc:fail
-ZIO
-  .succeed(println("Always gonna work"))
-  .retryN(100)
-```
-
-```scala mdoc:compile-only
-ZIO
-  .attempt(println("This might work"))
-  .retryN(100)
-```
+Unsurprisingly, writing your code to utilize Effects from the beginning yields the best results.
