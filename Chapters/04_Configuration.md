@@ -44,7 +44,6 @@ TODO Values to convey:
 - Layer Graph
   - Cycles are a compile error
   - Visualization with Mermaid
-  - test implementations
 - Layer Resourcefulness
   - Layers can have setup & teardown (open & close)
 
@@ -61,7 +60,7 @@ object Dough:
       .tap(_ => Console.printLine("Dough: Mixed"))
 ```
 
-## Step 1: Provide Dependency Layers to Effects
+## Step 1: Provide Dependencies to Effects
 
 We must provide all required dependencies to an effect before you can run it.
 
@@ -74,7 +73,7 @@ def run =
       Dough.fresh
 ```
 
-## Step 2: Unresolved Dependencies Are Compile Errors
+## Step 2: Missing Dependencies Are Compile Errors
 
 If the dependency for an Effect isn't provided, we get a compile error:
 
@@ -91,7 +90,7 @@ ZIO
   .provide()
 ```
 
-## Step 3: Dependencies can "automatically" assemble to fulfill the needs of an effect
+## Step 3: Dependencies can "automatically" assemble
 
 The requirements for each ZIO operation are tracked and combined automatically.
 
@@ -182,7 +181,7 @@ def run =
       toaster
 ```
 
-## Step 5: Dependencies must be fulfilled by unique types
+## Step 5: Dependencies must be unique types
 
 ```scala mdoc:fail
 ZIO
@@ -199,7 +198,7 @@ ZIO
 Unfortunately our program is now ambiguous.
 It cannot decide if we should be making `Toast` in the oven, `Bread` in the toaster, or any other combination.
 
-## Step 6: Providing Dependencies at Different Levels
+## Step 6: Can Disambiguate Dependencies When Needed
 
 We can explicitly provide dependencies when needed, to prevent ambiguity.
 
@@ -220,6 +219,9 @@ def run =
 ```
 
 ## Step 7: Effects can Construct Dependencies
+
+So far, we have focused on providing `Layer`s to Effects, but this can also go the other way!
+If an Effect already has no outstanding dependencies, it can be used to construct a `Layer`.
 
 ```scala mdoc:silent
 case class BreadStoreBought() extends Bread
@@ -244,7 +246,7 @@ def run =
       storeBought
 ```
 
-## Step 8: Dependencies can fail
+## Step 8: Dependency construction can fail
 
 Since dependencies can be built with effects, this means that they can fail.
 
@@ -343,7 +345,7 @@ def run =
 
 ## Step 11: Layer Retry + Fallback?
 
-Maybe retry on the ZLayer eg. (BreadDough.rancid, Heat.brokenFor10Seconds)
+Maybe retry on the `Layer` eg. (BreadDough.rancid, Heat.brokenFor10Seconds)
 
 ```scala mdoc:runzio
 def run =
@@ -369,16 +371,23 @@ Changing things based on the running environment.
 - Config Files
 - Environment Variables
 
+We can use the ZIO Config library to manage these.
+This is one of the few additional libraries that we use on top of core ZIO.
+
 ```scala mdoc:silent
 import zio.config.*
 import zio.config.magnolia.deriveConfig
 import zio.config.typesafe.*
+```
 
+```scala mdoc:silent
 case class RetryConfig(times: Int)
 
 val configDescriptor: Config[RetryConfig] =
   deriveConfig[RetryConfig]
+```
 
+```scala mdoc:silent
 val configProvider =
   ConfigProvider.fromHoconString:
     "{ times: 2 }"
