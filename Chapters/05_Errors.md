@@ -10,7 +10,7 @@ Let's start with a basic Effect that has simulated unpredictability:
 ```scala mdoc
 def canFail(succeeds: Boolean) =
   if succeeds then
-    ZIO.succeed("it works")
+    ZIO.succeed("Success!")
   else
     ZIO.fail("*** FAIL ***")
 ```
@@ -25,7 +25,7 @@ First, let's run the `canFail` Effect with an argument of `true` and print its r
 def run =
   canFail(succeeds =
     true
-  ).debug
+  )
 ```
 
 Given our controlled behavior of the Effect, we see that the Effect succeeded.
@@ -36,7 +36,7 @@ If we now pass `false` to `canFail` the Effect will fail.
 def run =
   canFail(succeeds =
     false
-  ).debug("Things went wrong")
+  )
 ```
 
 Systems need to deal with failures and, ideally, recover from them.
@@ -102,26 +102,28 @@ class ErrorsStaticConfigProvider(
   ): IO[Config.Error, A] =
     ZIO.succeed(Some(scenario).asInstanceOf[A])
 
-val errorsHappyPath =
-  Runtime.setConfigProvider(
-    ErrorsStaticConfigProvider(
-      ErrorsScenario.HappyPath
-    )
-  )
+object Scenario:
 
-val errorsNetworkError =
-  Runtime.setConfigProvider(
-    ErrorsStaticConfigProvider(
-      ErrorsScenario.NetworkError
+  val happyPath =
+    Runtime.setConfigProvider(
+      ErrorsStaticConfigProvider(
+        ErrorsScenario.HappyPath
+      )
     )
-  )
 
-val errorsGpsError =
-  Runtime.setConfigProvider(
-    ErrorsStaticConfigProvider(
-      ErrorsScenario.GPSError
+  val networkError =
+    Runtime.setConfigProvider(
+      ErrorsStaticConfigProvider(
+        ErrorsScenario.NetworkError
+      )
     )
-  )
+
+  val gpsError =
+    Runtime.setConfigProvider(
+      ErrorsStaticConfigProvider(
+        ErrorsScenario.GPSError
+      )
+    )
 
 // TODO Hide definition? Then we won't see the internals of the scenario stuff.
 // This would also makes the exceptions more surprising
@@ -302,7 +304,7 @@ val getTemperature: ZIO[
 
 ```scala mdoc:runzio
 override val bootstrap =
-  errorsHappyPath
+  Scenario.happyPath
 
 def run =
   getTemperature
@@ -312,7 +314,7 @@ Running the ZIO version without handling any errors
 
 ```scala mdoc:runzio
 override val bootstrap =
-  errorsNetworkError
+  Scenario.networkError
 
 def run =
   getTemperature
@@ -347,7 +349,7 @@ val temperatureAppComplete =
 
 ```scala mdoc:runzio
 override val bootstrap =
-  errorsGpsError
+  Scenario.gpsError
 
 def run =
   temperatureAppComplete
@@ -468,9 +470,3 @@ ZIO
   .attempt(println("This might work"))
   .retryN(100)
 ```
-
-### Flexible error types
-
-### Collections of Error
-
-eg `collectAllSuccesses`

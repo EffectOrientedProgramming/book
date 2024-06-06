@@ -305,8 +305,6 @@ def run =
   effect4
 ```
 
-{{ todo: we are not seeing the expected number failures due to OurClock and timeoutFail }}
-
 The retries do not succeed so the user is sent to the fallback Effect.
 
 ## Superpower: Add Some Logging
@@ -460,5 +458,3 @@ val program =
 ```
 
 ### Explain the 2 versions of run and how they came to be
-
-### Interpreter
