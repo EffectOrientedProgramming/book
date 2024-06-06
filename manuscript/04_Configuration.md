@@ -406,18 +406,31 @@ Changing things based on the running environment.
 
 We can use the ZIO Config library to manage these.
 This is one of the few additional libraries that we use on top of core ZIO.
+It is heavily modularized so that you only pull in the integrations for the technologies used in your project.
 
 ```scala
 import zio.config.*
-import zio.config.magnolia.deriveConfig
-import zio.config.typesafe.*
 ```
+
+This import brings in most of the core Config datatypes and functions that we need.
+Next we make a case class that will hold our values.
 
 ```scala
 case class RetryConfig(times: Int)
+```
+
+To automatically map values in config files to our case class, we import a macro from the zio-config "magnolia" module.
+
+```scala
+
+import zio.config.magnolia.deriveConfig
 
 val configDescriptor: Config[RetryConfig] =
   deriveConfig[RetryConfig]
+```
+
+```scala
+import zio.config.typesafe.*
 ```
 
 ```scala
@@ -511,17 +524,17 @@ val flipTen =
 def run =
   flipTen
 // Heads
+// Heads
+// Heads
+// Tails
+// Heads
 // Tails
 // Tails
 // Heads
 // Tails
-// Heads
-// Heads
-// Heads
-// Heads
-// Heads
-// Num Heads = 7
-// Result: 7
+// Tails
+// Num Heads = 5
+// Result: 5
 ```
 
 ```scala
@@ -546,7 +559,7 @@ def spec =
 // Heads
 // Num Heads = 10
 // + flips 10 times
-// Result: Summary(1,0,0,,PT0.042004S)
+// Result: Summary(1,0,0,,PT0.055082S)
 ```
 
 ```scala
@@ -607,7 +620,7 @@ def spec =
 // Heads
 // R: Heads
 // + rosencrantzAndGuildensternAreDead finishes
-// Result: Summary(1,0,0,,PT0.047304S)
+// Result: Summary(1,0,0,,PT0.040231S)
 ```
 
 ```scala
@@ -621,16 +634,16 @@ def spec =
 // *Performance Begins*
 // Heads
 // R: Heads
+// Heads
+// R: Heads
 // Tails
-// <FAIL> R: Fail(Tails,Stack trace for thread "zio-fiber-1034571338":
-// 	at repl.MdocSession.MdocApp.coinToss(<input>:417)
 // ...
 // R: Heads
 // G: ...probability
 // Heads
 // R: Heads
 // + flaky plan
-// Result: Summary(1,0,0,,PT0.036345S)
+// Result: Summary(1,0,0,,PT0.046698S)
 ```
 
 The `Random` Effect uses an injected something which when running the ZIO uses the system's unpredictable random number generator.  In ZIO Test the `Random` Effect uses a different something which can predictably generate "random" numbers.  `TestRandom` provides a way to define what those numbers are.  This example feeds in the `Int`s `1` and `2` so the first time we ask for a random number we get `1` and the second time we get `2`.
@@ -670,7 +683,7 @@ def spec =
       assertCompletes
 // Parsing CSV: ()
 // + batch runs after 24 hours
-// Result: Summary(1,0,0,,PT0.026672S)
+// Result: Summary(1,0,0,,PT0.04214S)
 ```
 
 The `race` is between `nightlyBatch` and `timeTravel`.

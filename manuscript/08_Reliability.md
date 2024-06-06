@@ -236,10 +236,10 @@ def run =
   .provide(DelicateResource.live)
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(198)
-// Current requests: : List(223, 198)
-// Current requests: : List(5, 223, 198)
-// Current requests: : List(895, 5, 223, 198)
+// Current requests: : List(876, 475)
+// Current requests: : List(475)
+// Current requests: : List(508, 876, 475)
+// Current requests: : List(260, 508, 876, 475)
 // Result: Crashed the server!!
 ```
 
@@ -274,16 +274,16 @@ def run =
   .provide(DelicateResource.live, Scope.default)
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(329)
-// Current requests: : List(342, 658, 329)
-// Current requests: : List(658, 329)
-// Current requests: : List(113)
-// Current requests: : List(867, 113)
-// Current requests: : List(438, 867, 113)
-// Current requests: : List(183)
-// Current requests: : List(642, 183)
-// Current requests: : List(998, 642, 183)
-// Current requests: : List(985)
+// Current requests: : List(406)
+// Current requests: : List(646, 406)
+// Current requests: : List(482, 646, 406)
+// Current requests: : List(523)
+// Current requests: : List(637, 523)
+// Current requests: : List(483, 637, 523)
+// Current requests: : List(298)
+// Current requests: : List(55, 298)
+// Current requests: : List(175, 55, 298)
+// Current requests: : List(2)
 // Result: All Requests Succeeded
 ```
 
