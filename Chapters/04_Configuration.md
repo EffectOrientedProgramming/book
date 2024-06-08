@@ -347,10 +347,11 @@ def run =
 
 Maybe retry on the `Layer` eg. (BreadDough.rancid, Heat.brokenFor10Seconds)
 
-```scala mdoc:runzio
-def run =
+```scala mdoc
+def logicWithRetries(retries: Int) = 
   ZIO
-    .service[Bread]
+    .serviceWithZIO[Bread]:
+      bread => bread.eat
     .provide:
       Friend
         .bread(worksOnAttempt =
@@ -358,9 +359,13 @@ def run =
         )
         .retry:
           Schedule.recurs:
-            1
-        .orElse:
-          storeBought
+            retries
+  
+```
+
+```scala mdoc:runzio
+def run =
+  logicWithRetries(retries = 1)
 ```
 
 ## Step 12: Externalize Config for Retries
@@ -396,6 +401,8 @@ val configDescriptor: Config[RetryConfig] =
   deriveConfig[RetryConfig]
 ```
 
+We want to use the Typesafe config format, so we import everything from that module.
+
 ```scala mdoc:silent
 import zio.config.typesafe.*
 ```
@@ -417,16 +424,9 @@ def run =
   ZIO
     .serviceWithZIO[RetryConfig]:
       retryConfig =>
-        ZIO
-          .service[Bread]
-          .provide:
-            Friend
-              .bread(worksOnAttempt =
-                3
-              )
-              .retry:
-                Schedule.recurs:
-                  retryConfig.times
+        logicWithRetries(
+          retries = retryConfig.times
+        )
     .provide:
       config
 ```
