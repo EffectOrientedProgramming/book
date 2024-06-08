@@ -15,9 +15,8 @@ Instead of manually constructing and passing all your dependencies through the a
 Understanding these terms is not crucial for writing Effect Oriented code, but will help when building the layers in your application.
 
 In the world of Java these dependent parts are usually expressed through annotations (e.g. `@Autowired` in Spring).
-But these approaches are require mutability, often rely on runtime magic (e.g. reflection), and require everything to be created through a Dependency Injection manager, complicating construction flow.  
-
-An alternative to this approach is to use "Constructor Injection" which avoids some of the pitfalls associated with "Field Injection" but doesn't resolve some of the underlying issues, Importantly, it is difficult or impossible to express our dependencies at compile time.
+But these approaches often rely on runtime magic (e.g. reflection) and require everything to be created through a Dependency Injection manager, complicating construction flow.  
+Importantly, it is difficult or impossible to express our dependencies at compile time.
 
 Instead, if functionality expressed its dependencies through the regular type system, the compiler could verify that the needed parts are available given a particular path of execution (e.g. main app, test suite one, test suite two).
 
@@ -97,9 +96,11 @@ The requirements for each ZIO operation are tracked and combined automatically.
 ```scala mdoc:silent
 case class Heat()
 
+// TODO Version of oven that turns off when finished?
 val oven =
   ZLayer.derive[Heat]
     .tap(_ => Console.printLine("Oven: Heated"))
+    
 ```
 
 ```scala mdoc:silent
@@ -315,38 +316,6 @@ def run =
 
 ## Step 10: Dependency Retries
 
-```scala mdoc:runzio
-def run =
-  ZIO
-    .service[Bread]
-    .provide:
-      Friend
-        .bread(worksOnAttempt =
-          3
-        )
-        .retry:
-          Schedule.recurs:
-            1
-```
-
-```scala mdoc:runzio
-def run =
-  ZIO
-    .service[Bread]
-    .provide:
-      Friend
-        .bread(worksOnAttempt =
-          3
-        )
-        .retry:
-          Schedule.recurs:
-            2
-```
-
-## Step 11: Layer Retry + Fallback?
-
-Maybe retry on the `Layer` eg. (BreadDough.rancid, Heat.brokenFor10Seconds)
-
 ```scala mdoc
 def logicWithRetries(retries: Int) = 
   ZIO
@@ -368,7 +337,12 @@ def run =
   logicWithRetries(retries = 1)
 ```
 
-## Step 12: Externalize Config for Retries
+```scala mdoc:runzio
+def run =
+  logicWithRetries(retries = 2)
+```
+
+## Step 11: Externalize Config for Retries
 
 Changing things based on the running environment.
 
@@ -429,6 +403,40 @@ def run =
         )
     .provide:
       config
+```
+
+## Step 12: Keep the building from burning down!
+TODO Figure out best order. Might be better closer to when Step 7 (Effects can construct dependencies)
+
+Throughout our kitchen scenarios, there has been a dangerous oversight. 
+We heat up our oven, but then never turn it off!
+It would be great to have an oven that automatically turns itself off when we are done using it.
+
+```scala mdoc:runzio
+// TODO Split this up? It's pretty busy.
+// TODO Can we introduce acquireRelease in isolation in superpowers?
+val ovenSafe =
+  ZLayer.fromZIO:
+    ZIO.acquireRelease(
+      ZIO.succeed(Heat())
+        .tap(_ => Console.printLine("Oven: Heated"))
+    )(
+      oven => 
+        Console.printLine("Oven: Turning off!").orDie
+    )
+```
+
+```scala mdoc:runzio
+def run =
+  ZIO
+    .serviceWithZIO[Bread]:
+      bread => bread.eat
+    .provide(
+      Bread.homemade, 
+      Dough.fresh, 
+      ovenSafe, 
+      Scope.default
+    )
 ```
 
 ## Testing Effects
