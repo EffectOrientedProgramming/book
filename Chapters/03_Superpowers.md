@@ -309,6 +309,10 @@ The retries do not succeed so the user is sent to the fallback Effect.
 
 ## Superpower: Add Some Logging
 
+TODO Should we convert this to an `acquireRelease` example? That would:
+- Introduce this before we leverage it in our Kitchen oven example
+- Get rid of hidden/confusing extension method.
+
 Effects can be run concurrently and as an example,
   we can at the same time as the user is being saved,
   send an event to another system.
