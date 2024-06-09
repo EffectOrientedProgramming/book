@@ -203,12 +203,12 @@ def run =
       .timedSecondsDebug:
         "Total time"
       .run
-// Bruce called API [took 0s]
-// Bruce called API [took 0s]
-// Bruce called API [took 0s]
 // Bill called API [took 0s]
 // Bill called API [took 0s]
 // Bill called API [took 0s]
+// Bruce called API [took 0s]
+// Bruce called API [took 0s]
+// Bruce called API [took 0s]
 // James called API [took 0s]
 // James called API [took 0s]
 // James called API [took 0s]
@@ -236,10 +236,10 @@ def run =
   .provide(DelicateResource.live)
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(34)
-// Current requests: : List(259, 34)
-// Current requests: : List(823, 259, 34)
-// Current requests: : List(192, 823, 259, 34)
+// Current requests: : List(238)
+// Current requests: : List(427, 891, 238)
+// Current requests: : List(891, 238)
+// Current requests: : List(104, 427, 891, 238)
 // Result: Crashed the server!!
 ```
 
@@ -274,16 +274,16 @@ def run =
   .provide(DelicateResource.live, Scope.default)
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(642)
-// Current requests: : List(772, 642)
-// Current requests: : List(127, 772, 642)
-// Current requests: : List(864)
-// Current requests: : List(224, 864)
-// Current requests: : List(167, 224, 864)
-// Current requests: : List(322)
-// Current requests: : List(940, 322)
-// Current requests: : List(225, 940, 322)
-// Current requests: : List(4)
+// Current requests: : List(57)
+// Current requests: : List(615, 57)
+// Current requests: : List(226, 615, 57)
+// Current requests: : List(444)
+// Current requests: : List(809, 444)
+// Current requests: : List(468, 809, 444)
+// Current requests: : List(116)
+// Current requests: : List(265, 116)
+// Current requests: : List(94, 265, 116)
+// Current requests: : List(64)
 // Result: All Requests Succeeded
 ```
 

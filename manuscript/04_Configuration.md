@@ -248,7 +248,8 @@ It cannot decide if we should be making `Toast` in the oven, `Bread` in the toas
 
 ## Step 6: Can Disambiguate Dependencies When Needed
 
-TODO Consider: Instead of providing at different levels, show that using _introducing_ a more specific type is usually the better approach. I think this will be a big improvement. We can keep everything nice and flat that way.
+TODO Consider: Instead of providing at different levels, show that using _introducing_ a more specific type is usually the better approach. 
+I think this will be a big improvement. We can keep everything nice and flat that way.
 
 ```scala
 case class Toaster()
@@ -282,7 +283,6 @@ def run =
       Bread.homemade, 
       Dough.fresh, 
       oven,
-      ZLayer.Debug.tree
     )
 // Toaster: Heating
 // Oven: Heated
@@ -484,13 +484,9 @@ It would be great to have an oven that automatically turns itself off when we ar
 // TODO Can we introduce acquireRelease in isolation in superpowers?
 val ovenSafe =
   ZLayer.fromZIO:
-    ZIO.acquireRelease(
-      ZIO.succeed(Heat())
-        .tap(_ => Console.printLine("Oven: Heated"))
-    )(
-      oven => 
-        Console.printLine("Oven: Turning off!").orDie
-    )
+    ZIO.succeed(Heat())
+      .tap(_ => Console.printLine("Oven: Heated"))
+      .withFinalizer(_ => Console.printLine("Oven: Turning off!").orDie)
 ```
 
 
@@ -572,13 +568,13 @@ def run =
 // Heads
 // Heads
 // Tails
-// Tails
-// Tails
+// Heads
+// Heads
+// Heads
 // Heads
 // Tails
-// Heads
-// Num Heads = 5
-// Result: 5
+// Num Heads = 7
+// Result: 7
 ```
 
 ```scala
@@ -603,7 +599,7 @@ def spec =
 // Heads
 // Num Heads = 10
 // + flips 10 times
-// Result: Summary(1,0,0,,PT0.035006S)
+// Result: Summary(1,0,0,,PT0.038924S)
 ```
 
 ```scala
@@ -664,7 +660,7 @@ def spec =
 // Heads
 // R: Heads
 // + rosencrantzAndGuildensternAreDead finishes
-// Result: Summary(1,0,0,,PT0.044555S)
+// Result: Summary(1,0,0,,PT0.038934S)
 ```
 
 ```scala
@@ -676,18 +672,18 @@ def spec =
   @@ TestAspect.withLiveRandom @@
     TestAspect.flaky(Int.MaxValue)
 // *Performance Begins*
+// Heads
+// R: Heads
 // Tails
-// <FAIL> R: Fail(Tails,Stack trace for thread "zio-fiber-1735927115":
-// 	at repl.MdocSession.MdocApp.coinToss(<input>:448)
-// 	at repl.MdocSession.MdocApp.rosencrantzCoinToss(<input>:515)
-// 	at repl.MdocSession.MdocApp.rosencrantzAndGuildensternAreDead(<input>:520)
+// <FAIL> R: Fail(Tails,Stack trace for thread "zio-fiber-1432478839":
+// 	at repl.MdocSession.MdocApp.coinToss(<input>:443)
 // ...
 // R: Heads
 // G: ...probability
 // Heads
 // R: Heads
 // + flaky plan
-// Result: Summary(1,0,0,,PT0.037732S)
+// Result: Summary(1,0,0,,PT0.02097S)
 ```
 
 The `Random` Effect uses an injected something which when running the ZIO uses the system's unpredictable random number generator.  In ZIO Test the `Random` Effect uses a different something which can predictably generate "random" numbers.  `TestRandom` provides a way to define what those numbers are.  This example feeds in the `Int`s `1` and `2` so the first time we ask for a random number we get `1` and the second time we get `2`.
@@ -727,7 +723,7 @@ def spec =
       assertCompletes
 // Parsing CSV: ()
 // + batch runs after 24 hours
-// Result: Summary(1,0,0,,PT0.046854S)
+// Result: Summary(1,0,0,,PT0.030013S)
 ```
 
 The `race` is between `nightlyBatch` and `timeTravel`.

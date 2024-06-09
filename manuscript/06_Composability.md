@@ -504,9 +504,8 @@ def run =
 // Wiki - articleFor(genome)
 // AI - summarize - start
 // AI - summarize - end
-// File - disk full!
 // File - CLOSE
-// Result: DiskFull()
+// Result: AITooSlow()
 ```
 
 And finally, we see the longest, successful pathway through our application:
