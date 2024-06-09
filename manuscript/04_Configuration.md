@@ -19,9 +19,8 @@ Instead of manually constructing and passing all your dependencies through the a
 Understanding these terms is not crucial for writing Effect Oriented code, but will help when building the layers in your application.
 
 In the world of Java these dependent parts are usually expressed through annotations (e.g. `@Autowired` in Spring).
-But these approaches are require mutability, often rely on runtime magic (e.g. reflection), and require everything to be created through a Dependency Injection manager, complicating construction flow.  
-
-An alternative to this approach is to use "Constructor Injection" which avoids some of the pitfalls associated with "Field Injection" but doesn't resolve some of the underlying issues, Importantly, it is difficult or impossible to express our dependencies at compile time.
+But these approaches often rely on runtime magic (e.g. reflection) and require everything to be created through a Dependency Injection manager, complicating construction flow.  
+Importantly, it is difficult or impossible to express our dependencies at compile time.
 
 Instead, if functionality expressed its dependencies through the regular type system, the compiler could verify that the needed parts are available given a particular path of execution (e.g. main app, test suite one, test suite two).
 
@@ -41,15 +40,13 @@ To aid further in understanding your application architecture, you can visualize
 
 You can also do things that simply are not possible in other approaches, such as sharing a single instance of a dependency across multiple test classes, or even multiple applications.
 
-## DI-Wow!
+## DI-Wow
 
 TODO Values to convey:
 
 - Layer Graph
   - Cycles are a compile error
   - Visualization with Mermaid
-- Layer Resourcefulness
-  - Layers can have setup & teardown (open & close)
 
 ```scala
 // Explain private constructor approach
@@ -117,9 +114,11 @@ The requirements for each ZIO operation are tracked and combined automatically.
 ```scala
 case class Heat()
 
+// TODO Version of oven that turns off when finished?
 val oven =
   ZLayer.derive[Heat]
     .tap(_ => Console.printLine("Oven: Heated"))
+    
 ```
 
 ```scala
@@ -161,7 +160,9 @@ Eventually, we grow tired of eating plain `Bread` and decide to start making `To
 Both of these processes require `Heat`.
 
 ```scala
-case class Toast(heat: Heat, bread: Bread)
+case class Toast(heat: Heat, bread: Bread):
+  val eat =
+    Console.printLine("Toast: Eating")
 
 object Toast:
   val make =
@@ -184,7 +185,7 @@ def run =
       Toast.make,
       Bread.homemade,
       Dough.fresh,
-      oven
+      oven,
     )
 // Oven: Heated
 // Dough: Mixed
@@ -192,6 +193,7 @@ def run =
 // Toast: Made
 // Result: Toast(Heat(),BreadHomeMade(Heat(),Dough()))
 ```
+
 
 However, the oven uses a lot of energy to make `Toast`.
 It would be great if we can instead use our dedicated toaster!
@@ -222,7 +224,7 @@ ZIO
     Dough.fresh,
     Bread.homemade,
     oven,
-    toaster
+    toaster,
   )
 // error: 
 // 
@@ -234,7 +236,7 @@ ZIO
 // 
 //    repl.MdocSession.MdocApp.Heat is provided by:
 //       1. oven
-//       2. toaster
+//       2. toaster,
 // 
 // ──────────────────────────────────────────────────────────────────────
 // 
@@ -246,28 +248,61 @@ It cannot decide if we should be making `Toast` in the oven, `Bread` in the toas
 
 ## Step 6: Can Disambiguate Dependencies When Needed
 
+TODO Consider: Instead of providing at different levels, show that using _introducing_ a more specific type is usually the better approach. I think this will be a big improvement. We can keep everything nice and flat that way.
+
+```scala
+case class Toaster()
+object Toaster:
+  val layer =
+    ZLayer.derive[Toaster]
+      .tap(_ => Console.printLine("Toaster: Heating"))
+```
+
+```scala
+case class ToastZ(heat: Toaster, bread: Bread):
+  val eat =
+    Console.printLine("Toast: Eating")
+
+object ToastZ:
+  val make =
+    ZLayer.derive[ToastZ]
+      .tap(_ => Console.printLine("ToastZ: Made"))
+```
+
 We can explicitly provide dependencies when needed, to prevent ambiguity.
 
 ```scala
 def run =
   ZIO
-    .serviceWithZIO[Bread]:
-      bread =>
-        ZIO
-          .service[Toast]
-          .provide(
-            Toast.make,
-            toaster,
-            ZLayer.succeed:
-              bread
-          )
-    .provide(Bread.homemade, Dough.fresh, oven)
+    .serviceWithZIO[ToastZ]:
+      toast => toast.eat
+    .provide(
+      ToastZ.make,
+      Toaster.layer,
+      Bread.homemade, 
+      Dough.fresh, 
+      oven,
+      ZLayer.Debug.tree
+    )
+// Toaster: Heating
 // Oven: Heated
 // Dough: Mixed
 // BreadHomeMade: Baked
-// Toaster: Heated
-// Toast: Made
-// Result: Toast(Heat(),BreadHomeMade(Heat(),Dough()))
+// ToastZ: Made
+// Toast: Eating
+```
+
+Author Note: Hardcoded, because mdoc doesn't properly support the `ZLayer.Debug.tree` output.
+
+Output: 
+```terminal
+
+[info]   ZLayer Wiring Graph  
+[info] ◉ ToastZ.make
+[info] ├─◑ Toaster.layer
+[info] ╰─◑ Bread.homemade
+[info]   ├─◑ oven
+[info]   ╰─◑ Dough.fresh
 ```
 
 ## Step 7: Effects can Construct Dependencies
@@ -338,9 +373,10 @@ def run =
 ## Step 10: Dependency Retries
 
 ```scala
-def run =
+def logicWithRetries(retries: Int) = 
   ZIO
-    .service[Bread]
+    .serviceWithZIO[Bread]:
+      bread => bread.eat
     .provide:
       Friend
         .bread(worksOnAttempt =
@@ -348,7 +384,12 @@ def run =
         )
         .retry:
           Schedule.recurs:
-            1
+            retries
+```
+
+```scala
+def run =
+  logicWithRetries(retries = 1)
 // Attempt 1: Error(Friend Unreachable)
 // Attempt 2: Error(Friend Unreachable)
 // Result: Error(Friend Unreachable)
@@ -356,47 +397,14 @@ def run =
 
 ```scala
 def run =
-  ZIO
-    .service[Bread]
-    .provide:
-      Friend
-        .bread(worksOnAttempt =
-          3
-        )
-        .retry:
-          Schedule.recurs:
-            2
+  logicWithRetries(retries = 2)
 // Attempt 1: Error(Friend Unreachable)
 // Attempt 2: Error(Friend Unreachable)
 // Attempt 3: Succeeded
-// Result: BreadFromFriend()
+// Bread: Eating
 ```
 
-## Step 11: Layer Retry + Fallback?
-
-Maybe retry on the `Layer` eg. (BreadDough.rancid, Heat.brokenFor10Seconds)
-
-```scala
-def run =
-  ZIO
-    .service[Bread]
-    .provide:
-      Friend
-        .bread(worksOnAttempt =
-          3
-        )
-        .retry:
-          Schedule.recurs:
-            1
-        .orElse:
-          storeBought
-// Attempt 1: Error(Friend Unreachable)
-// Attempt 2: Error(Friend Unreachable)
-// BreadStoreBought: Bought
-// Result: BreadStoreBought()
-```
-
-## Step 12: Externalize Config for Retries
+## Step 11: Externalize Config for Retries
 
 Changing things based on the running environment.
 
@@ -429,6 +437,8 @@ val configDescriptor: Config[RetryConfig] =
   deriveConfig[RetryConfig]
 ```
 
+We want to use the Typesafe config format, so we import everything from that module.
+
 ```scala
 import zio.config.typesafe.*
 ```
@@ -450,22 +460,56 @@ def run =
   ZIO
     .serviceWithZIO[RetryConfig]:
       retryConfig =>
-        ZIO
-          .service[Bread]
-          .provide:
-            Friend
-              .bread(worksOnAttempt =
-                3
-              )
-              .retry:
-                Schedule.recurs:
-                  retryConfig.times
+        logicWithRetries(
+          retries = retryConfig.times
+        )
     .provide:
       config
 // Attempt 1: Error(Friend Unreachable)
 // Attempt 2: Error(Friend Unreachable)
 // Attempt 3: Succeeded
-// Result: BreadFromFriend()
+// Bread: Eating
+```
+
+## Step 12: Keep the building from burning down!
+
+TODO Figure out best order. Might be better closer to when Step 7 (Effects can construct dependencies)
+
+Throughout our kitchen scenarios, there has been a dangerous oversight. 
+We heat up our oven, but then never turn it off!
+It would be great to have an oven that automatically turns itself off when we are done using it.
+
+```scala
+// TODO Split this up? It's pretty busy.
+// TODO Can we introduce acquireRelease in isolation in superpowers?
+val ovenSafe =
+  ZLayer.fromZIO:
+    ZIO.acquireRelease(
+      ZIO.succeed(Heat())
+        .tap(_ => Console.printLine("Oven: Heated"))
+    )(
+      oven => 
+        Console.printLine("Oven: Turning off!").orDie
+    )
+```
+
+
+```scala
+def run =
+  ZIO
+    .serviceWithZIO[Bread]:
+      bread => bread.eat
+    .provide(
+      Bread.homemade, 
+      Dough.fresh, 
+      ovenSafe, 
+      Scope.default
+    )
+// Oven: Heated
+// Dough: Mixed
+// BreadHomeMade: Baked
+// Bread: Eating
+// Oven: Turning off!
 ```
 
 ## Testing Effects
@@ -524,15 +568,15 @@ val flipTen =
 def run =
   flipTen
 // Heads
-// Heads
-// Heads
 // Tails
 // Heads
-// Tails
-// Tails
 // Heads
 // Tails
 // Tails
+// Tails
+// Heads
+// Tails
+// Heads
 // Num Heads = 5
 // Result: 5
 ```
@@ -559,7 +603,7 @@ def spec =
 // Heads
 // Num Heads = 10
 // + flips 10 times
-// Result: Summary(1,0,0,,PT0.055082S)
+// Result: Summary(1,0,0,,PT0.035006S)
 ```
 
 ```scala
@@ -620,7 +664,7 @@ def spec =
 // Heads
 // R: Heads
 // + rosencrantzAndGuildensternAreDead finishes
-// Result: Summary(1,0,0,,PT0.040231S)
+// Result: Summary(1,0,0,,PT0.044555S)
 ```
 
 ```scala
@@ -632,18 +676,18 @@ def spec =
   @@ TestAspect.withLiveRandom @@
     TestAspect.flaky(Int.MaxValue)
 // *Performance Begins*
-// Heads
-// R: Heads
-// Heads
-// R: Heads
 // Tails
+// <FAIL> R: Fail(Tails,Stack trace for thread "zio-fiber-1735927115":
+// 	at repl.MdocSession.MdocApp.coinToss(<input>:448)
+// 	at repl.MdocSession.MdocApp.rosencrantzCoinToss(<input>:515)
+// 	at repl.MdocSession.MdocApp.rosencrantzAndGuildensternAreDead(<input>:520)
 // ...
 // R: Heads
 // G: ...probability
 // Heads
 // R: Heads
 // + flaky plan
-// Result: Summary(1,0,0,,PT0.046698S)
+// Result: Summary(1,0,0,,PT0.037732S)
 ```
 
 The `Random` Effect uses an injected something which when running the ZIO uses the system's unpredictable random number generator.  In ZIO Test the `Random` Effect uses a different something which can predictably generate "random" numbers.  `TestRandom` provides a way to define what those numbers are.  This example feeds in the `Int`s `1` and `2` so the first time we ask for a random number we get `1` and the second time we get `2`.
@@ -683,7 +727,7 @@ def spec =
       assertCompletes
 // Parsing CSV: ()
 // + batch runs after 24 hours
-// Result: Summary(1,0,0,,PT0.04214S)
+// Result: Summary(1,0,0,,PT0.046854S)
 ```
 
 The `race` is between `nightlyBatch` and `timeTravel`.

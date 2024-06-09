@@ -203,12 +203,12 @@ def run =
       .timedSecondsDebug:
         "Total time"
       .run
-// Bill called API [took 0s]
-// Bill called API [took 0s]
-// Bill called API [took 0s]
 // Bruce called API [took 0s]
 // Bruce called API [took 0s]
 // Bruce called API [took 0s]
+// Bill called API [took 0s]
+// Bill called API [took 0s]
+// Bill called API [took 0s]
 // James called API [took 0s]
 // James called API [took 0s]
 // James called API [took 0s]
@@ -236,10 +236,10 @@ def run =
   .provide(DelicateResource.live)
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(876, 475)
-// Current requests: : List(475)
-// Current requests: : List(508, 876, 475)
-// Current requests: : List(260, 508, 876, 475)
+// Current requests: : List(34)
+// Current requests: : List(259, 34)
+// Current requests: : List(823, 259, 34)
+// Current requests: : List(192, 823, 259, 34)
 // Result: Crashed the server!!
 ```
 
@@ -274,16 +274,16 @@ def run =
   .provide(DelicateResource.live, Scope.default)
 // Delicate Resource constructed.
 // Do not make more than 3 concurrent requests!
-// Current requests: : List(406)
-// Current requests: : List(646, 406)
-// Current requests: : List(482, 646, 406)
-// Current requests: : List(523)
-// Current requests: : List(637, 523)
-// Current requests: : List(483, 637, 523)
-// Current requests: : List(298)
-// Current requests: : List(55, 298)
-// Current requests: : List(175, 55, 298)
-// Current requests: : List(2)
+// Current requests: : List(642)
+// Current requests: : List(772, 642)
+// Current requests: : List(127, 772, 642)
+// Current requests: : List(864)
+// Current requests: : List(224, 864)
+// Current requests: : List(167, 224, 864)
+// Current requests: : List(322)
+// Current requests: : List(940, 322)
+// Current requests: : List(225, 940, 322)
+// Current requests: : List(4)
 // Result: All Requests Succeeded
 ```
 
@@ -374,7 +374,7 @@ def run =
     val made =
       numCalls.get.run
     s"Calls prevented: $prevented Calls made: $made"
-// Result: Calls prevented: 76 Calls made: 65
+// Result: Calls prevented: 74 Calls made: 67
 ```
 
 {{TODO Fix output after `OurClock` changes}}

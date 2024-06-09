@@ -208,12 +208,18 @@ override val bootstrap =
 def run =
   effect4
 // Log: **Database crashed!!**
+// Log: **Database crashed!!**
+// Log: **Database crashed!!**
 // Result: Please manually provision Morty
 ```
 
 The retries do not succeed so the user is sent to the fallback Effect.
 
 ## Superpower: Add Some Logging
+
+TODO Should we convert this to an `acquireRelease` example? That would:
+- Introduce this before we leverage it in our Kitchen oven example
+- Get rid of hidden/confusing extension method.
 
 Effects can be run concurrently and as an example,
   we can at the same time as the user is being saved,
@@ -257,8 +263,8 @@ override val bootstrap =
 def run =
   effect6
 // Log: Signup initiated for Morty
+// Result: (PT5.003384947S,User saved)
 // Log: Signup initiated for Morty
-// Result: (PT5.065708004S,User saved)
 ```
 
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.
@@ -342,7 +348,7 @@ val programManipulatingBeforeRun =
     Console.printLine("Hello").run.repeatN(3)
 // error:
 // value repeatN is not a member of Unit
-// class Chapter205 extends mdoctools.ToRun:
+// class Chapter209 extends mdoctools.ToRun:
 //                                   ^
 ```
 
