@@ -564,13 +564,6 @@ def researchHeadline(scenario: Scenario) =
       // TODO Use Scenario to determine file?
       openFileZ("file1.txt").run
 
-    // TODO Use 2 files at once, to further
-    // highlight the dynamic scoping?
-    // Not sure if that is too noisy for this
-    // flow
-    // Maybe something like a cache check if time
-    // has passed?
-
     val knownTopic: Boolean =
       summaryFile.contains:
         topic
