@@ -202,7 +202,8 @@ It cannot decide if we should be making `Toast` in the oven, `Bread` in the toas
 
 ## Step 6: Can Disambiguate Dependencies When Needed
 
-TODO Consider: Instead of providing at different levels, show that using _introducing_ a more specific type is usually the better approach. I think this will be a big improvement. We can keep everything nice and flat that way.
+TODO Consider: Instead of providing at different levels, show that using _introducing_ a more specific type is usually the better approach. 
+I think this will be a big improvement. We can keep everything nice and flat that way.
 
 ```scala mdoc:silent
 case class Toaster()
@@ -236,7 +237,6 @@ def run =
       Bread.homemade, 
       Dough.fresh, 
       oven,
-      ZLayer.Debug.tree
     )
 ```
 
