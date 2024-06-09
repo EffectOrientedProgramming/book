@@ -43,8 +43,6 @@ TODO Values to convey:
 - Layer Graph
   - Cycles are a compile error
   - Visualization with Mermaid
-- Layer Resourcefulness
-  - Layers can have setup & teardown (open & close)
 
 ```scala mdoc:silent
 // Explain private constructor approach
@@ -138,7 +136,9 @@ Eventually, we grow tired of eating plain `Bread` and decide to start making `To
 Both of these processes require `Heat`.
 
 ```scala mdoc:silent
-case class Toast(heat: Heat, bread: Bread)
+case class Toast(heat: Heat, bread: Bread):
+  val eat =
+    Console.printLine("Toast: Eating")
 
 object Toast:
   val make =
@@ -161,9 +161,10 @@ def run =
       Toast.make,
       Bread.homemade,
       Dough.fresh,
-      oven
+      oven,
     )
 ```
+
 
 However, the oven uses a lot of energy to make `Toast`.
 It would be great if we can instead use our dedicated toaster!
@@ -192,7 +193,7 @@ ZIO
     Dough.fresh,
     Bread.homemade,
     oven,
-    toaster
+    toaster,
   )
 ```
 
@@ -201,22 +202,54 @@ It cannot decide if we should be making `Toast` in the oven, `Bread` in the toas
 
 ## Step 6: Can Disambiguate Dependencies When Needed
 
+TODO Consider: Instead of providing at different levels, show that using _introducing_ a more specific type is usually the better approach. I think this will be a big improvement. We can keep everything nice and flat that way.
+
+```scala mdoc:silent
+case class Toaster()
+object Toaster:
+  val layer =
+    ZLayer.derive[Toaster]
+      .tap(_ => Console.printLine("Toaster: Heating"))
+```
+
+```scala mdoc:silent
+case class ToastZ(heat: Toaster, bread: Bread):
+  val eat =
+    Console.printLine("Toast: Eating")
+
+object ToastZ:
+  val make =
+    ZLayer.derive[ToastZ]
+      .tap(_ => Console.printLine("ToastZ: Made"))
+```
+
 We can explicitly provide dependencies when needed, to prevent ambiguity.
 
 ```scala mdoc:runzio
 def run =
   ZIO
-    .serviceWithZIO[Bread]:
-      bread =>
-        ZIO
-          .service[Toast]
-          .provide(
-            Toast.make,
-            toaster,
-            ZLayer.succeed:
-              bread
-          )
-    .provide(Bread.homemade, Dough.fresh, oven)
+    .serviceWithZIO[ToastZ]:
+      toast => toast.eat
+    .provide(
+      ToastZ.make,
+      Toaster.layer,
+      Bread.homemade, 
+      Dough.fresh, 
+      oven,
+      ZLayer.Debug.tree
+    )
+```
+
+Author Note: Hardcoded, because mdoc doesn't properly support the `ZLayer.Debug.tree` output.
+
+Output: 
+```terminal
+[info]   ZLayer Wiring Graph  
+[info] ◉ ToastZ.make
+[info] ├─◑ Toaster.layer
+[info] ╰─◑ Bread.homemade
+[info]   ├─◑ oven
+[info]   ╰─◑ Dough.fresh
 ```
 
 ## Step 7: Effects can Construct Dependencies
@@ -413,7 +446,7 @@ Throughout our kitchen scenarios, there has been a dangerous oversight.
 We heat up our oven, but then never turn it off!
 It would be great to have an oven that automatically turns itself off when we are done using it.
 
-```scala mdoc:runzio
+```scala mdoc:silent
 // TODO Split this up? It's pretty busy.
 // TODO Can we introduce acquireRelease in isolation in superpowers?
 val ovenSafe =
@@ -426,6 +459,7 @@ val ovenSafe =
         Console.printLine("Oven: Turning off!").orDie
     )
 ```
+
 
 ```scala mdoc:runzio
 def run =
