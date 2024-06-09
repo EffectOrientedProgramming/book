@@ -110,15 +110,6 @@ val logUserSignup =
     .printLine:
       s"Log: Signup initiated for $userName"
     .orDie
-
-// TODO Decide how much to explain this in the
-// prose,
-// without revealing the implementation
-extension [R, E, A](z: ZIO[R, E, A])
-  def fireAndForget(
-      background: ZIO[R, Nothing, Any]
-  ) =
-    z.zipParLeft(background.forkDaemon)
 ```
 
 Once programs are defined in terms of Effects, we use operations from the Effect System to manage different aspects of unpredictability.
@@ -309,21 +300,15 @@ The retries do not succeed so the user is sent to the fallback Effect.
 
 ## Superpower: Add Some Logging
 
-TODO Should we convert this to an `acquireRelease` example? That would:
-- Introduce this before we leverage it in our Kitchen oven example
-- Get rid of hidden/confusing extension method.
-
-Effects can be run concurrently and as an example,
-  we can at the same time as the user is being saved,
-  send an event to another system.
+We want to ensure that some logging happens after the logic completes, regardless of failures.
 
 ```scala mdoc:silent
 val effect5 =
-  effect4.fireAndForget:
-    logUserSignup
+  effect4.withFinalizer:
+    _ => logUserSignup
 ```
 
-`fireAndForget` is a convenience method we defined (in hidden code) that makes it easy to run two effects in parallel and ignore any failures on the `logUserSignup` Effect.
+`withFinalizer` lets us attach this behavior, without changing the types of the original effect.
 
 ```scala mdoc:runzio
 override val bootstrap =
@@ -384,7 +369,7 @@ We can add behavior to the end of our complex Effect,
 
 ```mermaid
 graph TD
-  effect0 --retry--> effect1 --"orElseFail"--> effect2 --timeoutFail--> effect3 --"orElse"--> effect4 --fireAndForget--> effect5 --timed--> effect6 --when--> effect7
+  effect0 --retry--> effect1 --"orElseFail"--> effect2 --timeoutFail--> effect3 --"orElse"--> effect4 --withFinalizer--> effect5 --timed--> effect6 --when--> effect7
 ```
 
 These examples have shown only a glimpse into the superpowers we can add to **any** Effect.

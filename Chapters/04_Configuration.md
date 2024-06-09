@@ -451,13 +451,9 @@ It would be great to have an oven that automatically turns itself off when we ar
 // TODO Can we introduce acquireRelease in isolation in superpowers?
 val ovenSafe =
   ZLayer.fromZIO:
-    ZIO.acquireRelease(
-      ZIO.succeed(Heat())
-        .tap(_ => Console.printLine("Oven: Heated"))
-    )(
-      oven => 
-        Console.printLine("Oven: Turning off!").orDie
-    )
+    ZIO.succeed(Heat())
+      .tap(_ => Console.printLine("Oven: Heated"))
+      .withFinalizer(_ => Console.printLine("Oven: Turning off!").orDie)
 ```
 
 
