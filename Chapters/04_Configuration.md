@@ -36,7 +36,7 @@ To aid further in understanding your application architecture, you can visualize
 
 You can also do things that simply are not possible in other approaches, such as sharing a single instance of a dependency across multiple test classes, or even multiple applications.
 
-## DI-Wow!
+## DI-Wow
 
 TODO Values to convey:
 
@@ -406,6 +406,7 @@ def run =
 ```
 
 ## Step 12: Keep the building from burning down!
+
 TODO Figure out best order. Might be better closer to when Step 7 (Effects can construct dependencies)
 
 Throughout our kitchen scenarios, there has been a dangerous oversight. 
