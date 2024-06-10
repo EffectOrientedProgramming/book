@@ -30,7 +30,11 @@ def run =
   canFail(succeeds =
     true
   )
-// Result: Success!
+```
+
+Output:
+```shell
+Result: Success!
 ```
 
 Given our controlled behavior of the Effect, we see that the Effect succeeded.
@@ -42,7 +46,11 @@ def run =
   canFail(succeeds =
     false
   )
-// Result: *** FAIL ***
+```
+
+Output:
+```shell
+Result: *** FAIL ***
 ```
 
 Systems need to deal with failures and, ideally, recover from them.
@@ -53,7 +61,11 @@ def run =
   canFail(succeeds =
     false
   ).flip
-// Result: *** FAIL ***
+```
+
+Output:
+```shell
+Result: *** FAIL ***
 ```
 
 Now the code succeeds because the `failure` is swapped into the success value.
@@ -73,7 +85,6 @@ We want to show the user a page that shows the current temperature at their loca
 It will look like this
 
 ```text
-
 Temperature: 30 degrees
 ```
 
@@ -119,7 +130,11 @@ def temperatureApp(): String =
 def run =
   ZIO.attempt:
     temperatureApp()
-// Result: Temperature: 35 degrees
+```
+
+Output:
+```shell
+Result: Temperature: 35 degrees
 ```
 
 On the happy path, everything looks as desired.
@@ -133,7 +148,11 @@ scenario =
 def run =
   ZIO.succeed:
     temperatureApp()
-// Result: Defect: NetworkException
+```
+
+Output:
+```shell
+Result: Defect: NetworkException
 ```
 
 ### Manual Error Discovery
@@ -161,7 +180,11 @@ scenario =
 def run =
   ZIO.succeed:
     temperatureCatchingApp()
-// Result: Failure
+```
+
+Output:
+```shell
+Result: Failure
 ```
 
 We have improved the failure behavior significantly; is it sufficient for all cases?
@@ -188,7 +211,11 @@ scenario =
 def run =
   ZIO.succeed:
     temperatureCatchingMoreApp()
-// Result: Network Unavailable
+```
+
+Output:
+```shell
+Result: Network Unavailable
 ```
 
 ```scala
@@ -198,7 +225,11 @@ scenario =
 def run =
   ZIO.succeed:
     temperatureCatchingMoreApp()
-// Result: GPS Hardware Failure
+```
+
+Output:
+```shell
+Result: GPS Hardware Failure
 ```
 
 Wonderful!
@@ -224,7 +255,11 @@ override val bootstrap =
 
 def run =
   getTemperature
-// Result: Temperature: 35 degrees
+```
+
+Output:
+```shell
+Result: Temperature: 35 degrees
 ```
 
 Running the ZIO version without handling any errors
@@ -235,7 +270,11 @@ override val bootstrap =
 
 def run =
   getTemperature
-// Result: repl.MdocSession$MdocApp$NetworkException
+```
+
+Output:
+```shell
+Result: repl.MdocSession$MdocApp$NetworkException
 ```
 
 This is not an error that we want to show the user.
@@ -272,7 +311,11 @@ override val bootstrap =
 
 def run =
   temperatureAppComplete
-// Result: GPS Hardware Failure
+```
+
+Output:
+```shell
+Result: GPS Hardware Failure
 ```
 
 Now that we have handled all of our errors, we know we are showing the user a sensible message.
@@ -284,13 +327,17 @@ temperatureAppComplete.catchAll:
   case ex: Exception =>
     ZIO.succeed:
       "This cannot happen"
-// error: 
-// This error handling operation assumes your effect can fail. However, your effect has Nothing for the error type, which means it cannot fail, so there is no need to handle the failure. To find out which method you can use instead of this operation, please see the reference chart at: https://zio.dev/can_fail.
-// I found:
-// 
-//     CanFail.canFail[E](/* missing */summon[scala.util.NotGiven[E =:= Nothing]])
-// 
-// But no implicit values were found that match type scala.util.NotGiven[E =:= Nothing].
+```
+
+Output:
+```shell
+error: 
+This error handling operation assumes your effect can fail. However, your effect has Nothing for the error type, which means it cannot fail, so there is no need to handle the failure. To find out which method you can use instead of this operation, please see the reference chart at: https://zio.dev/can_fail.
+I found:
+
+    CanFail.canFail[E](/* missing */summon[scala.util.NotGiven[E =:= Nothing]])
+
+But no implicit values were found that match type scala.util.NotGiven[E =:= Nothing].
 ```
 
 The compiler also ensures that we only call the following methods on effects that can fail:
@@ -332,7 +379,11 @@ scenario =
 
 def run =
   displayTemperatureZWrapped
-// Result: 35 degrees
+```
+
+Output:
+```shell
+Result: 35 degrees
 ```
 
 ```scala
@@ -341,7 +392,11 @@ scenario =
 
 def run =
   displayTemperatureZWrapped
-// Result: Network Unavailable
+```
+
+Output:
+```shell
+Result: Network Unavailable
 ```
 
 This is decent, but does not provide the maximum possible guarantees.
@@ -356,7 +411,11 @@ def run =
     case ex: NetworkException =>
       ZIO.succeed:
         "Network Unavailable"
-// Result: Defect: GpsFail
+```
+
+Output:
+```shell
+Result: Defect: GpsFail
 ```
 
 The compiler does not catch this bug, and instead fails at runtime.
@@ -376,7 +435,11 @@ def run =
     case other =>
       ZIO.succeed:
         "Unknown Error"
-// Result: Unknown Error
+```
+
+Output:
+```shell
+Result: Unknown Error
 ```
 
 This lets us avoid the most egregious gaps in functionality, but does not take full advantage of ZIO's type-safety.

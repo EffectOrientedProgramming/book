@@ -71,7 +71,6 @@ most media is generally not a problem.)
 In each source-code file you find a reference to the following copyright notice:
 
 ```text
-
 // Copyright.txt
 This computer source code is Copyright ©2021 MindView LLC.
 All Rights Reserved.

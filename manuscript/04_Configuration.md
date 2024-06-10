@@ -72,8 +72,12 @@ def run =
       dough => dough.letRise
     .provide:
       Dough.fresh
-// Dough: Mixed
-// Dough is rising
+```
+
+Output:
+```shell
+Dough: Mixed
+Dough is rising
 ```
 
 ## Step 2: Missing Dependencies Are Compile Errors
@@ -91,20 +95,24 @@ ZIO
   .serviceWithZIO[Dough]:
     dough => dough.letRise
   .provide()
-// error:
-// 
-// 
-// ──── ZLAYER ERROR ────────────────────────────────────────────────────
-// 
-//  Please provide a layer for the following type:
-// 
-//    1. repl.MdocSession.MdocApp.Dough
-//       
-// ──────────────────────────────────────────────────────────────────────
-// 
-// 
-//     ZIO
-//     ^
+```
+
+Output:
+```shell
+error:
+
+
+──── ZLAYER ERROR ────────────────────────────────────────────────────
+
+ Please provide a layer for the following type:
+
+   1. repl.MdocSession.MdocApp.Dough
+      
+──────────────────────────────────────────────────────────────────────
+
+
+    ZIO
+    ^
 ```
 
 ## Step 3: Dependencies can "automatically" assemble
@@ -148,10 +156,14 @@ def run =
     .serviceWithZIO[Bread]:
       bread => bread.eat
     .provide(Bread.homemade, Dough.fresh, oven)
-// Oven: Heated
-// Dough: Mixed
-// BreadHomeMade: Baked
-// Bread: Eating
+```
+
+Output:
+```shell
+Oven: Heated
+Dough: Mixed
+BreadHomeMade: Baked
+Bread: Eating
 ```
 
 ## Step 4: Different effects can require the same dependency
@@ -187,11 +199,15 @@ def run =
       Dough.fresh,
       oven,
     )
-// Oven: Heated
-// Dough: Mixed
-// BreadHomeMade: Baked
-// Toast: Made
-// Result: Toast(Heat(),BreadHomeMade(Heat(),Dough()))
+```
+
+Output:
+```shell
+Oven: Heated
+Dough: Mixed
+BreadHomeMade: Baked
+Toast: Made
+Result: Toast(Heat(),BreadHomeMade(Heat(),Dough()))
 ```
 
 
@@ -210,8 +226,12 @@ def run =
     .service[Heat]
     .provide:
       toaster
-// Toaster: Heated
-// Result: Heat()
+```
+
+Output:
+```shell
+Toaster: Heated
+Result: Heat()
 ```
 
 ## Step 5: Dependencies must be unique types
@@ -284,19 +304,22 @@ def run =
       Dough.fresh, 
       oven,
     )
-// Toaster: Heating
-// Oven: Heated
-// Dough: Mixed
-// BreadHomeMade: Baked
-// ToastZ: Made
-// Toast: Eating
+```
+
+Output:
+```shell
+Toaster: Heating
+Oven: Heated
+Dough: Mixed
+BreadHomeMade: Baked
+ToastZ: Made
+Toast: Eating
 ```
 
 Author Note: Hardcoded, because mdoc doesn't properly support the `ZLayer.Debug.tree` output.
 
 Output: 
 ```terminal
-
 [info]   ZLayer Wiring Graph  
 [info] ◉ ToastZ.make
 [info] ├─◑ Toaster.layer
@@ -331,8 +354,12 @@ def run =
     .service[Bread]
     .provide:
       storeBought
-// BreadStoreBought: Bought
-// Result: BreadStoreBought()
+```
+
+Output:
+```shell
+BreadStoreBought: Bought
+Result: BreadStoreBought()
 ```
 
 ## Step 8: Dependency construction can fail
@@ -348,8 +375,12 @@ def run =
       Friend.bread(worksOnAttempt =
         3
       )
-// Attempt 1: Error(Friend Unreachable)
-// Result: Error(Friend Unreachable)
+```
+
+Output:
+```shell
+Attempt 1: Error(Friend Unreachable)
+Result: Error(Friend Unreachable)
 ```
 
 ## Step 9: Fallback Dependencies
@@ -365,9 +396,13 @@ def run =
         )
         .orElse:
           storeBought
-// Attempt 1: Error(Friend Unreachable)
-// BreadStoreBought: Bought
-// Result: BreadStoreBought()
+```
+
+Output:
+```shell
+Attempt 1: Error(Friend Unreachable)
+BreadStoreBought: Bought
+Result: BreadStoreBought()
 ```
 
 ## Step 10: Dependency Retries
@@ -390,18 +425,26 @@ def logicWithRetries(retries: Int) =
 ```scala
 def run =
   logicWithRetries(retries = 1)
-// Attempt 1: Error(Friend Unreachable)
-// Attempt 2: Error(Friend Unreachable)
-// Result: Error(Friend Unreachable)
+```
+
+Output:
+```shell
+Attempt 1: Error(Friend Unreachable)
+Attempt 2: Error(Friend Unreachable)
+Result: Error(Friend Unreachable)
 ```
 
 ```scala
 def run =
   logicWithRetries(retries = 2)
-// Attempt 1: Error(Friend Unreachable)
-// Attempt 2: Error(Friend Unreachable)
-// Attempt 3: Succeeded
-// Bread: Eating
+```
+
+Output:
+```shell
+Attempt 1: Error(Friend Unreachable)
+Attempt 2: Error(Friend Unreachable)
+Attempt 3: Succeeded
+Bread: Eating
 ```
 
 ## Step 11: Externalize Config for Retries
@@ -465,10 +508,14 @@ def run =
         )
     .provide:
       config
-// Attempt 1: Error(Friend Unreachable)
-// Attempt 2: Error(Friend Unreachable)
-// Attempt 3: Succeeded
-// Bread: Eating
+```
+
+Output:
+```shell
+Attempt 1: Error(Friend Unreachable)
+Attempt 2: Error(Friend Unreachable)
+Attempt 3: Succeeded
+Bread: Eating
 ```
 
 ## Step 12: Keep the building from burning down!
@@ -501,11 +548,15 @@ def run =
       ovenSafe, 
       Scope.default
     )
-// Oven: Heated
-// Dough: Mixed
-// BreadHomeMade: Baked
-// Bread: Eating
-// Oven: Turning off!
+```
+
+Output:
+```shell
+Dough: Mixed
+Oven: Heated
+BreadHomeMade: Baked
+Bread: Eating
+Oven: Turning off!
 ```
 
 ## Testing Effects
@@ -563,18 +614,22 @@ val flipTen =
 ```scala
 def run =
   flipTen
-// Heads
-// Tails
-// Heads
-// Heads
-// Tails
-// Heads
-// Heads
-// Heads
-// Heads
-// Tails
-// Num Heads = 7
-// Result: 7
+```
+
+Output:
+```shell
+Tails
+Tails
+Heads
+Heads
+Heads
+Tails
+Tails
+Heads
+Heads
+Tails
+Num Heads = 5
+Result: 5
 ```
 
 ```scala
@@ -587,19 +642,23 @@ def spec =
         .run
       assertTrue:
         flipTen.run == 10
-// Heads
-// Heads
-// Heads
-// Heads
-// Heads
-// Heads
-// Heads
-// Heads
-// Heads
-// Heads
-// Num Heads = 10
-// + flips 10 times
-// Result: Summary(1,0,0,,PT0.038924S)
+```
+
+Output:
+```shell
+Heads
+Heads
+Heads
+Heads
+Heads
+Heads
+Heads
+Heads
+Heads
+Heads
+Num Heads = 10
++ flips 10 times
+Result: Summary(1,0,0,,PT0.032766S)
 ```
 
 ```scala
@@ -648,19 +707,23 @@ def spec =
         .run
       rosencrantzAndGuildensternAreDead.run
       assertCompletes
-// *Performance Begins*
-// Heads
-// R: Heads
-// Heads
-// R: Heads
-// Heads
-// ...
-// R: Heads
-// G: ...probability
-// Heads
-// R: Heads
-// + rosencrantzAndGuildensternAreDead finishes
-// Result: Summary(1,0,0,,PT0.038934S)
+```
+
+Output:
+```shell
+*Performance Begins*
+Heads
+R: Heads
+Heads
+R: Heads
+Heads
+...
+R: Heads
+G: ...probability
+Heads
+R: Heads
++ rosencrantzAndGuildensternAreDead finishes
+Result: Summary(1,0,0,,PT0.032664S)
 ```
 
 ```scala
@@ -671,19 +734,23 @@ def spec =
       assertCompletes
   @@ TestAspect.withLiveRandom @@
     TestAspect.flaky(Int.MaxValue)
-// *Performance Begins*
-// Heads
-// R: Heads
-// Tails
-// <FAIL> R: Fail(Tails,Stack trace for thread "zio-fiber-1432478839":
-// 	at repl.MdocSession.MdocApp.coinToss(<input>:443)
-// ...
-// R: Heads
-// G: ...probability
-// Heads
-// R: Heads
-// + flaky plan
-// Result: Summary(1,0,0,,PT0.02097S)
+```
+
+Output:
+```shell
+*Performance Begins*
+Heads
+R: Heads
+Heads
+R: Heads
+Heads
+...
+R: Heads
+G: ...probability
+Heads
+R: Heads
++ flaky plan
+Result: Summary(1,0,0,,PT0.037815S)
 ```
 
 The `Random` Effect uses an injected something which when running the ZIO uses the system's unpredictable random number generator.  In ZIO Test the `Random` Effect uses a different something which can predictably generate "random" numbers.  `TestRandom` provides a way to define what those numbers are.  This example feeds in the `Int`s `1` and `2` so the first time we ask for a random number we get `1` and the second time we get `2`.
@@ -721,9 +788,13 @@ def spec =
       fork.join.run
 
       assertCompletes
-// Parsing CSV: ()
-// + batch runs after 24 hours
-// Result: Summary(1,0,0,,PT0.030013S)
+```
+
+Output:
+```shell
+Parsing CSV: ()
++ batch runs after 24 hours
+Result: Summary(1,0,0,,PT0.040124S)
 ```
 
 The `race` is between `nightlyBatch` and `timeTravel`.
@@ -733,7 +804,6 @@ By default in ZIO Test, the clock does not change unless instructed to.
 Calling a time based effect like `timeout` would hang indefinitely with a warning like:
 
 ```terminal
-
 Warning: A test is using time, but is not 
 advancing the test clock, which may result 
 in the test hanging.  Use TestClock.adjust 

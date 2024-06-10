@@ -37,7 +37,11 @@ For this book we shorten the definition for running ZIO Effects to:
 def run =
   ZIO.debug:
     "hello, world"
-// hello, world
+```
+
+Output:
+```shell
+hello, world
 ```
 
 ```scala
@@ -82,10 +86,12 @@ def spec =
     defer:
       assertTrue:
         Random.nextIntBounded(10).run < 10
-// Log: Signup initiated for Morty
-// Log: Signup initiated for Morty
-// + random is random
-// Result: Summary(1,0,0,,PT0.274516S)
+```
+
+Output:
+```shell
++ random is random
+Result: Summary(1,0,0,,PT0.380951S)
 ```
 
 TODO Justify defer syntax over for-comp for multi-statement assertions
@@ -101,8 +107,12 @@ def spec =
         Random.nextIntBetween(10, 20).run <=
           20 &&
           Random.nextIntBetween(20, 30).run <= 30
-// + random is still random
-// Result: Summary(1,0,0,,PT0.082371S)
+```
+
+Output:
+```shell
++ random is still random
+Result: Summary(1,0,0,,PT0.102022S)
 ```
 
 Consider a `Console` application:
@@ -154,21 +164,25 @@ def spec =
             |""".stripMargin
       assertTrue:
         capturedOutput == expectedOutput
-// - console works
-//   Exception in thread "zio-fiber-1471437513" scala.NotImplementedError: an implementation is missing
-//   	at scala.Predef$.$qmark$qmark$qmark(Predef.scala:344)
-//   	at mdoctools.OurConsole.print(OurConsole.scala:14)
-//   	at zio.Console$.print$$anonfun$6(Console.scala:122)
-//   	at zio.ZIO$.consoleWith$$anonfun$1(ZIO.scala:3068)
-//   	at zio.FiberRef$unsafe$$anon$2.getWith$$anonfun$1(FiberRef.scala:474)
-//   	at repl.MdocSession.MdocApp.logic(<input>:83)
-//   	at zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19)
-//   	at repl.MdocSession.MdocApp.logic(<input>:93)
-//   	at zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19)
-//   	at repl.MdocSession.MdocApp.Chapter69Spec.spec(<input>:127)
-// Result: 
-// - console works
-//   Exception i
+```
+
+Output:
+```shell
+- console works
+  Exception in thread "zio-fiber-212509731" scala.NotImplementedError: an implementation is missing
+  	at scala.Predef$.$qmark$qmark$qmark(Predef.scala:344)
+  	at mdoctools.OurConsole.print(OurConsole.scala:14)
+  	at zio.Console$.print$$anonfun$6(Console.scala:122)
+  	at zio.ZIO$.consoleWith$$anonfun$1(ZIO.scala:3068)
+  	at zio.FiberRef$unsafe$$anon$2.getWith$$anonfun$1(FiberRef.scala:474)
+  	at repl.MdocSession.MdocApp.logic(<input>:83)
+  	at zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19)
+  	at repl.MdocSession.MdocApp.logic(<input>:93)
+  	at zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19)
+  	at repl.MdocSession.MdocApp.Chapter69Spec.spec(<input>:127)
+Result: 
+- console works
+  Exception i
 ```
 
 ## Interop with existing/legacy code via Unsafe
@@ -188,7 +202,11 @@ val out =
           ZIO.debug:
             "hello, world"
         .getOrThrowFiberFailure()
-// hello, world
+```
+
+Output:
+```shell
+hello, world
 ```
 
 If needed you can even interop to Scala Futures through `Unsafe`, transforming the output of a ZIO into a Future.

@@ -38,7 +38,6 @@ Effects can be run as "main" programs, embedded in other programs, or in tests.
 To run an Effect with ZIO as a "main" program, we normally do this:
 
 ```scala
-
 object MyApp extends ZIOAppDefault:
   def run =
     effect0
@@ -49,7 +48,11 @@ In this book, to avoid the excess lines, we shorten this to:
 ```scala
 def run =
   effect0
-// Result: User saved
+```
+
+Output:
+```shell
+Result: User saved
 ```
 
 By default, the `saveUser` Effect runs in the "happy path" so it will not fail.
@@ -62,7 +65,11 @@ override val bootstrap =
 
 def run =
   effect0
-// Result: User saved
+```
+
+Output:
+```shell
+Result: User saved
 ```
 
 Overriding the `bootstrap` value simulates failures in the following examples.
@@ -77,8 +84,12 @@ override val bootstrap =
 
 def run =
   effect0
-// Log: **Database crashed!!**
-// Result: **Database crashed!!**
+```
+
+Output:
+```shell
+Log: **Database crashed!!**
+Result: **Database crashed!!**
 ```
 
 The program logs and returns the failure.
@@ -103,9 +114,13 @@ override val bootstrap =
 
 def run =
   effect1
-// Log: **Database crashed!!**
-// Log: **Database crashed!!**
-// Result: User saved
+```
+
+Output:
+```shell
+Log: **Database crashed!!**
+Log: **Database crashed!!**
+Result: User saved
 ```
 
 The output shows that running the Effect worked after two retries.
@@ -120,10 +135,14 @@ override val bootstrap =
 
 def run =
   effect1
-// Log: **Database crashed!!**
-// Log: **Database crashed!!**
-// Log: **Database crashed!!**
-// Result: **Database crashed!!**
+```
+
+Output:
+```shell
+Log: **Database crashed!!**
+Log: **Database crashed!!**
+Log: **Database crashed!!**
+Result: **Database crashed!!**
 ```
 
 After the failed retries, the program returns the error.
@@ -147,10 +166,14 @@ override val bootstrap =
 
 def run =
   effect2
-// Log: **Database crashed!!**
-// Log: **Database crashed!!**
-// Log: **Database crashed!!**
-// Result: ERROR: User could not be saved
+```
+
+Output:
+```shell
+Log: **Database crashed!!**
+Log: **Database crashed!!**
+Log: **Database crashed!!**
+Result: ERROR: User could not be saved
 ```
 
 The `orElseFail` is combined with the prior Effect that has the retry,
@@ -179,8 +202,12 @@ override val bootstrap =
 
 def run =
   effect3
-// Log: Interrupting slow request
-// Result: *** Save timed out ***
+```
+
+Output:
+```shell
+Log: Interrupting slow request
+Result: *** Save timed out ***
 ```
 
 The Effect took too long and produced the error.
@@ -207,10 +234,14 @@ override val bootstrap =
 
 def run =
   effect4
-// Log: **Database crashed!!**
-// Log: **Database crashed!!**
-// Log: **Database crashed!!**
-// Result: Please manually provision Morty
+```
+
+Output:
+```shell
+Log: **Database crashed!!**
+Log: **Database crashed!!**
+Log: **Database crashed!!**
+Result: Please manually provision Morty
 ```
 
 The retries do not succeed so the user is sent to the fallback Effect.
@@ -233,7 +264,11 @@ override val bootstrap =
 
 def run =
   effect5
-// Result: User saved
+```
+
+Output:
+```shell
+Result: User saved
 ```
 
 We run the effect again in the `HappyPath` scenario to demonstrate running the Effects in parallel.
@@ -256,7 +291,11 @@ override val bootstrap =
 
 def run =
   effect6
-// Result: (PT0.017393137S,User saved)
+```
+
+Output:
+```shell
+Result: (PT0.001207515S,User saved)
 ```
 
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.
@@ -277,7 +316,11 @@ override val bootstrap =
 
 def run =
   effect7
-// Result: None
+```
+
+Output:
+```shell
+Result: None
 ```
 
 We can add behavior to the end of our complex Effect,
@@ -288,7 +331,6 @@ We can add behavior to the end of our complex Effect,
 {{ todo: make rendering in manuscript work }}
 
 ```mermaid
-
 graph TD
   effect0 --retry--> effect1 --"orElseFail"--> effect2 --timeoutFail--> effect3 --"orElse"--> effect4 --withFinalizer--> effect5 --timed--> effect6 --when--> effect7
 ```
@@ -338,10 +380,14 @@ We _cannot_ repeat our executed effect.
 val programManipulatingBeforeRun =
   defer:
     Console.printLine("Hello").run.repeatN(3)
-// error:
-// value repeatN is not a member of Unit
-// class Chapter203 extends mdoctools.ToRun:
-//                                   ^
+```
+
+Output:
+```shell
+error:
+value repeatN is not a member of Unit
+class Chapter203 extends mdoctools.ToRun:
+                                  ^
 ```
 
 Note that these calls to `.run` are all within a `defer` block, so when `program` is defined, we still have not actually executed anything.
@@ -361,10 +407,14 @@ It is only when we pass our completed program over to the effect system that the
 ```scala
 def run =
   surroundedProgram
-// **Before**
-// Hello
-// world
-// **After**
+```
+
+Output:
+```shell
+**Before**
+Hello
+world
+**After**
 ```
 
 ```scala
@@ -373,30 +423,34 @@ val program =
   defer:
     println("hi").run
     (1 + 1).run
-// error:
-// value run is not a member of Unit.
-// An extension method was tried, but could not be fully constructed:
-// 
-//     run[R, E, A](println("hi"))
-// 
-//     failed with:
-// 
-//         Found:    Unit
-//         Required: ZIO[Nothing, Any, Any]
-//     println("hi").run
-//     ^^^^^^^^^^^^^^^^^
-// error:
-// value run is not a member of Int.
-// An extension method was tried, but could not be fully constructed:
-// 
-//     run[R, E, A](1.+(1))
-// 
-//     failed with:
-// 
-//         Found:    (2 : Int)
-//         Required: ZIO[Nothing, Any, Any]
-//     (1 + 1).run
-//     ^^^^^^^^^^^
+```
+
+Output:
+```shell
+error:
+value run is not a member of Unit.
+An extension method was tried, but could not be fully constructed:
+
+    run[R, E, A](println("hi"))
+
+    failed with:
+
+        Found:    Unit
+        Required: ZIO[Nothing, Any, Any]
+    println("hi").run
+    ^^^^^^^^^^^^^^^^^
+error:
+value run is not a member of Int.
+An extension method was tried, but could not be fully constructed:
+
+    run[R, E, A](1.+(1))
+
+    failed with:
+
+        Found:    (2 : Int)
+        Required: ZIO[Nothing, Any, Any]
+    (1 + 1).run
+    ^^^^^^^^^^^
 ```
 
 ### Explain the 2 versions of run and how they came to be

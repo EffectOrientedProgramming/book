@@ -84,8 +84,12 @@ def getHeadlineZ(scenario: Scenario) =
 ```scala
 def run =
   getHeadlineZ(Scenario.StockMarketHeadline)
-// Network - Getting headline
-// Result: stock market rising!
+```
+
+Output:
+```shell
+Network - Getting headline
+Result: stock market rising!
 ```
 
 Now let's confirm the behavior when the headline is not available.
@@ -93,8 +97,12 @@ Now let's confirm the behavior when the headline is not available.
 ```scala
 def run =
   getHeadlineZ(Scenario.HeadlineNotAvailable)
-// Network - Getting headline
-// Result: HeadlineNotAvailable
+```
+
+Output:
+```shell
+Network - Getting headline
+Result: HeadlineNotAvailable
 ```
 
 ## Option
@@ -129,16 +137,24 @@ def topicOfInterestZ(headline: String) =
 def run =
   topicOfInterestZ:
     "stock market rising!"
-// Analytics - Scanning
-// Result: stock market
+```
+
+Output:
+```shell
+Analytics - Scanning
+Result: stock market
 ```
 
 ```scala
 def run =
   topicOfInterestZ:
     "boring and inane content"
-// Analytics - Scanning
-// Result: NoInterestingTopic()
+```
+
+Output:
+```shell
+Analytics - Scanning
+Result: NoInterestingTopic()
 ```
 
 ## Either
@@ -167,16 +183,24 @@ def wikiArticleZ(topic: String) =
 def run =
   wikiArticleZ:
     "stock market"
-// Wiki - articleFor(stock market)
-// Result: detailed history of stock market
+```
+
+Output:
+```shell
+Wiki - articleFor(stock market)
+Result: detailed history of stock market
 ```
 
 ```scala
 def run =
   wikiArticleZ:
     "barn"
-// Wiki - articleFor(barn)
-// Result: NoWikiArticleAvailable()
+```
+
+Output:
+```shell
+Wiki - articleFor(barn)
+Result: NoWikiArticleAvailable()
 ```
 
 ## AutoCloseable
@@ -216,10 +240,14 @@ def run =
       openFileZ("file1.txt").run
     file.contains:
       "topicOfInterest"
-// File - OPEN
-// File - contains(topicOfInterest)
-// File - CLOSE
-// Result: false
+```
+
+Output:
+```shell
+File - OPEN
+File - contains(topicOfInterest)
+File - CLOSE
+Result: false
 ```
 
 Now we highlight the difference between the static scoping of `Using` or `ZIO.fromAutoCloseable`.
@@ -252,12 +280,16 @@ def run =
     val file2 =
       openFileZ("file2.txt").run
     file1.sameContent(file2)
-// File - OPEN
-// File - OPEN
-// side-effect print: comparing content
-// File - CLOSE
-// File - CLOSE
-// Result: true
+```
+
+Output:
+```shell
+File - OPEN
+File - OPEN
+side-effect print: comparing content
+File - CLOSE
+File - CLOSE
+Result: true
 ```
 
 Our code remains flat.
@@ -288,10 +320,14 @@ def run =
     val file =
       openFileZ("file1").run
     writeToFileZ(file, "New data on topic").run
-// File - OPEN
-// File - write: New data on topic
-// File - CLOSE
-// Result: New data on topic
+```
+
+Output:
+```shell
+File - OPEN
+File - write: New data on topic
+File - CLOSE
+Result: New data on topic
 ```
 
 ## Functions that throw
@@ -340,9 +376,13 @@ TODO Prose about the long-running AI process here
 // TODO Can we use silent instead of compile-only above?
 val summary: String =
   summarize("topic")
-// AI - summarize - start
-// AI - summarize - end
-// summary: String = "topic summary"
+```
+
+Output:
+```shell
+AI - summarize - start
+AI - summarize - end
+summary: String = "topic summary"
 ```
 
 This gets interrupted, although it takes a big performance hit
@@ -376,7 +416,11 @@ def run =
     val topStory =
       findTopNewsStory.run
     textAlert(topStory).run
-// Texting story: Battery Breakthrough
+```
+
+Output:
+```shell
+Texting story: Battery Breakthrough
 ```
 
 ### Short-circuiting
@@ -436,59 +480,79 @@ def researchHeadline(scenario: Scenario) =
 def run =
   researchHeadline:
     Scenario.HeadlineNotAvailable
-// Network - Getting headline
-// Result: HeadlineNotAvailable
+```
+
+Output:
+```shell
+Network - Getting headline
+Result: HeadlineNotAvailable
 ```
 
 ```scala
 def run =
   researchHeadline:
     Scenario.NoInterestingTopic()
-// Network - Getting headline
-// Analytics - Scanning
-// Result: NoInterestingTopic()
+```
+
+Output:
+```shell
+Network - Getting headline
+Analytics - Scanning
+Result: NoInterestingTopic()
 ```
 
 ```scala
 def run =
   researchHeadline:
     Scenario.SummaryReadThrows()
-// Network - Getting headline
-// Analytics - Scanning
-// File - OPEN
-// File - contains(unicode)
-// File - summaryFor(unicode)
-// File - CLOSE
-// Result: NoSummaryAvailable(unicode)
+```
+
+Output:
+```shell
+Network - Getting headline
+Analytics - Scanning
+File - OPEN
+File - contains(unicode)
+File - summaryFor(unicode)
+File - CLOSE
+Result: NoSummaryAvailable(unicode)
 ```
 
 ```scala
 def run =
   researchHeadline:
     Scenario.NoWikiArticleAvailable()
-// Network - Getting headline
-// Analytics - Scanning
-// File - OPEN
-// File - contains(barn)
-// Wiki - articleFor(barn)
-// File - CLOSE
-// Result: NoWikiArticleAvailable()
+```
+
+Output:
+```shell
+Network - Getting headline
+Analytics - Scanning
+File - OPEN
+File - contains(barn)
+Wiki - articleFor(barn)
+File - CLOSE
+Result: NoWikiArticleAvailable()
 ```
 
 ```scala
 def run =
   researchHeadline:
     Scenario.AITooSlow()
-// Network - Getting headline
-// Analytics - Scanning
-// File - OPEN
-// File - contains(space)
-// Wiki - articleFor(space)
-// AI - summarize - start
-// printing because our test clock is insane
-// AI **INTERRUPTED**
-// File - CLOSE
-// Result: AITooSlow()
+```
+
+Output:
+```shell
+Network - Getting headline
+Analytics - Scanning
+File - OPEN
+File - contains(space)
+Wiki - articleFor(space)
+AI - summarize - start
+printing because our test clock is insane
+AI **INTERRUPTED**
+File - CLOSE
+Result: AITooSlow()
 ```
 
 ```scala
@@ -497,15 +561,20 @@ def run =
     // TODO Handle inconsistency in this example
     // AI keeps timing out
     Scenario.DiskFull()
-// Network - Getting headline
-// Analytics - Scanning
-// File - OPEN
-// File - contains(genome)
-// Wiki - articleFor(genome)
-// AI - summarize - start
-// AI - summarize - end
-// File - CLOSE
-// Result: AITooSlow()
+```
+
+Output:
+```shell
+Network - Getting headline
+Analytics - Scanning
+File - OPEN
+File - contains(genome)
+Wiki - articleFor(genome)
+AI - summarize - start
+AI - summarize - end
+File - disk full!
+File - CLOSE
+Result: DiskFull()
 ```
 
 And finally, we see the longest, successful pathway through our application:
@@ -514,16 +583,20 @@ And finally, we see the longest, successful pathway through our application:
 def run =
   researchHeadline:
     Scenario.StockMarketHeadline
-// Network - Getting headline
-// Analytics - Scanning
-// File - OPEN
-// File - contains(stock market)
-// Wiki - articleFor(stock market)
-// AI - summarize - start
-// AI - summarize - end
-// File - write: market is not rational
-// File - CLOSE
-// Result: market is not rational
+```
+
+Output:
+```shell
+Network - Getting headline
+Analytics - Scanning
+File - OPEN
+File - contains(stock market)
+Wiki - articleFor(stock market)
+AI - summarize - start
+AI - summarize - end
+File - write: market is not rational
+File - CLOSE
+Result: market is not rational
 ```
 
 ## Repeats

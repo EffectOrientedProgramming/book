@@ -54,7 +54,11 @@ val unreliableCounting =
 ```scala
 def run =
   unreliableCounting
-// Result: Final count: 99972
+```
+
+Output:
+```shell
+Result: Final count: 99968
 ```
 
 Due to the unpredictable nature of shared mutable state, we do not know exactly what the final count above is.
@@ -63,7 +67,6 @@ However, conflicts are extremely likely, so some of our writes get clobbered by 
 Ultimately, we lose information with this approach.
 
 ```mermaid
-
 TODO Consider making a diagram parallel writes
 ```
 
@@ -91,7 +94,11 @@ lazy val reliableCounting =
 
 def run =
   reliableCounting
-// Result: Final count: 100000
+```
+
+Output:
+```shell
+Result: Final count: 100000
 ```
 
 Now we can say with full confidence that our final count is 100000.
@@ -142,17 +149,21 @@ def run =
     val finalCount =
       counter.get.run
     s"Final count: $finalCount"
-// Alert: updating count!
-// Alert: updating count!
-// Alert: updating count!
-// Alert: updating count!
-// Alert: updating count!
-// Alert: updating count!
-// Alert: updating count!
-// Alert: updating count!
-// Alert: updating count!
-// Alert: updating count!
-// Result: Final count: 4
+```
+
+Output:
+```shell
+Alert: updating count!
+Alert: updating count!
+Alert: updating count!
+Alert: updating count!
+Alert: updating count!
+Alert: updating count!
+Alert: updating count!
+Alert: updating count!
+Alert: updating count!
+Alert: updating count!
+Result: Final count: 4
 ```
 
 What is going on?!
@@ -193,11 +204,15 @@ val sideEffectingUpdatesSync =
 ```scala
 def run =
   sideEffectingUpdatesSync
-// Alert: updating count!
-// Alert: updating count!
-// Alert: updating count!
-// Alert: updating count!
-// Result: Final count: 4
+```
+
+Output:
+```shell
+Alert: updating count!
+Alert: updating count!
+Alert: updating count!
+Alert: updating count!
+Result: Final count: 4
 ```
 
 Now we see exactly the number of alerts that we expected.
