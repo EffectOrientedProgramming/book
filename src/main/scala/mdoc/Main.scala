@@ -363,6 +363,32 @@ def processMarkdown(
     processor.processDocument(runnableMarkdown)
   processed
 
+
+def manuscriptPost(markdownFile: MarkdownFile): MarkdownFile =
+  val parts = markdownFile.parts.flatMap:
+    case cf: CodeFence if cf.newInfo.contains("scala\n") || cf.info.value == "scala\n" =>
+      val newBody = cf.newBody.getOrElse(cf.body.value)
+      val (codeLines, outputLines) = newBody.linesIterator.toSeq.foldRight((Seq.empty[String], Seq.empty[String])):
+        (line, acc) =>
+          if acc._1.isEmpty && line.startsWith("// ") then
+            (acc._1, line.stripPrefix("// ") +: acc._2)
+          else
+            (line +: acc._1, acc._2)
+
+      if outputLines.nonEmpty then
+        List(
+          CodeFence(Text("```"), Text("scala\n"), Text(codeLines.mkString("\n")), Text("\n```\n")),
+          Text("\nOutput:\n"),
+          CodeFence(Text("```"), Text("shell\n"), Text(outputLines.mkString("\n")), Text("\n```\n")) // mdoc doesn't seem to support ```text
+        )
+      else
+        List(cf)
+    case other =>
+      List(other)
+
+  markdownFile.copy(parts = parts)
+
+
 def processFile(
     input: Input,
     inputFile: InputFile,
@@ -376,7 +402,6 @@ def processFile(
 
   val runnableMarkdown =
     parsedToRunnable(parsed, settings)
-  //  println(runnableMarkdown.renderToString)
 
   val processed: MarkdownFile =
     processMarkdown(
@@ -403,7 +428,7 @@ def processFile(
   val manuscriptMarkdown =
     runnableMarkdown.copy(parts =
       withoutRunnableParts.map {
-        case codeFence: CodeFence =>
+        case codeFence: CodeFence if codeFence.info.value.contains("scala mdoc") =>
           // turn scala mdoc(*) into just scala
           codeFence.newInfo =
             Some(
@@ -418,7 +443,7 @@ def processFile(
       }
     )
 
-  manuscriptMarkdown -> withoutRunnable
+  manuscriptPost(manuscriptMarkdown) -> withoutRunnable
 end processFile
 
 def processFile(
@@ -471,9 +496,8 @@ def processFile(
     )
 
   if mainSettings.reporter.hasErrors then
-    println("Not writing outputs due to errors")
+    println(s"Not writing outputs due to errors in ${inputFile.inputFile.toRelative}")
     // todo: show just the error block?
-    // println(runnableMarkdown.renderToString)
   else
     // write manuscript
     Files.createDirectories(

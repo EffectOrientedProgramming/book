@@ -149,7 +149,7 @@ object MainSpec extends ZIOSpecDefault:
           val rendered =
             manuscriptMarkdown.renderToString
           assertTrue:
-            rendered.contains("// Result: (PT1")
+            rendered.contains("Result: (PT1")
         +
         test("mdoc test with TestClock"):
           val mainSettings =
@@ -292,6 +292,108 @@ object MainSpec extends ZIOSpecDefault:
               exampleSrc.indexWhere(
                 _.contains("Chapterfoo_1")
               )
+          )
+        +
+        test("manuscriptPost"):
+          val mainSettings =
+            MainSettings()
+
+          val source =
+            """```scala
+              |def run =
+              |  ZIO.debug("hello, world")
+              |// hello, world
+              |// asdf
+              |```
+              |""".stripMargin
+
+          val input =
+            Input.VirtualFile("foo.md", source)
+
+          val inputFile =
+            InputFile.fromRelativeFilename(
+              "foo.md",
+              mainSettings.settings
+            )
+
+          val markdown =
+            MarkdownFile.parse(
+              input,
+              inputFile,
+              mainSettings.settings
+            )
+
+          val posted = mdoc.manuscriptPost(markdown)
+
+          assertTrue:
+            posted.renderToString ==
+              """```scala
+                |def run =
+                |  ZIO.debug("hello, world")
+                |```
+                |
+                |Output:
+                |```shell
+                |hello, world
+                |asdf
+                |```
+                |""".stripMargin
+        +
+        test("multiple fences"):
+          val mainSettings =
+            MainSettings()
+
+          val newSettings =
+            mainSettings
+              .settings
+              .copy(postModifiers =
+                List(
+                  RunZIOPostModifier(),
+                  TestZIOPostModifier()
+                )
+              )
+
+          val source =
+            """```scala mdoc:runzio
+              |def run = ZIO.debug("hello, world")
+              |```
+              |""".stripMargin
+
+          val input =
+            Input.VirtualFile("foo.md", source)
+
+          val inputFile =
+            InputFile.fromRelativeFilename(
+              "foo.md",
+              mainSettings.settings
+            )
+
+          val markdown =
+            MarkdownFile.parse(
+              input,
+              inputFile,
+              mainSettings.settings
+            )
+
+          val out =
+            mdoc.processFile(
+              input,
+              inputFile,
+              newSettings,
+              mainSettings.reporter,
+            )
+
+          assertTrue(
+            out._1.renderToString ==
+              """```scala
+              |def run = ZIO.debug("hello, world")
+              |```
+              |
+              |Output:
+              |```shell
+              |hello, world
+              |```
+              |""".stripMargin
           )
     @@ TestAspect.sequential
 end MainSpec
