@@ -105,7 +105,6 @@ case class Heat()
 val oven =
   ZLayer.derive[Heat]
     .tap(_ => Console.printLine("Oven: Heated"))
-    
 ```
 
 ```scala 3 mdoc:silent

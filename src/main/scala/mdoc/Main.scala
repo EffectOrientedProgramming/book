@@ -364,31 +364,65 @@ def processMarkdown(
     processor.processDocument(runnableMarkdown)
   processed
 
+def manuscriptPost(
+    markdownFile: MarkdownFile
+): MarkdownFile =
+  val parts =
+    markdownFile
+      .parts
+      .flatMap:
+        case cf: CodeFence
+            if cf.newInfo.contains("scala\n") ||
+              cf.info.value == "scala\n" =>
+          val newBody =
+            cf.newBody.getOrElse(cf.body.value)
+          val (codeLines, outputLines) =
+            newBody
+              .linesIterator
+              .toSeq
+              .foldRight(
+                (
+                  Seq.empty[String],
+                  Seq.empty[String]
+                )
+              ):
+                (line, acc) =>
+                  if acc._1.isEmpty &&
+                    line.startsWith("// ")
+                  then
+                    (
+                      acc._1,
+                      line.stripPrefix("// ") +:
+                        acc._2
+                    )
+                  else
+                    (line +: acc._1, acc._2)
 
-def manuscriptPost(markdownFile: MarkdownFile): MarkdownFile =
-  val parts = markdownFile.parts.flatMap:
-    case cf: CodeFence if cf.newInfo.contains("scala\n") || cf.info.value == "scala\n" =>
-      val newBody = cf.newBody.getOrElse(cf.body.value)
-      val (codeLines, outputLines) = newBody.linesIterator.toSeq.foldRight((Seq.empty[String], Seq.empty[String])):
-        (line, acc) =>
-          if acc._1.isEmpty && line.startsWith("// ") then
-            (acc._1, line.stripPrefix("// ") +: acc._2)
+          if outputLines.nonEmpty then
+            List(
+              CodeFence(
+                Text("```"),
+                Text("scala\n"),
+                Text(codeLines.mkString("\n")),
+                Text("\n```\n")
+              ),
+              Text("\nOutput:\n"),
+              CodeFence(
+                Text("```"),
+                Text("shell\n"),
+                Text(outputLines.mkString("\n")),
+                Text("\n```\n")
+              ) // mdoc doesn't seem to support ```text
+            )
           else
-            (line +: acc._1, acc._2)
+            List(cf)
+        case other =>
+          List(other)
 
-      if outputLines.nonEmpty then
-        List(
-          CodeFence(Text("```"), Text("scala\n"), Text(codeLines.mkString("\n")), Text("\n```\n")),
-          Text("\nOutput:\n"),
-          CodeFence(Text("```"), Text("shell\n"), Text(outputLines.mkString("\n")), Text("\n```\n")) // mdoc doesn't seem to support ```text
-        )
-      else
-        List(cf)
-    case other =>
-      List(other)
-
-  markdownFile.copy(parts = parts)
-
+  markdownFile.copy(parts =
+    parts
+  )
+end manuscriptPost
 
 def processFile(
     input: Input,
@@ -396,19 +430,24 @@ def processFile(
     settings: Settings,
     reporter: Reporter
 ): (MarkdownFile, MarkdownFile) =
-  val source = input.text
-    .replace("```scala 3", "```scala")
-    .replace("import zio.*\n\n", "")
-    .replace("import zio.*\n", "")
-    .replace("import zio.direct.*\n\n", "")
-    .replace("import zio.direct.*\n", "")
+  val source =
+    input
+      .text
+      .replace("```scala 3", "```scala")
+      .replace("import zio.*\n\n", "")
+      .replace("import zio.*\n", "")
+      .replace("import zio.direct.*\n\n", "")
+      .replace("import zio.direct.*\n", "")
 
   val preprocessedInput =
     Input.String(source)
 
   val parsed =
-    MarkdownFile
-      .parse(preprocessedInput, inputFile, settings)
+    MarkdownFile.parse(
+      preprocessedInput,
+      inputFile,
+      settings
+    )
 
   val runnableMarkdown =
     parsedToRunnable(parsed, settings)
@@ -438,7 +477,11 @@ def processFile(
   val manuscriptMarkdown =
     runnableMarkdown.copy(parts =
       withoutRunnableParts.map {
-        case codeFence: CodeFence if codeFence.info.value.contains("scala mdoc") =>
+        case codeFence: CodeFence
+            if codeFence
+              .info
+              .value
+              .contains("scala mdoc") =>
           // turn scala mdoc(*) into just scala
           codeFence.newInfo =
             Some(
@@ -453,7 +496,8 @@ def processFile(
       }
     )
 
-  manuscriptPost(manuscriptMarkdown) -> withoutRunnable
+  manuscriptPost(manuscriptMarkdown) ->
+    withoutRunnable
 end processFile
 
 def processFile(
@@ -481,7 +525,7 @@ def processFile(
         postModifiers =
           List(
             RunZIOPostModifier(),
-            TestZIOPostModifier(),
+            TestZIOPostModifier()
           ) // we use the PostModifiers so we can keep passing the "scala mdoc:runzio" and "scala mdoc:testzio" through
       )
 
@@ -506,7 +550,9 @@ def processFile(
     )
 
   if mainSettings.reporter.hasErrors then
-    println(s"Not writing outputs due to errors in ${inputFile.inputFile.toRelative}")
+    println(
+      s"Not writing outputs due to errors in ${inputFile.inputFile.toRelative}"
+    )
     // todo: show just the error block?
   else
     // write manuscript
@@ -516,10 +562,8 @@ def processFile(
     Files.write(
       inputFile.outputFile.toNIO,
       cleanupZioErrorOutput(
-        manuscriptMarkdown
-          .renderToString
-      )
-        .getBytes(mainSettings.settings.charset)
+        manuscriptMarkdown.renderToString
+      ).getBytes(mainSettings.settings.charset)
     )
 
     val baseName =
@@ -671,14 +715,33 @@ def processDir(
     }
 end processDir
 
-def cleanupZioErrorOutput(raw: String) =
-  // TODO Also clean up initial error: bit and final carat'ed indicator
+def cleanupZioErrorOutput(raw: String) = {
+  // TODO Also clean up initial error: bit and
+  // final carat'ed indicator
   //     Neither of those play nicely with mdoc
-  raw
-    .replace("──── ZLAYER ERROR ────────────────────────────────────────────────────", "──── ZLAYER ERROR ───────────")
-    .replace("──────────────────────────────────────────────────────────────────────", "─────────────────────────────")
+  val stripped =
+//    if (raw.contains("──── ZLAYER ERROR ────────────────────────────────────────────────────"))
+//      raw.drop(
+//        raw.indexOf("──── ZLAYER ERROR ────────────────────────────────────────────────────")
+//      )
+//    else
+      raw
+
+  stripped
+    .replace(
+      "error:\n\n\n──── ZLAYER ERROR ────────────────────────────────────────────────────",
+      "──── ZLAYER ERROR ───────────"
+    )
+    .replace(
+      "──────────────────────────────────────────────────────────────────────",
+      "─────────────────────────────"
+    )
     .replace("repl.MdocSession.MdocApp.", "")
-    .replace("Please provide a layer for the following type", "Please provide a layer for")
+    .replace(
+      "Please provide a layer for the following type",
+      "Please provide a layer for"
+    )
+}
 
 @main
 def mdocRun(examplesDir: String) =
