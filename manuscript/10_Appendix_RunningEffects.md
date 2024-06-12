@@ -69,6 +69,8 @@ When you run the same `ZIO` in these 2 contexts, the only thing that changes are
 > TODO - Decide which scenario to test
 
 ```scala
+import zio.test.*
+
 object TestingZIOs extends ZIOSpecDefault:
   def spec =
     test("Hello Tests"):
@@ -81,6 +83,8 @@ object TestingZIOs extends ZIOSpecDefault:
 For this book we can shorten the test definition to:
 
 ```scala
+import zio.test.*
+
 def spec =
   test("random is random"):
     defer:
@@ -91,7 +95,7 @@ def spec =
 Output:
 ```shell
 + random is random
-Result: Summary(1,0,0,,PT0.380951S)
+Result: Summary(1,0,0,,PT0.433294S)
 ```
 
 TODO Justify defer syntax over for-comp for multi-statement assertions
@@ -99,6 +103,8 @@ I think this example completes the objective
 TODO Change this to a Console app, where the logic & testing is more visceral
 
 ```scala
+import zio.test.*
+
 def spec =
   test("random is still random"):
     defer:
@@ -112,7 +118,7 @@ def spec =
 Output:
 ```shell
 + random is still random
-Result: Summary(1,0,0,,PT0.102022S)
+Result: Summary(1,0,0,,PT0.122004S)
 ```
 
 Consider a `Console` application:
@@ -146,6 +152,8 @@ However, even if you are not trying to write demo code for a book, it is very li
 Even for the smallest programs, it is slow, error-prone, and boring.
 
 ```scala
+import zio.test.*
+
 def spec =
   test("console works"):
     defer:
@@ -169,17 +177,17 @@ def spec =
 Output:
 ```shell
 - console works
-  Exception in thread "zio-fiber-212509731" scala.NotImplementedError: an implementation is missing
+  Exception in thread "zio-fiber-1354729958" scala.NotImplementedError: an implementation is missing
   	at scala.Predef$.$qmark$qmark$qmark(Predef.scala:344)
   	at mdoctools.OurConsole.print(OurConsole.scala:14)
   	at zio.Console$.print$$anonfun$6(Console.scala:122)
   	at zio.ZIO$.consoleWith$$anonfun$1(ZIO.scala:3068)
   	at zio.FiberRef$unsafe$$anon$2.getWith$$anonfun$1(FiberRef.scala:474)
-  	at repl.MdocSession.MdocApp.logic(<input>:83)
+  	at repl.MdocSession.MdocApp.logic(<input>:91)
   	at zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19)
-  	at repl.MdocSession.MdocApp.logic(<input>:93)
+  	at repl.MdocSession.MdocApp.logic(<input>:101)
   	at zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19)
-  	at repl.MdocSession.MdocApp.Chapter69Spec.spec(<input>:127)
+  	at repl.MdocSession.MdocApp.Chapter69Spec.spec(<input>:137)
 Result: 
 - console works
   Exception i

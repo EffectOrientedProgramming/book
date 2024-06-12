@@ -140,8 +140,6 @@ Rate limits are a common way to structure agreements between services.
 In the worst case, going above this limit could overwhelm the service and make it crash.
 At the very least, you will be charged more for exceeding it.
 
-TODO Show un-limited demo first?
-
 
 ### Constructing a RateLimiter
 
@@ -163,15 +161,6 @@ val makeRateLimiter =
   )
 ```
 
-```scala
-// TODO explain timedSecondsDebug
-def makeCalls(name: String) =
-  expensiveApiCall
-    .timedSecondsDebug:
-      s"$name called API"
-    .repeatN(2) // Repeats as fast as allowed
-```
-
 Now, we wrap our unrestricted logic with our `RateLimiter`.
 Even though the original code loops as fast the CPU allows, it will now adhere to our limit.
 
@@ -181,18 +170,20 @@ def run =
     val rateLimiter =
       makeRateLimiter.run
     rateLimiter:
-      makeCalls:
-        "System"
+      expensiveApiCall
+    .timedSecondsDebug:
+       s"called API"
+    .repeatN(2) // Repeats as fast as allowed
     .timedSecondsDebug("Result")
-      .run
+    .run
 ```
 
 Output:
 ```shell
-System called API [took 0s]
-System called API [took 0s]
-System called API [took 0s]
-Result [took 0s]
+called API [took 0s]
+called API [took 1s]
+called API [took 1s]
+Result [took 2s]
 ```
 
 Most impressively, we can use the same `RateLimiter` across our application.
@@ -210,25 +201,28 @@ def run =
       .foreachPar(people):
         person =>
           rateLimiter:
-            makeCalls(person)
+            expensiveApiCall
+          .timedSecondsDebug:
+            s"$person called API"
+          .repeatN(2) // Repeats as fast as allowed
       .timedSecondsDebug:
         "Total time"
+      .unit // ignores the list of unit
       .run
 ```
 
 Output:
 ```shell
 Bill called API [took 0s]
-Bill called API [took 0s]
-Bill called API [took 0s]
-Bruce called API [took 0s]
-Bruce called API [took 0s]
-Bruce called API [took 0s]
-James called API [took 0s]
-James called API [took 0s]
-James called API [took 0s]
-Total time [took 2s]
-Result: List((), (), ())
+Bruce called API [took 1s]
+James called API [took 2s]
+Bill called API [took 3s]
+Bruce called API [took 3s]
+James called API [took 3s]
+Bill called API [took 3s]
+Bruce called API [took 3s]
+James called API [took 3s]
+Total time [took 8s]
 ```
 
 ## Constraining concurrent requests
@@ -255,10 +249,10 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: : List(924)
-Current requests: : List(543, 924)
-Current requests: : List(88, 543, 924)
-Current requests: : List(388, 88, 543, 924)
+Current requests: List(937)
+Current requests: List(789, 937)
+Current requests: List(970, 789, 937)
+Current requests: List(30, 970, 789, 937)
 Result: Crashed the server!!
 ```
 
@@ -297,16 +291,16 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: : List(982)
-Current requests: : List(167, 982)
-Current requests: : List(57, 167, 982)
-Current requests: : List(624, 679)
-Current requests: : List(679)
-Current requests: : List(876, 624, 679)
-Current requests: : List(293)
-Current requests: : List(273, 293)
-Current requests: : List(150, 273, 293)
-Current requests: : List(240)
+Current requests: List(18)
+Current requests: List(471, 18)
+Current requests: List(385, 471, 18)
+Current requests: List(143)
+Current requests: List(981, 143)
+Current requests: List(792, 981, 143)
+Current requests: List(415)
+Current requests: List(780, 415)
+Current requests: List(491, 780, 415)
+Current requests: List(333, 491)
 Result: All Requests Succeeded
 ```
 
@@ -375,16 +369,17 @@ Once again, the only thing that we need to do is wrap our original effect with t
 
 ```scala
 import CircuitBreaker.CircuitBreakerOpen
+
 def run =
   defer:
     val cb =
       makeCircuitBreaker.run
-    // TODO Can we move these Refs into the
-    // external system?
+
     val numCalls =
       Ref.make[Int](0).run
     val numPrevented =
       Ref.make[Int](0).run
+
     val protectedCall =
       cb(externalSystem(numCalls)).catchSome:
         case CircuitBreakerOpen =>
@@ -408,7 +403,6 @@ Output:
 Result: Calls prevented: 75 Calls made: 66
 ```
 
-{{TODO Fix output after `OurClock` changes}}
 Now we see that our code prevented the majority of the doomed calls to the external service.
 
 ## Hedging
@@ -437,26 +431,22 @@ def run =
     val contractBreaches =
       Ref.make(0).run
 
+    val req =
+      defer:
+        val hedged =
+          logicThatSporadicallyLocksUp.race:
+            logicThatSporadicallyLocksUp
+              .delay:
+                25.millis
+
+        val duration =
+          hedged.run
+        if (duration > 1.second)
+          contractBreaches.update(_ + 1).run
+
     ZIO
       .foreachPar(List.fill(50_000)(())):
-        _ => // james still hates this
-          defer:
-            val hedged =
-              logicThatSporadicallyLocksUp.race:
-                logicThatSporadicallyLocksUp
-                  .delay:
-                    25.millis
-
-            // TODO How do we make this demo more
-            // obvious?
-            // The request is returning the
-            // hypothetical runtime, but that's
-            // not clear from the code that will
-            // be visible to the reader.
-            val duration =
-              hedged.run
-            if (duration > 1.second)
-              contractBreaches.update(_ + 1).run
+        _ => req // TODO james still hates this and maybe a collectAllPar could do the trick but we've already wasted 321 hours on this
       .run
 
     contractBreaches
