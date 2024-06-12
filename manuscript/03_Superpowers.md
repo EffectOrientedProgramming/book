@@ -4,8 +4,6 @@
 [Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/03_Superpowers.md)
 
 
-{{ TODO: More consistent error messages }}
-
 
 Once programs are defined in terms of Effects, we use operations from the Effect System to manage different aspects of unpredictability.
 Combining Effects with these operations feels like a superpower.
@@ -72,11 +70,9 @@ Output:
 Result: User saved
 ```
 
-Overriding the `bootstrap` value simulates failures in the following examples.
+In real systems, assuming the "happy path" leaves strange unhandled errors lurking in your code.
 
-In real systems, assuming the "happy path" causes strange unhandled errors.
-
-We can also run a scenario that causes failure:
+We override the `bootstrap` value to simulate failures in the following examples.
 
 ```scala
 override val bootstrap =
@@ -206,7 +202,6 @@ def run =
 
 Output:
 ```shell
-Log: Interrupting slow request
 Result: *** Save timed out ***
 ```
 
@@ -295,7 +290,7 @@ def run =
 
 Output:
 ```shell
-Result: (PT0.019391735S,User saved)
+Result: (PT0.028630076S,User saved)
 ```
 
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.
@@ -328,7 +323,7 @@ We can add behavior to the end of our complex Effect,
 
 ## Many More Superpowers
 
-{{ todo: make rendering in manuscript work }}
+{{ todo: make rendering in manuscript work. Or hard-code the resulting graph image. }}
 
 ```mermaid
 graph TD
@@ -386,7 +381,7 @@ Output:
 ```shell
 error:
 value repeatN is not a member of Unit
-class Chapter203 extends mdoctools.ToRun:
+class Chapter199 extends mdoctools.ToRun:
                                   ^
 ```
 

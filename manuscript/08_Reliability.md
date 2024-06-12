@@ -214,14 +214,14 @@ def run =
 Output:
 ```shell
 Bill called API [took 0s]
-Bruce called API [took 1s]
-Bill called API [took 2s]
+James called API [took 1s]
+Bruce called API [took 2s]
+Bill called API [took 3s]
 James called API [took 3s]
 Bruce called API [took 3s]
 Bill called API [took 3s]
 James called API [took 3s]
 Bruce called API [took 3s]
-James called API [took 2s]
 Total time [took 8s]
 ```
 
@@ -249,10 +249,12 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(317)
-Current requests: List(457, 317)
-Current requests: List(303, 457, 317)
-Current requests: List(27, 303, 457, 317)
+Current requests: List(560)
+Current requests: List(955, 560)
+Current requests: List(232, 955, 560)
+Current requests: List(287, 232, 955, 560)
+Current requests: List(675, 287, 232, 955, 560)
+Current requests: List(829, 675, 287, 232, 955, 560)
 Result: Crashed the server!!
 ```
 
@@ -291,16 +293,16 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(443)
-Current requests: List(984, 443)
-Current requests: List(769, 984, 443)
-Current requests: List(654)
-Current requests: List(531, 654)
-Current requests: List(548, 531, 654)
-Current requests: List(746)
-Current requests: List(258, 746)
-Current requests: List(492, 258, 746)
-Current requests: List(783)
+Current requests: List(640, 173)
+Current requests: List(173)
+Current requests: List(773, 640, 173)
+Current requests: List(299)
+Current requests: List(39, 299)
+Current requests: List(909, 39, 299)
+Current requests: List(493)
+Current requests: List(632, 493)
+Current requests: List(126, 632, 493)
+Current requests: List(436)
 Result: All Requests Succeeded
 ```
 
@@ -400,7 +402,7 @@ def run =
 
 Output:
 ```shell
-Result: Calls prevented: 76 Calls made: 65
+Result: Calls prevented: 74 Calls made: 67
 ```
 
 Now we see that our code prevented the majority of the doomed calls to the external service.

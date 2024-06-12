@@ -88,8 +88,6 @@ TODO: Decide what to do about the compiler error differences between these appro
 
 TODO: Can we avoid the `.provide()` and still get a good compile error in mdoc
 
-TODO: Strip `repl.MdocSession.MdocApp.` from output. Remove caret indicator from output.
-
 ```scala
 ZIO
   .serviceWithZIO[Dough]:
@@ -102,13 +100,13 @@ Output:
 error:
 
 
-──── ZLAYER ERROR ────────────────────────────────────────────────────
+──── ZLAYER ERROR ───────────
 
- Please provide a layer for the following type:
+ Please provide a layer for:
 
-   1. repl.MdocSession.MdocApp.Dough
+   1. Dough
       
-──────────────────────────────────────────────────────────────────────
+─────────────────────────────
 
 
     ZIO
@@ -249,16 +247,16 @@ ZIO
 // error: 
 // 
 // 
-// ──── ZLAYER ERROR ────────────────────────────────────────────────────
+// ──── ZLAYER ERROR ───────────
 // 
 //  Ambiguous layers! I cannot decide which to use.
 //  You have provided more than one layer for the following type:
 // 
-//    repl.MdocSession.MdocApp.Heat is provided by:
+//    Heat is provided by:
 //       1. oven
 //       2. toaster,
 // 
-// ──────────────────────────────────────────────────────────────────────
+// ─────────────────────────────
 // 
 //
 ```
@@ -618,18 +616,18 @@ def run =
 
 Output:
 ```shell
-Tails
-Heads
-Tails
 Heads
 Heads
 Tails
 Heads
 Tails
+Heads
+Heads
 Tails
 Tails
-Num Heads = 4
-Result: 4
+Tails
+Num Heads = 5
+Result: 5
 ```
 
 ```scala
@@ -660,7 +658,7 @@ Heads
 Heads
 Num Heads = 10
 + flips 10 times
-Result: Summary(1,0,0,,PT0.071881S)
+Result: Summary(1,0,0,,PT0.044893S)
 ```
 
 ```scala
@@ -727,7 +725,7 @@ G: ...probability
 Heads
 R: Heads
 + rosencrantzAndGuildensternAreDead finishes
-Result: Summary(1,0,0,,PT0.040496S)
+Result: Summary(1,0,0,,PT0.066217S)
 ```
 
 ```scala
@@ -746,17 +744,17 @@ Output:
 ```shell
 *Performance Begins*
 Tails
-<FAIL> R: Fail(Tails,Stack trace for thread "zio-fiber-226113199":
-	at repl.MdocSession.MdocApp.coinToss(<input>:443)
-	at repl.MdocSession.MdocApp.rosencrantzCoinToss(<input>:512)
-	at repl.MdocSession.MdocApp.rosencrantzAndGuildensternAreDead(<input>:517)
+<FAIL> R: Fail(Tails,Stack trace for thread "zio-fiber-1973155434":
+	at coinToss(<input>:443)
+	at rosencrantzCoinToss(<input>:512)
+	at rosencrantzAndGuildensternAreDead(<input>:517)
 ...
 R: Heads
 G: ...probability
 Heads
 R: Heads
 + flaky plan
-Result: Summary(1,0,0,,PT0.025572S)
+Result: Summary(1,0,0,,PT0.028029S)
 ```
 
 The `Random` Effect uses an injected something which when running the ZIO uses the system's unpredictable random number generator.  In ZIO Test the `Random` Effect uses a different something which can predictably generate "random" numbers.  `TestRandom` provides a way to define what those numbers are.  This example feeds in the `Int`s `1` and `2` so the first time we ask for a random number we get `1` and the second time we get `2`.
@@ -802,7 +800,7 @@ Output:
 ```shell
 Parsing CSV: ()
 + batch runs after 24 hours
-Result: Summary(1,0,0,,PT0.026667S)
+Result: Summary(1,0,0,,PT0.034068S)
 ```
 
 The `race` is between `nightlyBatch` and `timeTravel`.
