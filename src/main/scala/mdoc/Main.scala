@@ -297,7 +297,7 @@ def partsToExamples(
                 .map("  " + _)
                 .mkString("\n")
             s"""object Chapter${baseName}_${rcf
-                .num} extends ZIOAppDefault:
+                .num} extends helpers.ZIOAppDebug:
              |$indented
              |""".stripMargin
 
