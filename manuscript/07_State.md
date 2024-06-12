@@ -58,7 +58,7 @@ def run =
 
 Output:
 ```shell
-Result: Final count: 99970
+Result: Final count: 99961
 ```
 
 Due to the unpredictable nature of shared mutable state, we do not know exactly what the final count above is.
@@ -153,7 +153,6 @@ def run =
 
 Output:
 ```shell
-Alert: updating count!
 Alert: updating count!
 Alert: updating count!
 Alert: updating count!

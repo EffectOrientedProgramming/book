@@ -308,9 +308,9 @@ def run =
 
 Output:
 ```shell
+Dough: Mixed
 Toaster: Heating
 Oven: Heated
-Dough: Mixed
 BreadHomeMade: Baked
 ToastZ: Made
 Toast: Eating
@@ -552,8 +552,8 @@ def run =
 
 Output:
 ```shell
-Dough: Mixed
 Oven: Heated
+Dough: Mixed
 BreadHomeMade: Baked
 Bread: Eating
 Oven: Turning off!
@@ -619,17 +619,17 @@ def run =
 Output:
 ```shell
 Tails
-Tails
 Heads
 Tails
 Heads
 Heads
-Heads
 Tails
 Heads
 Tails
-Num Heads = 5
-Result: 5
+Tails
+Tails
+Num Heads = 4
+Result: 4
 ```
 
 ```scala
@@ -660,7 +660,7 @@ Heads
 Heads
 Num Heads = 10
 + flips 10 times
-Result: Summary(1,0,0,,PT0.056088S)
+Result: Summary(1,0,0,,PT0.071881S)
 ```
 
 ```scala
@@ -727,7 +727,7 @@ G: ...probability
 Heads
 R: Heads
 + rosencrantzAndGuildensternAreDead finishes
-Result: Summary(1,0,0,,PT0.039334S)
+Result: Summary(1,0,0,,PT0.040496S)
 ```
 
 ```scala
@@ -745,18 +745,18 @@ def spec =
 Output:
 ```shell
 *Performance Begins*
-Heads
-R: Heads
 Tails
-<FAIL> R: Fail(Tails,Stack trace for thread "zio-fiber-2143861915":
+<FAIL> R: Fail(Tails,Stack trace for thread "zio-fiber-226113199":
 	at repl.MdocSession.MdocApp.coinToss(<input>:443)
+	at repl.MdocSession.MdocApp.rosencrantzCoinToss(<input>:512)
+	at repl.MdocSession.MdocApp.rosencrantzAndGuildensternAreDead(<input>:517)
 ...
 R: Heads
 G: ...probability
 Heads
 R: Heads
 + flaky plan
-Result: Summary(1,0,0,,PT0.041292S)
+Result: Summary(1,0,0,,PT0.025572S)
 ```
 
 The `Random` Effect uses an injected something which when running the ZIO uses the system's unpredictable random number generator.  In ZIO Test the `Random` Effect uses a different something which can predictably generate "random" numbers.  `TestRandom` provides a way to define what those numbers are.  This example feeds in the `Int`s `1` and `2` so the first time we ask for a random number we get `1` and the second time we get `2`.
@@ -802,7 +802,7 @@ Output:
 ```shell
 Parsing CSV: ()
 + batch runs after 24 hours
-Result: Summary(1,0,0,,PT0.020402S)
+Result: Summary(1,0,0,,PT0.026667S)
 ```
 
 The `race` is between `nightlyBatch` and `timeTravel`.
