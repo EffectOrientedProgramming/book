@@ -24,7 +24,8 @@ jobs:
     # so get it's main
     - run: |
         cd examples
-        rm -rf src
+        rm -rf src/main/scala/Chapter*.scala
+        rm -rf src/test/scala/Chapter*.scala
         git checkout main
         cd ..
 
