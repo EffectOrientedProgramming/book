@@ -392,7 +392,9 @@ def manuscriptPost(
                   then
                     (
                       acc._1,
-                      line.stripPrefix("// ").stripPrefix("//") +:
+                      line
+                        .stripPrefix("// ")
+                        .stripPrefix("//") +:
                         acc._2
                     )
                   else
@@ -715,7 +717,7 @@ def processDir(
     }
 end processDir
 
-def cleanupZioErrorOutput(raw: String) = {
+def cleanupZioErrorOutput(raw: String) =
   // TODO Also clean up initial error: bit and
   // final carat'ed indicator
   //     Neither of those play nicely with mdoc
@@ -725,7 +727,7 @@ def cleanupZioErrorOutput(raw: String) = {
 //        raw.indexOf("──── ZLAYER ERROR ────────────────────────────────────────────────────")
 //      )
 //    else
-      raw
+    raw
 
   stripped
     .replace(
@@ -741,7 +743,7 @@ def cleanupZioErrorOutput(raw: String) = {
       "Please provide a layer for the following type",
       "Please provide a layer for"
     )
-}
+end cleanupZioErrorOutput
 
 @main
 def mdocRun(examplesDir: String) =

@@ -27,23 +27,20 @@ class StaticConfigProvider(scenario: Scenario)
     ZIO.succeed(Some(scenario).asInstanceOf[A])
 
 val happyPath =
-  Runtime.setConfigProvider(
+  Runtime.setConfigProvider:
     StaticConfigProvider(Scenario.HappyPath)
-  )
 
 val neverWorks =
-  Runtime.setConfigProvider(
+  Runtime.setConfigProvider:
     StaticConfigProvider(Scenario.NeverWorks)
-  )
 
 val slow =
-  Runtime.setConfigProvider(
+  Runtime.setConfigProvider:
     StaticConfigProvider(Scenario.Slow)
-  )
 
 val doesNotWorkInitially =
   val scenario =
-    Unsafe.unsafe {
+    Unsafe.unsafe:
       implicit unsafe =>
         Scenario.WorksOnTry(
           3,
@@ -53,15 +50,14 @@ val doesNotWorkInitially =
             .run(Ref.make(1))
             .getOrThrow()
         )
-    }
-  Runtime.setConfigProvider(
+  Runtime.setConfigProvider:
     StaticConfigProvider(scenario)
-  )
 
 def saveUser(username: String) =
   val succeed =
     ZIO.succeed:
       "User saved"
+
   val fail =
     ZIO
       .fail:
@@ -70,41 +66,44 @@ def saveUser(username: String) =
         error =>
           Console.printLine:
             "Log: " + error
+
+  def saveForScenario(maybeScenario: Option[Scenario]) =
+    defer:
+      maybeScenario match
+        case Some(Scenario.NeverWorks) =>
+          fail.run
+
+        case Some(Scenario.Slow) =>
+          ZIO
+            .sleep(1.minute)
+            .onInterrupt:
+              ZIO.debug:
+                "Log: Interrupting slow request"
+            .run
+          succeed.run
+
+        case Some(Scenario.WorksOnTry(attempts, ref)) =>
+          val numCalls =
+            ref.getAndUpdate(_ + 1).run
+          if numCalls == attempts then
+            succeed.run
+          else
+            fail.run
+
+        case _ =>
+          succeed.run
+
   defer:
     val maybeScenario =
       ZIO.config(scenarioConfig).run
-    maybeScenario
-      .getOrElse(Scenario.HappyPath) match
-      case Scenario.HappyPath =>
-        succeed.run
-
-      case Scenario.NeverWorks =>
-        fail.run
-
-      case Scenario.Slow =>
-        ZIO
-          .sleep(1.minute)
-          .onInterrupt:
-            ZIO.debug(
-              "Log: Interrupting slow request"
-            )
-          .run
-        succeed.run
-
-      case Scenario.WorksOnTry(attempts, ref) =>
-        val numCalls =
-          ref.getAndUpdate(_ + 1).run
-        if numCalls == attempts then
-          succeed.run
-        else
-          fail.run
-    end match
+    saveForScenario:
+      maybeScenario
+    .run
 end saveUser
 
 def sendToManualQueue(username: String) =
-  ZIO.attempt(
+  ZIO.attempt:
     s"Please manually provision $username"
-  )
 
 val logUserSignup =
   Console

@@ -327,11 +327,11 @@ object MainSpec extends ZIOSpecDefault:
               mainSettings.settings
             )
 
-          val posted = mdoc.manuscriptPost(markdown)
+          val posted =
+            mdoc.manuscriptPost(markdown)
 
           assertTrue:
-            posted.renderToString ==
-              """```scala
+            posted.renderToString == """```scala
                 |def run =
                 |  ZIO.debug("hello, world")
                 |```
@@ -384,12 +384,11 @@ object MainSpec extends ZIOSpecDefault:
               input,
               inputFile,
               newSettings,
-              mainSettings.reporter,
+              mainSettings.reporter
             )
 
           assertTrue(
-            out._1.renderToString ==
-              """```scala
+            out._1.renderToString == """```scala
               |def run = ZIO.debug("hello, world")
               |```
               |
