@@ -288,7 +288,11 @@ val bad =
     case ex: NetworkException =>
       ZIO.succeed:
         "Network Unavailable"
-//
+```
+
+Output:
+```shell
+
 ```
 
 ZIO distinguishes itself here by alerting us that we have not caught all possible errors.
