@@ -550,8 +550,8 @@ def run =
 
 Output:
 ```shell
-Oven: Heated
 Dough: Mixed
+Oven: Heated
 BreadHomeMade: Baked
 Bread: Eating
 Oven: Turning off!
@@ -616,18 +616,18 @@ def run =
 
 Output:
 ```shell
+Tails
+Tails
+Tails
+Tails
+Tails
 Heads
 Tails
 Tails
-Heads
 Tails
 Tails
-Heads
-Heads
-Heads
-Heads
-Num Heads = 6
-Result: 6
+Num Heads = 1
+Result: 1
 ```
 
 ```scala
@@ -658,7 +658,7 @@ Heads
 Heads
 Num Heads = 10
 + flips 10 times
-Result: Summary(1,0,0,,PT0.045745S)
+Result: Summary(1,0,0,,PT0.049155S)
 ```
 
 ```scala
@@ -725,7 +725,7 @@ G: ...probability
 Heads
 R: Heads
 + rosencrantzAndGuildensternAreDead finishes
-Result: Summary(1,0,0,,PT0.054413S)
+Result: Summary(1,0,0,,PT0.028572S)
 ```
 
 ```scala
@@ -745,16 +745,16 @@ Output:
 *Performance Begins*
 Heads
 R: Heads
-Tails
-<FAIL> R: Fail(Tails,Stack trace for thread "zio-fiber-483928033":
-	at coinToss(<input>:443)
+Heads
+R: Heads
+Heads
 ...
 R: Heads
 G: ...probability
 Heads
 R: Heads
 + flaky plan
-Result: Summary(1,0,0,,PT0.064551S)
+Result: Summary(1,0,0,,PT0.03825S)
 ```
 
 The `Random` Effect uses an injected something which when running the ZIO uses the system's unpredictable random number generator.  In ZIO Test the `Random` Effect uses a different something which can predictably generate "random" numbers.  `TestRandom` provides a way to define what those numbers are.  This example feeds in the `Int`s `1` and `2` so the first time we ask for a random number we get `1` and the second time we get `2`.
@@ -800,7 +800,7 @@ Output:
 ```shell
 Parsing CSV: ()
 + batch runs after 24 hours
-Result: Summary(1,0,0,,PT0.05189S)
+Result: Summary(1,0,0,,PT0.036069S)
 ```
 
 The `race` is between `nightlyBatch` and `timeTravel`.
