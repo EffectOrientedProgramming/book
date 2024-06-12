@@ -481,7 +481,7 @@ def processFile(
         postModifiers =
           List(
             RunZIOPostModifier(),
-            TestZIOPostModifier()
+            TestZIOPostModifier(),
           ) // we use the PostModifiers so we can keep passing the "scala mdoc:runzio" and "scala mdoc:testzio" through
       )
 
@@ -515,8 +515,10 @@ def processFile(
     )
     Files.write(
       inputFile.outputFile.toNIO,
-      manuscriptMarkdown
-        .renderToString
+      cleanupZioErrorOutput(
+        manuscriptMarkdown
+          .renderToString
+      )
         .getBytes(mainSettings.settings.charset)
     )
 
@@ -668,6 +670,15 @@ def processDir(
         )
     }
 end processDir
+
+def cleanupZioErrorOutput(raw: String) =
+  // TODO Also clean up initial error: bit and final carat'ed indicator
+  //     Neither of those play nicely with mdoc
+  raw
+    .replace("──── ZLAYER ERROR ────────────────────────────────────────────────────", "──── ZLAYER ERROR ───────────")
+    .replace("──────────────────────────────────────────────────────────────────────", "─────────────────────────────")
+    .replace("repl.MdocSession.MdocApp.", "")
+    .replace("Please provide a layer for the following type", "Please provide a layer for")
 
 @main
 def mdocRun(examplesDir: String) =

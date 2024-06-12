@@ -84,8 +84,6 @@ TODO: Decide what to do about the compiler error differences between these appro
 
 TODO: Can we avoid the `.provide()` and still get a good compile error in mdoc
 
-TODO: Strip `repl.MdocSession.MdocApp.` from output. Remove caret indicator from output.
-
 ```scala 3 mdoc:fail
 ZIO
   .serviceWithZIO[Dough]:
