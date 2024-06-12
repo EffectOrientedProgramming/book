@@ -8,6 +8,9 @@ they must have a way to express errors.
 Let's start with a basic Effect that has simulated unpredictability:
 
 ```scala 3 mdoc
+import zio.*
+import zio.direct.*
+
 def canFail(succeeds: Boolean) =
   if succeeds then
     ZIO.succeed("Success!")
@@ -22,6 +25,9 @@ Generally - don't write code like this.
 First, let's run the `canFail` Effect with an argument of `true` and print its result.
 
 ```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
 def run =
   canFail(succeeds =
     true
@@ -33,6 +39,9 @@ Given our controlled behavior of the Effect, we see that the Effect succeeded.
 If we now pass `false` to `canFail` the Effect will fail.
 
 ```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
 def run =
   canFail(succeeds =
     false
@@ -43,6 +52,9 @@ Systems need to deal with failures and, ideally, recover from them.
 We can apply a very basic recovery operation on the previous example called `flip` which swaps the error and the success values:
 
 ```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
 def run =
   canFail(succeeds =
     false
@@ -77,6 +89,9 @@ There are 2 error situations we need to handle:
 We want our program to always result in a sensible message to the user.
 
 ```scala 3 mdoc:invisible
+import zio.*
+import zio.direct.*
+
 enum ErrorsScenario:
   case HappyPath,
     NetworkError,
@@ -157,17 +172,26 @@ TODO Prose transition here
 We have an existing `getTemperatureOrThrow` function that can fail in unspecified ways.
 
 ```scala 3 mdoc
+import zio.*
+import zio.direct.*
+
 def render(value: String) =
   s"Temperature: $value"
 ```
 
 ```scala 3 mdoc:silent
+import zio.*
+import zio.direct.*
+
 def temperatureApp(): String =
   render:
     getTemperatureOrThrow()
 ```
 
 ```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
 def run =
   ZIO.attempt:
     temperatureApp()
@@ -178,6 +202,9 @@ If the network is unavailable, what is the behavior for the caller?
 If we don't make any attempt to handle our problem, the whole program blows up and shows the gory details to the user.
 
 ```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
 scenario =
   ErrorsScenario.NetworkError
 
@@ -195,6 +222,9 @@ If you have been burned in the past by functions that throw surprise exceptions
 For this program, it could look like:
 
 ```scala 3 mdoc:silent
+import zio.*
+import zio.direct.*
+
 def temperatureCatchingApp(): String =
   try
     render:
@@ -205,6 +235,9 @@ def temperatureCatchingApp(): String =
 ```
 
 ```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
 scenario =
   ErrorsScenario.NetworkError
 
@@ -219,6 +252,9 @@ In this situation, do we show the same message to the user? Ideally, we would sh
 The Network issue is transient, but the GPS problem is likely permanent.
 
 ```scala 3 mdoc:silent
+import zio.*
+import zio.direct.*
+
 def temperatureCatchingMoreApp(): String =
   try
     render:
@@ -231,6 +267,9 @@ def temperatureCatchingMoreApp(): String =
 ```
 
 ```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
 scenario =
   ErrorsScenario.NetworkError
 
@@ -240,6 +279,9 @@ def run =
 ```
 
 ```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
 scenario =
   ErrorsScenario.GPSError
 
@@ -265,6 +307,9 @@ You just don't know what you're going to get when you use exceptions.
 ZIO enables more powerful, uniform error-handling.
 
 ```scala 3 mdoc:invisible
+import zio.*
+import zio.direct.*
+
 // TODO We hide the original implementation of this function, but show this one.
 // Is that a problem? Seems unbalanced
 val getTemperature: ZIO[
@@ -296,6 +341,9 @@ val getTemperature: ZIO[
 ```
 
 ```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
 override val bootstrap =
   Scenario.happyPath
 
@@ -306,6 +354,9 @@ def run =
 Running the ZIO version without handling any errors
 
 ```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
 override val bootstrap =
   Scenario.networkError
 
@@ -330,6 +381,9 @@ ZIO distinguishes itself here by alerting us that we have not caught all possibl
 The compiler prevents us from executing non-exhaustive blocks inside of a `catchAll`.
 
 ```scala 3 mdoc:silent
+import zio.*
+import zio.direct.*
+
 val temperatureAppComplete =
   getTemperature.catchAll:
     case ex: NetworkException =>
@@ -341,6 +395,9 @@ val temperatureAppComplete =
 ```
 
 ```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
 override val bootstrap =
   Scenario.gpsError
 
@@ -376,12 +433,18 @@ If we are unable to re-write the fallible function, we can still wrap the call.
 TODO Explain ZIO.attempt
 
 ```scala 3 mdoc:silent
+import zio.*
+import zio.direct.*
+
 val getTemperatureWrapped =
   ZIO.attempt:
     getTemperatureOrThrow()
 ```
 
 ```scala 3 mdoc:silent
+import zio.*
+import zio.direct.*
+
 val displayTemperatureZWrapped =
   getTemperatureWrapped.catchAll:
     case ex: NetworkException =>
@@ -393,6 +456,9 @@ val displayTemperatureZWrapped =
 ```
 
 ```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
 scenario =
   ErrorsScenario.HappyPath
 
@@ -401,6 +467,9 @@ def run =
 ```
 
 ```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
 scenario =
   ErrorsScenario.NetworkError
 
@@ -412,6 +481,9 @@ This is decent, but does not provide the maximum possible guarantees.
 Look at what happens if we forget to handle one of our errors.
 
 ```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
 scenario =
   ErrorsScenario.GPSError
 
@@ -428,6 +500,9 @@ Take extra care when interacting with legacy code
 We can provide a fallback case that will report anything we missed:
 
 ```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
 scenario =
   ErrorsScenario.GPSError
 

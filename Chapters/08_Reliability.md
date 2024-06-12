@@ -27,6 +27,9 @@ Putting a cache in front of a service can resolve when a service is:
 - Expensive: the cache can reduce the number of calls to it, and thus reduce your operating cost.
 
 ```scala 3 mdoc:invisible
+import zio.*
+import zio.direct.*
+
 import zio.{ZIO, ZLayer}
 import zio.cache.{Cache, Lookup}
 
@@ -89,6 +92,9 @@ Here is what that looks like:
 
 ```scala 3 mdoc:silent
 import zio.*
+import zio.direct.*
+
+import zio.*
 
 val thunderingHerdsScenario =
   defer:
@@ -112,6 +118,9 @@ val thunderingHerdsScenario =
 We first show the uncached service:
 
 ```scala 3 mdoc:silent
+import zio.*
+import zio.direct.*
+
 val makePopularService =
   defer:
     val cloudStorage =
@@ -125,6 +134,9 @@ In this version, it goes directly to the `CloudStorage` provider.
 Suppose each request to our `CloudStorage` provider costs one dollar.
 
 ```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
 def run =
   thunderingHerdsScenario.provide(
     CloudStorage.live,
@@ -137,6 +149,9 @@ The invoice is 100 dollars because every single request reached our `CloudStorag
 Now let's construct a `PopularService` that uses a cache:
 
 ```scala 3 mdoc:silent
+import zio.*
+import zio.direct.*
+
 val makeCachedPopularService =
   defer:
     val cloudStorage =
@@ -164,6 +179,9 @@ The only changes required are:
 Now we run the same scenario with the cache in place:
 
 ```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
 def run =
   thunderingHerdsScenario.provide(
     CloudStorage.live,
@@ -182,6 +200,9 @@ In the worst case, going above this limit could overwhelm the service and make i
 At the very least, you will be charged more for exceeding it.
 
 ```scala 3 mdoc:invisible
+import zio.*
+import zio.direct.*
+
 val expensiveApiCall =
   ZIO.unit
 
@@ -210,6 +231,9 @@ $maxRequests / $interval
 ```
 
 ```scala 3 mdoc:silent
+import zio.*
+import zio.direct.*
+
 import nl.vroste.rezilience.RateLimiter
 
 val makeRateLimiter =
@@ -225,6 +249,9 @@ Now, we wrap our unrestricted logic with our `RateLimiter`.
 Even though the original code loops as fast the CPU allows, it will now adhere to our limit.
 
 ```scala 3 mdoc:runzio:liveclock
+import zio.*
+import zio.direct.*
+
 def run =
   defer:
     val rateLimiter =
@@ -242,6 +269,9 @@ Most impressively, we can use the same `RateLimiter` across our application.
 No matter the different users/features trying to hit the same resource, they will all be limited such that the entire application respects the rate limit.
 
 ```scala 3 mdoc:runzio:liveclock
+import zio.*
+import zio.direct.*
+
 def run =
   defer:
     val rateLimiter =
@@ -268,6 +298,9 @@ def run =
 If we want to ensure we don't accidentally DDOS a service, we can restrict the number of concurrent requests to it.
 
 ```scala 3 mdoc:invisible
+import zio.*
+import zio.direct.*
+
 trait DelicateResource:
   val request: ZIO[Any, String, Int]
 
@@ -328,6 +361,9 @@ object DelicateResource:
 First, we demonstrate the unrestricted behavior:
 
 ```scala 3 mdoc:runzio:liveclock
+import zio.*
+import zio.direct.*
+
 def run =
   defer:
     val delicateResource =
@@ -344,6 +380,9 @@ We execute too many concurrent requests, and crash the server.
 To prevent this, we need a `Bulkhead`.
 
 ```scala 3 mdoc:silent
+import zio.*
+import zio.direct.*
+
 import nl.vroste.rezilience.Bulkhead
 val makeOurBulkhead =
   Bulkhead.make(maxInFlightCalls =
@@ -354,6 +393,9 @@ val makeOurBulkhead =
 Next, we wrap our original request with this `Bulkhead`.
 
 ```scala 3 mdoc:runzio:liveclock
+import zio.*
+import zio.direct.*
+
 def run =
   defer:
     val bulkhead =
@@ -380,6 +422,9 @@ However, if we aggressively retry in an unrestricted way, we might actually make
 Ideally, we would allow some number of aggressive retries, but then start blocking additional requests until the service has a chance to recover.
 
 ```scala 3 mdoc:invisible
+import zio.*
+import zio.direct.*
+
 import zio.Ref
 
 import java.time.Instant
@@ -512,6 +557,9 @@ private case class ExpiringValue[A](
 In this scenario, we are going to repeat our call many times in quick succession.
 
 ```scala 3 mdoc:silent
+import zio.*
+import zio.direct.*
+
 val repeatSchedule =
   Schedule.recurs(140) &&
     Schedule.spaced(50.millis)
@@ -520,6 +568,9 @@ val repeatSchedule =
 When unrestrained, the code will let all the requests through to the degraded service.
 
 ```scala 3 mdoc:runzio:liveclock
+import zio.*
+import zio.direct.*
+
 def run =
   defer:
     val numCalls =
@@ -539,6 +590,9 @@ def run =
 Now we will build our `CircuitBreaker`
 
 ```scala 3 mdoc:silent
+import zio.*
+import zio.direct.*
+
 import nl.vroste.rezilience.{
   CircuitBreaker,
   TrippingStrategy,
@@ -559,6 +613,9 @@ val makeCircuitBreaker =
 Once again, the only thing that we need to do is wrap our original effect with the `CircuitBreaker`.
 
 ```scala 3 mdoc:runzio:liveclock
+import zio.*
+import zio.direct.*
+
 import CircuitBreaker.CircuitBreakerOpen
 
 def run =
@@ -611,6 +668,9 @@ Further, if this is not enough to completely eliminate your extreme tail, you ca
 Then, you end up with `1/n^3` chance of getting that worst performance.
 
 ```scala 3 mdoc:invisible
+import zio.*
+import zio.direct.*
+
 val logicThatSporadicallyLocksUp =
   defer:
     val random =
@@ -630,6 +690,9 @@ val logicThatSporadicallyLocksUp =
 ```
 
 ```scala 3 mdoc:runzio:liveclock
+import zio.*
+import zio.direct.*
+
 def run =
   defer:
     val contractBreaches =

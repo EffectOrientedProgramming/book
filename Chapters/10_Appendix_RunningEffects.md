@@ -14,6 +14,9 @@ ZIO provides an easy way to do this with the `ZIOAppDefault` trait.
 To use it create a new `object` that extends the `ZIOAppDefault` trait and implements the `run` method.  That method returns a ZIO so you can now give it the example `ZIO.debug` data:
 
 ```scala 3 mdoc
+import zio.*
+import zio.direct.*
+
 object HelloWorld extends zio.ZIOAppDefault:
   def run =
     ZIO.debug:
@@ -30,12 +33,18 @@ It is the standard, simplest way to start executing your recipes.
 For this book we shorten the definition for running ZIO Effects to:
 
 ```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
 def run =
   ZIO.debug:
     "hello, world"
 ```
 
 ```scala 3 mdoc
+import zio.*
+import zio.direct.*
+
 // NOTE We cannot execute invoke main on this
 // because it crashes mdoc in the CI process
 object RunningZIOs extends ZIOAppDefault:
@@ -60,6 +69,8 @@ When you run the same `ZIO` in these 2 contexts, the only thing that changes are
 > TODO - Decide which scenario to test
 
 ```scala 3 mdoc:compile-only
+import zio.*
+import zio.direct.*
 import zio.test.*
 
 object TestingZIOs extends ZIOSpecDefault:
@@ -74,6 +85,8 @@ object TestingZIOs extends ZIOSpecDefault:
 For this book we can shorten the test definition to:
 
 ```scala 3 mdoc:testzio
+import zio.*
+import zio.direct.*
 import zio.test.*
 
 def spec =
@@ -88,6 +101,8 @@ I think this example completes the objective
 TODO Change this to a Console app, where the logic & testing is more visceral
 
 ```scala 3 mdoc:testzio
+import zio.*
+import zio.direct.*
 import zio.test.*
 
 def spec =
@@ -103,6 +118,9 @@ def spec =
 Consider a `Console` application:
 
 ```scala 3 mdoc:silent
+import zio.*
+import zio.direct.*
+
 val logic =
   defer:
     val username =
@@ -120,6 +138,9 @@ val logic =
 If we try to run this code in the same way as most of the examples in this book, we encounter a problem.
 
 ```scala 3 mdoc:compile-only
+import zio.*
+import zio.direct.*
+
 object HelloWorldWithTimeout
     extends zio.ZIOAppDefault:
   def run =
@@ -131,6 +152,8 @@ However, even if you are not trying to write demo code for a book, it is very li
 Even for the smallest programs, it is slow, error-prone, and boring.
 
 ```scala 3 mdoc:testzio
+import zio.*
+import zio.direct.*
 import zio.test.*
 
 def spec =
@@ -160,6 +183,9 @@ In this case you can use ZIO's `Unsafe` utility which is called `Unsafe` to indi
 To do the same `ZIO.debug` with `Unsafe` do:
 
 ```scala 3 mdoc
+import zio.*
+import zio.direct.*
+
 val out =
   Unsafe.unsafe:
     implicit u: Unsafe =>

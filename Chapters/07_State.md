@@ -29,6 +29,9 @@ We are changing the world, by creating a space that we can manipulate.
 ## Unreliable State
 
 ```scala 3 mdoc:silent
+import zio.*
+import zio.direct.*
+
 val unreliableCounting =
   var counter =
     0
@@ -48,6 +51,9 @@ val unreliableCounting =
 ```
 
 ```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
 def run =
   unreliableCounting
 ```
@@ -67,6 +73,9 @@ We need to fully embrace the ZIO components, utilizing `Ref` for correct mutatio
 ## Reliable State
 
 ```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
 lazy val reliableCounting =
   def incrementCounter(counter: Ref[Int]) =
     counter.update:
@@ -101,6 +110,9 @@ To demonstrate why this restriction exists, we will deliberately undermine the s
 First, we will create a helper function that imitates a long-running calculation.
 
 ```scala 3 mdoc
+import zio.*
+import zio.direct.*
+
 def expensiveCalculation() =
   Thread.sleep:
     35
@@ -109,12 +121,18 @@ def expensiveCalculation() =
 Our side effect will be a mock alert that is sent anytime our count is updated:
 
 ```scala 3 mdoc
+import zio.*
+import zio.direct.*
+
 def sendNotification() =
   println:
     "Alert: updating count!"
 ```
 
 ```scala 3 mdoc
+import zio.*
+import zio.direct.*
+
 def update(counter: Ref[Int]) =
   counter.update:
     previousValue =>
@@ -124,6 +142,9 @@ def update(counter: Ref[Int]) =
 ```
 
 ```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
 def run =
   defer:
     val counter =
@@ -159,6 +180,9 @@ For these situations, we need a specialized variation of `Ref`
 The only change required is replacing `Ref.make` with `Ref.Synchronized.make`
 
 ```scala 3 mdoc:silent
+import zio.*
+import zio.direct.*
+
 val sideEffectingUpdatesSync =
   defer:
     val counter =
@@ -173,6 +197,9 @@ val sideEffectingUpdatesSync =
 ```
 
 ```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
 def run =
   sideEffectingUpdatesSync
 ```

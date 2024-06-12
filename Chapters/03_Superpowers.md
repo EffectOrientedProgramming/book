@@ -3,6 +3,9 @@
 {{ TODO: More consistent error messages }}
 
 ```scala 3 mdoc:invisible
+import zio.*
+import zio.direct.*
+
 enum Scenario:
   case HappyPath
   case NeverWorks
@@ -129,11 +132,17 @@ and then gradually add superpowers.
 To start with we save a user to a database:
 
 ```scala 3 mdoc:silent
+import zio.*
+import zio.direct.*
+
 val userName =
   "Morty"
 ```
 
 ```scala 3 mdoc:silent
+import zio.*
+import zio.direct.*
+
 val effect0 =
   saveUser:
     userName
@@ -151,6 +160,9 @@ object MyApp extends ZIOAppDefault:
 In this book, to avoid the excess lines, we shorten this to:
 
 ```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
 def run =
   effect0
 ```
@@ -160,6 +172,9 @@ By default, the `saveUser` Effect runs in the "happy path" so it will not fail.
 We can explicitly specify the way in which this Effect will run by overriding the `bootstrap` value:
 
 ```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
 override val bootstrap =
   happyPath
 
@@ -174,6 +189,9 @@ In real systems, assuming the "happy path" causes strange unhandled errors.
 We can also run a scenario that causes failure:
 
 ```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
 override val bootstrap =
   neverWorks
 
@@ -189,6 +207,9 @@ Sometimes things work when you keep trying.
 We can retry `effect0` with the `retryN` operation:
 
 ```scala 3 mdoc:silent
+import zio.*
+import zio.direct.*
+
 val effect1 =
   effect0.retryN(2)
 ```
@@ -198,6 +219,9 @@ The Effect with the retry behavior becomes a new Effect and can optionally be as
 Now we run the new Effect in a scenario that works on the third try:
 
 ```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
 override val bootstrap =
   doesNotWorkInitially
 
@@ -212,6 +236,9 @@ The output shows that running the Effect worked after two retries.
 In the `neverWorks` scenario, the Effect fails its initial attempt and subsequent retries:
 
 ```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
 override val bootstrap =
   neverWorks
 
@@ -226,6 +253,9 @@ After the failed retries, the program returns the error.
 Let's define a new Effect that chains a nicer error onto the previously defined operations (the retries) using `orElseFail` which transforms any failure into a user-friendly error:
 
 ```scala 3 mdoc:silent
+import zio.*
+import zio.direct.*
+
 val effect2 =
   effect1.orElseFail:
     "ERROR: User could not be saved"
@@ -235,6 +265,9 @@ We altered the behavior without restructuring the original Effect.
 Running this new Effect in the `neverWorks` scenario will produce the error:
 
 ```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
 override val bootstrap =
   neverWorks
 
@@ -252,6 +285,9 @@ Sometimes an Effect taking too long is itself a failure.
 The `timeoutFail` operation can be chained to our previous Effect to specify a maximum time the Effect can run for, before producing an error:
 
 ```scala 3 mdoc:silent
+import zio.*
+import zio.direct.*
+
 val effect3 =
   effect2.timeoutFail("*** Save timed out ***"):
     5.seconds
@@ -263,6 +299,9 @@ Timeouts can be added to any Effect.
 Running the new Effect in the `slow` scenario causes it to take longer than the time limit:
 
 ```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
 override val bootstrap =
   slow
 
@@ -278,6 +317,9 @@ In some cases there may be fallback behavior for failed Effects.
 One option is to use the `orElse` operation with a fallback Effect:
 
 ```scala 3 mdoc:silent
+import zio.*
+import zio.direct.*
+
 val effect4 =
   effect3.orElse:
     sendToManualQueue:
@@ -289,6 +331,9 @@ val effect4 =
 Let's run the new Effect in the `neverWorks` scenario to ensure we reach the fallback:
 
 ```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
 override val bootstrap =
   neverWorks
 
@@ -303,6 +348,9 @@ The retries do not succeed so the user is sent to the fallback Effect.
 We want to ensure that some logging happens after the logic completes, regardless of failures.
 
 ```scala 3 mdoc:silent
+import zio.*
+import zio.direct.*
+
 val effect5 =
   effect4.withFinalizer:
     _ => logUserSignup
@@ -311,6 +359,9 @@ val effect5 =
 `withFinalizer` lets us attach this behavior, without changing the types of the original effect.
 
 ```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
 override val bootstrap =
   happyPath
 
@@ -328,11 +379,17 @@ We can add all sorts of custom behavior to our Effect type,
 For diagnostic information you can track timing:
 
 ```scala 3 mdoc:silent
+import zio.*
+import zio.direct.*
+
 val effect6 =
   effect5.timed
 ```
 
 ```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
 override val bootstrap =
   happyPath
 
@@ -348,11 +405,17 @@ Now that we have added all of these superpowers to our process,
   our lead engineer lets us known that a certain user should be prevented from using our system.
 
 ```scala 3 mdoc:silent
+import zio.*
+import zio.direct.*
+
 val effect7 =
   effect6.when(userName != "Morty")
 ```
 
 ```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
 override val bootstrap =
   happyPath
 
@@ -390,6 +453,9 @@ If we have that, then our Effect System can freely add behavior before/after tha
 When we make a defer block, nothing inside of it will be executed yet.
 
 ```scala 3 mdoc:silent
+import zio.*
+import zio.direct.*
+
 val program =
   defer:
     Console.printLine("Hello").run
@@ -406,6 +472,9 @@ We want this explicit control, so that we can manipulate our effects up until it
 For example, we can repeat our un-executed effect:
 
 ```scala 3 mdoc:silent
+import zio.*
+import zio.direct.*
+
 val programManipulatingBeforeRun =
   defer:
     Console.printLine("Hello").repeatN(3).run
@@ -423,6 +492,9 @@ Note that these calls to `.run` are all within a `defer` block, so when `program
 We have described a program that knows the order in which to execute our individual effects _when the program is executed_.
 
 ```scala 3 mdoc:silent
+import zio.*
+import zio.direct.*
+
 val surroundedProgram =
   defer:
     Console.printLine("**Before**").run
@@ -434,6 +506,9 @@ Even now, we have not executed anything.
 It is only when we pass our completed program over to the effect system that the program is executed.
 
 ```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
 def run =
   surroundedProgram
 ```

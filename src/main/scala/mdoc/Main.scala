@@ -400,6 +400,8 @@ def processFile(
     .replace("```scala 3", "```scala")
     .replace("import zio.*\n\n", "")
     .replace("import zio.*\n", "")
+    .replace("import zio.direct.*\n\n", "")
+    .replace("import zio.direct.*\n", "")
 
   val preprocessedInput =
     Input.String(source)

@@ -9,12 +9,18 @@ The way we get good compile errors is by having data types which "know" the ...
 We need an `Answer` about this scenario.  The scenario requires things and could produce an error.
 
 ```scala 3 mdoc:compile-only
+import zio.*
+import zio.direct.*
+
 trait ZIO[Requirements, Error, Answer]
 ```
 
 The `ZIO` trait is at the center of our Effect-oriented world.
 
 ```scala 3 mdoc:compile-only
+import zio.*
+import zio.direct.*
+
 trait ZIO[R, E, A]
 ```
 
@@ -29,6 +35,9 @@ TODO
 This parameter tells us how this operation might fail.
 
 ```scala 3 mdoc
+import zio.*
+import zio.direct.*
+
 def parse(
     contents: String
 ): ZIO[Any, IllegalArgumentException, Unit] =
@@ -40,6 +49,9 @@ def parse(
 This is what our code will return if it completes successfully.
 
 ```scala 3 mdoc
+import zio.*
+import zio.direct.*
+
 def defaultGreeting()
     : ZIO[Any, Nothing, String] =
   ???

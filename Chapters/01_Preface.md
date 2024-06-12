@@ -39,6 +39,9 @@ To accomplish this, when functions have single parameters we generally use Scala
 For example:
 
 ```scala 3 mdoc:compile-only
+import zio.*
+import zio.direct.*
+
 Console.printLine:
   "hello, world"
 ```
@@ -48,6 +51,9 @@ The colon (`:`) indicates that the function parameter will use the significant i
 For multi-parameter functions and in cases where the single parameter is very short and does not contain nested function calls, we use the traditional syntax:
 
 ```scala 3 mdoc:compile-only
+import zio.*
+import zio.direct.*
+
 Console.printLine(1)
 ```
 
