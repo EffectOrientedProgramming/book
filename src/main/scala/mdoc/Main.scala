@@ -388,11 +388,11 @@ def manuscriptPost(
               ):
                 (line, acc) =>
                   if acc._1.isEmpty &&
-                    line.startsWith("// ")
+                    line.startsWith("//")
                   then
                     (
                       acc._1,
-                      line.stripPrefix("// ") +:
+                      line.stripPrefix("// ").stripPrefix("//") +:
                         acc._2
                     )
                   else
