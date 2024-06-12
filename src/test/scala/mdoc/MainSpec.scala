@@ -124,7 +124,7 @@ object MainSpec extends ZIOSpecDefault:
               )
 
           val source =
-            """```scala mdoc:runzio:liveclock
+            """```scala 3 mdoc:runzio:liveclock
           |def run = ZIO.sleep(1.second).timed
           |```
           |""".stripMargin
@@ -222,19 +222,19 @@ object MainSpec extends ZIOSpecDefault:
               )
 
           val source =
-            """```scala mdoc:invisible
+            """```scala 3 mdoc:invisible
             |val foo = "foo"
             |```
             |
-            |```scala mdoc:runzio
+            |```scala 3 mdoc:runzio
             |def run = ZIO.debug(foo)
             |```
             |
-            |```scala mdoc:silent
+            |```scala 3 mdoc:silent
             |val asdf = "asdf"
             |```
             |
-            |```scala mdoc:runzio
+            |```scala 3 mdoc:runzio
             |def run = ZIO.debug(asdf)
             |```
             |""".stripMargin
@@ -354,7 +354,7 @@ object MainSpec extends ZIOSpecDefault:
               )
 
           val source =
-            """```scala mdoc:runzio
+            """```scala 3 mdoc:runzio
               |def run = ZIO.debug("hello, world")
               |```
               |""".stripMargin

@@ -44,7 +44,7 @@ TODO Values to convey:
   - Cycles are a compile error
   - Visualization with Mermaid
 
-```scala mdoc:silent
+```scala 3 mdoc:silent
 // Explain private constructor approach
 case class Dough():
   val letRise =
@@ -61,7 +61,7 @@ object Dough:
 
 We must provide all required dependencies to an effect before you can run it.
 
-```scala mdoc:runzio
+```scala 3 mdoc:runzio
 def run =
   ZIO
     .serviceWithZIO[Dough]:
@@ -80,7 +80,7 @@ TODO: Can we avoid the `.provide()` and still get a good compile error in mdoc
 
 TODO: Strip `repl.MdocSession.MdocApp.` from output. Remove caret indicator from output.
 
-```scala mdoc:fail
+```scala 3 mdoc:fail
 ZIO
   .serviceWithZIO[Dough]:
     dough => dough.letRise
@@ -91,7 +91,7 @@ ZIO
 
 The requirements for each ZIO operation are tracked and combined automatically.
 
-```scala mdoc:silent
+```scala 3 mdoc:silent
 case class Heat()
 
 // TODO Version of oven that turns off when finished?
@@ -101,7 +101,7 @@ val oven =
     
 ```
 
-```scala mdoc:silent
+```scala 3 mdoc:silent
 trait Bread {
   def eat =
     Console.printLine("Bread: Eating")
@@ -122,7 +122,7 @@ Something around how like typical DI, the "graph" of dependencies gets resolved 
 This typically happens in some completely new/custom phase, that does follow standard code paths.
 Dependencies on effects propagate to effects which use effects.
 
-```scala mdoc:runzio
+```scala 3 mdoc:runzio
 def run =
   ZIO
     .serviceWithZIO[Bread]:
@@ -135,7 +135,7 @@ def run =
 Eventually, we grow tired of eating plain `Bread` and decide to start making `Toast`.
 Both of these processes require `Heat`.
 
-```scala mdoc:silent
+```scala 3 mdoc:silent
 case class Toast(heat: Heat, bread: Bread):
   val eat =
     Console.printLine("Toast: Eating")
@@ -153,7 +153,7 @@ In this case both `Toast.make` and `Bread.homemade` require `Heat`.
 
 Notice - Even though we provide the same dependencies in this example, oven is _also_ required by `Toast.make`
 
-```scala mdoc:runzio
+```scala 3 mdoc:runzio
 def run =
   ZIO
     .service[Toast]
@@ -169,13 +169,13 @@ def run =
 However, the oven uses a lot of energy to make `Toast`.
 It would be great if we can instead use our dedicated toaster!
 
-```scala mdoc:silent
+```scala 3 mdoc:silent
 val toaster =
   ZLayer.derive[Heat]
    .tap(_ => Console.printLine("Toaster: Heated"))
 ```
 
-```scala mdoc:runzio
+```scala 3 mdoc:runzio
 def run =
   ZIO
     .service[Heat]
@@ -185,7 +185,7 @@ def run =
 
 ## Step 5: Dependencies must be unique types
 
-```scala mdoc:fail
+```scala 3 mdoc:fail
 ZIO
   .service[Toast]
   .provide(
@@ -205,7 +205,7 @@ It cannot decide if we should be making `Toast` in the oven, `Bread` in the toas
 TODO Consider: Instead of providing at different levels, show that using _introducing_ a more specific type is usually the better approach. 
 I think this will be a big improvement. We can keep everything nice and flat that way.
 
-```scala mdoc:silent
+```scala 3 mdoc:silent
 case class Toaster()
 object Toaster:
   val layer =
@@ -213,7 +213,7 @@ object Toaster:
       .tap(_ => Console.printLine("Toaster: Heating"))
 ```
 
-```scala mdoc:silent
+```scala 3 mdoc:silent
 case class ToastZ(heat: Toaster, bread: Bread):
   val eat =
     Console.printLine("Toast: Eating")
@@ -226,7 +226,7 @@ object ToastZ:
 
 We can explicitly provide dependencies when needed, to prevent ambiguity.
 
-```scala mdoc:runzio
+```scala 3 mdoc:runzio
 def run =
   ZIO
     .serviceWithZIO[ToastZ]:
@@ -257,7 +257,7 @@ Output:
 So far, we have focused on providing `Layer`s to Effects, but this can also go the other way!
 If an Effect already has no outstanding dependencies, it can be used to construct a `Layer`.
 
-```scala mdoc:silent
+```scala 3 mdoc:silent
 case class BreadStoreBought() extends Bread
 
 val buyBread =
@@ -265,14 +265,14 @@ val buyBread =
     BreadStoreBought()
 ```
 
-```scala mdoc:silent
+```scala 3 mdoc:silent
 val storeBought =
   ZLayer.fromZIO:
     buyBread
   .tap(_ => Console.printLine("BreadStoreBought: Bought"))
 ```
 
-```scala mdoc:runzio
+```scala 3 mdoc:runzio
 def run =
   ZIO
     .service[Bread]
@@ -284,7 +284,7 @@ def run =
 
 Since dependencies can be built with effects, this means that they can fail.
 
-```scala mdoc:invisible
+```scala 3 mdoc:invisible
 case class BreadFromFriend() extends Bread()
 object Friend:
   def forcedFailure(invocations: Int) =
@@ -322,7 +322,7 @@ object Friend:
 end Friend
 ```
 
-```scala mdoc:runzio
+```scala 3 mdoc:runzio
 def run =
   ZIO
     .service[Bread]
@@ -334,7 +334,7 @@ def run =
 
 ## Step 9: Fallback Dependencies
 
-```scala mdoc:runzio
+```scala 3 mdoc:runzio
 def run =
   ZIO
     .service[Bread]
@@ -349,7 +349,7 @@ def run =
 
 ## Step 10: Dependency Retries
 
-```scala mdoc
+```scala 3 mdoc
 def logicWithRetries(retries: Int) = 
   ZIO
     .serviceWithZIO[Bread]:
@@ -365,12 +365,12 @@ def logicWithRetries(retries: Int) =
   
 ```
 
-```scala mdoc:runzio
+```scala 3 mdoc:runzio
 def run =
   logicWithRetries(retries = 1)
 ```
 
-```scala mdoc:runzio
+```scala 3 mdoc:runzio
 def run =
   logicWithRetries(retries = 2)
 ```
@@ -387,20 +387,20 @@ We can use the ZIO Config library to manage these.
 This is one of the few additional libraries that we use on top of core ZIO.
 It is heavily modularized so that you only pull in the integrations for the technologies used in your project.
 
-```scala mdoc:silent
+```scala 3 mdoc:silent
 import zio.config.*
 ```
 
 This import brings in most of the core Config datatypes and functions that we need.
 Next we make a case class that will hold our values.
 
-```scala mdoc:silent
+```scala 3 mdoc:silent
 case class RetryConfig(times: Int)
 ```
 
 To automatically map values in config files to our case class, we import a macro from the zio-config "magnolia" module.
 
-```scala mdoc:silent
+```scala 3 mdoc:silent
 
 import zio.config.magnolia.deriveConfig
 
@@ -410,11 +410,11 @@ val configDescriptor: Config[RetryConfig] =
 
 We want to use the Typesafe config format, so we import everything from that module.
 
-```scala mdoc:silent
+```scala 3 mdoc:silent
 import zio.config.typesafe.*
 ```
 
-```scala mdoc:silent
+```scala 3 mdoc:silent
 val configProvider =
   ConfigProvider.fromHoconString:
     "{ times: 2 }"
@@ -426,7 +426,7 @@ val config =
         configProvider
 ```
 
-```scala mdoc:runzio
+```scala 3 mdoc:runzio
 def run =
   ZIO
     .serviceWithZIO[RetryConfig]:
@@ -446,7 +446,7 @@ Throughout our kitchen scenarios, there has been a dangerous oversight.
 We heat up our oven, but then never turn it off!
 It would be great to have an oven that automatically turns itself off when we are done using it.
 
-```scala mdoc:silent
+```scala 3 mdoc:silent
 // TODO Split this up? It's pretty busy.
 // TODO Can we introduce acquireRelease in isolation in superpowers?
 val ovenSafe =
@@ -457,7 +457,7 @@ val ovenSafe =
 ```
 
 
-```scala mdoc:runzio
+```scala 3 mdoc:runzio
 def run =
   ZIO
     .serviceWithZIO[Bread]:
@@ -488,7 +488,7 @@ With ZIO Test we can use predictable replacements for the standard systems effec
 
 An example of this is Random numbers.  Randomness is inherently unpredictable.  But in ZIO Test, without changing our Effects we can change the underlying systems with something predictable:
 
-```scala mdoc:silent
+```scala 3 mdoc:silent
 val coinToss =
   // TODO: This is the first place we use defer.
   // We need to deliberately, and explicitly,
@@ -508,7 +508,7 @@ val coinToss =
         .run
 ```
 
-```scala mdoc:silent
+```scala 3 mdoc:silent
 val flipTen =
   defer:
     val numHeads =
@@ -522,12 +522,12 @@ val flipTen =
     numHeads
 ```
 
-```scala mdoc:runzio
+```scala 3 mdoc:runzio
 def run =
   flipTen
 ```
 
-```scala mdoc:testzio
+```scala 3 mdoc:testzio
 def spec =
   test("flips 10 times"):
     defer:
@@ -539,7 +539,7 @@ def spec =
         flipTen.run == 10
 ```
 
-```scala mdoc:silent
+```scala 3 mdoc:silent
 val rosencrantzCoinToss =
   coinToss.debug:
     "R"
@@ -571,7 +571,7 @@ val rosencrantzAndGuildensternAreDead =
     rosencrantzCoinToss.run
 ```
 
-```scala mdoc:testzio
+```scala 3 mdoc:testzio
 def spec =
   test(
     "rosencrantzAndGuildensternAreDead finishes"
@@ -587,7 +587,7 @@ def spec =
       assertCompletes
 ```
 
-```scala mdoc:testzio
+```scala 3 mdoc:testzio
 def spec =
   test("flaky plan"):
     defer:
@@ -609,7 +609,7 @@ ZIO gives you built-in methods to support this.
 
 Even time can be simulated as using the clock is an effect.
 
-```scala mdoc:silent
+```scala 3 mdoc:silent
 val nightlyBatch =
   ZIO
     .sleep:
@@ -618,7 +618,7 @@ val nightlyBatch =
       "Parsing CSV"
 ```
 
-```scala mdoc:testzio
+```scala 3 mdoc:testzio
 def spec =
   test("batch runs after 24 hours"):
     val timeTravel =

@@ -26,7 +26,7 @@ Putting a cache in front of a service can resolve when a service is:
 - Brittle: the cache can provide a stable response and minimize the risk of overwhelming the resource.
 - Expensive: the cache can reduce the number of calls to it, and thus reduce your operating cost.
 
-```scala mdoc:invisible
+```scala 3 mdoc:invisible
 import zio.{ZIO, ZLayer}
 import zio.cache.{Cache, Lookup}
 
@@ -87,7 +87,9 @@ In this case, a naive cache would cause each request to call the underlying slow
 
 Here is what that looks like:
 
-```scala mdoc:silent
+```scala 3 mdoc:silent
+import zio.*
+
 val thunderingHerdsScenario =
   defer:
     val popularService =
@@ -109,7 +111,7 @@ val thunderingHerdsScenario =
 
 We first show the uncached service:
 
-```scala mdoc:silent
+```scala 3 mdoc:silent
 val makePopularService =
   defer:
     val cloudStorage =
@@ -122,7 +124,7 @@ In this version, it goes directly to the `CloudStorage` provider.
 
 Suppose each request to our `CloudStorage` provider costs one dollar.
 
-```scala mdoc:runzio
+```scala 3 mdoc:runzio
 def run =
   thunderingHerdsScenario.provide(
     CloudStorage.live,
@@ -134,7 +136,7 @@ The invoice is 100 dollars because every single request reached our `CloudStorag
 
 Now let's construct a `PopularService` that uses a cache:
 
-```scala mdoc:silent
+```scala 3 mdoc:silent
 val makeCachedPopularService =
   defer:
     val cloudStorage =
@@ -161,7 +163,7 @@ The only changes required are:
 
 Now we run the same scenario with the cache in place:
 
-```scala mdoc:runzio
+```scala 3 mdoc:runzio
 def run =
   thunderingHerdsScenario.provide(
     CloudStorage.live,
@@ -179,7 +181,7 @@ Rate limits are a common way to structure agreements between services.
 In the worst case, going above this limit could overwhelm the service and make it crash.
 At the very least, you will be charged more for exceeding it.
 
-```scala mdoc:invisible
+```scala 3 mdoc:invisible
 val expensiveApiCall =
   ZIO.unit
 
@@ -207,7 +209,7 @@ Defining your rate limiter requires only the 2 pieces of information that should
 $maxRequests / $interval
 ```
 
-```scala mdoc:silent
+```scala 3 mdoc:silent
 import nl.vroste.rezilience.RateLimiter
 
 val makeRateLimiter =
@@ -222,7 +224,7 @@ val makeRateLimiter =
 Now, we wrap our unrestricted logic with our `RateLimiter`.
 Even though the original code loops as fast the CPU allows, it will now adhere to our limit.
 
-```scala mdoc:runzio:liveclock
+```scala 3 mdoc:runzio:liveclock
 def run =
   defer:
     val rateLimiter =
@@ -239,7 +241,7 @@ def run =
 Most impressively, we can use the same `RateLimiter` across our application.
 No matter the different users/features trying to hit the same resource, they will all be limited such that the entire application respects the rate limit.
 
-```scala mdoc:runzio:liveclock
+```scala 3 mdoc:runzio:liveclock
 def run =
   defer:
     val rateLimiter =
@@ -265,7 +267,7 @@ def run =
 
 If we want to ensure we don't accidentally DDOS a service, we can restrict the number of concurrent requests to it.
 
-```scala mdoc:invisible
+```scala 3 mdoc:invisible
 trait DelicateResource:
   val request: ZIO[Any, String, Int]
 
@@ -325,7 +327,7 @@ object DelicateResource:
 
 First, we demonstrate the unrestricted behavior:
 
-```scala mdoc:runzio:liveclock
+```scala 3 mdoc:runzio:liveclock
 def run =
   defer:
     val delicateResource =
@@ -341,7 +343,7 @@ def run =
 We execute too many concurrent requests, and crash the server.
 To prevent this, we need a `Bulkhead`.
 
-```scala mdoc:silent
+```scala 3 mdoc:silent
 import nl.vroste.rezilience.Bulkhead
 val makeOurBulkhead =
   Bulkhead.make(maxInFlightCalls =
@@ -351,7 +353,7 @@ val makeOurBulkhead =
 
 Next, we wrap our original request with this `Bulkhead`.
 
-```scala mdoc:runzio:liveclock
+```scala 3 mdoc:runzio:liveclock
 def run =
   defer:
     val bulkhead =
@@ -377,7 +379,7 @@ Often, when a request fails, it is reasonable to immediately retry.
 However, if we aggressively retry in an unrestricted way, we might actually make the problem worse by increasing the load on the struggling service.
 Ideally, we would allow some number of aggressive retries, but then start blocking additional requests until the service has a chance to recover.
 
-```scala mdoc:invisible
+```scala 3 mdoc:invisible
 import zio.Ref
 
 import java.time.Instant
@@ -509,7 +511,7 @@ private case class ExpiringValue[A](
 
 In this scenario, we are going to repeat our call many times in quick succession.
 
-```scala mdoc:silent
+```scala 3 mdoc:silent
 val repeatSchedule =
   Schedule.recurs(140) &&
     Schedule.spaced(50.millis)
@@ -517,7 +519,7 @@ val repeatSchedule =
 
 When unrestrained, the code will let all the requests through to the degraded service.
 
-```scala mdoc:runzio:liveclock
+```scala 3 mdoc:runzio:liveclock
 def run =
   defer:
     val numCalls =
@@ -536,7 +538,7 @@ def run =
 
 Now we will build our `CircuitBreaker`
 
-```scala mdoc:silent
+```scala 3 mdoc:silent
 import nl.vroste.rezilience.{
   CircuitBreaker,
   TrippingStrategy,
@@ -556,7 +558,7 @@ val makeCircuitBreaker =
 
 Once again, the only thing that we need to do is wrap our original effect with the `CircuitBreaker`.
 
-```scala mdoc:runzio:liveclock
+```scala 3 mdoc:runzio:liveclock
 import CircuitBreaker.CircuitBreakerOpen
 
 def run =
@@ -608,7 +610,7 @@ The cost of this is only ~3% more total requests made. *Citations needed*
 Further, if this is not enough to completely eliminate your extreme tail, you can employ the exact same technique once more.
 Then, you end up with `1/n^3` chance of getting that worst performance.
 
-```scala mdoc:invisible
+```scala 3 mdoc:invisible
 val logicThatSporadicallyLocksUp =
   defer:
     val random =
@@ -627,7 +629,7 @@ val logicThatSporadicallyLocksUp =
         10.millis
 ```
 
-```scala mdoc:runzio:liveclock
+```scala 3 mdoc:runzio:liveclock
 def run =
   defer:
     val contractBreaches =

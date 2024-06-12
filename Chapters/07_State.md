@@ -28,7 +28,7 @@ We are changing the world, by creating a space that we can manipulate.
 
 ## Unreliable State
 
-```scala mdoc:silent
+```scala 3 mdoc:silent
 val unreliableCounting =
   var counter =
     0
@@ -47,7 +47,7 @@ val unreliableCounting =
     "Final count: " + ZIO.succeed(counter).run
 ```
 
-```scala mdoc:runzio
+```scala 3 mdoc:runzio
 def run =
   unreliableCounting
 ```
@@ -66,7 +66,7 @@ We need to fully embrace the ZIO components, utilizing `Ref` for correct mutatio
 
 ## Reliable State
 
-```scala mdoc:runzio
+```scala 3 mdoc:runzio
 lazy val reliableCounting =
   def incrementCounter(counter: Ref[Int]) =
     counter.update:
@@ -100,7 +100,7 @@ The API of the plain Atomic `Ref` steers you in the right direction by not accep
 To demonstrate why this restriction exists, we will deliberately undermine the system by sneaking in a side effect.
 First, we will create a helper function that imitates a long-running calculation.
 
-```scala mdoc
+```scala 3 mdoc
 def expensiveCalculation() =
   Thread.sleep:
     35
@@ -108,13 +108,13 @@ def expensiveCalculation() =
 
 Our side effect will be a mock alert that is sent anytime our count is updated:
 
-```scala mdoc
+```scala 3 mdoc
 def sendNotification() =
   println:
     "Alert: updating count!"
 ```
 
-```scala mdoc
+```scala 3 mdoc
 def update(counter: Ref[Int]) =
   counter.update:
     previousValue =>
@@ -123,7 +123,7 @@ def update(counter: Ref[Int]) =
       previousValue + 1
 ```
 
-```scala mdoc:runzio
+```scala 3 mdoc:runzio
 def run =
   defer:
     val counter =
@@ -158,7 +158,7 @@ For these situations, we need a specialized variation of `Ref`
 `Ref.Synchronized` guarantees only a single execution of the `update` body and any of the effects contained inside.
 The only change required is replacing `Ref.make` with `Ref.Synchronized.make`
 
-```scala mdoc:silent
+```scala 3 mdoc:silent
 val sideEffectingUpdatesSync =
   defer:
     val counter =
@@ -172,7 +172,7 @@ val sideEffectingUpdatesSync =
     s"Final count: $finalCount"
 ```
 
-```scala mdoc:runzio
+```scala 3 mdoc:runzio
 def run =
   sideEffectingUpdatesSync
 ```

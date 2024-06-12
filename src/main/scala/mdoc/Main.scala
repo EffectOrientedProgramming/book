@@ -395,10 +395,17 @@ def processFile(
     settings: Settings,
     reporter: Reporter
 ): (MarkdownFile, MarkdownFile) =
+  val source = input.text
+    .replace("```scala 3", "```scala")
+    .replace("import zio.*\n\n", "")
+    .replace("import zio.*\n", "")
+
+  val preprocessedInput =
+    Input.String(source)
 
   val parsed =
     MarkdownFile
-      .parse(input, inputFile, settings)
+      .parse(preprocessedInput, inputFile, settings)
 
   val runnableMarkdown =
     parsedToRunnable(parsed, settings)

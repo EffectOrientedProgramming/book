@@ -25,7 +25,7 @@ These concepts and their competing solutions will be expanded on and contrasted 
 
 ## Universal Composability with ZIO (All The Thing Example)
 
-```scala mdoc:invisible
+```scala 3 mdoc:invisible
 enum Scenario: // TODO Could these instances _also_ be the error types??
   case StockMarketHeadline
   case HeadlineNotAvailable
@@ -52,7 +52,7 @@ ZIO provides conversion methods that take these limited data types and turn them
 
 We will utilize several pre-defined functions to highlight less-complete effect alternatives.
 
-```scala mdoc:invisible
+```scala 3 mdoc:invisible
 import scala.concurrent.Future
 // TODO If we make this function accept the "mock" result and return that, then
 //  we can leverage that to hit all of the possible paths in AllTheThings.
@@ -113,7 +113,7 @@ def wikiArticle(topic: String): Either[
 
 ## Future
 
-```scala mdoc
+```scala 3 mdoc
 import scala.concurrent.Future
 ```
 
@@ -126,7 +126,7 @@ The original asynchronous datatype in Scala has several undesirable characterist
 
 There is a function that returns a Future:
 
-```scala mdoc:compile-only
+```scala 3 mdoc:compile-only
 val future: Future[String] =
   getHeadLine(???)
 ```
@@ -139,7 +139,7 @@ By wrapping this in `ZIO.from`, it will:
 - Let us attach finalizer behavior
 - Give us the ability to customize the error type
 
-```scala mdoc:silent
+```scala 3 mdoc:silent
 def getHeadlineZ(scenario: Scenario) =
   ZIO
     .from:
@@ -149,14 +149,14 @@ def getHeadlineZ(scenario: Scenario) =
         Scenario.HeadlineNotAvailable
 ```
 
-```scala mdoc:runzio
+```scala 3 mdoc:runzio
 def run =
   getHeadlineZ(Scenario.StockMarketHeadline)
 ```
 
 Now let's confirm the behavior when the headline is not available.
 
-```scala mdoc:runzio
+```scala 3 mdoc:runzio
 def run =
   getHeadlineZ(Scenario.HeadlineNotAvailable)
 ```
@@ -170,7 +170,7 @@ It merely indicates that a value might not be available.
 - Execution is not deferred
 - Cannot interrupt the code that is producing these values
 
-```scala mdoc:silent
+```scala 3 mdoc:silent
 val result: Option[String] =
   findTopicOfInterest:
     "content"
@@ -179,7 +179,7 @@ val result: Option[String] =
 If you want to treat the case of a missing value as an error, you can again use `ZIO.from`:
 ZIO will convert `None` into a generic error type, giving you the opportunity to define a more specific error type.
 
-```scala mdoc
+```scala 3 mdoc
 def topicOfInterestZ(headline: String) =
   ZIO
     .from:
@@ -189,13 +189,13 @@ def topicOfInterestZ(headline: String) =
       Scenario.NoInterestingTopic()
 ```
 
-```scala mdoc:runzio
+```scala 3 mdoc:runzio
 def run =
   topicOfInterestZ:
     "stock market rising!"
 ```
 
-```scala mdoc:runzio
+```scala 3 mdoc:runzio
 def run =
   topicOfInterestZ:
     "boring and inane content"
@@ -208,7 +208,7 @@ def run =
 
 We have an existing function `wikiArticle` that checks for articles on a topic:
 
-```scala mdoc:compile-only
+```scala 3 mdoc:compile-only
 val wikiResult: Either[
   Scenario.NoWikiArticleAvailable,
   String
@@ -216,20 +216,20 @@ val wikiResult: Either[
   wikiArticle("stock market")
 ```
 
-```scala mdoc
+```scala 3 mdoc
 def wikiArticleZ(topic: String) =
   ZIO.from:
     wikiArticle:
       topic
 ```
 
-```scala mdoc:runzio
+```scala 3 mdoc:runzio
 def run =
   wikiArticleZ:
     "stock market"
 ```
 
-```scala mdoc:runzio
+```scala 3 mdoc:runzio
 def run =
   wikiArticleZ:
     "barn"
@@ -242,7 +242,7 @@ While this is a big improvement over manually managing this in ad-hoc ways, the 
 
 TODO Decide whether to show nested files example to highlight this weakness
 
-```scala mdoc:invisible
+```scala 3 mdoc:invisible
 import scala.util.Try
 
 // TODO Different name to make less confusable with AutoCloseable?
@@ -323,7 +323,7 @@ def openFile(path: String) =
 
 We have an existing function that produces an `AutoCloseable`.
 
-```scala mdoc:compile-only
+```scala 3 mdoc:compile-only
 val file: AutoCloseable =
   openFile("file1")
 ```
@@ -331,7 +331,7 @@ val file: AutoCloseable =
 Since `AutoCloseable` is a trait that can be implemented by arbitrary classes, we can't rely on `ZIO.from` to automatically manage this conversion for us.
 In this situation, we should use the explicit `ZIO.fromAutoCloseable` function.
 
-```scala mdoc:silent
+```scala 3 mdoc:silent
 def openFileZ(path: String) =
   ZIO.fromAutoCloseable:
     ZIO.succeed:
@@ -343,7 +343,7 @@ TODO Link to docs for this?
 
 Now we open a `File`, and check if it contains a topic of interest.
 
-```scala mdoc:runzio
+```scala 3 mdoc:runzio
 def run =
   defer:
     val file =
@@ -354,7 +354,7 @@ def run =
 
 Now we highlight the difference between the static scoping of `Using` or `ZIO.fromAutoCloseable`.
 
-```scala mdoc:compile-only
+```scala 3 mdoc:compile-only
 // This was previously-compile only
 // The output is too long to fit on a page,
 // and beyond our ability to control
@@ -374,7 +374,7 @@ Using(openFile("file1.txt")) {
 
 With each new file we open, we have to nest our code deeper.
 
-```scala mdoc:runzio
+```scala 3 mdoc:runzio
 def run =
   defer:
     val file1 =
@@ -391,12 +391,12 @@ Our code remains flat.
 Next we want to write to our `File`.
 The existing API uses a `Try` to indicate success or failure.
 
-```scala mdoc:compile-only
+```scala 3 mdoc:compile-only
 val writeResult: Try[String] =
   openFile("file1").write("asdf")
 ```
 
-```scala mdoc
+```scala 3 mdoc
 def writeToFileZ(file: File, content: String) =
   ZIO
     .from:
@@ -406,7 +406,7 @@ def writeToFileZ(file: File, content: String) =
       _ => Scenario.DiskFull()
 ```
 
-```scala mdoc:runzio
+```scala 3 mdoc:runzio
 def run =
   defer:
     val file =
@@ -416,12 +416,12 @@ def run =
 
 ## Functions that throw
 
-```scala mdoc:compile-only
+```scala 3 mdoc:compile-only
 val summary: String =
   openFile("file1").summaryFor("asdf")
 ```
 
-```scala mdoc
+```scala 3 mdoc
 case class NoSummaryAvailable(topic: String)
 def summaryForZ(
     file: File,
@@ -455,7 +455,7 @@ TODO Decide example functionality
 
 TODO Prose about the long-running AI process here
 
-```scala mdoc:invisible
+```scala 3 mdoc:invisible
 def summarize(article: String): String =
   println(s"AI - summarize - start")
   // Represents the AI taking a long time to
@@ -480,7 +480,7 @@ def summarize(article: String): String =
 end summarize
 ```
 
-```scala mdoc
+```scala 3 mdoc
 // TODO Can we use silent instead of compile-only above?
 val summary: String =
   summarize("topic")
@@ -488,7 +488,7 @@ val summary: String =
 
 This gets interrupted, although it takes a big performance hit
 
-```scala mdoc
+```scala 3 mdoc
 def summarizeZ(article: String) =
   ZIO
     .attemptBlockingInterrupt:
@@ -510,7 +510,7 @@ Another term for this form of composition is called `andThen` in Scala.
 
 With ZIO you can use `zio-direct` to compose ZIOs sequentially with:
 
-```scala mdoc:invisible
+```scala 3 mdoc:invisible
 val findTopNewsStory =
   ZIO.succeed:
     "Battery Breakthrough"
@@ -520,7 +520,7 @@ def textAlert(message: String) =
     s"Texting story: $message"
 ```
 
-```scala mdoc:runzio
+```scala 3 mdoc:runzio
 def run =
   defer:
     val topStory =
@@ -551,7 +551,7 @@ The number of combinations is something like:
 
 Now that we have all of these well-defined effects, we can wield them in any combination and sequence we desire.
 
-```scala mdoc:silent
+```scala 3 mdoc:silent
 def researchHeadline(scenario: Scenario) =
   defer:
     val headline: String =
@@ -581,37 +581,37 @@ def researchHeadline(scenario: Scenario) =
       summary
 ```
 
-```scala mdoc:runzio
+```scala 3 mdoc:runzio
 def run =
   researchHeadline:
     Scenario.HeadlineNotAvailable
 ```
 
-```scala mdoc:runzio
+```scala 3 mdoc:runzio
 def run =
   researchHeadline:
     Scenario.NoInterestingTopic()
 ```
 
-```scala mdoc:runzio
+```scala 3 mdoc:runzio
 def run =
   researchHeadline:
     Scenario.SummaryReadThrows()
 ```
 
-```scala mdoc:runzio
+```scala 3 mdoc:runzio
 def run =
   researchHeadline:
     Scenario.NoWikiArticleAvailable()
 ```
 
-```scala mdoc:runzio
+```scala 3 mdoc:runzio
 def run =
   researchHeadline:
     Scenario.AITooSlow()
 ```
 
-```scala mdoc:runzio
+```scala 3 mdoc:runzio
 def run =
   researchHeadline:
     // TODO Handle inconsistency in this example
@@ -621,7 +621,7 @@ def run =
 
 And finally, we see the longest, successful pathway through our application:
 
-```scala mdoc:runzio:liveclock
+```scala 3 mdoc:runzio:liveclock
 def run =
   researchHeadline:
     Scenario.StockMarketHeadline
@@ -641,7 +641,7 @@ Repeating is a form of composability, because you are composing a program with i
 
 Consider a function
 
-```scala mdoc
+```scala 3 mdoc
 def saveInformation(info: String): Unit =
   ???
 ```

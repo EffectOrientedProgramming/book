@@ -13,7 +13,7 @@ ZIO provides an easy way to do this with the `ZIOAppDefault` trait.
 
 To use it create a new `object` that extends the `ZIOAppDefault` trait and implements the `run` method.  That method returns a ZIO so you can now give it the example `ZIO.debug` data:
 
-```scala mdoc
+```scala 3 mdoc
 object HelloWorld extends zio.ZIOAppDefault:
   def run =
     ZIO.debug:
@@ -29,13 +29,13 @@ It is the standard, simplest way to start executing your recipes.
 
 For this book we shorten the definition for running ZIO Effects to:
 
-```scala mdoc:runzio
+```scala 3 mdoc:runzio
 def run =
   ZIO.debug:
     "hello, world"
 ```
 
-```scala mdoc
+```scala 3 mdoc
 // NOTE We cannot execute invoke main on this
 // because it crashes mdoc in the CI process
 object RunningZIOs extends ZIOAppDefault:
@@ -59,7 +59,7 @@ When you run the same `ZIO` in these 2 contexts, the only thing that changes are
 
 > TODO - Decide which scenario to test
 
-```scala mdoc:compile-only
+```scala 3 mdoc:compile-only
 object TestingZIOs extends ZIOSpecDefault:
   def spec =
     test("Hello Tests"):
@@ -71,7 +71,7 @@ object TestingZIOs extends ZIOSpecDefault:
 
 For this book we can shorten the test definition to:
 
-```scala mdoc:testzio
+```scala 3 mdoc:testzio
 def spec =
   test("random is random"):
     defer:
@@ -83,7 +83,7 @@ TODO Justify defer syntax over for-comp for multi-statement assertions
 I think this example completes the objective
 TODO Change this to a Console app, where the logic & testing is more visceral
 
-```scala mdoc:testzio
+```scala 3 mdoc:testzio
 def spec =
   test("random is still random"):
     defer:
@@ -96,7 +96,7 @@ def spec =
 
 Consider a `Console` application:
 
-```scala mdoc:silent
+```scala 3 mdoc:silent
 val logic =
   defer:
     val username =
@@ -113,7 +113,7 @@ val logic =
 
 If we try to run this code in the same way as most of the examples in this book, we encounter a problem.
 
-```scala mdoc:compile-only
+```scala 3 mdoc:compile-only
 object HelloWorldWithTimeout
     extends zio.ZIOAppDefault:
   def run =
@@ -124,7 +124,7 @@ We cannot execute this code and render the results for the book because it requi
 However, even if you are not trying to write demo code for a book, it is very limiting to need a user at the keyboard for your program to execute.
 Even for the smallest programs, it is slow, error-prone, and boring.
 
-```scala mdoc:testzio
+```scala 3 mdoc:testzio
 def spec =
   test("console works"):
     defer:
@@ -151,7 +151,7 @@ In some cases your ZIOs may need to be run outside a *main* program, for example
 In this case you can use ZIO's `Unsafe` utility which is called `Unsafe` to indicate that the code may perform side effects.  
 To do the same `ZIO.debug` with `Unsafe` do:
 
-```scala mdoc
+```scala 3 mdoc
 val out =
   Unsafe.unsafe:
     implicit u: Unsafe =>

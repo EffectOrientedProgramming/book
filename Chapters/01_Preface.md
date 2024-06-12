@@ -38,7 +38,7 @@ Since our focus is on the concepts of Effect Oriented Programming we've tried to
 To accomplish this, when functions have single parameters we generally use Scala 3's Significant Indentation style.
 For example:
 
-```scala mdoc:compile-only
+```scala 3 mdoc:compile-only
 Console.printLine:
   "hello, world"
 ```
@@ -47,7 +47,7 @@ The parameter to the `ZIO.debug` function is specified on a new line instead of 
 The colon (`:`) indicates that the function parameter will use the significant indentation syntax.
 For multi-parameter functions and in cases where the single parameter is very short and does not contain nested function calls, we use the traditional syntax:
 
-```scala mdoc:compile-only
+```scala 3 mdoc:compile-only
 Console.printLine(1)
 ```
 
