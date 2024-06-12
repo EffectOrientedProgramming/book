@@ -1,7 +1,5 @@
 # Superpowers with Effects
 
-{{ TODO: More consistent error messages }}
-
 ```scala 3 mdoc:invisible
 import zio.*
 import zio.direct.*
@@ -182,11 +180,9 @@ def run =
   effect0
 ```
 
-Overriding the `bootstrap` value simulates failures in the following examples.
+In real systems, assuming the "happy path" leaves strange unhandled errors lurking in your code.
 
-In real systems, assuming the "happy path" causes strange unhandled errors.
-
-We can also run a scenario that causes failure:
+We override the `bootstrap` value to simulate failures in the following examples.
 
 ```scala 3 mdoc:runzio
 import zio.*
@@ -428,7 +424,7 @@ We can add behavior to the end of our complex Effect,
 
 ## Many More Superpowers
 
-{{ todo: make rendering in manuscript work }}
+{{ todo: make rendering in manuscript work. Or hard-code the resulting graph image. }}
 
 ```mermaid
 graph TD
