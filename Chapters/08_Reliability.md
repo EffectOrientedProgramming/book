@@ -179,8 +179,6 @@ Rate limits are a common way to structure agreements between services.
 In the worst case, going above this limit could overwhelm the service and make it crash.
 At the very least, you will be charged more for exceeding it.
 
-TODO Show un-limited demo first?
-
 ```scala mdoc:invisible
 val expensiveApiCall =
   ZIO.unit
@@ -221,12 +219,6 @@ val makeRateLimiter =
   )
 ```
 
-```scala mdoc:silent
-// TODO explain timedSecondsDebug
-def makeCalls(name: String) =
-  expensiveApiCall
-```
-
 Now, we wrap our unrestricted logic with our `RateLimiter`.
 Even though the original code loops as fast the CPU allows, it will now adhere to our limit.
 
@@ -265,6 +257,7 @@ def run =
           .repeatN(2) // Repeats as fast as allowed
       .timedSecondsDebug:
         "Total time"
+      .unit // ignores the list of unit
       .run
 ```
 
@@ -294,7 +287,7 @@ case class Live(
       // Add request to current requests
       currentRequests
         .updateAndGet(res :: _)
-        .debug("Current requests: ")
+        .debug("Current requests")
         .run
 
       // Simulate a long-running request
@@ -414,11 +407,10 @@ def externalSystem(numCalls: Ref[Int]) =
     val b =
       timeSensitiveValue.run
     if b then
-      ZIO.succeed(()).run
+      ZIO.unit.run
     else
       ZIO.fail(()).run
 
-// TODO Consider deleting
 object InstantOps:
   extension (i: Instant)
     def plusZ(duration: zio.Duration): Instant =
@@ -566,16 +558,17 @@ Once again, the only thing that we need to do is wrap our original effect with t
 
 ```scala mdoc:runzio:liveclock
 import CircuitBreaker.CircuitBreakerOpen
+
 def run =
   defer:
     val cb =
       makeCircuitBreaker.run
-    // TODO Can we move these Refs into the
-    // external system?
+
     val numCalls =
       Ref.make[Int](0).run
     val numPrevented =
       Ref.make[Int](0).run
+
     val protectedCall =
       cb(externalSystem(numCalls)).catchSome:
         case CircuitBreakerOpen =>
@@ -594,7 +587,6 @@ def run =
     s"Calls prevented: $prevented Calls made: $made"
 ```
 
-{{TODO Fix output after `OurClock` changes}}
 Now we see that our code prevented the majority of the doomed calls to the external service.
 
 ## Hedging
@@ -641,26 +633,22 @@ def run =
     val contractBreaches =
       Ref.make(0).run
 
+    val req =
+      defer:
+        val hedged =
+          logicThatSporadicallyLocksUp.race:
+            logicThatSporadicallyLocksUp
+              .delay:
+                25.millis
+
+        val duration =
+          hedged.run
+        if (duration > 1.second)
+          contractBreaches.update(_ + 1).run
+
     ZIO
       .foreachPar(List.fill(50_000)(())):
-        _ => // james still hates this
-          defer:
-            val hedged =
-              logicThatSporadicallyLocksUp.race:
-                logicThatSporadicallyLocksUp
-                  .delay:
-                    25.millis
-
-            // TODO How do we make this demo more
-            // obvious?
-            // The request is returning the
-            // hypothetical runtime, but that's
-            // not clear from the code that will
-            // be visible to the reader.
-            val duration =
-              hedged.run
-            if (duration > 1.second)
-              contractBreaches.update(_ + 1).run
+        _ => req // TODO james still hates this and maybe a collectAllPar could do the trick but we've already wasted 321 hours on this
       .run
 
     contractBreaches
