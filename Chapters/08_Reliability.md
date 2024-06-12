@@ -225,9 +225,6 @@ val makeRateLimiter =
 // TODO explain timedSecondsDebug
 def makeCalls(name: String) =
   expensiveApiCall
-    .timedSecondsDebug:
-      s"$name called API"
-    .repeatN(2) // Repeats as fast as allowed
 ```
 
 Now, we wrap our unrestricted logic with our `RateLimiter`.
@@ -239,10 +236,12 @@ def run =
     val rateLimiter =
       makeRateLimiter.run
     rateLimiter:
-      makeCalls:
-        "System"
+      expensiveApiCall
+    .timedSecondsDebug:
+       s"called API"
+    .repeatN(2) // Repeats as fast as allowed
     .timedSecondsDebug("Result")
-      .run
+    .run
 ```
 
 Most impressively, we can use the same `RateLimiter` across our application.
@@ -260,7 +259,10 @@ def run =
       .foreachPar(people):
         person =>
           rateLimiter:
-            makeCalls(person)
+            expensiveApiCall
+          .timedSecondsDebug:
+            s"$person called API"
+          .repeatN(2) // Repeats as fast as allowed
       .timedSecondsDebug:
         "Total time"
       .run
