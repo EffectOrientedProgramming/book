@@ -296,8 +296,7 @@ def partsToExamples(
                 .linesIterator
                 .map("  " + _)
                 .mkString("\n")
-            s"""object Chapter${baseName}_${rcf
-                .num} extends helpers.ZIOAppDebug:
+            s"""object App${rcf.num} extends helpers.ZIOAppDebug:
              |$indented
              |""".stripMargin
 
@@ -331,7 +330,7 @@ def partsToExamples(
                 .linesIterator
                 .map("  " + _)
                 .mkString("\n")
-            s"""object Chapter${baseName}_$num extends ZIOSpecDefault:
+            s"""object Test$num extends ZIOSpecDefault:
                |$indented
                |""".stripMargin
         }

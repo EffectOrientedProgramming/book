@@ -282,10 +282,10 @@ object MainSpec extends ZIOSpecDefault:
               _.contains("val foo")
             ) <
               exampleSrc.indexWhere(
-                _.contains("Chapterfoo_0")
+                _.contains("App0")
               ) &&
               exampleSrc.indexWhere(
-                _.contains("Chapterfoo_0")
+                _.contains("App0")
               ) <
               exampleSrc.indexWhere(
                 _.contains("val asdf")
@@ -294,7 +294,7 @@ object MainSpec extends ZIOSpecDefault:
                 _.contains("val asdf")
               ) <
               exampleSrc.indexWhere(
-                _.contains("Chapterfoo_1")
+                _.contains("App1")
               )
           )
         +
