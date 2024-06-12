@@ -58,7 +58,7 @@ def run =
 
 Output:
 ```shell
-Result: Final count: 99968
+Result: Final count: 99971
 ```
 
 Due to the unpredictable nature of shared mutable state, we do not know exactly what the final count above is.
@@ -98,6 +98,7 @@ def run =
 
 Output:
 ```shell
+Log: Interrupting slow request
 Result: Final count: 100000
 ```
 
