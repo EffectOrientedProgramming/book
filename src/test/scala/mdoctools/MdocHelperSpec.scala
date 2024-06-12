@@ -4,6 +4,7 @@ import java.io.{
   ByteArrayOutputStream,
   PrintStream
 }
+import zio.test.*
 
 object MdocHelperSpec extends ZIOSpecDefault:
   object MdocSession:

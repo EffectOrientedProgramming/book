@@ -1,6 +1,7 @@
 package mdoctools
 
 import zio.test.ReporterEventRenderer.ConsoleEventRenderer
+import zio.test.*
 
 import java.util.concurrent.{
   LinkedBlockingQueue,

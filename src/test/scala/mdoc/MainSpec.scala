@@ -6,6 +6,7 @@ import mdoc.internal.markdown.MarkdownFile
 import java.nio.file.Files
 import scala.meta.Input
 import scala.meta.io.AbsolutePath
+import zio.test.*
 
 object MainSpec extends ZIOSpecDefault:
   def spec =
@@ -62,6 +63,7 @@ object MainSpec extends ZIOSpecDefault:
 
           val source =
             """```scala mdoc
+          |import zio.test.*
           |class FooSpec extends mdoctools.ToTest:
           |  def spec =
           |    test("foo"):
@@ -158,6 +160,8 @@ object MainSpec extends ZIOSpecDefault:
 
           val source =
             """```scala mdoc
+          |import zio.test.*
+          |
           |class FooSpec extends mdoctools.ToTest:
           |  def spec =
           |    test("foo"):

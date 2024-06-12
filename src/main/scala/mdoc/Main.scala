@@ -25,6 +25,7 @@ import scala.jdk.StreamConverters.*
 import scala.meta.Input
 import scala.meta.internal.io.FileIO
 import scala.meta.io.AbsolutePath
+import zio.test.*
 
 // todo: get rid of mutables
 def embed(

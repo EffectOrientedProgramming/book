@@ -30,7 +30,6 @@ scalacOptions +=
     "scala.Predef",
     "zio",
     "zio.direct",
-    "zio.test",
   ).mkString(
     start =
       "-Yimports:",

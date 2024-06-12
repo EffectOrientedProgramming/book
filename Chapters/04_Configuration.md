@@ -528,6 +528,8 @@ def run =
 ```
 
 ```scala 3 mdoc:testzio
+import zio.test.*
+
 def spec =
   test("flips 10 times"):
     defer:
@@ -572,6 +574,8 @@ val rosencrantzAndGuildensternAreDead =
 ```
 
 ```scala 3 mdoc:testzio
+import zio.test.*
+
 def spec =
   test(
     "rosencrantzAndGuildensternAreDead finishes"
@@ -588,6 +592,8 @@ def spec =
 ```
 
 ```scala 3 mdoc:testzio
+import zio.test.*
+
 def spec =
   test("flaky plan"):
     defer:
@@ -619,6 +625,8 @@ val nightlyBatch =
 ```
 
 ```scala 3 mdoc:testzio
+import zio.test.*
+
 def spec =
   test("batch runs after 24 hours"):
     val timeTravel =

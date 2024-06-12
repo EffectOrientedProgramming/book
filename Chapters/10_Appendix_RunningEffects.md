@@ -60,6 +60,8 @@ When you run the same `ZIO` in these 2 contexts, the only thing that changes are
 > TODO - Decide which scenario to test
 
 ```scala 3 mdoc:compile-only
+import zio.test.*
+
 object TestingZIOs extends ZIOSpecDefault:
   def spec =
     test("Hello Tests"):
@@ -72,6 +74,8 @@ object TestingZIOs extends ZIOSpecDefault:
 For this book we can shorten the test definition to:
 
 ```scala 3 mdoc:testzio
+import zio.test.*
+
 def spec =
   test("random is random"):
     defer:
@@ -84,6 +88,8 @@ I think this example completes the objective
 TODO Change this to a Console app, where the logic & testing is more visceral
 
 ```scala 3 mdoc:testzio
+import zio.test.*
+
 def spec =
   test("random is still random"):
     defer:
@@ -125,6 +131,8 @@ However, even if you are not trying to write demo code for a book, it is very li
 Even for the smallest programs, it is slow, error-prone, and boring.
 
 ```scala 3 mdoc:testzio
+import zio.test.*
+
 def spec =
   test("console works"):
     defer:
