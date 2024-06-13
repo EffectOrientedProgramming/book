@@ -754,13 +754,13 @@ def run =
 
 {{ TODO: enables, reuse, repeats, delays, etc }}
 
-```scala 3
+```scala 3 mdoc:fail
 def run =
   researchHeadling.run
   researchHeadling.run
 ```
 
-```scala 3
+```scala 3 mdoc:fail
 def run =
   researchHeadling.repeatN(2).run
 ```
