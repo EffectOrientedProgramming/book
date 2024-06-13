@@ -75,6 +75,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Dough: Mixed
 Dough is rising
@@ -96,6 +97,7 @@ ZIO
 ```
 
 Output:
+
 ```shell
 ──── ZLAYER ERROR ───────────
 
@@ -153,6 +155,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Oven: Heated
 Dough: Mixed
@@ -196,6 +199,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Oven: Heated
 Dough: Mixed
@@ -223,6 +227,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Toaster: Heated
 Result: Heat()
@@ -243,6 +248,7 @@ ZIO
 ```
 
 Output:
+
 ```shell
 error: 
 
@@ -305,6 +311,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Toaster: Heating
 Oven: Heated
@@ -355,6 +362,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 BreadStoreBought: Bought
 Result: BreadStoreBought()
@@ -376,6 +384,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Attempt 1: Error(Friend Unreachable)
 Result: Error(Friend Unreachable)
@@ -397,6 +406,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Attempt 1: Error(Friend Unreachable)
 BreadStoreBought: Bought
@@ -426,6 +436,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Attempt 1: Error(Friend Unreachable)
 Attempt 2: Error(Friend Unreachable)
@@ -438,6 +449,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Attempt 1: Error(Friend Unreachable)
 Attempt 2: Error(Friend Unreachable)
@@ -509,6 +521,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Attempt 1: Error(Friend Unreachable)
 Attempt 2: Error(Friend Unreachable)
@@ -549,9 +562,10 @@ def run =
 ```
 
 Output:
+
 ```shell
-Dough: Mixed
 Oven: Heated
+Dough: Mixed
 BreadHomeMade: Baked
 Bread: Eating
 Oven: Turning off!
@@ -615,19 +629,20 @@ def run =
 ```
 
 Output:
+
 ```shell
-Tails
-Tails
-Tails
-Tails
+Heads
 Tails
 Heads
 Tails
 Tails
 Tails
+Heads
 Tails
-Num Heads = 1
-Result: 1
+Heads
+Heads
+Num Heads = 5
+Result: 5
 ```
 
 ```scala
@@ -645,6 +660,7 @@ def spec =
 ```
 
 Output:
+
 ```shell
 Heads
 Heads
@@ -658,7 +674,7 @@ Heads
 Heads
 Num Heads = 10
 + flips 10 times
-Result: Summary(1,0,0,,PT0.049155S)
+Result: Summary(1,0,0,,PT0.052234S)
 ```
 
 ```scala
@@ -712,6 +728,7 @@ def spec =
 ```
 
 Output:
+
 ```shell
 *Performance Begins*
 Heads
@@ -725,7 +742,7 @@ G: ...probability
 Heads
 R: Heads
 + rosencrantzAndGuildensternAreDead finishes
-Result: Summary(1,0,0,,PT0.028572S)
+Result: Summary(1,0,0,,PT0.084437S)
 ```
 
 ```scala
@@ -741,20 +758,21 @@ def spec =
 ```
 
 Output:
+
 ```shell
 *Performance Begins*
-Heads
-R: Heads
-Heads
-R: Heads
-Heads
+Tails
+<FAIL> R: Fail(Tails,Stack trace for thread "zio-fiber-1718723857":
+	at coinToss(<input>:443)
+	at rosencrantzCoinToss(<input>:512)
+	at rosencrantzAndGuildensternAreDead(<input>:517)
 ...
 R: Heads
 G: ...probability
 Heads
 R: Heads
 + flaky plan
-Result: Summary(1,0,0,,PT0.03825S)
+Result: Summary(1,0,0,,PT0.021207S)
 ```
 
 The `Random` Effect uses an injected something which when running the ZIO uses the system's unpredictable random number generator.  In ZIO Test the `Random` Effect uses a different something which can predictably generate "random" numbers.  `TestRandom` provides a way to define what those numbers are.  This example feeds in the `Int`s `1` and `2` so the first time we ask for a random number we get `1` and the second time we get `2`.
@@ -797,10 +815,11 @@ def spec =
 ```
 
 Output:
+
 ```shell
 Parsing CSV: ()
 + batch runs after 24 hours
-Result: Summary(1,0,0,,PT0.036069S)
+Result: Summary(1,0,0,,PT0.022477S)
 ```
 
 The `race` is between `nightlyBatch` and `timeTravel`.

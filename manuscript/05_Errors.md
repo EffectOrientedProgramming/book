@@ -33,6 +33,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Result: Success!
 ```
@@ -49,6 +50,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Result: *** FAIL ***
 ```
@@ -64,6 +66,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Result: *** FAIL ***
 ```
@@ -133,6 +136,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Result: Temperature: 35 degrees
 ```
@@ -151,6 +155,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Result: Defect: NetworkException
 ```
@@ -183,6 +188,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Result: Failure
 ```
@@ -214,6 +220,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Result: Network Unavailable
 ```
@@ -228,6 +235,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Result: GPS Hardware Failure
 ```
@@ -258,6 +266,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Result: Temperature: 35 degrees
 ```
@@ -273,6 +282,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Result: repl.MdocSession$MdocApp$NetworkException
 ```
@@ -291,6 +301,7 @@ val bad =
 ```
 
 Output:
+
 ```shell
 
 ```
@@ -318,6 +329,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Result: GPS Hardware Failure
 ```
@@ -334,6 +346,7 @@ temperatureAppComplete.catchAll:
 ```
 
 Output:
+
 ```shell
 error: 
 This error handling operation assumes your effect can fail. However, your effect has Nothing for the error type, which means it cannot fail, so there is no need to handle the failure. To find out which method you can use instead of this operation, please see the reference chart at: https://zio.dev/can_fail.
@@ -386,6 +399,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Result: 35 degrees
 ```
@@ -399,6 +413,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Result: Network Unavailable
 ```
@@ -418,6 +433,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Result: Defect: GpsFail
 ```
@@ -442,6 +458,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Result: Unknown Error
 ```

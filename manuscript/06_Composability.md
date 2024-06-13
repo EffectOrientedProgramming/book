@@ -87,6 +87,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Network - Getting headline
 Result: stock market rising!
@@ -100,6 +101,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Network - Getting headline
 Result: HeadlineNotAvailable
@@ -140,6 +142,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Analytics - Scanning
 Result: stock market
@@ -152,6 +155,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Analytics - Scanning
 Result: NoInterestingTopic()
@@ -186,6 +190,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Wiki - articleFor(stock market)
 Result: detailed history of stock market
@@ -198,6 +203,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Wiki - articleFor(barn)
 Result: NoWikiArticleAvailable()
@@ -243,6 +249,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 File - OPEN
 File - contains(topicOfInterest)
@@ -283,6 +290,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 File - OPEN
 File - OPEN
@@ -323,6 +331,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 File - OPEN
 File - write: New data on topic
@@ -379,6 +388,7 @@ val summary: String =
 ```
 
 Output:
+
 ```shell
 AI - summarize - start
 AI - summarize - end
@@ -419,6 +429,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Texting story: Battery Breakthrough
 ```
@@ -483,6 +494,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Network - Getting headline
 Result: HeadlineNotAvailable
@@ -495,6 +507,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Network - Getting headline
 Analytics - Scanning
@@ -508,6 +521,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Network - Getting headline
 Analytics - Scanning
@@ -525,6 +539,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Network - Getting headline
 Analytics - Scanning
@@ -542,6 +557,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Network - Getting headline
 Analytics - Scanning
@@ -564,6 +580,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Network - Getting headline
 Analytics - Scanning
@@ -586,6 +603,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Network - Getting headline
 Analytics - Scanning

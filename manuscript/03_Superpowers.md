@@ -49,6 +49,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Result: User saved
 ```
@@ -66,6 +67,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Result: User saved
 ```
@@ -83,6 +85,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Log: **Database crashed!!**
 Result: **Database crashed!!**
@@ -113,6 +116,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Log: **Database crashed!!**
 Log: **Database crashed!!**
@@ -134,6 +138,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Log: **Database crashed!!**
 Log: **Database crashed!!**
@@ -165,6 +170,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Log: **Database crashed!!**
 Log: **Database crashed!!**
@@ -201,6 +207,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Log: Interrupting slow request
 Result: *** Save timed out ***
@@ -233,6 +240,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Log: **Database crashed!!**
 Log: **Database crashed!!**
@@ -263,7 +271,9 @@ def run =
 ```
 
 Output:
+
 ```shell
+Log: Signup initiated for Morty
 Result: User saved
 ```
 
@@ -290,8 +300,10 @@ def run =
 ```
 
 Output:
+
 ```shell
-Result: (PT0.001232065S,User saved)
+Log: Signup initiated for Morty
+Result: (PT0.002191757S,User saved)
 ```
 
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.
@@ -315,6 +327,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 Result: None
 ```
@@ -379,6 +392,7 @@ val programManipulatingBeforeRun =
 ```
 
 Output:
+
 ```shell
 error:
 value repeatN is not a member of Unit
@@ -406,6 +420,7 @@ def run =
 ```
 
 Output:
+
 ```shell
 **Before**
 Hello
@@ -422,6 +437,7 @@ val program =
 ```
 
 Output:
+
 ```shell
 error:
 value run is not a member of Unit.
