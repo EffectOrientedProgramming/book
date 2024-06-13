@@ -303,7 +303,7 @@ Output:
 
 ```shell
 Log: Signup initiated for Morty
-Result: (PT0.002191757S,User saved)
+Result: (PT5.032538804S,User saved)
 ```
 
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.
@@ -396,9 +396,11 @@ Output:
 ```shell
 error:
 value repeatN is not a member of Unit
-class Chapter199 extends mdoctools.ToRun:
+class Chapter201 extends mdoctools.ToRun:
                                   ^
 ```
+
+{{ TODO: remove error marker lines }}
 
 Note that these calls to `.run` are all within a `defer` block, so when `program` is defined, we still have not actually executed anything.
 We have described a program that knows the order in which to execute our individual effects _when the program is executed_.
@@ -465,4 +467,6 @@ An extension method was tried, but could not be fully constructed:
     ^^^^^^^^^^^
 ```
 
-### Explain the 2 versions of run and how they came to be
+{{ TODO: cleanup error message }}
+
+{{ TODO Explain the 2 versions of run and how they came to be }}

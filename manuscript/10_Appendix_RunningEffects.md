@@ -4,14 +4,10 @@
 [Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/10_Appendix_RunningEffects.md)
 
 
-TODO: Make an appendix?
-
-## Building applications from scratch
-
 One way to run ZIOs is to use a "main method" program (something you can start in the JVM).
 However, setting up the pieces needed for this is a bit cumbersome if done without helpers.
 
-### ZIOAppDefault
+## ZIOAppDefault
 
 ZIO provides an easy way to do this with the `ZIOAppDefault` trait.
 
@@ -59,9 +55,7 @@ In other words, it can accept `ZIO[Any, _, _]`.
 
 There is a more flexible `ZIOApp` that facilitates sharing layers between applications, but this is advanced and not necessary for most applications.
 
-## Testing code
-
-### ZIOSpecDefault
+## ZIOSpecDefault
 
 Similar to `ZIOAppDefault`, there is a `ZIOSpecDefault` that should be your starting point for testing ZIO applications.
 `ZIOSpecDefault` provides test-specific implementations built-in services, to make testing easier.
@@ -97,7 +91,7 @@ Output:
 
 ```shell
 + random is random
-Result: Summary(1,0,0,,PT0.351644S)
+Result: Summary(1,0,0,,PT0.336301S)
 ```
 
 TODO Justify defer syntax over for-comp for multi-statement assertions
@@ -121,7 +115,7 @@ Output:
 
 ```shell
 + random is still random
-Result: Summary(1,0,0,,PT0.075813S)
+Result: Summary(1,0,0,,PT0.096803S)
 ```
 
 Consider a `Console` application:
@@ -181,7 +175,7 @@ Output:
 
 ```shell
 - console works
-  Exception in thread "zio-fiber-1314257614" scala.NotImplementedError: an implementation is missing
+  Exception in thread "zio-fiber-521614012" scala.NotImplementedError: an implementation is missing
   	at scala.Predef$.$qmark$qmark$qmark(Predef.scala:344)
   	at mdoctools.OurConsole.print(OurConsole.scala:14)
   	at zio.Console$.print$$anonfun$6(Console.scala:122)
@@ -191,13 +185,13 @@ Output:
   	at zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19)
   	at logic(<input>:101)
   	at zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19)
-  	at Chapter69Spec.spec(<input>:137)
+  	at Chapter63Spec.spec(<input>:137)
 Result: 
 - console works
   Exception i
 ```
 
-## Interop with existing/legacy code via Unsafe
+## Interop with existing/legacy code
 
 In some cases your ZIOs may need to be run outside a *main* program, for example when embedded into other programs.
 In this case you can use ZIO's `Unsafe` utility which is called `Unsafe` to indicate that the code may perform side effects.  

@@ -3,9 +3,9 @@
 02_Introduction_to_Effects.md
 03_Superpowers.md
 04_Configuration.md
-05_Errors.md
+05_Managing_Failure.md
 06_Composability.md
 07_State.md
 08_Reliability.md
-09_ZIO_and_ZLayer.md
+09_Appendix_ZIO.md
 10_Appendix_RunningEffects.md

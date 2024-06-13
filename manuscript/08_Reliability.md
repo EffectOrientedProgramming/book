@@ -143,8 +143,6 @@ In the worst case, going above this limit could overwhelm the service and make i
 At the very least, you will be charged more for exceeding it.
 
 
-### Constructing a RateLimiter
-
 Defining your rate limiter requires only the 2 pieces of information that should be codified in your service agreement:
 
 ```psuedo
@@ -218,14 +216,14 @@ Output:
 
 ```shell
 Bill called API [took 0s]
-James called API [took 1s]
-Bruce called API [took 2s]
+Bruce called API [took 1s]
+James called API [took 2s]
 Bill called API [took 3s]
-James called API [took 3s]
 Bruce called API [took 3s]
+James called API [took 3s]
 Bill called API [took 3s]
-James called API [took 3s]
 Bruce called API [took 3s]
+James called API [took 3s]
 Total time [took 8s]
 ```
 
@@ -254,10 +252,10 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(58)
-Current requests: List(653, 58)
-Current requests: List(64, 653, 58)
-Current requests: List(173, 64, 653, 58)
+Current requests: List(831)
+Current requests: List(152, 533, 831)
+Current requests: List(533, 831)
+Current requests: List(12, 152, 533, 831)
 Result: Crashed the server!!
 ```
 
@@ -297,16 +295,16 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(101)
-Current requests: List(208, 101)
-Current requests: List(787, 208, 101)
-Current requests: List(485)
-Current requests: List(462, 485)
-Current requests: List(543, 462, 485)
-Current requests: List(145)
-Current requests: List(881, 145)
-Current requests: List(292, 881, 145)
-Current requests: List(487)
+Current requests: List(732, 978)
+Current requests: List(978)
+Current requests: List(349, 732, 978)
+Current requests: List(229)
+Current requests: List(864, 229)
+Current requests: List(143, 864, 229)
+Current requests: List(674)
+Current requests: List(713, 674)
+Current requests: List(611, 713, 674)
+Current requests: List(992)
 Result: All Requests Succeeded
 ```
 
@@ -408,7 +406,7 @@ def run =
 Output:
 
 ```shell
-Result: Calls prevented: 75 Calls made: 66
+Result: Calls prevented: 74 Calls made: 67
 ```
 
 Now we see that our code prevented the majority of the doomed calls to the external service.
@@ -470,7 +468,13 @@ Contract Breaches: 0
 Result: 0
 ```
 
-## Restricting Time
+## Test Reliability
+
+{{ TODO: Intro. Talk about many TestAspects. But then transition to the 2 most common ones (timeout & flaky) }}
+
+### Test Timeouts
+
+{{ TODO: Code example }}
 
 Sometimes, it's not enough to simply track the time that a test takes.
 If you have specific Service Level Agreements (SLAs) that you need to meet, you want your tests to help ensure that you are meeting them.
@@ -487,7 +491,9 @@ This helps you to identify tests that have completely locked up, or are taking a
 For example, if you are running your tests in a CI/CD pipeline, you want to ensure that your tests complete quickly, so that you can get feedback as soon as possible.
 you can use `TestAspect.timeout` to ensure that your tests complete within a certain time frame.
 
-## Flakiness
+### Flaky Tests
+
+{{ TODO: Code example }}
 
 Commonly, as a project grows, the supporting tests become more and more flaky.
 This can be caused by a number of factors:

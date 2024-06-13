@@ -4,6 +4,8 @@
 [Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/04_Configuration.md)
 
 
+{{ TODO: verify TOC correctly shows this chapter head }}
+
 Altering the behavior of your application based on values provided at runtime is a perennial challenge in software.
 The techniques for solving this problem are diverse, impressive, and often completely bewildering.
 
@@ -40,16 +42,13 @@ To aid further in understanding your application architecture, you can visualize
 
 You can also do things that simply are not possible in other approaches, such as sharing a single instance of a dependency across multiple test classes, or even multiple applications.
 
-## DI-Wow
+{{ TODO: Explain the prevention of dependency cycles }}
 
-TODO Values to convey:
+## Let's Make Bread
 
-- Layer Graph
-  - Cycles are a compile error
-  - Visualization with Mermaid
+{{ TODO: Prose on our use case }}
 
 ```scala
-// Explain private constructor approach
 case class Dough():
   val letRise =
     Console.printLine:
@@ -314,8 +313,8 @@ Output:
 
 ```shell
 Toaster: Heating
-Oven: Heated
 Dough: Mixed
+Oven: Heated
 BreadHomeMade: Baked
 ToastZ: Made
 Toast: Eating
@@ -529,6 +528,8 @@ Attempt 3: Succeeded
 Bread: Eating
 ```
 
+{{ TODO: some explanation }}
+
 ## Step 12: Keep the building from burning down!
 
 TODO Figure out best order. Might be better closer to when Step 7 (Effects can construct dependencies)
@@ -538,8 +539,6 @@ We heat up our oven, but then never turn it off!
 It would be great to have an oven that automatically turns itself off when we are done using it.
 
 ```scala
-// TODO Split this up? It's pretty busy.
-// TODO Can we introduce acquireRelease in isolation in superpowers?
 val ovenSafe =
   ZLayer.fromZIO:
     ZIO.succeed(Heat())
@@ -573,11 +572,11 @@ Oven: Turning off!
 
 ## Testing Effects
 
-TODO: Bridge from dependency / configuration to here
+{{ TODO: Bridge from dependency / configuration to here }}
 
-TODO: Code that provides an "ideal friend" to our bread example
+{{ TODO: Code that provides an "ideal friend" to our bread example
     Maybe as a 2 step process, first outside of a test, then in a test.
-    Or a single step just in a test
+    Or a single step just in a test }}
 
 Effects need access to external systems thus are unpredictable.  
 Tests are ideally predictable so how do we write tests for effects that are predictable?
@@ -591,9 +590,6 @@ An example of this is Random numbers.  Randomness is inherently unpredictable.  
 
 ```scala
 val coinToss =
-  // TODO: This is the first place we use defer.
-  // We need to deliberately, and explicitly,
-  // introduce it.
   defer:
     if Random.nextBoolean.run then
       ZIO.debug("Heads").run
@@ -631,18 +627,18 @@ def run =
 Output:
 
 ```shell
-Heads
 Tails
 Heads
 Tails
 Tails
 Tails
-Heads
+Tails
 Tails
 Heads
-Heads
-Num Heads = 5
-Result: 5
+Tails
+Tails
+Num Heads = 2
+Result: 2
 ```
 
 ```scala
@@ -674,7 +670,7 @@ Heads
 Heads
 Num Heads = 10
 + flips 10 times
-Result: Summary(1,0,0,,PT0.052234S)
+Result: Summary(1,0,0,,PT0.02516S)
 ```
 
 ```scala
@@ -742,7 +738,7 @@ G: ...probability
 Heads
 R: Heads
 + rosencrantzAndGuildensternAreDead finishes
-Result: Summary(1,0,0,,PT0.084437S)
+Result: Summary(1,0,0,,PT0.023982S)
 ```
 
 ```scala
@@ -761,18 +757,18 @@ Output:
 
 ```shell
 *Performance Begins*
+Heads
+R: Heads
 Tails
-<FAIL> R: Fail(Tails,Stack trace for thread "zio-fiber-1718723857":
-	at coinToss(<input>:443)
-	at rosencrantzCoinToss(<input>:512)
-	at rosencrantzAndGuildensternAreDead(<input>:517)
+<FAIL> R: Fail(Tails,Stack trace for thread "zio-fiber-1546518505":
+	at coinToss(<input>:440)
 ...
 R: Heads
 G: ...probability
 Heads
 R: Heads
 + flaky plan
-Result: Summary(1,0,0,,PT0.021207S)
+Result: Summary(1,0,0,,PT0.020405S)
 ```
 
 The `Random` Effect uses an injected something which when running the ZIO uses the system's unpredictable random number generator.  In ZIO Test the `Random` Effect uses a different something which can predictably generate "random" numbers.  `TestRandom` provides a way to define what those numbers are.  This example feeds in the `Int`s `1` and `2` so the first time we ask for a random number we get `1` and the second time we get `2`.
@@ -819,7 +815,7 @@ Output:
 ```shell
 Parsing CSV: ()
 + batch runs after 24 hours
-Result: Summary(1,0,0,,PT0.022477S)
+Result: Summary(1,0,0,,PT0.023084S)
 ```
 
 The `race` is between `nightlyBatch` and `timeTravel`.
