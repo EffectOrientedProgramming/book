@@ -337,6 +337,7 @@ object MainSpec extends ZIOSpecDefault:
                 |```
                 |
                 |Output:
+                |
                 |```shell
                 |hello, world
                 |asdf
@@ -393,6 +394,7 @@ object MainSpec extends ZIOSpecDefault:
               |```
               |
               |Output:
+              |
               |```shell
               |hello, world
               |```

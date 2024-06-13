@@ -407,7 +407,7 @@ def manuscriptPost(
                 Text(codeLines.mkString("\n")),
                 Text("\n```\n")
               ),
-              Text("\nOutput:\n"),
+              Text("\nOutput:\n\n"),
               CodeFence(
                 Text("```"),
                 Text("shell\n"),
