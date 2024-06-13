@@ -105,7 +105,33 @@ These can also have domain specific forms, like:
 
 All of these are unpredictable.
 
-## Effect Systems Manage Unpredictability
+## Signs That You Have Hidden Effects
+
+{{ TODO: Needs prose on how functions that return Unit are always side-effecting }}
+
+`Unit` can be viewed as the bare minimum of effect tracking.
+
+Consider a function
+
+```scala 3 mdoc
+import zio.*
+import zio.direct.*
+
+def saveInformation(info: String): Unit =
+  ???
+```
+
+If we look only at the types, this function is an `String=>Unit`.
+`Unit` is the single, blunt tool to indicate effectful functions in plain Scala.
+When we see it, we know that *some* type of side-effect is being performed.
+
+When a function returns `Unit`, we know that the only reason we are calling the function is to perform an effect.
+Alternatively, if there are no arguments to the function, then the input is `Unit`, indicating that an effect is used to _produce_ the result.
+
+Unfortunately, we can't do things like timeout/race/etc these functions.
+We can either execute them, or not, and that's about it, without resorting to additional tools for manipulating their execution.
+
+## Effect Systems
 
 Given that Effects are unpredictable, we can utilize operations from an Effect System to manage the unpredictability.
 Effect Systems are designed to make these operations easy.

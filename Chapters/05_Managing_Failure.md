@@ -1,76 +1,25 @@
-# Errors
+# Managing Failure
 
-{{ potentially rename to Failure and then consistently use "Errors" or the "Failures" - side note: it is `ZIO.fail` }}
+{{ TODO: Replace error with failure }}
 
 Given that Effects encapsulate the unpredictable parts of a system,
-they must have a way to express errors.
+they must have a way to express failure.
 
-Let's start with a basic Effect that has simulated unpredictability:
+{{ TODO: Refactor existing content into these }}
 
-```scala 3 mdoc
-import zio.*
-import zio.direct.*
+{{ TODO: GPS Example with 2 scenarios: success & failure }}
 
-def canFail(succeeds: Boolean) =
-  if succeeds then
-    ZIO.succeed("Success!")
-  else
-    ZIO.fail("*** FAIL ***")
-```
+## Handling Failures
 
-Note that this function does not need to be an Effect because there are no unpredictable aspects
-For this book we need a predictable way to show unpredictability
-Generally - don't write code like this.
+Catching, recovering, etc
 
-First, let's run the `canFail` Effect with an argument of `true` and print its result.
 
-```scala 3 mdoc:runzio
-import zio.*
-import zio.direct.*
+## Wrapping Exceptions
 
-def run =
-  canFail(succeeds =
-    true
-  )
-```
+{{ TODO: ZIO.attempt }}
 
-Given our controlled behavior of the Effect, we see that the Effect succeeded.
 
-If we now pass `false` to `canFail` the Effect will fail.
-
-```scala 3 mdoc:runzio
-import zio.*
-import zio.direct.*
-
-def run =
-  canFail(succeeds =
-    false
-  )
-```
-
-Systems need to deal with failures and, ideally, recover from them.
-We can apply a very basic recovery operation on the previous example called `flip` which swaps the error and the success values:
-
-```scala 3 mdoc:runzio
-import zio.*
-import zio.direct.*
-
-def run =
-  canFail(succeeds =
-    false
-  ).flip
-```
-
-Now the code succeeds because the `failure` is swapped into the success value.
-Generally `flip` is for test functions because there aren't many use cases for overriding your success value with a failure.
-
-There are other more useful operations to recover from failure including fallbacks, retries, and catchers.
-
-{{ maybe basic retry example building on the previous? }}
-
-1. Why errors as values
-1. Creating & Handling
-   1. Flexible error types
+{{ TODO: Old structure below, time-permitting we refactor, or just leave this all as-is }}
 
 ## Our program for this chapter
 
@@ -87,6 +36,8 @@ There are 2 error situations we need to handle:
 - A fault in our GPS hardware
 
 We want our program to always result in a sensible message to the user.
+
+{{ TODO: maybe show Exception classes so that we can later show non-Exception failures }}
 
 ```scala 3 mdoc:invisible
 import zio.*
@@ -200,6 +151,8 @@ def run =
 On the happy path, everything looks as desired.
 If the network is unavailable, what is the behavior for the caller?
 If we don't make any attempt to handle our problem, the whole program blows up and shows the gory details to the user.
+
+{{ TODO: Use bootstrap }}
 
 ```scala 3 mdoc:runzio
 import zio.*

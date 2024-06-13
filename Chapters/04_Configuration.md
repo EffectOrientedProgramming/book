@@ -1,5 +1,7 @@
 # Configuration
 
+{{ TODO: verify TOC correctly shows this chapter head }}
+
 Altering the behavior of your application based on values provided at runtime is a perennial challenge in software.
 The techniques for solving this problem are diverse, impressive, and often completely bewildering.
 
@@ -36,19 +38,16 @@ To aid further in understanding your application architecture, you can visualize
 
 You can also do things that simply are not possible in other approaches, such as sharing a single instance of a dependency across multiple test classes, or even multiple applications.
 
-## DI-Wow
+{{ TODO: Explain the prevention of dependency cycles }}
 
-TODO Values to convey:
+## Let's Make Bread
 
-- Layer Graph
-  - Cycles are a compile error
-  - Visualization with Mermaid
+{{ TODO: Prose on our use case }}
 
 ```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
 
-// Explain private constructor approach
 case class Dough():
   val letRise =
     Console.printLine:
@@ -516,6 +515,8 @@ def run =
       config
 ```
 
+{{ TODO: some explanation }}
+
 ## Step 12: Keep the building from burning down!
 
 TODO Figure out best order. Might be better closer to when Step 7 (Effects can construct dependencies)
@@ -528,8 +529,6 @@ It would be great to have an oven that automatically turns itself off when we ar
 import zio.*
 import zio.direct.*
 
-// TODO Split this up? It's pretty busy.
-// TODO Can we introduce acquireRelease in isolation in superpowers?
 val ovenSafe =
   ZLayer.fromZIO:
     ZIO.succeed(Heat())
@@ -556,11 +555,11 @@ def run =
 
 ## Testing Effects
 
-TODO: Bridge from dependency / configuration to here
+{{ TODO: Bridge from dependency / configuration to here }}
 
-TODO: Code that provides an "ideal friend" to our bread example
+{{ TODO: Code that provides an "ideal friend" to our bread example
     Maybe as a 2 step process, first outside of a test, then in a test.
-    Or a single step just in a test
+    Or a single step just in a test }}
 
 Effects need access to external systems thus are unpredictable.  
 Tests are ideally predictable so how do we write tests for effects that are predictable?
@@ -577,9 +576,6 @@ import zio.*
 import zio.direct.*
 
 val coinToss =
-  // TODO: This is the first place we use defer.
-  // We need to deliberately, and explicitly,
-  // introduce it.
   defer:
     if Random.nextBoolean.run then
       ZIO.debug("Heads").run

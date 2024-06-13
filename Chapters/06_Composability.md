@@ -23,7 +23,7 @@ Issues that complicate composition include:
 
 These concepts and their competing solutions will be expanded on and contrasted with ZIO throughout this chapter.
 
-## Universal Composability with ZIO (All The Thing Example)
+## Universal Composability
 
 ```scala 3 mdoc:invisible
 import zio.*
@@ -52,6 +52,8 @@ When writing complex applications
 ZIO provides conversion methods that take these limited data types and turn them into its single, universally composable type.
 
 ## Existing Code
+
+{{ TODO: subhead rename and what else needs to be here? }}
 
 We will utilize several pre-defined functions to highlight less-complete effect alternatives.
 
@@ -630,8 +632,10 @@ In order for Effect Systems to have recovery operations, they must know when fai
 
 ## Final Collective Criticism
 
+{{ TODO: better subhead name }}
+
 Each of original approaches gives you benefits, but you can't easily assemble a program that utilizes all of them.
-They must be manually transformed into each other .
+They must be manually transformed into each other.
 
 Instead of the best of all worlds, you get the pain of all worlds.
 eg `Closeable[Future[Either[Throwable, A]]]`
@@ -676,6 +680,8 @@ def researchHeadline(scenario: Scenario) =
       writeToFileZ(summaryFile, summary).run
       summary
 ```
+
+{{ TODO: Use bootstrap for Scenario }}
 
 ```scala 3 mdoc:runzio
 import zio.*
@@ -744,34 +750,19 @@ def run =
     Scenario.StockMarketHeadline
 ```
 
-## Repeats
+## Effects are Values
 
-Repeating is a form of composability, because you are composing a program with itself
+{{ TODO: enables, reuse, repeats, delays, etc }}
 
-## Graveyard candidates
-
-## Plain functions that return Unit
-
-{{TODO Decide if this section is worth keeping. If so, where?}}
-
-`Unit` can be viewed as the bare minimum of effect tracking.
-
-Consider a function
-
-```scala 3 mdoc
-import zio.*
-import zio.direct.*
-
-def saveInformation(info: String): Unit =
-  ???
+```scala 3
+def run =
+  researchHeadling.run
+  researchHeadling.run
 ```
 
-If we look only at the types, this function is an `String=>Unit`.
-`Unit` is the single, blunt tool to indicate effectful functions in plain Scala.
-When we see it, we know that *some* type of side-effect is being performed.
+```scala 3
+def run =
+  researchHeadling.repeatN(2).run
+```
 
-When a function returns `Unit`, we know that the only reason we are calling the function is to perform an effect.
-Alternatively, if there are no arguments to the function, then the input is `Unit`, indicating that an effect is used to _produce_ the result.
-
-Unfortunately, we can't do things like timeout/race/etc these functions.
-We can either execute them, or not, and that's about it, without resorting to additional tools for manipulating their execution.
+Repeating is a form of composability, because you are composing a program with itself

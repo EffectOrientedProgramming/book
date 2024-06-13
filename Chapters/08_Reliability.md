@@ -222,8 +222,6 @@ extension [R, E, A](z: ZIO[R, E, A])
       .map(_._2)
 ```
 
-### Constructing a RateLimiter
-
 Defining your rate limiter requires only the 2 pieces of information that should be codified in your service agreement:
 
 ```psuedo
@@ -722,7 +720,13 @@ def run =
       .run
 ```
 
-## Restricting Time
+## Test Reliability
+
+{{ TODO: Intro. Talk about many TestAspects. But then transition to the 2 most common ones (timeout & flaky) }}
+
+### Test Timeouts
+
+{{ TODO: Code example }}
 
 Sometimes, it's not enough to simply track the time that a test takes.
 If you have specific Service Level Agreements (SLAs) that you need to meet, you want your tests to help ensure that you are meeting them.
@@ -739,7 +743,9 @@ This helps you to identify tests that have completely locked up, or are taking a
 For example, if you are running your tests in a CI/CD pipeline, you want to ensure that your tests complete quickly, so that you can get feedback as soon as possible.
 you can use `TestAspect.timeout` to ensure that your tests complete within a certain time frame.
 
-## Flakiness
+### Flaky Tests
+
+{{ TODO: Code example }}
 
 Commonly, as a project grows, the supporting tests become more and more flaky.
 This can be caused by a number of factors:

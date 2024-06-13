@@ -1,13 +1,9 @@
 # Appendix Running Effects
 
-TODO: Make an appendix?
-
-## Building applications from scratch
-
 One way to run ZIOs is to use a "main method" program (something you can start in the JVM).
 However, setting up the pieces needed for this is a bit cumbersome if done without helpers.
 
-### ZIOAppDefault
+## ZIOAppDefault
 
 ZIO provides an easy way to do this with the `ZIOAppDefault` trait.
 
@@ -58,9 +54,7 @@ In other words, it can accept `ZIO[Any, _, _]`.
 
 There is a more flexible `ZIOApp` that facilitates sharing layers between applications, but this is advanced and not necessary for most applications.
 
-## Testing code
-
-### ZIOSpecDefault
+## ZIOSpecDefault
 
 Similar to `ZIOAppDefault`, there is a `ZIOSpecDefault` that should be your starting point for testing ZIO applications.
 `ZIOSpecDefault` provides test-specific implementations built-in services, to make testing easier.
@@ -176,7 +170,7 @@ def spec =
         capturedOutput == expectedOutput
 ```
 
-## Interop with existing/legacy code via Unsafe
+## Interop with existing/legacy code
 
 In some cases your ZIOs may need to be run outside a *main* program, for example when embedded into other programs.
 In this case you can use ZIO's `Unsafe` utility which is called `Unsafe` to indicate that the code may perform side effects.  
