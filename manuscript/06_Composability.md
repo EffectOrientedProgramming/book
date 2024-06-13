@@ -633,9 +633,45 @@ def run =
   researchHeadling.run
 ```
 
+Output:
+
+```shell
+error:
+Not found: researchHeadling - did you mean researchHeadline?
+  researchHeadling.run
+  ^^^^^^^^^^^^^^^^
+error:
+Not found: researchHeadling - did you mean researchHeadline?
+  researchHeadling.run
+  ^^^^^^^^^^^^^^^^
+error:
+Double definition:
+val summary: String in object MdocApp at line 246 and
+val summary: String in object MdocApp at line 281
+
+val summary: String =
+    ^
+```
+
 ```scala
 def run =
   researchHeadling.repeatN(2).run
+```
+
+Output:
+
+```shell
+error:
+Not found: researchHeadling - did you mean researchHeadline?
+  researchHeadling.repeatN(2).run
+  ^^^^^^^^^^^^^^^^
+error:
+Double definition:
+val summary: String in object MdocApp at line 246 and
+val summary: String in object MdocApp at line 281
+
+val summary: String =
+    ^
 ```
 
 Repeating is a form of composability, because you are composing a program with itself
