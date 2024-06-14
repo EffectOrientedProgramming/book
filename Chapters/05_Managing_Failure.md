@@ -3,13 +3,315 @@
 Given that Effects encapsulate the unpredictable parts of a system,
 they must have a way to express failure.
 
-{{ TODO: Refactor existing content into these }}
-
-{{ TODO: GPS Example with 2 scenarios: success & failure }}
-
 ## Handling Failures
 
-Catching, recovering, etc
+```scala 3 mdoc:invisible
+import zio.*
+import zio.direct.*
+
+enum Scenario:
+  case HappyPath,
+    Weird,
+    NetworkFailure,
+    GPSFailure
+
+class GpsException          extends Exception("GPS Failure")
+class NetworkException extends Exception("Network Failure")
+
+val scenarioConfig
+    : Config[Option[Scenario]] =
+  Config.Optional[Scenario](
+    Config.fail("no default scenario")
+  )
+
+class ErrorsStaticConfigProvider(
+    scenario: Scenario
+) extends ConfigProvider:
+  override def load[A](config: Config[A])(
+      implicit trace: Trace
+  ): IO[Config.Error, A] =
+    ZIO.succeed(Some(scenario).asInstanceOf[A])
+
+var scenarioForNonZio: Option[Scenario] = None
+
+def happyPath =
+  scenarioForNonZio = Some(Scenario.HappyPath)
+
+  Runtime.setConfigProvider(
+    ErrorsStaticConfigProvider(
+      Scenario.HappyPath
+    )
+  )
+
+def networkFailure =
+  scenarioForNonZio = Some(Scenario.NetworkFailure)
+
+  Runtime.setConfigProvider(
+    ErrorsStaticConfigProvider(
+      Scenario.NetworkFailure
+    )
+  )
+
+def gpsFailure =
+  scenarioForNonZio = Some(Scenario.GPSFailure)
+
+  Runtime.setConfigProvider(
+    ErrorsStaticConfigProvider(
+      Scenario.GPSFailure
+    )
+  )
+
+def weird =
+  scenarioForNonZio = Some(Scenario.Weird)
+
+  Runtime.setConfigProvider(
+    ErrorsStaticConfigProvider(
+      Scenario.Weird
+    )
+  )
+
+
+val getTemperature: ZIO[
+  Any,
+  GpsException | NetworkException,
+  String
+] =
+  defer:
+    val maybeScenario =
+      ZIO.config(scenarioConfig).orDie.run
+
+    maybeScenario match
+      case Some(Scenario.GPSFailure) =>
+        ZIO
+          .fail:
+            GpsException()
+          .run
+      case Some(Scenario.NetworkFailure) =>
+        ZIO
+          .fail:
+            NetworkException()
+          .run
+      case Some(Scenario.Weird) =>
+        ZIO
+           .succeed:
+             "Temperature: 34 degrees"
+           .run
+      case _ =>
+         ZIO
+           .succeed:
+             "Temperature: 35 degrees"
+           .run
+```
+
+Let's say we have an Effect `getTemperature` which can fail as it tries to make a network request.
+First let's run it in the "happy path" assuming it won't fail:
+
+```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
+override val bootstrap = happyPath
+
+def run =
+  getTemperature
+```
+
+As expected, the program succeeds with the temperature.
+But if we run it and simulate a network failure, the program will fail.
+
+```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
+override val bootstrap = networkFailure
+
+def run =
+  getTemperature
+```
+
+Without any failure handling, the program will not continue past the failed Effect.
+For example, if we try to print something after trying to get the temperature,
+  an unhandled failure will not allow the program to continue.
+
+```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
+override val bootstrap = networkFailure
+
+def run =
+  defer:
+    getTemperature.run
+    Console.printLine("will not print if getTemperature fails").run
+```
+
+We can add various forms of failure handling.
+One is to "catch" the failure and transform it into another Effect which can also succeed or fail.
+
+```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
+override val bootstrap = networkFailure
+
+def run =
+  val safeGetTemperature =
+    getTemperature.catchAll:
+      case e: Exception =>
+        ZIO.succeed("Could not get temperature")
+
+  defer:
+    safeGetTemperature.run
+    Console.printLine("will not print if getTemperature fails").run
+```
+
+This time the second Effect will run because we've transformed the `getTemperature` failure into a successful result.
+
+With `catchAll` we must handle all the types of failures and the implementation of `getTemperature` can only fail with an Exception.
+
+We may want to be more specific about how we handle different types of failures.
+For example, let's try to catch the `NetworkException`:
+
+{{ TODO: mdoc seems to have a bug and is not outputting the compiler warning }}
+
+```scala 3 mdoc:warn
+val bad =
+  getTemperature.catchAll:
+    case ex: NetworkException =>
+      ZIO.succeed:
+        "Network Unavailable"
+```
+
+This produces a compiler warning because our `catchAll` does not actually catch all possible types of failure.
+
+We should handle all the types of failures:
+
+```scala 3 mdoc:silent
+import zio.*
+import zio.direct.*
+
+val temperatureAppComplete =
+  getTemperature.catchAll:
+    case ex: NetworkException =>
+      ZIO.succeed:
+        "Network Unavailable"
+    case ex: GpsException =>
+      ZIO.succeed:
+        "GPS Hardware Failure"
+```
+
+Now even if there is a network or GPS failure, the Effect completes successfully:
+
+```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
+override val bootstrap = gpsFailure
+
+def run =
+  defer:
+    val result =
+      temperatureAppComplete.run
+    Console.printLine(s"Didn't fail, despite: $result").run
+```
+
+Since the new `temperatureAppComplete` can no longer fail, we can no longer "catch" failures.
+Trying to do so will result in a compile error:
+
+{{ TODO: better compiler error message? }}
+
+```scala 3 mdoc:fail
+temperatureAppComplete.catchAll:
+  case ex: Exception =>
+    ZIO.succeed:
+      "This cannot happen"
+```
+
+The types of failures from `getTemperature` were both an `Exception`.
+But failures can be any type.
+For example, we can change the `Exceptions` into another type, like a `String`
+  (which is not a good idea, but shows that failures are not constrained to only be `Exception`s)
+
+```scala 3 mdoc:silent
+import zio.*
+import zio.direct.*
+
+val getTemperatureBad =
+  getTemperature.catchAll:
+    case e: Exception =>
+      ZIO.fail:
+        e.getMessage
+```
+
+Now we can again use `catchAll` but can handle the `String` failure type:
+
+```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
+override val bootstrap = gpsFailure
+
+def run =
+  getTemperatureBad.catchAll:
+    case s: String =>
+      Console.printLine(s)
+```
+
+There are many different ways to handle failures with Effects.
+You've already seen some of the others, like `retry` and `orElse` in the **Superpowers** chapter.
+
+With Effects, failures are aggregated across the chain of Effects, unless handled.
+For instance, a new `localize` Effect might fail with a new type:
+
+```scala 3 mdoc:silent
+import zio.*
+import zio.direct.*
+
+case class LocalizeFailure(s: String)
+
+def localize(temperature: String) =
+  if temperature.contains("35") then
+    ZIO.succeed("Brrrr")
+  else
+    ZIO.fail:
+      LocalizeFailure("I dunno")
+```
+
+We can now create a new Effect from `getTemperature` and `localize` that can fail with either an `Exception` or a `LocalizeFailure`:
+
+```scala 3 mdoc:silent
+import zio.*
+import zio.direct.*
+
+// can fail with an Exception or a LocalizeFailure
+val getTemperatureLocal =
+  defer:
+    // can fail with an Exception
+    val temperature =
+      getTemperature.run
+
+    // can fail with a LocalizeFailure
+    localize(temperature).run
+```
+
+To handle the possible failures for this new Effect, we now need to handle both the `Exception` and `LocalizeFailure`:
+
+```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
+override val bootstrap = weird
+
+def run =
+  getTemperatureLocal.catchAll:
+    case e: Exception =>
+      Console.printLine(e.getMessage)
+    case LocalizeFailure(s: String) =>
+      Console.printLine(s)
+```
+
+All the possible failure types, across the sequence of Effects, have been handled at the top-level Effect.
+It is up to you when and how you want to handle possible failures.
 
 
 ## Wrapping Exceptions
@@ -41,63 +343,14 @@ We want our program to always result in a sensible message to the user.
 import zio.*
 import zio.direct.*
 
-enum Scenario:
-  case HappyPath,
-    NetworkError,
-    GPSError
 
-class GpsFail          extends Exception
-class NetworkException extends Exception
-
-val scenarioConfig
-    : Config[Option[Scenario]] =
-  Config.Optional[Scenario](
-    Config.fail("no default scenario")
-  )
-
-class ErrorsStaticConfigProvider(
-    scenario: Scenario
-) extends ConfigProvider:
-  override def load[A](config: Config[A])(
-      implicit trace: Trace
-  ): IO[Config.Error, A] =
-    ZIO.succeed(Some(scenario).asInstanceOf[A])
-
-var scenarioForNonZio: Option[Scenario] = None
-
-def happyPath =
-  scenarioForNonZio = Some(Scenario.HappyPath)
-
-  Runtime.setConfigProvider(
-    ErrorsStaticConfigProvider(
-      Scenario.HappyPath
-    )
-  )
-
-def networkError =
-  scenarioForNonZio = Some(Scenario.NetworkError)
-
-  Runtime.setConfigProvider(
-    ErrorsStaticConfigProvider(
-      Scenario.NetworkError
-    )
-  )
-
-def gpsError =
-  scenarioForNonZio = Some(Scenario.GPSError)
-
-  Runtime.setConfigProvider(
-    ErrorsStaticConfigProvider(
-      Scenario.GPSError
-    )
-  )
 
 // since this function isn't a ZIO, it has to get the scenario from a var which is set when the bootstrap is set
 def getTemperatureOrThrow(): String =
   scenarioForNonZio match
-    case Some(Scenario.GPSError) =>
-      throw GpsFail()
-    case Some(Scenario.NetworkError) =>
+    case Some(Scenario.GPSFailure) =>
+      throw GpsException()
+    case Some(Scenario.NetworkFailure) =>
       throw NetworkException()
     case _ =>
       "35 degrees"
@@ -156,7 +409,7 @@ If we don't make any attempt to handle our problem, the whole program blows up a
 import zio.*
 import zio.direct.*
 
-override val bootstrap = networkError
+override val bootstrap = networkFailure
 
 def run =
   ZIO.succeed:
@@ -188,7 +441,7 @@ def temperatureCatchingApp(): String =
 import zio.*
 import zio.direct.*
 
-override val bootstrap = networkError
+override val bootstrap = networkFailure
 
 def run =
   ZIO.succeed:
@@ -211,7 +464,7 @@ def temperatureCatchingMoreApp(): String =
   catch
     case ex: NetworkException =>
       "Network Unavailable"
-    case ex: GpsFail =>
+    case ex: GpsException =>
       "GPS Hardware Failure"
 ```
 
@@ -219,7 +472,7 @@ def temperatureCatchingMoreApp(): String =
 import zio.*
 import zio.direct.*
 
-override val bootstrap = networkError
+override val bootstrap = networkFailure
 
 def run =
   ZIO.succeed:
@@ -230,7 +483,7 @@ def run =
 import zio.*
 import zio.direct.*
 
-override val bootstrap = gpsError
+override val bootstrap = gpsFailure
 
 def run =
   ZIO.succeed:
@@ -253,111 +506,24 @@ You just don't know what you're going to get when you use exceptions.
 
 ZIO enables more powerful, uniform failure-handling.
 
-```scala 3 mdoc:invisible
-import zio.*
-import zio.direct.*
 
-// TODO We hide the original implementation of this function, but show this one.
-// Is that a problem? Seems unbalanced
-val getTemperature: ZIO[
-  Any,
-  GpsFail | NetworkException,
-  String
-] =
-  defer:
-    val maybeScenario =
-      ZIO.config(scenarioConfig).orDie.run
-      
-    maybeScenario match
-      case Some(Scenario.GPSError) =>
-        ZIO
-          .fail:
-            GpsFail()
-          .run
-      case Some(Scenario.NetworkError) =>
-        ZIO
-          .fail:
-            NetworkException()
-          .run
-      case _ =>
-         ZIO
-           .succeed:
-             "Temperature: 35 degrees"
-           .run
-```
 
-```scala 3 mdoc:runzio
-import zio.*
-import zio.direct.*
-
-override val bootstrap = happyPath
-
-def run =
-  getTemperature
-```
-
-Running the ZIO version without handling any failure
-
-```scala 3 mdoc:runzio
-import zio.*
-import zio.direct.*
-
-override val bootstrap = networkError
-
-def run =
-  getTemperature
-```
 
 This is not a failure that we want to show the user.
 Instead, we want to handle all of our internal failure, and make sure that they result in a user-friendly failure message.
 
-{{ TODO: mdoc seems to have a bug and is not outputting the compiler warning }}
 
-```scala 3 mdoc:warn
-val bad =
-  getTemperature.catchAll:
-    case ex: NetworkException =>
-      ZIO.succeed:
-        "Network Unavailable"
-```
 
 ZIO distinguishes itself here by alerting us that we have not caught all possible failures.
 The compiler prevents us from executing non-exhaustive blocks inside a `catchAll`.
 
-```scala 3 mdoc:silent
-import zio.*
-import zio.direct.*
 
-val temperatureAppComplete =
-  getTemperature.catchAll:
-    case ex: NetworkException =>
-      ZIO.succeed:
-        "Network Unavailable"
-    case ex: GpsFail =>
-      ZIO.succeed:
-        "GPS Hardware Failure"
-```
-
-```scala 3 mdoc:runzio
-import zio.*
-import zio.direct.*
-
-override val bootstrap = gpsError
-
-def run =
-  temperatureAppComplete
-```
 
 Now that we have handled all of our failures, we know we are showing the user a sensible message.
 
 Further, this is tracked by the compiler, which will prevent us from invoking `.catchAll` again.
 
-```scala 3 mdoc:fail
-temperatureAppComplete.catchAll:
-  case ex: Exception =>
-    ZIO.succeed:
-      "This cannot happen"
-```
+
 
 The compiler also ensures that we only call the following methods on effects that can fail:
 
@@ -393,7 +559,7 @@ val displayTemperatureZWrapped =
     case ex: NetworkException =>
       ZIO.succeed:
         "Network Unavailable"
-    case ex: GpsFail =>
+    case ex: GpsException =>
       ZIO.succeed:
         "GPS problem"
 ```
@@ -412,7 +578,7 @@ def run =
 import zio.*
 import zio.direct.*
 
-override val bootstrap = networkError
+override val bootstrap = networkFailure
 
 def run =
   displayTemperatureZWrapped
@@ -425,7 +591,7 @@ Look at what happens if we forget to handle one of our failures.
 import zio.*
 import zio.direct.*
 
-override val bootstrap = gpsError
+override val bootstrap = gpsFailure
 
 def run =
   getTemperatureWrapped.catchAll:
@@ -443,7 +609,7 @@ We can provide a fallback case that will report anything we missed:
 import zio.*
 import zio.direct.*
 
-override val bootstrap = gpsError
+override val bootstrap = gpsFailure
 
 def run =
   getTemperatureWrapped.catchAll:
