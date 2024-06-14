@@ -731,10 +731,21 @@ def cleanupZioErrorOutput(raw: String) =
   val filtered =
     stripped
       .split("\n")
+    // TODO This might be safer to do after the lower Mdoc (case sensitive) replacement
       .filter(line => !line.contains("mdoc"))
-      .mkString("\n")
 
-  filtered
+  val lastLine  =
+      filtered
+        .last
+
+  val withoutTrailingBlankLine =
+    if (lastLine.isBlank)
+      filtered.init
+    else
+      filtered
+
+  withoutTrailingBlankLine
+    .mkString("\n")
     .replace(
       "error:\n\n\n──── ZLAYER ERROR ────────────────────────────────────────────────────",
       "──── ZLAYER ERROR ───────────"

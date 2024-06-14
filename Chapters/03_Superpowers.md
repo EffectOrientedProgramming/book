@@ -483,7 +483,7 @@ val programManipulatingBeforeRun =
     Console.printLine("Hello").run.repeatN(3)
 ```
 
-{{ TODO: remove error marker lines. }}
+{{TODO rm Blank lines at end! }}
 
 Note that these calls to `.run` are all within a `defer` block, so when `program` is defined, we still have not actually executed anything.
 We have described a program that knows the order in which to execute our individual effects _when the program is executed_.
