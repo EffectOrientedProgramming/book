@@ -39,7 +39,7 @@ In this case, a naive cache would cause each request to call the underlying slow
 Here is what that looks like:
 
 ```scala
-val thunderingHerdsScenario =
+val thunderingHerds =
   defer:
     val popularService =
       ZIO.service[PopularService].run
@@ -75,7 +75,7 @@ Suppose each request to our `CloudStorage` provider costs one dollar.
 
 ```scala
 def run =
-  thunderingHerdsScenario.provide(
+  thunderingHerds.provide(
     CloudStorage.live,
     ZLayer.fromZIO(makePopularService)
   )
@@ -120,7 +120,7 @@ Now we run the same scenario with the cache in place:
 
 ```scala
 def run =
-  thunderingHerdsScenario.provide(
+  thunderingHerds.provide(
     CloudStorage.live,
     ZLayer.fromZIO(makeCachedPopularService)
   )
@@ -252,11 +252,10 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(557)
-Current requests: List(568, 557)
-Current requests: List(180, 568, 557)
-Current requests: List(276, 180, 568, 557)
-Current requests: List(297, 276, 180, 568, 557)
+Current requests: List(599, 315)
+Current requests: List(315)
+Current requests: List(253, 599, 315)
+Current requests: List(541, 253, 599, 315)
 Result: Crashed the server!!
 ```
 
@@ -296,16 +295,16 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(193)
-Current requests: List(717, 193)
-Current requests: List(927, 717, 193)
-Current requests: List(965)
-Current requests: List(161, 965)
-Current requests: List(737, 161, 965)
-Current requests: List(222)
-Current requests: List(506, 222)
-Current requests: List(987, 506, 222)
-Current requests: List(29)
+Current requests: List(579)
+Current requests: List(884, 579)
+Current requests: List(886, 884, 579)
+Current requests: List(237)
+Current requests: List(308, 237)
+Current requests: List(945, 308, 237)
+Current requests: List(298)
+Current requests: List(211, 298)
+Current requests: List(798, 211, 298)
+Current requests: List(459)
 Result: All Requests Succeeded
 ```
 

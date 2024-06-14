@@ -62,7 +62,7 @@ There is a function that returns a Future:
 
 ```scala
 val future: Future[String] =
-  getHeadLine(???)
+  getHeadLine()
 ```
 
 TODO This is repetitive after listing the downsides above.
@@ -74,18 +74,20 @@ By wrapping this in `ZIO.from`, it will:
 - Give us the ability to customize the error type
 
 ```scala
-def getHeadlineZ(scenario: Scenario) =
+def getHeadlineZ() =
   ZIO
     .from:
-      getHeadLine(scenario)
+      getHeadLine()
     .mapError:
       case _: Throwable =>
-        Scenario.HeadlineNotAvailable
+        HeadlineNotAvailable
 ```
 
 ```scala
+override val bootstrap = stockMarketHeadline
+
 def run =
-  getHeadlineZ(Scenario.StockMarketHeadline)
+  getHeadlineZ()
 ```
 
 Output:
@@ -98,8 +100,10 @@ Result: stock market rising!
 Now let's confirm the behavior when the headline is not available.
 
 ```scala
+override val bootstrap = headlineNotAvailable
+
 def run =
-  getHeadlineZ(Scenario.HeadlineNotAvailable)
+  getHeadlineZ()
 ```
 
 Output:
@@ -134,7 +138,7 @@ def topicOfInterestZ(headline: String) =
       findTopicOfInterest:
         headline
     .orElseFail:
-      Scenario.NoInterestingTopic()
+      NoInterestingTopic()
 ```
 
 ```scala
@@ -172,7 +176,7 @@ We have an existing function `wikiArticle` that checks for articles on a topic:
 
 ```scala
 val wikiResult: Either[
-  Scenario.NoWikiArticleAvailable,
+  NoWikiArticleAvailable,
   String
 ] =
   wikiArticle("stock market")
@@ -321,7 +325,7 @@ def writeToFileZ(file: File, content: String) =
       file.write:
         content
     .mapError:
-      _ => Scenario.DiskFull()
+      _ => DiskFull()
 ```
 
 ```scala
@@ -350,6 +354,7 @@ val summary: String =
 
 ```scala
 case class NoSummaryAvailable(topic: String)
+
 def summaryForZ(
     file: File,
     // TODO Consider making a CloseableFileZ
@@ -407,7 +412,7 @@ def summarizeZ(article: String) =
     .onInterrupt:
       ZIO.debug("AI **INTERRUPTED**")
     .orDie // TODO Confirm we don't care about this case.
-    .timeoutFail(Scenario.AITooSlow())(50.millis)
+    .timeoutFail(AITooSlow())(50.millis)
 ```
 
 - We can't indicate if they block or not
@@ -462,10 +467,10 @@ The number of combinations is something like:
 Now that we have all of these well-defined effects, we can wield them in any combination and sequence we desire.
 
 ```scala
-def researchHeadline(scenario: Scenario) =
+def researchHeadline() =
   defer:
     val headline: String =
-      getHeadlineZ(scenario).run
+      getHeadlineZ().run
 
     val topic: String =
       topicOfInterestZ(headline).run
@@ -491,12 +496,11 @@ def researchHeadline(scenario: Scenario) =
       summary
 ```
 
-{{ TODO: Use bootstrap for Scenario }}
-
 ```scala
+override val bootstrap = headlineNotAvailable
+
 def run =
-  researchHeadline:
-    Scenario.HeadlineNotAvailable
+  researchHeadline()
 ```
 
 Output:
@@ -507,9 +511,10 @@ Result: HeadlineNotAvailable
 ```
 
 ```scala
+override val bootstrap = noInterestingTopic
+
 def run =
-  researchHeadline:
-    Scenario.NoInterestingTopic()
+  researchHeadline()
 ```
 
 Output:
@@ -521,9 +526,10 @@ Result: NoInterestingTopic()
 ```
 
 ```scala
+override val bootstrap = summaryReadThrows
+
 def run =
-  researchHeadline:
-    Scenario.SummaryReadThrows()
+  researchHeadline()
 ```
 
 Output:
@@ -539,9 +545,10 @@ Result: NoSummaryAvailable(unicode)
 ```
 
 ```scala
+override val bootstrap = noWikiArticleAvailable
+
 def run =
-  researchHeadline:
-    Scenario.NoWikiArticleAvailable()
+  researchHeadline()
 ```
 
 Output:
@@ -557,9 +564,10 @@ Result: NoWikiArticleAvailable()
 ```
 
 ```scala
+override val bootstrap = aiTooSlow
+
 def run =
-  researchHeadline:
-    Scenario.AITooSlow()
+  researchHeadline()
 ```
 
 Output:
@@ -570,19 +578,16 @@ Analytics - Scanning
 File - OPEN
 File - contains(space)
 Wiki - articleFor(space)
-AI - summarize - start
-printing because our test clock is insane
 AI **INTERRUPTED**
 File - CLOSE
 Result: AITooSlow()
 ```
 
 ```scala
+override val bootstrap = diskFull
+
 def run =
-  researchHeadline:
-    // TODO Handle inconsistency in this example
-    // AI keeps timing out
-    Scenario.DiskFull()
+  researchHeadline()
 ```
 
 Output:
@@ -595,17 +600,18 @@ File - contains(genome)
 Wiki - articleFor(genome)
 AI - summarize - start
 AI - summarize - end
-File - disk full!
+AI **INTERRUPTED**
 File - CLOSE
-Result: DiskFull()
+Result: AITooSlow()
 ```
 
 And finally, we see the longest, successful pathway through our application:
 
 ```scala
+override val bootstrap = stockMarketHeadline
+
 def run =
-  researchHeadline:
-    Scenario.StockMarketHeadline
+  researchHeadline()
 ```
 
 Output:
@@ -646,8 +652,8 @@ Not found: researchHeadling - did you mean researchHeadline?
   ^^^^^^^^^^^^^^^^
 error:
 Double definition:
-val summary: String in object MdocApp at line 246 and
-val summary: String in object MdocApp at line 281
+val summary: String in object MdocApp at line 271 and
+val summary: String in object MdocApp at line 306
 
 val summary: String =
     ^
@@ -667,8 +673,8 @@ Not found: researchHeadling - did you mean researchHeadline?
   ^^^^^^^^^^^^^^^^
 error:
 Double definition:
-val summary: String in object MdocApp at line 246 and
-val summary: String in object MdocApp at line 281
+val summary: String in object MdocApp at line 271 and
+val summary: String in object MdocApp at line 306
 
 val summary: String =
     ^

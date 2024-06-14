@@ -88,11 +88,8 @@ On the happy path, everything looks as desired.
 If the network is unavailable, what is the behavior for the caller?
 If we don't make any attempt to handle our problem, the whole program blows up and shows the gory details to the user.
 
-{{ TODO: Use bootstrap }}
-
 ```scala
-scenario =
-  FailureScenario.NetworkError
+override val bootstrap = networkError
 
 def run =
   ZIO.succeed:
@@ -124,8 +121,7 @@ def temperatureCatchingApp(): String =
 ```
 
 ```scala
-scenario =
-  FailureScenario.NetworkError
+override val bootstrap = networkError
 
 def run =
   ZIO.succeed:
@@ -156,8 +152,7 @@ def temperatureCatchingMoreApp(): String =
 ```
 
 ```scala
-scenario =
-  FailureScenario.NetworkError
+override val bootstrap = networkError
 
 def run =
   ZIO.succeed:
@@ -171,8 +166,7 @@ Result: Network Unavailable
 ```
 
 ```scala
-scenario =
-  FailureScenario.GPSError
+override val bootstrap = gpsError
 
 def run =
   ZIO.succeed:
@@ -203,8 +197,7 @@ ZIO enables more powerful, uniform failure-handling.
 
 
 ```scala
-override val bootstrap =
-  Scenario.happyPath
+override val bootstrap = happyPath
 
 def run =
   getTemperature
@@ -219,8 +212,7 @@ Result: Temperature: 35 degrees
 Running the ZIO version without handling any failure
 
 ```scala
-override val bootstrap =
-  Scenario.networkError
+override val bootstrap = networkError
 
 def run =
   getTemperature
@@ -265,8 +257,7 @@ val temperatureAppComplete =
 ```
 
 ```scala
-override val bootstrap =
-  Scenario.gpsError
+override val bootstrap = gpsError
 
 def run =
   temperatureAppComplete
@@ -335,8 +326,7 @@ val displayTemperatureZWrapped =
 ```
 
 ```scala
-scenario =
-  FailureScenario.HappyPath
+override val bootstrap = happyPath
 
 def run =
   displayTemperatureZWrapped
@@ -349,8 +339,7 @@ Result: 35 degrees
 ```
 
 ```scala
-scenario =
-  FailureScenario.NetworkError
+override val bootstrap = networkError
 
 def run =
   displayTemperatureZWrapped
@@ -366,8 +355,7 @@ This is decent, but does not provide the maximum possible guarantees.
 Look at what happens if we forget to handle one of our failures.
 
 ```scala
-scenario =
-  FailureScenario.GPSError
+override val bootstrap = gpsError
 
 def run =
   getTemperatureWrapped.catchAll:
@@ -388,8 +376,7 @@ Take extra care when interacting with legacy code
 We can provide a fallback case that will report anything we missed:
 
 ```scala
-scenario =
-  FailureScenario.GPSError
+override val bootstrap = gpsError
 
 def run =
   getTemperatureWrapped.catchAll:
