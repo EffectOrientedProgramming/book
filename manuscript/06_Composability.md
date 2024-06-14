@@ -600,7 +600,6 @@ File - contains(genome)
 Wiki - articleFor(genome)
 AI - summarize - start
 AI - summarize - end
-AI **INTERRUPTED**
 File - CLOSE
 Result: AITooSlow()
 ```
