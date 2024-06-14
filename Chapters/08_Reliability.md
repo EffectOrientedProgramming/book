@@ -782,7 +782,7 @@ def spottyLogic =
     ZIO.attempt{
       attempts = attempts + 1
     }.run
-    if (attempts > 1)
+    if (ZIO.attempt(attempts).run > 1)
       Random.nextIntBounded(3).run match
         case 0 => 
           Console.printLine("Success!").run
