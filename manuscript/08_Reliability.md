@@ -216,14 +216,14 @@ Output:
 
 ```shell
 Bill called API [took 0s]
-James called API [took 1s]
-Bruce called API [took 2s]
+Bruce called API [took 1s]
+James called API [took 2s]
 Bill called API [took 3s]
-James called API [took 3s]
 Bruce called API [took 3s]
+James called API [took 3s]
 Bill called API [took 3s]
-James called API [took 3s]
 Bruce called API [took 3s]
+James called API [took 3s]
 Total time [took 8s]
 ```
 
@@ -252,11 +252,10 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(183)
-Current requests: List(20, 183)
-Current requests: List(336, 20, 183)
-Current requests: List(217, 336, 20, 183)
-Current requests: List(523, 217, 336, 20, 183)
+Current requests: List(947)
+Current requests: List(12, 947)
+Current requests: List(733, 12, 947)
+Current requests: List(980, 733, 12, 947)
 Result: Crashed the server!!
 ```
 
@@ -296,16 +295,16 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(622, 599)
-Current requests: List(599)
-Current requests: List(829, 622, 599)
-Current requests: List(804)
-Current requests: List(530, 804)
-Current requests: List(948, 530, 804)
-Current requests: List(475)
-Current requests: List(303, 475)
-Current requests: List(794, 303, 475)
-Current requests: List(452)
+Current requests: List(999)
+Current requests: List(585, 999)
+Current requests: List(12, 585, 999)
+Current requests: List(766)
+Current requests: List(449, 766)
+Current requests: List(138, 449, 766)
+Current requests: List(920)
+Current requests: List(980, 920)
+Current requests: List(497, 980, 920)
+Current requests: List(227)
 Result: All Requests Succeeded
 ```
 
@@ -407,7 +406,7 @@ def run =
 Output:
 
 ```shell
-Result: Calls prevented: 74 Calls made: 67
+Result: Calls prevented: 75 Calls made: 66
 ```
 
 Now we see that our code prevented the majority of the doomed calls to the external service.
@@ -492,7 +491,7 @@ This helps you to identify tests that have completely locked up, or are taking a
 For example, if you are running your tests in a CI/CD pipeline, you want to ensure that your tests complete quickly, so that you can get feedback as soon as possible.
 you can use `TestAspect.timeout` to ensure that your tests complete within a certain time frame.
 
-```scala
+```
 //   supports deliberate test failures  
 import zio.test.*
 
@@ -547,8 +546,7 @@ Failed!
 Failed!
 Failed!
 Failed!
-Failed!
 Success!
 + long test
-Result: Summary(1,0,0,,PT0.016462S)
+Result: Summary(1,0,0,,PT0.022075S)
 ```
