@@ -96,7 +96,7 @@ import zio.direct.*
 
 import zio.*
 
-val thunderingHerdsScenario =
+val thunderingHerds =
   defer:
     val popularService =
       ZIO.service[PopularService].run
@@ -138,7 +138,7 @@ import zio.*
 import zio.direct.*
 
 def run =
-  thunderingHerdsScenario.provide(
+  thunderingHerds.provide(
     CloudStorage.live,
     ZLayer.fromZIO(makePopularService)
   )
@@ -183,7 +183,7 @@ import zio.*
 import zio.direct.*
 
 def run =
-  thunderingHerdsScenario.provide(
+  thunderingHerds.provide(
     CloudStorage.live,
     ZLayer.fromZIO(makeCachedPopularService)
   )
