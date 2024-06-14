@@ -4,8 +4,6 @@
 [Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/04_Configuration.md)
 
 
-{{ TODO: verify TOC correctly shows this chapter head }}
-
 Altering the behavior of your application based on values provided at runtime is a perennial challenge in software.
 The techniques for solving this problem are diverse, impressive, and often completely bewildering.
 
@@ -84,10 +82,6 @@ Dough is rising
 
 If the dependency for an Effect isn't provided, we get a compile error:
 
-TODO: Decide what to do about the compiler error differences between these approaches
-
-TODO: Can we avoid the `.provide()` and still get a good compile error in mdoc
-
 ```scala
 ZIO
   .serviceWithZIO[Dough]:
@@ -118,7 +112,6 @@ The requirements for each ZIO operation are tracked and combined automatically.
 ```scala
 case class Heat()
 
-// TODO Version of oven that turns off when finished?
 val oven =
   ZLayer.derive[Heat]
     .tap(_ => Console.printLine("Oven: Heated"))
@@ -271,8 +264,8 @@ It cannot decide if we should be making `Toast` in the oven, `Bread` in the toas
 
 ## Step 6: Can Disambiguate Dependencies When Needed
 
-TODO Consider: Instead of providing at different levels, show that using _introducing_ a more specific type is usually the better approach. 
-I think this will be a big improvement. We can keep everything nice and flat that way.
+If you find discover that your existing types produce ambiguous dependencies, introduce more specific types.
+In our case, we choose to distinguish our `Heat` sources, so that they are only used where they are intended.
 
 ```scala
 case class Toaster()
@@ -320,7 +313,6 @@ ToastZ: Made
 Toast: Eating
 ```
 
-Author Note: Hardcoded, because mdoc doesn't properly support the `ZLayer.Debug.tree` output.
 
 Output: 
 ```terminal
@@ -627,18 +619,18 @@ def run =
 Output:
 
 ```shell
-Tails
-Tails
-Tails
-Tails
+Heads
+Heads
 Tails
 Heads
 Heads
+Tails
 Heads
 Heads
+Tails
 Heads
-Num Heads = 5
-Result: 5
+Num Heads = 7
+Result: 7
 ```
 
 ```scala
@@ -670,7 +662,7 @@ Heads
 Heads
 Num Heads = 10
 + flips 10 times
-Result: Summary(1,0,0,,PT0.167141S)
+Result: Summary(1,0,0,,PT0.035915S)
 ```
 
 ```scala
@@ -738,7 +730,7 @@ G: ...probability
 Heads
 R: Heads
 + rosencrantzAndGuildensternAreDead finishes
-Result: Summary(1,0,0,,PT0.05283S)
+Result: Summary(1,0,0,,PT0.024741S)
 ```
 
 ```scala
@@ -757,18 +749,18 @@ Output:
 
 ```shell
 *Performance Begins*
+Heads
+R: Heads
 Tails
-<FAIL> R: Fail(Tails,Stack trace for thread "zio-fiber-100222311":
+<FAIL> R: Fail(Tails,Stack trace for thread "zio-fiber-1499560272":
 	at coinToss(<input>:440)
-	at rosencrantzCoinToss(<input>:509)
-	at rosencrantzAndGuildensternAreDead(<input>:514)
 ...
 R: Heads
 G: ...probability
 Heads
 R: Heads
 + flaky plan
-Result: Summary(1,0,0,,PT0.046046S)
+Result: Summary(1,0,0,,PT0.028868S)
 ```
 
 The `Random` Effect uses an injected something which when running the ZIO uses the system's unpredictable random number generator.  In ZIO Test the `Random` Effect uses a different something which can predictably generate "random" numbers.  `TestRandom` provides a way to define what those numbers are.  This example feeds in the `Int`s `1` and `2` so the first time we ask for a random number we get `1` and the second time we get `2`.
@@ -815,7 +807,7 @@ Output:
 ```shell
 Parsing CSV: ()
 + batch runs after 24 hours
-Result: Summary(1,0,0,,PT0.021532S)
+Result: Summary(1,0,0,,PT0.02255S)
 ```
 
 The `race` is between `nightlyBatch` and `timeTravel`.

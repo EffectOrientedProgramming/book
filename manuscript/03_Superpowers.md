@@ -244,7 +244,6 @@ Output:
 ```shell
 Log: **Database crashed!!**
 Log: **Database crashed!!**
-Log: **Database crashed!!**
 Result: Please manually provision Morty
 ```
 
@@ -303,7 +302,7 @@ Output:
 
 ```shell
 Log: Signup initiated for Morty
-Result: (PT5.031876746S,User saved)
+Result: (PT5.093405507S,User saved)
 ```
 
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.
@@ -396,11 +395,10 @@ Output:
 ```shell
 error:
 value repeatN is not a member of Unit
-class Chapter201 extends mdoctools.ToRun:
                                   ^
 ```
 
-{{ TODO: remove error marker lines }}
+{{TODO rm Blank lines at end! }}
 
 Note that these calls to `.run` are all within a `defer` block, so when `program` is defined, we still have not actually executed anything.
 We have described a program that knows the order in which to execute our individual effects _when the program is executed_.
@@ -434,25 +432,12 @@ world
 // TODO Decide where to put this
 val program =
   defer:
-    println("hi").run
     (1 + 1).run
 ```
 
 Output:
 
 ```shell
-error:
-value run is not a member of Unit.
-An extension method was tried, but could not be fully constructed:
-
-    run[R, E, A](println("hi"))
-
-    failed with:
-
-        Found:    Unit
-        Required: ZIO[Nothing, Any, Any]
-    println("hi").run
-    ^^^^^^^^^^^^^^^^^
 error:
 value run is not a member of Int.
 An extension method was tried, but could not be fully constructed:

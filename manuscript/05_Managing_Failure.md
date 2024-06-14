@@ -4,8 +4,6 @@
 [Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/05_Managing_Failure.md)
 
 
-{{ TODO: Replace error with failure }}
-
 Given that Effects encapsulate the unpredictable parts of a system,
 they must have a way to express failure.
 
@@ -34,7 +32,7 @@ It will look like this
 Temperature: 30 degrees
 ```
 
-There are 2 error situations we need to handle:
+There are 2 failure situations we need to handle:
 
 - Network call to weather service fails.
 - A fault in our GPS hardware
@@ -94,7 +92,7 @@ If we don't make any attempt to handle our problem, the whole program blows up a
 
 ```scala
 scenario =
-  ErrorsScenario.NetworkError
+  FailureScenario.NetworkError
 
 def run =
   ZIO.succeed:
@@ -127,7 +125,7 @@ def temperatureCatchingApp(): String =
 
 ```scala
 scenario =
-  ErrorsScenario.NetworkError
+  FailureScenario.NetworkError
 
 def run =
   ZIO.succeed:
@@ -159,7 +157,7 @@ def temperatureCatchingMoreApp(): String =
 
 ```scala
 scenario =
-  ErrorsScenario.NetworkError
+  FailureScenario.NetworkError
 
 def run =
   ZIO.succeed:
@@ -174,7 +172,7 @@ Result: Network Unavailable
 
 ```scala
 scenario =
-  ErrorsScenario.GPSError
+  FailureScenario.GPSError
 
 def run =
   ZIO.succeed:
@@ -188,7 +186,7 @@ Result: GPS Hardware Failure
 ```
 
 Wonderful!
-We have specific messages for all relevant error cases. However, this still suffers from downsides that become more painful as the codebase grows.
+We have specific messages for all relevant failure cases. However, this still suffers from downsides that become more painful as the codebase grows.
 
 - We do not know if `temperatureApp` can fail
 - Once we know it can fail, we must dig through the documentation or implementation to discover the different possibilities
@@ -196,12 +194,12 @@ We have specific messages for all relevant error cases. However, this still suff
    we are never sure that we have found all the failure paths in our application
 - It is difficult or impossible to retry an operation if it fails.
 
-Exceptions were a valiant attempt to produce a consistent error-reporting interface, and they are better than what came before.
+Exceptions were a valiant attempt to produce a consistent failure-reporting interface, and they are better than what came before.
 You just don't know what you're going to get when you use exceptions.
 
 ## Error Handling with ZIO
 
-ZIO enables more powerful, uniform error-handling.
+ZIO enables more powerful, uniform failure-handling.
 
 
 ```scala
@@ -218,7 +216,7 @@ Output:
 Result: Temperature: 35 degrees
 ```
 
-Running the ZIO version without handling any errors
+Running the ZIO version without handling any failure
 
 ```scala
 override val bootstrap =
@@ -234,10 +232,9 @@ Output:
 Result: repl.MdocSession$MdocApp$NetworkException
 ```
 
-This is not an error that we want to show the user.
-Instead, we want to handle all of our internal errors, and make sure that they result in a user-friendly error message.
+This is not a failure that we want to show the user.
+Instead, we want to handle all of our internal failure, and make sure that they result in a user-friendly failure message.
 
-{{ TODO: mdoc seems to have a bug and is not outputting the compiler warning }}
 
 ```scala
 val bad =
@@ -253,8 +250,8 @@ Output:
 
 ```
 
-ZIO distinguishes itself here by alerting us that we have not caught all possible errors.
-The compiler prevents us from executing non-exhaustive blocks inside of a `catchAll`.
+ZIO distinguishes itself here by alerting us that we have not caught all possible failures.
+The compiler prevents us from executing non-exhaustive blocks inside a `catchAll`.
 
 ```scala
 val temperatureAppComplete =
@@ -281,7 +278,7 @@ Output:
 Result: GPS Hardware Failure
 ```
 
-Now that we have handled all of our errors, we know we are showing the user a sensible message.
+Now that we have handled all of our failures, we know we are showing the user a sensible message.
 
 Further, this is tracked by the compiler, which will prevent us from invoking `.catchAll` again.
 
@@ -339,7 +336,7 @@ val displayTemperatureZWrapped =
 
 ```scala
 scenario =
-  ErrorsScenario.HappyPath
+  FailureScenario.HappyPath
 
 def run =
   displayTemperatureZWrapped
@@ -353,7 +350,7 @@ Result: 35 degrees
 
 ```scala
 scenario =
-  ErrorsScenario.NetworkError
+  FailureScenario.NetworkError
 
 def run =
   displayTemperatureZWrapped
@@ -366,11 +363,11 @@ Result: Network Unavailable
 ```
 
 This is decent, but does not provide the maximum possible guarantees.
-Look at what happens if we forget to handle one of our errors.
+Look at what happens if we forget to handle one of our failures.
 
 ```scala
 scenario =
-  ErrorsScenario.GPSError
+  FailureScenario.GPSError
 
 def run =
   getTemperatureWrapped.catchAll:
@@ -392,7 +389,7 @@ We can provide a fallback case that will report anything we missed:
 
 ```scala
 scenario =
-  ErrorsScenario.GPSError
+  FailureScenario.GPSError
 
 def run =
   getTemperatureWrapped.catchAll:
