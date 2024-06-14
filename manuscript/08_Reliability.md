@@ -215,15 +215,15 @@ def run =
 Output:
 
 ```shell
-Bill called API [took 0s]
+James called API [took 0s]
 Bruce called API [took 1s]
-James called API [took 2s]
-Bill called API [took 3s]
-Bruce called API [took 3s]
+Bill called API [took 2s]
 James called API [took 3s]
-Bill called API [took 3s]
 Bruce called API [took 3s]
+Bill called API [took 3s]
 James called API [took 3s]
+Bruce called API [took 3s]
+Bill called API [took 3s]
 Total time [took 8s]
 ```
 
@@ -252,12 +252,10 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(479)
-Current requests: List(562, 479)
-Current requests: List(977, 562, 479)
-Current requests: List(688, 977, 562, 479)
-Current requests: List(834, 688, 977, 562, 479)
-Current requests: List(93, 834, 688, 977, 562, 479)
+Current requests: List(118)
+Current requests: List(1, 118)
+Current requests: List(722, 1, 118)
+Current requests: List(109, 722, 1, 118)
 Result: Crashed the server!!
 ```
 
@@ -297,16 +295,16 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(589)
-Current requests: List(555, 589)
-Current requests: List(331, 555, 589)
-Current requests: List(719)
-Current requests: List(4, 719)
-Current requests: List(475, 4, 719)
-Current requests: List(805)
-Current requests: List(86, 805)
-Current requests: List(315, 86, 805)
-Current requests: List(797)
+Current requests: List(424, 462)
+Current requests: List(462)
+Current requests: List(415, 424, 462)
+Current requests: List(603)
+Current requests: List(519, 603)
+Current requests: List(233, 519, 603)
+Current requests: List(125)
+Current requests: List(854, 125)
+Current requests: List(388, 854, 125)
+Current requests: List(202)
 Result: All Requests Succeeded
 ```
 
@@ -408,7 +406,7 @@ def run =
 Output:
 
 ```shell
-Result: Calls prevented: 75 Calls made: 66
+Result: Calls prevented: 74 Calls made: 67
 ```
 
 Now we see that our code prevented the majority of the doomed calls to the external service.
@@ -466,8 +464,8 @@ def run =
 Output:
 
 ```shell
-Contract Breaches: 1
-Result: 1
+Contract Breaches: 0
+Result: 0
 ```
 
 ## Test Reliability
@@ -494,6 +492,7 @@ For example, if you are running your tests in a CI/CD pipeline, you want to ensu
 you can use `TestAspect.timeout` to ensure that your tests complete within a certain time frame.
 
 ```scala
+//   supports deliberate test failures  
 import zio.test.*
 
 def spec =
@@ -555,7 +554,8 @@ Output:
 ```shell
 Failed!
 Failed!
+Failed!
 Success!
 + long test
-Result: Summary(1,0,0,,PT0.020836S)
+Result: Summary(1,0,0,,PT0.016238S)
 ```

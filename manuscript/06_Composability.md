@@ -578,6 +578,8 @@ Analytics - Scanning
 File - OPEN
 File - contains(space)
 Wiki - articleFor(space)
+AI - summarize - start
+printing because our test clock is insane
 AI **INTERRUPTED**
 File - CLOSE
 Result: AITooSlow()
@@ -600,9 +602,9 @@ File - contains(genome)
 Wiki - articleFor(genome)
 AI - summarize - start
 AI - summarize - end
-AI **INTERRUPTED**
+File - disk full!
 File - CLOSE
-Result: AITooSlow()
+Result: DiskFull()
 ```
 
 And finally, we see the longest, successful pathway through our application:
