@@ -743,6 +743,18 @@ This helps you to identify tests that have completely locked up, or are taking a
 For example, if you are running your tests in a CI/CD pipeline, you want to ensure that your tests complete quickly, so that you can get feedback as soon as possible.
 you can use `TestAspect.timeout` to ensure that your tests complete within a certain time frame.
 
+```scala 3 mdoc:testzio
+import zio.test.*
+
+def spec =
+  test("long test"):
+    defer:
+      ZIO.sleep(1.hour).run
+      assertCompletes
+  @@ TestAspect.withLiveClock @@ 
+     TestAspect.timeout(1.second)
+```
+
 ### Flaky Tests
 
 {{ TODO: Code example }}
@@ -761,3 +773,39 @@ This can be caused by a number of factors:
   A team of engineers might be able to successfully run the entire test suite on their personal machines.
   However, the CI/CD system might not have enough resources to run the tests triggered by everyone pushing to the repository.
   Your tests might be occasionally failing due to timeouts or lack of memory.
+- 
+```scala 3 mdoc:invisible
+var attempts = 0
+
+def spottyLogic = 
+  defer:
+    ZIO.attempt{
+      attempts = attempts + 1
+    }.run
+    if (attempts > 1)
+      Random.nextIntBounded(3).run match
+        case 0 => 
+          Console.printLine("Success!").run
+          ZIO.succeed(1).run
+        case _ => 
+          Console.printLine("Failed!").run
+          ZIO.fail("Failed").run
+    else 
+      Console.printLine("Failed!").run
+      ZIO.fail("Failed").run
+```
+
+```scala 3 mdoc:testzio
+import zio.test.*
+
+def spec =
+  test("long test"):
+    defer:
+      // TODO More predictably random, 
+      //   eg make sure it fails _at least_ x 
+      //   times before succeeding
+      spottyLogic.run
+      assertCompletes
+  @@ TestAspect.withLiveRandom @@ 
+     TestAspect.flaky
+```

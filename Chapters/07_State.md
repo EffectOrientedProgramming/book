@@ -97,7 +97,6 @@ def run =
 Now we can say with full confidence that our final count is 100000.
 Additionally, these updates happen _without blocking_.
 This is achieved through a strategy called "Compare & Swap", which we will not cover in detail.
-_TODO Link/reference supplemental reading_
 
 ## Unreliable Effects
 
@@ -161,7 +160,6 @@ Previously, we were losing updates because of unsafe mutability.
 Now, we have the opposite problem!
 We are sending far more alerts than intended, even though we can see that our final count is 4.
 
-_TODO This section will need significant attention and polish_
 Now we must consider the limitations of the "Compare & Swap" system.
 It achieves lock-free performance by letting each fiber freely make their updates, and then doing a last-second check to see if the underlying value changed during its update.
 If the value has not changed, the update is made.
