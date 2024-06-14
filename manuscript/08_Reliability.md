@@ -215,15 +215,15 @@ def run =
 Output:
 
 ```shell
-James called API [took 0s]
-Bruce called API [took 1s]
-Bill called API [took 2s]
-James called API [took 3s]
-Bruce called API [took 3s]
+Bill called API [took 0s]
+James called API [took 1s]
+Bruce called API [took 2s]
 Bill called API [took 3s]
 James called API [took 3s]
 Bruce called API [took 3s]
 Bill called API [took 3s]
+James called API [took 3s]
+Bruce called API [took 3s]
 Total time [took 8s]
 ```
 
@@ -252,10 +252,11 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(118)
-Current requests: List(1, 118)
-Current requests: List(722, 1, 118)
-Current requests: List(109, 722, 1, 118)
+Current requests: List(183)
+Current requests: List(20, 183)
+Current requests: List(336, 20, 183)
+Current requests: List(217, 336, 20, 183)
+Current requests: List(523, 217, 336, 20, 183)
 Result: Crashed the server!!
 ```
 
@@ -295,16 +296,16 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(424, 462)
-Current requests: List(462)
-Current requests: List(415, 424, 462)
-Current requests: List(603)
-Current requests: List(519, 603)
-Current requests: List(233, 519, 603)
-Current requests: List(125)
-Current requests: List(854, 125)
-Current requests: List(388, 854, 125)
-Current requests: List(202)
+Current requests: List(622, 599)
+Current requests: List(599)
+Current requests: List(829, 622, 599)
+Current requests: List(804)
+Current requests: List(530, 804)
+Current requests: List(948, 530, 804)
+Current requests: List(475)
+Current requests: List(303, 475)
+Current requests: List(794, 303, 475)
+Current requests: List(452)
 Result: All Requests Succeeded
 ```
 
@@ -504,16 +505,6 @@ def spec =
      TestAspect.timeout(1.second)
 ```
 
-Output:
-
-```shell
-- long test
-Timeout of 1 s exceeded.
-Result: 
-- long test
-Timeout of 1 s ex
-```
-
 ### Flaky Tests
 
 {{ TODO: Code example }}
@@ -555,7 +546,9 @@ Output:
 Failed!
 Failed!
 Failed!
+Failed!
+Failed!
 Success!
 + long test
-Result: Summary(1,0,0,,PT0.016238S)
+Result: Summary(1,0,0,,PT0.016462S)
 ```
