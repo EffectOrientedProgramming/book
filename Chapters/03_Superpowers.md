@@ -514,7 +514,6 @@ def run =
 // TODO Decide where to put this
 val program =
   defer:
-    println("hi").run
     (1 + 1).run
 ```
 

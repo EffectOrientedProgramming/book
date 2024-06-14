@@ -1,7 +1,5 @@
 # Managing Failure
 
-{{ TODO: Replace error with failure }}
-
 Given that Effects encapsulate the unpredictable parts of a system,
 they must have a way to express failure.
 
@@ -30,7 +28,7 @@ It will look like this
 Temperature: 30 degrees
 ```
 
-There are 2 error situations we need to handle:
+There are 2 failure situations we need to handle:
 
 - Network call to weather service fails.
 - A fault in our GPS hardware
@@ -43,7 +41,7 @@ We want our program to always result in a sensible message to the user.
 import zio.*
 import zio.direct.*
 
-enum ErrorsScenario:
+enum FailureScenario:
   case HappyPath,
     NetworkError,
     GPSError
@@ -52,16 +50,16 @@ class GpsFail          extends Exception
 class NetworkException extends Exception
 
 var scenario =
-  ErrorsScenario.HappyPath
+  FailureScenario.HappyPath
 
-val errorScenarioConfig
-    : Config[Option[ErrorsScenario]] =
-  Config.Optional[ErrorsScenario](
+val failureScenarioConfig
+    : Config[Option[FailureScenario]] =
+  Config.Optional[FailureScenario](
     Config.fail("no default scenario")
   )
 
 class ErrorsStaticConfigProvider(
-    scenario: ErrorsScenario
+    scenario: FailureScenario
 ) extends ConfigProvider:
   override def load[A](config: Config[A])(
       implicit trace: Trace
@@ -73,21 +71,21 @@ object Scenario:
   val happyPath =
     Runtime.setConfigProvider(
       ErrorsStaticConfigProvider(
-        ErrorsScenario.HappyPath
+        FailureScenario.HappyPath
       )
     )
 
   val networkError =
     Runtime.setConfigProvider(
       ErrorsStaticConfigProvider(
-        ErrorsScenario.NetworkError
+        FailureScenario.NetworkError
       )
     )
 
   val gpsError =
     Runtime.setConfigProvider(
       ErrorsStaticConfigProvider(
-        ErrorsScenario.GPSError
+        FailureScenario.GPSError
       )
     )
 
@@ -95,11 +93,11 @@ object Scenario:
 // This would also makes the exceptions more surprising
 def getTemperatureOrThrow(): String =
   scenario match
-    case ErrorsScenario.GPSError =>
+    case FailureScenario.GPSError =>
       throw GpsFail()
-    case ErrorsScenario.NetworkError =>
+    case FailureScenario.NetworkError =>
       throw NetworkException()
-    case ErrorsScenario.HappyPath =>
+    case FailureScenario.HappyPath =>
       "35 degrees"
 ```
 
@@ -159,7 +157,7 @@ import zio.*
 import zio.direct.*
 
 scenario =
-  ErrorsScenario.NetworkError
+  FailureScenario.NetworkError
 
 def run =
   ZIO.succeed:
@@ -192,7 +190,7 @@ import zio.*
 import zio.direct.*
 
 scenario =
-  ErrorsScenario.NetworkError
+  FailureScenario.NetworkError
 
 def run =
   ZIO.succeed:
@@ -224,7 +222,7 @@ import zio.*
 import zio.direct.*
 
 scenario =
-  ErrorsScenario.NetworkError
+  FailureScenario.NetworkError
 
 def run =
   ZIO.succeed:
@@ -236,7 +234,7 @@ import zio.*
 import zio.direct.*
 
 scenario =
-  ErrorsScenario.GPSError
+  FailureScenario.GPSError
 
 def run =
   ZIO.succeed:
@@ -244,7 +242,7 @@ def run =
 ```
 
 Wonderful!
-We have specific messages for all relevant error cases. However, this still suffers from downsides that become more painful as the codebase grows.
+We have specific messages for all relevant failure cases. However, this still suffers from downsides that become more painful as the codebase grows.
 
 - We do not know if `temperatureApp` can fail
 - Once we know it can fail, we must dig through the documentation or implementation to discover the different possibilities
@@ -252,12 +250,12 @@ We have specific messages for all relevant error cases. However, this still suff
    we are never sure that we have found all the failure paths in our application
 - It is difficult or impossible to retry an operation if it fails.
 
-Exceptions were a valiant attempt to produce a consistent error-reporting interface, and they are better than what came before.
+Exceptions were a valiant attempt to produce a consistent failure-reporting interface, and they are better than what came before.
 You just don't know what you're going to get when you use exceptions.
 
 ## Error Handling with ZIO
 
-ZIO enables more powerful, uniform error-handling.
+ZIO enables more powerful, uniform failure-handling.
 
 ```scala 3 mdoc:invisible
 import zio.*
@@ -272,21 +270,21 @@ val getTemperature: ZIO[
 ] =
   defer:
     val maybeScenario =
-      ZIO.config(errorScenarioConfig).orDie.run
+      ZIO.config(failureScenarioConfig).orDie.run
     maybeScenario
-      .getOrElse(ErrorsScenario.HappyPath) match
-      case ErrorsScenario.GPSError =>
+      .getOrElse(FailureScenario.HappyPath) match
+      case FailureScenario.GPSError =>
         ZIO
           .fail:
             GpsFail()
           .run
-      case ErrorsScenario.NetworkError =>
-        // TODO Use a non-exceptional error
+      case FailureScenario.NetworkError =>
+        // TODO Use a non-exceptional failure
         ZIO
           .fail:
             NetworkException()
           .run
-      case ErrorsScenario.HappyPath =>
+      case FailureScenario.HappyPath =>
         ZIO
           .succeed:
             "Temperature: 35 degrees"
@@ -304,7 +302,7 @@ def run =
   getTemperature
 ```
 
-Running the ZIO version without handling any errors
+Running the ZIO version without handling any failure
 
 ```scala 3 mdoc:runzio
 import zio.*
@@ -317,8 +315,8 @@ def run =
   getTemperature
 ```
 
-This is not an error that we want to show the user.
-Instead, we want to handle all of our internal errors, and make sure that they result in a user-friendly error message.
+This is not a failure that we want to show the user.
+Instead, we want to handle all of our internal failure, and make sure that they result in a user-friendly failure message.
 
 {{ TODO: mdoc seems to have a bug and is not outputting the compiler warning }}
 
@@ -330,8 +328,8 @@ val bad =
         "Network Unavailable"
 ```
 
-ZIO distinguishes itself here by alerting us that we have not caught all possible errors.
-The compiler prevents us from executing non-exhaustive blocks inside of a `catchAll`.
+ZIO distinguishes itself here by alerting us that we have not caught all possible failures.
+The compiler prevents us from executing non-exhaustive blocks inside a `catchAll`.
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -358,7 +356,7 @@ def run =
   temperatureAppComplete
 ```
 
-Now that we have handled all of our errors, we know we are showing the user a sensible message.
+Now that we have handled all of our failures, we know we are showing the user a sensible message.
 
 Further, this is tracked by the compiler, which will prevent us from invoking `.catchAll` again.
 
@@ -413,7 +411,7 @@ import zio.*
 import zio.direct.*
 
 scenario =
-  ErrorsScenario.HappyPath
+  FailureScenario.HappyPath
 
 def run =
   displayTemperatureZWrapped
@@ -424,21 +422,21 @@ import zio.*
 import zio.direct.*
 
 scenario =
-  ErrorsScenario.NetworkError
+  FailureScenario.NetworkError
 
 def run =
   displayTemperatureZWrapped
 ```
 
 This is decent, but does not provide the maximum possible guarantees.
-Look at what happens if we forget to handle one of our errors.
+Look at what happens if we forget to handle one of our failures.
 
 ```scala 3 mdoc:runzio
 import zio.*
 import zio.direct.*
 
 scenario =
-  ErrorsScenario.GPSError
+  FailureScenario.GPSError
 
 def run =
   getTemperatureWrapped.catchAll:
@@ -457,7 +455,7 @@ import zio.*
 import zio.direct.*
 
 scenario =
-  ErrorsScenario.GPSError
+  FailureScenario.GPSError
 
 def run =
   getTemperatureWrapped.catchAll:

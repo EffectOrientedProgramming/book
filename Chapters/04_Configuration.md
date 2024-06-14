@@ -1,7 +1,5 @@
 # Configuration
 
-{{ TODO: verify TOC correctly shows this chapter head }}
-
 Altering the behavior of your application based on values provided at runtime is a perennial challenge in software.
 The techniques for solving this problem are diverse, impressive, and often completely bewildering.
 
@@ -79,10 +77,6 @@ def run =
 
 If the dependency for an Effect isn't provided, we get a compile error:
 
-TODO: Decide what to do about the compiler error differences between these approaches
-
-TODO: Can we avoid the `.provide()` and still get a good compile error in mdoc
-
 ```scala 3 mdoc:fail
 ZIO
   .serviceWithZIO[Dough]:
@@ -100,7 +94,6 @@ import zio.direct.*
 
 case class Heat()
 
-// TODO Version of oven that turns off when finished?
 val oven =
   ZLayer.derive[Heat]
     .tap(_ => Console.printLine("Oven: Heated"))
@@ -225,8 +218,8 @@ It cannot decide if we should be making `Toast` in the oven, `Bread` in the toas
 
 ## Step 6: Can Disambiguate Dependencies When Needed
 
-TODO Consider: Instead of providing at different levels, show that using _introducing_ a more specific type is usually the better approach. 
-I think this will be a big improvement. We can keep everything nice and flat that way.
+If you find discover that your existing types produce ambiguous dependencies, introduce more specific types.
+In our case, we choose to distinguish our `Heat` sources, so that they are only used where they are intended.
 
 ```scala 3 mdoc:silent
 import zio.*
