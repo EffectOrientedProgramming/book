@@ -41,7 +41,7 @@ We want our program to always result in a sensible message to the user.
 import zio.*
 import zio.direct.*
 
-enum FailureScenario:
+enum Scenario:
   case HappyPath,
     NetworkError,
     GPSError
@@ -49,55 +49,57 @@ enum FailureScenario:
 class GpsFail          extends Exception
 class NetworkException extends Exception
 
-var scenario =
-  FailureScenario.HappyPath
-
-val failureScenarioConfig
-    : Config[Option[FailureScenario]] =
-  Config.Optional[FailureScenario](
+val scenarioConfig
+    : Config[Option[Scenario]] =
+  Config.Optional[Scenario](
     Config.fail("no default scenario")
   )
 
 class ErrorsStaticConfigProvider(
-    scenario: FailureScenario
+    scenario: Scenario
 ) extends ConfigProvider:
   override def load[A](config: Config[A])(
       implicit trace: Trace
   ): IO[Config.Error, A] =
     ZIO.succeed(Some(scenario).asInstanceOf[A])
 
-object Scenario:
+var scenarioForNonZio: Option[Scenario] = None
 
-  val happyPath =
-    Runtime.setConfigProvider(
-      ErrorsStaticConfigProvider(
-        FailureScenario.HappyPath
-      )
+def happyPath =
+  scenarioForNonZio = Some(Scenario.HappyPath)
+
+  Runtime.setConfigProvider(
+    ErrorsStaticConfigProvider(
+      Scenario.HappyPath
     )
+  )
 
-  val networkError =
-    Runtime.setConfigProvider(
-      ErrorsStaticConfigProvider(
-        FailureScenario.NetworkError
-      )
+def networkError =
+  scenarioForNonZio = Some(Scenario.NetworkError)
+
+  Runtime.setConfigProvider(
+    ErrorsStaticConfigProvider(
+      Scenario.NetworkError
     )
+  )
 
-  val gpsError =
-    Runtime.setConfigProvider(
-      ErrorsStaticConfigProvider(
-        FailureScenario.GPSError
-      )
+def gpsError =
+  scenarioForNonZio = Some(Scenario.GPSError)
+
+  Runtime.setConfigProvider(
+    ErrorsStaticConfigProvider(
+      Scenario.GPSError
     )
+  )
 
-// TODO Hide definition? Then we won't see the internals of the scenario stuff.
-// This would also makes the exceptions more surprising
+// since this function isn't a ZIO, it has to get the scenario from a var which is set when the bootstrap is set
 def getTemperatureOrThrow(): String =
-  scenario match
-    case FailureScenario.GPSError =>
+  scenarioForNonZio match
+    case Some(Scenario.GPSError) =>
       throw GpsFail()
-    case FailureScenario.NetworkError =>
+    case Some(Scenario.NetworkError) =>
       throw NetworkException()
-    case FailureScenario.HappyPath =>
+    case _ =>
       "35 degrees"
 ```
 
@@ -150,14 +152,11 @@ On the happy path, everything looks as desired.
 If the network is unavailable, what is the behavior for the caller?
 If we don't make any attempt to handle our problem, the whole program blows up and shows the gory details to the user.
 
-{{ TODO: Use bootstrap }}
-
 ```scala 3 mdoc:runzio
 import zio.*
 import zio.direct.*
 
-scenario =
-  FailureScenario.NetworkError
+override val bootstrap = networkError
 
 def run =
   ZIO.succeed:
@@ -189,8 +188,7 @@ def temperatureCatchingApp(): String =
 import zio.*
 import zio.direct.*
 
-scenario =
-  FailureScenario.NetworkError
+override val bootstrap = networkError
 
 def run =
   ZIO.succeed:
@@ -221,8 +219,7 @@ def temperatureCatchingMoreApp(): String =
 import zio.*
 import zio.direct.*
 
-scenario =
-  FailureScenario.NetworkError
+override val bootstrap = networkError
 
 def run =
   ZIO.succeed:
@@ -233,8 +230,7 @@ def run =
 import zio.*
 import zio.direct.*
 
-scenario =
-  FailureScenario.GPSError
+override val bootstrap = gpsError
 
 def run =
   ZIO.succeed:
@@ -270,33 +266,31 @@ val getTemperature: ZIO[
 ] =
   defer:
     val maybeScenario =
-      ZIO.config(failureScenarioConfig).orDie.run
-    maybeScenario
-      .getOrElse(FailureScenario.HappyPath) match
-      case FailureScenario.GPSError =>
+      ZIO.config(scenarioConfig).orDie.run
+      
+    maybeScenario match
+      case Some(Scenario.GPSError) =>
         ZIO
           .fail:
             GpsFail()
           .run
-      case FailureScenario.NetworkError =>
-        // TODO Use a non-exceptional failure
+      case Some(Scenario.NetworkError) =>
         ZIO
           .fail:
             NetworkException()
           .run
-      case FailureScenario.HappyPath =>
-        ZIO
-          .succeed:
-            "Temperature: 35 degrees"
-          .run
+      case _ =>
+         ZIO
+           .succeed:
+             "Temperature: 35 degrees"
+           .run
 ```
 
 ```scala 3 mdoc:runzio
 import zio.*
 import zio.direct.*
 
-override val bootstrap =
-  Scenario.happyPath
+override val bootstrap = happyPath
 
 def run =
   getTemperature
@@ -308,8 +302,7 @@ Running the ZIO version without handling any failure
 import zio.*
 import zio.direct.*
 
-override val bootstrap =
-  Scenario.networkError
+override val bootstrap = networkError
 
 def run =
   getTemperature
@@ -349,8 +342,7 @@ val temperatureAppComplete =
 import zio.*
 import zio.direct.*
 
-override val bootstrap =
-  Scenario.gpsError
+override val bootstrap = gpsError
 
 def run =
   temperatureAppComplete
@@ -410,8 +402,7 @@ val displayTemperatureZWrapped =
 import zio.*
 import zio.direct.*
 
-scenario =
-  FailureScenario.HappyPath
+override val bootstrap = happyPath
 
 def run =
   displayTemperatureZWrapped
@@ -421,8 +412,7 @@ def run =
 import zio.*
 import zio.direct.*
 
-scenario =
-  FailureScenario.NetworkError
+override val bootstrap = networkError
 
 def run =
   displayTemperatureZWrapped
@@ -435,8 +425,7 @@ Look at what happens if we forget to handle one of our failures.
 import zio.*
 import zio.direct.*
 
-scenario =
-  FailureScenario.GPSError
+override val bootstrap = gpsError
 
 def run =
   getTemperatureWrapped.catchAll:
@@ -454,8 +443,7 @@ We can provide a fallback case that will report anything we missed:
 import zio.*
 import zio.direct.*
 
-scenario =
-  FailureScenario.GPSError
+override val bootstrap = gpsError
 
 def run =
   getTemperatureWrapped.catchAll:
