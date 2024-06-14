@@ -728,7 +728,13 @@ def cleanupZioErrorOutput(raw: String) =
 //    else
     raw
 
-  stripped
+  val filtered =
+    stripped
+      .split("\n")
+      .filter(line => !line.contains("mdoc"))
+      .mkString("\n")
+
+  filtered
     .replace(
       "error:\n\n\n──── ZLAYER ERROR ────────────────────────────────────────────────────",
       "──── ZLAYER ERROR ───────────"
