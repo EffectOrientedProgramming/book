@@ -217,13 +217,13 @@ Output:
 ```shell
 Bill called API [took 0s]
 Bruce called API [took 1s]
+Bill called API [took 2s]
 James called API [took 2s]
-Bill called API [took 3s]
 Bruce called API [took 3s]
-James called API [took 3s]
 Bill called API [took 3s]
-Bruce called API [took 3s]
 James called API [took 3s]
+Bruce called API [took 3s]
+James called API [took 2s]
 Total time [took 8s]
 ```
 
@@ -252,10 +252,10 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(947)
-Current requests: List(12, 947)
-Current requests: List(733, 12, 947)
-Current requests: List(980, 733, 12, 947)
+Current requests: List(602)
+Current requests: List(160, 602)
+Current requests: List(120, 160, 602)
+Current requests: List(987, 120, 160, 602)
 Result: Crashed the server!!
 ```
 
@@ -295,16 +295,16 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(999)
-Current requests: List(585, 999)
-Current requests: List(12, 585, 999)
-Current requests: List(766)
-Current requests: List(449, 766)
-Current requests: List(138, 449, 766)
-Current requests: List(920)
-Current requests: List(980, 920)
-Current requests: List(497, 980, 920)
-Current requests: List(227)
+Current requests: List(342)
+Current requests: List(69, 342)
+Current requests: List(2, 69, 342)
+Current requests: List(363)
+Current requests: List(180, 363)
+Current requests: List(902, 180, 363)
+Current requests: List(655)
+Current requests: List(19, 655)
+Current requests: List(543, 19, 655)
+Current requests: List(264)
 Result: All Requests Succeeded
 ```
 
@@ -406,7 +406,7 @@ def run =
 Output:
 
 ```shell
-Result: Calls prevented: 75 Calls made: 66
+Result: Calls prevented: 74 Calls made: 67
 ```
 
 Now we see that our code prevented the majority of the doomed calls to the external service.
@@ -544,9 +544,7 @@ Output:
 ```shell
 Failed!
 Failed!
-Failed!
-Failed!
 Success!
 + long test
-Result: Summary(1,0,0,,PT0.022075S)
+Result: Summary(1,0,0,,PT0.018239S)
 ```

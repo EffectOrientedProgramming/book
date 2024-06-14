@@ -209,7 +209,7 @@ def run =
 Output:
 
 ```shell
-Result: User saved
+Result: *** Save timed out ***
 ```
 
 The Effect took too long and produced the error.
@@ -241,6 +241,8 @@ def run =
 Output:
 
 ```shell
+Log: **Database crashed!!**
+Log: **Database crashed!!**
 Log: **Database crashed!!**
 Result: Please manually provision Morty
 ```
@@ -300,7 +302,7 @@ Output:
 
 ```shell
 Log: Signup initiated for Morty
-Result: (PT0.01756109S,User saved)
+Result: (PT0.031836326S,User saved)
 ```
 
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.
