@@ -744,6 +744,8 @@ For example, if you are running your tests in a CI/CD pipeline, you want to ensu
 you can use `TestAspect.timeout` to ensure that your tests complete within a certain time frame.
 
 ```scala 3 mdoc:testzio
+// TODO Re-enable once our mdoc tooling 
+//   supports deliberate test failures  
 import zio.test.*
 
 def spec =
