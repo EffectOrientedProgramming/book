@@ -41,6 +41,40 @@ enum Scenario: // TODO Could these instances _also_ be the error types??
   case AITooSlow()
   case SummaryReadThrows()
   case DiskFull()
+
+import Scenario.*
+
+// the scenario is used from non-ZIO code, so we don't use the config / bootstrap approach to passing it.
+// but we do still use bootstrap to set the scenario, just for consistency with how the scenario is set in other chapters
+var scenario: Scenario = StockMarketHeadline
+
+def stockMarketHeadline =
+  scenario = StockMarketHeadline
+  ZLayer.empty
+
+def headlineNotAvailable =
+  scenario = HeadlineNotAvailable
+  ZLayer.empty
+
+def noInterestingTopic =
+  scenario = NoInterestingTopic()
+  ZLayer.empty
+
+def summaryReadThrows =
+  scenario = SummaryReadThrows()
+  ZLayer.empty
+
+def noWikiArticleAvailable =
+  scenario = NoWikiArticleAvailable()
+  ZLayer.empty
+
+def aiTooSlow =
+  scenario = AITooSlow()
+  ZLayer.empty
+
+def diskFull =
+  scenario = DiskFull()
+  ZLayer.empty
 ```
 
 ZIOs compose in a way that covers all of these concerns.
@@ -64,9 +98,7 @@ import zio.direct.*
 import scala.concurrent.Future
 // TODO If we make this function accept the "mock" result and return that, then
 //  we can leverage that to hit all of the possible paths in AllTheThings.
-def getHeadLine(
-    scenario: Scenario
-): Future[String] =
+def getHeadLine(): Future[String] =
   println("Network - Getting headline")
   scenario match
     case Scenario.HeadlineNotAvailable =>
@@ -142,7 +174,7 @@ import zio.*
 import zio.direct.*
 
 val future: Future[String] =
-  getHeadLine(???)
+  getHeadLine()
 ```
 
 TODO This is repetitive after listing the downsides above.
@@ -157,21 +189,23 @@ By wrapping this in `ZIO.from`, it will:
 import zio.*
 import zio.direct.*
 
-def getHeadlineZ(scenario: Scenario) =
+def getHeadlineZ() =
   ZIO
     .from:
-      getHeadLine(scenario)
+      getHeadLine()
     .mapError:
       case _: Throwable =>
-        Scenario.HeadlineNotAvailable
+        HeadlineNotAvailable
 ```
 
 ```scala 3 mdoc:runzio
 import zio.*
 import zio.direct.*
 
+override val bootstrap = stockMarketHeadline
+
 def run =
-  getHeadlineZ(Scenario.StockMarketHeadline)
+  getHeadlineZ()
 ```
 
 Now let's confirm the behavior when the headline is not available.
@@ -180,8 +214,10 @@ Now let's confirm the behavior when the headline is not available.
 import zio.*
 import zio.direct.*
 
+override val bootstrap = headlineNotAvailable
+
 def run =
-  getHeadlineZ(Scenario.HeadlineNotAvailable)
+  getHeadlineZ()
 ```
 
 ## Option
@@ -215,7 +251,7 @@ def topicOfInterestZ(headline: String) =
       findTopicOfInterest:
         headline
     .orElseFail:
-      Scenario.NoInterestingTopic()
+      NoInterestingTopic()
 ```
 
 ```scala 3 mdoc:runzio
@@ -248,7 +284,7 @@ import zio.*
 import zio.direct.*
 
 val wikiResult: Either[
-  Scenario.NoWikiArticleAvailable,
+  NoWikiArticleAvailable,
   String
 ] =
   wikiArticle("stock market")
@@ -474,7 +510,7 @@ def writeToFileZ(file: File, content: String) =
       file.write:
         content
     .mapError:
-      _ => Scenario.DiskFull()
+      _ => DiskFull()
 ```
 
 ```scala 3 mdoc:runzio
@@ -503,6 +539,7 @@ import zio.*
 import zio.direct.*
 
 case class NoSummaryAvailable(topic: String)
+
 def summaryForZ(
     file: File,
     // TODO Consider making a CloseableFileZ
@@ -585,7 +622,7 @@ def summarizeZ(article: String) =
     .onInterrupt:
       ZIO.debug("AI **INTERRUPTED**")
     .orDie // TODO Confirm we don't care about this case.
-    .timeoutFail(Scenario.AITooSlow())(50.millis)
+    .timeoutFail(AITooSlow())(50.millis)
 ```
 
 - We can't indicate if they block or not
@@ -652,10 +689,10 @@ Now that we have all of these well-defined effects, we can wield them in any com
 import zio.*
 import zio.direct.*
 
-def researchHeadline(scenario: Scenario) =
+def researchHeadline() =
   defer:
     val headline: String =
-      getHeadlineZ(scenario).run
+      getHeadlineZ().run
 
     val topic: String =
       topicOfInterestZ(headline).run
@@ -681,62 +718,64 @@ def researchHeadline(scenario: Scenario) =
       summary
 ```
 
-{{ TODO: Use bootstrap for Scenario }}
-
 ```scala 3 mdoc:runzio
 import zio.*
 import zio.direct.*
 
+override val bootstrap = headlineNotAvailable
+
 def run =
-  researchHeadline:
-    Scenario.HeadlineNotAvailable
+  researchHeadline()
 ```
 
 ```scala 3 mdoc:runzio
 import zio.*
 import zio.direct.*
 
+override val bootstrap = noInterestingTopic
+
 def run =
-  researchHeadline:
-    Scenario.NoInterestingTopic()
+  researchHeadline()
 ```
 
 ```scala 3 mdoc:runzio
 import zio.*
 import zio.direct.*
 
+override val bootstrap = summaryReadThrows
+
 def run =
-  researchHeadline:
-    Scenario.SummaryReadThrows()
+  researchHeadline()
 ```
 
 ```scala 3 mdoc:runzio
 import zio.*
 import zio.direct.*
 
+override val bootstrap = noWikiArticleAvailable
+
 def run =
-  researchHeadline:
-    Scenario.NoWikiArticleAvailable()
+  researchHeadline()
 ```
 
 ```scala 3 mdoc:runzio
 import zio.*
 import zio.direct.*
 
+override val bootstrap = aiTooSlow
+
 def run =
-  researchHeadline:
-    Scenario.AITooSlow()
+  researchHeadline()
 ```
 
 ```scala 3 mdoc:runzio
 import zio.*
 import zio.direct.*
 
+override val bootstrap = diskFull
+
 def run =
-  researchHeadline:
-    // TODO Handle inconsistency in this example
-    // AI keeps timing out
-    Scenario.DiskFull()
+  researchHeadline()
 ```
 
 And finally, we see the longest, successful pathway through our application:
@@ -745,9 +784,10 @@ And finally, we see the longest, successful pathway through our application:
 import zio.*
 import zio.direct.*
 
+override val bootstrap = stockMarketHeadline
+
 def run =
-  researchHeadline:
-    Scenario.StockMarketHeadline
+  researchHeadline()
 ```
 
 ## Effects are Values
