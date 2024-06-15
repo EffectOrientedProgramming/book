@@ -390,7 +390,7 @@ TODO Prose about the long-running AI process here
 
 ```scala
 // TODO Can we use silent instead of compile-only above?
-val summary: String =
+val summaryTmp: String =
   summarize("topic")
 ```
 
@@ -399,7 +399,7 @@ Output:
 ```shell
 AI - summarize - start
 AI - summarize - end
-summary: String = "topic summary"
+summaryTmp: String = "topic summary"
 ```
 
 This gets interrupted, although it takes a big performance hit
@@ -467,7 +467,7 @@ The number of combinations is something like:
 Now that we have all of these well-defined effects, we can wield them in any combination and sequence we desire.
 
 ```scala
-def researchHeadline() =
+val researchHeadline =
   defer:
     val headline: String =
       getHeadlineZ().run
@@ -500,7 +500,7 @@ def researchHeadline() =
 override val bootstrap = headlineNotAvailable
 
 def run =
-  researchHeadline()
+  researchHeadline
 ```
 
 Output:
@@ -514,7 +514,7 @@ Result: HeadlineNotAvailable
 override val bootstrap = noInterestingTopic
 
 def run =
-  researchHeadline()
+  researchHeadline
 ```
 
 Output:
@@ -529,7 +529,7 @@ Result: NoInterestingTopic()
 override val bootstrap = summaryReadThrows
 
 def run =
-  researchHeadline()
+  researchHeadline
 ```
 
 Output:
@@ -548,7 +548,7 @@ Result: NoSummaryAvailable(unicode)
 override val bootstrap = noWikiArticleAvailable
 
 def run =
-  researchHeadline()
+  researchHeadline
 ```
 
 Output:
@@ -567,7 +567,7 @@ Result: NoWikiArticleAvailable()
 override val bootstrap = aiTooSlow
 
 def run =
-  researchHeadline()
+  researchHeadline
 ```
 
 Output:
@@ -586,10 +586,11 @@ Result: AITooSlow()
 ```
 
 ```scala
+// TODO This inconsistently works. It frequently reports the AI problem again.
 override val bootstrap = diskFull
 
 def run =
-  researchHeadline()
+  researchHeadline
 ```
 
 Output:
@@ -602,9 +603,8 @@ File - contains(genome)
 Wiki - articleFor(genome)
 AI - summarize - start
 AI - summarize - end
-File - disk full!
 File - CLOSE
-Result: DiskFull()
+Result: AITooSlow()
 ```
 
 And finally, we see the longest, successful pathway through our application:
@@ -613,7 +613,7 @@ And finally, we see the longest, successful pathway through our application:
 override val bootstrap = stockMarketHeadline
 
 def run =
-  researchHeadline()
+  researchHeadline
 ```
 
 Output:
@@ -637,49 +637,61 @@ Result: market is not rational
 
 ```scala
 def run =
-  researchHeadling.run
-  researchHeadling.run
+  defer:
+    researchHeadline.run
+    researchHeadline.run
 ```
 
 Output:
 
 ```shell
-error:
-Not found: researchHeadling - did you mean researchHeadline?
-  researchHeadling.run
-  ^^^^^^^^^^^^^^^^
-error:
-Not found: researchHeadling - did you mean researchHeadline?
-  researchHeadling.run
-  ^^^^^^^^^^^^^^^^
-error:
-Double definition:
-val summary: String in object MdocApp at line 271 and
-val summary: String in object MdocApp at line 306
-
-val summary: String =
-    ^
+Network - Getting headline
+Analytics - Scanning
+File - OPEN
+File - contains(stock market)
+Wiki - articleFor(stock market)
+AI - summarize - start
+AI - summarize - end
+File - write: market is not rational
+Network - Getting headline
+Analytics - Scanning
+File - OPEN
+File - contains(stock market)
+Wiki - articleFor(stock market)
+AI - summarize - start
+AI - summarize - end
+AI **INTERRUPTED**
+File - CLOSE
+File - CLOSE
+Result: AITooSlow()
 ```
 
 ```scala
 def run =
-  researchHeadling.repeatN(2).run
+  researchHeadline.repeatN(2)
 ```
 
 Output:
 
 ```shell
-error:
-Not found: researchHeadling - did you mean researchHeadline?
-  researchHeadling.repeatN(2).run
-  ^^^^^^^^^^^^^^^^
-error:
-Double definition:
-val summary: String in object MdocApp at line 271 and
-val summary: String in object MdocApp at line 306
-
-val summary: String =
-    ^
+Network - Getting headline
+Analytics - Scanning
+File - OPEN
+File - contains(stock market)
+Wiki - articleFor(stock market)
+AI - summarize - start
+AI - summarize - end
+File - write: market is not rational
+Network - Getting headline
+Analytics - Scanning
+File - OPEN
+File - contains(stock market)
+Wiki - articleFor(stock market)
+AI - summarize - start
+AI - summarize - end
+File - CLOSE
+File - CLOSE
+Result: AITooSlow()
 ```
 
 Repeating is a form of composability, because you are composing a program with itself

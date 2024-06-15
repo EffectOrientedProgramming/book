@@ -301,7 +301,7 @@ Output:
 
 ```shell
 Log: Signup initiated for Morty
-Result: (PT5.034913335S,User saved)
+Result: (PT0.018114193S,User saved)
 ```
 
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.
