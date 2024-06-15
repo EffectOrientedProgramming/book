@@ -142,7 +142,7 @@ override val bootstrap = networkFailure
 def run =
   defer:
     getTemperature.run
-    Console.printLine("will not print if getTemperature fails").run
+    Console.printLine("only prints if getTemperature succeeds").run
 ```
 
 We can add various forms of failure handling.
@@ -219,6 +219,7 @@ Since the new `temperatureAppComplete` can no longer fail, we can no longer "cat
 Trying to do so will result in a compile error:
 
 {{ TODO: better compiler error message? }}
+
 
 ```scala 3 mdoc:fail
 temperatureAppComplete.catchAll:
