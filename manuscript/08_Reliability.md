@@ -252,11 +252,10 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(821)
-Current requests: List(843, 450, 821)
-Current requests: List(450, 821)
-Current requests: List(91, 843, 450, 821)
-Current requests: List(542, 91, 843, 450, 821)
+Current requests: List(737)
+Current requests: List(772, 737)
+Current requests: List(877, 772, 737)
+Current requests: List(796, 877, 772, 737)
 Result: Crashed the server!!
 ```
 
@@ -296,16 +295,16 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(662)
-Current requests: List(125, 662)
-Current requests: List(468, 125, 662)
-Current requests: List(883)
-Current requests: List(672, 883)
-Current requests: List(111, 672, 883)
-Current requests: List(380)
-Current requests: List(475, 380)
-Current requests: List(55, 475, 380)
-Current requests: List(73)
+Current requests: List(65)
+Current requests: List(416, 65)
+Current requests: List(0, 416, 65)
+Current requests: List(918)
+Current requests: List(367, 918)
+Current requests: List(509, 367, 918)
+Current requests: List(752)
+Current requests: List(292, 752)
+Current requests: List(572, 292, 752)
+Current requests: List(468)
 Result: All Requests Succeeded
 ```
 
@@ -471,11 +470,13 @@ Result: 0
 
 ## Test Reliability
 
-{{ TODO: Intro. Talk about many TestAspects. But then transition to the 2 most common ones (timeout & flaky) }}
+ZIO Test has a feature called `TestAspect`s.
+These are used to attach additional capabilities or restrictions to your tests, while keeping your test code clean and focused.
+
+ZIO includes several pre-made `TestAspect`s, but we will highlight just few that we have found most useful.
+You are also free to make your own, attaching any capabilities/restrictions that are pertinent to your domain
 
 ### Test Timeouts
-
-{{ TODO: Code example }}
 
 Sometimes, it's not enough to simply track the time that a test takes.
 If you have specific Service Level Agreements (SLAs) that you need to meet, you want your tests to help ensure that you are meeting them.
@@ -546,10 +547,7 @@ Output:
 Failed!
 Failed!
 Failed!
-Failed!
-Failed!
-Failed!
 Success!
 + long test
-Result: Summary(1,0,0,,PT0.020873S)
+Result: Summary(1,0,0,,PT0.028848S)
 ```
