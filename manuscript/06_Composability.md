@@ -150,7 +150,8 @@ def run =
 Output:
 
 ```shell
-Analytics - Scanning
+Analytics - Scanning for topic
+Analytics - topic: Some(stock market)
 Result: stock market
 ```
 
@@ -163,7 +164,8 @@ def run =
 Output:
 
 ```shell
-Analytics - Scanning
+Analytics - Scanning for topic
+Analytics - topic: None
 Result: NoInterestingTopic()
 ```
 
@@ -266,21 +268,29 @@ Result: false
 Now we highlight the difference between the static scoping of `Using` or `ZIO.fromAutoCloseable`.
 
 ```scala
-// This was previously-compile only
-// The output is too long to fit on a page,
-// and beyond our ability to control
-// without resorting to something like pprint.
-
 import scala.util.Using
 import java.io.FileReader
 
-Using(openFile("file1.txt")) {
-  file1 =>
-    Using(openFile("file2.txt")) {
-      file2 =>
-        file1.sameContent(file2)
+def run =
+  defer:
+    Using(openFile("file1.txt")) {
+      file1 =>
+        Using(openFile("file2.txt")) {
+          file2 =>
+            file1.sameContent(file2)
+        }
     }
-}
+```
+
+Output:
+
+```shell
+File - OPEN
+File - OPEN
+side-effect print: comparing content
+File - CLOSE
+File - CLOSE
+Result: Success(Success(true))
 ```
 
 With each new file we open, we have to nest our code deeper.
@@ -389,17 +399,8 @@ TODO Prose about the long-running AI process here
 
 
 ```scala
-// TODO Can we use silent instead of compile-only above?
 val summaryTmp: String =
   summarize("topic")
-```
-
-Output:
-
-```shell
-AI - summarize - start
-AI - summarize - end
-summaryTmp: String = "topic summary"
 ```
 
 This gets interrupted, although it takes a big performance hit
@@ -521,7 +522,8 @@ Output:
 
 ```shell
 Network - Getting headline
-Analytics - Scanning
+Analytics - Scanning for topic
+Analytics - topic: None
 Result: NoInterestingTopic()
 ```
 
@@ -536,7 +538,8 @@ Output:
 
 ```shell
 Network - Getting headline
-Analytics - Scanning
+Analytics - Scanning for topic
+Analytics - topic: Some(unicode)
 File - OPEN
 File - contains(unicode)
 File - summaryFor(unicode)
@@ -555,7 +558,8 @@ Output:
 
 ```shell
 Network - Getting headline
-Analytics - Scanning
+Analytics - Scanning for topic
+Analytics - topic: Some(barn)
 File - OPEN
 File - contains(barn)
 Wiki - articleFor(barn)
@@ -574,12 +578,12 @@ Output:
 
 ```shell
 Network - Getting headline
-Analytics - Scanning
+Analytics - Scanning for topic
+Analytics - topic: Some(space)
 File - OPEN
 File - contains(space)
 Wiki - articleFor(space)
 AI - summarize - start
-printing because our test clock is insane
 AI **INTERRUPTED**
 File - CLOSE
 Result: AITooSlow()
@@ -597,14 +601,16 @@ Output:
 
 ```shell
 Network - Getting headline
-Analytics - Scanning
+Analytics - Scanning for topic
+Analytics - topic: Some(genome)
 File - OPEN
 File - contains(genome)
 Wiki - articleFor(genome)
 AI - summarize - start
 AI - summarize - end
+File - disk full!
 File - CLOSE
-Result: AITooSlow()
+Result: DiskFull()
 ```
 
 And finally, we see the longest, successful pathway through our application:
@@ -620,7 +626,8 @@ Output:
 
 ```shell
 Network - Getting headline
-Analytics - Scanning
+Analytics - Scanning for topic
+Analytics - topic: Some(stock market)
 File - OPEN
 File - contains(stock market)
 Wiki - articleFor(stock market)
@@ -646,7 +653,8 @@ Output:
 
 ```shell
 Network - Getting headline
-Analytics - Scanning
+Analytics - Scanning for topic
+Analytics - topic: Some(stock market)
 File - OPEN
 File - contains(stock market)
 Wiki - articleFor(stock market)
@@ -654,13 +662,13 @@ AI - summarize - start
 AI - summarize - end
 File - write: market is not rational
 Network - Getting headline
-Analytics - Scanning
+Analytics - Scanning for topic
+Analytics - topic: Some(stock market)
 File - OPEN
 File - contains(stock market)
 Wiki - articleFor(stock market)
 AI - summarize - start
 AI - summarize - end
-AI **INTERRUPTED**
 File - CLOSE
 File - CLOSE
 Result: AITooSlow()
@@ -675,7 +683,8 @@ Output:
 
 ```shell
 Network - Getting headline
-Analytics - Scanning
+Analytics - Scanning for topic
+Analytics - topic: Some(stock market)
 File - OPEN
 File - contains(stock market)
 Wiki - articleFor(stock market)
@@ -683,15 +692,27 @@ AI - summarize - start
 AI - summarize - end
 File - write: market is not rational
 Network - Getting headline
-Analytics - Scanning
+Analytics - Scanning for topic
+Analytics - topic: Some(stock market)
 File - OPEN
 File - contains(stock market)
 Wiki - articleFor(stock market)
 AI - summarize - start
 AI - summarize - end
+File - write: market is not rational
+Network - Getting headline
+Analytics - Scanning for topic
+Analytics - topic: Some(stock market)
+File - OPEN
+File - contains(stock market)
+Wiki - articleFor(stock market)
+AI - summarize - start
+AI - summarize - end
+File - write: market is not rational
 File - CLOSE
 File - CLOSE
-Result: AITooSlow()
+File - CLOSE
+Result: market is not rational
 ```
 
 Repeating is a form of composability, because you are composing a program with itself
