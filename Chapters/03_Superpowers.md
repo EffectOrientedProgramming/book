@@ -483,8 +483,6 @@ val programManipulatingBeforeRun =
     Console.printLine("Hello").run.repeatN(3)
 ```
 
-{{TODO rm Blank lines at end! }}
-
 Note that these calls to `.run` are all within a `defer` block, so when `program` is defined, we still have not actually executed anything.
 We have described a program that knows the order in which to execute our individual effects _when the program is executed_.
 
@@ -510,13 +508,18 @@ def run =
   surroundedProgram
 ```
 
+You can only call `.run` on an effect value.
+Attempting to use in on anything else will produce an error.
+
+```scala 3 mdoc:invisible
+// NOTE: If you alter the sample below, you need to explicitly change the brittle error msg manipulation in Main
+val x = 1 // This is just a dumb way to keep the code block from being empty, so it's properly hidden
+```
+
 ```scala 3 mdoc:fail
-// TODO Decide where to put this
 val program =
   defer:
     (1 + 1).run
 ```
-
-{{ TODO: cleanup error message }}
 
 {{ TODO Explain the 2 versions of run and how they came to be }}

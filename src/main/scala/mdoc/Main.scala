@@ -562,7 +562,7 @@ def processFile(
     )
     Files.write(
       inputFile.outputFile.toNIO,
-      cleanupZioErrorOutput(
+      ErrorMessageManipulation.cleanupZioErrorOutput(
         manuscriptMarkdown.renderToString
       ).getBytes(mainSettings.settings.charset)
     )
@@ -716,70 +716,6 @@ def processDir(
     }
 end processDir
 
-def cleanupZioErrorOutput(raw: String) =
-  // TODO Also clean up initial error: bit and
-  // final carat'ed indicator
-  //     Neither of those play nicely with mdoc
-  val stripped =
-//    if (raw.contains("──── ZLAYER ERROR ────────────────────────────────────────────────────"))
-//      raw.drop(
-//        raw.indexOf("──── ZLAYER ERROR ────────────────────────────────────────────────────")
-//      )
-//    else
-    raw
-
-  val filtered =
-    stripped
-      .split("\n")
-    // TODO This might be safer to do after the lower Mdoc (case sensitive) replacement
-      .filter(line => !line.contains("mdoc"))
-
-  val lastLine  =
-      filtered
-        .last
-
-  val withoutTrailingBlankLine =
-    if (lastLine.isBlank)
-      filtered.init
-    else
-      filtered
-
-  val effectCantFailMsg =
-  """
-    |This error handling operation assumes your effect can fail. However, your effect has Nothing for the error type, which means it cannot fail, so there is no need to handle the failure. To find out which method you can use instead of this operation, please see the reference chart at: https://zio.dev/can_fail.
-    |I found:
-    |
-    |    CanFail.canFail[E](/* missing */summon[scala.util.NotGiven[E =:= Nothing]])
-    |
-    |But no implicit values were found that match type scala.util.NotGiven[E =:= Nothing].
-    |""".stripMargin
-
-  val effectCantFailMsgSimple =
-    """
-      |This error handling operation assumes your effect
-      |can fail. However, your effect has Nothing for the
-      |error type, which means it cannot fail, so there
-      |is no need to handle the failure.
-      |""".stripMargin
-
-
-  withoutTrailingBlankLine
-    .mkString("\n")
-    .replace(effectCantFailMsg, effectCantFailMsgSimple)
-    .replace(
-      "error:\n\n\n──── ZLAYER ERROR ────────────────────────────────────────────────────",
-      "──── ZLAYER ERROR ───────────"
-    )
-    .replace(
-      "──────────────────────────────────────────────────────────────────────",
-      "─────────────────────────────"
-    )
-    .replace("repl.MdocSession.MdocApp.", "")
-    .replace(
-      "Please provide a layer for the following type",
-      "Please provide a layer for"
-    )
-end cleanupZioErrorOutput
 
 @main
 def mdocRun(examplesDir: String) =

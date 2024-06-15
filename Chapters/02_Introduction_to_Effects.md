@@ -107,8 +107,6 @@ All of these are unpredictable.
 
 ## Signs That You Have Hidden Effects
 
-{{ TODO: Needs prose on how functions that return Unit are always side-effecting }}
-
 `Unit` can be viewed as the bare minimum of effect tracking.
 
 Consider a function
