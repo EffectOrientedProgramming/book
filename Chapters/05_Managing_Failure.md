@@ -11,7 +11,7 @@ import zio.direct.*
 
 enum Scenario:
   case HappyPath,
-    Weird,
+    TooCold,
     NetworkFailure,
     GPSFailure
 
@@ -62,19 +62,20 @@ def gpsFailure =
   )
 
 def weird =
-  scenarioForNonZio = Some(Scenario.Weird)
+  scenarioForNonZio = Some(Scenario.TooCold)
 
   Runtime.setConfigProvider(
     ErrorsStaticConfigProvider(
-      Scenario.Weird
+      Scenario.TooCold
     )
   )
 
+case class Temperature(degrees: Int)
 
 val getTemperature: ZIO[
   Any,
   GpsException | NetworkException,
-  String
+  Temperature
 ] =
   defer:
     val maybeScenario =
@@ -91,15 +92,15 @@ val getTemperature: ZIO[
           .fail:
             NetworkException()
           .run
-      case Some(Scenario.Weird) =>
+      case Some(Scenario.TooCold) =>
         ZIO
            .succeed:
-             "Temperature: 34 degrees"
+             Temperature(-20)
            .run
       case _ =>
          ZIO
            .succeed:
-             "Temperature: 35 degrees"
+             Temperature(35)
            .run
 ```
 
@@ -218,9 +219,6 @@ def run =
 Since the new `temperatureAppComplete` can no longer fail, we can no longer "catch" failures.
 Trying to do so will result in a compile error:
 
-{{ TODO: better compiler error message? }}
-
-
 ```scala 3 mdoc:fail
 temperatureAppComplete.catchAll:
   case ex: Exception =>
@@ -270,12 +268,12 @@ import zio.direct.*
 
 case class LocalizeFailure(s: String)
 
-def localize(temperature: String) =
-  if temperature.contains("35") then
-    ZIO.succeed("Brrrr")
+def localize(temperature: Temperature) =
+  if temperature.degrees > 0 then
+    ZIO.succeed("Not too cold.")
   else
     ZIO.fail:
-      LocalizeFailure("I dunno")
+      LocalizeFailure("**Machine froze**")
 ```
 
 We can now create a new Effect from `getTemperature` and `localize` that can fail with either an `Exception` or a `LocalizeFailure`:
