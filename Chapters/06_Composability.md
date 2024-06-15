@@ -334,10 +334,7 @@ import zio.direct.*
 
 import scala.util.Try
 
-// TODO Different name to make less confusable with AutoCloseable?
 trait File extends AutoCloseable:
-  // TODO Return existing entry, rather than a
-  // raw Boolean?
   def contains(searchTerm: String): Boolean
   def write(entry: String): Try[String]
   def summaryFor(searchTerm: String): String
