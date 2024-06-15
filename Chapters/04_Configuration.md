@@ -32,15 +32,18 @@ For any given service in your application, you define what it needs in order to 
 Finally, when it is time to build your application, all of these pieces can be provided in one, flat space.
 Each component will automatically find its dependencies, and make itself available to other components that need it.
 
+Note that dependency cycles are not allowed by ZIO. 
+You cannot build a program where `A` depends on `B`, and `B` depends on `A`.
+Thankfully you will be alerted about any illegal cycles at compile time with helpful error messages, rather than blowing up at runtime.
+
 To aid further in understanding your application architecture, you can visualize the dependency graph with a single line.
 
 You can also do things that simply are not possible in other approaches, such as sharing a single instance of a dependency across multiple test classes, or even multiple applications.
 
-{{ TODO: Explain the prevention of dependency cycles }}
-
 ## Let's Make Bread
 
-{{ TODO: Prose on our use case }}
+To illustrate how ZIO can assemble our programs, we will use it to make and eat `Bread` first, and `Toast` second.
+Although we are utilizing very different tools with different goals, we were inspired by Li Haoyi's excellent article ["What is Functional Programming All About?"](www.lihaoyi.com/post/WhatsFunctionalProgrammingAllAbout.html)
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -508,7 +511,8 @@ def run =
       config
 ```
 
-{{ TODO: some explanation }}
+Now we have bridged the gap between our logic and configuration files.
+This was a longer detour than our other steps, but a common requirement in real-world applications.
 
 ## Step 12: Keep the building from burning down!
 
