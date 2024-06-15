@@ -23,7 +23,7 @@ def run =
 Output:
 
 ```shell
-Result: Temperature: 35 degrees
+Result: Temperature(35)
 ```
 
 As expected, the program succeeds with the temperature.
@@ -52,7 +52,7 @@ override val bootstrap = networkFailure
 def run =
   defer:
     getTemperature.run
-    Console.printLine("will not print if getTemperature fails").run
+    Console.printLine("only prints if getTemperature succeeds").run
 ```
 
 Output:
@@ -142,8 +142,6 @@ Didn't fail, despite: GPS Hardware Failure
 Since the new `temperatureAppComplete` can no longer fail, we can no longer "catch" failures.
 Trying to do so will result in a compile error:
 
-{{ TODO: better compiler error message? }}
-
 ```scala
 temperatureAppComplete.catchAll:
   case ex: Exception =>
@@ -155,12 +153,10 @@ Output:
 
 ```shell
 error: 
-This error handling operation assumes your effect can fail. However, your effect has Nothing for the error type, which means it cannot fail, so there is no need to handle the failure. To find out which method you can use instead of this operation, please see the reference chart at: https://zio.dev/can_fail.
-I found:
-
-    CanFail.canFail[E](/* missing */summon[scala.util.NotGiven[E =:= Nothing]])
-
-But no implicit values were found that match type scala.util.NotGiven[E =:= Nothing].
+This error handling operation assumes your effect
+can fail. However, your effect has Nothing for the
+error type, which means it cannot fail, so there
+is no need to handle the failure.
 ```
 
 The types of failures from `getTemperature` were both an `Exception`.
@@ -202,12 +198,12 @@ For instance, a new `localize` Effect might fail with a new type:
 ```scala
 case class LocalizeFailure(s: String)
 
-def localize(temperature: String) =
-  if temperature.contains("35") then
-    ZIO.succeed("Brrrr")
+def localize(temperature: Temperature) =
+  if temperature.degrees > 0 then
+    ZIO.succeed("Not too cold.")
   else
     ZIO.fail:
-      LocalizeFailure("I dunno")
+      LocalizeFailure("**Machine froze**")
 ```
 
 We can now create a new Effect from `getTemperature` and `localize` that can fail with either an `Exception` or a `LocalizeFailure`:
@@ -240,7 +236,7 @@ def run =
 Output:
 
 ```shell
-I dunno
+**Machine froze**
 ```
 
 All the possible failure types, across the sequence of Effects, have been handled at the top-level Effect.
