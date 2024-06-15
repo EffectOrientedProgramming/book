@@ -605,7 +605,7 @@ import zio.*
 import zio.direct.*
 
 // TODO Can we use silent instead of compile-only above?
-val summary: String =
+val summaryTmp: String =
   summarize("topic")
 ```
 
@@ -689,7 +689,7 @@ Now that we have all of these well-defined effects, we can wield them in any com
 import zio.*
 import zio.direct.*
 
-def researchHeadline() =
+val researchHeadline =
   defer:
     val headline: String =
       getHeadlineZ().run
@@ -725,7 +725,7 @@ import zio.direct.*
 override val bootstrap = headlineNotAvailable
 
 def run =
-  researchHeadline()
+  researchHeadline
 ```
 
 ```scala 3 mdoc:runzio
@@ -735,7 +735,7 @@ import zio.direct.*
 override val bootstrap = noInterestingTopic
 
 def run =
-  researchHeadline()
+  researchHeadline
 ```
 
 ```scala 3 mdoc:runzio
@@ -745,7 +745,7 @@ import zio.direct.*
 override val bootstrap = summaryReadThrows
 
 def run =
-  researchHeadline()
+  researchHeadline
 ```
 
 ```scala 3 mdoc:runzio
@@ -755,7 +755,7 @@ import zio.direct.*
 override val bootstrap = noWikiArticleAvailable
 
 def run =
-  researchHeadline()
+  researchHeadline
 ```
 
 ```scala 3 mdoc:runzio
@@ -765,17 +765,18 @@ import zio.direct.*
 override val bootstrap = aiTooSlow
 
 def run =
-  researchHeadline()
+  researchHeadline
 ```
 
 ```scala 3 mdoc:runzio
 import zio.*
 import zio.direct.*
 
+// TODO This inconsistently works. It frequently reports the AI problem again.
 override val bootstrap = diskFull
 
 def run =
-  researchHeadline()
+  researchHeadline
 ```
 
 And finally, we see the longest, successful pathway through our application:
@@ -787,22 +788,23 @@ import zio.direct.*
 override val bootstrap = stockMarketHeadline
 
 def run =
-  researchHeadline()
+  researchHeadline
 ```
 
 ## Effects are Values
 
 {{ TODO: enables, reuse, repeats, delays, etc }}
 
-```scala 3 mdoc:fail
+```scala 3 mdoc:runzio
 def run =
-  researchHeadling.run
-  researchHeadling.run
+  defer:
+    researchHeadline.run
+    researchHeadline.run
 ```
 
-```scala 3 mdoc:fail
+```scala 3 mdoc:runzio
 def run =
-  researchHeadling.repeatN(2).run
+  researchHeadline.repeatN(2)
 ```
 
 Repeating is a form of composability, because you are composing a program with itself
