@@ -209,6 +209,7 @@ def run =
 Output:
 
 ```shell
+Log: Interrupting slow request
 Result: *** Save timed out ***
 ```
 
@@ -302,7 +303,7 @@ Output:
 
 ```shell
 Log: Signup initiated for Morty
-Result: (PT0.009465675S,User saved)
+Result: (PT0.010454113S,User saved)
 ```
 
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.

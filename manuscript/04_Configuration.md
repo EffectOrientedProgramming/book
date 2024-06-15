@@ -36,15 +36,18 @@ For any given service in your application, you define what it needs in order to 
 Finally, when it is time to build your application, all of these pieces can be provided in one, flat space.
 Each component will automatically find its dependencies, and make itself available to other components that need it.
 
+Note that dependency cycles are not allowed by ZIO. 
+You cannot build a program where `A` depends on `B`, and `B` depends on `A`.
+Thankfully you will be alerted about any illegal cycles at compile time with helpful error messages, rather than blowing up at runtime.
+
 To aid further in understanding your application architecture, you can visualize the dependency graph with a single line.
 
 You can also do things that simply are not possible in other approaches, such as sharing a single instance of a dependency across multiple test classes, or even multiple applications.
 
-{{ TODO: Explain the prevention of dependency cycles }}
-
 ## Let's Make Bread
 
-{{ TODO: Prose on our use case }}
+To illustrate how ZIO can assemble our programs, we will use it to make and eat `Bread` first, and `Toast` second.
+Although we are utilizing very different tools with different goals, we were inspired by Li Haoyi's excellent article ["What is Functional Programming All About?"](www.lihaoyi.com/post/WhatsFunctionalProgrammingAllAbout.html)
 
 ```scala
 case class Dough():
@@ -520,7 +523,8 @@ Attempt 3: Succeeded
 Bread: Eating
 ```
 
-{{ TODO: some explanation }}
+Now we have bridged the gap between our logic and configuration files.
+This was a longer detour than our other steps, but a common requirement in real-world applications.
 
 ## Step 12: Keep the building from burning down!
 
@@ -621,14 +625,14 @@ Output:
 ```shell
 Tails
 Tails
+Tails
+Tails
+Tails
+Heads
+Tails
+Tails
 Heads
 Heads
-Tails
-Heads
-Tails
-Tails
-Tails
-Tails
 Num Heads = 3
 Result: 3
 ```
@@ -662,7 +666,7 @@ Heads
 Heads
 Num Heads = 10
 + flips 10 times
-Result: Summary(1,0,0,,PT0.253486S)
+Result: Summary(1,0,0,,PT0.251779S)
 ```
 
 ```scala
@@ -730,7 +734,7 @@ G: ...probability
 Heads
 R: Heads
 + rosencrantzAndGuildensternAreDead finishes
-Result: Summary(1,0,0,,PT0.06287S)
+Result: Summary(1,0,0,,PT0.061688S)
 ```
 
 ```scala
@@ -749,18 +753,18 @@ Output:
 
 ```shell
 *Performance Begins*
-Heads
-R: Heads
 Tails
-<FAIL> R: Fail(Tails,Stack trace for thread "zio-fiber-317704239":
+<FAIL> R: Fail(Tails,Stack trace for thread "zio-fiber-1902393614":
 	at coinToss(<input>:440)
+	at rosencrantzCoinToss(<input>:509)
+	at rosencrantzAndGuildensternAreDead(<input>:514)
 ...
 R: Heads
 G: ...probability
 Heads
 R: Heads
 + flaky plan
-Result: Summary(1,0,0,,PT0.028835S)
+Result: Summary(1,0,0,,PT0.0253S)
 ```
 
 The `Random` Effect uses an injected something which when running the ZIO uses the system's unpredictable random number generator.  In ZIO Test the `Random` Effect uses a different something which can predictably generate "random" numbers.  `TestRandom` provides a way to define what those numbers are.  This example feeds in the `Int`s `1` and `2` so the first time we ask for a random number we get `1` and the second time we get `2`.
@@ -807,7 +811,7 @@ Output:
 ```shell
 Parsing CSV: ()
 + batch runs after 24 hours
-Result: Summary(1,0,0,,PT0.029407S)
+Result: Summary(1,0,0,,PT0.016814S)
 ```
 
 The `race` is between `nightlyBatch` and `timeTravel`.
