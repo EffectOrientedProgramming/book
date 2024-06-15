@@ -805,9 +805,6 @@ import zio.test.*
 def spec =
   test("long test"):
     defer:
-      // TODO More predictably random, 
-      //   eg make sure it fails _at least_ x 
-      //   times before succeeding
       spottyLogic.run
       assertCompletes
   @@ TestAspect.withLiveRandom @@ 
