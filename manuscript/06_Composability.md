@@ -578,8 +578,6 @@ Analytics - Scanning
 File - OPEN
 File - contains(space)
 Wiki - articleFor(space)
-AI - summarize - start
-printing because our test clock is insane
 AI **INTERRUPTED**
 File - CLOSE
 Result: AITooSlow()

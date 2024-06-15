@@ -209,6 +209,7 @@ def run =
 Output:
 
 ```shell
+Log: Interrupting slow request
 Result: *** Save timed out ***
 ```
 
@@ -241,6 +242,7 @@ def run =
 Output:
 
 ```shell
+Log: **Database crashed!!**
 Log: **Database crashed!!**
 Result: Please manually provision Morty
 ```
@@ -300,7 +302,7 @@ Output:
 
 ```shell
 Log: Signup initiated for Morty
-Result: (PT0.026277156S,User saved)
+Result: (PT0.002229931S,User saved)
 ```
 
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.
@@ -396,8 +398,6 @@ value repeatN is not a member of Unit
                                   ^
 ```
 
-{{TODO rm Blank lines at end! }}
-
 Note that these calls to `.run` are all within a `defer` block, so when `program` is defined, we still have not actually executed anything.
 We have described a program that knows the order in which to execute our individual effects _when the program is executed_.
 
@@ -426,8 +426,11 @@ world
 **After**
 ```
 
+You can only call `.run` on an effect value.
+Attempting to use in on anything else will produce an error.
+
+
 ```scala
-// TODO Decide where to put this
 val program =
   defer:
     (1 + 1).run
@@ -438,18 +441,6 @@ Output:
 ```shell
 error:
 value run is not a member of Int.
-An extension method was tried, but could not be fully constructed:
-
-    run[R, E, A](1.+(1))
-
-    failed with:
-
-        Found:    (2 : Int)
-        Required: ZIO[Nothing, Any, Any]
-    (1 + 1).run
-    ^^^^^^^^^^^
 ```
-
-{{ TODO: cleanup error message }}
 
 {{ TODO Explain the 2 versions of run and how they came to be }}
