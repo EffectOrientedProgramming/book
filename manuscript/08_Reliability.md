@@ -215,15 +215,15 @@ def run =
 Output:
 
 ```shell
-Bill called API [took 0s]
-Bruce called API [took 1s]
-James called API [took 2s]
-Bill called API [took 3s]
+Bruce called API [took 0s]
+James called API [took 1s]
+Bill called API [took 2s]
 Bruce called API [took 3s]
 James called API [took 3s]
 Bill called API [took 3s]
 Bruce called API [took 3s]
 James called API [took 3s]
+Bill called API [took 3s]
 Total time [took 8s]
 ```
 
@@ -252,12 +252,11 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(450, 437)
-Current requests: List(437)
-Current requests: List(509, 450, 437)
-Current requests: List(81, 64, 726, 509, 450, 437)
-Current requests: List(726, 509, 450, 437)
-Current requests: List(64, 726, 509, 450, 437)
+Current requests: List(447)
+Current requests: List(606, 978, 447)
+Current requests: List(588, 606, 978, 447)
+Current requests: List(978, 447)
+Current requests: List(971, 588, 606, 978, 447)
 Result: Crashed the server!!
 ```
 
@@ -297,16 +296,16 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(98, 220)
-Current requests: List(220)
-Current requests: List(242, 98, 220)
-Current requests: List(70)
-Current requests: List(776, 70)
-Current requests: List(514, 776, 70)
-Current requests: List(831)
-Current requests: List(649, 831)
-Current requests: List(825, 649, 831)
-Current requests: List(871)
+Current requests: List(343)
+Current requests: List(11, 343)
+Current requests: List(865, 11, 343)
+Current requests: List(738)
+Current requests: List(195, 738)
+Current requests: List(655, 195, 738)
+Current requests: List(904, 655)
+Current requests: List(950, 904)
+Current requests: List(625, 950, 904)
+Current requests: List(118)
 Result: All Requests Succeeded
 ```
 
@@ -534,9 +533,6 @@ import zio.test.*
 def spec =
   test("long test"):
     defer:
-      // TODO More predictably random, 
-      //   eg make sure it fails _at least_ x 
-      //   times before succeeding
       spottyLogic.run
       assertCompletes
   @@ TestAspect.withLiveRandom @@ 
@@ -548,10 +544,7 @@ Output:
 ```shell
 Failed!
 Failed!
-Failed!
-Failed!
-Failed!
 Success!
 + long test
-Result: Summary(1,0,0,,PT0.019298S)
+Result: Summary(1,0,0,,PT0.029212S)
 ```
