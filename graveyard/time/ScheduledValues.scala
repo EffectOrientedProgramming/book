@@ -17,7 +17,6 @@ import InstantOps._
  * seconds, I would get "Third Value" 14+
  * seconds, it would fail */
 
-// TODO Consider TimeSequence as a name
 def scheduledValues[A](
     value: (Duration, A),
     values: (Duration, A)*
@@ -42,8 +41,6 @@ def scheduledValues[A](
     accessX(timeTable)
   }
 
-// TODO Some comments, tests, examples, etc to
-// make this function more obvious
 private[time] def createTimeTableX[A](
     startTime: Instant,
     value: (Duration, A),
