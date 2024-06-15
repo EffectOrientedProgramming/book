@@ -454,9 +454,7 @@ import zio.direct.*
 val program =
   defer:
     Console.printLine("Hello").run
-    val subject =
-      "world"
-    Console.printLine(subject).run
+    Console.printLine("world").run
 ```
 
 The `.run` method is only available on our Effect values.
@@ -464,49 +462,21 @@ We explicitly call `.run` whenever we want to sequence our effects.
 If we do not call `.run`, then we are just going to have an un-executed effect.
 We want this explicit control, so that we can manipulate our effects up until it is time to run them.
 
-For example, we can repeat our un-executed effect:
-
-```scala 3 mdoc:silent
-import zio.*
-import zio.direct.*
-
-val programManipulatingBeforeRun =
-  defer:
-    Console.printLine("Hello").repeatN(3).run
-```
-
-We _cannot_ repeat our executed effect.
-
-```scala 3 mdoc:fail
-val programManipulatingBeforeRun =
-  defer:
-    Console.printLine("Hello").run.repeatN(3)
-```
-
-Note that these calls to `.run` are all within a `defer` block, so when `program` is defined, we still have not actually executed anything.
-We have described a program that knows the order in which to execute our individual effects _when the program is executed_.
-
-```scala 3 mdoc:silent
-import zio.*
-import zio.direct.*
-
-val surroundedProgram =
-  defer:
-    Console.printLine("**Before**").run
-    program.run
-    Console.printLine("**After**").run
-```
-
-Even now, we have not executed anything.
-It is only when we pass our completed program over to the effect system that the program is executed.
+When you have finished assembling your program, and you are ready to run it, you utilize the other important `run` method.
 
 ```scala 3 mdoc:runzio
-import zio.*
-import zio.direct.*
-
-def run =
-  surroundedProgram
+val run =
+  program
 ```
+
+Having 2 versions of `run` can be confusing, but they each serve a different purpose.
+
+- The `.run` method attached to effects in a `defer` indicates when that effect will execute within the program.
+  - This can happen many times throughout your program.
+- Assigning your program to `def run` method will actually execute the program.
+  - This typically happens only once in your code.
+
+We focus on the `.run` method in this section.
 
 You can only call `.run` on an effect value.
 Attempting to use in on anything else will produce an error.
@@ -522,4 +492,47 @@ val program =
     (1 + 1).run
 ```
 
-{{ TODO Explain the 2 versions of run and how they came to be }}
+```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
+def run =
+  defer:
+    program.repeatN(1).run
+```
+
+We _cannot_ repeat our executed effect.
+
+```scala 3 mdoc:fail
+val programManipulatingBeforeRun =
+  defer:
+    program.run.repeatN(3)
+```
+
+We get the same error as the previous example, because the once an effect has been `.run`, you only have the result, not the deferred computation.
+
+Note that these calls to `.run` are all within a `defer` block, so when `program` is defined, we still have not actually executed anything.
+We have described a program that knows the order in which to execute our individual effects _when the program is executed_.
+
+```scala 3 mdoc:silent
+import zio.*
+import zio.direct.*
+
+val surroundedProgram =
+  defer:
+    Console.printLine("**Before**").run
+    program.repeatN(1).run
+    Console.printLine("**After**").run
+```
+
+Even now, we have not executed anything.
+It is only when we pass our completed program over to the effect system that the program is executed.
+
+```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
+def run =
+  surroundedProgram
+```
+

@@ -47,8 +47,7 @@ object ErrorMessageManipulation {
         |
         |        Found:    (2 : Int)
         |        Required: ZIO[Nothing, Any, Any]
-        |    (1 + 1).run
-        |    ^^^^^^^^^^^""".stripMargin
+        |                                  ^""".stripMargin
     val canOnlyCallRunOnZiosMsgSimple =
       """value run is not a member of Int.""".stripMargin
 
