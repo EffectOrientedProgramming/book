@@ -722,11 +722,13 @@ def run =
 
 ## Test Reliability
 
-{{ TODO: Intro. Talk about many TestAspects. But then transition to the 2 most common ones (timeout & flaky) }}
+ZIO Test has a feature called `TestAspect`s.
+These are used to attach additional capabilities or restrictions to your tests, while keeping your test code clean and focused.
+
+ZIO includes several pre-made `TestAspect`s, but we will highlight just few that we have found most useful.
+You are also free to make your own, attaching any capabilities/restrictions that are pertinent to your domain
 
 ### Test Timeouts
-
-{{ TODO: Code example }}
 
 Sometimes, it's not enough to simply track the time that a test takes.
 If you have specific Service Level Agreements (SLAs) that you need to meet, you want your tests to help ensure that you are meeting them.
