@@ -114,7 +114,7 @@ def getHeadLine(): Future[String] =
       Future.successful("new unicode released!")
     case Scenario.NoInterestingTopic() =>
       Future.successful(
-        "TODO Use boring content here"
+        "boring content"
       )
     case Scenario.DiskFull() =>
       Future.successful("human genome sequenced")
@@ -124,7 +124,7 @@ def findTopicOfInterest(
     content: String
 ): Option[String] =
   // TODO Decide best output string here
-  println("Analytics - Scanning")
+  println("Analytics - Scanning for topic")
   val topics =
     List(
       "stock market",
@@ -133,7 +133,10 @@ def findTopicOfInterest(
       "unicode",
       "genome"
     )
-  topics.find(content.contains)
+  val res = 
+    topics.find(content.contains)
+  println(s"Analytics - topic: $res")
+  res
 
 import scala.util.Either
 def wikiArticle(topic: String): Either[
@@ -449,25 +452,22 @@ def run =
 
 Now we highlight the difference between the static scoping of `Using` or `ZIO.fromAutoCloseable`.
 
-```scala 3 mdoc:compile-only
+```scala 3 mdoc:runzio
 import zio.*
 import zio.direct.*
-
-// This was previously-compile only
-// The output is too long to fit on a page,
-// and beyond our ability to control
-// without resorting to something like pprint.
 
 import scala.util.Using
 import java.io.FileReader
 
-Using(openFile("file1.txt")) {
-  file1 =>
-    Using(openFile("file2.txt")) {
-      file2 =>
-        file1.sameContent(file2)
+def run =
+  defer:
+    Using(openFile("file1.txt")) {
+      file1 =>
+        Using(openFile("file2.txt")) {
+          file2 =>
+            file1.sameContent(file2)
+        }
     }
-}
 ```
 
 With each new file we open, we have to nest our code deeper.
@@ -581,11 +581,6 @@ def summarize(article: String): String =
   // Represents the AI taking a long time to
   // summarize the content
   if (article.contains("space"))
-    // This should go away when our clock is less
-    // dumb
-    println(
-      "printing because our test clock is insane"
-    )
     Thread.sleep(1000)
 
   println(s"AI - summarize - end")
@@ -600,11 +595,10 @@ def summarize(article: String): String =
 end summarize
 ```
 
-```scala 3 mdoc
+```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
 
-// TODO Can we use silent instead of compile-only above?
 val summaryTmp: String =
   summarize("topic")
 ```
