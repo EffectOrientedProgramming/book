@@ -215,15 +215,15 @@ def run =
 Output:
 
 ```shell
-Bill called API [took 0s]
-Bruce called API [took 1s]
-James called API [took 2s]
-Bill called API [took 3s]
+James called API [took 0s]
+James called API [took 1s]
+Bill called API [took 2s]
 Bruce called API [took 3s]
 James called API [took 3s]
 Bill called API [took 3s]
 Bruce called API [took 3s]
-James called API [took 3s]
+Bill called API [took 2s]
+Bruce called API [took 2s]
 Total time [took 8s]
 ```
 
@@ -252,10 +252,11 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(251)
-Current requests: List(48, 251)
-Current requests: List(13, 48, 251)
-Current requests: List(311, 13, 48, 251)
+Current requests: List(803)
+Current requests: List(458, 803)
+Current requests: List(691, 458, 803)
+Current requests: List(52, 691, 458, 803)
+Current requests: List(489, 52, 691, 458, 803)
 Result: Crashed the server!!
 ```
 
@@ -295,16 +296,16 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(308, 940)
-Current requests: List(940)
-Current requests: List(12, 308, 940)
-Current requests: List(668)
-Current requests: List(796, 668)
-Current requests: List(205, 796, 668)
-Current requests: List(845, 205)
-Current requests: List(771, 845, 205)
-Current requests: List(166, 771, 845)
-Current requests: List(310)
+Current requests: List(553)
+Current requests: List(582, 553)
+Current requests: List(40, 582, 553)
+Current requests: List(85)
+Current requests: List(612, 85)
+Current requests: List(307, 612, 85)
+Current requests: List(718)
+Current requests: List(749, 718)
+Current requests: List(236, 749, 718)
+Current requests: List(340)
 Result: All Requests Succeeded
 ```
 
@@ -464,8 +465,8 @@ def run =
 Output:
 
 ```shell
-Contract Breaches: 1
-Result: 1
+Contract Breaches: 0
+Result: 0
 ```
 
 ## Test Reliability
@@ -544,10 +545,7 @@ Output:
 ```shell
 Failed!
 Failed!
-Failed!
-Failed!
-Failed!
 Success!
 + long test
-Result: Summary(1,0,0,,PT0.018647S)
+Result: Summary(1,0,0,,PT0.018889S)
 ```

@@ -209,7 +209,6 @@ def run =
 Output:
 
 ```shell
-Log: Interrupting slow request
 Result: *** Save timed out ***
 ```
 
@@ -242,6 +241,7 @@ def run =
 Output:
 
 ```shell
+Log: **Database crashed!!**
 Log: **Database crashed!!**
 Log: **Database crashed!!**
 Result: Please manually provision Morty
@@ -302,7 +302,7 @@ Output:
 
 ```shell
 Log: Signup initiated for Morty
-Result: (PT0.002229931S,User saved)
+Result: (PT0.009465675S,User saved)
 ```
 
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.
@@ -364,9 +364,7 @@ When we make a defer block, nothing inside of it will be executed yet.
 val program =
   defer:
     Console.printLine("Hello").run
-    val subject =
-      "world"
-    Console.printLine(subject).run
+    Console.printLine("world").run
 ```
 
 The `.run` method is only available on our Effect values.
@@ -374,12 +372,69 @@ We explicitly call `.run` whenever we want to sequence our effects.
 If we do not call `.run`, then we are just going to have an un-executed effect.
 We want this explicit control, so that we can manipulate our effects up until it is time to run them.
 
-For example, we can repeat our un-executed effect:
+When you have finished assembling your program, and you are ready to run it, you utilize the other important `run` method.
 
 ```scala
-val programManipulatingBeforeRun =
+val run =
+  program
+```
+
+Output:
+
+```shell
+Hello
+world
+```
+
+Having 2 versions of `run` can be confusing, but they each serve a different purpose.
+
+- The `.run` method attached to effects in a `defer` indicates when that effect will execute within the program.
+  - This can happen many times throughout your program.
+- Assigning your program to `def run` method will actually execute the program.
+  - This typically happens only once in your code.
+
+We focus on the `.run` method in this section.
+
+You can only call `.run` on an effect value.
+Attempting to use in on anything else will produce an error.
+
+
+```scala
+val program =
   defer:
-    Console.printLine("Hello").repeatN(3).run
+    (1 + 1).run
+```
+
+Output:
+
+```shell
+error:
+value run is not a member of Int.
+An extension method was tried, but could not be fully constructed:
+
+    run[R, E, A](1.+(1))
+
+    failed with:
+
+        Found:    (2 : Int)
+        Required: ZIO[Nothing, Any, Any]
+    program.repeatN(1).run
+                   ^
+```
+
+```scala
+def run =
+  defer:
+    program.repeatN(1).run
+```
+
+Output:
+
+```shell
+Hello
+world
+Hello
+world
 ```
 
 We _cannot_ repeat our executed effect.
@@ -387,7 +442,7 @@ We _cannot_ repeat our executed effect.
 ```scala
 val programManipulatingBeforeRun =
   defer:
-    Console.printLine("Hello").run.repeatN(3)
+    program.run.repeatN(3)
 ```
 
 Output:
@@ -395,8 +450,11 @@ Output:
 ```shell
 error:
 value repeatN is not a member of Unit
-                                  ^
+    Console.printLine("**After**").run
+           ^
 ```
+
+We get the same error as the previous example, because the once an effect has been `.run`, you only have the result, not the deferred computation.
 
 Note that these calls to `.run` are all within a `defer` block, so when `program` is defined, we still have not actually executed anything.
 We have described a program that knows the order in which to execute our individual effects _when the program is executed_.
@@ -405,7 +463,7 @@ We have described a program that knows the order in which to execute our individ
 val surroundedProgram =
   defer:
     Console.printLine("**Before**").run
-    program.run
+    program.repeatN(1).run
     Console.printLine("**After**").run
 ```
 
@@ -423,24 +481,7 @@ Output:
 **Before**
 Hello
 world
+Hello
+world
 **After**
 ```
-
-You can only call `.run` on an effect value.
-Attempting to use in on anything else will produce an error.
-
-
-```scala
-val program =
-  defer:
-    (1 + 1).run
-```
-
-Output:
-
-```shell
-error:
-value run is not a member of Int.
-```
-
-{{ TODO Explain the 2 versions of run and how they came to be }}
