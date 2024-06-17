@@ -173,14 +173,19 @@ With `catchAll` we must handle all the types of failures and the implementation 
 We may want to be more specific about how we handle different types of failures.
 For example, let's try to catch the `NetworkException`:
 
-{{ TODO: mdoc seems to have a bug and is not outputting the compiler warning }}
-
-```scala 3 mdoc:warn
+```scala 3 mdoc:silent
 val bad =
   getTemperature.catchAll:
     case ex: NetworkException =>
       ZIO.succeed:
         "Network Unavailable"
+
+// [E029] Pattern Match Exhaustivity Warning:
+//     case ex: NetworkException =>
+//     ^
+// match may not be exhaustive.
+//
+// It would fail on pattern case: _: GpsException
 ```
 
 This produces a compiler warning because our `catchAll` does not actually catch all possible types of failure.
