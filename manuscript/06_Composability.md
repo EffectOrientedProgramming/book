@@ -53,8 +53,8 @@ import scala.concurrent.Future
 
 The original asynchronous datatype in Scala has several undesirable characteristics:
 
-- Cleanup is not guaranteed
 - Start executing immediately
+- Cleanup is not guaranteed
 - Must all fail with Exception
 - Needs `ExecutionContext`s passed everywhere
 
@@ -65,22 +65,20 @@ val future: Future[String] =
   getHeadLine()
 ```
 
-TODO This is repetitive after listing the downsides above.
 By wrapping this in `ZIO.from`, it will:
 
-- get the `ExecutionContext` it needs
-- Defer execution of the code
+- Defer execution
 - Let us attach finalizer behavior
-- Give us the ability to customize the error type
+- Let us customize the error type
+- get the `ExecutionContext` it needs
 
 ```scala
 def getHeadlineZ() =
   ZIO
     .from:
       getHeadLine()
-    .mapError:
-      case _: Throwable =>
-        HeadlineNotAvailable
+    .orElseFail:
+      HeadlineNotAvailable
 ```
 
 ```scala
@@ -222,8 +220,6 @@ Result: NoWikiArticleAvailable()
 Java/Scala provide the `AutoCloseable` interface for defining finalizer behavior on objects.
 While this is a big improvement over manually managing this in ad-hoc ways, the static scoping of this mechanism makes it clunky to use.
 
-TODO Decide whether to show nested files example to highlight this weakness
-
 
 We have an existing function that produces an `AutoCloseable`.
 
@@ -243,7 +239,7 @@ def openFileZ(path: String) =
 ```
 
 Once we do this, the `ZIO` runtime will manage the lifecycle of this object via the `Scope` mechanism.
-TODO Link to docs for this?
+For a more thorough discussion of this, see the [ZIO documentation](https://www.zio.dev/reference/resource/scope/).
 
 Now we open a `File`, and check if it contains a topic of interest.
 
@@ -334,8 +330,8 @@ def writeToFileZ(file: File, content: String) =
     .from:
       file.write:
         content
-    .mapError:
-      _ => DiskFull()
+    .orElseFail: 
+      DiskFull()
 ```
 
 ```scala
@@ -357,6 +353,15 @@ Result: New data on topic
 
 ## Functions that throw
 
+TODO Determine how much prose is required here after Managing_Failure chapter is rewritten.
+
+Downsides:
+
+- We cannot union these error possibilities and track them in the type system
+- Cannot attach behavior to deferred functions
+- do not put in place a contract
+
+
 ```scala
 val summary: String =
   openFile("file1").summaryFor("asdf")
@@ -367,59 +372,52 @@ case class NoSummaryAvailable(topic: String)
 
 def summaryForZ(
     file: File,
-    // TODO Consider making a CloseableFileZ
     topic: String
 ) =
   ZIO
     .attempt:
       file.summaryFor(topic)
-    .mapError:
-      _ => NoSummaryAvailable(topic)
+    .orElseFail:
+      NoSummaryAvailable(topic)
 ```
-
-TODO:
-
-- original function: File.summaryFor
-- wrap with ZIO
-- call zio version in AllTheThings
-
-Downsides:
-
-- We cannot union these error possibilities and track them in the type system
-- Cannot attach behavior to deferred functions
-- do not put in place a contract
 
 ## Slow, blocking functions
 
-TODO Decide example functionality
+Most of our examples in this chapter have specific failure behaviors that we handle.
+However, we must also consider functions that are simply too slow.
+Up to a point, latency is just the normal cost of doing business, but eventually it becomes unacceptable. 
 
-- AI analysis of news content?
-
-TODO Prose about the long-running AI process here
+Here, we are using a local Large Language Model to summarize content.
+It does not have the same failure modes as the other functions, but its performance varies wildly.
 
 
 ```scala
 val summaryTmp: String =
-  summarize("topic")
+  summarize("long article")
 ```
 
-This gets interrupted, although it takes a big performance hit
+This function is blocking, although it is not obvious from the signature.
+This brings several downsides:
+
+- Too many concurrent blocking operations can prevent progress of other operations
+- Very difficult to manage
+- Blocking performance varies wildly between environments
 
 ```scala
 def summarizeZ(article: String) =
   ZIO
     .attemptBlockingInterrupt:
       summarize(article)
+    .orDie
     .onInterrupt:
       ZIO.debug("AI **INTERRUPTED**")
-    .orDie // TODO Confirm we don't care about this case.
     .timeoutFail(AITooSlow())(50.millis)
 ```
 
-- We can't indicate if they block or not
-- Too many concurrent blocking operations can prevent progress of other operations
-- Very difficult to manage
-- Blocking performance varies wildly between environments
+Now we have a way to confine the impact that this function has on our application.
+Long-running invocations will be interrupted, although `attemptBlockingInterrupt` comes with a performance cost.
+Carefully consider the trade-offs when using this function.
+
 
 ## Sequencing
 
@@ -477,8 +475,7 @@ val researchHeadline =
       topicOfInterestZ(headline).run
 
     val summaryFile: File =
-      // TODO Use Scenario to determine file?
-      openFileZ("file1.txt").run
+      openFileZ("summaries.txt").run
 
     val knownTopic: Boolean =
       summaryFile.contains:
@@ -660,8 +657,19 @@ File - contains(stock market)
 Wiki - articleFor(stock market)
 AI - summarize - start
 AI - summarize - end
+File - write: market is not rational
+Network - Getting headline
+Analytics - Scanning for topic
+Analytics - topic: Some(stock market)
+File - OPEN
+File - contains(stock market)
+Wiki - articleFor(stock market)
+AI - summarize - start
+AI - summarize - end
+File - write: market is not rational
 File - CLOSE
-Result: AITooSlow()
+File - CLOSE
+Result: market is not rational
 ```
 
 ```scala
@@ -689,20 +697,9 @@ File - contains(stock market)
 Wiki - articleFor(stock market)
 AI - summarize - start
 AI - summarize - end
-File - write: market is not rational
-Network - Getting headline
-Analytics - Scanning for topic
-Analytics - topic: Some(stock market)
-File - OPEN
-File - contains(stock market)
-Wiki - articleFor(stock market)
-AI - summarize - start
-AI - summarize - end
-File - write: market is not rational
 File - CLOSE
 File - CLOSE
-File - CLOSE
-Result: market is not rational
+Result: AITooSlow()
 ```
 
 Repeating is a form of composability, because you are composing a program with itself
