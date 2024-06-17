@@ -61,10 +61,6 @@ Each time we publish a copy of this book, the code is re-executed and a differen
 However, conflicts are extremely likely, so some of our writes get clobbered by others, and we end up with less than the expected 100,000.
 Ultimately, we lose information with this approach.
 
-```mermaid
-TODO Consider making a diagram parallel writes
-```
-
 Performing our side effects inside ZIO's does not magically make them safe.
 We need to fully embrace the ZIO components, utilizing `Ref` for correct mutation.
 
