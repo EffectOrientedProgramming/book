@@ -285,37 +285,6 @@ Output:
 So far, we have focused on providing `Layer`s to Effects, but this can also go the other way!
 If an Effect already has no outstanding dependencies, it can be used to construct a `Layer`.
 
-```scala 3 mdoc:silent
-import zio.*
-import zio.direct.*
-
-case class BreadStoreBought() extends Bread
-
-val buyBread =
-  ZIO.succeed:
-    BreadStoreBought()
-```
-
-```scala 3 mdoc:silent
-import zio.*
-import zio.direct.*
-
-val storeBought =
-  ZLayer.fromZIO:
-    buyBread
-  .tap(_ => Console.printLine("BreadStoreBought: Bought"))
-```
-
-```scala 3 mdoc:runzio
-import zio.*
-import zio.direct.*
-
-def run =
-  ZIO
-    .service[Bread]
-    .provide:
-      storeBought
-```
 
 ## Step 8: Dependency construction can fail
 
@@ -377,6 +346,27 @@ def run =
 
 ## Step 9: Fallback Dependencies
 
+```scala 3 mdoc:silent
+import zio.*
+import zio.direct.*
+
+case class BreadStoreBought() extends Bread
+
+val buyBread =
+  ZIO.succeed:
+    BreadStoreBought()
+```
+
+```scala 3 mdoc:silent
+import zio.*
+import zio.direct.*
+
+val storeBought =
+  ZLayer.fromZIO:
+    buyBread
+  .tap(_ => Console.printLine("BreadStoreBought: Bought"))
+```
+
 ```scala 3 mdoc:runzio
 import zio.*
 import zio.direct.*
@@ -419,18 +409,46 @@ import zio.*
 import zio.direct.*
 
 def run =
-  logicWithRetries(retries = 1)
+  logicWithRetries(retries = 2)
 ```
+
+## Step 11: Keep the building from burning down!
+
+TODO Figure out best order. Might be better closer to when Step 7 (Effects can construct dependencies)
+
+Throughout our kitchen scenarios, there has been a dangerous oversight. 
+We heat up our oven, but then never turn it off!
+It would be great to have an oven that automatically turns itself off when we are done using it.
+
+```scala 3 mdoc:silent
+import zio.*
+import zio.direct.*
+
+val ovenSafe =
+  ZLayer.fromZIO:
+    ZIO.succeed(Heat())
+      .tap(_ => Console.printLine("Oven: Heated"))
+      .withFinalizer(_ => Console.printLine("Oven: Turning off!").orDie)
+```
+
 
 ```scala 3 mdoc:runzio
 import zio.*
 import zio.direct.*
 
 def run =
-  logicWithRetries(retries = 2)
+  ZIO
+    .serviceWithZIO[Bread]:
+      bread => bread.eat
+    .provide(
+      Bread.homemade, 
+      Dough.fresh, 
+      ovenSafe, 
+      Scope.default
+    )
 ```
 
-## Step 11: Externalize Config for Retries
+## Step 12: Externalize Config for Retries
 
 Changing things based on the running environment.
 
@@ -514,41 +532,6 @@ def run =
 Now we have bridged the gap between our logic and configuration files.
 This was a longer detour than our other steps, but a common requirement in real-world applications.
 
-## Step 12: Keep the building from burning down!
-
-TODO Figure out best order. Might be better closer to when Step 7 (Effects can construct dependencies)
-
-Throughout our kitchen scenarios, there has been a dangerous oversight. 
-We heat up our oven, but then never turn it off!
-It would be great to have an oven that automatically turns itself off when we are done using it.
-
-```scala 3 mdoc:silent
-import zio.*
-import zio.direct.*
-
-val ovenSafe =
-  ZLayer.fromZIO:
-    ZIO.succeed(Heat())
-      .tap(_ => Console.printLine("Oven: Heated"))
-      .withFinalizer(_ => Console.printLine("Oven: Turning off!").orDie)
-```
-
-
-```scala 3 mdoc:runzio
-import zio.*
-import zio.direct.*
-
-def run =
-  ZIO
-    .serviceWithZIO[Bread]:
-      bread => bread.eat
-    .provide(
-      Bread.homemade, 
-      Dough.fresh, 
-      ovenSafe, 
-      Scope.default
-    )
-```
 
 ## Testing Effects
 

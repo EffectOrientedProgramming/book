@@ -37,8 +37,13 @@ products are claimed as trademarks. Where those designations appear in this
 book, and the publisher was aware of a trademark claim, the designations are
 printed with initial capital letters or in all capitals.
 
-The Scala trademark belongs to {{TODO}}. Java is
-a trademark or registered trademark of Oracle, Inc. in the United States and
+The Scala language is copyright:
+
+&copy; 2002-2024 EPFL
+
+&copy; 2011-2024 Lightbend, Inc.
+ 
+Java is a trademark or registered trademark of Oracle, Inc. in the United States and
 other countries. Windows is a registered trademark of Microsoft Corporation in
 the United States and other countries. All other product names and company
 names mentioned herein are the property of their respective owners.
@@ -68,7 +73,7 @@ In each source-code file you find a reference to the following copyright notice:
 
 ```text
 // Copyright.txt
-This computer source code is Copyright ©2021 MindView LLC.
+This computer source code is Copyright ©2024 Billding Software LLC.
 All Rights Reserved.
 
 Permission to use, copy, modify, and distribute this
@@ -90,17 +95,17 @@ Programming" is cited as the origin.
 3. Permission to incorporate the Source Code into printed
 media may be obtained by contacting:
 
-MindView LLC, PO Box 969, Crested Butte, CO 81224
-MindViewInc@gmail.com
+Billding Software LLC, 111 Alpine Court, Crested Butte, CO 81224
+bill@billdingsoftware.com
 
 4. The Source Code and documentation are copyrighted by
-MindView LLC. The Source code is provided without express
+Billing Software LLC. The Source code is provided without express
 or implied warranty of any kind, including any implied
 warranty of merchantability, fitness for a particular
-purpose or non-infringement. MindView LLC does not
+purpose or non-infringement. Billing Software LLC does not
 warrant that the operation of any program that includes the
-Source Code will be uninterrupted or error-free. MindView
-LLC makes no representation about the suitability of the
+Source Code will be uninterrupted or error-free. Billing Software
+makes no representation about the suitability of the
 Source Code or of any software that includes the Source
 Code for any purpose. The entire risk as to the quality
 and performance of any program that includes the Source
@@ -131,7 +136,7 @@ SERVICES FROM MINDVIEW LLC, AND MINDVIEW LLC HAS NO
 OBLIGATIONS TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
 ENHANCEMENTS, OR MODIFICATIONS.
 
-Please note that MindView LLC maintains a Web site which is
+Please note that Billing Software LLC maintains a Web site which is
 the sole distribution point for electronic copies of the
 Source Code, where it is freely available under the terms
 stated above:
