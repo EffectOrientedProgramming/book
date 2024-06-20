@@ -39,8 +39,8 @@ You can also do things that simply are not possible in other approaches, such as
 
 ## Let's Make Bread
 
-To illustrate how ZIO can assemble our programs, we will use it to make and eat `Bread` first, and `Toast` second.
-Although we are utilizing very different tools with different goals, we were inspired by Li Haoyi's excellent article ["What is Functional Programming All About?"](https://www.lihaoyi.com/post/WhatsFunctionalProgrammingAllAbout.html)
+To illustrate how ZIO can assemble our programs, we will use it to make and eat `Bread` first, and `Toast` second. [^footnote]
+[^footnote]: Although we are utilizing very different tools with different goals, we were inspired by Li Haoyi's excellent article ["What is Functional Programming All About?"](https://www.lihaoyi.com/post/WhatsFunctionalProgrammingAllAbout.html)
 
 ```scala 3 mdoc:silent
 import zio.*
