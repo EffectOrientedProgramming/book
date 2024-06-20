@@ -128,7 +128,7 @@ This will install Java, Scala, SBT (Scala Build Tool) and several other necessar
 
 * Print-ready pages from Leanpub.
 
-* Trying the new Markua syntax for automatic generation of the index.
+* Markua syntax not working yet for automatic generation of the index.
 
 Note that the last two points mean that going from eBook to print book becomes
 virtually instantaneous, and does not collect baggage in the process (extra
