@@ -593,16 +593,16 @@ Output:
 ```shell
 Tails
 Tails
+Tails
+Heads
+Heads
+Tails
 Heads
 Tails
 Tails
 Heads
-Tails
-Heads
-Tails
-Tails
-Num Heads = 3
-Result: 3
+Num Heads = 4
+Result: 4
 ```
 
 ```scala
@@ -634,7 +634,7 @@ Heads
 Heads
 Num Heads = 10
 + flips 10 times
-Result: Summary(1,0,0,,PT0.083591S)
+Result: Summary(1,0,0,,PT0.075439S)
 ```
 
 ```scala
@@ -702,7 +702,7 @@ G: ...probability
 Heads
 R: Heads
 + rosencrantzAndGuildensternAreDead finishes
-Result: Summary(1,0,0,,PT0.059848S)
+Result: Summary(1,0,0,,PT0.041738S)
 ```
 
 ```scala
@@ -732,7 +732,7 @@ G: ...probability
 Heads
 R: Heads
 + flaky plan
-Result: Summary(1,0,0,,PT0.020792S)
+Result: Summary(1,0,0,,PT0.042039S)
 ```
 
 The `Random` Effect uses an injected something which when running the ZIO uses the system's unpredictable random number generator.  In ZIO Test the `Random` Effect uses a different something which can predictably generate "random" numbers.  `TestRandom` provides a way to define what those numbers are.  This example feeds in the `Int`s `1` and `2` so the first time we ask for a random number we get `1` and the second time we get `2`.
@@ -779,7 +779,7 @@ Output:
 ```shell
 Parsing CSV: ()
 + batch runs after 24 hours
-Result: Summary(1,0,0,,PT0.025811S)
+Result: Summary(1,0,0,,PT0.040037S)
 ```
 
 The `race` is between `nightlyBatch` and `timeTravel`.
