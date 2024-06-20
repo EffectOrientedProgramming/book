@@ -43,8 +43,8 @@ You can also do things that simply are not possible in other approaches, such as
 
 ## Let's Make Bread
 
-To illustrate how ZIO can assemble our programs, we will use it to make and eat `Bread` first, and `Toast` second.
-Although we are utilizing very different tools with different goals, we were inspired by Li Haoyi's excellent article ["What is Functional Programming All About?"](https://www.lihaoyi.com/post/WhatsFunctionalProgrammingAllAbout.html)
+To illustrate how ZIO can assemble our programs, we will use it to make and eat `Bread` first, and `Toast` second. [^footnote]
+[^footnote]: Although we are utilizing very different tools with different goals, we were inspired by Li Haoyi's excellent article ["What is Functional Programming All About?"](https://www.lihaoyi.com/post/WhatsFunctionalProgrammingAllAbout.html)
 
 ```scala
 case class Dough():
@@ -149,8 +149,8 @@ def run =
 Output:
 
 ```shell
-Oven: Heated
 Dough: Mixed
+Oven: Heated
 BreadHomeMade: Baked
 Bread: Eating
 ```
@@ -591,18 +591,18 @@ def run =
 Output:
 
 ```shell
+Heads
+Heads
 Tails
 Tails
 Tails
 Heads
-Heads
-Tails
-Heads
 Tails
 Tails
-Heads
-Num Heads = 4
-Result: 4
+Tails
+Tails
+Num Heads = 3
+Result: 3
 ```
 
 ```scala
@@ -634,7 +634,7 @@ Heads
 Heads
 Num Heads = 10
 + flips 10 times
-Result: Summary(1,0,0,,PT0.075439S)
+Result: Summary(1,0,0,,PT0.067352S)
 ```
 
 ```scala
@@ -702,7 +702,7 @@ G: ...probability
 Heads
 R: Heads
 + rosencrantzAndGuildensternAreDead finishes
-Result: Summary(1,0,0,,PT0.041738S)
+Result: Summary(1,0,0,,PT0.052413S)
 ```
 
 ```scala
@@ -721,18 +721,18 @@ Output:
 
 ```shell
 *Performance Begins*
-Heads
-R: Heads
-Heads
-R: Heads
 Tails
+<FAIL> R: Fail(Tails,Stack trace for thread "zio-fiber-1663268935":
+	at coinToss(<input>:413)
+	at rosencrantzCoinToss(<input>:482)
+	at rosencrantzAndGuildensternAreDead(<input>:487)
 ...
 R: Heads
 G: ...probability
 Heads
 R: Heads
 + flaky plan
-Result: Summary(1,0,0,,PT0.042039S)
+Result: Summary(1,0,0,,PT0.032433S)
 ```
 
 The `Random` Effect uses an injected something which when running the ZIO uses the system's unpredictable random number generator.  In ZIO Test the `Random` Effect uses a different something which can predictably generate "random" numbers.  `TestRandom` provides a way to define what those numbers are.  This example feeds in the `Int`s `1` and `2` so the first time we ask for a random number we get `1` and the second time we get `2`.
@@ -779,7 +779,7 @@ Output:
 ```shell
 Parsing CSV: ()
 + batch runs after 24 hours
-Result: Summary(1,0,0,,PT0.040037S)
+Result: Summary(1,0,0,,PT0.022439S)
 ```
 
 The `race` is between `nightlyBatch` and `timeTravel`.
