@@ -44,6 +44,7 @@ You can also do things that simply are not possible in other approaches, such as
 ## Let's Make Bread
 
 To illustrate how ZIO can assemble our programs, we will use it to make and eat `Bread` first, and `Toast` second. [^footnote]
+{{TODO Confirm footnote works if/when markua is working for us }}
 [^footnote]: Although we are utilizing very different tools with different goals, we were inspired by Li Haoyi's excellent article ["What is Functional Programming All About?"](https://www.lihaoyi.com/post/WhatsFunctionalProgrammingAllAbout.html)
 
 ```scala
@@ -149,8 +150,8 @@ def run =
 Output:
 
 ```shell
-Dough: Mixed
 Oven: Heated
+Dough: Mixed
 BreadHomeMade: Baked
 Bread: Eating
 ```
@@ -592,17 +593,17 @@ Output:
 
 ```shell
 Heads
+Tails
+Heads
 Heads
 Tails
 Tails
-Tails
+Heads
 Heads
 Tails
-Tails
-Tails
-Tails
-Num Heads = 3
-Result: 3
+Heads
+Num Heads = 6
+Result: 6
 ```
 
 ```scala
@@ -634,7 +635,7 @@ Heads
 Heads
 Num Heads = 10
 + flips 10 times
-Result: Summary(1,0,0,,PT0.067352S)
+Result: Summary(1,0,0,,PT0.038567S)
 ```
 
 ```scala
@@ -702,7 +703,7 @@ G: ...probability
 Heads
 R: Heads
 + rosencrantzAndGuildensternAreDead finishes
-Result: Summary(1,0,0,,PT0.052413S)
+Result: Summary(1,0,0,,PT0.058487S)
 ```
 
 ```scala
@@ -722,7 +723,7 @@ Output:
 ```shell
 *Performance Begins*
 Tails
-<FAIL> R: Fail(Tails,Stack trace for thread "zio-fiber-1663268935":
+<FAIL> R: Fail(Tails,Stack trace for thread "zio-fiber-463315644":
 	at coinToss(<input>:413)
 	at rosencrantzCoinToss(<input>:482)
 	at rosencrantzAndGuildensternAreDead(<input>:487)
@@ -732,7 +733,7 @@ G: ...probability
 Heads
 R: Heads
 + flaky plan
-Result: Summary(1,0,0,,PT0.032433S)
+Result: Summary(1,0,0,,PT0.043183S)
 ```
 
 The `Random` Effect uses an injected something which when running the ZIO uses the system's unpredictable random number generator.  In ZIO Test the `Random` Effect uses a different something which can predictably generate "random" numbers.  `TestRandom` provides a way to define what those numbers are.  This example feeds in the `Int`s `1` and `2` so the first time we ask for a random number we get `1` and the second time we get `2`.
@@ -779,7 +780,7 @@ Output:
 ```shell
 Parsing CSV: ()
 + batch runs after 24 hours
-Result: Summary(1,0,0,,PT0.022439S)
+Result: Summary(1,0,0,,PT0.03405S)
 ```
 
 The `race` is between `nightlyBatch` and `timeTravel`.

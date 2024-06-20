@@ -605,9 +605,9 @@ File - contains(genome)
 Wiki - articleFor(genome)
 AI - summarize - start
 AI - summarize - end
-File - disk full!
+AI **INTERRUPTED**
 File - CLOSE
-Result: DiskFull()
+Result: AITooSlow()
 ```
 
 And finally, we see the longest, successful pathway through our application:
@@ -666,6 +666,7 @@ File - contains(stock market)
 Wiki - articleFor(stock market)
 AI - summarize - start
 AI - summarize - end
+AI **INTERRUPTED**
 File - CLOSE
 File - CLOSE
 Result: AITooSlow()
@@ -696,7 +697,6 @@ File - contains(stock market)
 Wiki - articleFor(stock market)
 AI - summarize - start
 AI - summarize - end
-AI **INTERRUPTED**
 File - CLOSE
 File - CLOSE
 Result: AITooSlow()
