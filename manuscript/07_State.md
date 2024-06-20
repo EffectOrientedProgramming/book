@@ -19,7 +19,7 @@ Required Operations:
 - Update the value
 - Read the current value
 
-These are both effectful operations.
+Both of these operations are effects.
 In order to confidently use them, we need certain guarantees about the behavior:
 
 - The underlying value cannot be changed during a read
@@ -57,7 +57,7 @@ def run =
 Output:
 
 ```shell
-Result: Final count: 99954
+Result: Final count: 99922
 ```
 
 Due to the unpredictable nature of shared mutable state, we do not know exactly what the final count above is.
