@@ -15,7 +15,7 @@ Required Operations:
 - Update the value
 - Read the current value
 
-These are both effectful operations.
+Both of these operations are effects.
 In order to confidently use them, we need certain guarantees about the behavior:
 
 - The underlying value cannot be changed during a read

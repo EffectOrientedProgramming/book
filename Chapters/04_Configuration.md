@@ -3,8 +3,6 @@
 Altering the behavior of your application based on values provided at runtime is a perennial challenge in software.
 The techniques for solving this problem are diverse, impressive, and often completely bewildering.
 
-## General/Historic discussion
-
 One reason to modularize an application into "parts" is that the relationship between the parts can be expressed and also changed depending on the needs for a given execution path.  
 Typically, this approach to breaking things into parts and expressing what they need, is called "Dependency Inversion."
 
@@ -20,13 +18,12 @@ Importantly, it is difficult or impossible to express our dependencies at compil
 
 Instead, if functionality expressed its dependencies through the regular type system, the compiler could verify that the needed parts are available given a particular path of execution (e.g. main app, test suite one, test suite two).
 
-## What ZIO Provides Us
+## What ZIO Provides
 
-1. Application startup uses the same tools that you utilize for the rest of your application
+All the same capabilities that ZIO gives you in the logic of your application can also be used during initialization.
 
-With ZIO's approach to dependencies, you get many desirable characteristics at compile-time, using standard language features.
+With ZIO's approach to dependencies, you get many desirable characteristics at compile-time, using plain function calls.
 Your services are defined as classes with constructor arguments, just as in any vanilla Scala application.
-No annotations that kick off impenetrable wiring logic outside your normal code.
 
 For any given service in your application, you define what it needs in order to execute.
 Finally, when it is time to build your application, all of these pieces can be provided in one, flat space.
@@ -43,7 +40,7 @@ You can also do things that simply are not possible in other approaches, such as
 ## Let's Make Bread
 
 To illustrate how ZIO can assemble our programs, we will use it to make and eat `Bread` first, and `Toast` second.
-Although we are utilizing very different tools with different goals, we were inspired by Li Haoyi's excellent article ["What is Functional Programming All About?"](www.lihaoyi.com/post/WhatsFunctionalProgrammingAllAbout.html)
+Although we are utilizing very different tools with different goals, we were inspired by Li Haoyi's excellent article ["What is Functional Programming All About?"](https://www.lihaoyi.com/post/WhatsFunctionalProgrammingAllAbout.html)
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -60,7 +57,7 @@ object Dough:
       .tap(_ => Console.printLine("Dough: Mixed"))
 ```
 
-## Step 1: Provide Dependencies to Effects
+## Step 1: Provide Dependencies
 
 We must provide all required dependencies to an effect before you can run it.
 
@@ -76,7 +73,7 @@ def run =
       Dough.fresh
 ```
 
-## Step 2: Missing Dependencies Are Compile Errors
+## Step 2: Missing Dependencies
 
 If the dependency for an Effect isn't provided, we get a compile error:
 
@@ -87,7 +84,7 @@ ZIO
   .provide()
 ```
 
-## Step 3: Dependencies can "automatically" assemble
+## Step 3: Automatically Assemble Dependencies 
 
 The requirements for each ZIO operation are tracked and combined automatically.
 
@@ -137,7 +134,7 @@ def run =
     .provide(Bread.homemade, Dough.fresh, oven)
 ```
 
-## Step 4: Different effects can require the same dependency
+## Step 4: Sharing Dependencies
 
 Eventually, we grow tired of eating plain `Bread` and decide to start making `Toast`.
 Both of these processes require `Heat`.
@@ -202,7 +199,7 @@ def run =
       toaster
 ```
 
-## Step 5: Dependencies must be unique types
+## Step 5: Unique Dependencies
 
 ```scala 3 mdoc:fail
 ZIO
@@ -219,7 +216,7 @@ ZIO
 Unfortunately our program is now ambiguous.
 It cannot decide if we should be making `Toast` in the oven, `Bread` in the toaster, or any other combination.
 
-## Step 6: Can Disambiguate Dependencies When Needed
+## Step 6: Disambiguating Dependencies
 
 If you find discover that your existing types produce ambiguous dependencies, introduce more specific types.
 In our case, we choose to distinguish our `Heat` sources, so that they are only used where they are intended.
@@ -280,13 +277,45 @@ Output:
 [info]   ╰─◑ Dough.fresh
 ```
 
-## Step 7: Effects can Construct Dependencies
+## Step 7: Constructing Dependencies from Effects 
 
 So far, we have focused on providing `Layer`s to Effects, but this can also go the other way!
 If an Effect already has no outstanding dependencies, it can be used to construct a `Layer`.
 
+We can use this to correct a dangerous oversight in our scenarios.
+We heat up our oven, but then never turn it off!
+We can build an oven that turns itself off when it is no longer needed.
 
-## Step 8: Dependency construction can fail
+```scala 3 mdoc:silent
+import zio.*
+import zio.direct.*
+
+val ovenSafe =
+  ZLayer.fromZIO:
+    ZIO.succeed(Heat())
+      .tap(_ => Console.printLine("Oven: Heated"))
+      .withFinalizer(_ => Console.printLine("Oven: Turning off!").orDie)
+```
+
+
+```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
+def run =
+  ZIO
+    .serviceWithZIO[Bread]:
+      bread => bread.eat
+    .provide(
+      Bread.homemade, 
+      Dough.fresh, 
+      ovenSafe, 
+      Scope.default
+    )
+```
+
+
+## Step 8: Construction Failure
 
 Since dependencies can be built with effects, this means that they can fail.
 
@@ -305,7 +334,7 @@ object Friend:
         .run
       ZIO
         .when(true)(
-          ZIO.fail("Error(Friend Unreachable)")
+          ZIO.fail("Error(Friend Unreachable)") // TODO Replace error with failure pervasively
         )
         .as(???)
         .run
@@ -383,7 +412,7 @@ def run =
           storeBought
 ```
 
-## Step 10: Dependency Retries
+## Step 10: Retries
 
 ```scala 3 mdoc
 import zio.*
@@ -412,53 +441,17 @@ def run =
   logicWithRetries(retries = 2)
 ```
 
-## Step 11: Keep the building from burning down!
+## Step 11: External Configuration
 
-TODO Figure out best order. Might be better closer to when Step 7 (Effects can construct dependencies)
+Our programs often need to change their behavior based on the environment during startup.
+Three typical ways are:
 
-Throughout our kitchen scenarios, there has been a dangerous oversight. 
-We heat up our oven, but then never turn it off!
-It would be great to have an oven that automatically turns itself off when we are done using it.
+- Command Line Parameters
+- Configuration Files
+- OS Environment Variables
 
-```scala 3 mdoc:silent
-import zio.*
-import zio.direct.*
-
-val ovenSafe =
-  ZLayer.fromZIO:
-    ZIO.succeed(Heat())
-      .tap(_ => Console.printLine("Oven: Heated"))
-      .withFinalizer(_ => Console.printLine("Oven: Turning off!").orDie)
-```
-
-
-```scala 3 mdoc:runzio
-import zio.*
-import zio.direct.*
-
-def run =
-  ZIO
-    .serviceWithZIO[Bread]:
-      bread => bread.eat
-    .provide(
-      Bread.homemade, 
-      Dough.fresh, 
-      ovenSafe, 
-      Scope.default
-    )
-```
-
-## Step 12: Externalize Config for Retries
-
-Changing things based on the running environment.
-
-- CLI Params
-- Config Files
-- Environment Variables
-
-We can use the ZIO Config library to manage these.
-This is one of the few additional libraries that we use on top of core ZIO.
-It is heavily modularized so that you only pull in the integrations for the technologies used in your project.
+We can use the [ZIO Config library](https://github.com/zio/zio-config) to read these.
+This is one of the few additional libraries used in this book on top of core ZIO.
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -490,6 +483,7 @@ val configDescriptor: Config[RetryConfig] =
   deriveConfig[RetryConfig]
 ```
 
+It is heavily modularized so that you only pull in the integrations for the technologies used in your project.
 We want to use the Typesafe config format, so we import everything from that module.
 
 ```scala 3 mdoc:silent
