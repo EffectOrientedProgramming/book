@@ -26,3 +26,4 @@ mdoctools/target/*
 mdoctools/project/target/*
 mdoctools/project/
 ChaptersTiny/
+*.iml
