@@ -252,11 +252,10 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(869)
-Current requests: List(718, 869)
-Current requests: List(921, 718, 869)
-Current requests: List(845, 921, 718, 869)
-Current requests: List(380, 845, 921, 718, 869)
+Current requests: List(839)
+Current requests: List(557, 839)
+Current requests: List(589, 557, 839)
+Current requests: List(168, 589, 557, 839)
 Result: Crashed the server!!
 ```
 
@@ -296,16 +295,16 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(783)
-Current requests: List(541, 783)
-Current requests: List(29, 541, 783)
-Current requests: List(524)
-Current requests: List(821, 524)
-Current requests: List(710, 821, 524)
-Current requests: List(844)
-Current requests: List(19, 844)
-Current requests: List(570, 19, 844)
-Current requests: List(743)
+Current requests: List(901)
+Current requests: List(95, 901)
+Current requests: List(939, 95, 901)
+Current requests: List(726, 901)
+Current requests: List(629, 726)
+Current requests: List(340, 629, 726)
+Current requests: List(100, 340)
+Current requests: List(63, 100)
+Current requests: List(420, 63, 100)
+Current requests: List(771)
 Result: All Requests Succeeded
 ```
 
@@ -545,5 +544,5 @@ Output:
 Failed!
 Success!
 + long test
-Result: Summary(1,0,0,,PT0.021762S)
+Result: Summary(1,0,0,,PT0.035242S)
 ```
