@@ -139,7 +139,7 @@ def run =
 Eventually, we grow tired of eating plain `Bread` and decide to start making `Toast`.
 Both of these processes require `Heat`.
 
-```scala 3 mdoc:silent
+```scala mdoc:silent
 import zio.*
 import zio.direct.*
 
@@ -149,8 +149,11 @@ case class Toast(heat: Heat, bread: Bread):
 
 object Toast:
   val make =
-    ZLayer.derive[Toast]
-      .tap(_ => Console.printLine("Toast: Made"))
+    ZLayer
+      .derive[Toast]
+      .tap(
+        _ => Console.printLine("Toast: Made")
+      )
 ```
 
 It is possible to also use the oven to provide `Heat` to make the `Toast`.
@@ -268,6 +271,7 @@ def run =
 Author Note: Hardcoded, because mdoc doesn't properly support the `ZLayer.Debug.tree` output.
 
 Output: 
+
 ```terminal
 [info]   ZLayer Wiring Graph  
 [info] ◉ ToastZ.make
@@ -329,12 +333,12 @@ object Friend:
     defer:
       Console
         .printLine(
-          s"Attempt $invocations: Error(Friend Unreachable)"
+          s"Attempt $invocations: Failure(Friend Unreachable)"
         )
         .run
       ZIO
         .when(true)(
-          ZIO.fail("Error(Friend Unreachable)") // TODO Replace error with failure pervasively
+          ZIO.fail("Failure(Friend Unreachable)") // TODO Replace error with failure pervasively
         )
         .as(???)
         .run
@@ -385,6 +389,8 @@ val buyBread =
   ZIO.succeed:
     BreadStoreBought()
 ```
+
+We can rely on this method of acquiring `Bread`, but we are going to be paying for that convenience.
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -526,20 +532,50 @@ def run =
 Now we have bridged the gap between our logic and configuration files.
 This was a longer detour than our other steps, but a common requirement in real-world applications.
 
+## Step 12 Test Dependencies
+
+Effects need access to external systems thus are unpredictable.  
+It is great to have these abilities for responding to the messiness of the real world, but we want to be able to test our programs in a predictable way.
+So how do we write tests for effects that are predictable?
+With ZIO we can replace the external systems with predictable ones when running our tests.
+Rather than actually trying to get bread from our living, fallible friend, we can create an ideal friend that will always give us `Bread`.
+
+```scala 3 mdoc
+object IdealFriend:
+  val bread =
+    ZLayer.succeed:
+      BreadFromFriend()
+```
+
+{{TODO How much to explain each piece of zio-test used here: `spec`, `test`, `TestConsole`, `assertTrue`}}
+
+```scala 3 mdoc:testzio
+import zio.*
+import zio.direct.*
+
+import zio.test.*
+
+def spec =
+  test("eat Bread"):
+    defer:
+      ZIO
+        .serviceWithZIO[Bread]:
+          bread => 
+            bread.eat
+      .run
+      val output = TestConsole.output.run
+      assertTrue(output.contains("Bread: Eating\n"))
+      
+  .provide:
+    IdealFriend
+      .bread
+```
 
 ## Testing Effects
 
-{{ TODO: Bridge from dependency / configuration to here }}
-
-{{ TODO: Code that provides an "ideal friend" to our bread example
-    Maybe as a 2 step process, first outside of a test, then in a test.
-    Or a single step just in a test }}
-
-Effects need access to external systems thus are unpredictable.  
-Tests are ideally predictable so how do we write tests for effects that are predictable?
-With ZIO we can replace the external systems with predictable ones when running our tests.
-
-With ZIO Test we can use predictable replacements for the standard systems effects (Clock, Random, Console, etc).
+For user-defined types, calling `.provide` with your test implementation is the way to go.
+However, for built-in types like `Console`, `Random`, and `Clock`, ZIO Test provides special APIs.
+We will demonstrate a few, but not exhaustively cover them.
 
 ### Random
 
@@ -711,10 +747,10 @@ def spec =
       assertCompletes
 ```
 
-The `race` is between `nightlyBatch` and `timeTravel`.
+The `race` is between `nightlyBatch` and `timeTravel`. {{TODO Not racing. Just forking/joining.}}
 It completes when the first Effect succeeds and cancels the losing Effect, using the Effect System's cancellation mechanism.
 
-By default in ZIO Test, the clock does not change unless instructed to.
+By default, in ZIO Test, the clock does not change unless instructed to.
 Calling a time based effect like `timeout` would hang indefinitely with a warning like:
 
 ```terminal
@@ -732,7 +768,7 @@ So this example runs in milliseconds of real-world time instead of taking an act
 This way our time-based tests run much more quickly since they are not based on actual system time.
 They are also more predictable as the time adjustments are fully controlled by the tests.
 
-#### Targeting Error-Prone Time Bands
+#### Targeting Failure-Prone Time Bands
 
 Using real-world time also can be error prone because effects may have unexpected results in certain time bands.
 For instance, if you have code that gets the time and it happens to be 23:59:59, then after some operations that take a few seconds, you get some database records for the current day, those records may no longer be the day associated with previously received records.  This scenario can be very hard to test for when using real-world time.  When using a simulated clock in tests, you can write tests that adjust the clock to reliably reproduce the condition.
