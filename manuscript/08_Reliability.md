@@ -215,15 +215,15 @@ def run =
 Output:
 
 ```shell
-Bruce called API [took 0s]
-James called API [took 1s]
+James called API [took 0s]
+Bruce called API [took 1s]
+James called API [took 2s]
+Bill called API [took 3s]
+Bruce called API [took 3s]
+James called API [took 3s]
+Bill called API [took 3s]
+Bruce called API [took 3s]
 Bill called API [took 2s]
-Bruce called API [took 3s]
-James called API [took 3s]
-Bill called API [took 3s]
-Bruce called API [took 3s]
-James called API [took 3s]
-Bill called API [took 3s]
 Total time [took 8s]
 ```
 
@@ -252,10 +252,11 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(373)
-Current requests: List(833, 660, 373)
-Current requests: List(660, 373)
-Current requests: List(414, 833, 660, 373)
+Current requests: List(514)
+Current requests: List(809, 156, 514)
+Current requests: List(156, 514)
+Current requests: List(52, 809, 156, 514)
+Current requests: List(221, 52, 809, 156, 514)
 Result: Crashed the server!!
 ```
 
@@ -295,16 +296,16 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(61)
-Current requests: List(246, 61)
-Current requests: List(151, 246, 61)
-Current requests: List(205)
-Current requests: List(474, 205)
-Current requests: List(61, 474, 205)
-Current requests: List(3)
-Current requests: List(84, 3)
-Current requests: List(309, 84, 3)
-Current requests: List(436)
+Current requests: List(427)
+Current requests: List(672, 427)
+Current requests: List(688, 672, 427)
+Current requests: List(236, 876)
+Current requests: List(876)
+Current requests: List(690, 236, 876)
+Current requests: List(345)
+Current requests: List(721, 345)
+Current requests: List(726, 721, 345)
+Current requests: List(44)
 Result: All Requests Succeeded
 ```
 
@@ -406,7 +407,7 @@ def run =
 Output:
 
 ```shell
-Result: Calls prevented: 75 Calls made: 66
+Result: Calls prevented: 74 Calls made: 67
 ```
 
 Now we see that our code prevented the majority of the doomed calls to the external service.
@@ -540,10 +541,7 @@ Output:
 
 ```shell
 Failed!
-Failed!
-Failed!
-Failed!
 Success!
 + long test
-Result: Summary(1,0,0,,PT0.024327S)
+Result: Summary(1,0,0,,PT0.022691S)
 ```

@@ -273,9 +273,13 @@ def run =
       file1 =>
         Using(openFile("file2.txt")) {
           file2 =>
-            file1.sameContent(file2)
+            println:
+              file1.sameContent(file2)
         }
     }
+  // TODO Confirm .unit is better than showing 
+  //   the ugly return type that wraps unit
+  .unit 
 ```
 
 Output:
@@ -284,9 +288,9 @@ Output:
 File - OPEN
 File - OPEN
 side-effect print: comparing content
+true
 File - CLOSE
 File - CLOSE
-Result: Success(Success(true))
 ```
 
 With each new file we open, we have to nest our code deeper.
@@ -298,7 +302,9 @@ def run =
       openFileZ("file1.txt").run
     val file2 =
       openFileZ("file2.txt").run
-    file1.sameContent(file2)
+    Console.printLine:
+      file1.sameContent(file2)
+    .run
 ```
 
 Output:
@@ -307,9 +313,9 @@ Output:
 File - OPEN
 File - OPEN
 side-effect print: comparing content
+true
 File - CLOSE
 File - CLOSE
-Result: true
 ```
 
 Our code remains flat.
@@ -353,18 +359,26 @@ Result: New data on topic
 
 ## Functions that throw
 
-TODO Determine how much prose is required here after Managing_Failure chapter is rewritten.
-
-Downsides:
-
-- We cannot union these error possibilities and track them in the type system
-- Cannot attach behavior to deferred functions
-- do not put in place a contract
-
+We covered the deficiencies of throwing functions in the previous chapter, so we will not belabor the point here.
+We still want to show how they can be converted to Effects and cleanly fit into our composability story.
 
 ```scala
-val summary: String =
-  openFile("file1").summaryFor("asdf")
+openFile("file1").summaryFor("space")
+```
+
+Output:
+
+```shell
+File - OPEN
+File - summaryFor(space)
+res14: String = "space is huge"
+```
+
+```scala
+openFile("file1").summaryFor("unicode")
+// java.lang.Exception: No summary available for unicode
+// 	at repl.MdocSession$MdocApp$$anon$29.summaryFor(<input>:324)
+// 	at repl.MdocSession$MdocApp.$init$$$anonfun$1(<input>:468)
 ```
 
 ```scala
@@ -581,6 +595,7 @@ File - OPEN
 File - contains(space)
 Wiki - articleFor(space)
 AI - summarize - start
+AI **INTERRUPTED**
 File - CLOSE
 Result: AITooSlow()
 ```
@@ -604,8 +619,9 @@ File - contains(genome)
 Wiki - articleFor(genome)
 AI - summarize - start
 AI - summarize - end
+File - disk full!
 File - CLOSE
-Result: AITooSlow()
+Result: DiskFull()
 ```
 
 And finally, we see the longest, successful pathway through our application:
@@ -638,6 +654,8 @@ Result: market is not rational
 {{ TODO: enables, reuse, repeats, delays, etc }}
 
 ```scala
+override val bootstrap = stockMarketHeadline
+
 def run =
   defer:
     researchHeadline.run
@@ -655,11 +673,23 @@ File - contains(stock market)
 Wiki - articleFor(stock market)
 AI - summarize - start
 AI - summarize - end
+File - write: market is not rational
+Network - Getting headline
+Analytics - Scanning for topic
+Analytics - topic: Some(stock market)
+File - OPEN
+File - contains(stock market)
+Wiki - articleFor(stock market)
+AI - summarize - start
+AI - summarize - end
+File - CLOSE
 File - CLOSE
 Result: AITooSlow()
 ```
 
 ```scala
+override val bootstrap = stockMarketHeadline
+
 def run =
   researchHeadline.repeatN(2)
 ```
@@ -675,6 +705,26 @@ File - contains(stock market)
 Wiki - articleFor(stock market)
 AI - summarize - start
 AI - summarize - end
+File - write: market is not rational
+Network - Getting headline
+Analytics - Scanning for topic
+Analytics - topic: Some(stock market)
+File - OPEN
+File - contains(stock market)
+Wiki - articleFor(stock market)
+AI - summarize - start
+AI - summarize - end
+File - write: market is not rational
+Network - Getting headline
+Analytics - Scanning for topic
+Analytics - topic: Some(stock market)
+File - OPEN
+File - contains(stock market)
+Wiki - articleFor(stock market)
+AI - summarize - start
+AI - summarize - end
+File - CLOSE
+File - CLOSE
 File - CLOSE
 Result: AITooSlow()
 ```
