@@ -216,14 +216,14 @@ Output:
 
 ```shell
 Bruce called API [took 0s]
-Bill called API [took 1s]
-James called API [took 2s]
+James called API [took 1s]
+Bill called API [took 2s]
 Bruce called API [took 3s]
-Bill called API [took 3s]
 James called API [took 3s]
+Bill called API [took 3s]
 Bruce called API [took 3s]
-Bill called API [took 3s]
 James called API [took 3s]
+Bill called API [took 3s]
 Total time [took 8s]
 ```
 
@@ -252,10 +252,10 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(839)
-Current requests: List(557, 839)
-Current requests: List(589, 557, 839)
-Current requests: List(168, 589, 557, 839)
+Current requests: List(373)
+Current requests: List(833, 660, 373)
+Current requests: List(660, 373)
+Current requests: List(414, 833, 660, 373)
 Result: Crashed the server!!
 ```
 
@@ -295,16 +295,16 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(901)
-Current requests: List(95, 901)
-Current requests: List(939, 95, 901)
-Current requests: List(726, 901)
-Current requests: List(629, 726)
-Current requests: List(340, 629, 726)
-Current requests: List(100, 340)
-Current requests: List(63, 100)
-Current requests: List(420, 63, 100)
-Current requests: List(771)
+Current requests: List(61)
+Current requests: List(246, 61)
+Current requests: List(151, 246, 61)
+Current requests: List(205)
+Current requests: List(474, 205)
+Current requests: List(61, 474, 205)
+Current requests: List(3)
+Current requests: List(84, 3)
+Current requests: List(309, 84, 3)
+Current requests: List(436)
 Result: All Requests Succeeded
 ```
 
@@ -406,7 +406,7 @@ def run =
 Output:
 
 ```shell
-Result: Calls prevented: 74 Calls made: 67
+Result: Calls prevented: 75 Calls made: 66
 ```
 
 Now we see that our code prevented the majority of the doomed calls to the external service.
@@ -508,8 +508,6 @@ def spec =
 
 ### Flaky Tests
 
-{{ TODO: Code example }}
-
 Commonly, as a project grows, the supporting tests become more and more flaky.
 This can be caused by a number of factors:
 
@@ -524,7 +522,7 @@ This can be caused by a number of factors:
   A team of engineers might be able to successfully run the entire test suite on their personal machines.
   However, the CI/CD system might not have enough resources to run the tests triggered by everyone pushing to the repository.
   Your tests might be occasionally failing due to timeouts or lack of memory.
-- 
+
 
 ```scala
 import zio.test.*
@@ -542,7 +540,10 @@ Output:
 
 ```shell
 Failed!
+Failed!
+Failed!
+Failed!
 Success!
 + long test
-Result: Summary(1,0,0,,PT0.035242S)
+Result: Summary(1,0,0,,PT0.024327S)
 ```

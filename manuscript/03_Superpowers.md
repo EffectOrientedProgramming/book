@@ -273,7 +273,6 @@ def run =
 Output:
 
 ```shell
-Log: Signup initiated for Morty
 Result: User saved
 ```
 
@@ -302,8 +301,7 @@ def run =
 Output:
 
 ```shell
-Log: Signup initiated for Morty
-Result: (PT0.100912602S,User saved)
+Result: (PT0.049218018S,User saved)
 ```
 
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.
@@ -337,7 +335,7 @@ We can add behavior to the end of our complex Effect,
 
 ## Many More Superpowers
 
-{{ todo: make rendering in manuscript work. Or hard-code the resulting graph image. }}
+{{ todo: Group discussion about this. Make rendering in manuscript work. Or hard-code the resulting graph image. }}
 
 ```mermaid
 graph TD
