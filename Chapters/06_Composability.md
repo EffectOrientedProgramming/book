@@ -454,9 +454,13 @@ def run =
       file1 =>
         Using(openFile("file2.txt")) {
           file2 =>
-            file1.sameContent(file2)
+            println:
+              file1.sameContent(file2)
         }
     }
+  // TODO Confirm .unit is better than showing 
+  //   the ugly return type that wraps unit
+  .unit 
 ```
 
 With each new file we open, we have to nest our code deeper.
@@ -471,7 +475,9 @@ def run =
       openFileZ("file1.txt").run
     val file2 =
       openFileZ("file2.txt").run
-    file1.sameContent(file2)
+    Console.printLine:
+      file1.sameContent(file2)
+    .run
 ```
 
 Our code remains flat.
@@ -515,21 +521,16 @@ def run =
 
 ## Functions that throw
 
-TODO Determine how much prose is required here after Managing_Failure chapter is rewritten.
+We covered the deficiencies of throwing functions in the previous chapter, so we will not belabor the point here.
+We still want to show how they can be converted to Effects and cleanly fit into our composability story.
 
-Downsides:
+```scala 3 mdoc
+openFile("file1").summaryFor("space")
+```
 
-- We cannot union these error possibilities and track them in the type system
-- Cannot attach behavior to deferred functions
-- do not put in place a contract
-
-
-```scala 3 mdoc:compile-only
-import zio.*
-import zio.direct.*
-
-val summary: String =
-  openFile("file1").summaryFor("asdf")
+```scala 3 mdoc:crash
+// TODO Simplify mdoc output if possible
+openFile("file1").summaryFor("unicode")
 ```
 
 ```scala 3 mdoc
