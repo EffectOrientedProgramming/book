@@ -759,8 +759,6 @@ def spec =
 
 ### Flaky Tests
 
-{{ TODO: Code example }}
-
 Commonly, as a project grows, the supporting tests become more and more flaky.
 This can be caused by a number of factors:
 
@@ -775,7 +773,7 @@ This can be caused by a number of factors:
   A team of engineers might be able to successfully run the entire test suite on their personal machines.
   However, the CI/CD system might not have enough resources to run the tests triggered by everyone pushing to the repository.
   Your tests might be occasionally failing due to timeouts or lack of memory.
-- 
+
 ```scala 3 mdoc:invisible
 var attempts = 0
 

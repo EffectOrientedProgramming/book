@@ -423,7 +423,7 @@ We can add behavior to the end of our complex Effect,
 
 ## Many More Superpowers
 
-{{ todo: make rendering in manuscript work. Or hard-code the resulting graph image. }}
+{{ todo: Group discussion about this. Make rendering in manuscript work. Or hard-code the resulting graph image. }}
 
 ```mermaid
 graph TD
