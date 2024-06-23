@@ -781,6 +781,8 @@ def run =
 {{ TODO: enables, reuse, repeats, delays, etc }}
 
 ```scala 3 mdoc:runzio
+override val bootstrap = stockMarketHeadline
+
 def run =
   defer:
     researchHeadline.run
@@ -788,6 +790,8 @@ def run =
 ```
 
 ```scala 3 mdoc:runzio
+override val bootstrap = stockMarketHeadline
+
 def run =
   researchHeadline.repeatN(2)
 ```
