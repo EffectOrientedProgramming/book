@@ -1,0 +1,13 @@
+site_name: Effect Oriented Programming
+site_url: https://EffectOrientedProgramming.com/
+site_description: Support Site for the Book
+site_author: Bill Frasure, James Ward and Bruce Eckel
+repo_url: https://github.com/EffectOrientedProgramming/book
+
+nav:
+  - Home: index.md
+  - Getting Started: getting-started.md
+  - User Guide: user-guide/
+  - About:
+    - Release Notes: about/release-notes.md
+    - License: about/license.md
