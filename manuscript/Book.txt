@@ -1,6 +1,6 @@
 00_Copyright.md
 01_Preface.md
-02_Introduction_to_Effects.md
+02_Introduction.md
 03_Superpowers.md
 04_Configuration.md
 05_Managing_Failure.md
