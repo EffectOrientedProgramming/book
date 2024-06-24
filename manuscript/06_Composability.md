@@ -79,7 +79,8 @@ def getHeadlineZ() =
 ```
 
 ```scala
-override val bootstrap = stockMarketHeadline
+override val bootstrap =
+  stockMarketHeadline
 
 def run =
   getHeadlineZ()
@@ -95,7 +96,8 @@ Result: stock market rising!
 Now let's confirm the behavior when the headline is not available.
 
 ```scala
-override val bootstrap = headlineNotAvailable
+override val bootstrap =
+  headlineNotAvailable
 
 def run =
   getHeadlineZ()
@@ -372,10 +374,11 @@ res14: String = "space is huge"
 ```
 
 ```scala
-openFile("file1").summaryFor("unicode")
+openFile("file1")
+  .summaryFor("unicode")
 // java.lang.Exception: No summary available for unicode
-// 	at repl.MdocSession$MdocApp$$anon$27.summaryFor(<input>:324)
-// 	at repl.MdocSession$MdocApp.$init$$$anonfun$1(<input>:468)
+// 	at repl.MdocSession$MdocApp$$anon$27.summaryFor(<input>:326)
+// 	at repl.MdocSession$MdocApp.$init$$$anonfun$1(<input>:471)
 ```
 
 ```scala
@@ -481,8 +484,15 @@ val researchHeadline =
       summary
 ```
 
+{{TODO Emphasize just how important this example is. }}
+
+We now step through all the possible scenarios that can occur in our application.
+
+### Headline Not Available
+
 ```scala
-override val bootstrap = headlineNotAvailable
+override val bootstrap =
+  headlineNotAvailable
 
 def run =
   researchHeadline
@@ -495,8 +505,11 @@ Network - Getting headline
 Result: HeadlineNotAvailable
 ```
 
+### No Interesting Topic In Headline
+
 ```scala
-override val bootstrap = noInterestingTopic
+override val bootstrap =
+  noInterestingTopic
 
 def run =
   researchHeadline
@@ -511,8 +524,11 @@ Analytics - topic: None
 Result: NoInterestingTopic()
 ```
 
+### Exception when reading from file
+
 ```scala
-override val bootstrap = summaryReadThrows
+override val bootstrap = 
+  summaryReadThrows
 
 def run =
   researchHeadline
@@ -531,8 +547,11 @@ File - CLOSE
 Result: NoSummaryAvailable(unicode)
 ```
 
+### No Wiki Article Available
+
 ```scala
-override val bootstrap = noWikiArticleAvailable
+override val bootstrap =
+  noWikiArticleAvailable
 
 def run =
   researchHeadline
@@ -551,8 +570,11 @@ File - CLOSE
 Result: NoWikiArticleAvailable()
 ```
 
+### AI Too Slow
+
 ```scala
-override val bootstrap = aiTooSlow
+override val bootstrap =
+  aiTooSlow
 
 def run =
   researchHeadline
@@ -573,9 +595,12 @@ File - CLOSE
 Result: AITooSlow()
 ```
 
+### Disk Full
+
 ```scala
-// TODO This inconsistently works. It frequently reports the AI problem again.
-override val bootstrap = diskFull
+// TODO This inconsistently works. frequently reports AI problem.
+override val bootstrap = 
+  diskFull
 
 def run =
   researchHeadline
@@ -592,14 +617,18 @@ File - contains(genome)
 Wiki - articleFor(genome)
 AI - summarize - start
 AI - summarize - end
+File - disk full!
 File - CLOSE
-Result: AITooSlow()
+Result: DiskFull()
 ```
+
+### Happy Path
 
 And finally, we see the longest, successful pathway through our application:
 
 ```scala
-override val bootstrap = stockMarketHeadline
+override val bootstrap =
+  stockMarketHeadline
 
 def run =
   researchHeadline
@@ -626,7 +655,8 @@ Result: market is not rational
 {{ TODO: enables, reuse, repeats, delays, etc }}
 
 ```scala
-override val bootstrap = stockMarketHeadline
+override val bootstrap =
+  stockMarketHeadline
 
 def run =
   defer:
@@ -645,23 +675,13 @@ File - contains(stock market)
 Wiki - articleFor(stock market)
 AI - summarize - start
 AI - summarize - end
-File - write: market is not rational
-Network - Getting headline
-Analytics - Scanning for topic
-Analytics - topic: Some(stock market)
-File - OPEN
-File - contains(stock market)
-Wiki - articleFor(stock market)
-AI - summarize - start
-AI - summarize - end
-File - write: market is not rational
 File - CLOSE
-File - CLOSE
-Result: market is not rational
+Result: AITooSlow()
 ```
 
 ```scala
-override val bootstrap = stockMarketHeadline
+override val bootstrap =
+  stockMarketHeadline
 
 def run =
   researchHeadline.repeatN(2)
@@ -678,7 +698,6 @@ File - contains(stock market)
 Wiki - articleFor(stock market)
 AI - summarize - start
 AI - summarize - end
-AI **INTERRUPTED**
 File - CLOSE
 Result: AITooSlow()
 ```

@@ -215,15 +215,15 @@ def run =
 Output:
 
 ```shell
-James called API [took 0s]
-Bill called API [took 1s]
-Bruce called API [took 2s]
-James called API [took 3s]
+Bill called API [took 0s]
+Bruce called API [took 1s]
+James called API [took 2s]
 Bill called API [took 3s]
 Bruce called API [took 3s]
 James called API [took 3s]
 Bill called API [took 3s]
 Bruce called API [took 3s]
+James called API [took 3s]
 Total time [took 8s]
 ```
 
@@ -252,10 +252,11 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(78)
-Current requests: List(327, 78)
-Current requests: List(479, 327, 78)
-Current requests: List(597, 479, 327, 78)
+Current requests: List(140)
+Current requests: List(824, 140)
+Current requests: List(273, 824, 140)
+Current requests: List(668, 273, 824, 140)
+Current requests: List(161, 668, 273, 824, 140)
 Result: Crashed the server!!
 ```
 
@@ -295,16 +296,16 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(412, 985)
-Current requests: List(985)
-Current requests: List(477, 412, 985)
-Current requests: List(412)
-Current requests: List(780, 412)
-Current requests: List(19, 780, 412)
-Current requests: List(18)
-Current requests: List(170, 18)
-Current requests: List(461, 170, 18)
-Current requests: List(8)
+Current requests: List(843)
+Current requests: List(445, 843)
+Current requests: List(128, 445, 843)
+Current requests: List(857)
+Current requests: List(395, 857)
+Current requests: List(952, 395, 857)
+Current requests: List(956)
+Current requests: List(97, 956)
+Current requests: List(909, 97, 956)
+Current requests: List(187)
 Result: All Requests Succeeded
 ```
 
@@ -406,7 +407,7 @@ def run =
 Output:
 
 ```shell
-Result: Calls prevented: 75 Calls made: 66
+Result: Calls prevented: 74 Calls made: 67
 ```
 
 Now we see that our code prevented the majority of the doomed calls to the external service.
@@ -464,8 +465,8 @@ def run =
 Output:
 
 ```shell
-Contract Breaches: 1
-Result: 1
+Contract Breaches: 0
+Result: 0
 ```
 
 ## Test Reliability
@@ -542,5 +543,5 @@ Output:
 Failed!
 Success!
 + long test
-Result: Summary(1,0,0,,PT0.023061S)
+Result: Summary(1,0,0,,PT0.020147S)
 ```
