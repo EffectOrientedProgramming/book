@@ -365,19 +365,11 @@ We still want to show how they can be converted to Effects and cleanly fit into 
 openFile("file1").summaryFor("space")
 ```
 
-Output:
-
-```shell
-File - OPEN
-File - summaryFor(space)
-res14: String = "space is huge"
-```
-
 ```scala
 openFile("file1")
   .summaryFor("unicode")
 // java.lang.Exception: No summary available for unicode
-// 	at repl.MdocSession$MdocApp$$anon$27.summaryFor(<input>:326)
+// 	at repl.MdocSession$MdocApp$$anon$26.summaryFor(<input>:326)
 // 	at repl.MdocSession$MdocApp.$init$$$anonfun$1(<input>:471)
 ```
 
@@ -590,7 +582,6 @@ File - OPEN
 File - contains(space)
 Wiki - articleFor(space)
 AI - summarize - start
-AI **INTERRUPTED**
 File - CLOSE
 Result: AITooSlow()
 ```
@@ -617,9 +608,8 @@ File - contains(genome)
 Wiki - articleFor(genome)
 AI - summarize - start
 AI - summarize - end
-File - disk full!
 File - CLOSE
-Result: DiskFull()
+Result: AITooSlow()
 ```
 
 ### Happy Path
@@ -675,6 +665,16 @@ File - contains(stock market)
 Wiki - articleFor(stock market)
 AI - summarize - start
 AI - summarize - end
+File - write: market is not rational
+Network - Getting headline
+Analytics - Scanning for topic
+Analytics - topic: Some(stock market)
+File - OPEN
+File - contains(stock market)
+Wiki - articleFor(stock market)
+AI - summarize - start
+AI - summarize - end
+File - CLOSE
 File - CLOSE
 Result: AITooSlow()
 ```
@@ -698,6 +698,17 @@ File - contains(stock market)
 Wiki - articleFor(stock market)
 AI - summarize - start
 AI - summarize - end
+File - write: market is not rational
+Network - Getting headline
+Analytics - Scanning for topic
+Analytics - topic: Some(stock market)
+File - OPEN
+File - contains(stock market)
+Wiki - articleFor(stock market)
+AI - summarize - start
+AI - summarize - end
+AI **INTERRUPTED**
+File - CLOSE
 File - CLOSE
 Result: AITooSlow()
 ```
