@@ -101,8 +101,8 @@ Output:
 ─────────────────────────────
 
 
-    ZIO
-    ^
+        ZIO
+        ^
 ```
 
 ## Step 3: Automatically Assemble Dependencies 
@@ -362,8 +362,8 @@ def run =
 Output:
 
 ```shell
-Oven: Heated
 Dough: Mixed
+Oven: Heated
 BreadHomeMade: Baked
 Bread: Eating
 Oven: Turning off!
@@ -554,7 +554,50 @@ object IdealFriend:
       BreadFromFriend()
 ```
 
-{{TODO How much to explain each piece of zio-test used here: `spec`, `test`, `TestConsole`, `assertTrue`}}
+We take another brief detour into `zio-test`, to provide just enough context to understand the tests.
+
+In `zio-test`, we build tests that are Effects that return an `Assertion`.
+We will do this incrementally, starting with some logic.
+
+```scala
+import zio.test.assertTrue
+
+val logic =
+  defer:
+    assertTrue(1==1)
+```
+
+Next, we turn it into a test case by giving it a name via the `test` function.
+
+```scala
+import zio.test.test
+
+val testCase =
+  test("eat Bread"):
+    logic
+```
+
+Finally, we assign it to the `spec` field of a test class. [^footnote]
+[^footnote]: In real test code, you would be using `ZIOSpecDefault`, or one of the other `ZIOSpec*` variants. We use our custom test runner here for brevity.
+
+```scala
+def spec =
+  testCase
+```
+
+Output:
+
+```shell
+TODO TestSummary renderer?
++ eat Bread
+Result: Summary(1,0,0,,PT0.055188S)
+```
+
+Historically, when call we call `println`, that output disappears into the void.
+`zio-test` provides us a `TestConsole`, which captures all the output produced during a test.
+This allows us to make assertions on something that is typically a black hole of our code.
+
+Armed with these tools, we can now return to the kitchen to test our `Bread` eating with our ideal friend.
 
 ```scala
 import zio.test.*
@@ -580,7 +623,7 @@ Output:
 ```shell
 Bread: Eating
 + eat Bread
-Result: Summary(1,0,0,,PT0.069351S)
+Result: Summary(1,0,0,,PT0.034393S)
 ```
 
 ## Testing Effects
@@ -632,18 +675,18 @@ def run =
 Output:
 
 ```shell
+Tails
 Heads
+Tails
 Tails
 Heads
 Tails
 Heads
-Tails
 Heads
-Tails
 Heads
-Tails
-Num Heads = 5
-Result: 5
+Heads
+Num Heads = 6
+Result: 6
 ```
 
 ```scala
@@ -675,7 +718,7 @@ Heads
 Heads
 Num Heads = 10
 + flips 10 times
-Result: Summary(1,0,0,,PT0.046372S)
+Result: Summary(1,0,0,,PT0.036908S)
 ```
 
 ```scala
@@ -743,7 +786,7 @@ G: ...probability
 Heads
 R: Heads
 + rosencrantzAndGuildensternAreDead finishes
-Result: Summary(1,0,0,,PT0.04921S)
+Result: Summary(1,0,0,,PT0.033159S)
 ```
 
 ```scala
@@ -762,18 +805,18 @@ Output:
 
 ```shell
 *Performance Begins*
+Heads
+R: Heads
 Tails
-<FAIL> R: Fail(Tails,Stack trace for thread "zio-fiber-736075882":
-	at coinToss(<input>:450)
-	at rosencrantzCoinToss(<input>:519)
-	at rosencrantzAndGuildensternAreDead(<input>:524)
+<FAIL> R: Fail(Tails,Stack trace for thread "zio-fiber-1255303000":
+	at coinToss(<input>:485)
 ...
 R: Heads
 G: ...probability
 Heads
 R: Heads
 + flaky plan
-Result: Summary(1,0,0,,PT0.071818S)
+Result: Summary(1,0,0,,PT0.021687S)
 ```
 
 The `Random` Effect uses an injected something which when running the ZIO uses the system's unpredictable random number generator.  In ZIO Test the `Random` Effect uses a different something which can predictably generate "random" numbers.  `TestRandom` provides a way to define what those numbers are.  This example feeds in the `Int`s `1` and `2` so the first time we ask for a random number we get `1` and the second time we get `2`.
@@ -820,7 +863,7 @@ Output:
 ```shell
 Parsing CSV: ()
 + batch runs after 24 hours
-Result: Summary(1,0,0,,PT0.021394S)
+Result: Summary(1,0,0,,PT0.024271S)
 ```
 
 The `race` is between `nightlyBatch` and `timeTravel`. {{TODO Not racing. Just forking/joining.}}
