@@ -7,7 +7,7 @@ addSbtPlugin(
 )
 
 addSbtPlugin(
-  "org.scalameta" % "sbt-mdoc" % "2.5.2"
+  "org.scalameta" % "sbt-mdoc" % "2.5.3"
 )
 
 addSbtPlugin(
