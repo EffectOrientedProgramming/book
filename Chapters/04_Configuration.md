@@ -547,7 +547,52 @@ object IdealFriend:
       BreadFromFriend()
 ```
 
-{{TODO How much to explain each piece of zio-test used here: `spec`, `test`, `TestConsole`, `assertTrue`}}
+We take another brief detour into `zio-test`, to provide just enough context to understand the tests.
+
+In `zio-test`, we build tests that are Effects that return an `Assertion`.
+We will do this incrementally, starting with some logic.
+
+```scala 3 mdoc:silent
+import zio.*
+import zio.direct.*
+
+import zio.test.assertTrue
+
+val logic =
+  defer:
+    assertTrue(1==1)
+```
+
+Next, we turn it into a test case by giving it a name via the `test` function.
+
+```scala 3 mdoc:silent
+import zio.*
+import zio.direct.*
+
+import zio.test.test
+
+val testCase =
+  test("eat Bread"):
+    logic
+```
+
+Finally, we assign it to the `spec` field of a test class. [^footnote]
+[^footnote]: In real test code, you would be using `ZIOSpecDefault`, or one of the other `ZIOSpec*` variants. We use our custom test runner here for brevity.
+
+```scala 3 mdoc:testzio
+import zio.*
+import zio.direct.*
+
+def spec =
+  testCase
+// TODO TestSummary renderer?
+```
+
+Historically, when call we call `println`, that output disappears into the void.
+`zio-test` provides us a `TestConsole`, which captures all the output produced during a test.
+This allows us to make assertions on something that is typically a black hole of our code.
+
+Armed with these tools, we can now return to the kitchen to test our `Bread` eating with our ideal friend.
 
 ```scala 3 mdoc:testzio
 import zio.*
