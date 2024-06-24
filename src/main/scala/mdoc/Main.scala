@@ -225,6 +225,9 @@ def partsToExamples(
           rcf
     RunnableCodeFence(codeFence, rcfs.size)
 
+  def silentTest(codeFence: CodeFence): Boolean =
+    codeFence.info.value.contains("mdoc:silent") && codeFence.body.value.contains("import zio.test")
+
   val (mainParts, testParts) =
     markdownFile
       .parts
@@ -253,7 +256,7 @@ def partsToExamples(
             case codeFence: CodeFence
                 if codeFence
                   .getMdocMode
-                  .contains("testzio") =>
+                  .contains("testzio") || silentTest(codeFence) =>
               (acc._1, acc._2 :+ codeFence)
             case codeFence: CodeFence
                 if codeFence
@@ -263,13 +266,18 @@ def partsToExamples(
                   !codeFence
                     .info
                     .value
+                    .contains("mdoc:crash") &&
+                  !codeFence
+                    .info
+                    .value
                     .contains("mdoc:fail") &&
                   !codeFence
                     .info
                     .value
                     .contains(
                       "mdoc:compile-only"
-                    ) =>
+                    ) &&
+                  !silentTest(codeFence) =>
               (acc._1 :+ codeFence, acc._2)
             case _ =>
               (acc._1, acc._2)
@@ -321,18 +329,21 @@ def partsToExamples(
         .zipWithIndex
         .map {
           (part, num) =>
-            val body =
-              part
-                .newBody
-                .getOrElse(part.body.value)
-            val indented =
-              body
-                .linesIterator
-                .map("  " + _)
-                .mkString("\n")
-            s"""object Test$num extends ZIOSpecDefault:
-               |$indented
-               |""".stripMargin
+            if part.info.value.contains("mdoc:silent") then
+              part.newBody.getOrElse(part.body.value)
+            else
+              val body =
+                part
+                  .newBody
+                  .getOrElse(part.body.value)
+              val indented =
+                body
+                  .linesIterator
+                  .map("  " + _)
+                  .mkString("\n")
+              s"""object Test$num extends ZIOSpecDefault:
+                 |$indented
+                 |""".stripMargin
         }
         .mkString(
           s"""package Chapter$baseName
