@@ -21,7 +21,7 @@ mdocOut := file("manuscript")
 // Tells our example extraction code where to put the extracted examples
 val examplesDir = "examples"
 
-val zioVersion = "2.1.2"
+val zioVersion = "2.1.4"
 
 scalacOptions +=
   Seq(
@@ -54,7 +54,7 @@ libraryDependencies ++=
           ) excludeAll
           ("com.geirsson", "metaconfig-core"),
     "nl.vroste" %% "rezilience"   % "0.9.4",
-    "org.scalameta" %% "mdoc" % "2.5.2",
+    "org.scalameta" %% "mdoc" % "2.5.3",
     "dev.zio"   %% "zio-test" % zioVersion,
     "dev.zio"   %% "zio-test-sbt" % zioVersion % Test,
   )
