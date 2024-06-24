@@ -2,24 +2,21 @@
 
 ## Effect Oriented Programming
 
-By Bill Frasure, Bruce Eckel and James Ward
+By Bill Frasure, James Ward, and Bruce Eckel
 
 > **eBook ISBN 978-0-9818725-6-8**
 >
 > **Print Book ISBN 978-0-9818725-7-5**
 
 The eBook ISBN covers the Leanpub eBook distribution in all formats,
-available through *www.EffectOrientedProgramming.com*.
-
-**Please purchase this book through www.EffectOrientedProgramming.com, to support its
-continued maintenance and updates.**
+available through [EffectOrientedProgramming.com](https://www.effectorientedprogramming.com/).
 
 All rights reserved. Printed in the United States of America. This publication
 is protected by copyright, and permission must be obtained from the publisher
 prior to any prohibited reproduction, storage in a retrieval system, or
 transmission in any form or by any means, electronic, mechanical, photocopying,
 recording, or likewise. For information regarding permissions, see
-EffectOrientedProgramming.com.
+[EffectOrientedProgramming.com](https://www.effectorientedprogramming.com/).
 
 Created in Crested Butte, Colorado, USA.
 
@@ -54,7 +51,7 @@ for errors or omissions. No liability is assumed for incidental or
 consequential damages in connection with or arising out of the use of the
 information or programs contained herein.
 
-Visit us at www.EffectOrientedProgramming.com.
+Visit us at [EffectOrientedProgramming.com](https://www.effectorientedprogramming.com/).
 
 ## Source Code
 
@@ -99,12 +96,12 @@ Billding Software LLC, 111 Alpine Court, Crested Butte, CO 81224
 bill@billdingsoftware.com
 
 4. The Source Code and documentation are copyrighted by
-Billing Software LLC. The Source code is provided without express
+Billding Software LLC. The Source code is provided without express
 or implied warranty of any kind, including any implied
 warranty of merchantability, fitness for a particular
-purpose or non-infringement. Billing Software LLC does not
+purpose or non-infringement. Billding Software LLC does not
 warrant that the operation of any program that includes the
-Source Code will be uninterrupted or error-free. Billing Software
+Source Code will be uninterrupted or error-free. Billding Software
 makes no representation about the suitability of the
 Source Code or of any software that includes the Source
 Code for any purpose. The entire risk as to the quality
@@ -118,25 +115,25 @@ Code or any resulting software prove defective, the user
 assumes the cost of all necessary servicing, repair, or
 correction.
 
-5. IN NO EVENT SHALL MINDVIEW LLC, OR ITS PUBLISHER BE
+5. IN NO EVENT SHALL BILLDING SOFTWARE LLC, OR ITS PUBLISHER BE
 LIABLE TO ANY PARTY UNDER ANY LEGAL THEORY FOR DIRECT,
 INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES,
 INCLUDING LOST PROFITS, BUSINESS INTERRUPTION, LOSS OF
 BUSINESS INFORMATION, OR ANY OTHER PECUNIARY LOSS, OR FOR
 PERSONAL INJURIES, ARISING OUT OF THE USE OF THIS SOURCE
 CODE AND ITS DOCUMENTATION, OR ARISING OUT OF THE INABILITY
-TO USE ANY RESULTING PROGRAM, EVEN IF MINDVIEW LLC, OR
+TO USE ANY RESULTING PROGRAM, EVEN IF BILLDING SOFTWARE LLC, OR
 ITS PUBLISHER HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH
-DAMAGE. MINDVIEW LLC SPECIFICALLY DISCLAIMS ANY
+DAMAGE. BILLDING SOFTWARE LLC SPECIFICALLY DISCLAIMS ANY
 WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
 PURPOSE. THE SOURCE CODE AND DOCUMENTATION PROVIDED
 HEREUNDER IS ON AN "AS IS" BASIS, WITHOUT ANY ACCOMPANYING
-SERVICES FROM MINDVIEW LLC, AND MINDVIEW LLC HAS NO
+SERVICES FROM BILLDING SOFTWARE LLC, AND BILLDING SOFTWARE LLC HAS NO
 OBLIGATIONS TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
 ENHANCEMENTS, OR MODIFICATIONS.
 
-Please note that Billing Software LLC maintains a Web site which is
+Please note that Billding Software LLC maintains a Web site which is
 the sole distribution point for electronic copies of the
 Source Code, where it is freely available under the terms
 stated above:
