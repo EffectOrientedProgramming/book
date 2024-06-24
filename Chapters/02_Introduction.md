@@ -1,7 +1,6 @@
-# Introduction to Effects
+# Introduction
 
 Systems built from unpredictable parts can have predictable behavior.
-
 If you've been programming for a while, this sounds far-fetched or even impossible.
 
 Most existing languages are built for rapid development.
@@ -38,7 +37,7 @@ We then combine the smaller concepts, ensuring predictability at each step.
 A predictable system isolates parts that are always the same
   (called pure functions)
   from the parts that are unpredictable
-  (effects).
+  (Effects).
 
 ## Dealing With Unpredictability
 
@@ -47,41 +46,34 @@ All external systems are unpredictable.
 
 Building systems that are predictable requires isolating and managing the unpredictable parts.
 An approach that programmers may use to handle this is to isolate the parts of the program which use external systems.
-By isolating them,
-  programmers then have tools to handle the unpredictable parts in more predictable ways.
+By isolating these parts, programmers can handle the unpredictable parts in more predictable ways.
 
 The interactions with external systems can be defined in terms of "Effects".
-Effects create a delineation between the parts of a program that interact with external systems and those that don't.
+Effects create a divistion between parts of a program that interact with external systems and parts that don't.
 
 For example, a program that displays the current date requires something that actually knows the current date.
-The program needs to talk to an external system
-  (maybe just the operating system)
-  to get this information.
-These programs are unpredictable because the programmer has no control over what that external system will say or do.
+That program must talk to an external system, usually just the operating system, to get this information.
+Such programs are unpredictable because the programmer has no control over what that external system will say or do.
 
 ## What is an Effect?
 
 An *Effect* is an interaction, often with an outside system, that is inherently unpredictable.
 
-Anytime you run an Effect,
-  you have changed the world and cannot go back.
+Anytime you run an Effect, you change the world and cannot undo that change:
+- If you 3D-print a figurine, you cannot reclaim that material.
+- Once you send a Tweet, you can delete it but people might have already read it.
+- Even if you provide database `DELETE` statements paired with `INSERT` statements, it must still be considered Effectful.
+  Another program might read your data before you delete it,
+  or a database trigger might activate during an `INSERT`.
 
-If you 3D-print a figurine, you cannot reclaim that material.
-Once you send a Tweet, you can delete it but people might have already read it.
-Even if you provide database `DELETE` statements paired with `INSERT` statements, it must still be considered effectful.
-Another program might read your data before you delete it,
-or a database trigger might activate during an `INSERT`.
+Once a program runs an Effect, the impact is out of our control.
 
-Once our program runs an Effect, the impact is out of our control.
+We must also assume that running an Effect modifies an external system.
+As a real-life example, just saying "You are getting a raise" creates an Effect that may not be reversible.
 
-We must assume that running an Effect modifies an external system.
+Effects that only read data from external systems are also unpredictable; for example, getting a random number.
 
-As an example in real-life, just saying the words "You are getting a raise" creates an "effect" that may not be reversible.
-
-Effects that only read data from external systems are also unpredictable.
-For example, getting a random number from the system is usually unpredictable.
-
-In systems there are many types of Effects, like:
+There are many types of Effects:
 
 - Accepting user input
 - Reading from a file
@@ -91,11 +83,12 @@ In systems there are many types of Effects, like:
 - Writing to a file
 - Mutating a variable
 - Saving to a database
+- And more...
 
-These can also have domain specific forms, like:
+These can have domain specific forms:
 
 - Getting the current price of a stock
-- Detecting the current from a pacemaker
+- Detecting the electrical current from a pacemaker
 - Checking the temperature of a nuclear reactor
 - 3D printing a model
 - Triggering an alarm
@@ -105,9 +98,9 @@ These can also have domain specific forms, like:
 
 All of these are unpredictable.
 
-## Signs That You Have Hidden Effects
+## `Unit` and Effects
 
-`Unit` can be viewed as the bare minimum of effect tracking.
+`Unit` can be viewed as the bare minimum of Effect tracking.
 
 Consider a function
 
@@ -119,15 +112,14 @@ def saveInformation(info: String): Unit =
   ???
 ```
 
-If we look only at the types, this function is an `String=>Unit`.
-`Unit` is the single, blunt tool to indicate effectful functions in plain Scala.
-When we see it, we know that *some* type of side-effect is being performed.
+The type of this function is `String => Unit`.
+`Unit` is the blunt instrument that indicates an Effectful function.
 
-When a function returns `Unit`, we know that the only reason we are calling the function is to perform an effect.
-Alternatively, if there are no arguments to the function, then the input is `Unit`, indicating that an effect is used to _produce_ the result.
+When a function returns `Unit`, you don't call it to produce a result value.
+When we see a `Unit` return type, we know that a side-effect must happen when we call that function---there's no other reason to do it.
 
-Unfortunately, we can't do things like timeout/race/etc these functions.
-We can either execute them, or not, and that's about it, without resorting to additional tools for manipulating their execution.
+If a function has no parameters, this is the same as having a `Unit` argument. 
+This means an Effect is used to *produce* the result.
 
 ## Effect Systems
 
@@ -135,4 +127,4 @@ Given that Effects are unpredictable, we can utilize operations from an Effect S
 Effect Systems are designed to make these operations easy.
 For example, any Effect can use a `timeout` to control the Effect's maximum duration.
 
-Applying these operations starts to feel like a superpower.
+Applying these operations starts to feel like a superpower, and that's what we show in the next chapter.
