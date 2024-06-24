@@ -197,7 +197,8 @@ def getHeadlineZ() =
 import zio.*
 import zio.direct.*
 
-override val bootstrap = stockMarketHeadline
+override val bootstrap =
+  stockMarketHeadline
 
 def run =
   getHeadlineZ()
@@ -209,7 +210,8 @@ Now let's confirm the behavior when the headline is not available.
 import zio.*
 import zio.direct.*
 
-override val bootstrap = headlineNotAvailable
+override val bootstrap =
+  headlineNotAvailable
 
 def run =
   getHeadlineZ()
@@ -527,7 +529,8 @@ openFile("file1").summaryFor("space")
 
 ```scala 3 mdoc:crash
 // TODO Simplify mdoc output if possible
-openFile("file1").summaryFor("unicode")
+openFile("file1")
+  .summaryFor("unicode")
 ```
 
 ```scala 3 mdoc
@@ -667,66 +670,90 @@ val researchHeadline =
       summary
 ```
 
-```scala 3 mdoc:runzio
-import zio.*
-import zio.direct.*
+{{TODO Emphasize just how important this example is. }}
 
-override val bootstrap = headlineNotAvailable
+We now step through all the possible scenarios that can occur in our application.
 
-def run =
-  researchHeadline
-```
+### Headline Not Available
 
 ```scala 3 mdoc:runzio
 import zio.*
 import zio.direct.*
 
-override val bootstrap = noInterestingTopic
+override val bootstrap =
+  headlineNotAvailable
 
 def run =
   researchHeadline
 ```
+
+### No Interesting Topic In Headline
 
 ```scala 3 mdoc:runzio
 import zio.*
 import zio.direct.*
 
-override val bootstrap = summaryReadThrows
+override val bootstrap =
+  noInterestingTopic
 
 def run =
   researchHeadline
 ```
+
+### Exception when reading from file
 
 ```scala 3 mdoc:runzio
 import zio.*
 import zio.direct.*
 
-override val bootstrap = noWikiArticleAvailable
+override val bootstrap = 
+  summaryReadThrows
 
 def run =
   researchHeadline
 ```
+
+### No Wiki Article Available
 
 ```scala 3 mdoc:runzio
 import zio.*
 import zio.direct.*
 
-override val bootstrap = aiTooSlow
+override val bootstrap =
+  noWikiArticleAvailable
 
 def run =
   researchHeadline
 ```
+
+### AI Too Slow
 
 ```scala 3 mdoc:runzio
 import zio.*
 import zio.direct.*
 
-// TODO This inconsistently works. It frequently reports the AI problem again.
-override val bootstrap = diskFull
+override val bootstrap =
+  aiTooSlow
 
 def run =
   researchHeadline
 ```
+
+### Disk Full
+
+```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
+// TODO This inconsistently works. frequently reports AI problem.
+override val bootstrap = 
+  diskFull
+
+def run =
+  researchHeadline
+```
+
+### Happy Path
 
 And finally, we see the longest, successful pathway through our application:
 
@@ -734,7 +761,8 @@ And finally, we see the longest, successful pathway through our application:
 import zio.*
 import zio.direct.*
 
-override val bootstrap = stockMarketHeadline
+override val bootstrap =
+  stockMarketHeadline
 
 def run =
   researchHeadline
@@ -745,7 +773,8 @@ def run =
 {{ TODO: enables, reuse, repeats, delays, etc }}
 
 ```scala 3 mdoc:runzio
-override val bootstrap = stockMarketHeadline
+override val bootstrap =
+  stockMarketHeadline
 
 def run =
   defer:
@@ -754,7 +783,8 @@ def run =
 ```
 
 ```scala 3 mdoc:runzio
-override val bootstrap = stockMarketHeadline
+override val bootstrap =
+  stockMarketHeadline
 
 def run =
   researchHeadline.repeatN(2)
