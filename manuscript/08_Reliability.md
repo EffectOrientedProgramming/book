@@ -215,15 +215,15 @@ def run =
 Output:
 
 ```shell
-James called API [took 0s]
-Bruce called API [took 1s]
-James called API [took 2s]
+Bill called API [took 0s]
+James called API [took 1s]
+Bruce called API [took 2s]
 Bill called API [took 3s]
-Bruce called API [took 3s]
 James called API [took 3s]
-Bill called API [took 3s]
 Bruce called API [took 3s]
-Bill called API [took 2s]
+Bill called API [took 3s]
+James called API [took 3s]
+Bruce called API [took 3s]
 Total time [took 8s]
 ```
 
@@ -252,10 +252,13 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(815)
-Current requests: List(344, 815)
-Current requests: List(891, 902, 344, 815)
-Current requests: List(902, 344, 815)
+Current requests: List(882)
+Current requests: List(68, 882)
+Current requests: List(583, 68, 882)
+Current requests: List(715, 583, 68, 882)
+Current requests: List(494, 715, 583, 68, 882)
+Current requests: List(491, 494, 715, 583, 68, 882)
+Current requests: List(91, 491, 494, 715, 583, 68, 882)
 Result: Crashed the server!!
 ```
 
@@ -295,16 +298,16 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(971)
-Current requests: List(760, 971)
-Current requests: List(341, 760, 971)
-Current requests: List(766)
-Current requests: List(440, 766)
-Current requests: List(559, 440, 766)
-Current requests: List(884)
-Current requests: List(922, 884)
-Current requests: List(377, 922, 884)
-Current requests: List(813)
+Current requests: List(745)
+Current requests: List(74, 745)
+Current requests: List(96, 74, 745)
+Current requests: List(37, 69)
+Current requests: List(69)
+Current requests: List(366, 37, 69)
+Current requests: List(519, 734, 366)
+Current requests: List(734, 366)
+Current requests: List(96, 519, 734)
+Current requests: List(382)
 Result: All Requests Succeeded
 ```
 
@@ -406,7 +409,7 @@ def run =
 Output:
 
 ```shell
-Result: Calls prevented: 75 Calls made: 66
+Result: Calls prevented: 74 Calls made: 67
 ```
 
 Now we see that our code prevented the majority of the doomed calls to the external service.
@@ -540,10 +543,7 @@ Output:
 
 ```shell
 Failed!
-Failed!
-Failed!
-Failed!
 Success!
 + long test
-Result: Summary(1,0,0,,PT0.025608S)
+Result: Summary(1,0,0,,PT0.025575S)
 ```

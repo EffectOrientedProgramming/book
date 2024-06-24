@@ -89,8 +89,9 @@ def spec =
 Output:
 
 ```shell
+Log: Signup initiated for Morty
 + random is random
-Result: Summary(1,0,0,,PT0.416323S)
+Result: Summary(1,0,0,,PT0.362582S)
 ```
 
 TODO Justify defer syntax over for-comp for multi-statement assertions
@@ -114,7 +115,7 @@ Output:
 
 ```shell
 + random is still random
-Result: Summary(1,0,0,,PT0.112769S)
+Result: Summary(1,0,0,,PT0.083129S)
 ```
 
 Consider a `Console` application:
@@ -174,10 +175,10 @@ Output:
 
 ```shell
 - console works
-  Exception in thread "zio-fiber-2027179250" scala.NotImplementedError: an implementation is missing
+  Exception in thread "zio-fiber-132804404" scala.NotImplementedError: an implementation is missing
   	at scala.Predef$.$qmark$qmark$qmark(Predef.scala:344)
   	at zio.Console$.print$$anonfun$6(Console.scala:122)
-  	at zio.ZIO$.consoleWith$$anonfun$1(ZIO.scala:3068)
+  	at zio.ZIO$.consoleWith$$anonfun$1(ZIO.scala:3121)
   	at zio.FiberRef$unsafe$$anon$2.getWith$$anonfun$1(FiberRef.scala:474)
   	at logic(<input>:91)
   	at zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19)
