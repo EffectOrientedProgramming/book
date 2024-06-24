@@ -27,6 +27,9 @@ Issues that complicate composition include:
 
 These concepts and their competing solutions will be expanded on and contrasted with ZIO throughout this chapter.
 
+We will utilize several pre-defined functions to highlight less-complete effect alternatives.
+The implementations are deliberately hidden to highlight the surprising nature of executing Effects and maintain focus on composability.
+
 ## Universal Composability
 
 
@@ -37,12 +40,6 @@ When writing complex applications
   , you will encounter APIs that that return limited data types.
   
 ZIO provides conversion methods that take these limited data types and turn them into its single, universally composable type.
-
-## Existing Code
-
-{{ TODO: subhead rename and what else needs to be here? }}
-
-We will utilize several pre-defined functions to highlight less-complete effect alternatives.
 
 
 ## Future
@@ -377,7 +374,7 @@ res14: String = "space is huge"
 ```scala
 openFile("file1").summaryFor("unicode")
 // java.lang.Exception: No summary available for unicode
-// 	at repl.MdocSession$MdocApp$$anon$29.summaryFor(<input>:324)
+// 	at repl.MdocSession$MdocApp$$anon$27.summaryFor(<input>:324)
 // 	at repl.MdocSession$MdocApp.$init$$$anonfun$1(<input>:468)
 ```
 
@@ -432,38 +429,9 @@ Now we have a way to confine the impact that this function has on our applicatio
 Long-running invocations will be interrupted, although `attemptBlockingInterrupt` comes with a performance cost.
 Carefully consider the trade-offs when using this function.
 
-
-## Sequencing
-
-Another term for this form of composition is called `andThen` in Scala.
-
-With ZIO you can use `zio-direct` to compose ZIOs sequentially with:
-
-
-```scala
-def run =
-  defer:
-    val topStory =
-      findTopNewsStory.run
-    textAlert(topStory).run
-```
-
-Output:
-
-```shell
-Texting story: Battery Breakthrough
-```
-
-### Short-circuiting
-
-Short-circuiting is an essential part Effect Systems because they enable a linear sequence of expressions which helps make code much easier to understand.
-The explicit knowledge of exactly how each Effect can fail is part of definition of the Effect.
-
-In order for Effect Systems to have recovery operations, they must know when failure happens.
-
 ## Final Collective Criticism
 
-{{ TODO: better subhead name }}
+{{ TODO: better subhead name - Composed Pain? Compound Fracture?}}
 
 Each of original approaches gives you benefits, but you can't easily assemble a program that utilizes all of them.
 They must be manually transformed into each other.
@@ -472,8 +440,13 @@ Instead of the best of all worlds, you get the pain of all worlds.
 eg `Closeable[Future[Either[Throwable, A]]]`
 The ordering of the nesting is significant, and not easily changed.
 
-The number of combinations is something like:
-  PairsIn(numberOfConcepts)
+### Short-circuiting
+
+Short-circuiting is an essential part of a user-friendly Effect Systems.
+They enable a linear sequence of expressions which helps make code much easier to understand.
+The explicit knowledge of exactly how each Effect can fail is part of definition of the Effect.
+
+In order for Effect Systems to have recovery operations, they must know when failure happens.
 
 ## Fully Composed
 
@@ -619,7 +592,6 @@ File - contains(genome)
 Wiki - articleFor(genome)
 AI - summarize - start
 AI - summarize - end
-AI **INTERRUPTED**
 File - CLOSE
 Result: AITooSlow()
 ```
@@ -682,10 +654,10 @@ File - contains(stock market)
 Wiki - articleFor(stock market)
 AI - summarize - start
 AI - summarize - end
-AI **INTERRUPTED**
+File - write: market is not rational
 File - CLOSE
 File - CLOSE
-Result: AITooSlow()
+Result: market is not rational
 ```
 
 ```scala
