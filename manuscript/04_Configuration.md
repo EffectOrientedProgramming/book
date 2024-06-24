@@ -245,10 +245,7 @@ ZIO
 Output:
 
 ```shell
-error: 
-
-
-──── ZLAYER ERROR ────────────────────────────────────────────────────
+──── ZLAYER ERROR ───────────
 
  Ambiguous layers! I cannot decide which to use.
  You have provided more than one layer for the following type:
@@ -260,6 +257,8 @@ error:
 ─────────────────────────────
 
 
+      ZIO
+      ^
 ```
 
 Unfortunately our program is now ambiguous.
@@ -590,7 +589,7 @@ Output:
 ```shell
 TODO TestSummary renderer?
 + eat Bread
-Result: Summary(1,0,0,,PT0.055188S)
+Result: Summary(1,0,0,,PT0.051375S)
 ```
 
 Historically, when call we call `println`, that output disappears into the void.
@@ -623,7 +622,7 @@ Output:
 ```shell
 Bread: Eating
 + eat Bread
-Result: Summary(1,0,0,,PT0.034393S)
+Result: Summary(1,0,0,,PT0.066635S)
 ```
 
 ## Testing Effects
@@ -676,17 +675,17 @@ Output:
 
 ```shell
 Tails
+Tails
 Heads
+Tails
 Tails
 Tails
 Heads
 Tails
 Heads
 Heads
-Heads
-Heads
-Num Heads = 6
-Result: 6
+Num Heads = 4
+Result: 4
 ```
 
 ```scala
@@ -718,106 +717,9 @@ Heads
 Heads
 Num Heads = 10
 + flips 10 times
-Result: Summary(1,0,0,,PT0.036908S)
+Result: Summary(1,0,0,,PT0.053406S)
 ```
 
-```scala
-val rosencrantzCoinToss =
-  coinToss.debug:
-    "R"
-
-val rosencrantzAndGuildensternAreDead =
-  defer:
-    ZIO
-      .debug:
-        "*Performance Begins*"
-      .run
-    rosencrantzCoinToss.repeatN(4).run
-
-    ZIO
-      .debug:
-        "G: There is an art to building suspense."
-      .run
-    rosencrantzCoinToss.run
-
-    ZIO
-      .debug:
-        "G: Though it can be done by luck alone."
-      .run
-    rosencrantzCoinToss.run
-
-    ZIO
-      .debug:
-        "G: ...probability"
-      .run
-    rosencrantzCoinToss.run
-```
-
-```scala
-import zio.test.*
-
-def spec =
-  test(
-    "rosencrantzAndGuildensternAreDead finishes"
-  ):
-    defer:
-      TestRandom
-        .feedBooleans:
-          true
-        .repeatN:
-          7
-        .run
-      rosencrantzAndGuildensternAreDead.run
-      assertCompletes
-```
-
-Output:
-
-```shell
-*Performance Begins*
-Heads
-R: Heads
-Heads
-R: Heads
-Heads
-...
-R: Heads
-G: ...probability
-Heads
-R: Heads
-+ rosencrantzAndGuildensternAreDead finishes
-Result: Summary(1,0,0,,PT0.033159S)
-```
-
-```scala
-import zio.test.*
-
-def spec =
-  test("flaky plan"):
-    defer:
-      rosencrantzAndGuildensternAreDead.run
-      assertCompletes
-  @@ TestAspect.withLiveRandom @@
-    TestAspect.flaky(Int.MaxValue)
-```
-
-Output:
-
-```shell
-*Performance Begins*
-Heads
-R: Heads
-Tails
-<FAIL> R: Fail(Tails,Stack trace for thread "zio-fiber-1255303000":
-	at coinToss(<input>:485)
-...
-R: Heads
-G: ...probability
-Heads
-R: Heads
-+ flaky plan
-Result: Summary(1,0,0,,PT0.021687S)
-```
 
 The `Random` Effect uses an injected something which when running the ZIO uses the system's unpredictable random number generator.  In ZIO Test the `Random` Effect uses a different something which can predictably generate "random" numbers.  `TestRandom` provides a way to define what those numbers are.  This example feeds in the `Int`s `1` and `2` so the first time we ask for a random number we get `1` and the second time we get `2`.
 
@@ -863,7 +765,7 @@ Output:
 ```shell
 Parsing CSV: ()
 + batch runs after 24 hours
-Result: Summary(1,0,0,,PT0.024271S)
+Result: Summary(1,0,0,,PT0.043912S)
 ```
 
 The `race` is between `nightlyBatch` and `timeTravel`. {{TODO Not racing. Just forking/joining.}}

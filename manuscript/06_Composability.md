@@ -595,6 +595,7 @@ File - OPEN
 File - contains(space)
 Wiki - articleFor(space)
 AI - summarize - start
+AI **INTERRUPTED**
 File - CLOSE
 Result: AITooSlow()
 ```
@@ -618,6 +619,7 @@ File - contains(genome)
 Wiki - articleFor(genome)
 AI - summarize - start
 AI - summarize - end
+AI **INTERRUPTED**
 File - CLOSE
 Result: AITooSlow()
 ```
@@ -680,6 +682,7 @@ File - contains(stock market)
 Wiki - articleFor(stock market)
 AI - summarize - start
 AI - summarize - end
+AI **INTERRUPTED**
 File - CLOSE
 File - CLOSE
 Result: AITooSlow()
@@ -703,6 +706,7 @@ File - contains(stock market)
 Wiki - articleFor(stock market)
 AI - summarize - start
 AI - summarize - end
+AI **INTERRUPTED**
 File - CLOSE
 Result: AITooSlow()
 ```
