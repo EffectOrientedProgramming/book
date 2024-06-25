@@ -332,7 +332,9 @@ case class Live(
         res
       else
         ZIO
-          .fail("Server crashed from requests!!")
+          .fail(
+            "Server crashed from requests!!"
+          )
           .run
 
   private def removeRequest(i: Int) =
@@ -409,7 +411,10 @@ def run =
             delicateResource.request
       .as("All Requests Succeeded")
       .run
-  .provide(DelicateResource.live, Scope.default)
+  .provide(
+    DelicateResource.live,
+    Scope.default
+  )
 ```
 
 With this small adjustment, we now have a complex, concurrent guarantee.
@@ -459,7 +464,9 @@ def externalSystem(numCalls: Ref[Int]) =
 
 object InstantOps:
   extension (i: Instant)
-    def plusZ(duration: zio.Duration): Instant =
+    def plusZ(
+        duration: zio.Duration
+    ): Instant =
       i.plus(duration.asJava)
 
 import InstantOps._
@@ -599,9 +606,10 @@ import nl.vroste.rezilience.{
 val makeCircuitBreaker =
   CircuitBreaker.make(
     trippingStrategy =
-      TrippingStrategy.failureCount(maxFailures =
-        2
-      ),
+      TrippingStrategy
+        .failureCount(maxFailures =
+          2
+        ),
     resetPolicy =
       Retry.Schedules.common()
   )

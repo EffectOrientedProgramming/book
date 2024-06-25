@@ -432,8 +432,9 @@ val storeBought =
       buyBread
     .tap(
       _ =>
-        Console
-          .printLine("BreadStoreBought: Bought")
+        Console.printLine(
+          "BreadStoreBought: Bought"
+        )
     )
 ```
 

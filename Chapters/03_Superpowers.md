@@ -85,7 +85,8 @@ def saveUser(username: String) =
           succeed.run
 
         case Some(
-              Scenario.WorksOnTry(attempts, ref)
+              Scenario
+                .WorksOnTry(attempts, ref)
             ) =>
           val numCalls =
             ref.getAndUpdate(_ + 1).run
@@ -288,8 +289,9 @@ import zio.*
 import zio.direct.*
 
 val effect3 =
-  effect2.timeoutFail("*** Save timed out ***"):
-    5.seconds
+  effect2
+    .timeoutFail("*** Save timed out ***"):
+      5.seconds
 ```
 
 If the effect does not complete within the time limit, it is canceled and returns our error message.

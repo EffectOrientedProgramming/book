@@ -36,8 +36,10 @@ enum Scenario:
   case StockMarketHeadline
   case HeadlineNotAvailable
   case NoInterestingTopic()
-  // There is an Either[NoWikiArticleAvailable,_]
-  // in visible code, so if we make it an object,
+  // There is an
+  // Either[NoWikiArticleAvailable,_]
+  // in visible code, so if we make it an
+  // object,
   // It will be
   // Either[NoWikiArticleAvailable.type,_] :(
   case NoWikiArticleAvailable()
@@ -114,11 +116,14 @@ def getHeadLine(): Future[String] =
     case Scenario.AITooSlow() =>
       Future.successful("space is big!")
     case Scenario.SummaryReadThrows() =>
-      Future.successful("new unicode released!")
+      Future
+        .successful("new unicode released!")
     case Scenario.NoInterestingTopic() =>
       Future.successful("boring content")
     case Scenario.DiskFull() =>
-      Future.successful("human genome sequenced")
+      Future
+        .successful("human genome sequenced")
+end getHeadLine
 
 def findTopicOfInterest(
     content: String
@@ -376,7 +381,9 @@ def openFile(path: String) =
     override def summaryFor(
         searchTerm: String
     ): String =
-      println(s"File - summaryFor($searchTerm)")
+      println(
+        s"File - summaryFor($searchTerm)"
+      )
       if (searchTerm == "unicode")
         throw Exception(
           s"No summary available for $searchTerm"
@@ -393,7 +400,9 @@ def openFile(path: String) =
     ): Try[String] =
       if (entry.contains("genome")) {
         println("File - disk full!")
-        Try(throw new Exception("Disk is full!"))
+        Try(
+          throw new Exception("Disk is full!")
+        )
       } else {
         println("File - write: " + entry)
         contents =

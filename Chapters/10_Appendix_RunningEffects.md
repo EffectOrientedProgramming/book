@@ -103,10 +103,12 @@ def spec =
   test("random is still random"):
     defer:
       assertTrue:
-        Random.nextIntBetween(0, 10).run <= 10 &&
-        Random.nextIntBetween(10, 20).run <=
+        Random.nextIntBetween(0, 10).run <=
+          10 &&
+          Random.nextIntBetween(10, 20).run <=
           20 &&
-          Random.nextIntBetween(20, 30).run <= 30
+          Random.nextIntBetween(20, 30).run <=
+          30
 ```
 
 Consider a `Console` application:
