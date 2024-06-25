@@ -720,14 +720,14 @@ Tails
 Tails
 Heads
 Heads
+Tails
 Heads
 Heads
 Tails
-Tails
-Tails
 Heads
-Num Heads = 5
-Result: 5
+Heads
+Num Heads = 6
+Result: 6
 ```
 
 ```scala

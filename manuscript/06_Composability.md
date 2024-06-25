@@ -668,10 +668,9 @@ File - contains(stock market)
 Wiki - articleFor(stock market)
 AI - summarize - start
 AI - summarize - end
-File - write: market is not rational
 File - CLOSE
 File - CLOSE
-Result: market is not rational
+Result: AITooSlow()
 ```
 
 ```scala
