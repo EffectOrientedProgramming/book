@@ -72,6 +72,31 @@ cleanManuscript := IO.delete(mdocOut.value)
 
 clean := clean.dependsOn(cleanManuscript).value
 
+lazy val formatMarkdown = taskKey[Unit]("Format Markdown")
+
+def prepare(file: File) = Def.task {
+  println(s"starting $file")
+  val contents = IO.read(file)
+  IO.write(file, contents.replaceAllLiterally("```scala 3", "```scala"))
+  println(s"replaced $file")
+}
+
+def refix(file: File) = Def.task {
+  val formattedContents = IO.read(file)
+  println(formattedContents)
+  IO.write(file, formattedContents.replaceAllLiterally("```scala", "```scala 3"))
+}
+
+def doFormat(file: File) = Def.sequential(
+  prepare(file),
+  (Compile / scalafmtOnly).toTask(s" $file"),
+  refix(file)
+)
+
+formatMarkdown := Def.sequential {
+  file("Chapters").file.listFiles().filter(_.name.contains("00")).map(doFormat)
+}.value
+
 lazy val formatAndCompileCode = taskKey[Unit]("Make manuscript")
 
 formatAndCompileCode := Def.sequential(
@@ -127,3 +152,5 @@ Global / onChangedBuildSource := ReloadOnSourceChanges
 // windows sometimes produces OverlappingFileLockException
 //scalafmtOnCompile := (!System.getProperty("os.name").toLowerCase.contains("win"))
 scalafmtOnCompile := false
+
+
