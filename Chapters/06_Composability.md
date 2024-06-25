@@ -449,17 +449,13 @@ import java.io.FileReader
 
 def run =
   defer:
-    Using(openFile("file1.txt")) {
+    Using(openFile("file1.txt")):
       file1 =>
-        Using(openFile("file2.txt")) {
+        Using(openFile("file2.txt")):
           file2 =>
             println:
               file1.sameContent(file2)
-        }
-    }
-  // TODO Confirm .unit is better than showing 
-  //   the ugly return type that wraps unit
-  .unit 
+    () // Don't care about result
 ```
 
 With each new file we open, we have to nest our code deeper.
