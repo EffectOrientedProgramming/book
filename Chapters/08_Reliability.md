@@ -257,10 +257,9 @@ def run =
     rateLimiter:
       expensiveApiCall
     .timedSecondsDebug:
-       s"called API"
+      s"called API"
     .repeatN(2) // Repeats as fast as allowed
-    .timedSecondsDebug("Result")
-    .run
+      .timedSecondsDebug("Result").run
 ```
 
 Most impressively, we can use the same `RateLimiter` across our application.
@@ -284,7 +283,9 @@ def run =
             expensiveApiCall
           .timedSecondsDebug:
             s"$person called API"
-          .repeatN(2) // Repeats as fast as allowed
+          .repeatN(
+            2
+          ) // Repeats as fast as allowed
       .timedSecondsDebug:
         "Total time"
       .unit // ignores the list of unit
@@ -698,9 +699,8 @@ def run =
       defer:
         val hedged =
           logicThatSporadicallyLocksUp.race:
-            logicThatSporadicallyLocksUp
-              .delay:
-                25.millis
+            logicThatSporadicallyLocksUp.delay:
+              25.millis
 
         val duration =
           hedged.run
@@ -709,7 +709,8 @@ def run =
 
     ZIO
       .foreachPar(List.fill(50_000)(())):
-        _ => req // TODO james still hates this and maybe a collectAllPar could do the trick but we've already wasted 321 hours on this
+        _ =>
+          req // TODO james still hates this and maybe a collectAllPar could do the trick but we've already wasted 321 hours on this
       .run
 
     contractBreaches
@@ -751,8 +752,8 @@ def spec =
     defer:
       ZIO.sleep(1.hour).run
       assertCompletes
-  @@ TestAspect.withLiveClock @@ 
-     TestAspect.timeout(1.second)
+  @@ TestAspect.withLiveClock @@
+    TestAspect.timeout(1.second)
 ```
 
 ### Flaky Tests
@@ -773,22 +774,26 @@ This can be caused by a number of factors:
   Your tests might be occasionally failing due to timeouts or lack of memory.
 
 ```scala 3 mdoc:invisible
-var attempts = 0
+var attempts =
+  0
 
-def spottyLogic = 
+def spottyLogic =
   defer:
-    ZIO.attempt{
-      attempts = attempts + 1
-    }.run
+    ZIO
+      .attempt {
+        attempts =
+          attempts + 1
+      }
+      .run
     if (ZIO.attempt(attempts).run > 1)
       Random.nextIntBounded(3).run match
-        case 0 => 
+        case 0 =>
           Console.printLine("Success!").run
           ZIO.succeed(1).run
-        case _ => 
+        case _ =>
           Console.printLine("Failed!").run
           ZIO.fail("Failed").run
-    else 
+    else
       Console.printLine("Failed!").run
       ZIO.fail("Failed").run
 ```
@@ -801,6 +806,6 @@ def spec =
     defer:
       spottyLogic.run
       assertCompletes
-  @@ TestAspect.withLiveRandom @@ 
-     TestAspect.flaky
+  @@ TestAspect.withLiveRandom @@
+    TestAspect.flaky
 ```

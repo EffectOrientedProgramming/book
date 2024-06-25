@@ -67,7 +67,9 @@ def saveUser(username: String) =
           Console.printLine:
             "Log: " + error
 
-  def saveForScenario(maybeScenario: Option[Scenario]) =
+  def saveForScenario(
+      maybeScenario: Option[Scenario]
+  ) =
     defer:
       maybeScenario match
         case Some(Scenario.NeverWorks) =>
@@ -82,7 +84,9 @@ def saveUser(username: String) =
             .run
           succeed.run
 
-        case Some(Scenario.WorksOnTry(attempts, ref)) =>
+        case Some(
+              Scenario.WorksOnTry(attempts, ref)
+            ) =>
           val numCalls =
             ref.getAndUpdate(_ + 1).run
           if numCalls == attempts then
@@ -483,7 +487,8 @@ Attempting to use in on anything else will produce an error.
 
 ```scala 3 mdoc:invisible
 // NOTE: If you alter the sample below, you need to explicitly change the brittle error msg manipulation in Main
-val x = 1 // This is just a dumb way to keep the code block from being empty, so it's properly hidden
+val x =
+  1 // This is just a dumb way to keep the code block from being empty, so it's properly hidden
 ```
 
 ```scala 3 mdoc:fail

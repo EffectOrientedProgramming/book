@@ -49,34 +49,42 @@ import Scenario.*
 
 // the scenario is used from non-ZIO code, so we don't use the config / bootstrap approach to passing it.
 // but we do still use bootstrap to set the scenario, just for consistency with how the scenario is set in other chapters
-var scenario: Scenario = StockMarketHeadline
+var scenario: Scenario =
+  StockMarketHeadline
 
 def stockMarketHeadline =
-  scenario = StockMarketHeadline
+  scenario =
+    StockMarketHeadline
   ZLayer.empty
 
 def headlineNotAvailable =
-  scenario = HeadlineNotAvailable
+  scenario =
+    HeadlineNotAvailable
   ZLayer.empty
 
 def noInterestingTopic =
-  scenario = NoInterestingTopic()
+  scenario =
+    NoInterestingTopic()
   ZLayer.empty
 
 def summaryReadThrows =
-  scenario = SummaryReadThrows()
+  scenario =
+    SummaryReadThrows()
   ZLayer.empty
 
 def noWikiArticleAvailable =
-  scenario = NoWikiArticleAvailable()
+  scenario =
+    NoWikiArticleAvailable()
   ZLayer.empty
 
 def aiTooSlow =
-  scenario = AITooSlow()
+  scenario =
+    AITooSlow()
   ZLayer.empty
 
 def diskFull =
-  scenario = DiskFull()
+  scenario =
+    DiskFull()
   ZLayer.empty
 ```
 
@@ -108,12 +116,9 @@ def getHeadLine(): Future[String] =
     case Scenario.SummaryReadThrows() =>
       Future.successful("new unicode released!")
     case Scenario.NoInterestingTopic() =>
-      Future.successful(
-        "boring content"
-      )
+      Future.successful("boring content")
     case Scenario.DiskFull() =>
       Future.successful("human genome sequenced")
-end getHeadLine
 
 def findTopicOfInterest(
     content: String
@@ -127,7 +132,7 @@ def findTopicOfInterest(
       "unicode",
       "genome"
     )
-  val res = 
+  val res =
     topics.find(content.contains)
   println(s"Analytics - topic: $res")
   res
@@ -280,10 +285,8 @@ We have an existing function `wikiArticle` that checks for articles on a topic:
 import zio.*
 import zio.direct.*
 
-val wikiResult: Either[
-  NoWikiArticleAvailable,
-  String
-] =
+val wikiResult
+    : Either[NoWikiArticleAvailable, String] =
   wikiArticle("stock market")
 ```
 
@@ -341,7 +344,8 @@ def openFile(path: String) =
 
     override def content() =
       path match
-        case "file1.txt" | "file2.txt" | "summaries.txt" =>
+        case "file1.txt" | "file2.txt" |
+            "summaries.txt" =>
           "hot dog"
         case _ =>
           "not hot dog"
@@ -470,9 +474,10 @@ def run =
       openFileZ("file1.txt").run
     val file2 =
       openFileZ("file2.txt").run
-    Console.printLine:
-      file1.sameContent(file2)
-    .run
+    Console
+      .printLine:
+        file1.sameContent(file2)
+      .run
 ```
 
 Our code remains flat.
@@ -499,7 +504,7 @@ def writeToFileZ(file: File, content: String) =
     .from:
       file.write:
         content
-    .orElseFail: 
+    .orElseFail:
       DiskFull()
 ```
 
@@ -525,8 +530,7 @@ openFile("file1").summaryFor("space")
 
 ```scala 3 mdoc:crash
 // TODO Simplify mdoc output if possible
-openFile("file1")
-  .summaryFor("unicode")
+openFile("file1").summaryFor("unicode")
 ```
 
 ```scala 3 mdoc
@@ -535,10 +539,7 @@ import zio.direct.*
 
 case class NoSummaryAvailable(topic: String)
 
-def summaryForZ(
-    file: File,
-    topic: String
-) =
+def summaryForZ(file: File, topic: String) =
   ZIO
     .attempt:
       file.summaryFor(topic)
@@ -575,7 +576,6 @@ def summarize(article: String): String =
     "content summary"
   else
     ???
-end summarize
 ```
 
 ```scala 3 mdoc:silent
@@ -702,7 +702,7 @@ def run =
 import zio.*
 import zio.direct.*
 
-override val bootstrap = 
+override val bootstrap =
   summaryReadThrows
 
 def run =
@@ -742,7 +742,7 @@ import zio.*
 import zio.direct.*
 
 // TODO This inconsistently works. frequently reports AI problem.
-override val bootstrap = 
+override val bootstrap =
   diskFull
 
 def run =
@@ -779,7 +779,8 @@ def run =
 ```
 
 ```scala 3 mdoc:runzio
-override val bootstrap = stockMarketHeadline
+override val bootstrap =
+  stockMarketHeadline
 
 def run =
   researchHeadline.repeatN(2)

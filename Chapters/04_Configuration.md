@@ -53,8 +53,11 @@ case class Dough():
 
 object Dough:
   val fresh =
-    ZLayer.derive[Dough]
-      .tap(_ => Console.printLine("Dough: Mixed"))
+    ZLayer
+      .derive[Dough]
+      .tap(
+        _ => Console.printLine("Dough: Mixed")
+      )
 ```
 
 ## Step 1: Provide Dependencies
@@ -95,18 +98,20 @@ import zio.direct.*
 case class Heat()
 
 val oven =
-  ZLayer.derive[Heat]
-    .tap(_ => Console.printLine("Oven: Heated"))
+  ZLayer
+    .derive[Heat]
+    .tap(
+      _ => Console.printLine("Oven: Heated")
+    )
 ```
 
 ```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
 
-trait Bread {
+trait Bread:
   def eat =
     Console.printLine("Bread: Eating")
-}
 
 case class BreadHomeMade(
     heat: Heat,
@@ -115,8 +120,13 @@ case class BreadHomeMade(
 
 object Bread:
   val homemade =
-    ZLayer.derive[BreadHomeMade]
-      .tap(_ => Console.printLine("BreadHomeMade: Baked"))
+    ZLayer
+      .derive[BreadHomeMade]
+      .tap(
+        _ =>
+          Console
+            .printLine("BreadHomeMade: Baked")
+      )
 ```
 
 Something around how like typical DI, the "graph" of dependencies gets resolved "for you"
@@ -139,7 +149,7 @@ def run =
 Eventually, we grow tired of eating plain `Bread` and decide to start making `Toast`.
 Both of these processes require `Heat`.
 
-```scala mdoc:silent
+```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
 
@@ -174,7 +184,7 @@ def run =
       Toast.make,
       Bread.homemade,
       Dough.fresh,
-      oven,
+      oven
     )
 ```
 
@@ -187,8 +197,11 @@ import zio.*
 import zio.direct.*
 
 val toaster =
-  ZLayer.derive[Heat]
-   .tap(_ => Console.printLine("Toaster: Heated"))
+  ZLayer
+    .derive[Heat]
+    .tap(
+      _ => Console.printLine("Toaster: Heated")
+    )
 ```
 
 ```scala 3 mdoc:runzio
@@ -212,7 +225,7 @@ ZIO
     Dough.fresh,
     Bread.homemade,
     oven,
-    toaster,
+    toaster
   )
 ```
 
@@ -231,8 +244,12 @@ import zio.direct.*
 case class Toaster()
 object Toaster:
   val layer =
-    ZLayer.derive[Toaster]
-      .tap(_ => Console.printLine("Toaster: Heating"))
+    ZLayer
+      .derive[Toaster]
+      .tap(
+        _ =>
+          Console.printLine("Toaster: Heating")
+      )
 ```
 
 ```scala 3 mdoc:silent
@@ -245,8 +262,11 @@ case class ToastZ(heat: Toaster, bread: Bread):
 
 object ToastZ:
   val make =
-    ZLayer.derive[ToastZ]
-      .tap(_ => Console.printLine("ToastZ: Made"))
+    ZLayer
+      .derive[ToastZ]
+      .tap(
+        _ => Console.printLine("ToastZ: Made")
+      )
 ```
 
 We can explicitly provide dependencies when needed, to prevent ambiguity.
@@ -262,9 +282,9 @@ def run =
     .provide(
       ToastZ.make,
       Toaster.layer,
-      Bread.homemade, 
-      Dough.fresh, 
-      oven,
+      Bread.homemade,
+      Dough.fresh,
+      oven
     )
 ```
 
@@ -296,9 +316,17 @@ import zio.direct.*
 
 val ovenSafe =
   ZLayer.fromZIO:
-    ZIO.succeed(Heat())
-      .tap(_ => Console.printLine("Oven: Heated"))
-      .withFinalizer(_ => Console.printLine("Oven: Turning off!").orDie)
+    ZIO
+      .succeed(Heat())
+      .tap(
+        _ => Console.printLine("Oven: Heated")
+      )
+      .withFinalizer(
+        _ =>
+          Console
+            .printLine("Oven: Turning off!")
+            .orDie
+      )
 ```
 
 
@@ -311,9 +339,9 @@ def run =
     .serviceWithZIO[Bread]:
       bread => bread.eat
     .provide(
-      Bread.homemade, 
-      Dough.fresh, 
-      ovenSafe, 
+      Bread.homemade,
+      Dough.fresh,
+      ovenSafe,
       Scope.default
     )
 ```
@@ -338,7 +366,9 @@ object Friend:
         .run
       ZIO
         .when(true)(
-          ZIO.fail("Failure(Friend Unreachable)") // TODO Replace error with failure pervasively
+          ZIO.fail(
+            "Failure(Friend Unreachable)"
+          ) // TODO Replace error with failure pervasively
         )
         .as(???)
         .run
@@ -397,9 +427,14 @@ import zio.*
 import zio.direct.*
 
 val storeBought =
-  ZLayer.fromZIO:
-    buyBread
-  .tap(_ => Console.printLine("BreadStoreBought: Bought"))
+  ZLayer
+    .fromZIO:
+      buyBread
+    .tap(
+      _ =>
+        Console
+          .printLine("BreadStoreBought: Bought")
+    )
 ```
 
 ```scala 3 mdoc:runzio
@@ -424,7 +459,7 @@ def run =
 import zio.*
 import zio.direct.*
 
-def logicWithRetries(retries: Int) = 
+def logicWithRetries(retries: Int) =
   ZIO
     .serviceWithZIO[Bread]:
       bread => bread.eat
@@ -436,7 +471,6 @@ def logicWithRetries(retries: Int) =
         .retry:
           Schedule.recurs:
             retries
-  
 ```
 
 ```scala 3 mdoc:runzio
@@ -444,7 +478,9 @@ import zio.*
 import zio.direct.*
 
 def run =
-  logicWithRetries(retries = 2)
+  logicWithRetries(retries =
+    2
+  )
 ```
 
 ## Step 11: External Configuration
@@ -481,7 +517,6 @@ To automatically map values in config files to our case class, we import a macro
 ```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
-
 
 import zio.config.magnolia.deriveConfig
 
@@ -522,8 +557,8 @@ def run =
   ZIO
     .serviceWithZIO[RetryConfig]:
       retryConfig =>
-        logicWithRetries(
-          retries = retryConfig.times
+        logicWithRetries(retries =
+          retryConfig.times
         )
     .provide:
       config
@@ -560,7 +595,7 @@ import zio.test.assertTrue
 
 val logic =
   defer:
-    assertTrue(1==1)
+    assertTrue(1 == 1)
 ```
 
 Next, we turn it into a test case by giving it a name via the `test` function.
@@ -605,15 +640,15 @@ def spec =
     defer:
       ZIO
         .serviceWithZIO[Bread]:
-          bread => 
-            bread.eat
-      .run
-      val output = TestConsole.output.run
-      assertTrue(output.contains("Bread: Eating\n"))
-      
+          bread => bread.eat
+        .run
+      val output =
+        TestConsole.output.run
+      assertTrue(
+        output.contains("Bread: Eating\n")
+      )
   .provide:
-    IdealFriend
-      .bread
+    IdealFriend.bread
 ```
 
 ## Testing Effects
