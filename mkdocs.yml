@@ -5,7 +5,7 @@ site_author: Bill Frasure, James Ward and Bruce Eckel
 # repo_url: https://github.com/EffectOrientedProgramming/book/
 
 nav:
-  # - Home: index.md
+  - Home: index.md
   - Guide:
     - Installing Scala & Tools: guide/scalatools.md
     - Running the Book Code: guide/examples.md
