@@ -58,7 +58,9 @@ object FSLive:
       List("viralImage1", "viralImage2")
     )
 
-case class FileContents(contents: List[String])
+case class FileContents(
+    contents: List[String]
+)
 
 trait CloudStorage:
   def retrieve(
@@ -354,7 +356,9 @@ object DelicateResource:
             "Do not make more than 3 concurrent requests!"
           .run
         Live(
-          Ref.make[List[Int]](List.empty).run,
+          Ref
+            .make[List[Int]](List.empty)
+            .run,
           Ref.make(true).run
         )
 ```
@@ -529,8 +533,8 @@ private def createTimeTableX[A](
   * Runtime: Zero value: (8:00 + 1 minute,
   * "value1")
   *
-  * case ((8:01, _) , (2.minutes, "value2")) =>
-  * (8:01 + 2.minutes, "value2")
+  * case ((8:01, _) , (2.minutes, "value2"))
+  * \=> (8:01 + 2.minutes, "value2")
   *
   * Output: ( ("8:01", "value1"), ("8:03",
   * "value2") )
@@ -546,7 +550,9 @@ private def accessX[A](
         new TimeoutException("TOO LATE")
       ) {
         timeTable
-          .find(_.expirationTime.isAfter(now))
+          .find(
+            _.expirationTime.isAfter(now)
+          )
           .map(_.value)
       }
       .run
@@ -707,8 +713,9 @@ def run =
       defer:
         val hedged =
           logicThatSporadicallyLocksUp.race:
-            logicThatSporadicallyLocksUp.delay:
-              25.millis
+            logicThatSporadicallyLocksUp
+              .delay:
+                25.millis
 
         val duration =
           hedged.run

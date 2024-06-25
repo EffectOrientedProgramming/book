@@ -20,7 +20,8 @@ class GpsException
 class NetworkException
     extends Exception("Network Failure")
 
-val scenarioConfig: Config[Option[Scenario]] =
+val scenarioConfig
+    : Config[Option[Scenario]] =
   Config.Optional[Scenario](
     Config.fail("no default scenario")
   )
@@ -31,7 +32,9 @@ class ErrorsStaticConfigProvider(
   override def load[A](config: Config[A])(
       implicit trace: Trace
   ): IO[Config.Error, A] =
-    ZIO.succeed(Some(scenario).asInstanceOf[A])
+    ZIO.succeed(
+      Some(scenario).asInstanceOf[A]
+    )
 
 var scenarioForNonZio: Option[Scenario] =
   None
@@ -174,8 +177,9 @@ def run =
   val safeGetTemperature =
     getTemperature.catchAll:
       case e: Exception =>
-        ZIO
-          .succeed("Could not get temperature")
+        ZIO.succeed(
+          "Could not get temperature"
+        )
 
   defer:
     safeGetTemperature.run
