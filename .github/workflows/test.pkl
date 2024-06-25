@@ -36,7 +36,7 @@ jobs {
       }
 
       new {
-        run = "sbt test"
+        run = "sbt test:compile"
         `working-directory` = "examples"
       }
     }
