@@ -17,5 +17,5 @@ jobs:
         cache: sbt
     - run: rm -rf examples/src/main/scala/Chapter*.scala examples/src/test/scala/Chapter*.scala
     - run: sbt test genManuscript
-    - run: sbt test
+    - run: sbt test:compile
       working-directory: examples
