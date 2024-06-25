@@ -577,7 +577,6 @@ Result: AITooSlow()
 ### Disk Full
 
 ```scala
-// TODO This inconsistently works. frequently reports AI problem.
 override val bootstrap =
   diskFull
 
