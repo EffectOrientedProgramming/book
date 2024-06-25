@@ -568,7 +568,7 @@ def summarize(article: String): String =
   // Represents the AI taking a long time to
   // summarize the content
   if (article.contains("space"))
-    Thread.sleep(1000)
+    Thread.sleep(5000)
 
   println(s"AI - summarize - end")
   if (article.contains("stock market"))
@@ -608,7 +608,7 @@ def summarizeZ(article: String) =
     .orDie
     .onInterrupt:
       ZIO.debug("AI **INTERRUPTED**")
-    .timeoutFail(AITooSlow())(50.millis)
+    .timeoutFail(AITooSlow())(4000.millis)
 ```
 
 Now we have a way to confine the impact that this function has on our application.
@@ -783,8 +783,7 @@ def run =
 ```
 
 ```scala 3 mdoc:runzio
-override val bootstrap =
-  stockMarketHeadline
+override val bootstrap = stockMarketHeadline
 
 def run =
   researchHeadline.repeatN(2)
