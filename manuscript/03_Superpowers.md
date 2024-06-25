@@ -206,7 +206,6 @@ def run =
 Output:
 
 ```shell
-Log: Interrupting slow request
 Result: *** Save timed out ***
 ```
 
@@ -239,8 +238,6 @@ def run =
 Output:
 
 ```shell
-Log: **Database crashed!!**
-Log: **Database crashed!!**
 Log: **Database crashed!!**
 Result: Please manually provision Morty
 ```
@@ -298,7 +295,7 @@ def run =
 Output:
 
 ```shell
-Result: (PT0.009818597S,User saved)
+Result: (PT0.025635748S,User saved)
 ```
 
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.
