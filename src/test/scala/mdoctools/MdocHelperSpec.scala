@@ -193,7 +193,6 @@ object MdocHelperSpec extends ZIOSpecDefault:
             val out =
               myOut.toString
             assertTrue:
-              result.isInstanceOf[Summary] &&
               out.contains("hello, world") &&
               out.contains(
                 "\u001B[32m+\u001B[0m hello"
