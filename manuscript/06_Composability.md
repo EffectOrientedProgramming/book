@@ -595,8 +595,9 @@ File - contains(genome)
 Wiki - articleFor(genome)
 AI - summarize - start
 AI - summarize - end
+File - disk full!
 File - CLOSE
-Result: AITooSlow()
+Result: DiskFull()
 ```
 
 ### Happy Path
