@@ -120,34 +120,34 @@ Now you can run a few simple tests to ensure the installation was successful:
 
 1. `java -version`
   Output will be something like:
-  ```text
-  java version "1.8.0_211"
-  Java(TM) SE Runtime Environment (build 1.8.0_211-b12)
-  Java HotSpot(TM) 64-Bit Server VM (build 25.211-b12, mixed mode)
-  ```
+```text
+java version "1.8.0_211"
+Java(TM) SE Runtime Environment (build 1.8.0_211-b12)
+Java HotSpot(TM) 64-Bit Server VM (build 25.211-b12, mixed mode)
+```
 
 2. `javac -version`
   Output will be something like:
-  ```text
-  javac 1.8.0_211
-  ```
+```text
+javac 1.8.0_211
+```
 
 3. `scalac -version`
   Output will be something like:
-  ```text
-  Scala compiler version 2.13.6 -- Copyright 2002-2021, LAMP/EPFL and Lightbend, Inc.
-  ```
+```text
+Scala compiler version 2.13.6 -- Copyright 2002-2021, LAMP/EPFL and Lightbend, Inc.
+```
 
 4. `sbt help`
   Output will be something like:
-  ```text
-  [info] welcome to sbt 1.5.5 (Oracle Corporation Java 1.8.0_211)
-  [info] loading settings for project book-build from plugins.sbt ...
-  [info] loading project definition from C:\Users\bruce\Documents\Git\book\projec
-  [info] loading settings for project book from build.sbt ...
-  [info] set current project to EffectOrientedProgramming
-  ...
-  ```
+```text
+[info] welcome to sbt 1.5.5 (Oracle Corporation Java 1.8.0_211)
+[info] loading settings for project book-build from plugins.sbt ...
+[info] loading project definition from C:\Users\bruce\Documents\Git\book\projec
+[info] loading settings for project book from build.sbt ...
+[info] set current project to EffectOrientedProgramming
+...
+```
 
 ### Update Coursier
 
@@ -239,10 +239,8 @@ To exit the sbt shell, press **ctrl + d**.
 *  `eval "$(cs install --env)"` {{ What does this do? }}
 
 * If Java is already installed, you might be missing the JDK, so execute 
-  this command to be sure:
-
+  this command to be sure:    
   `cs java --jvm adopt:11 --setup`
 
-* Periodically update your exectuables by re-installing them, e.g.:
-
+* Periodically update your exectuables by re-installing them, e.g.:    
   `cs install scalafmt`
