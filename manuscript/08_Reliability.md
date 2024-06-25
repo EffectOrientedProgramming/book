@@ -249,10 +249,11 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(252, 63)
-Current requests: List(65, 252, 63)
-Current requests: List(37, 65, 252, 63)
-Current requests: List(63)
+Current requests: List(789)
+Current requests: List(233, 789)
+Current requests: List(873, 233, 789)
+Current requests: List(54, 287, 873, 233, 789)
+Current requests: List(287, 873, 233, 789)
 Result: Crashed the server!!
 ```
 
@@ -295,16 +296,16 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(260)
-Current requests: List(504, 260)
-Current requests: List(690, 504, 260)
-Current requests: List(788)
-Current requests: List(898, 788)
-Current requests: List(599, 898, 788)
-Current requests: List(323)
-Current requests: List(970, 323)
-Current requests: List(962, 970, 323)
-Current requests: List(44)
+Current requests: List(155)
+Current requests: List(836, 155)
+Current requests: List(604, 836, 155)
+Current requests: List(450)
+Current requests: List(939, 450)
+Current requests: List(951, 939, 450)
+Current requests: List(499, 686, 951)
+Current requests: List(686, 951)
+Current requests: List(63, 499, 686)
+Current requests: List(178)
 Result: All Requests Succeeded
 ```
 
@@ -442,8 +443,9 @@ def run =
       defer:
         val hedged =
           logicThatSporadicallyLocksUp.race:
-            logicThatSporadicallyLocksUp.delay:
-              25.millis
+            logicThatSporadicallyLocksUp
+              .delay:
+                25.millis
 
         val duration =
           hedged.run
@@ -546,6 +548,12 @@ def spec =
 Output:
 
 ```shell
+Failed!
+Failed!
+Failed!
+Failed!
+Failed!
+Failed!
 Failed!
 Failed!
 Failed!

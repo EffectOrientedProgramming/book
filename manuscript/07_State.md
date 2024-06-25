@@ -42,7 +42,8 @@ val unreliableCounting =
       .run
     // It's not obvious to the reader why
     // we need to wrap counter in .succeed
-    "Final count: " + ZIO.succeed(counter).run
+    "Final count: " +
+      ZIO.succeed(counter).run
 ```
 
 ```scala
@@ -53,7 +54,7 @@ def run =
 Output:
 
 ```shell
-Result: Final count: 99980
+Result: Final count: 99963
 ```
 
 Due to the unpredictable nature of shared mutable state, we do not know exactly what the final count above is.

@@ -101,10 +101,12 @@ def spec =
       assertTrue:
         Random.nextIntBetween(0, 10).run <=
           10 &&
-          Random.nextIntBetween(10, 20).run <=
-          20 &&
-          Random.nextIntBetween(20, 30).run <=
-          30
+          Random
+            .nextIntBetween(10, 20)
+            .run <= 20 &&
+          Random
+            .nextIntBetween(20, 30)
+            .run <= 30
 ```
 
 Output:
@@ -170,16 +172,16 @@ Output:
 
 ```shell
 - console works
-  Exception in thread "zio-fiber-527902816" scala.NotImplementedError: an implementation is missing
+  Exception in thread "zio-fiber-543774046" scala.NotImplementedError: an implementation is missing
   	at scala.Predef$.$qmark$qmark$qmark(Predef.scala:344)
   	at zio.Console$.print$$anonfun$6(Console.scala:122)
   	at zio.ZIO$.consoleWith$$anonfun$1(ZIO.scala:3121)
   	at zio.FiberRef$unsafe$$anon$2.getWith$$anonfun$1(FiberRef.scala:474)
-  	at logic(<input>:93)
+  	at logic(<input>:95)
   	at zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19)
-  	at logic(<input>:103)
+  	at logic(<input>:105)
   	at zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19)
-  	at Chapter63Spec.spec(<input>:139)
+  	at Chapter63Spec.spec(<input>:141)
 ```
 
 ## Interop with existing/legacy code

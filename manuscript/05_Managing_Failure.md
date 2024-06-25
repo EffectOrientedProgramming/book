@@ -75,8 +75,9 @@ def run =
   val safeGetTemperature =
     getTemperature.catchAll:
       case e: Exception =>
-        ZIO
-          .succeed("Could not get temperature")
+        ZIO.succeed(
+          "Could not get temperature"
+        )
 
   defer:
     safeGetTemperature.run

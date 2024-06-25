@@ -53,7 +53,8 @@ object Dough:
     ZLayer
       .derive[Dough]
       .tap(
-        _ => Console.printLine("Dough: Mixed")
+        _ =>
+          Console.printLine("Dough: Mixed")
       )
 ```
 
@@ -135,8 +136,9 @@ object Bread:
       .derive[BreadHomeMade]
       .tap(
         _ =>
-          Console
-            .printLine("BreadHomeMade: Baked")
+          Console.printLine(
+            "BreadHomeMade: Baked"
+          )
       )
 ```
 
@@ -149,7 +151,11 @@ def run =
   ZIO
     .serviceWithZIO[Bread]:
       bread => bread.eat
-    .provide(Bread.homemade, Dough.fresh, oven)
+    .provide(
+      Bread.homemade,
+      Dough.fresh,
+      oven
+    )
 ```
 
 Output:
@@ -218,7 +224,8 @@ val toaster =
   ZLayer
     .derive[Heat]
     .tap(
-      _ => Console.printLine("Toaster: Heated")
+      _ =>
+        Console.printLine("Toaster: Heated")
     )
 ```
 
@@ -286,12 +293,16 @@ object Toaster:
       .derive[Toaster]
       .tap(
         _ =>
-          Console.printLine("Toaster: Heating")
+          Console
+            .printLine("Toaster: Heating")
       )
 ```
 
 ```scala
-case class ToastZ(heat: Toaster, bread: Bread):
+case class ToastZ(
+    heat: Toaster,
+    bread: Bread
+):
   val eat =
     Console.printLine("Toast: Eating")
 
@@ -300,7 +311,8 @@ object ToastZ:
     ZLayer
       .derive[ToastZ]
       .tap(
-        _ => Console.printLine("ToastZ: Made")
+        _ =>
+          Console.printLine("ToastZ: Made")
       )
 ```
 
@@ -358,7 +370,8 @@ val ovenSafe =
     ZIO
       .succeed(Heat())
       .tap(
-        _ => Console.printLine("Oven: Heated")
+        _ =>
+          Console.printLine("Oven: Heated")
       )
       .withFinalizer(
         _ =>
@@ -703,18 +716,18 @@ def run =
 Output:
 
 ```shell
-Tails
-Tails
-Tails
-Tails
+Heads
 Heads
 Tails
 Tails
 Tails
 Tails
+Heads
+Heads
+Heads
 Tails
-Num Heads = 1
-Result: 1
+Num Heads = 5
+Result: 5
 ```
 
 ```scala

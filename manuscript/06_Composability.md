@@ -170,8 +170,10 @@ Result: NoInterestingTopic()
 We have an existing function `wikiArticle` that checks for articles on a topic:
 
 ```scala
-val wikiResult
-    : Either[NoWikiArticleAvailable, String] =
+val wikiResult: Either[
+  NoWikiArticleAvailable,
+  String
+] =
   wikiArticle("stock market")
 ```
 
@@ -321,7 +323,10 @@ val writeResult: Try[String] =
 ```
 
 ```scala
-def writeToFileZ(file: File, content: String) =
+def writeToFileZ(
+    file: File,
+    content: String
+) =
   ZIO
     .from:
       file.write:
@@ -335,7 +340,8 @@ def run =
   defer:
     val file =
       openFileZ("file1").run
-    writeToFileZ(file, "New data on topic").run
+    writeToFileZ(file, "New data on topic")
+      .run
 ```
 
 Output:
@@ -359,8 +365,8 @@ openFile("file1").summaryFor("space")
 ```scala
 openFile("file1").summaryFor("unicode")
 // java.lang.Exception: No summary available for unicode
-// 	at repl.MdocSession$MdocApp$$anon$26.summaryFor(<input>:337)
-// 	at repl.MdocSession$MdocApp.$init$$$anonfun$1(<input>:480)
+// 	at repl.MdocSession$MdocApp$$anon$26.summaryFor(<input>:344)
+// 	at repl.MdocSession$MdocApp.$init$$$anonfun$1(<input>:493)
 ```
 
 ```scala
