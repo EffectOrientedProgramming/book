@@ -1,9 +1,5 @@
 # State
 
-
-[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/07_State.md)
-
-
 Functional programmers often sing the praises of immutability.
 The advantages are real and numerous.
 However, it is easy to find situations that are intrinsically mutable.
@@ -57,7 +53,7 @@ def run =
 Output:
 
 ```shell
-Result: Final count: 99987
+Result: Final count: 99991
 ```
 
 Due to the unpredictable nature of shared mutable state, we do not know exactly what the final count above is.

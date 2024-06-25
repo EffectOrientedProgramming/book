@@ -1,9 +1,5 @@
 # Managing Failure
 
-
-[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/05_Managing_Failure.md)
-
-
 Given that Effects encapsulate the unpredictable parts of a system,
 they must have a way to express failure.
 
@@ -14,7 +10,8 @@ Let's say we have an Effect `getTemperature` which can fail as it tries to make 
 First let's run it in the "happy path" assuming it won't fail:
 
 ```scala
-override val bootstrap = happyPath
+override val bootstrap =
+  happyPath
 
 def run =
   getTemperature
@@ -30,7 +27,8 @@ As expected, the program succeeds with the temperature.
 But if we run it and simulate a network failure, the program will fail.
 
 ```scala
-override val bootstrap = networkFailure
+override val bootstrap =
+  networkFailure
 
 def run =
   getTemperature
@@ -47,12 +45,17 @@ For example, if we try to print something after trying to get the temperature,
   an unhandled failure will not allow the program to continue.
 
 ```scala
-override val bootstrap = networkFailure
+override val bootstrap =
+  networkFailure
 
 def run =
   defer:
     getTemperature.run
-    Console.printLine("only prints if getTemperature succeeds").run
+    Console
+      .printLine(
+        "only prints if getTemperature succeeds"
+      )
+      .run
 ```
 
 Output:
@@ -65,7 +68,8 @@ We can add various forms of failure handling.
 One is to "catch" the failure and transform it into another Effect which can also succeed or fail.
 
 ```scala
-override val bootstrap = networkFailure
+override val bootstrap =
+  networkFailure
 
 def run =
   val safeGetTemperature =
@@ -75,7 +79,11 @@ def run =
 
   defer:
     safeGetTemperature.run
-    Console.printLine("will not print if getTemperature fails").run
+    Console
+      .printLine(
+        "will not print if getTemperature fails"
+      )
+      .run
 ```
 
 Output:
@@ -129,13 +137,18 @@ val temperatureAppComplete =
 Now even if there is a network or GPS failure, the Effect completes successfully:
 
 ```scala
-override val bootstrap = gpsFailure
+override val bootstrap =
+  gpsFailure
 
 def run =
   defer:
     val result =
       temperatureAppComplete.run
-    Console.printLine(s"Didn't fail, despite: $result").run
+    Console
+      .printLine(
+        s"Didn't fail, despite: $result"
+      )
+      .run
 ```
 
 Output:
@@ -180,7 +193,8 @@ val getTemperatureBad =
 Now we can again use `catchAll` but can handle the `String` failure type:
 
 ```scala
-override val bootstrap = gpsFailure
+override val bootstrap =
+  gpsFailure
 
 def run =
   getTemperatureBad.catchAll:
@@ -228,7 +242,8 @@ val getTemperatureLocal =
 To handle the possible failures for this new Effect, we now need to handle both the `Exception` and `LocalizeFailure`:
 
 ```scala
-override val bootstrap = weird
+override val bootstrap =
+  weird
 
 def run =
   getTemperatureLocal.catchAll:
@@ -259,7 +274,8 @@ We have an existing `getTemperatureOrThrow` function that can fail by throwing a
 If we try to just call this function from an Effect, in the case of failure, the program will fail.
 
 ```scala
-override val bootstrap = networkFailure
+override val bootstrap =
+  networkFailure
 
 def run =
   ZIO.succeed:
@@ -283,7 +299,8 @@ val safeTemperatureApp =
 Then you can use any of the failure handling mechanisms in Effects to deal with the failure.
 
 ```scala
-override val bootstrap = networkFailure
+override val bootstrap =
+  networkFailure
 
 def run =
   safeTemperatureApp.orElse:

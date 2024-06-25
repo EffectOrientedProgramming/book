@@ -1,9 +1,5 @@
 # Appendix ZIO
 
-
-[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/09_Appendix_ZIO.md)
-
-
 This book has deliberately tried to introduce Effects in a way that is distinct from the ZIO reference docs.
 However, this does not mean that we discourage users from heavily utilizing them.
 

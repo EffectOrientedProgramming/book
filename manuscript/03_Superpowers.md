@@ -1,10 +1,6 @@
 # Superpowers with Effects
 
 
-[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/03_Superpowers.md)
-
-
-
 Once programs are defined in terms of Effects, we use operations from the Effect System to manage different aspects of unpredictability.
 Combining Effects with these operations feels like a superpower.
 The reason we call them "superpowers" is that the operations can be attached to **any** Effect.
@@ -301,7 +297,7 @@ def run =
 Output:
 
 ```shell
-Result: (PT5.025178125S,User saved)
+Result: (PT0.005465432S,User saved)
 ```
 
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.

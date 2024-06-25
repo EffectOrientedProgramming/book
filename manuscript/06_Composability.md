@@ -1,9 +1,5 @@
 # Composability
 
-
-[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/06_Composability.md)
-
-
 An essential part of creating programs is the ability to combine small pieces into larger pieces.  
 We call this *composability*.
 This might seem so simple that it must be a solved problem.
@@ -174,10 +170,8 @@ Result: NoInterestingTopic()
 We have an existing function `wikiArticle` that checks for articles on a topic:
 
 ```scala
-val wikiResult: Either[
-  NoWikiArticleAvailable,
-  String
-] =
+val wikiResult
+    : Either[NoWikiArticleAvailable, String] =
   wikiArticle("stock market")
 ```
 
@@ -297,9 +291,10 @@ def run =
       openFileZ("file1.txt").run
     val file2 =
       openFileZ("file2.txt").run
-    Console.printLine:
-      file1.sameContent(file2)
-    .run
+    Console
+      .printLine:
+        file1.sameContent(file2)
+      .run
 ```
 
 Output:
@@ -331,7 +326,7 @@ def writeToFileZ(file: File, content: String) =
     .from:
       file.write:
         content
-    .orElseFail: 
+    .orElseFail:
       DiskFull()
 ```
 
@@ -362,20 +357,16 @@ openFile("file1").summaryFor("space")
 ```
 
 ```scala
-openFile("file1")
-  .summaryFor("unicode")
+openFile("file1").summaryFor("unicode")
 // java.lang.Exception: No summary available for unicode
-// 	at repl.MdocSession$MdocApp$$anon$26.summaryFor(<input>:326)
-// 	at repl.MdocSession$MdocApp.$init$$$anonfun$1(<input>:467)
+// 	at repl.MdocSession$MdocApp$$anon$26.summaryFor(<input>:329)
+// 	at repl.MdocSession$MdocApp.$init$$$anonfun$1(<input>:470)
 ```
 
 ```scala
 case class NoSummaryAvailable(topic: String)
 
-def summaryForZ(
-    file: File,
-    topic: String
-) =
+def summaryForZ(file: File, topic: String) =
   ZIO
     .attempt:
       file.summaryFor(topic)
@@ -515,7 +506,7 @@ Result: NoInterestingTopic()
 ### Exception when reading from file
 
 ```scala
-override val bootstrap = 
+override val bootstrap =
   summaryReadThrows
 
 def run =
@@ -587,7 +578,7 @@ Result: AITooSlow()
 
 ```scala
 // TODO This inconsistently works. frequently reports AI problem.
-override val bootstrap = 
+override val bootstrap =
   diskFull
 
 def run =
@@ -679,7 +670,8 @@ Result: market is not rational
 ```
 
 ```scala
-override val bootstrap = stockMarketHeadline
+override val bootstrap =
+  stockMarketHeadline
 
 def run =
   researchHeadline.repeatN(2)

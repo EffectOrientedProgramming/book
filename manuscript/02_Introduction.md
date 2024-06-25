@@ -1,9 +1,5 @@
 # Introduction
 
-
-[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/02_Introduction.md)
-
-
 Systems built from unpredictable parts can have predictable behavior.
 If you've been programming for a while, this sounds far-fetched or even impossible.
 

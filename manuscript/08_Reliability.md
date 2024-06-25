@@ -1,9 +1,5 @@
 # Reliability
 
-
-[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/08_Reliability.md)
-
-
 {{ really "advanced recover techniques" as basic ones should have already been covered }}
 
 For our purposes,
@@ -172,10 +168,9 @@ def run =
     rateLimiter:
       expensiveApiCall
     .timedSecondsDebug:
-       s"called API"
+      s"called API"
     .repeatN(2) // Repeats as fast as allowed
-    .timedSecondsDebug("Result")
-    .run
+      .timedSecondsDebug("Result").run
 ```
 
 Output:
@@ -205,7 +200,9 @@ def run =
             expensiveApiCall
           .timedSecondsDebug:
             s"$person called API"
-          .repeatN(2) // Repeats as fast as allowed
+          .repeatN(
+            2
+          ) // Repeats as fast as allowed
       .timedSecondsDebug:
         "Total time"
       .unit // ignores the list of unit
@@ -215,15 +212,15 @@ def run =
 Output:
 
 ```shell
-Bill called API [took 0s]
-Bruce called API [took 1s]
-James called API [took 2s]
+Bruce called API [took 0s]
+James called API [took 1s]
+Bruce called API [took 2s]
 Bill called API [took 3s]
-Bruce called API [took 3s]
 James called API [took 3s]
+Bruce called API [took 3s]
 Bill called API [took 3s]
-Bruce called API [took 3s]
 James called API [took 3s]
+Bill called API [took 2s]
 Total time [took 8s]
 ```
 
@@ -252,10 +249,10 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(766)
-Current requests: List(390, 836, 766)
-Current requests: List(836, 766)
-Current requests: List(48, 390, 836, 766)
+Current requests: List(70, 341)
+Current requests: List(341)
+Current requests: List(384, 70, 341)
+Current requests: List(909, 384, 70, 341)
 Result: Crashed the server!!
 ```
 
@@ -295,16 +292,16 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(495)
-Current requests: List(519, 495)
-Current requests: List(568, 519, 495)
-Current requests: List(392)
-Current requests: List(234, 392)
-Current requests: List(103, 234, 392)
-Current requests: List(827, 103)
-Current requests: List(578, 827, 103)
-Current requests: List(513, 578, 827)
-Current requests: List(936)
+Current requests: List(698)
+Current requests: List(483, 698)
+Current requests: List(147, 483, 698)
+Current requests: List(771, 730)
+Current requests: List(730)
+Current requests: List(574, 771, 730)
+Current requests: List(627, 574)
+Current requests: List(325, 627, 574)
+Current requests: List(661, 325, 627)
+Current requests: List(238, 661)
 Result: All Requests Succeeded
 ```
 
@@ -406,7 +403,7 @@ def run =
 Output:
 
 ```shell
-Result: Calls prevented: 74 Calls made: 67
+Result: Calls prevented: 75 Calls made: 66
 ```
 
 Now we see that our code prevented the majority of the doomed calls to the external service.
@@ -441,9 +438,8 @@ def run =
       defer:
         val hedged =
           logicThatSporadicallyLocksUp.race:
-            logicThatSporadicallyLocksUp
-              .delay:
-                25.millis
+            logicThatSporadicallyLocksUp.delay:
+              25.millis
 
         val duration =
           hedged.run
@@ -452,7 +448,8 @@ def run =
 
     ZIO
       .foreachPar(List.fill(50_000)(())):
-        _ => req // TODO james still hates this and maybe a collectAllPar could do the trick but we've already wasted 321 hours on this
+        _ =>
+          req // TODO james still hates this and maybe a collectAllPar could do the trick but we've already wasted 321 hours on this
       .run
 
     contractBreaches
@@ -464,8 +461,8 @@ def run =
 Output:
 
 ```shell
-Contract Breaches: 1
-Result: 1
+Contract Breaches: 0
+Result: 0
 ```
 
 ## Test Reliability
@@ -501,8 +498,8 @@ def spec =
     defer:
       ZIO.sleep(1.hour).run
       assertCompletes
-  @@ TestAspect.withLiveClock @@ 
-     TestAspect.timeout(1.second)
+  @@ TestAspect.withLiveClock @@
+    TestAspect.timeout(1.second)
 ```
 
 Output:
@@ -538,13 +535,15 @@ def spec =
     defer:
       spottyLogic.run
       assertCompletes
-  @@ TestAspect.withLiveRandom @@ 
-     TestAspect.flaky
+  @@ TestAspect.withLiveRandom @@
+    TestAspect.flaky
 ```
 
 Output:
 
 ```shell
+Failed!
+Failed!
 Failed!
 Failed!
 Failed!

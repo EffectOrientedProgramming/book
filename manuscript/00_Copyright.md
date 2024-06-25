@@ -1,9 +1,5 @@
 # Copyright
 
-
-[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/00_Copyright.md)
-
-
 ## Effect Oriented Programming
 
 By Bill Frasure, James Ward, and Bruce Eckel

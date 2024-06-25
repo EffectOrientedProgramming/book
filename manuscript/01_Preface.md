@@ -1,9 +1,5 @@
 # Preface
 
-
-[Edit This Chapter](https://github.com/EffectOrientedProgramming/book/edit/main/Chapters/01_Preface.md)
-
-
 *Effects* are the unpredictable parts of a system.
 Traditional programs do not isolate these unpredictable parts, making it hard to manage them.
 *Effect Systems* partition the unpredictable parts and manage them separately from the predictable ones.
