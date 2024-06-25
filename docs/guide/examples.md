@@ -22,11 +22,11 @@ You may use another environment such as VSCode but if you do you'll need to figu
    This should ensure your machine has all necessary plugins and extensions installed.
 
 - If you get a message:
-  ```
-  Scalafmt configuration detected in this project
-    Use scalafmt formatter
-    Continue using IntelliJ formatter
-  ```
+```text
+Scalafmt configuration detected in this project
+Use scalafmt formatter
+Continue using IntelliJ formatter
+```
   Select `Use scalafmt formatter`
 
 - When you open a Scala file in IntelliJ, you might get a message in the title bar of that file:
