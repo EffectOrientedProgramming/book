@@ -2,7 +2,9 @@
 
 ## Install the Example Code
 
-Download the [zipped code repository](https://github.com/EffectOrientedProgramming/EOPCode) and unpack the archive.
+Download the [zipped code repository](https://github.com/EffectOrientedProgramming/examples).
+To find the zipped version, press the green "Code" button.
+Unpack the archive.
 
 ## Install IntelliJ IDEA
 
