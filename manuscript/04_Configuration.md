@@ -385,8 +385,8 @@ def run =
 Output:
 
 ```shell
-Dough: Mixed
 Oven: Heated
+Dough: Mixed
 BreadHomeMade: Baked
 Bread: Eating
 Oven: Turning off!
@@ -434,8 +434,9 @@ val storeBought =
       buyBread
     .tap(
       _ =>
-        Console
-          .printLine("BreadStoreBought: Bought")
+        Console.printLine(
+          "BreadStoreBought: Bought"
+        )
     )
 ```
 
@@ -703,17 +704,17 @@ Output:
 
 ```shell
 Tails
-Heads
-Heads
-Tails
-Tails
 Tails
 Heads
 Tails
 Tails
 Heads
-Num Heads = 4
-Result: 4
+Heads
+Heads
+Heads
+Tails
+Num Heads = 5
+Result: 5
 ```
 
 ```scala

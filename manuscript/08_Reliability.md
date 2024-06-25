@@ -249,10 +249,11 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(822)
-Current requests: List(873, 822)
-Current requests: List(703, 873, 822)
-Current requests: List(340, 703, 873, 822)
+Current requests: List(440, 456)
+Current requests: List(456)
+Current requests: List(552, 440, 456)
+Current requests: List(521, 552, 440, 456)
+Current requests: List(858, 521, 552, 440, 456)
 Result: Crashed the server!!
 ```
 
@@ -284,7 +285,10 @@ def run =
             delicateResource.request
       .as("All Requests Succeeded")
       .run
-  .provide(DelicateResource.live, Scope.default)
+  .provide(
+    DelicateResource.live,
+    Scope.default
+  )
 ```
 
 Output:
@@ -292,16 +296,16 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(831)
-Current requests: List(341, 831)
-Current requests: List(82, 341, 831)
-Current requests: List(505, 919)
-Current requests: List(919)
-Current requests: List(439, 505, 919)
-Current requests: List(83, 895, 439)
-Current requests: List(895, 439)
-Current requests: List(405, 83, 895)
-Current requests: List(206)
+Current requests: List(518)
+Current requests: List(739, 518)
+Current requests: List(10, 739, 518)
+Current requests: List(784)
+Current requests: List(573, 784)
+Current requests: List(722, 573, 784)
+Current requests: List(661, 12, 722)
+Current requests: List(12, 722)
+Current requests: List(527, 661, 12)
+Current requests: List(36)
 Result: All Requests Succeeded
 ```
 
@@ -359,9 +363,10 @@ import nl.vroste.rezilience.{
 val makeCircuitBreaker =
   CircuitBreaker.make(
     trippingStrategy =
-      TrippingStrategy.failureCount(maxFailures =
-        2
-      ),
+      TrippingStrategy
+        .failureCount(maxFailures =
+          2
+        ),
     resetPolicy =
       Retry.Schedules.common()
   )
@@ -403,7 +408,7 @@ def run =
 Output:
 
 ```shell
-Result: Calls prevented: 74 Calls made: 67
+Result: Calls prevented: 75 Calls made: 66
 ```
 
 Now we see that our code prevented the majority of the doomed calls to the external service.
@@ -542,13 +547,6 @@ def spec =
 Output:
 
 ```shell
-Failed!
-Failed!
-Failed!
-Failed!
-Failed!
-Failed!
-Failed!
 Failed!
 Success!
 + long test!

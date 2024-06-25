@@ -185,8 +185,9 @@ The `timeoutFail` operation can be chained to our previous Effect to specify a m
 
 ```scala
 val effect3 =
-  effect2.timeoutFail("*** Save timed out ***"):
-    5.seconds
+  effect2
+    .timeoutFail("*** Save timed out ***"):
+      5.seconds
 ```
 
 If the effect does not complete within the time limit, it is canceled and returns our error message.
@@ -238,6 +239,7 @@ def run =
 Output:
 
 ```shell
+Log: **Database crashed!!**
 Log: **Database crashed!!**
 Result: Please manually provision Morty
 ```
@@ -297,7 +299,7 @@ Output:
 
 ```shell
 Log: Signup initiated for Morty
-Result: (PT0.003607632S,User saved)
+Result: (PT5.024478138S,User saved)
 ```
 
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.

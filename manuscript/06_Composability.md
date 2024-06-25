@@ -359,8 +359,8 @@ openFile("file1").summaryFor("space")
 ```scala
 openFile("file1").summaryFor("unicode")
 // java.lang.Exception: No summary available for unicode
-// 	at repl.MdocSession$MdocApp$$anon$26.summaryFor(<input>:329)
-// 	at repl.MdocSession$MdocApp.$init$$$anonfun$1(<input>:470)
+// 	at repl.MdocSession$MdocApp$$anon$26.summaryFor(<input>:337)
+// 	at repl.MdocSession$MdocApp.$init$$$anonfun$1(<input>:480)
 ```
 
 ```scala
