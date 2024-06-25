@@ -29,19 +29,21 @@ Continue using IntelliJ formatter
 ```
   Select `Use scalafmt formatter`
 
-- When you open a Scala file in IntelliJ, you might get a message in the title bar of that file:
-  ```
-  No Scala SDK in module
-  ```
-  On the right side of that message bar, you'll see:
-  ```
-  Setup Scala SDK
-  ```
-  Click on this. In the resulting dialog box, select "Create" and choose the latest Coursier version of Scala, which will be
-  version 2.x. The Dialog box will now look something like this:
+## Configuring the Scala SDK
 
-  ![image](https://user-images.githubusercontent.com/1001900/126879631-6490636e-7db5-4e4f-90c6-82292ff2569f.png)
+When you open a Scala file in IntelliJ, you might get a message in the title bar of that file:
+```
+No Scala SDK in module
+```
+On the right side of that message bar, you'll see:
+```
+Setup Scala SDK
+```
+Click on this. In the resulting dialog box, select "Create" and choose the latest Coursier version of Scala, which will be
+version 2.x. The Dialog box will now look something like this:
 
-  Select "OK". Now go to `File | Project Structure | Global Libraries` and Choose Scala 3, like this:
+![image](https://user-images.githubusercontent.com/1001900/126879631-6490636e-7db5-4e4f-90c6-82292ff2569f.png)
 
-  ![image](https://user-images.githubusercontent.com/1001900/126879808-1285e65e-e674-4a9b-9246-c86f86956e90.png)
+Select "OK". Now go to `File | Project Structure | Global Libraries` and Choose Scala 3, like this:
+
+![image](https://user-images.githubusercontent.com/1001900/126879808-1285e65e-e674-4a9b-9246-c86f86956e90.png)
