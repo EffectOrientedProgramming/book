@@ -741,7 +741,6 @@ def run =
 import zio.*
 import zio.direct.*
 
-// TODO This inconsistently works. frequently reports AI problem.
 override val bootstrap =
   diskFull
 
