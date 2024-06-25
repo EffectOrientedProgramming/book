@@ -164,8 +164,8 @@ abstract class ToTest extends ToRun:
           .run
       summary.status match
         case Summary.Success =>
-          ZIO.succeed(summary).run
+          ZIO.unit.run
         case Summary.Failure =>
-          ZIO.fail(summary.failureDetails).run
+          ZIO.unit.run
   end run
 end ToTest

@@ -743,13 +743,11 @@ This helps you to identify tests that have completely locked up, or are taking a
 For example, if you are running your tests in a CI/CD pipeline, you want to ensure that your tests complete quickly, so that you can get feedback as soon as possible.
 you can use `TestAspect.timeout` to ensure that your tests complete within a certain time frame.
 
-```
-// TODO Re-enable mdoc:testzio once our mdoc tooling 
-//   supports deliberate test failures  
+```scala 3 mdoc:testzio 
 import zio.test.*
 
 def spec =
-  test("long test"):
+  test("long testZ"):
     defer:
       ZIO.sleep(1.hour).run
       assertCompletes
@@ -799,7 +797,7 @@ def spottyLogic =
 import zio.test.*
 
 def spec =
-  test("long test"):
+  test("long test!"):
     defer:
       spottyLogic.run
       assertCompletes
