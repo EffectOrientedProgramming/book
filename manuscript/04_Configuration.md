@@ -589,7 +589,7 @@ Output:
 ```shell
 TODO TestSummary renderer?
 + eat Bread
-Result: Summary(1,0,0,,PT0.07092S)
+Result: Summary(1,0,0,,PT0.043672S)
 ```
 
 Historically, when call we call `println`, that output disappears into the void.
@@ -622,7 +622,7 @@ Output:
 ```shell
 Bread: Eating
 + eat Bread
-Result: Summary(1,0,0,,PT0.049233S)
+Result: Summary(1,0,0,,PT0.096287S)
 ```
 
 ## Testing Effects
@@ -674,6 +674,8 @@ def run =
 Output:
 
 ```shell
+Heads
+Heads
 Tails
 Tails
 Tails
@@ -682,8 +684,6 @@ Heads
 Tails
 Tails
 Tails
-Heads
-Heads
 Num Heads = 3
 Result: 3
 ```
@@ -717,7 +717,7 @@ Heads
 Heads
 Num Heads = 10
 + flips 10 times
-Result: Summary(1,0,0,,PT0.113033S)
+Result: Summary(1,0,0,,PT0.052977S)
 ```
 
 
@@ -765,7 +765,7 @@ Output:
 ```shell
 Parsing CSV: ()
 + batch runs after 24 hours
-Result: Summary(1,0,0,,PT0.068331S)
+Result: Summary(1,0,0,,PT0.027368S)
 ```
 
 The `race` is between `nightlyBatch` and `timeTravel`. {{TODO Not racing. Just forking/joining.}}
