@@ -243,6 +243,7 @@ Output:
 
 ```shell
 Log: **Database crashed!!**
+Log: **Database crashed!!**
 Result: Please manually provision Morty
 ```
 
@@ -299,7 +300,7 @@ def run =
 Output:
 
 ```shell
-Result: (PT5.025554072S,User saved)
+Result: (PT5.001513704S,User saved)
 ```
 
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.

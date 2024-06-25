@@ -90,7 +90,7 @@ Output:
 
 ```shell
 + random is random
-Result: Summary(1,0,0,,PT0.556861S)
+Result: Summary(1,0,0,,PT0.51019S)
 ```
 
 TODO Justify defer syntax over for-comp for multi-statement assertions
@@ -114,7 +114,7 @@ Output:
 
 ```shell
 + random is still random
-Result: Summary(1,0,0,,PT0.097985S)
+Result: Summary(1,0,0,,PT0.091486S)
 ```
 
 Consider a `Console` application:
@@ -174,7 +174,7 @@ Output:
 
 ```shell
 - console works
-  Exception in thread "zio-fiber-179163054" scala.NotImplementedError: an implementation is missing
+  Exception in thread "zio-fiber-926100344" scala.NotImplementedError: an implementation is missing
   	at scala.Predef$.$qmark$qmark$qmark(Predef.scala:344)
   	at zio.Console$.print$$anonfun$6(Console.scala:122)
   	at zio.ZIO$.consoleWith$$anonfun$1(ZIO.scala:3121)
