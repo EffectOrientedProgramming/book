@@ -1,5 +1,0 @@
-[[redirects]]
-  from = "https://effectorientedprogramming.com/*"
-  to = "https://effectorientedprogramming.github.io/book/:splat"
-  status = 301
-  force = true
