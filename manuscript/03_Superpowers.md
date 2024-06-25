@@ -301,7 +301,7 @@ def run =
 Output:
 
 ```shell
-Result: (PT5.030912271S,User saved)
+Result: (PT5.025178125S,User saved)
 ```
 
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.

@@ -268,17 +268,13 @@ import java.io.FileReader
 
 def run =
   defer:
-    Using(openFile("file1.txt")) {
+    Using(openFile("file1.txt")):
       file1 =>
-        Using(openFile("file2.txt")) {
+        Using(openFile("file2.txt")):
           file2 =>
             println:
               file1.sameContent(file2)
-        }
-    }
-  // TODO Confirm .unit is better than showing 
-  //   the ugly return type that wraps unit
-  .unit 
+    () // Don't care about result
 ```
 
 Output:
@@ -370,7 +366,7 @@ openFile("file1")
   .summaryFor("unicode")
 // java.lang.Exception: No summary available for unicode
 // 	at repl.MdocSession$MdocApp$$anon$26.summaryFor(<input>:326)
-// 	at repl.MdocSession$MdocApp.$init$$$anonfun$1(<input>:471)
+// 	at repl.MdocSession$MdocApp.$init$$$anonfun$1(<input>:467)
 ```
 
 ```scala
@@ -609,8 +605,9 @@ File - contains(genome)
 Wiki - articleFor(genome)
 AI - summarize - start
 AI - summarize - end
+File - disk full!
 File - CLOSE
-Result: AITooSlow()
+Result: DiskFull()
 ```
 
 ### Happy Path

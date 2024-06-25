@@ -673,17 +673,17 @@ Output:
 
 ```shell
 Heads
-Tails
-Heads
-Heads
 Heads
 Heads
 Heads
 Tails
 Tails
+Heads
+Heads
+Heads
 Tails
-Num Heads = 6
-Result: 6
+Num Heads = 7
+Result: 7
 ```
 
 ```scala
