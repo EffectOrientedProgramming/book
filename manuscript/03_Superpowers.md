@@ -206,7 +206,8 @@ def run =
 Output:
 
 ```shell
-Result: User saved
+Log: Interrupting slow request
+Result: *** Save timed out ***
 ```
 
 The Effect took too long and produced the error.
@@ -269,7 +270,6 @@ def run =
 Output:
 
 ```shell
-Log: Signup initiated for Morty
 Result: User saved
 ```
 
@@ -298,8 +298,7 @@ def run =
 Output:
 
 ```shell
-Log: Signup initiated for Morty
-Result: (PT0.00215646S,User saved)
+Result: (PT0.075821079S,User saved)
 ```
 
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.
