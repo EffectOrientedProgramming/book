@@ -6,8 +6,9 @@ repo_url: https://github.com/EffectOrientedProgramming/book
 
 nav:
   - Home: index.md
-  - Getting Started: getting-started.md
-  - User Guide: user-guide/
+  - Guide:
+    - Installing Scala & Tools: guide/scalatools.md
+    - Running the Book Code: guide/examples.md
   - About:
-    - Release Notes: about/release-notes.md
+    - Authors: about/authors.md
     - License: about/license.md
