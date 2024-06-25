@@ -249,11 +249,11 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(44)
-Current requests: List(215, 583, 44)
-Current requests: List(583, 44)
-Current requests: List(871, 215, 583, 44)
-Current requests: List(507, 871, 215, 583, 44)
+Current requests: List(942)
+Current requests: List(442, 942)
+Current requests: List(496, 442, 942)
+Current requests: List(681, 496, 442, 942)
+Current requests: List(453, 681, 496, 442, 942)
 Result: Crashed the server!!
 ```
 
@@ -293,16 +293,16 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(460, 700)
-Current requests: List(700)
-Current requests: List(280, 460, 700)
-Current requests: List(91)
-Current requests: List(8, 91)
-Current requests: List(267, 8, 91)
-Current requests: List(417, 267)
-Current requests: List(612, 417, 267)
-Current requests: List(701, 612, 417)
-Current requests: List(246)
+Current requests: List(295)
+Current requests: List(213, 295)
+Current requests: List(77, 213, 295)
+Current requests: List(235)
+Current requests: List(115, 235)
+Current requests: List(659, 115, 235)
+Current requests: List(628)
+Current requests: List(396, 628)
+Current requests: List(273, 396, 628)
+Current requests: List(209)
 Result: All Requests Succeeded
 ```
 
@@ -404,7 +404,7 @@ def run =
 Output:
 
 ```shell
-Result: Calls prevented: 75 Calls made: 66
+Result: Calls prevented: 74 Calls made: 67
 ```
 
 Now we see that our code prevented the majority of the doomed calls to the external service.
@@ -543,6 +543,10 @@ def spec =
 Output:
 
 ```shell
+Failed!
+Failed!
+Failed!
+Failed!
 Failed!
 Failed!
 Success!
