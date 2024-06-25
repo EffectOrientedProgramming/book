@@ -216,14 +216,14 @@ Output:
 
 ```shell
 Bill called API [took 0s]
-Bruce called API [took 1s]
-James called API [took 2s]
+James called API [took 1s]
+Bruce called API [took 2s]
 Bill called API [took 3s]
-Bruce called API [took 3s]
 James called API [took 3s]
+Bruce called API [took 3s]
 Bill called API [took 3s]
-Bruce called API [took 3s]
 James called API [took 3s]
+Bruce called API [took 3s]
 Total time [took 8s]
 ```
 
@@ -252,10 +252,11 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(477)
-Current requests: List(931, 477)
-Current requests: List(593, 931, 477)
-Current requests: List(410, 593, 931, 477)
+Current requests: List(180)
+Current requests: List(267, 189, 180)
+Current requests: List(84, 267, 189, 180)
+Current requests: List(189, 180)
+Current requests: List(456, 84, 267, 189, 180)
 Result: Crashed the server!!
 ```
 
@@ -295,16 +296,16 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(777, 218)
-Current requests: List(218)
-Current requests: List(836, 777, 218)
-Current requests: List(817, 313)
-Current requests: List(313)
-Current requests: List(622, 817, 313)
-Current requests: List(789, 622)
-Current requests: List(260, 789, 622)
-Current requests: List(335, 260, 789)
-Current requests: List(59)
+Current requests: List(604)
+Current requests: List(621, 604)
+Current requests: List(417, 621, 604)
+Current requests: List(624)
+Current requests: List(108, 624)
+Current requests: List(174, 108, 624)
+Current requests: List(772, 174)
+Current requests: List(929, 772)
+Current requests: List(272, 929, 772)
+Current requests: List(284)
 Result: All Requests Succeeded
 ```
 
@@ -493,17 +494,23 @@ This helps you to identify tests that have completely locked up, or are taking a
 For example, if you are running your tests in a CI/CD pipeline, you want to ensure that your tests complete quickly, so that you can get feedback as soon as possible.
 you can use `TestAspect.timeout` to ensure that your tests complete within a certain time frame.
 
-```
-//   supports deliberate test failures  
+```scala
 import zio.test.*
 
 def spec =
-  test("long test"):
+  test("long testZ"):
     defer:
       ZIO.sleep(1.hour).run
       assertCompletes
   @@ TestAspect.withLiveClock @@ 
      TestAspect.timeout(1.second)
+```
+
+Output:
+
+```shell
+- long testZ
+Timeout of 1 s exceeded.
 ```
 
 ### Flaky Tests
@@ -528,7 +535,7 @@ This can be caused by a number of factors:
 import zio.test.*
 
 def spec =
-  test("long test"):
+  test("long test!"):
     defer:
       spottyLogic.run
       assertCompletes
@@ -540,7 +547,7 @@ Output:
 
 ```shell
 Failed!
+Failed!
 Success!
-+ long test
-Result: Summary(1,0,0,,PT0.023487S)
++ long test!
 ```
