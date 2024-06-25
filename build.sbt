@@ -72,46 +72,38 @@ cleanManuscript := IO.delete(mdocOut.value)
 
 clean := clean.dependsOn(cleanManuscript).value
 
-lazy val formatMarkdown = taskKey[Unit]("Format Markdown")
-
-def prepare(file: File) = Def.task {
-  println(s"starting $file")
+def markdownFmtSetup(file: File) = Def.task {
   val contents = IO.read(file)
   IO.write(file, contents.replaceAllLiterally("```scala 3", "```scala"))
-  println(s"replaced $file")
 }
 
-def refix(file: File) = Def.task {
+def markdownFmtTeardown(file: File) = Def.task {
   val formattedContents = IO.read(file)
-  println(formattedContents)
   IO.write(file, formattedContents.replaceAllLiterally("```scala", "```scala 3"))
 }
 
 def doFormat(file: File) = Def.sequential(
-  prepare(file),
+  markdownFmtSetup(file),
   (Compile / scalafmtOnly).toTask(s" $file"),
-  refix(file)
+  markdownFmtTeardown(file),
 )
 
+lazy val formatMarkdown = taskKey[Unit]("Format code in markdown")
+
 formatMarkdown := Def.sequential {
-  file("Chapters").file.listFiles().filter(_.name.contains("00")).map(doFormat)
+  file("Chapters").file.listFiles().map(doFormat)
 }.value
-
-lazy val formatAndCompileCode = taskKey[Unit]("Make manuscript")
-
-formatAndCompileCode := Def.sequential(
-  Compile / scalafmt,
-).value
 
 // TODO define inputKey entirely by depending on other inputKeys
 lazy val genManuscript = inputKey[Unit]("Make manuscript")
 
-genManuscript := {
-  formatAndCompileCode.value
-  cleanManuscript.value
-  mdocRun.value
-  BuildTooling.produceLeanpubManuscript(mdocOut.value)
-}
+genManuscript := Def.sequential(
+  formatMarkdown,
+  cleanManuscript,
+  mdocRun,
+).value
+// we aren't adding the edit links anymore
+//  BuildTooling.produceLeanpubManuscript(mdocOut.value)
 
 lazy val mdocRun = taskKey[Unit]("mdoc run")
 mdocRun := Def.taskDyn {
