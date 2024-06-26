@@ -410,7 +410,8 @@ def summarizeZ(article: String) =
     .orDie
     .onInterrupt:
       ZIO.debug("AI **INTERRUPTED**")
-    .timeoutFail(AITooSlow())(4000.millis)
+    .timeoutFail(AITooSlow()):
+      4000.millis
 ```
 
 Now we have a way to confine the impact that this function has on our application.
@@ -568,6 +569,7 @@ def run =
 Output:
 
 ```shell
+todo: make sure onInterrupt debug shows up
 Network - Getting headline
 Analytics - Scanning for topic
 Analytics - topic: Some(space)
@@ -659,8 +661,19 @@ File - contains(stock market)
 Wiki - articleFor(stock market)
 AI - summarize - start
 AI - summarize - end
+File - write: market is not rational
+Network - Getting headline
+Analytics - Scanning for topic
+Analytics - topic: Some(stock market)
+File - OPEN
+File - contains(stock market)
+Wiki - articleFor(stock market)
+AI - summarize - start
+AI - summarize - end
+File - write: market is not rational
 File - CLOSE
-Result: AITooSlow()
+File - CLOSE
+Result: market is not rational
 ```
 
 ```scala
@@ -691,9 +704,20 @@ File - contains(stock market)
 Wiki - articleFor(stock market)
 AI - summarize - start
 AI - summarize - end
+File - write: market is not rational
+Network - Getting headline
+Analytics - Scanning for topic
+Analytics - topic: Some(stock market)
+File - OPEN
+File - contains(stock market)
+Wiki - articleFor(stock market)
+AI - summarize - start
+AI - summarize - end
+File - write: market is not rational
 File - CLOSE
 File - CLOSE
-Result: AITooSlow()
+File - CLOSE
+Result: market is not rational
 ```
 
 Repeating is a form of composability, because you are composing a program with itself

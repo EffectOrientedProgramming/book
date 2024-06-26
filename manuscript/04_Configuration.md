@@ -52,10 +52,10 @@ object Dough:
   val fresh =
     ZLayer
       .derive[Dough]
-      .tap(
+      .tap:
         _ =>
-          Console.printLine("Dough: Mixed")
-      )
+          Console.printLine:
+            "Dough: Mixed"
 ```
 
 ## Step 1: Provide Dependencies
@@ -115,15 +115,17 @@ case class Heat()
 val oven =
   ZLayer
     .derive[Heat]
-    .tap(
-      _ => Console.printLine("Oven: Heated")
-    )
+    .tap:
+      _ =>
+        Console.printLine:
+          "Oven: Heated"
 ```
 
 ```scala
 trait Bread:
   def eat =
-    Console.printLine("Bread: Eating")
+    Console.printLine:
+      "Bread: Eating"
 
 case class BreadHomeMade(
     heat: Heat,
@@ -134,12 +136,10 @@ object Bread:
   val homemade =
     ZLayer
       .derive[BreadHomeMade]
-      .tap(
+      .tap:
         _ =>
-          Console.printLine(
+          Console.printLine:
             "BreadHomeMade: Baked"
-          )
-      )
 ```
 
 Something around how like typical DI, the "graph" of dependencies gets resolved "for you"
@@ -175,15 +175,17 @@ Both of these processes require `Heat`.
 ```scala
 case class Toast(heat: Heat, bread: Bread):
   val eat =
-    Console.printLine("Toast: Eating")
+    Console.printLine:
+      "Toast: Eating"
 
 object Toast:
   val make =
     ZLayer
       .derive[Toast]
-      .tap(
-        _ => Console.printLine("Toast: Made")
-      )
+      .tap:
+        _ =>
+          Console.printLine:
+            "Toast: Made"
 ```
 
 It is possible to also use the oven to provide `Heat` to make the `Toast`.
@@ -223,10 +225,10 @@ It would be great if we can instead use our dedicated toaster!
 val toaster =
   ZLayer
     .derive[Heat]
-    .tap(
+    .tap:
       _ =>
-        Console.printLine("Toaster: Heated")
-    )
+        Console.printLine:
+          "Toaster: Heated"
 ```
 
 ```scala
@@ -261,7 +263,10 @@ ZIO
 Output:
 
 ```shell
-──── ZLAYER ERROR ───────────
+error: 
+
+
+──── ZLAYER ERROR ────────────────────────────────────────────────────
 
  Ambiguous layers! I cannot decide which to use.
  You have provided more than one layer for the following type:
@@ -273,8 +278,6 @@ Output:
 ─────────────────────────────
 
 
-      ZIO
-      ^
 ```
 
 Unfortunately our program is now ambiguous.
@@ -291,11 +294,10 @@ object Toaster:
   val layer =
     ZLayer
       .derive[Toaster]
-      .tap(
+      .tap:
         _ =>
-          Console
-            .printLine("Toaster: Heating")
-      )
+          Console.printLine:
+            "Toaster: Heating"
 ```
 
 ```scala
@@ -304,16 +306,17 @@ case class ToastZ(
     bread: Bread
 ):
   val eat =
-    Console.printLine("Toast: Eating")
+    Console.printLine:
+      "Toast: Eating"
 
 object ToastZ:
   val make =
     ZLayer
       .derive[ToastZ]
-      .tap(
+      .tap:
         _ =>
-          Console.printLine("ToastZ: Made")
-      )
+          Console.printLine:
+            "ToastZ: Made"
 ```
 
 We can explicitly provide dependencies when needed, to prevent ambiguity.
@@ -369,16 +372,16 @@ val ovenSafe =
   ZLayer.fromZIO:
     ZIO
       .succeed(Heat())
-      .tap(
+      .tap:
         _ =>
-          Console.printLine("Oven: Heated")
-      )
-      .withFinalizer(
+          Console.printLine:
+            "Oven: Heated"
+      .withFinalizer:
         _ =>
           Console
-            .printLine("Oven: Turning off!")
+            .printLine:
+              "Oven: Turning off!"
             .orDie
-      )
 ```
 
 
@@ -445,12 +448,10 @@ val storeBought =
   ZLayer
     .fromZIO:
       buyBread
-    .tap(
+    .tap:
       _ =>
-        Console.printLine(
+        Console.printLine:
           "BreadStoreBought: Bought"
-        )
-    )
 ```
 
 ```scala
@@ -716,7 +717,6 @@ def run =
 Output:
 
 ```shell
-Heads
 Tails
 Tails
 Tails
@@ -725,9 +725,10 @@ Tails
 Heads
 Tails
 Heads
-Heads
-Num Heads = 5
-Result: 5
+Tails
+Tails
+Num Heads = 3
+Result: 3
 ```
 
 ```scala
