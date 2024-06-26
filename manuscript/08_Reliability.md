@@ -220,7 +220,7 @@ def run =
 Output:
 
 ```shell
-Bruce called API [took 0s]
+Bill called API [took 0s]
 James called API [took 1s]
 Bruce called API [took 2s]
 Bill called API [took 3s]
@@ -228,7 +228,7 @@ James called API [took 3s]
 Bruce called API [took 3s]
 Bill called API [took 3s]
 James called API [took 3s]
-Bill called API [took 2s]
+Bruce called API [took 3s]
 Total time [took 8s]
 ```
 
@@ -257,11 +257,11 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(853)
-Current requests: List(797, 853)
-Current requests: List(41, 797, 853)
-Current requests: List(545, 41, 797, 853)
-Current requests: List(440, 545, 41, 797, 853)
+Current requests: List(494)
+Current requests: List(550, 977, 494)
+Current requests: List(977, 494)
+Current requests: List(361, 550, 977, 494)
+Current requests: List(742, 361, 550, 977, 494)
 Result: Crashed the server!!
 ```
 
@@ -304,16 +304,16 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(162)
-Current requests: List(389, 162)
-Current requests: List(420, 389, 162)
-Current requests: List(470)
-Current requests: List(776, 470)
-Current requests: List(754, 776, 470)
-Current requests: List(183, 624, 754)
-Current requests: List(624, 754)
-Current requests: List(180, 183, 624)
-Current requests: List(948)
+Current requests: List(635)
+Current requests: List(252, 635)
+Current requests: List(811, 252, 635)
+Current requests: List(569, 811, 252)
+Current requests: List(680, 569, 811)
+Current requests: List(273, 680, 569)
+Current requests: List(352, 273)
+Current requests: List(22, 352, 273)
+Current requests: List(576, 22, 352)
+Current requests: List(919)
 Result: All Requests Succeeded
 ```
 
@@ -416,7 +416,7 @@ def run =
 Output:
 
 ```shell
-Result: Calls prevented: 75 Calls made: 66
+Result: Calls prevented: 74 Calls made: 67
 ```
 
 Now we see that our code prevented the majority of the doomed calls to the external service.
@@ -460,10 +460,12 @@ def run =
         if (duration > 1.second)
           contractBreaches.update(_ + 1).run
 
+    // TODO: james still hates this and maybe
+    // a collectAllPar could do the trick but
+    // we've already wasted 321 hours on this
     ZIO
       .foreachPar(List.fill(50_000)(())):
-        _ =>
-          req // TODO: james still hates this and maybe a collectAllPar could do the trick but we've already wasted 321 hours on this
+        _ => req
       .run
 
     contractBreaches
@@ -475,8 +477,8 @@ def run =
 Output:
 
 ```shell
-Contract Breaches: 1
-Result: 1
+Contract Breaches: 0
+Result: 0
 ```
 
 ## Test Reliability
@@ -556,6 +558,9 @@ def spec =
 Output:
 
 ```shell
+Failed!
+Failed!
+Failed!
 Failed!
 Failed!
 Success!

@@ -154,6 +154,8 @@ Alert: updating count!
 Alert: updating count!
 Alert: updating count!
 Alert: updating count!
+Alert: updating count!
+Alert: updating count!
 Result: Final count: 4
 ```
 
