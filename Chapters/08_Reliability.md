@@ -1,6 +1,8 @@
 # Reliability
 
-{{ really "advanced recover techniques" as basic ones should have already been covered }}
+```scala 3
+// TODO: really "advanced recover techniques" as basic ones should have already been covered
+```
 
 For our purposes,
   A reliable system behaves predictably in normal circumstances as well as high loads or even hostile situations.
@@ -725,7 +727,7 @@ def run =
     ZIO
       .foreachPar(List.fill(50_000)(())):
         _ =>
-          req // TODO james still hates this and maybe a collectAllPar could do the trick but we've already wasted 321 hours on this
+          req // TODO: james still hates this and maybe a collectAllPar could do the trick but we've already wasted 321 hours on this
       .run
 
     contractBreaches

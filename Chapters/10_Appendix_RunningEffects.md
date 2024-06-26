@@ -60,12 +60,12 @@ Similar to `ZIOAppDefault`, there is a `ZIOSpecDefault` that should be your star
 `ZIOSpecDefault` provides test-specific implementations built-in services, to make testing easier.
 When you run the same `ZIO` in these 2 contexts, the only thing that changes are the built-in services provided by the runtime.
 
-> TODO - Decide which scenario to test
-
 ```scala 3 mdoc:compile-only
 import zio.*
 import zio.direct.*
 import zio.test.*
+
+// TODO: Decide which scenario to test
 
 object TestingZIOs extends ZIOSpecDefault:
   def spec =
@@ -88,11 +88,10 @@ def spec =
     defer:
       assertTrue:
         Random.nextIntBounded(10).run < 10
-```
 
-TODO Justify defer syntax over for-comp for multi-statement assertions
-I think this example completes the objective
-TODO Change this to a Console app, where the logic & testing is more visceral
+// TODO: Justify defer syntax over for-comp for multi-statement assertions
+//      Change this to a Console app, where the logic & testing is more visceral
+```
 
 ```scala 3 mdoc:testzio
 import zio.*

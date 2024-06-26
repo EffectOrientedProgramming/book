@@ -383,7 +383,7 @@ object Friend:
         .when(true)(
           ZIO.fail(
             "Failure(Friend Unreachable)"
-          ) // TODO Replace error with failure pervasively
+          ) // TODO: Replace error with failure pervasively
         )
         .as(???)
         .run
@@ -634,7 +634,7 @@ import zio.direct.*
 
 def spec =
   testCase
-// TODO TestSummary renderer?
+// TODO: TestSummary renderer?
 ```
 
 Historically, when call we call `println`, that output disappears into the void.
@@ -775,9 +775,11 @@ def spec =
       fork.join.run
 
       assertCompletes
+
+// TODO: update prose on not race
 ```
 
-The `race` is between `nightlyBatch` and `timeTravel`. {{TODO Not racing. Just forking/joining.}}
+The `race` is between `nightlyBatch` and `timeTravel`.
 It completes when the first Effect succeeds and cancels the losing Effect, using the Effect System's cancellation mechanism.
 
 By default, in ZIO Test, the clock does not change unless instructed to.

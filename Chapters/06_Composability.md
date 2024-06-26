@@ -551,7 +551,7 @@ openFile("file1").summaryFor("space")
 ```
 
 ```scala 3 mdoc:crash
-// TODO Simplify mdoc output if possible
+// TODO: Simplify mdoc output if possible
 openFile("file1").summaryFor("unicode")
 ```
 
@@ -636,7 +636,9 @@ Carefully consider the trade-offs when using this function.
 
 ## Final Collective Criticism
 
-{{ TODO: better subhead name - Composed Pain? Compound Fracture?}}
+```scala 3
+// TODO: better subhead name - Composed Pain? Compound Fracture?
+```
 
 Each of original approaches gives you benefits, but you can't easily assemble a program that utilizes all of them.
 They must be manually transformed into each other.
@@ -689,7 +691,9 @@ val researchHeadline =
       summary
 ```
 
-{{TODO Emphasize just how important this example is. }}
+```scala 3
+// TODO: Emphasize just how important this example is.
+```
 
 We now step through all the possible scenarios that can occur in our application.
 
@@ -756,7 +760,7 @@ override val bootstrap =
 
 def run =
   researchHeadline
-// todo: make sure onInterrupt debug shows up
+// TODO: make sure onInterrupt debug shows up
 ```
 
 ### Disk Full
@@ -789,9 +793,8 @@ def run =
 
 ## Effects are Values
 
-{{ TODO: enables, reuse, repeats, delays, etc }}
-
 ```scala 3 mdoc:runzio
+// TODO: enables, reuse, repeats, delays, etc
 override val bootstrap =
   stockMarketHeadline
 

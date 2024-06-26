@@ -484,7 +484,7 @@ val program =
 import zio.*
 import zio.direct.*
 
-// todo: explain this in prose
+// TODO: explain this in prose
 def run =
   defer:
     effect8
