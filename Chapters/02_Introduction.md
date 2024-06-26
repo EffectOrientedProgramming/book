@@ -74,6 +74,24 @@ We call these unpredictable elements *Effects*.
 
 ## Managing Effects
 
+What if we could control an Effect by putting it in a kind of box?
+If we make our own random number generator, for example:
+
+```scala
+val rand = new ControlledRandom
+
+def fc(a: Int, b: Int): Int = 
+  a + b + rand.nextInt()
+```
+
+Through `ControlledRandom`, we control the output of `rand`. 
+If we provide a certain set of inputs, we can predict the output.
+Once again, the function is pure.
+
+Because it is predictable, a pure function is testable.
+But because we achieve this by managing the effect, we can do much more.
+An *Effect Management* system enables us to almost arbitrarily attach functionality to a program.
+
 
 
 ## From Unpredictable to Predictable
