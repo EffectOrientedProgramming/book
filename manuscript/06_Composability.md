@@ -420,7 +420,15 @@ Carefully consider the trade-offs when using this function.
 
 ## Final Collective Criticism
 
-{{ TODO: better subhead name - Composed Pain? Compound Fracture?}}
+```scala
+
+```
+
+Output:
+
+```shell
+TODO: better subhead name - Composed Pain? Compound Fracture?
+```
 
 Each of original approaches gives you benefits, but you can't easily assemble a program that utilizes all of them.
 They must be manually transformed into each other.
@@ -470,7 +478,15 @@ val researchHeadline =
       summary
 ```
 
-{{TODO Emphasize just how important this example is. }}
+```scala
+
+```
+
+Output:
+
+```shell
+TODO: Emphasize just how important this example is.
+```
 
 We now step through all the possible scenarios that can occur in our application.
 
@@ -569,7 +585,7 @@ def run =
 Output:
 
 ```shell
-todo: make sure onInterrupt debug shows up
+TODO: make sure onInterrupt debug shows up
 Network - Getting headline
 Analytics - Scanning for topic
 Analytics - topic: Some(space)
@@ -603,9 +619,8 @@ File - contains(genome)
 Wiki - articleFor(genome)
 AI - summarize - start
 AI - summarize - end
-File - disk full!
 File - CLOSE
-Result: DiskFull()
+Result: AITooSlow()
 ```
 
 ### Happy Path
@@ -638,9 +653,8 @@ Result: market is not rational
 
 ## Effects are Values
 
-{{ TODO: enables, reuse, repeats, delays, etc }}
-
 ```scala
+// TODO: enables, reuse, repeats, delays, etc
 override val bootstrap =
   stockMarketHeadline
 
@@ -695,29 +709,9 @@ File - contains(stock market)
 Wiki - articleFor(stock market)
 AI - summarize - start
 AI - summarize - end
-File - write: market is not rational
-Network - Getting headline
-Analytics - Scanning for topic
-Analytics - topic: Some(stock market)
-File - OPEN
-File - contains(stock market)
-Wiki - articleFor(stock market)
-AI - summarize - start
-AI - summarize - end
-File - write: market is not rational
-Network - Getting headline
-Analytics - Scanning for topic
-Analytics - topic: Some(stock market)
-File - OPEN
-File - contains(stock market)
-Wiki - articleFor(stock market)
-AI - summarize - start
-AI - summarize - end
-File - write: market is not rational
+AI **INTERRUPTED**
 File - CLOSE
-File - CLOSE
-File - CLOSE
-Result: market is not rational
+Result: AITooSlow()
 ```
 
 Repeating is a form of composability, because you are composing a program with itself

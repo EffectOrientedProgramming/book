@@ -632,7 +632,7 @@ def spec =
 Output:
 
 ```shell
-TODO TestSummary renderer?
+TODO: TestSummary renderer?
 + eat Bread
 ```
 
@@ -717,18 +717,18 @@ def run =
 Output:
 
 ```shell
-Tails
-Heads
-Heads
-Tails
 Heads
 Heads
 Heads
 Tails
 Tails
+Heads
 Tails
-Num Heads = 5
-Result: 5
+Tails
+Heads
+Heads
+Num Heads = 6
+Result: 6
 ```
 
 ```scala
@@ -800,16 +800,18 @@ def spec =
       fork.join.run
 
       assertCompletes
+
 ```
 
 Output:
 
 ```shell
+TODO: update prose on not race
 Parsing CSV: ()
 + batch runs after 24 hours
 ```
 
-The `race` is between `nightlyBatch` and `timeTravel`. {{TODO Not racing. Just forking/joining.}}
+The `race` is between `nightlyBatch` and `timeTravel`.
 It completes when the first Effect succeeds and cancels the losing Effect, using the Effect System's cancellation mechanism.
 
 By default, in ZIO Test, the clock does not change unless instructed to.

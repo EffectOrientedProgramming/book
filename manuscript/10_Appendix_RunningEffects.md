@@ -56,10 +56,10 @@ Similar to `ZIOAppDefault`, there is a `ZIOSpecDefault` that should be your star
 `ZIOSpecDefault` provides test-specific implementations built-in services, to make testing easier.
 When you run the same `ZIO` in these 2 contexts, the only thing that changes are the built-in services provided by the runtime.
 
-> TODO - Decide which scenario to test
-
 ```scala
 import zio.test.*
+
+// TODO: Decide which scenario to test
 
 object TestingZIOs extends ZIOSpecDefault:
   def spec =
@@ -80,18 +80,16 @@ def spec =
     defer:
       assertTrue:
         Random.nextIntBounded(10).run < 10
+
 ```
 
 Output:
 
 ```shell
-Log: Signup initiated for Morty
+TODO: Justify defer syntax over for-comp for multi-statement assertions
+     Change this to a Console app, where the logic & testing is more visceral
 + random is random
 ```
-
-TODO Justify defer syntax over for-comp for multi-statement assertions
-I think this example completes the objective
-TODO Change this to a Console app, where the logic & testing is more visceral
 
 ```scala
 import zio.test.*
@@ -173,16 +171,16 @@ Output:
 
 ```shell
 - console works
-  Exception in thread "zio-fiber-2004309208" scala.NotImplementedError: an implementation is missing
+  Exception in thread "zio-fiber-1776617767" scala.NotImplementedError: an implementation is missing
   	at scala.Predef$.$qmark$qmark$qmark(Predef.scala:344)
   	at zio.Console$.print$$anonfun$6(Console.scala:122)
   	at zio.ZIO$.consoleWith$$anonfun$1(ZIO.scala:3121)
   	at zio.FiberRef$unsafe$$anon$2.getWith$$anonfun$1(FiberRef.scala:474)
-  	at logic(<input>:95)
+  	at logic(<input>:100)
   	at zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19)
-  	at logic(<input>:105)
+  	at logic(<input>:110)
   	at zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19)
-  	at Chapter63Spec.spec(<input>:141)
+  	at Chapter57Spec.spec(<input>:146)
 ```
 
 ## Interop with existing/legacy code

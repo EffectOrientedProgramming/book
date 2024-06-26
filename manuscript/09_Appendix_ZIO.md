@@ -5,7 +5,12 @@ However, this does not mean that we discourage users from heavily utilizing them
 
 https://zio.dev/
 
-* Bill does not want to do either of these *
-{{ TODO: ZIO data type }}
-{{ TODO: Maybe some existing example that shows the data type }}
-* Bill does not want to do either of these *
+```scala
+
+```
+
+Output:
+
+```shell
+TODO: what else? zio data type? bill doesn't like it?
+```

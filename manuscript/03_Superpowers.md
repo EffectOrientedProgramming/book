@@ -269,7 +269,6 @@ def run =
 Output:
 
 ```shell
-Log: Signup initiated for Morty
 Result: User saved
 ```
 
@@ -298,7 +297,7 @@ def run =
 Output:
 
 ```shell
-Result: (PT0.010535555S,User saved)
+Result: (PT5.001738078S,User saved)
 ```
 
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.
@@ -468,7 +467,7 @@ An extension method was tried, but could not be fully constructed:
 ```
 
 ```scala
-// todo: explain this in prose
+// TODO: explain this in prose
 def run =
   defer:
     effect8
