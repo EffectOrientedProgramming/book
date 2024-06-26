@@ -711,7 +711,7 @@ def run =
     val contractBreaches =
       Ref.make(0).run
 
-    val req =
+    val request =
       defer:
         val hedged =
           logicThatSporadicallyLocksUp.race:
@@ -724,11 +724,13 @@ def run =
         if (duration > 1.second)
           contractBreaches.update(_ + 1).run
 
-    // TODO: james still hates this and maybe a collectAllPar could do the trick but we've already wasted 321 hours on this
+    // TODO: explain the reason for the silly List of ()
+    //       talk about how it'd be nice to have a ZIO operator for repeatNPar
+    //       happy birthday bill
     ZIO
       .foreachPar(List.fill(50_000)(())):
         _ =>
-          req
+          request
       .run
 
     contractBreaches
