@@ -222,13 +222,13 @@ Output:
 ```shell
 Bill called API [took 0s]
 James called API [took 1s]
-Bill called API [took 2s]
-Bruce called API [took 3s]
-James called API [took 3s]
-Bill called API [took 3s]
-Bruce called API [took 3s]
-James called API [took 3s]
 Bruce called API [took 2s]
+Bill called API [took 3s]
+James called API [took 3s]
+Bruce called API [took 3s]
+Bill called API [took 3s]
+James called API [took 3s]
+Bruce called API [took 3s]
 Total time [took 8s]
 ```
 
@@ -257,10 +257,12 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(788)
-Current requests: List(552, 788)
-Current requests: List(571, 552, 788)
-Current requests: List(300, 571, 552, 788)
+Current requests: List(180)
+Current requests: List(603, 180)
+Current requests: List(450, 603, 180)
+Current requests: List(387, 450, 603, 180)
+Current requests: List(375, 387, 450, 603, 180)
+Current requests: List(243, 375, 387, 450, 603, 180)
 Result: Crashed the server!!
 ```
 
@@ -303,16 +305,16 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(155)
-Current requests: List(22, 155)
-Current requests: List(780, 22, 155)
-Current requests: List(526)
-Current requests: List(293, 526)
-Current requests: List(33, 293, 526)
-Current requests: List(233, 33)
-Current requests: List(236, 233, 33)
-Current requests: List(406, 236, 233)
-Current requests: List(916, 233)
+Current requests: List(93)
+Current requests: List(620, 93)
+Current requests: List(193, 620, 93)
+Current requests: List(765)
+Current requests: List(827, 765)
+Current requests: List(578, 827, 765)
+Current requests: List(713, 564, 578)
+Current requests: List(564, 578)
+Current requests: List(478, 713, 564)
+Current requests: List(15)
 Result: All Requests Succeeded
 ```
 
@@ -559,6 +561,16 @@ def spec =
 Output:
 
 ```shell
+Failed!
+Failed!
+Failed!
+Failed!
+Failed!
+Failed!
+Failed!
+Failed!
+Failed!
+Failed!
 Failed!
 Success!
 + long test!
