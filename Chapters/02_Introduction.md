@@ -1,7 +1,85 @@
 # Introduction
 
+Imagine you want to create a system to build homes by assembling room modules.
+Each different type of room has doors and windows, and there's a way to plug them together.
+By selecting pieces with compatible doors, and windows where you want them, you can assemble a house.
+
+This concept of *composability* has arguably been the prime objective of programming since we raised ourselves from the swamps of assembly language.
+We want to be able to take smaller pieces and easily compose them into larger pieces, which can themselves be composed, etc.
+Over the decades, the programming community has made great strides in this endeavor.
+Each time we figure something out, however, and make a leap forward, we inevitably run into the next wall.
+
+Our housing example is a decent reflection of where most programming is now: we have chunks of code---modules---and we can put them together pretty easily.
+We have been improving our type systems and the ways we create data structures.
+What wall are we facing now?
+
+To return to our home-building system, we've solved the problem of assembling rooms, but adding functionality to those rooms is quite difficult.
+If we decide we want electricity in a closet, we have to tear up the walls and insert conduit.
+To add a vent to a kitchen we must tunnel up through the building.
+Producing a laundry room is almost impossible after the fact, because plumbing usually runs through the concrete foundation.
+We can assemble rooms, but if we want a room to do anything interesting, we must basically rebuild the house.
+
+In the software world, we have pretty good ways to assemble software components.
+For example, you can create (or reuse) a component that gets information from a server, processes it and then displays it.
+What happens if you put this component into use and then discover that the server is flaky?
+Perhaps the server sometimes drops requests, or takes too long.
+There are different strategies for this: retrying, backoff, querying other servers, etc.
+The problem is that, like the home-building system, you must go into your module and rebuild it.
+This takes time and effort and it complicates your code.
+What we'd really like to do is just attach our new functionality to the existing code without rewriting it.
+
+In the home-building system, what if each room contained a channel, and when you assembled rooms, the channels match up?
+Now if you want plumbing, electricity, venting, network cabling, etc., you can just run that through the channel.
+New features can be added to rooms without rebuilding the house.
+
+This book introduces *effect systems*, which allow you to do the same thing for software as we have done for home-building:
+  Add features without rewriting the software.
+
+## What's Stopping Us?
+
+The "wall" that we've run into here is that we don't have the channel that the home-building system does.
+It's hard to imagine what that channel would look like, or how it behaves.
+To get there we must start with some basic issues.
+A dominant issue is *predictability*.
+
+Consider an incredibly basic function:
+
+```scala
+def fp(a: Int, b: Int): Int = 
+  a + b
+```
+
+`fp` is completely predictable: 
+- `fp(a, b)` always produces an `Int` result.
+- It never fails.
+- The same inputs always produce the same outputs.
+- Instead of calling the function, you can just look up results in a table.
+
+A predictable function has a special name: *pure*.
+
+If we include something unpredictable in a pure function, the results become unpredictable.
+Here, we add a random number:
+
+```scala
+val rand = new scala.util.Random
+
+def fu(a: Int, b: Int): Int = 
+  a + b + rand.nextInt()
+```
+
+Not surprisingly, adding a random number to the result takes us from predictable to unpredictable.
+`fu` nevers fails and always produces an `Int`, but if you call it twice with the same inputs, you get different outputs.
+
+We call these unpredictable elements *Effects*.
+
+## Managing Effects
+
+
+
+## From Unpredictable to Predictable
+
 Systems built from unpredictable parts can have predictable behavior.
-If you've been programming for a while, this sounds far-fetched or even impossible.
+This might sound far-fetched or even impossible.
 
 Most existing languages are built for rapid development.
 You create a system as quickly as possible,
