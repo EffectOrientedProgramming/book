@@ -222,13 +222,13 @@ Output:
 ```shell
 Bill called API [took 0s]
 James called API [took 1s]
+Bill called API [took 2s]
+Bruce called API [took 3s]
+James called API [took 3s]
+Bill called API [took 3s]
+Bruce called API [took 3s]
+James called API [took 3s]
 Bruce called API [took 2s]
-Bill called API [took 3s]
-James called API [took 3s]
-Bruce called API [took 3s]
-Bill called API [took 3s]
-James called API [took 3s]
-Bruce called API [took 3s]
 Total time [took 8s]
 ```
 
@@ -257,11 +257,10 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(494)
-Current requests: List(550, 977, 494)
-Current requests: List(977, 494)
-Current requests: List(361, 550, 977, 494)
-Current requests: List(742, 361, 550, 977, 494)
+Current requests: List(788)
+Current requests: List(552, 788)
+Current requests: List(571, 552, 788)
+Current requests: List(300, 571, 552, 788)
 Result: Crashed the server!!
 ```
 
@@ -304,16 +303,16 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(635)
-Current requests: List(252, 635)
-Current requests: List(811, 252, 635)
-Current requests: List(569, 811, 252)
-Current requests: List(680, 569, 811)
-Current requests: List(273, 680, 569)
-Current requests: List(352, 273)
-Current requests: List(22, 352, 273)
-Current requests: List(576, 22, 352)
-Current requests: List(919)
+Current requests: List(155)
+Current requests: List(22, 155)
+Current requests: List(780, 22, 155)
+Current requests: List(526)
+Current requests: List(293, 526)
+Current requests: List(33, 293, 526)
+Current requests: List(233, 33)
+Current requests: List(236, 233, 33)
+Current requests: List(406, 236, 233)
+Current requests: List(916, 233)
 Result: All Requests Succeeded
 ```
 
@@ -416,7 +415,7 @@ def run =
 Output:
 
 ```shell
-Result: Calls prevented: 74 Calls made: 67
+Result: Calls prevented: 75 Calls made: 66
 ```
 
 Now we see that our code prevented the majority of the doomed calls to the external service.
@@ -447,7 +446,7 @@ def run =
     val contractBreaches =
       Ref.make(0).run
 
-    val req =
+    val request =
       defer:
         val hedged =
           logicThatSporadicallyLocksUp.race:
@@ -460,12 +459,14 @@ def run =
         if (duration > 1.second)
           contractBreaches.update(_ + 1).run
 
-    // TODO: james still hates this and maybe
-    // a collectAllPar could do the trick but
-    // we've already wasted 321 hours on this
+    // TODO: explain the reason for the silly
+    // List of ()
+    // talk about how it'd be nice to have a
+    // ZIO operator for repeatNPar
+    //       happy birthday bill
     ZIO
       .foreachPar(List.fill(50_000)(())):
-        _ => req
+        _ => request
       .run
 
     contractBreaches
@@ -558,10 +559,6 @@ def spec =
 Output:
 
 ```shell
-Failed!
-Failed!
-Failed!
-Failed!
 Failed!
 Success!
 + long test!
