@@ -626,7 +626,8 @@ def summarizeZ(article: String) =
     .orDie
     .onInterrupt:
       ZIO.debug("AI **INTERRUPTED**")
-    .timeoutFail(AITooSlow())(4000.millis)
+    .timeoutFail(AITooSlow()):
+      4000.millis
 ```
 
 Now we have a way to confine the impact that this function has on our application.
@@ -755,6 +756,7 @@ override val bootstrap =
 
 def run =
   researchHeadline
+// todo: make sure onInterrupt debug shows up
 ```
 
 ### Disk Full

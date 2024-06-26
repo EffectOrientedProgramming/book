@@ -83,12 +83,7 @@ def saveUser(username: String) =
           fail.run
 
         case Some(Scenario.Slow) =>
-          ZIO
-            .sleep(1.minute)
-            .onInterrupt:
-              ZIO.debug:
-                "Log: Interrupting slow request"
-            .run
+          ZIO.sleep(1.minute).run
           succeed.run
 
         case Some(
@@ -297,7 +292,7 @@ import zio.direct.*
 
 val effect3 =
   effect2
-    .timeoutFail("*** Save timed out ***"):
+    .timeoutFail("** Save timed out **"):
       5.seconds
 ```
 

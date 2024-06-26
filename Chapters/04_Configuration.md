@@ -55,10 +55,10 @@ object Dough:
   val fresh =
     ZLayer
       .derive[Dough]
-      .tap(
+      .tap:
         _ =>
-          Console.printLine("Dough: Mixed")
-      )
+          Console.printLine:
+            "Dough: Mixed"
 ```
 
 ## Step 1: Provide Dependencies
@@ -101,9 +101,10 @@ case class Heat()
 val oven =
   ZLayer
     .derive[Heat]
-    .tap(
-      _ => Console.printLine("Oven: Heated")
-    )
+    .tap:
+      _ =>
+        Console.printLine:
+          "Oven: Heated"
 ```
 
 ```scala 3 mdoc:silent
@@ -112,7 +113,8 @@ import zio.direct.*
 
 trait Bread:
   def eat =
-    Console.printLine("Bread: Eating")
+    Console.printLine:
+      "Bread: Eating"
 
 case class BreadHomeMade(
     heat: Heat,
@@ -123,12 +125,10 @@ object Bread:
   val homemade =
     ZLayer
       .derive[BreadHomeMade]
-      .tap(
+      .tap:
         _ =>
-          Console.printLine(
+          Console.printLine:
             "BreadHomeMade: Baked"
-          )
-      )
 ```
 
 Something around how like typical DI, the "graph" of dependencies gets resolved "for you"
@@ -161,15 +161,17 @@ import zio.direct.*
 
 case class Toast(heat: Heat, bread: Bread):
   val eat =
-    Console.printLine("Toast: Eating")
+    Console.printLine:
+      "Toast: Eating"
 
 object Toast:
   val make =
     ZLayer
       .derive[Toast]
-      .tap(
-        _ => Console.printLine("Toast: Made")
-      )
+      .tap:
+        _ =>
+          Console.printLine:
+            "Toast: Made"
 ```
 
 It is possible to also use the oven to provide `Heat` to make the `Toast`.
@@ -205,10 +207,10 @@ import zio.direct.*
 val toaster =
   ZLayer
     .derive[Heat]
-    .tap(
+    .tap:
       _ =>
-        Console.printLine("Toaster: Heated")
-    )
+        Console.printLine:
+          "Toaster: Heated"
 ```
 
 ```scala 3 mdoc:runzio
@@ -253,11 +255,10 @@ object Toaster:
   val layer =
     ZLayer
       .derive[Toaster]
-      .tap(
+      .tap:
         _ =>
-          Console
-            .printLine("Toaster: Heating")
-      )
+          Console.printLine:
+            "Toaster: Heating"
 ```
 
 ```scala 3 mdoc:silent
@@ -269,16 +270,17 @@ case class ToastZ(
     bread: Bread
 ):
   val eat =
-    Console.printLine("Toast: Eating")
+    Console.printLine:
+      "Toast: Eating"
 
 object ToastZ:
   val make =
     ZLayer
       .derive[ToastZ]
-      .tap(
+      .tap:
         _ =>
-          Console.printLine("ToastZ: Made")
-      )
+          Console.printLine:
+            "ToastZ: Made"
 ```
 
 We can explicitly provide dependencies when needed, to prevent ambiguity.
@@ -330,16 +332,16 @@ val ovenSafe =
   ZLayer.fromZIO:
     ZIO
       .succeed(Heat())
-      .tap(
+      .tap:
         _ =>
-          Console.printLine("Oven: Heated")
-      )
-      .withFinalizer(
+          Console.printLine:
+            "Oven: Heated"
+      .withFinalizer:
         _ =>
           Console
-            .printLine("Oven: Turning off!")
+            .printLine:
+              "Oven: Turning off!"
             .orDie
-      )
 ```
 
 
@@ -443,12 +445,10 @@ val storeBought =
   ZLayer
     .fromZIO:
       buyBread
-    .tap(
+    .tap:
       _ =>
-        Console.printLine(
+        Console.printLine:
           "BreadStoreBought: Bought"
-        )
-    )
 ```
 
 ```scala 3 mdoc:runzio
