@@ -720,15 +720,15 @@ Output:
 Tails
 Heads
 Heads
-Heads
-Tails
-Tails
-Heads
 Tails
 Heads
 Heads
-Num Heads = 6
-Result: 6
+Heads
+Tails
+Tails
+Tails
+Num Heads = 5
+Result: 5
 ```
 
 ```scala
