@@ -89,7 +89,6 @@ Output:
 TODO: Justify defer syntax over for-comp for multi-statement assertions
      Change this to a Console app, where the logic & testing is more visceral
 Log: Signup initiated for Morty
-Log: Signup initiated for Morty
 + random is random
 ```
 
@@ -173,7 +172,7 @@ Output:
 
 ```shell
 - console works
-  Exception in thread "zio-fiber-1167673328" scala.NotImplementedError: an implementation is missing
+  Exception in thread "zio-fiber-788356479" scala.NotImplementedError: an implementation is missing
   	at scala.Predef$.$qmark$qmark$qmark(Predef.scala:344)
   	at zio.Console$.print$$anonfun$6(Console.scala:122)
   	at zio.ZIO$.consoleWith$$anonfun$1(ZIO.scala:3121)

@@ -257,12 +257,11 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(75)
-Current requests: List(908, 75)
-Current requests: List(800, 908, 75)
-Current requests: List(570, 800, 908, 75)
-Current requests: List(602, 570, 800, 908, 75)
-Current requests: List(117, 602, 570, 800, 908, 75)
+Current requests: List(868)
+Current requests: List(43, 868)
+Current requests: List(789, 43, 868)
+Current requests: List(39, 789, 43, 868)
+Current requests: List(192, 39, 789, 43, 868)
 Result: Crashed the server!!
 ```
 
@@ -305,16 +304,16 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(662)
-Current requests: List(40, 662)
-Current requests: List(94, 40, 662)
-Current requests: List(868)
-Current requests: List(776, 868)
-Current requests: List(582, 776, 868)
-Current requests: List(202, 912, 582)
-Current requests: List(912, 582)
-Current requests: List(715, 202, 912)
-Current requests: List(244, 715)
+Current requests: List(482)
+Current requests: List(850, 482)
+Current requests: List(265, 850, 482)
+Current requests: List(538)
+Current requests: List(264, 538)
+Current requests: List(482, 264, 538)
+Current requests: List(915, 482)
+Current requests: List(437, 915, 482)
+Current requests: List(788, 437, 915)
+Current requests: List(298, 788)
 Result: All Requests Succeeded
 ```
 
@@ -561,6 +560,8 @@ def spec =
 Output:
 
 ```shell
+Failed!
+Failed!
 Failed!
 Failed!
 Success!
