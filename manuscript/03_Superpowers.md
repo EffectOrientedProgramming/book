@@ -1,4 +1,4 @@
-# Superpowers with Effects
+# Effect Superpowers
 
 
 Once programs are defined in terms of Effects, we use operations from the Effect System to manage different aspects of unpredictability.
@@ -297,7 +297,7 @@ def run =
 Output:
 
 ```shell
-Result: (PT0.029164279S,User saved)
+Result: (PT0.049127375S,User saved)
 ```
 
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.
