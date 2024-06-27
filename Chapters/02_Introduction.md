@@ -138,9 +138,8 @@ The goal of this book is to give you a gentle start along this path.
 
 ## Types of Effects
 
-An Effect is an interaction, often with an outside system, that is inherently unpredictable.
-For example, a function that displays the current date requires something that actually knows the current date.
-That function must talk to an external system, usually just the operating system, to get this information.
+An Effect is an interaction, usually with an external system, that is inherently unpredictable.
+For example, a function that displays the current date must ask some other system for that information—usually just the operating system, which keeps track using a clock chip that lives outside the main processor (though usually on the same physical chip).
 Such functions are unpredictable because the programmer has no control over what that external system will say or do.
 
 When you run an Effect, you often change the world:
@@ -176,11 +175,22 @@ These can have domain-specific forms:
 - Stabilizing an airplane
 - Detonating explosives
 
-## `Unit` and Effects
+### Failures
+
+Failures, especially the way we currently report and handle them using exceptions, are another form of unpredictability.
+
+Not only are failures themselves unpredictable, exceptions are not part of the type system.
+This means that when you call a function, you cannot reliably know what exceptions might emerge from that function call (some languages have attempted a *parallel type system* via *exception specifications* but these experiments have universally failed).
+If we could somehow include failure information in the type system, the type checker could ensure that all possible failures are accounted for in your code.
+
+As it is unpredictable, failure is another kind of Effect and can thus be managed by the Type System. 
+
+{{ I’m not done here }}
+### `Unit` and Effects
 
 `Unit` can be viewed as the bare minimum of Effect tracking.
 
-Consider a function
+Consider `saveInformation`:
 
 ```scala 3 mdoc
 import zio.*
@@ -190,14 +200,14 @@ def saveInformation(info: String): Unit =
   ???
 ```
 
-The type of this function is `String => Unit`.
-`Unit` is the blunt instrument that indicates an Effectful function.
+The function’s type is `String => Unit`.
 
-When a function returns `Unit`, you don't call it to produce a result value.
-When we see a `Unit` return type, we know that a side-effect must happen when we call that function---there's no other reason to do it.
+Returning `Unit` is the simplest indication of an Effectful function.
+You don't call it to produce a result value. 
+We know there must be a side-effect—there's no other reason to call it.
 
-If a function has no parameters, this is the same as having a `Unit` argument.
-This means an Effect is used to *produce* the result.
+If a function has no parameters, this is equivalent to a `Unit` argument.
+Here, an Effect is used inside the function to produce the result.
 
 ## Improving Your Life
 
