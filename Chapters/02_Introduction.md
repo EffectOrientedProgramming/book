@@ -32,7 +32,7 @@ In the home-building system, what if each room contains a channel, and when you 
 Now if you want plumbing, electricity, venting, network cabling, etc., you just run it through the channel.
 New features can be added to rooms without rebuilding the house.
 
-This book introduces *effect systems*, which allow you to do the same thing for software as we have done for home-building:
+This book introduces *Effect Systems*, which allow you to do the same thing for software as we have done for home-building:
   Add features without rewriting the software.
 
 ## What's Stopping Us?
@@ -45,11 +45,11 @@ A dominant issue is *predictability*.
 Consider a simple function:
 
 ```scala
-def fp(a: Int, b: Int): Int = 
+def fp(a: Int, b: Int): Int =
   a + b
 ```
 
-`fp` is completely predictable: 
+`fp` is completely predictable:
 - `fp(a, b)` always produces an `Int` result.
 - It never fails.
 - The same inputs always produce the same outputs.
@@ -63,7 +63,7 @@ Here, we add a random number:
 ```scala
 val rand = new scala.util.Random
 
-def fu(a: Int, b: Int): Int = 
+def fu(a: Int, b: Int): Int =
   a + b + rand.nextInt()
 ```
 
@@ -80,20 +80,20 @@ Instead of using `scala.util.Random`, we can make our own random number generato
 ```scala
 val rand = new ControlledRandom
 
-def fc(a: Int, b: Int): Int = 
+def fc(a: Int, b: Int): Int =
   a + b + rand.nextInt()
 ```
 
-`ControlledRandom` presumably contains `scala.util.Random`, but it could contain anything else. 
+`ControlledRandom` presumably contains `scala.util.Random`, but it could contain anything else.
 For example, we could swap in a custom generator to produce controlled results for testing `fc`.
 
-Through `ControlledRandom`, we control the output of `rand`. 
+Through `ControlledRandom`, we control the output of `rand`.
 If we provide a certain set of inputs, we can predict the output.
 Once again, the function is pure.
 
 It is predictable, so a pure function is testable.
-We achieve this by *managing* the effect.
-Managing the effect means that we not only control *what* results are produced by `rand`, we also control *when* those results are produced. 
+We achieve this by *managing* the Effect.
+However, managing the Effect means we not only control *what* results are produced by `rand`, we also control *when* those results are produced.
 The control of *when* is called *deferred execution*.
 Deferred execution is a foundation that allows us to easily attach functionality to an existing program.
 
@@ -102,16 +102,20 @@ That code is executed all at once.
 If the server we’re trying to connect to is flaky and we’d like to add a retry, we don’t have direct access to the call to the server, which is hidden behind a wall of code.
 
 Now let’s treat the call to the server as an Effect.
-We manage it by putting a “box” around it like we did with `ControlledRandom`.
-Because the execution of that Effect is deferred, we have the option of attaching the retry (or some other strategy) directly to that Effect, when it is executed.
+We manage it by putting a “box” around the server Effect like we did with `ControlledRandom`.
+Because the execution of that Effect is now deferred, we have the option of attaching the retry (or another strategy such as a timeout) directly to that Effect, when it is executed.
+Deferred execution allows us to add a “cut point” where we can insert functionality on any Effect. Effects are the unpredictable points in a program, and thus comprise most of the places where we are likely to want to insert such functionality. 
 
-This still sounds complicated, and hard to imagine how to write this kind of code.
-That’s why we have *Effect Management* systems to provide the structure for you.
-Effect Management enables us to add almost any functionality to a program.
+This still sounds complicated.
+It’s hard to imagine how to write this kind of code.
+Fortunately, we have *Effect Systems* to provide the structure for you.
+An Effect System enables us to add almost any functionality to a program.
 
-Now it sounds a bit too simple: Just add an Effect Management system!
-It still requires a significant shift in the way you think about programming.
-Also, an Effect Management system includes libraries
+Now it sounds too simple—just add an Effect System!
+This still requires a significant shift in the way you think about programming.
+Also, an Effect System includes libraries, some of which you use instead of the libraries you know.
+It will take time and effort to rewire your brain into this new mode of thinking.
+The goal of this book is to give you a gentle start along this path.
 
 ## From Unpredictable to Predictable
 
@@ -129,8 +133,8 @@ There is no realistic expectation that you will ever achieve a completely bug-fr
 This is the reality programmers have come to accept.
 
 If each piece of a traditional system is unpredictable,
-  when you combine these pieces you get a multiplicative effect
-  -- the resulting parts are significantly less predictable than their component pieces.
+  when you combine these pieces you multiply the unpredictabilities
+  -- the combined piece is significantly less predictable than the component pieces.
 
 What if we could change our thinking around the problem of building software systems?
 Imagine building small pieces that can each be reasoned about and made predictable.
@@ -233,7 +237,7 @@ The type of this function is `String => Unit`.
 When a function returns `Unit`, you don't call it to produce a result value.
 When we see a `Unit` return type, we know that a side-effect must happen when we call that function---there's no other reason to do it.
 
-If a function has no parameters, this is the same as having a `Unit` argument. 
+If a function has no parameters, this is the same as having a `Unit` argument.
 This means an Effect is used to *produce* the result.
 
 ## Effect Systems
