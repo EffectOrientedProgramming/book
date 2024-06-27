@@ -1,4 +1,4 @@
-# Superpowers with Effects
+# Effect Superpowers
 
 ```scala 3 mdoc:invisible
 import zio.*
