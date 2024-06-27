@@ -1,5 +1,24 @@
 # Introduction
 
+Most existing languages are built for rapid development.
+You create a system as quickly as possible, then begin isolating areas of failure, finding and fixing bugs until the system is tolerable and can be delivered.
+Throughout the lifetime of the system, bugs are regularly discovered and fixed.
+There is no realistic expectation that you will ever achieve a completely bug-free system, just one that seems to work well enough to meet the requirements.
+This is the reality programmers have come to accept.
+
+If each piece of a traditional system is unpredictable.
+When you combine these pieces you multiply the unpredictabilities.
+The combination is significantly less predictable than the component pieces.
+
+What if we could change our thinking around the problem of building software systems?
+Imagine building small pieces that can each be reasoned about and made predictable.
+Now suppose there is a way to combine these predictable pieces to make larger parts that are just as predictable.
+Each time you combine smaller parts to create a larger part, the result inherits the predictability of its components.
+Instead of multiplying unpredictability, you maintain predictability.
+The resulting system is as predictable as any of its components.
+
+## The Pursuit of Composability
+
 Imagine you want to create a system to build homes by assembling room modules.
 Each type of room has doors and windows, and there's a way to plug them together.
 By selecting pieces with compatible doors, and windows where you want them, you can assemble a house.
@@ -104,7 +123,7 @@ If the server we’re trying to connect to is flaky and we’d like to add a ret
 Now let’s treat the call to the server as an Effect.
 We manage it by putting a “box” around the server Effect like we did with `ControlledRandom`.
 Because the execution of that Effect is now deferred, we have the option of attaching the retry (or another strategy such as a timeout) directly to that Effect, when it is executed.
-Deferred execution allows us to add a “cut point” where we can insert functionality on any Effect. Effects are the unpredictable points in a program, and thus comprise most of the places where we are likely to want to insert such functionality. 
+Deferred execution allows us to add a “cut point” where we can insert functionality on any Effect. Effects are the unpredictable points in a program, and thus comprise most of the places where we are likely to want to insert such functionality.
 
 This still sounds complicated.
 It’s hard to imagine how to write this kind of code.
@@ -117,95 +136,37 @@ Also, an Effect System includes libraries, some of which you use instead of the 
 It will take time and effort to rewire your brain into this new mode of thinking.
 The goal of this book is to give you a gentle start along this path.
 
-## From Unpredictable to Predictable
+## Types of Effects
 
-Systems built from unpredictable parts can have predictable behavior.
-This might sound far-fetched or even impossible.
+An Effect is an interaction, often with an outside system, that is inherently unpredictable.
+For example, a function that displays the current date requires something that actually knows the current date.
+That function must talk to an external system, usually just the operating system, to get this information.
+Such functions are unpredictable because the programmer has no control over what that external system will say or do.
 
-Most existing languages are built for rapid development.
-You create a system as quickly as possible,
-  then begin isolating areas of failure,
-  finding and fixing bugs until the system is tolerable and can be delivered.
-Throughout the lifetime of the system,
-  bugs are regularly discovered and fixed.
-There is no realistic expectation that you will ever achieve a completely bug-free system,
-  just one that seems to work well enough to meet the requirements.
-This is the reality programmers have come to accept.
-
-If each piece of a traditional system is unpredictable,
-  when you combine these pieces you multiply the unpredictabilities
-  -- the combined piece is significantly less predictable than the component pieces.
-
-What if we could change our thinking around the problem of building software systems?
-Imagine building small pieces that can each be reasoned about and made predictable.
-Now suppose there is a way to combine these predictable pieces to make larger parts that are just as predictable.
-Each time you combine smaller parts to create a larger part, the result inherits the predictability of its components.
-Instead of multiplying unpredictability, you maintain predictability.
-The resulting system is as predictable as any of its components.
-
-This is what *Functional Programming* together with *Effect Systems* can achieve.
-This is what we want to teach you in this book.
-
-The biggest impact on you as a programmer is the requirement for patience.
-With most languages,
-  the first thing you want to do is figure out how to write "Hello, World!",
-  then start accumulating the other language features as standalone concepts.
-In Functional Programming we start by examining the impact of each concept on predictability.
-We then combine the smaller concepts, ensuring predictability at each step.
-
-A predictable system isolates parts that are always the same
-  (called pure functions)
-  from the parts that are unpredictable
-  (Effects).
-
-## Dealing With Unpredictability
-
-Any real program has to interact with things outside the programmer's control.
-All external systems are unpredictable.
-
-Building systems that are predictable requires isolating and managing the unpredictable parts.
-An approach that programmers may use to handle this is to isolate the parts of the program which use external systems.
-By isolating these parts, programmers can handle the unpredictable parts in more predictable ways.
-
-The interactions with external systems can be defined in terms of "Effects".
-Effects create a divistion between parts of a program that interact with external systems and parts that don't.
-
-For example, a program that displays the current date requires something that actually knows the current date.
-That program must talk to an external system, usually just the operating system, to get this information.
-Such programs are unpredictable because the programmer has no control over what that external system will say or do.
-
-## What is an Effect?
-
-An *Effect* is an interaction, often with an outside system, that is inherently unpredictable.
-
-Anytime you run an Effect, you change the world and cannot undo that change:
+When you run an Effect, you often change the world:
 - If you 3D-print a figurine, you cannot reclaim that material.
 - Once you send a Tweet, you can delete it but people might have already read it.
 - Even if you provide database `DELETE` statements paired with `INSERT` statements, it must still be considered Effectful.
   Another program might read your data before you delete it,
   or a database trigger might activate during an `INSERT`.
 
-Once a program runs an Effect, the impact is out of our control.
+Once a program runs an Effect, the impact is out of our control and it cannot be undone.
 
 We must also assume that running an Effect modifies an external system.
 As a real-life example, just saying "You are getting a raise" creates an Effect that may not be reversible.
 
-Effects that only read data from external systems are also unpredictable; for example, getting a random number.
-
-There are many types of Effects:
-
+There are numerous different Effects, such as:
 - Accepting user input
 - Reading from a file
 - Getting the current time from the system clock
 - Generating a random number
-- Displaying on the screen
+- Displaying to a screen
 - Writing to a file
 - Mutating a variable
 - Saving to a database
 - And more...
 
-These can have domain specific forms:
-
+These can have domain-specific forms:
 - Getting the current price of a stock
 - Detecting the electrical current from a pacemaker
 - Checking the temperature of a nuclear reactor
@@ -214,8 +175,6 @@ These can have domain specific forms:
 - Sensing slippage in an anti-lock braking system
 - Stabilizing an airplane
 - Detonating explosives
-
-All of these are unpredictable.
 
 ## `Unit` and Effects
 
@@ -240,10 +199,14 @@ When we see a `Unit` return type, we know that a side-effect must happen when we
 If a function has no parameters, this is the same as having a `Unit` argument.
 This means an Effect is used to *produce* the result.
 
-## Effect Systems
+## Improving Your Life
 
-Given that Effects are unpredictable, we can utilize operations from an Effect System to manage the unpredictability.
-Effect Systems are designed to make these operations easy.
-For example, any Effect can use a `timeout` to control the Effect's maximum duration.
+Effect Systems make it easy to add functionality to existing code.
+For example, any Effect can use a time-out to control the Effect's maximum duration.
+Applying such operations starts to feel like a superpower, and that's what we show in the next chapter.
 
-Applying these operations starts to feel like a superpower, and that's what we show in the next chapter.
+The biggest impact of learning an Effect System is the requirement for patience.
+With most languages, the first thing you learn is to write "Hello, World!"
+You then accumulate the other language features as standalone concepts.
+Effect Systems require a shift
+
