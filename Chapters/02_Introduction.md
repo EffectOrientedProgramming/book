@@ -1,35 +1,35 @@
 # Introduction
 
 Imagine you want to create a system to build homes by assembling room modules.
-Each different type of room has doors and windows, and there's a way to plug them together.
+Each type of room has doors and windows, and there's a way to plug them together.
 By selecting pieces with compatible doors, and windows where you want them, you can assemble a house.
 
 This concept of *composability* has arguably been the prime objective of programming since we raised ourselves from the swamps of assembly language.
-We want to be able to take smaller pieces and easily compose them into larger pieces, which can themselves be composed, etc.
+We want to be able to take smaller pieces and easily compose them into larger pieces, which can themselves be composed.
 Over the decades, the programming community has made great strides in this endeavor.
 Each time we figure something out, however, and make a leap forward, we inevitably run into the next wall.
 
-Our housing example is a decent reflection of where most programming is now: we have chunks of code---modules---and we can put them together pretty easily.
+Our housing example is a decent reflection of where most programming is now: we have chunks of code—modules—and we can put them together pretty easily.
 We have been improving our type systems and the ways we create data structures.
 What wall are we facing now?
 
 To return to our home-building system, we've solved the problem of assembling rooms, but adding functionality to those rooms is quite difficult.
-If we decide we want electricity in a closet, we have to tear up the walls and insert conduit.
-To add a vent to a kitchen we must tunnel up through the building.
-Producing a laundry room is almost impossible after the fact, because plumbing usually runs through the concrete foundation.
-We can assemble rooms, but if we want a room to do anything interesting, we must basically rebuild the house.
+If we decide we want electricity in a closet, we have to tear up the walls and insert electrical conduits.
+To add a vent to a kitchen we must tunnel up through the building to the roof.
+Producing a laundry room is very challenging because plumbing usually runs through the concrete foundation.
+We can assemble rooms, but if we want a room to do anything interesting, we must basically remodel the house.
 
 In the software world, we have pretty good ways to assemble software components.
 For example, you can create (or reuse) a component that gets information from a server, processes it and then displays it.
 What happens if you put this component into use and then discover that the server is flaky?
-Perhaps the server sometimes drops requests, or takes too long.
+Perhaps the server occasionally drops requests, or takes too long.
 There are different strategies for this: retrying, backoff, querying other servers, etc.
 The problem is that, like the home-building system, you must go into your module and rebuild it.
 This takes time and effort and it complicates your code.
 What we'd really like to do is just attach our new functionality to the existing code without rewriting it.
 
-In the home-building system, what if each room contained a channel, and when you assembled rooms, the channels match up?
-Now if you want plumbing, electricity, venting, network cabling, etc., you can just run that through the channel.
+In the home-building system, what if each room contains a channel, and when you assemble rooms, the channels match up?
+Now if you want plumbing, electricity, venting, network cabling, etc., you just run it through the channel.
 New features can be added to rooms without rebuilding the house.
 
 This book introduces *effect systems*, which allow you to do the same thing for software as we have done for home-building:
@@ -42,7 +42,7 @@ It's hard to imagine what that channel would look like, or how it behaves.
 To get there we must start with some basic issues.
 A dominant issue is *predictability*.
 
-Consider an incredibly basic function:
+Consider a simple function:
 
 ```scala
 def fp(a: Int, b: Int): Int = 
@@ -53,7 +53,7 @@ def fp(a: Int, b: Int): Int =
 - `fp(a, b)` always produces an `Int` result.
 - It never fails.
 - The same inputs always produce the same outputs.
-- Instead of calling the function, you can just look up results in a table.
+- It’s so consistent that instead of calling the function you could just look up results in a table (it can be *cached*).
 
 A predictable function has a special name: *pure*.
 
@@ -68,14 +68,14 @@ def fu(a: Int, b: Int): Int =
 ```
 
 Not surprisingly, adding a random number to the result takes us from predictable to unpredictable.
-`fu` nevers fails and always produces an `Int`, but if you call it twice with the same inputs, you get different outputs.
+`fu` never fails and always produces an `Int`, but if you call it twice with the same inputs, you get different outputs.
 
-We call these unpredictable elements *Effects*.
+These unpredictable elements are called *Effects*.
 
 ## Managing Effects
 
 What if we could control an Effect by putting it in a kind of box?
-If we make our own random number generator, for example:
+Instead of using `scala.util.Random`, we can make our own random number generator:
 
 ```scala
 val rand = new ControlledRandom
@@ -84,15 +84,34 @@ def fc(a: Int, b: Int): Int =
   a + b + rand.nextInt()
 ```
 
+`ControlledRandom` presumably contains `scala.util.Random`, but it could contain anything else. 
+For example, we could swap in a custom generator to produce controlled results for testing `fc`.
+
 Through `ControlledRandom`, we control the output of `rand`. 
 If we provide a certain set of inputs, we can predict the output.
 Once again, the function is pure.
 
-Because it is predictable, a pure function is testable.
-But because we achieve this by managing the effect, we can do much more.
-An *Effect Management* system enables us to almost arbitrarily attach functionality to a program.
+It is predictable, so a pure function is testable.
+We achieve this by *managing* the effect.
+Managing the effect means that we not only control *what* results are produced by `rand`, we also control *when* those results are produced. 
+The control of *when* is called *deferred execution*.
+Deferred execution is a foundation that allows us to easily attach functionality to an existing program.
 
+Consider the module that gets data from a server, processes it and then displays it.
+That code is executed all at once.
+If the server we’re trying to connect to is flaky and we’d like to add a retry, we don’t have direct access to the call to the server, which is hidden behind a wall of code.
 
+Now let’s treat the call to the server as an Effect.
+We manage it by putting a “box” around it like we did with `ControlledRandom`.
+Because the execution of that Effect is deferred, we have the option of attaching the retry (or some other strategy) directly to that Effect, when it is executed.
+
+This still sounds complicated, and hard to imagine how to write this kind of code.
+That’s why we have *Effect Management* systems to provide the structure for you.
+Effect Management enables us to add almost any functionality to a program.
+
+Now it sounds a bit too simple: Just add an Effect Management system!
+It still requires a significant shift in the way you think about programming.
+Also, an Effect Management system includes libraries
 
 ## From Unpredictable to Predictable
 
