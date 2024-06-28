@@ -2,12 +2,16 @@ package mdoc
 
 object ErrorMessageManipulation {
   def cleanupZioErrorOutput(raw: String) =
+    def isCommentedStackTraceLine(line: String): Boolean =
+      line.startsWith("//") && line.replace("//", "").trim.startsWith("at")
+
     // TODO clean up initial error: bit and final carat'ed indicator when possible
     val filtered =
       raw
         .split("\n")
         // TODO This might be safer to do after the lower Mdoc (case sensitive) replacement
         .filter(line => !line.contains("mdoc"))
+        .filter(line => !isCommentedStackTraceLine(line))
 
     val lastLine =
       filtered
@@ -55,6 +59,7 @@ object ErrorMessageManipulation {
 
     withoutTrailingBlankLine
       .mkString("\n")
+      .replace("java.lang.Exception", "Exception")
       .replace(effectCantFailMsg, effectCantFailMsgSimple)
       .replace(canOnlyCallRunOnZiosMsg, canOnlyCallRunOnZiosMsgSimple)
       .replace(

@@ -546,12 +546,12 @@ def run =
 We covered the deficiencies of throwing functions in the previous chapter, so we will not belabor the point here.
 We still want to show how they can be converted to Effects and cleanly fit into our composability story.
 
-```scala 3 mdoc:compile-only
+```scala 3 mdoc
 openFile("file1").summaryFor("space")
 ```
 
 ```scala 3 mdoc:crash
-// TODO: Simplify mdoc output if possible
+// TODO: Can we make the output show up in our seperate fence?
 openFile("file1").summaryFor("unicode")
 ```
 
