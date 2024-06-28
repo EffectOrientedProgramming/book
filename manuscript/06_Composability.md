@@ -362,14 +362,6 @@ We still want to show how they can be converted to Effects and cleanly fit into 
 openFile("file1").summaryFor("space")
 ```
 
-Output:
-
-```shell
-File - OPEN
-File - summaryFor(space)
-res14: String = "space is huge"
-```
-
 ```scala
 // TODO: Can we make the output show up in our seperate fence?
 openFile("file1").summaryFor("unicode")
@@ -626,9 +618,8 @@ File - contains(genome)
 Wiki - articleFor(genome)
 AI - summarize - start
 AI - summarize - end
-File - disk full!
 File - CLOSE
-Result: DiskFull()
+Result: AITooSlow()
 ```
 
 ### Happy Path
