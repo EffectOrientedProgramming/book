@@ -1,16 +1,16 @@
 # Introduction
 
 Most existing languages are built for rapid development.
-You create a system as quickly as possible, then begin isolating areas of failure, finding and fixing bugs until the system is tolerable and can be delivered.
+You build a system as quickly as possible, then begin isolating areas of failure, finding and fixing bugs until the system is tolerable and can be delivered.
 
 Over the lifetime of a system, new needs are discovered and the system is adapted to meet those needs.
 Many of these adaptations don’t conform to the original vision and architecture of the system, and will be forced in.
-Each feature that is forced in degrades the structure and integrity of the system, and makes additional features even harder to force in.
+Each forced feature degrades the structure and integrity of the system, and makes additional features even harder to force in.
 This degradation is commonly called *technical debt.*
 It’s debt because you are accumulating costs that must be borne by future programmers.
 The idea is that you will one day stop adding new features, and pay down the accumulated debt by rewriting the system without adding new features (this is called *refactoring*).
 
-Often, the debt never gets paid down.
+Often the debt never gets paid down.
 The system eventually becomes un-maintainable.
 It is difficult or even impossible to add new functionality.
 
@@ -18,12 +18,12 @@ Bruce’s father was a builder and, when people wanted to remodel their house, t
 This point was reached far sooner than the owners imagined.
 
 For the past generation of languages, it made sense to focus on rapid development.
-It was the most pressing problem in that era.
+That was the most pressing problem.
 Although rapid development will always be important, we have reached a new era where *modification of existing systems* is paramount.
 
 It is expensive and impractical to rewrite a system that is overwhelmed with debt.
 The costs are numerous, especially because the business probably can’t run without the software:
-- You need programmers to maintain the existing software while the new software is developed. 
+- You need programmers to maintain the existing software while the new system is developed. 
   This means continuing to force in new features as it gets harder and harder.
   At the end, the software you’ve been working on is discarded and you might become redundant.
   None of this makes for a desirable job. 
@@ -45,26 +45,26 @@ The goal of this book is to introduce you to that new way of thinking.
 
 Imagine you want to create a system to build homes by assembling room modules.
 Each type of room has doors and windows, and there's a way to plug them together.
-By selecting pieces with compatible doors, and windows where you want them, you can assemble a house.
+By selecting pieces with compatible doors and windows, you can assemble a house.
 
 This concept of *composability* has arguably been the prime objective of programming since we raised ourselves from the swamps of assembly language.
 We want to take smaller pieces and easily compose them into larger pieces, which can themselves be composed.
 Over the decades, the programming community has made great strides in this endeavor.
-Each time we figure something out, however, and make a leap forward, we inevitably run into the next wall.
+Each time we figure something out and make a leap forward, however, we inevitably run into the next wall.
 
 Our housing example is a decent reflection of where most programming is now: we have chunks of code—modules—and we can put them together.
 We have improved our type systems and the ways we create data structures.
 What wall are we facing now?
 
 To return to our home-building system, we've solved the problem of assembling rooms, but adding functionality to those rooms is quite difficult.
-If we decide we want electricity in a closet, we have to tear up the walls and insert electrical conduits.
-To add a vent to a kitchen we must tunnel up through the building to the roof.
+If we decide we want electricity in a room, we have to tear up the walls and insert electrical conduits.
+To add a vent we must tunnel up through the building to the roof.
 Adding plumbing is very challenging because it runs through the concrete foundation and the walls.
 We can assemble rooms, but if we want a room to do anything interesting, we must remodel the house.
 
 Consider a component that gets information from a server, processes it and then displays it.
 What happens if you put this component into use and then discover that the server is flaky?
-Perhaps the server occasionally drops requests, or takes too long.
+Perhaps it occasionally drops requests, or takes too long.
 There are different strategies for this: retrying, backoff, querying other servers, etc.
 The problem is that, like the home-building system, you must go into your module and rebuild it.
 This takes time and effort and complicates the code.
@@ -78,7 +78,7 @@ This book introduces *Effect Systems*, which allow you to do the same thing for 
 
 ## What's Stopping Us?
 
-The wall that we've run into here is that we don't have the home-building system’s channel.
+We don't have the home-building system’s channel.
 It's hard to imagine what that channel would look like, or how it behaves.
 To get there we must examine some basic issues.
 A dominant issue is *predictability*.
@@ -129,7 +129,7 @@ def fc(a: Int, b: Int): Int =
   a + b + rand.nextInt()
 ```
 
-`ControlledRandom` presumably contains `scala.util.Random`, but it could contain anything else.
+`ControlledRandom` presumably uses `scala.util.Random`, but it could contain anything else.
 For example, we could swap in a custom generator to produce controlled results for testing `fc`.
 
 Through `ControlledRandom`, we control the output of `rand`.
@@ -139,16 +139,17 @@ Once again, the function is pure.
 We achieve this by *managing* the Effect.
 However, managing an Effect means we not only control *what* results are produced by `rand`, we also control *when* those results are produced.
 The control of *when* is called *deferred execution*.
-Deferred execution is a foundation that allows us to easily attach functionality to an existing program.
+Deferred execution is part of the solution for easily attaching functionality to an existing program.
 
-Consider the module that gets data from a server, processes it and then displays it.
+Consider the module that gets data from a server, processes it, then displays it.
 That code is executed all at once.
-If the server we’re trying to connect to is flaky and we’d like to add a retry, we don’t have direct access to the call to the server, which is hidden behind a wall of code.
+If the server we’re trying to connect to is flaky and we’d like to add a retry, we don’t have direct access to the server call, which is hidden behind a wall of code.
 
 Now let’s treat the call to the server as an Effect.
 We manage it by putting a box around the server Effect like we did with `ControlledRandom`.
 Because the execution of that Effect is now deferred, we have the option of attaching the retry (or another strategy such as a timeout) directly to that Effect, when it is executed.
-Deferred execution allows us to add a “cut point” where we can insert functionality on any Effect. Effects are the unpredictable points in a program, and thus comprise most of the places where we are likely to want to insert such functionality.
+Deferred execution adds a “cut point” where we can insert functionality on any Effect. 
+Effects are the unpredictable points in a program, and thus comprise most of the places where we are likely to want to insert such functionality.
 
 This still sounds complicated.
 It’s hard to imagine how to write this kind of code.
@@ -168,16 +169,14 @@ For example, a function that displays the current date must ask some other syste
 Such functions are unpredictable because the programmer has no control over what that external system will say or do.
 
 When you run an Effect, you often change the world:
-- If you 3D-print a figurine, you cannot reclaim that material.
-- Once you send a Tweet, you can delete it but people might have already read it.
-- Even if you provide database `DELETE` statements paired with `INSERT` statements, it must still be considered Effectful.
-  Another program might read your data before you delete it,
-  or a database trigger might activate during an `INSERT`.
+- Printing a 3D figurine means you cannot reclaim that material.
+- A Tweet can be deleted after sending, but people might have already read it.
+- A database `DELETE` statement can be paired an `INSERT` statement that leaves the database in the same state that it started in.
+  However, this must still be considered Effectful.
+  Another program might read your data before you delete it, or a database trigger might activate during an `INSERT`.
+- Saying, "You are getting a raise" to someone creates an Effect that may not be reversible.
 
-Once a program runs an Effect, the impact is out of our control and it cannot be undone.
-
-We must also assume that running an Effect modifies an external system.
-Saying, "You are getting a raise" to someone creates an Effect that may not be reversible.
+Once a program runs an Effect, the impact is out of our control and cannot be undone.
 
 There are many types of Effects:
 - Accept user input
@@ -196,7 +195,7 @@ These can have domain-specific forms:
 - Check the temperature of a nuclear reactor
 - 3D print a model
 - Trigger an alarm
-- Sens slippage in an anti-lock braking system
+- Sense slippage in an anti-lock braking system
 - Stabilize an airplane
 - Detonate explosives
 
@@ -208,13 +207,14 @@ Not only are failures themselves unpredictable, exceptions are not part of the t
 This means that when you call a function, you cannot reliably know what exceptions might emerge from that function call (some languages have attempted a *parallel type system* via *exception specifications* but these experiments have universally failed).
 If we could somehow include failure information in the type system, the type checker could ensure that all possible failures are accounted for in your code.
 
-It is unpredictable, so failure is another kind of Effect and can thus be managed by the Effect System. 
+Failure is unpredictable, which makes it another kind of Effect.
+Failure is also managed by an Effect System. 
 
-You are used to returning the anticipated “answer” from a function, even though you know that might not happen—there could be failures. 
+A function typically returns the anticipated “answer,” even though you know that might not happen—there could be failures. 
 An Effect System creates a structure as the return type from a function.
 This structure contains the expected “answer,” but it also contains failure information.
 Every possible failure type is enumerated in this return structure.
-Like everything else, the return structure has a type—and this incorporates all the failure types.
+Like everything else, the return structure has a type—and this incorporates all possible failure types.
 Failures are now part of the type system.
 The type-checking system can now determine, from this return type, whether your code handles all possible failures.
 
