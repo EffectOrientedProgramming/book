@@ -290,6 +290,7 @@ def run =
 Output:
 
 ```shell
+Log: Signup initiated for Morty
 Result: User saved
 ```
 
@@ -315,7 +316,7 @@ def run =
 Output:
 
 ```shell
-Result: (PT0.024490783S,User saved)
+Result: (PT0.020533095S,User saved)
 ```
 
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.
@@ -370,16 +371,15 @@ You can easily create new Effects that have new superpowers.
 
 ## Deferred Execution
 
-Part of the superpower of Effects is with how they are run.
-If these effects were all run immediately, we would not be able to freely tack on new behaviors.
-We cannot timeout something that might have already started running, or even worse - completed, before we get our hands on it.
-We cannot retry something if we are only holding on to the completed result.
-We cannot parallelize operations if they have already started single-threaded execution.
+If Effects ran immediately, we could not freely add behaviors:
+- We cannot timeout something that might have already started running, or even worse - completed, before we get our hands on it.
+- We cannot retry something if we are only holding on to the completed result.
+- We cannot parallelize operations if they have already started single-threaded execution.
 
-We need to be holding on to a value that represents something that _can_ be run, but hasn't yet.
-If we have that, then our Effect System can freely add behavior before/after that value.
+We must hold a value that represents something that _can_ be run, but hasn't yet.
+If we have that, our Effect System can freely add behavior before/after that value.
 
-Since the Effects are deferred and independent we can combine them in a variety of ways.
+Because Effects are deferred and independent, we can combine them in a variety of ways.
 
 The most common way to combine Effects is sequentially.
 You might think that this would work:
@@ -396,17 +396,18 @@ Output:
 Result: User saved
 ```
 
-Since Effects are deferred, the `Console.printLine` doesn't run.
-Only `effect1` is returned by `run`.
-The Effect System takes the Effect from `run` and runs it.
+The result of `run` is the final value: `effect1`.
+Since Effects are deferred, `Console.printLine` never runs.
+The Effect System takes the `effect1` that `run` returns and runs only that.
 
-To sequence multiple Effects, we need a way to construct a new `Effect` from the sequence:
+To sequence multiple Effects, we must construct a new `Effect` that contains the sequence.
+That’s what `defer` does:
 
 ```scala
 def run =
   defer:
     Console.printLine("Before save").run
-    effect1.run // prints each save
+    effect1.run // Display each save
 ```
 
 Output:
@@ -416,11 +417,12 @@ Before save
 Result: User saved
 ```
 
-The `defer` block becomes a new Effect.
-The `.run` on each Effect, constructs the sequencing based on running the Effect.
+The `defer` block creates a new Effect, which is returned by `run`.
+The `.run` called on each Effect constructs the sequence.
+Even though we say `.run`, the Effects are still deferred.
+They get run, in order, when the effect produced bye the `defer` block is run.
 
-However, even though we say `.run`, the Effects are still deferred.
-This enables us to assign the new Effect to a value like we did with `effect1` - `effect7`:
+We can assign the new Effect to a value like we did with `effect1` - `effect7`:
 
 ```scala
 val effect8 =
@@ -432,9 +434,9 @@ val effect8 =
 The `.run` method is only available on our Effect values.
 We explicitly call `.run` whenever we want to sequence our effects.
 If we do not call `.run`, then we are just going to have an un-executed effect.
-We want this explicit control, so that we can manipulate our effects up until it is time to run them.
+We want this explicit control so we can attach manipulations to our effects up until we run them.
 
-When you have finished assembling your Effect, and you are ready to run it, you utilize the other important `run` method.
+When you finish assembling your Effect and are ready to run it, you utilize the other important `run` method:
 
 ```scala
 val run =
@@ -450,14 +452,14 @@ Result: User saved
 
 Having 2 versions of `run` can be confusing, but they each serve a different purpose.
 
-- The `.run` method attached to effects in a `defer` indicates when that effect will execute within the program.
-  - This can happen many times throughout your program.
-- Assigning your program to `def run` method will actually execute the program.
-  - This typically happens only once in your code.
+- The `.run` method attached to effects in a `defer` indicates when that effect executes within the program.
+  This can happen many times throughout your program.
+- Assigning your program to `def run` method actually executes the program.
+  This typically happens only once in your code.
 
 We focus on the `.run` method in this section.
 
-You can only call `.run` on an effect value.
+You can only call `.run` on an Effect.
 Attempting to use in on anything else will produce an error.
 
 
@@ -489,7 +491,7 @@ An extension method was tried, but could not be fully constructed:
 def run =
   defer:
     effect8
-      .debug // display each save
+      .debug // Display each save
       .repeatN(1).run
 ```
 
@@ -530,7 +532,7 @@ val surroundedProgram =
   defer:
     Console.printLine("**Before**").run
     effect8
-      .debug // display each save
+      .debug // Display each save
       .repeatN(1).run
     Console.printLine("**After**").run
 ```
