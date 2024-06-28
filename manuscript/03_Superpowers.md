@@ -206,10 +206,14 @@ val effect3 =
       5.seconds
 ```
 
+`timeoutFail` takes a single String argument which we parenthesize.
+The result of this call is a function that also takes a single argument that we pass using significant indentation.
+Although we prefer significant indentation whenever possible, sometimes the code is easier to read by introducing parentheses. 
+
 If the effect does not complete within the time limit, it is canceled and returns our error message.
 Timeouts can be added to any Effect.
 
-Running the new Effect in the `slow` scenario causes it to take longer than the time limit:
+The `slow` scenario runs longer than our specified time limit of five seconds:
 
 ```scala
 override val bootstrap =
@@ -229,7 +233,7 @@ The Effect takes too long and produces the error.
 
 ## Fallback
 
-You can add fallback behavior for failed Effects.
+A failing Effect can fall back to a different strategy.
 One option is to use `orElse` with a fallback operation to run when an Effect fails:
 
 ```scala
@@ -239,7 +243,7 @@ val effect4 =
       userName
 ```
 
-`sendToManualQueue` is what happens when the user can't be saved.
+`sendToManualQueue` happens when the user can't be saved.
 
 Let's run the new Effect in the `neverWorks` scenario to ensure we reach the fallback:
 
@@ -273,7 +277,7 @@ val effect5 =
 ```
 
 `withFinalizer` expects a function as its argument; `_ => logUserSignup` is a function that takes no arguments and calls `logUserSignup`.
-`withFinalizer` attaches this behavior without changing the types of the original Effect.
+`withFinalizer` attaches this behavior without changing the types contained in the original Effect.
 
 ```scala
 override val bootstrap =
@@ -289,12 +293,9 @@ Output:
 Result: User saved
 ```
 
-We run the effect again in the `HappyPath` scenario to demonstrate running the Effects in parallel.
+We can add numerous behaviors to an Effect regardless of that Effect’s error and result types.
 
-We can add all sorts of custom behavior to our Effect type,
-  and then invoke them regardless of error and result types.
-
-## Timing Metric
+## Timing
 
 For diagnostic information you can track timing:
 
@@ -314,15 +315,15 @@ def run =
 Output:
 
 ```shell
-Result: (PT0.020864098S,User saved)
+Result: (PT0.024490783S,User saved)
 ```
 
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.
 
 ## Filtering
 
-Now that we have added all of these superpowers to our process,
-  our lead engineer lets us known that a certain user should be prevented from using our system.
+Our lead engineer tells us a certain user should be prevented from using our system.
+We use `when` to exclude Morty:
 
 ```scala
 val effect7 =
@@ -348,14 +349,13 @@ We can add behavior to the end of our complex Effect,
 
 ## Effects Are The Sum of Their Parts
 
-These examples have shown only a glimpse into the superpowers we can add to **any** Effect.
-There are many other behaviors we can attach to **any** Effect.
+These examples show only a glimpse of the superpowers we can add to *any* Effect.
+There are many other behaviors we can attach to any Effect.
 
 We started with:
 - `effect0`: Save User
 
-Effects 1 - 7 are new Effects, built on the previous Effect.
-The full structure is:
+Effects 1 - 7 are new Effects, each built on the previous Effect:
 - `effect1`: Retry
 - `effect2`: Modify Error
 - `effect3`: Timeout
@@ -364,8 +364,9 @@ The full structure is:
 - `effect6`: Timing Metric
 - `effect7`: Filtering
 
-Each `effect*` is an independent Effect.
-You can mix and match the retries, fallbacks, etc however you want and can easily create new ones with new superpowers.
+Each `effect*` is independent.
+You can mix and match the retries, fallbacks, etc., however you want.
+You can easily create new Effects that have new superpowers.
 
 ## Deferred Execution
 
