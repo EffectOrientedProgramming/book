@@ -224,17 +224,12 @@ This new return type is what provides the channel that we need to enable easily-
 
 `Unit` can be viewed as the bare minimum of Effect tracking.
 
-Consider `saveInformation`:
+Consider `saveInformation`, which has a type of `String => Unit`.
 
 ```scala 3 mdoc manuscript-only
-import zio.*
-import zio.direct.*
-
 def saveInformation(info: String): Unit =
   ???
 ```
-
-The function’s type is `String => Unit`.
 
 Returning `Unit` is the simplest indication of an Effectful function.
 You don't call it to produce a result value. 
@@ -243,17 +238,17 @@ We know there must be a side effect—there's no other reason to call it.
 If a function has no parameters, this is equivalent to a `Unit` argument.
 Here, an Effect is used inside the function to produce the result.
 
-A function that has a `Unit` argument and `Unit` return does *nothing* but produce side effects.
+A function that has a `Unit` argument and `Unit` return only produces side effects.
 
 ## Improving Your Life
 
 Effect Systems make it easy to add functionality to existing code.
-For example, any Effect can use a time-out to control the Effect's maximum duration.
+For example, you can add a time-out to any Effect to control its maximum duration.
 Applying such operations starts to feel like a superpower, and that's what we show in the next chapter.
 
-The biggest impact of learning an Effect System is the requirement for patience.
+Learning about Effect Systems requires patience.
 With most languages, the first thing you learn is to write "Hello, World!"
 You then accumulate the other language features as standalone concepts.
 Effect Systems require a shift in perception of what code is, and how it executes.
-We hope to introduce this shift so it is not overwhelming and you are inspired to keep working to achieve that shift.
+We hope to introduce Effect Systems in a way that is not overwhelming, so you are inspired to keep working toward that shift.
 
