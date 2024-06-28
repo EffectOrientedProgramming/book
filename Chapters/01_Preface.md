@@ -36,7 +36,7 @@ The code examples are available at: [github.com/EffectOrientedProgramming/exampl
 
 The code in this book uses a Scala 3 language syntax that might be unfamiliar, even to Scala developers.
 Since our focus is on the concepts of Effect Oriented Programming, we've tried to make the code examples very readable, even on mobile devices.
-To accomplish this, when functions have single parameters we generally use Scala 3's *significant indentation*:
+To accomplish this, ***when functions have single parameters*** we generally use Scala 3's *significant indentation*:
 
 ```scala 3 mdoc:compile-only
 import zio.*
@@ -48,6 +48,8 @@ Console.printLine:
 
 The argument for `Console.printLine` is on a new line instead of using parentheses, as in: `Console.printLine("hello, world")`.
 The colon (`:`) indicates that the function call uses significant indentation.
+
+Note that significant indentation only works for single-parameter functions.
 For multi-parameter functions and in cases where the single argument is very short and does not contain nested function calls, we use the traditional syntax:
 
 ```scala 3 mdoc:compile-only
