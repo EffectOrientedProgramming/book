@@ -85,7 +85,7 @@ A dominant issue is *predictability*.
 
 Consider a simple function:
 
-```scala
+```scala 3 mdoc:compile-only
 def fp(a: Int, b: Int): Int =
   a + b
 ```
@@ -101,7 +101,7 @@ A predictable function has a special name: *pure*.
 If we include something unpredictable in a pure function, the results become unpredictable.
 Here, we add a random number:
 
-```scala
+```scala 3 mdoc:compile-only
 val rand = new scala.util.Random
 
 def fu(a: Int, b: Int): Int =
@@ -118,7 +118,11 @@ Unpredictable elements are called *Effects*.
 What if we could control an Effect by putting it in a kind of box?
 Instead of using `scala.util.Random`, we can make our own random number generator:
 
-```scala
+```scala 3 mdoc:invisible manuscript-only
+class ControlledRandom extends scala.util.Random
+```
+
+```scala 3 mdoc:compile-only
 val rand = new ControlledRandom
 
 def fc(a: Int, b: Int): Int =
@@ -222,7 +226,7 @@ This new return type is what provides the channel that we need to enable easily-
 
 Consider `saveInformation`:
 
-```scala 3 mdoc
+```scala 3 mdoc manuscript-only
 import zio.*
 import zio.direct.*
 

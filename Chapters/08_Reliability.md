@@ -764,7 +764,7 @@ This helps you to identify tests that have completely locked up, or are taking a
 For example, if you are running your tests in a CI/CD pipeline, you want to ensure that your tests complete quickly, so that you can get feedback as soon as possible.
 you can use `TestAspect.timeout` to ensure that your tests complete within a certain time frame.
 
-```scala 3 mdoc:testzio 
+```scala 3 mdoc:testzio manuscript-only
 import zio.test.*
 
 def spec =

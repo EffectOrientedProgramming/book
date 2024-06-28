@@ -225,9 +225,6 @@ def partsToExamples(
           rcf
     RunnableCodeFence(codeFence, rcfs.size)
 
-  def silentTest(codeFence: CodeFence): Boolean =
-    codeFence.info.value.contains("mdoc:silent") && codeFence.body.value.contains("import zio.test")
-
   val (mainParts, testParts) =
     markdownFile
       .parts
@@ -255,8 +252,14 @@ def partsToExamples(
               )
             case codeFence: CodeFence
                 if codeFence
-                  .getMdocMode
-                  .contains("testzio") || silentTest(codeFence) =>
+                    .getMdocMode
+                    .contains("testzio") &&
+                  !codeFence
+                    .info
+                    .value
+                    .contains(
+                      "manuscript-only"
+                    ) =>
               (acc._1, acc._2 :+ codeFence)
             case codeFence: CodeFence
                 if codeFence
@@ -277,7 +280,12 @@ def partsToExamples(
                     .contains(
                       "mdoc:compile-only"
                     ) &&
-                  !silentTest(codeFence) =>
+                  !codeFence
+                    .info
+                    .value
+                    .contains(
+                      "manuscript-only"
+                    ) =>
               (acc._1 :+ codeFence, acc._2)
             case _ =>
               (acc._1, acc._2)
