@@ -161,8 +161,8 @@ def run =
 Output:
 
 ```shell
-Dough: Mixed
 Oven: Heated
+Dough: Mixed
 BreadHomeMade: Baked
 Bread: Eating
 ```
@@ -401,8 +401,8 @@ def run =
 Output:
 
 ```shell
-Dough: Mixed
 Oven: Heated
+Dough: Mixed
 BreadHomeMade: Baked
 Bread: Eating
 Oven: Turning off!
@@ -632,7 +632,6 @@ def spec =
 Output:
 
 ```shell
-TODO: TestSummary renderer?
 + eat Bread
 ```
 
@@ -722,11 +721,11 @@ Tails
 Heads
 Tails
 Heads
+Tails
+Heads
 Heads
 Heads
 Tails
-Tails
-Heads
 Num Heads = 5
 Result: 5
 ```
