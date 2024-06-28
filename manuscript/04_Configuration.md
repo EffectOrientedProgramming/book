@@ -339,8 +339,8 @@ Output:
 
 ```shell
 Toaster: Heating
-Oven: Heated
 Dough: Mixed
+Oven: Heated
 BreadHomeMade: Baked
 ToastZ: Made
 Toast: Eating
@@ -717,17 +717,17 @@ Output:
 
 ```shell
 Heads
-Tails
-Tails
-Tails
 Heads
 Heads
 Heads
 Tails
 Heads
 Heads
-Num Heads = 6
-Result: 6
+Tails
+Heads
+Tails
+Num Heads = 7
+Result: 7
 ```
 
 ```scala
