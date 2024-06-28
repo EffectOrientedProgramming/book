@@ -2,22 +2,46 @@
 
 Most existing languages are built for rapid development.
 You create a system as quickly as possible, then begin isolating areas of failure, finding and fixing bugs until the system is tolerable and can be delivered.
-Throughout the lifetime of the system, bugs are regularly discovered and fixed.
-There is no realistic expectation that you will ever achieve a completely bug-free system, just one that seems to work well enough to meet the requirements.
-This is the reality programmers have come to accept.
 
-If each piece of a traditional system is unpredictable.
-When you combine these pieces you multiply the unpredictabilities.
-The combination is significantly less predictable than the component pieces.
+Over the lifetime of a system, new needs are discovered and the system is adapted to meet those needs.
+Many of these adaptations don’t conform to the original vision and architecture of the system, and will be forced in.
+Each feature that is forced in degrades the structure and integrity of the system, and makes additional features even harder to force in.
+This degradation is commonly called *technical debt.*
+It’s a debt because you are accumulating costs that must be borne by future programmers.
+The idea is that you will one day stop adding new features, and pay down the accumulated debt by re-architecting and rewriting the system.
 
-What if we could change our thinking around the problem of building software systems?
-Imagine building small pieces that can each be reasoned about and made predictable.
-Now suppose there is a way to combine these predictable pieces to make larger parts that are just as predictable.
-Each time you combine smaller parts to create a larger part, the result inherits the predictability of its components.
-Instead of multiplying unpredictability, you maintain predictability.
-The resulting system is as predictable as any of its components.
+Often, the debt never gets paid down.
+The system eventually becomes un-maintainable.
+It is difficult or even impossible to add new functionality.
 
-## The Pursuit of Composability
+Bruce’s father was a builder and, when people wanted a remodel to their house, they would often desire enough changes that it was cheaper and more sensible to tear the house down and start over.
+This point was reached far sooner than the owners imagined.
+
+For the past generation of languages, it made sense to focus on rapid development.
+That was the most pressing problem in that era.
+Although rapid development will always be important, we have reached a new era where *modification of existing systems* is paramount.
+It is too expensive and impractical to rewrite a system that is overwhelmed with debt.
+
+The costs are numerous, especially because the business probably can’t run without the existing software:
+- You’ll need programmers to maintain the existing software while the new software is developed. 
+  This means continuing to force in new features as it gets harder and harder.
+  At the end, the software you’ve been working on is discarded and you might become redundant.
+  None of this makes for a desirable job. 
+- You need an additional team to create the new system.
+- You have no certainty that the new project will succeed, or when.
+- New functionality must be incorporated into both the old and new systems.
+- You have all the problems of software development multiplied by (at least) two.
+
+We need to change systems rather than rewrite them.
+We will always want rapid development, but we also need easy adaptability.
+What if we could shift our thinking around the problem of building software systems?
+When building a system from pieces, the parts will not become buried within the whole.
+They will still be accessible, and changeable.
+The entire system becomes far more adaptable.
+
+It’s hard to imagine what this means, and it does require a new way of thinking about programming.
+The goal of this book is to introduce you to that new way of thinking.
+## The Pursuit of Adaptability
 
 Imagine you want to create a system to build homes by assembling room modules.
 Each type of room has doors and windows, and there's a way to plug them together.
@@ -89,7 +113,9 @@ def fu(a: Int, b: Int): Int =
 Not surprisingly, adding a random number to the result takes us from predictable to unpredictable.
 `fu` never fails and always produces an `Int`, but if you call it twice with the same inputs, you get different outputs.
 
-These unpredictable elements are called *Effects*.
+If each part is unpredictable, combining those parts into a component multiplies the unpredictabilities.
+
+The unpredictable elements are called *Effects*.
 
 ## Managing Effects
 
