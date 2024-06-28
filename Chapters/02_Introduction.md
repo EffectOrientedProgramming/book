@@ -204,9 +204,18 @@ Not only are failures themselves unpredictable, exceptions are not part of the t
 This means that when you call a function, you cannot reliably know what exceptions might emerge from that function call (some languages have attempted a *parallel type system* via *exception specifications* but these experiments have universally failed).
 If we could somehow include failure information in the type system, the type checker could ensure that all possible failures are accounted for in your code.
 
-It is unpredictable, so failure is another kind of Effect and can thus be managed by the Type System. 
+It is unpredictable, so failure is another kind of Effect and can thus be managed by the Effect System. 
 
-{{ I’m not done here }}
+You are used to returning the anticipated “answer” from a function, even though you know that might not happen—there could be failures. 
+An Effect System creates a structure as the return type from a function.
+This structure contains the expected “answer,” but it also contains failure information.
+Every possible failure type is enumerated in this return structure.
+Like everything else, the return structure has a type—and this incorporates all the failure types.
+Failures are now part of the type system.
+The type-checking system can now determine, from this return type, whether your code handles all possible failures.
+
+The return type also includes the other (non-failure) Effect types.
+This new return type is what provides the channel that we need to enable easily-adaptable systems.
 ### `Unit` and Effects
 
 `Unit` can be viewed as the bare minimum of Effect tracking.
@@ -225,10 +234,12 @@ The function’s type is `String => Unit`.
 
 Returning `Unit` is the simplest indication of an Effectful function.
 You don't call it to produce a result value. 
-We know there must be a side-effect—there's no other reason to call it.
+We know there must be a side effect—there's no other reason to call it.
 
 If a function has no parameters, this is equivalent to a `Unit` argument.
 Here, an Effect is used inside the function to produce the result.
+
+A function that has a `Unit` argument and `Unit` return does *nothing* but produce side effects.
 
 ## Improving Your Life
 
@@ -239,5 +250,6 @@ Applying such operations starts to feel like a superpower, and that's what we sh
 The biggest impact of learning an Effect System is the requirement for patience.
 With most languages, the first thing you learn is to write "Hello, World!"
 You then accumulate the other language features as standalone concepts.
-Effect Systems require a shift
+Effect Systems require a shift in perception of what code is, and how it executes.
+We hope to introduce this shift so it is not overwhelming and you are inspired to keep working to achieve that shift.
 
