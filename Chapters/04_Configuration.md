@@ -601,7 +601,7 @@ We take another brief detour into `zio-test`, to provide just enough context to 
 In `zio-test`, we build tests that are Effects that return an `Assertion`.
 We will do this incrementally, starting with some logic.
 
-```scala 3 mdoc:silent manuscript-only
+```scala 3 mdoc:silent testzio
 import zio.*
 import zio.direct.*
 
@@ -614,7 +614,7 @@ val logic =
 
 Next, we turn it into a test case by giving it a name via the `test` function.
 
-```scala 3 mdoc:silent manuscript-only
+```scala 3 mdoc:silent testzio
 import zio.*
 import zio.direct.*
 

@@ -252,7 +252,8 @@ def partsToExamples(
               )
             case codeFence: CodeFence
                 if codeFence
-                    .getMdocMode
+                    .info
+                    .value
                     .contains("testzio") &&
                   !codeFence
                     .info
@@ -285,6 +286,12 @@ def partsToExamples(
                     .value
                     .contains(
                       "manuscript-only"
+                    ) &&
+                  !codeFence
+                    .info
+                    .value
+                    .contains(
+                      "testzio"
                     ) =>
               (acc._1 :+ codeFence, acc._2)
             case _ =>
