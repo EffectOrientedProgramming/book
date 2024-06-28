@@ -220,15 +220,15 @@ def run =
 Output:
 
 ```shell
-James called API [took 0s]
-Bill called API [took 1s]
+Bill called API [took 0s]
+Bruce called API [took 1s]
 James called API [took 2s]
-Bruce called API [took 3s]
 Bill called API [took 3s]
+Bruce called API [took 3s]
 James called API [took 3s]
-Bruce called API [took 3s]
 Bill called API [took 3s]
-Bruce called API [took 2s]
+Bruce called API [took 3s]
+James called API [took 3s]
 Total time [took 8s]
 ```
 
@@ -257,10 +257,10 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(185)
-Current requests: List(128, 185)
-Current requests: List(623, 128, 185)
-Current requests: List(467, 623, 128, 185)
+Current requests: List(780)
+Current requests: List(996, 780)
+Current requests: List(661, 996, 780)
+Current requests: List(434, 661, 996, 780)
 Result: Crashed the server!!
 ```
 
@@ -303,16 +303,16 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(73)
-Current requests: List(462, 73)
-Current requests: List(117, 462, 73)
-Current requests: List(193)
-Current requests: List(329, 193)
-Current requests: List(319, 329, 193)
-Current requests: List(832, 716)
-Current requests: List(716)
-Current requests: List(918, 832, 716)
-Current requests: List(413)
+Current requests: List(782)
+Current requests: List(388, 348, 782)
+Current requests: List(348, 782)
+Current requests: List(95)
+Current requests: List(292, 95)
+Current requests: List(779, 292, 95)
+Current requests: List(541, 696, 779)
+Current requests: List(696, 779)
+Current requests: List(886, 541, 696)
+Current requests: List(854)
 Result: All Requests Succeeded
 ```
 
@@ -415,7 +415,7 @@ def run =
 Output:
 
 ```shell
-Result: Calls prevented: 76 Calls made: 65
+Result: Calls prevented: 74 Calls made: 67
 ```
 
 Now we see that our code prevented the majority of the doomed calls to the external service.
@@ -559,7 +559,6 @@ def spec =
 Output:
 
 ```shell
-Failed!
 Failed!
 Failed!
 Failed!
