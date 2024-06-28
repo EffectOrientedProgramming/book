@@ -634,7 +634,6 @@ import zio.direct.*
 
 def spec =
   testCase
-// TODO: TestSummary renderer?
 ```
 
 Historically, when call we call `println`, that output disappears into the void.
