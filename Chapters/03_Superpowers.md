@@ -119,7 +119,7 @@ val logUserSignup =
     .orDie
 ```
 
-Once programs are defined in terms of Effects, we use operations from the Effect System to manage different aspects of unpredictability.
+Once programs are defined in terms of Effects, we use operations from the Effect System to add new functionality.
 Combining Effects with these operations feels like a superpower.
 The reason we call them "superpowers" is that the operations can be attached to **any** Effect.
 Operations can even be chained together.
@@ -129,11 +129,9 @@ Common operations like `timeout` are applicable to all Effects while some operat
 Ultimately this means we do not need to create bespoke operations for the many different Effects our system may have.
 
 To illustrate this we will show a few examples of common operations applied to Effects.
-Let's start with the "happy path" where we save a user to a database
-(an Effect)
-and then gradually add superpowers.
+Let's start with the "happy path" where we save a user to a database (which is an Effect) and then gradually add superpowers.
 
-To start with we save a user to a database:
+Here we save `userName` to a database via `saveUser`:
 
 ```scala 3 mdoc:silent
 val userName =
@@ -146,8 +144,20 @@ val effect0 =
     userName
 ```
 
-Effects can be run as "main" programs, embedded in other programs, or in tests.
-To run an Effect with ZIO as a "main" program, we normally do this:
+Instead of parentheses to delimit function arguments, we use Scala’s newer “colon plus indent” syntax.
+Here, `saveUser` is the function and `userName` is the single argument to that function.
+
+`effect0` is a value containing the code that produces the Effect.
+Note that defining `effect0` does not execute that code, it only holds it so it can be run at some later time.
+This is an example of *deferred execution*, which was described in the Introduction.
+By deferring the execution of an Effect, we are able to add functionality to that effect.
+
+Effects can be:
+- Run as "main" programs
+- Embedded in other programs
+- Embedded in tests.
+
+To run an Effect as a "main" program, we use the ZIO library which contains an object called `ZIOAppDefault`:
 
 ```scala 3
 object MyApp extends ZIOAppDefault:
@@ -155,16 +165,20 @@ object MyApp extends ZIOAppDefault:
     effect0
 ```
 
-In this book, to avoid the excess lines, we shorten this to:
+The overridden value of `run` must be an Effect.
+`run` is special and hands the `MyApp` object the Effect to run.
+
+For noise reduction we’ve been able to shorten this to:
 
 ```scala 3 mdoc:runzio
 def run =
   effect0
 ```
 
-By default, the `saveUser` Effect runs in the "happy path" so it will not fail.
+`effect0` runs in the "happy path" so it will not fail.
 
-We can explicitly specify the way in which this Effect will run by overriding the `bootstrap` value:
+To specify the way this Effect runs, we configure the program by overriding the `bootstrap` value. A `bootstrap` creates a scenario for the execution of the program.
+Here we explicitly specify the happy path:
 
 ```scala 3 mdoc:runzio
 override val bootstrap =
@@ -174,9 +188,9 @@ def run =
   effect0
 ```
 
-In real systems, assuming the "happy path" leaves strange unhandled errors lurking in your code.
+Don’t assume the happy path or you’ll end up with strange unhandled errors lurking in your code.
 
-We override the `bootstrap` value to simulate failures in the following examples.
+We can override the `bootstrap` value to simulate failure:
 
 ```scala 3 mdoc:runzio
 override val bootstrap =
@@ -186,21 +200,22 @@ def run =
   effect0
 ```
 
-The program logs and returns the failure.
+This program logs and returns the failure.
 
 ## Retry
 
 Sometimes things work when you keep trying.  
-We can retry `effect0` with the `retryN` operation:
+We can retry `effect0` by attaching the `retryN` operation:
 
 ```scala 3 mdoc:silent
 val effect1 =
   effect0.retryN(2)
 ```
 
-The Effect with the retry behavior becomes a new Effect and can optionally be assigned to a `val` (as is done here).
+`effect0.retryN` becomes a new Effect and is assigned to a `val` to create `effect1`, which also has delayed execution.
+Almost always, when you apply an operation to an Effect, you get a new Effect.
 
-Now we run the new Effect in a scenario that works on the third try:
+We run the new Effect in the scenario `doesNotWorkInitially` which works on the third try:
 
 ```scala 3 mdoc:runzio
 override val bootstrap =
@@ -210,11 +225,11 @@ def run =
   effect1
 ```
 
-The output shows that running the Effect worked after two retries.
+From the output you can see that running the Effect works after the initial attempt plus two retries.
 
 ### What If It Never Succeeds?
 
-In the `neverWorks` scenario, the Effect fails its initial attempt and subsequent retries:
+In the `neverWorks` scenario, the Effect fails its initial attempt and all subsequent retries:
 
 ```scala 3 mdoc:runzio
 override val bootstrap =
@@ -224,11 +239,12 @@ def run =
   effect1
 ```
 
-After the failed retries, the program returns the error.
+After the failed retries, the program returns an error.
 
 ## Modify Error
 
-Let's define a new Effect that chains a nicer error onto the previously defined operations (the retries) using `orElseFail` which transforms any failure into a user-friendly error:
+Let's attach a nicer error onto the previously defined operations (the retries). 
+We’ll use `orElseFail` to transform the failure into a user-friendly error:
 
 ```scala 3 mdoc:silent
 val effect2 =
@@ -236,8 +252,10 @@ val effect2 =
     "ERROR: User could not be saved"
 ```
 
-We altered the behavior without restructuring the original Effect.
-Running this new Effect in the `neverWorks` scenario will produce the error:
+`orElseFail` is attached to the prior Effect that contains the retry.
+This creates a new Effect that has both error handling operations.
+
+Running this new Effect in the `neverWorks` scenario produces the error:
 
 ```scala 3 mdoc:runzio
 override val bootstrap =
@@ -247,14 +265,12 @@ def run =
   effect2
 ```
 
-The `orElseFail` is combined with the prior Effect that has the retry,
-  creating another new Effect that has both error handling operations.
-
+We alter the behavior but without restructuring the original Effect.
 ## Timeout
 
 Sometimes an Effect fails quickly, as we saw with retries.
-Sometimes an Effect taking too long is itself a failure.
-The `timeoutFail` operation can be chained to our previous Effect to specify a maximum time the Effect can run for, before producing an error:
+Sometimes an Effect that takes too long is itself a failure.
+The `timeoutFail` operation can be chained to our previous Effect to specify a maximum time the Effect can run before producing an error:
 
 ```scala 3 mdoc:silent
 val effect3 =
@@ -276,12 +292,12 @@ def run =
   effect3
 ```
 
-The Effect took too long and produced the error.
+The Effect takes too long and produces the error.
 
 ## Fallback
 
-In some cases there may be fallback behavior for failed Effects.
-One option is to use the `orElse` operation with a fallback Effect:
+You can add fallback behavior for failed Effects.
+One option is to use `orElse` with a fallback operation to run when an Effect fails:
 
 ```scala 3 mdoc:silent
 val effect4 =
@@ -290,7 +306,7 @@ val effect4 =
       userName
 ```
 
-`sendToManualQueue` represents something we can do when the user can't be saved.
+`sendToManualQueue` is what happens when the user can't be saved.
 
 Let's run the new Effect in the `neverWorks` scenario to ensure we reach the fallback:
 
@@ -302,11 +318,11 @@ def run =
   effect4
 ```
 
-The retries do not succeed so the user is sent to the fallback Effect.
+The retries do not succeed so the fallback is applied.
 
 ## Logging
 
-We want to ensure that some logging happens after the logic completes, regardless of failures.
+To ensure that some logging happens after the logic completes, regardless of failures, we use `withFinalizer`:
 
 ```scala 3 mdoc:silent
 val effect5 =
@@ -314,7 +330,8 @@ val effect5 =
     _ => logUserSignup
 ```
 
-`withFinalizer` lets us attach this behavior, without changing the types of the original effect.
+`withFinalizer` expects a function as its argument; `_ => logUserSignup` is a function that takes no arguments and calls `logUserSignup`.
+`withFinalizer` attaches this behavior without changing the types of the original Effect.
 
 ```scala 3 mdoc:runzio
 override val bootstrap =
