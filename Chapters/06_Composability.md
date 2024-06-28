@@ -546,7 +546,7 @@ def run =
 We covered the deficiencies of throwing functions in the previous chapter, so we will not belabor the point here.
 We still want to show how they can be converted to Effects and cleanly fit into our composability story.
 
-```scala 3 mdoc
+```scala 3 mdoc:compile-only
 openFile("file1").summaryFor("space")
 ```
 
