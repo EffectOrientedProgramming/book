@@ -413,6 +413,12 @@ def summarizeZ(article: String) =
       4000.millis
 ```
 
+```scala
+def run =
+  summarizeZ("space")
+```
+
+
 Now we have a way to confine the impact that this function has on our application.
 Long-running invocations will be interrupted, although `attemptBlockingInterrupt` comes with a performance cost.
 Carefully consider the trade-offs when using this function.
@@ -675,19 +681,9 @@ File - contains(stock market)
 Wiki - articleFor(stock market)
 AI - summarize - start
 AI - summarize - end
-File - write: market is not rational
-Network - Getting headline
-Analytics - Scanning for topic
-Analytics - topic: Some(stock market)
-File - OPEN
-File - contains(stock market)
-Wiki - articleFor(stock market)
-AI - summarize - start
-AI - summarize - end
-File - write: market is not rational
+AI **INTERRUPTED**
 File - CLOSE
-File - CLOSE
-Result: market is not rational
+Result: AITooSlow()
 ```
 
 ```scala
@@ -709,29 +705,9 @@ File - contains(stock market)
 Wiki - articleFor(stock market)
 AI - summarize - start
 AI - summarize - end
-File - write: market is not rational
-Network - Getting headline
-Analytics - Scanning for topic
-Analytics - topic: Some(stock market)
-File - OPEN
-File - contains(stock market)
-Wiki - articleFor(stock market)
-AI - summarize - start
-AI - summarize - end
-File - write: market is not rational
-Network - Getting headline
-Analytics - Scanning for topic
-Analytics - topic: Some(stock market)
-File - OPEN
-File - contains(stock market)
-Wiki - articleFor(stock market)
-AI - summarize - start
-AI - summarize - end
-File - write: market is not rational
+AI **INTERRUPTED**
 File - CLOSE
-File - CLOSE
-File - CLOSE
-Result: market is not rational
+Result: AITooSlow()
 ```
 
 Repeating is a form of composability, because you are composing a program with itself
