@@ -7,3 +7,5 @@ Support site for the book *Effect Oriented Programming*.
 ## [Examples](https://github.com/EffectOrientedProgramming/examples)
 
 ## [Book Repository](https://github.com/EffectOrientedProgramming/book)
+
+## [Error Reports](https://github.com/EffectOrientedProgramming/examples/issues)
