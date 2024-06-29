@@ -757,7 +757,7 @@ It simply kills the job and won't actually help you find the specific test respo
 
 A common technique is to define a base test class for your project that all of your tests extend.
 In this class, you can set a default upper limit on test duration.
-When a test violates this limit, it will fail with a helpful error message.
+When a test violates this limit, it will fail with a helpful message.
 
 This helps you to identify tests that have completely locked up, or are taking an unreasonable amount of time to complete.
 
