@@ -766,14 +766,17 @@ def spec =
         24.hours
 
     defer:
-      val fork =
-        nightlyBatch.fork.run
-      timeTravel.run
-      fork.join.run
+      nightlyBatch
+        .zipPar(timeTravel)
+        .run
+//      val fork =
+//        nightlyBatch.fork.run
+//      timeTravel.run
+//      fork.join.run
 
       assertCompletes
 
-// TODO: update prose on not race
+// TODO: update prose on zip
 ```
 
 The `race` is between `nightlyBatch` and `timeTravel`.
