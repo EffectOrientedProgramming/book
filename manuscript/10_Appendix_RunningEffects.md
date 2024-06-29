@@ -131,6 +131,7 @@ However, even if you are not trying to write demo code for a book, it is very li
 Even for the smallest programs, it is slow, error-prone, and boring.
 
 ```scala
+// TODO This is blowing up.
 import zio.test.*
 
 def spec =
@@ -157,7 +158,7 @@ Output:
 
 ```shell
 - console works
-  Exception in thread "zio-fiber-1911826038" scala.NotImplementedError: an implementation is missing
+  Exception in thread "zio-fiber-882016888" scala.NotImplementedError: an implementation is missing
   	at scala.Predef$.$qmark$qmark$qmark(Predef.scala:344)
   	at zio.Console$.print$$anonfun$6(Console.scala:122)
   	at zio.ZIO$.consoleWith$$anonfun$1(ZIO.scala:3121)
@@ -166,7 +167,7 @@ Output:
   	at zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19)
   	at logic(<input>:82)
   	at zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19)
-  	at Chapter59Spec.spec(<input>:118)
+  	at Chapter59Spec.spec(<input>:119)
 ```
 
 ## Interop with existing/legacy code
