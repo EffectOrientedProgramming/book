@@ -32,7 +32,7 @@ Here, `saveUser` is the function and `userName` is the single argument to that f
 `effect0` is a value containing the code that produces the Effect.
 Note that defining `effect0` does not execute that code, it only holds it so it can be run at some later time.
 This is an example of *deferred execution*, described in the Introduction.
-By deferring the execution of an Effect, we can add functionality to that effect.
+By deferring the execution of an Effect, we can add functionality to that Effect.
 
 Effects can be:
 - Run as "main" programs
@@ -212,7 +212,7 @@ val effect3 =
 The result of this call is a function that also takes a single argument that we pass using significant indentation.
 Although we prefer significant indentation whenever possible, sometimes the code is easier to read by introducing parentheses. 
 
-If the effect does not complete within the time limit, it is canceled and returns our error message.
+If the Effect does not complete within the time limit, it is canceled and returns our error message.
 Timeouts can be added to any Effect.
 
 The `slow` scenario runs longer than our specified time limit of five seconds:
@@ -228,7 +228,7 @@ def run =
 Output:
 
 ```shell
-Result: User saved
+Result: ** Save timed out **
 ```
 
 The Effect takes too long and produces the error.
@@ -292,7 +292,6 @@ def run =
 Output:
 
 ```shell
-Log: Signup initiated for Morty
 Result: User saved
 ```
 
@@ -318,8 +317,7 @@ def run =
 Output:
 
 ```shell
-Log: Signup initiated for Morty
-Result: (PT5.030713S,User saved)
+Result: (PT0.016316058S,User saved)
 ```
 
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.
@@ -422,12 +420,12 @@ Result: User saved
 A `defer` block creates a new Effect, which is returned by `run`.
 The `.run` called on each Effect constructs the sequence.
 Even though we say `.run`, the Effects are still deferred.
-They get run, in order, when the effect produced by the `defer` block is run.
+They get run, in order, when the Effect produced by the `defer` block is run.
 
 The `.run` method is only available for Effect values.
 We explicitly call `.run` whenever we want to sequence Effects.
-If we do not call `.run`, we end up with an un-executed effect.
-We want this explicit control so we can attach operations to our effects before we run them.
+If we do not call `.run`, we end up with an un-executed Effect.
+We want this explicit control so we can attach operations to our Effects before we run them.
 
 We can assign the new Effect to a `val` like we did with `effect1` - `effect7`:
 
@@ -453,7 +451,7 @@ Result: User saved
 ```
 
 Having 2 versions of `run` seems confusing, but they serve different purposes:
-- Attaching `.run` to effects in a `defer` establishes the order of execution for that effect.
+- Attaching `.run` to Effects in a `defer` establishes the order of execution for that Effect.
   This can happen many times throughout your program.
 - Assigning an Effect to `def run` actually executes the program.
   This typically happens only once in your code.
@@ -530,7 +528,7 @@ value repeatN is not a member of String - did you mean String.repeat?
 Running an Effect produces its result, not the deferred computation. Thus there’s no appropriate place to attach `repeatN(3)`.
 
 All calls to `.run` must happen within a `defer` block, so when `effect8` is defined, we haven’t executed anything—we’ve only created a new Effect.
-A `defer` block creates a new Effect that describes a program that knows the order in which to execute the individual effects.
+A `defer` block creates a new Effect that describes a program that knows the order in which to execute the individual Effects.
 But that Effect only runs when the program is executed.
 
 ```scala
@@ -543,7 +541,7 @@ val surroundedProgram =
     Console.printLine("**After**").run
 ```
 
-`surroundedProgram` only runs when we pass it to the effect system:
+`surroundedProgram` only runs when we pass it to the Effect System:
 
 ```scala
 def run =

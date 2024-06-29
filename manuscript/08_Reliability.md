@@ -15,7 +15,7 @@ For our purposes,
 If failures do occur, the system either recovers or shuts down in a well-defined manner.
 
 Effects are the parts of your system that are unpredictable.
-When we talk about reliability in terms of effects, the goal is to mitigate these unpredictabilities.
+When we talk about reliability in terms of Effects, the goal is to mitigate these unpredictabilities.
 For example, if you make a request of a remote service, you don't know if the network is working or if that service is online.
 Also, the service might be under a heavy load and slow to respond.
 There are strategies to compensate for those issues without invasive restructuring.
@@ -23,8 +23,8 @@ For example, we can attach fallback behavior:
   make a request to our preferred service, and if we don't get a response soon enough, make a request to a secondary service.
 
 Traditional coding often requires extensive re-architecting to apply and adapt reliability strategies, and further rewriting if they fail.
-In a functional effect-based system, reliability strategies can be easily incorporated and modified.
-This chapter demonstrates components that enhance effect reliability.
+In a functional Effect-based system, reliability strategies can be easily incorporated and modified.
+This chapter demonstrates components that enhance Effect reliability.
 
 ## Caching
 
@@ -72,7 +72,7 @@ val makePopularService =
     PopularService(cloudStorage.retrieve)
 ```
 
-To construct a `PopularService`, we give it the effect that looks up content.
+To construct a `PopularService`, we give it the Effect that looks up content.
 In this version, it goes directly to the `CloudStorage` provider.
 
 Suppose each request to our `CloudStorage` provider costs one dollar.
@@ -220,14 +220,14 @@ def run =
 Output:
 
 ```shell
-Bill called API [took 0s]
-Bruce called API [took 1s]
+Bruce called API [took 0s]
+Bill called API [took 1s]
 James called API [took 2s]
-Bill called API [took 3s]
 Bruce called API [took 3s]
+Bill called API [took 3s]
 James called API [took 3s]
-Bill called API [took 3s]
 Bruce called API [took 3s]
+Bill called API [took 3s]
 James called API [took 3s]
 Total time [took 8s]
 ```
@@ -257,10 +257,10 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(504)
-Current requests: List(453, 504)
-Current requests: List(810, 453, 504)
-Current requests: List(818, 810, 453, 504)
+Current requests: List(602)
+Current requests: List(799, 602)
+Current requests: List(260, 799, 602)
+Current requests: List(959, 260, 799, 602)
 Result: Crashed the server!!
 ```
 
@@ -303,16 +303,16 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(893)
-Current requests: List(399, 893)
-Current requests: List(272, 399, 893)
-Current requests: List(279)
-Current requests: List(836, 279)
-Current requests: List(912, 836, 279)
-Current requests: List(93, 912)
-Current requests: List(750, 93, 912)
-Current requests: List(316, 750, 93)
-Current requests: List(505)
+Current requests: List(772)
+Current requests: List(455, 772)
+Current requests: List(229, 455, 772)
+Current requests: List(663, 229)
+Current requests: List(297, 663)
+Current requests: List(520, 297, 663)
+Current requests: List(254, 520, 297)
+Current requests: List(155, 254)
+Current requests: List(822, 155, 254)
+Current requests: List(527)
 Result: All Requests Succeeded
 ```
 
@@ -379,7 +379,7 @@ val makeCircuitBreaker =
   )
 ```
 
-Once again, the only thing that we need to do is wrap our original effect with the `CircuitBreaker`.
+Once again, the only thing that we need to do is wrap our original Effect with the `CircuitBreaker`.
 
 ```scala
 import CircuitBreaker.CircuitBreakerOpen
@@ -559,19 +559,6 @@ def spec =
 Output:
 
 ```shell
-Failed!
-Failed!
-Failed!
-Failed!
-Failed!
-Failed!
-Failed!
-Failed!
-Failed!
-Failed!
-Failed!
-Failed!
-Failed!
 Failed!
 Failed!
 Success!
