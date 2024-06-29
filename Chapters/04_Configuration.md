@@ -1,22 +1,20 @@
 # Configuration
 
-Altering the behavior of your application based on values provided at runtime is a perennial challenge in software.
-The techniques for solving this problem are diverse, impressive, and often completely bewildering.
+Initializing an application from values provided at startup is a perennial challenge in software.
+Solutions are diverse, impressive, and often completely bewildering.
 
-One reason to modularize an application into "parts" is that the relationship between the parts can be expressed and also changed depending on the needs for a given execution path.  
-Typically, this approach to breaking things into parts and expressing what they need, is called "Dependency Inversion."
+One reason to modularize an application into "parts" is that the relationship between the parts can be expressed and changed based on a particular path of execution through the program.  
+Breaking things into parts and expressing what they need is commonly called *Dependency Inversion*. 
+Dependency Inversion enables *Dependency Injection* which produces more flexible code.
 
-By following "Dependency Inversion", you enable "Dependency Injection", which produces more flexible code.
+Instead of manually constructing and passing all dependencies through the application,  an "Injector" automatically provides instances of those dependencies when they are needed.
 
-Instead of manually constructing and passing all your dependencies through the application, you have an "Injector" that automatically provides instances where needed.
+Understanding these terms is not crucial for writing Effect Oriented code, but helps when building the layers in your application.
+{{TODO: Do we need to describe “layers”? }}
 
-Understanding these terms is not crucial for writing Effect Oriented code, but will help when building the layers in your application.
+Common approaches to implement Dependency Injection rely on runtime magic (e.g. reflection) and require everything to be created through a Dependency Injection manager (the “Injector”). This complicates construction and can make it difficult or impossible to express dependencies at compile time.
 
-In the world of Java these dependent parts are usually expressed through annotations (e.g. `@Autowired` in Spring).
-But these approaches often rely on runtime magic (e.g. reflection) and require everything to be created through a Dependency Injection manager, complicating construction flow.  
-Importantly, it is difficult or impossible to express our dependencies at compile time.
-
-Instead, if functionality expressed its dependencies through the regular type system, the compiler could verify that the needed parts are available given a particular path of execution (e.g. main app, test suite one, test suite two).
+If we instead express dependencies through the type system, the compiler can verify that the needed parts are available given a particular path of execution (main app, test suite one, test suite two, etc.).
 
 ## What ZIO Provides
 
@@ -63,7 +61,7 @@ object Dough:
 
 ## Step 1: Provide Dependencies
 
-We must provide all required dependencies to an effect before you can run it.
+We must provide all required dependencies to an Effect before you can run it.
 
 ```scala 3 mdoc:runzio
 import zio.*
@@ -133,7 +131,7 @@ object Bread:
 
 Something around how like typical DI, the "graph" of dependencies gets resolved "for you"
 This typically happens in some completely new/custom phase, that does follow standard code paths.
-Dependencies on effects propagate to effects which use effects.
+Dependencies on Effects propagate to Effects which use Effects.
 
 ```scala 3 mdoc:runzio
 import zio.*
@@ -364,7 +362,7 @@ def run =
 
 ## Step 8: Construction Failure
 
-Since dependencies can be built with effects, this means that they can fail.
+Since dependencies can be built with Effects, this means that they can fail.
 
 ```scala 3 mdoc:invisible
 import zio.*
@@ -585,7 +583,7 @@ This was a longer detour than our other steps, but a common requirement in real-
 
 Effects need access to external systems thus are unpredictable.  
 It is great to have these abilities for responding to the messiness of the real world, but we want to be able to test our programs in a predictable way.
-So how do we write tests for effects that are predictable?
+So how do we write tests for Effects that are predictable?
 With ZIO we can replace the external systems with predictable ones when running our tests.
 Rather than actually trying to get bread from our living, fallible friend, we can create an ideal friend that will always give us `Bread`.
 
@@ -736,15 +734,15 @@ def spec =
 
 The `Random` Effect uses an injected something which when running the ZIO uses the system's unpredictable random number generator.  In ZIO Test the `Random` Effect uses a different something which can predictably generate "random" numbers.  `TestRandom` provides a way to define what those numbers are.  This example feeds in the `Int`s `1` and `2` so the first time we ask for a random number we get `1` and the second time we get `2`.
 
-Anything an effect needs (from the system or the environment) can be substituted in tests for something predictable.  For example, an effect that fetches users from a database can be simulated with a predictable set of users instead of having to setup a test database with predictable users.
+Anything an Effect needs (from the system or the environment) can be substituted in tests for something predictable.  For example, an Effect that fetches users from a database can be simulated with a predictable set of users instead of having to setup a test database with predictable users.
 
-When your program treats randomness as an effect, testing unusual scenarios becomes straightforward.
+When your program treats randomness as an Effect, testing unusual scenarios becomes straightforward.
 You can preload "Random" data that will result in deterministic behavior.
 ZIO gives you built-in methods to support this.
 
 ### Time
 
-Even time can be simulated as using the clock is an effect.
+Even time can be simulated as using the clock is an Effect.
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -782,7 +780,7 @@ The `race` is between `nightlyBatch` and `timeTravel`.
 It completes when the first Effect succeeds and cancels the losing Effect, using the Effect System's cancellation mechanism.
 
 By default, in ZIO Test, the clock does not change unless instructed to.
-Calling a time based effect like `timeout` would hang indefinitely with a warning like:
+Calling a time based Effect like `timeout` would hang indefinitely with a warning like:
 
 ```terminal
 Warning: A test is using time, but is not 
@@ -791,8 +789,8 @@ in the test hanging.  Use TestClock.adjust
 to manually advance the time.
 ```
 
-To test time based effects we need to `fork` those effects so that then we can adjust the clock.
-After adjusting the clock, we can then `join` the effect where in this case the timeout has then been reached causing the effect to return a `None`.
+To test time based Effects we need to `fork` those Effects so that then we can adjust the clock.
+After adjusting the clock, we can then `join` the Effect where in this case the timeout has then been reached causing the Effect to return a `None`.
 
 Using a simulated Clock means that we no longer rely on real-world time for time.
 So this example runs in milliseconds of real-world time instead of taking an actual 1 second to hit the timeout.
@@ -801,5 +799,5 @@ They are also more predictable as the time adjustments are fully controlled by t
 
 #### Targeting Failure-Prone Time Bands
 
-Using real-world time also can be error prone because effects may have unexpected results in certain time bands.
+Using real-world time also can be error prone because Effects may have unexpected results in certain time bands.
 For instance, if you have code that gets the time and it happens to be 23:59:59, then after some operations that take a few seconds, you get some database records for the current day, those records may no longer be the day associated with previously received records.  This scenario can be very hard to test for when using real-world time.  When using a simulated clock in tests, you can write tests that adjust the clock to reliably reproduce the condition.

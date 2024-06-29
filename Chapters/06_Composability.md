@@ -23,7 +23,7 @@ Issues that complicate composition include:
 
 These concepts and their competing solutions will be expanded on and contrasted with ZIO throughout this chapter.
 
-We will utilize several pre-defined functions to highlight less-complete effect alternatives.
+We will utilize several pre-defined functions to highlight less-complete Effect alternatives.
 The implementations are deliberately hidden to highlight the surprising nature of executing Effects and maintain focus on composability.
 
 ## Universal Composability
@@ -678,7 +678,7 @@ In order for Effect Systems to have recovery operations, they must know when fai
 
 ## Fully Composed
 
-Now that we have all of these well-defined effects, we can wield them in any combination and sequence we desire.
+Now that we have all of these well-defined Effects, we can wield them in any combination and sequence we desire.
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -713,7 +713,7 @@ val researchHeadline =
 ```
 
 We consider this example the most significant achievement of this book.
-Without a powerful, general effect type, you are constantly struggling to jump from 1 limited effect to the next.
+Without a powerful, general Effect type, you are constantly struggling to jump from 1 limited Effect to the next.
 With ZIO, you can build real-word, complex applications that all flow cleanly into one supreme type.
 
 ```scala 3

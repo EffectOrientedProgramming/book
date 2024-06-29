@@ -9,7 +9,7 @@ For our purposes,
 If failures do occur, the system either recovers or shuts down in a well-defined manner.
 
 Effects are the parts of your system that are unpredictable.
-When we talk about reliability in terms of effects, the goal is to mitigate these unpredictabilities.
+When we talk about reliability in terms of Effects, the goal is to mitigate these unpredictabilities.
 For example, if you make a request of a remote service, you don't know if the network is working or if that service is online.
 Also, the service might be under a heavy load and slow to respond.
 There are strategies to compensate for those issues without invasive restructuring.
@@ -17,8 +17,8 @@ For example, we can attach fallback behavior:
   make a request to our preferred service, and if we don't get a response soon enough, make a request to a secondary service.
 
 Traditional coding often requires extensive re-architecting to apply and adapt reliability strategies, and further rewriting if they fail.
-In a functional effect-based system, reliability strategies can be easily incorporated and modified.
-This chapter demonstrates components that enhance effect reliability.
+In a functional Effect-based system, reliability strategies can be easily incorporated and modified.
+This chapter demonstrates components that enhance Effect reliability.
 
 ## Caching
 
@@ -132,7 +132,7 @@ val makePopularService =
     PopularService(cloudStorage.retrieve)
 ```
 
-To construct a `PopularService`, we give it the effect that looks up content.
+To construct a `PopularService`, we give it the Effect that looks up content.
 In this version, it goes directly to the `CloudStorage` provider.
 
 Suppose each request to our `CloudStorage` provider costs one dollar.
@@ -623,7 +623,7 @@ val makeCircuitBreaker =
   )
 ```
 
-Once again, the only thing that we need to do is wrap our original effect with the `CircuitBreaker`.
+Once again, the only thing that we need to do is wrap our original Effect with the `CircuitBreaker`.
 
 ```scala 3 mdoc:runzio:liveclock
 import zio.*

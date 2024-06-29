@@ -15,7 +15,7 @@ Required Operations:
 - Update the value
 - Read the current value
 
-Both of these operations are effects.
+Both of these operations are Effects.
 In order to confidently use them, we need certain guarantees about the behavior:
 
 - The underlying value cannot be changed during a read
@@ -164,12 +164,12 @@ If it has changed, then the entire function that was passed into `update` is re-
 The higher the parallelism, or the longer the operation takes, the higher the likelihood of a compare-and-swap retry.
 
 This retry behavior is safe with pure functions, which can be executed an arbitrary number of times.
-However, it is completely inappropriate for effects, which should only be executed a single time.
+However, it is completely inappropriate for Effects, which should only be executed a single time.
 For these situations, we need a specialized variation of `Ref`
 
 ## Reliable Effects
 
-`Ref.Synchronized` guarantees only a single execution of the `update` body and any of the effects contained inside.
+`Ref.Synchronized` guarantees only a single execution of the `update` body and any of the Effects contained inside.
 The only change required is replacing `Ref.make` with `Ref.Synchronized.make`
 
 ```scala 3 mdoc:silent
@@ -201,4 +201,4 @@ Now we see exactly the number of alerts that we expected.
 This correctness comes with a cost though, as the name of this type implies.
 Each of your updates will run sequentially, despite initially launching them all in parallel.
 This is the only known way to avoid retries.
-Try to structure your code to minimize the coupling between effects and updates, and use this type only when necessary.
+Try to structure your code to minimize the coupling between Effects and updates, and use this type only when necessary.
