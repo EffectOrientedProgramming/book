@@ -161,8 +161,8 @@ def run =
 Output:
 
 ```shell
-Dough: Mixed
 Oven: Heated
+Dough: Mixed
 BreadHomeMade: Baked
 Bread: Eating
 ```
@@ -716,18 +716,18 @@ def run =
 Output:
 
 ```shell
+Tails
 Heads
-Heads
+Tails
 Heads
 Tails
 Heads
 Heads
 Tails
+Tails
 Heads
-Tails
-Tails
-Num Heads = 6
-Result: 6
+Num Heads = 5
+Result: 5
 ```
 
 ```scala
