@@ -376,14 +376,16 @@ def openFile(path: String) =
     override def contains(
         searchTerm: String
     ): Boolean =
-      println:
-        s"File - contains($searchTerm)"
 
-      searchTerm match
-        case "wheel" | "unicode" =>
-          true
-        case _ =>
-          false
+      val result =
+        searchTerm match
+          case "wheel" | "unicode" =>
+            true
+          case _ =>
+            false
+      println:
+        s"File - contains($searchTerm) => $result"
+      result
 
     override def summaryFor(
         searchTerm: String
@@ -392,6 +394,7 @@ def openFile(path: String) =
         s"File - summaryFor($searchTerm)"
       )
       if (searchTerm == "unicode")
+        println("File - * Threw Exception *")
         throw Exception(
           s"No summary available for $searchTerm"
         )
@@ -595,7 +598,7 @@ def summarize(article: String): String =
   else if (article.contains("genome"))
     "The human genome is huge!"
   else if (article.contains("long article"))
-    "content summary"
+    "short summary"
   else
     ???
 ```
@@ -630,20 +633,28 @@ def summarizeZ(article: String) =
       4000.millis
 ```
 
-```scala 3 mdoc
+Now we have a way to confine the impact that this function has on our application.
+
+
+```scala 3 mdoc:runzio
+def run =
+  summarizeZ("long article")
+```
+
+Long-running invocations will be interrupted if they take too long.
+
+```scala 3 mdoc:runzio
 def run =
   summarizeZ("space")
 ```
 
+However, `attemptBlockingInterrupt` comes with a performance cost.
+Carefully consider the trade-offs between implementing an upper bound vs slowing down the average run when using this function.
 
-Now we have a way to confine the impact that this function has on our application.
-Long-running invocations will be interrupted, although `attemptBlockingInterrupt` comes with a performance cost.
-Carefully consider the trade-offs when using this function.
-
-## Final Collective Criticism
+## Losing your Composure
 
 ```scala 3
-// TODO: better subhead name - Composed Pain? Compound Fracture?
+// TODO: James/Bruce, like the new name? Another option - Compound Fracture
 ```
 
 Each of original approaches gives you benefits, but you can't easily assemble a program that utilizes all of them.
@@ -651,9 +662,13 @@ They must be manually transformed into each other.
 
 Instead of the best of all worlds, you get the pain of all worlds.
 eg `Closeable[Future[Either[Throwable, A]]]`
-The ordering of the nesting is significant, and not easily changed.
+The ordering of the nesting is significant, confusing, and not easily changed.
 
 ### Short-circuiting
+
+```scala 3
+// TODO Where does this short-circuiting section fit?
+```
 
 Short-circuiting is an essential part of a user-friendly Effect Systems.
 They enable a linear sequence of expressions which helps make code much easier to understand.
@@ -696,6 +711,10 @@ val researchHeadline =
       writeToFileZ(summaryFile, summary).run
       summary
 ```
+
+We consider this example the most significant achievement of this book.
+Without a powerful, general effect type, you are constantly struggling to jump from 1 limited effect to the next.
+With ZIO, you can build real-word, complex applications that all flow cleanly into one supreme type.
 
 ```scala 3
 // TODO: Emphasize just how important this example is.
@@ -816,6 +835,16 @@ override val bootstrap =
 
 def run =
   researchHeadline.repeatN(2)
+```
+
+```scala 3 mdoc:runzio
+override val bootstrap =
+  stockMarketHeadline
+
+def run =
+  researchHeadline.timeoutFail(
+    "Super strict timeout"
+  )(1.millis)
 ```
 
 Repeating is a form of composability, because you are composing a program with itself
