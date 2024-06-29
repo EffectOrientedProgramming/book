@@ -251,7 +251,7 @@ Output:
 
 ```shell
 File - OPEN
-File - contains(topicOfInterest)
+File - contains(topicOfInterest) => false
 File - CLOSE
 Result: false
 ```
@@ -413,17 +413,41 @@ def summarizeZ(article: String) =
       4000.millis
 ```
 
+Now we have a way to confine the impact that this function has on our application.
+
+
+```scala
+def run =
+  summarizeZ("long article")
+```
+
+Output:
+
+```shell
+AI - summarize - start
+AI - summarize - end
+Result: AITooSlow()
+```
+
+Long-running invocations will be interrupted if they take too long.
+
 ```scala
 def run =
   summarizeZ("space")
 ```
 
+Output:
 
-Now we have a way to confine the impact that this function has on our application.
-Long-running invocations will be interrupted, although `attemptBlockingInterrupt` comes with a performance cost.
-Carefully consider the trade-offs when using this function.
+```shell
+AI - summarize - start
+AI **INTERRUPTED**
+Result: AITooSlow()
+```
 
-## Final Collective Criticism
+However, `attemptBlockingInterrupt` comes with a performance cost.
+Carefully consider the trade-offs between implementing an upper bound vs slowing down the average run when using this function.
+
+## Losing your Composure
 
 ```scala
 
@@ -432,7 +456,7 @@ Carefully consider the trade-offs when using this function.
 Output:
 
 ```shell
-TODO: better subhead name - Composed Pain? Compound Fracture?
+TODO: James/Bruce, like the new name? Another option - Compound Fracture
 ```
 
 Each of original approaches gives you benefits, but you can't easily assemble a program that utilizes all of them.
@@ -440,9 +464,19 @@ They must be manually transformed into each other.
 
 Instead of the best of all worlds, you get the pain of all worlds.
 eg `Closeable[Future[Either[Throwable, A]]]`
-The ordering of the nesting is significant, and not easily changed.
+The ordering of the nesting is significant, confusing, and not easily changed.
 
 ### Short-circuiting
+
+```scala
+
+```
+
+Output:
+
+```shell
+TODO Where does this short-circuiting section fit?
+```
 
 Short-circuiting is an essential part of a user-friendly Effect Systems.
 They enable a linear sequence of expressions which helps make code much easier to understand.
@@ -482,6 +516,10 @@ val researchHeadline =
       writeToFileZ(summaryFile, summary).run
       summary
 ```
+
+We consider this example the most significant achievement of this book.
+Without a powerful, general effect type, you are constantly struggling to jump from 1 limited effect to the next.
+With ZIO, you can build real-word, complex applications that all flow cleanly into one supreme type.
 
 ```scala
 
@@ -548,8 +586,9 @@ Network - Getting headline
 Analytics - Scanning for topic
 Analytics - topic: Some(unicode)
 File - OPEN
-File - contains(unicode)
+File - contains(unicode) => true
 File - summaryFor(unicode)
+File - * Threw Exception *
 File - CLOSE
 Result: NoSummaryAvailable(unicode)
 ```
@@ -571,7 +610,7 @@ Network - Getting headline
 Analytics - Scanning for topic
 Analytics - topic: Some(barn)
 File - OPEN
-File - contains(barn)
+File - contains(barn) => false
 Wiki - articleFor(barn)
 File - CLOSE
 Result: NoWikiArticleAvailable()
@@ -595,7 +634,7 @@ Network - Getting headline
 Analytics - Scanning for topic
 Analytics - topic: Some(space)
 File - OPEN
-File - contains(space)
+File - contains(space) => false
 Wiki - articleFor(space)
 AI - summarize - start
 AI **INTERRUPTED**
@@ -620,7 +659,7 @@ Network - Getting headline
 Analytics - Scanning for topic
 Analytics - topic: Some(genome)
 File - OPEN
-File - contains(genome)
+File - contains(genome) => false
 Wiki - articleFor(genome)
 AI - summarize - start
 AI - summarize - end
@@ -648,7 +687,7 @@ Network - Getting headline
 Analytics - Scanning for topic
 Analytics - topic: Some(stock market)
 File - OPEN
-File - contains(stock market)
+File - contains(stock market) => false
 Wiki - articleFor(stock market)
 AI - summarize - start
 AI - summarize - end
@@ -677,12 +716,23 @@ Network - Getting headline
 Analytics - Scanning for topic
 Analytics - topic: Some(stock market)
 File - OPEN
-File - contains(stock market)
+File - contains(stock market) => false
 Wiki - articleFor(stock market)
 AI - summarize - start
 AI - summarize - end
+File - write: market is not rational
+Network - Getting headline
+Analytics - Scanning for topic
+Analytics - topic: Some(stock market)
+File - OPEN
+File - contains(stock market) => false
+Wiki - articleFor(stock market)
+AI - summarize - start
+AI - summarize - end
+File - write: market is not rational
 File - CLOSE
-Result: AITooSlow()
+File - CLOSE
+Result: market is not rational
 ```
 
 ```scala
@@ -700,7 +750,7 @@ Network - Getting headline
 Analytics - Scanning for topic
 Analytics - topic: Some(stock market)
 File - OPEN
-File - contains(stock market)
+File - contains(stock market) => false
 Wiki - articleFor(stock market)
 AI - summarize - start
 AI - summarize - end
@@ -709,7 +759,7 @@ Network - Getting headline
 Analytics - Scanning for topic
 Analytics - topic: Some(stock market)
 File - OPEN
-File - contains(stock market)
+File - contains(stock market) => false
 Wiki - articleFor(stock market)
 AI - summarize - start
 AI - summarize - end
@@ -718,7 +768,7 @@ Network - Getting headline
 Analytics - Scanning for topic
 Analytics - topic: Some(stock market)
 File - OPEN
-File - contains(stock market)
+File - contains(stock market) => false
 Wiki - articleFor(stock market)
 AI - summarize - start
 AI - summarize - end
@@ -727,6 +777,31 @@ File - CLOSE
 File - CLOSE
 File - CLOSE
 Result: market is not rational
+```
+
+```scala
+override val bootstrap =
+  stockMarketHeadline
+
+def run =
+  researchHeadline.timeoutFail(
+    "Super strict timeout"
+  )(1.millis)
+```
+
+Output:
+
+```shell
+Network - Getting headline
+Analytics - Scanning for topic
+Analytics - topic: Some(stock market)
+File - OPEN
+File - contains(stock market) => false
+Wiki - articleFor(stock market)
+AI - summarize - start
+AI - summarize - end
+File - CLOSE
+Result: Super strict timeout
 ```
 
 Repeating is a form of composability, because you are composing a program with itself
