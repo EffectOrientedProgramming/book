@@ -41,7 +41,7 @@ def run =
 import zio.*
 import zio.direct.*
 
-// NOTE We cannot execute invoke main on this
+// NOTE We cannot invoke main on this
 // because it crashes mdoc in the CI process
 object RunningZIOs extends ZIOAppDefault:
   def run =
@@ -65,15 +65,13 @@ import zio.*
 import zio.direct.*
 import zio.test.*
 
-// TODO: Decide which scenario to test
-
 object TestingZIOs extends ZIOSpecDefault:
   def spec =
     test("Hello Tests"):
       defer:
-        ZIO.console.run
+        ZIO.debug("** logic **").run
         assertTrue:
-          Random.nextIntBounded(10).run > 10
+          10 > 2
 ```
 
 For this book we can shorten the test definition to:
@@ -86,30 +84,16 @@ import zio.test.*
 def spec =
   test("random is random"):
     defer:
+      ZIO.debug("** logic **").run
       assertTrue:
-        Random.nextIntBounded(10).run < 10
+        10 > 2
 
-// TODO: Justify defer syntax over for-comp for multi-statement assertions
-//      Change this to a Console app, where the logic & testing is more visceral
 ```
 
-```scala 3 mdoc:testzio
-import zio.*
-import zio.direct.*
-import zio.test.*
+## Console Testing 
 
-def spec =
-  test("random is still random"):
-    defer:
-      assertTrue:
-        Random.nextIntBetween(0, 10).run <=
-          10 &&
-          Random
-            .nextIntBetween(10, 20)
-            .run <= 20 &&
-          Random
-            .nextIntBetween(20, 30)
-            .run <= 30
+```scala 3
+// TODO Either find a better home for this, or delete.
 ```
 
 Consider a `Console` application:
