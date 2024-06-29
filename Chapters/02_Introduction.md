@@ -102,7 +102,8 @@ If we include something unpredictable in a pure function, the results become unp
 Here, we add a random number:
 
 ```scala 3 mdoc:compile-only
-val rand = new scala.util.Random
+val rand =
+  new scala.util.Random
 
 def fu(a: Int, b: Int): Int =
   a + b + rand.nextInt()
@@ -119,11 +120,13 @@ What if we could control an Effect by putting it in a kind of box?
 Instead of using `scala.util.Random`, we can make our own random number generator:
 
 ```scala 3 mdoc:invisible manuscript-only
-class ControlledRandom extends scala.util.Random
+class ControlledRandom
+    extends scala.util.Random
 ```
 
 ```scala 3 mdoc:compile-only
-val rand = new ControlledRandom
+val rand =
+  new ControlledRandom
 
 def fc(a: Int, b: Int): Int =
   a + b + rand.nextInt()

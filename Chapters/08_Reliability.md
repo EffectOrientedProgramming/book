@@ -724,13 +724,13 @@ def run =
         if (duration > 1.second)
           contractBreaches.update(_ + 1).run
 
-    // TODO: explain the reason for the silly List of ()
-    //       talk about how it'd be nice to have a ZIO operator for repeatNPar
+    // TODO: explain the reason for silly List of ()
+    //       talk about how it'd be nice to have a 
+    //       ZIO operator for repeatNPar
     //       happy birthday bill
     ZIO
       .foreachPar(List.fill(50_000)(())):
-        _ =>
-          request
+        _ => request
       .run
 
     contractBreaches
