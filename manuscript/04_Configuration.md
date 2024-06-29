@@ -716,16 +716,16 @@ def run =
 Output:
 
 ```shell
-Tails
 Heads
-Tails
 Heads
 Tails
 Heads
 Heads
-Tails
-Tails
 Heads
+Tails
+Tails
+Tails
+Tails
 Num Heads = 5
 Result: 5
 ```
