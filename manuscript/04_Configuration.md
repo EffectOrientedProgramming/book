@@ -399,8 +399,8 @@ def run =
 Output:
 
 ```shell
-Oven: Heated
 Dough: Mixed
+Oven: Heated
 BreadHomeMade: Baked
 Bread: Eating
 Oven: Turning off!
@@ -723,9 +723,9 @@ Heads
 Heads
 Tails
 Tails
-Tails
-Num Heads = 4
-Result: 4
+Heads
+Num Heads = 5
+Result: 5
 ```
 
 ```scala
@@ -791,10 +791,11 @@ def spec =
         24.hours
 
     defer:
-      val fork =
-        nightlyBatch.fork.run
-      timeTravel.run
-      fork.join.run
+      nightlyBatch.zipPar(timeTravel).run
+//      val fork =
+//        nightlyBatch.fork.run
+//      timeTravel.run
+//      fork.join.run
 
       assertCompletes
 
@@ -803,7 +804,7 @@ def spec =
 Output:
 
 ```shell
-TODO: update prose on not race
+TODO: update prose on zip
 Parsing CSV: ()
 + batch runs after 24 hours
 ```

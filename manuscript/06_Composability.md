@@ -13,7 +13,7 @@ These approaches do not address all aspects of composition.
 For example, you cannot compose functions using resources that need to be opened and closed.
 Issues that complicate composition include:
 
-- errors
+- failures
 - async
 - blocking
 - managed resource
@@ -62,7 +62,7 @@ By wrapping this in `ZIO.from`, it will:
 
 - Defer execution
 - Let us attach finalizer behavior
-- Let us customize the error type
+- Let us customize the failure type
 - get the `ExecutionContext` it needs
 
 ```scala
@@ -109,7 +109,7 @@ Result: HeadlineNotAvailable
 ## Option
 
 `Option` is the simplest of the alternate types you will encounter.
-It does not deal with asynchronicity, error types, or anything else.
+It does not deal with asynchronicity, failure types, or anything else.
 It merely indicates that a value might not be available.
 
 - Execution is not deferred
@@ -121,8 +121,8 @@ val result: Option[String] =
     "content"
 ```
 
-If you want to treat the case of a missing value as an error, you can again use `ZIO.from`:
-ZIO will convert `None` into a generic error type, giving you the opportunity to define a more specific error type.
+If you want to treat the case of a missing value as a failure, you can again use `ZIO.from`:
+ZIO will convert `None` into a generic failure type, giving you the opportunity to define a more specific error type.
 
 ```scala
 def topicOfInterestZ(headline: String) =
@@ -426,7 +426,7 @@ Output:
 ```shell
 AI - summarize - start
 AI - summarize - end
-Result: short summary
+Result: AITooSlow()
 ```
 
 Long-running invocations will be interrupted if they take too long.
@@ -440,6 +440,7 @@ Output:
 
 ```shell
 AI - summarize - start
+AI **INTERRUPTED**
 Result: AITooSlow()
 ```
 
@@ -728,10 +729,10 @@ File - contains(stock market) => false
 Wiki - articleFor(stock market)
 AI - summarize - start
 AI - summarize - end
-AI **INTERRUPTED**
+File - write: market is not rational
 File - CLOSE
 File - CLOSE
-Result: AITooSlow()
+Result: market is not rational
 ```
 
 ```scala
@@ -771,11 +772,11 @@ File - contains(stock market) => false
 Wiki - articleFor(stock market)
 AI - summarize - start
 AI - summarize - end
-File - write: market is not rational
+AI **INTERRUPTED**
 File - CLOSE
 File - CLOSE
 File - CLOSE
-Result: market is not rational
+Result: AITooSlow()
 ```
 
 ```scala
@@ -801,7 +802,7 @@ AI - summarize - start
 AI - summarize - end
 File - write: market is not rational
 File - CLOSE
-Result: Super strict timeout
+Result: market is not rational
 ```
 
 Repeating is a form of composability, because you are composing a program with itself
