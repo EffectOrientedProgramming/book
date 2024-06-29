@@ -59,10 +59,16 @@ import zio.direct.*
 Console.printLine(1)
 ```
 
+### Invisible Code
+
+The book’s build system ensures that all the examples are correct (or if they are intentionally incorrect, fail with the desired error messages).
+In order to keep the book examples easy to understand, they are supported by invisible code which does not appear in the book but is automatically extracted into the [Examples](https://effectorientedprogramming.com/) repository.
+When you clone this repository and run the examples yourself, the invisible code is necessary to run them.
+However, you do not need to study or understand the invisible code in order to learn from this book.
 ## Acknowledgements
 
 Kit Langton, for being a kindred spirit in software interests and an inspiring contributor to the open source world.
 
 Wyett Considine, for being an enthusiastic intern and initial audience.
 
-Hali Frasure, for cooking so many dinners and facilitating our book nights generally.
+Hali Frasure, for cooking so many dinners and elegantly facilitating our book nights.

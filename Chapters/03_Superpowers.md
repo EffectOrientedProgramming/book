@@ -126,10 +126,10 @@ Operations can even be chained together.
 
 Common operations like `timeout` are applicable to all Effects while some operations like `retry` are only applicable to a subset of Effects.
 
-Ultimately this means we do not need to create bespoke operations for the many different Effects our system may have.
+Ultimately this means we do not need to create bespoke operations for the different Effects in our system.
 
 To illustrate this we will show a few examples of common operations applied to Effects.
-Let's start with the "happy path" where we save a user to a database (which is an Effect) and then gradually add superpowers.
+Let's start with the "happy path" where we save a user to a database (this is an Effect) and then gradually add superpowers.
 
 Here we save `userName` to a database via `saveUser`:
 
@@ -144,13 +144,13 @@ val effect0 =
     userName
 ```
 
-Instead of parentheses to delimit function arguments, we use Scala’s newer “colon plus indent” syntax.
+Instead of parentheses to delimit function arguments, we use Scala’s newer “colon plus indent” (*significant indentation*) syntax.
 Here, `saveUser` is the function and `userName` is the single argument to that function.
 
 `effect0` is a value containing the code that produces the Effect.
 Note that defining `effect0` does not execute that code, it only holds it so it can be run at some later time.
-This is an example of *deferred execution*, which was described in the Introduction.
-By deferring the execution of an Effect, we are able to add functionality to that effect.
+This is an example of *deferred execution*, described in the Introduction.
+By deferring the execution of an Effect, we can add functionality to that effect.
 
 Effects can be:
 - Run as "main" programs
@@ -166,7 +166,7 @@ object MyApp extends ZIOAppDefault:
 ```
 
 The overridden value of `run` must be an Effect.
-`run` is special and hands the `MyApp` object the Effect to run.
+`run` is special and passes the Effect to `MyApp`, which runs it.
 
 For noise reduction we’ve been able to shorten this to:
 
@@ -175,10 +175,12 @@ def run =
   effect0
 ```
 
-`effect0` runs in the "happy path" so it will not fail.
+By default, `effect0` runs in the "happy path" so it will not fail.
 
-To specify the way this Effect runs, we configure the program by overriding the `bootstrap` value. A `bootstrap` creates a scenario for the execution of the program.
-Here we explicitly specify the happy path:
+We can specify the way an Effect runs. 
+To do this, we configure the program by overriding the `bootstrap` value. 
+A `bootstrap` creates a scenario for the execution of the program.
+Here we explicitly provide the happy path:
 
 ```scala 3 mdoc:runzio
 override val bootstrap =
@@ -244,7 +246,7 @@ After the failed retries, the program returns an error.
 ## Modify Error
 
 Let's attach a nicer error onto the previously defined operations (the retries). 
-We’ll use `orElseFail` to transform the failure into a user-friendly error:
+We use `orElseFail` to transform the failure into a user-friendly error:
 
 ```scala 3 mdoc:silent
 val effect2 =
@@ -334,7 +336,7 @@ val effect5 =
     _ => logUserSignup
 ```
 
-`withFinalizer` expects a function as its argument; `_ => logUserSignup` is a function that takes no arguments and calls `logUserSignup`.
+`withFinalizer` expects a function as its argument; `_ => logUserSignup` creates a function that takes no arguments and calls `logUserSignup`.
 `withFinalizer` attaches this behavior without changing the types contained in the original Effect.
 
 ```scala 3 mdoc:runzio
@@ -384,8 +386,7 @@ def run =
   effect7
 ```
 
-We can add behavior to the end of our complex Effect,
-  that prevents it from ever executing in the first place.
+We added behavior that prevents an Effect from executing—to the *end* of a complex Effect. Consider the work necessary to do this without an Effect System.
 
 ## Effects Are The Sum of Their Parts
 
@@ -401,7 +402,7 @@ Effects 1 - 7 are new Effects, each built on the previous Effect:
 - `effect3`: Timeout
 - `effect4`: Fallback
 - `effect5`: Logging
-- `effect6`: Timing Metric
+- `effect6`: Timing
 - `effect7`: Filtering
 
 Each `effect*` is independent.
@@ -411,8 +412,8 @@ You can easily create new Effects that have new superpowers.
 ## Deferred Execution
 
 If Effects ran immediately, we could not freely add behaviors:
-- We cannot timeout something that might have started running, or even completed.
-- We cannot retry something if we are only holding on to the completed result.
+- We cannot timeout something that might have started running, or has already completed.
+- We cannot retry something if we only hold the completed result.
 - We cannot parallelize operations if they have already started single-threaded execution.
 
 When we manage an Effect, we hold a value that represents something that _can_ be run, but hasn't yet.
@@ -431,12 +432,12 @@ def run =
   effect1
 ```
 
-The result of `run` is the final value of the function: `effect1`.
+The result returned by `run` is the final value of the function: `effect1`.
 The Effect System takes `effect1` returned by `run` and only runs that.
 Since Effects are deferred, `Console.printLine` never runs.
 
 To sequence multiple Effects, we construct a new `Effect` that contains the sequence.
-We use `defer` to achieve this:
+`defer` produces a new Effect containing a sequence of other Effects:
 
 ```scala 3 mdoc:runzio
 def run =
@@ -455,7 +456,7 @@ We explicitly call `.run` whenever we want to sequence Effects.
 If we do not call `.run`, we end up with an un-executed effect.
 We want this explicit control so we can attach operations to our effects before we run them.
 
-We can assign the new Effect to a value like we did with `effect1` - `effect7`:
+We can assign the new Effect to a `val` like we did with `effect1` - `effect7`:
 
 ```scala 3 mdoc:silent
 val effect8 =
@@ -477,7 +478,7 @@ Having 2 versions of `run` seems confusing, but they serve different purposes:
 - Assigning an Effect to `def run` actually executes the program.
   This typically happens only once in your code.
 
-In this section we focus on the `.run` method.
+### The `.run` Method
 
 Calling `.run` on anything other than an Effect produces an error:
 
@@ -547,4 +548,4 @@ def run =
   surroundedProgram
 ```
 
-Deferred execution can seem strange at first, but it is key to enabling us to insert new functionality into the Effects within our program.
+Deferred execution can seem strange at first, but it is essential for inserting new functionality into the Effects in our program.
