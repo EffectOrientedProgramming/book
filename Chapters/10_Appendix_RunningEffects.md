@@ -133,6 +133,7 @@ However, even if you are not trying to write demo code for a book, it is very li
 Even for the smallest programs, it is slow, error-prone, and boring.
 
 ```scala 3 mdoc:testzio
+// TODO This is blowing up.
 import zio.*
 import zio.direct.*
 import zio.test.*
