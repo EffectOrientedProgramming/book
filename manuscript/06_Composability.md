@@ -426,7 +426,7 @@ Output:
 ```shell
 AI - summarize - start
 AI - summarize - end
-Result: short summary
+Result: AITooSlow()
 ```
 
 Long-running invocations will be interrupted if they take too long.
@@ -637,7 +637,6 @@ File - OPEN
 File - contains(space) => false
 Wiki - articleFor(space)
 AI - summarize - start
-AI **INTERRUPTED**
 File - CLOSE
 Result: AITooSlow()
 ```

@@ -339,8 +339,8 @@ Output:
 
 ```shell
 Toaster: Heating
-Oven: Heated
 Dough: Mixed
+Oven: Heated
 BreadHomeMade: Baked
 ToastZ: Made
 Toast: Eating
@@ -716,15 +716,15 @@ def run =
 Output:
 
 ```shell
+Tails
 Heads
 Heads
 Tails
 Heads
+Tails
 Heads
+Tails
 Heads
-Tails
-Tails
-Tails
 Tails
 Num Heads = 5
 Result: 5
