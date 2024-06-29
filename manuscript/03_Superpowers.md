@@ -315,7 +315,7 @@ def run =
 Output:
 
 ```shell
-Result: (PT0.001760631S,User saved)
+Result: (PT0.002980671S,User saved)
 ```
 
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.
@@ -449,15 +449,15 @@ Before save
 Result: User saved
 ```
 
-Having 2 versions of `run` seems confusing, but they each serve a different purpose:
-- The `.run` method attached to effects in a `defer` indicates when that effect executes within the program.
+Having 2 versions of `run` seems confusing, but they serve different purposes:
+- Attaching `.run` to effects in a `defer` establishes the order of execution for that effect.
   This can happen many times throughout your program.
 - Assigning an Effect to `def run` actually executes the program.
   This typically happens only once in your code.
 
 In this section we focus on the `.run` method.
 
-Attempting to call `.run` on anything other than an Effect produces an error:
+Calling `.run` on anything other than an Effect produces an error:
 
 
 ```scala
@@ -507,7 +507,7 @@ The chain produces a new Effect.
 Calling `.run` executes that new Effect.
 Since `.debug` appears before `repeatN(1)`, `effect8.debug` executes once and is then repeated once.
 
-We _cannot_ repeat our executed effect by putting `.run` in the middle of the chain:
+We _cannot_ repeat our executed Effect by putting `.run` in the middle of the chain:
 
 ```scala
 val programManipulatingBeforeRun =
@@ -524,9 +524,9 @@ value repeatN is not a member of String - did you mean String.repeat?
       ^
 ```
 
-Once an effect is `.run`, you only have the result of running it, not the deferred computation. Thus there’s no appropriate place to attach `repeatN(3)`.
+Running an Effect produces its result, not the deferred computation. Thus there’s no appropriate place to attach `repeatN(3)`.
 
-All calls to `.run` must happen within a `defer` block, so when `effect8` is defined, we still have not actually executed anything—we’ve only created a new Effect.
+All calls to `.run` must happen within a `defer` block, so when `effect8` is defined, we haven’t executed anything—we’ve only created a new Effect.
 A `defer` block creates a new Effect that describes a program that knows the order in which to execute the individual effects.
 But that Effect only runs when the program is executed.
 
@@ -558,4 +558,4 @@ User saved
 **After**
 ```
 
-Deferred execution can seem strange at first, but it is key to enabling us to insert new functionality at the Effects in our program.
+Deferred execution can seem strange at first, but it is key to enabling us to insert new functionality into the Effects within our program.
