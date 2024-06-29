@@ -630,6 +630,12 @@ def summarizeZ(article: String) =
       4000.millis
 ```
 
+```scala 3 mdoc
+def run =
+  summarizeZ("space")
+```
+
+
 Now we have a way to confine the impact that this function has on our application.
 Long-running invocations will be interrupted, although `attemptBlockingInterrupt` comes with a performance cost.
 Carefully consider the trade-offs when using this function.
