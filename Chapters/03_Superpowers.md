@@ -411,17 +411,17 @@ You can easily create new Effects that have new superpowers.
 ## Deferred Execution
 
 If Effects ran immediately, we could not freely add behaviors:
-- We cannot timeout something that might have already started running, or even worse - completed, before we get our hands on it.
+- We cannot timeout something that might have started running, or even completed.
 - We cannot retry something if we are only holding on to the completed result.
 - We cannot parallelize operations if they have already started single-threaded execution.
 
-We must hold a value that represents something that _can_ be run, but hasn't yet.
-If we have that, our Effect System can freely add behavior before/after that value.
+When we manage an Effect, we hold a value that represents something that _can_ be run, but hasn't yet.
+With that, the Effect System can freely add behavior before/after that value.
 
 Because Effects are deferred and independent, we can combine them in a variety of ways.
 
 The most common way to combine Effects is sequentially.
-You might think that this would work:
+You might think this should work:
 
 ```scala 3 mdoc:runzio
 import zio.*
@@ -431,12 +431,12 @@ def run =
   effect1
 ```
 
-The result of `run` is the final value: `effect1`.
+The result of `run` is the final value of the function: `effect1`.
+The Effect System takes `effect1` returned by `run` and only runs that.
 Since Effects are deferred, `Console.printLine` never runs.
-The Effect System takes the `effect1` that `run` returns and runs only that.
 
-To sequence multiple Effects, we must construct a new `Effect` that contains the sequence.
-That’s what `defer` does:
+To sequence multiple Effects, we construct a new `Effect` that contains the sequence.
+We use `defer` to achieve this:
 
 ```scala 3 mdoc:runzio
 def run =
@@ -445,10 +445,15 @@ def run =
     effect1.run // Display each save
 ```
 
-The `defer` block creates a new Effect, which is returned by `run`.
+A `defer` block creates a new Effect, which is returned by `run`.
 The `.run` called on each Effect constructs the sequence.
 Even though we say `.run`, the Effects are still deferred.
-They get run, in order, when the effect produced bye the `defer` block is run.
+They get run, in order, when the effect produced by the `defer` block is run.
+
+The `.run` method is only available for Effect values.
+We explicitly call `.run` whenever we want to sequence Effects.
+If we do not call `.run`, we end up with an un-executed effect.
+We want this explicit control so we can attach operations to our effects before we run them.
 
 We can assign the new Effect to a value like we did with `effect1` - `effect7`:
 
@@ -459,11 +464,6 @@ val effect8 =
     effect1.run
 ```
 
-The `.run` method is only available on our Effect values.
-We explicitly call `.run` whenever we want to sequence our effects.
-If we do not call `.run`, then we are just going to have an un-executed effect.
-We want this explicit control so we can attach manipulations to our effects up until we run them.
-
 When you finish assembling your Effect and are ready to run it, you utilize the other important `run` method:
 
 ```scala 3 mdoc:runzio
@@ -471,17 +471,15 @@ val run =
   effect8
 ```
 
-Having 2 versions of `run` can be confusing, but they each serve a different purpose.
-
+Having 2 versions of `run` seems confusing, but they each serve a different purpose:
 - The `.run` method attached to effects in a `defer` indicates when that effect executes within the program.
   This can happen many times throughout your program.
-- Assigning your program to `def run` method actually executes the program.
+- Assigning an Effect to `def run` actually executes the program.
   This typically happens only once in your code.
 
-We focus on the `.run` method in this section.
+In this section we focus on the `.run` method.
 
-You can only call `.run` on an Effect.
-Attempting to use in on anything else will produce an error.
+Attempting to call `.run` on anything other than an Effect produces an error:
 
 ```scala 3 mdoc:invisible
 // NOTE: If you alter the sample below, you need to explicitly change the brittle error msg manipulation in Main
@@ -495,11 +493,12 @@ val program =
     (1 + 1).run
 ```
 
+We can also call `.run` after chaining operations onto an Effect:
+
 ```scala 3 mdoc:runzio
 import zio.*
 import zio.direct.*
 
-// TODO: explain this in prose
 def run =
   defer:
     effect8
@@ -507,7 +506,11 @@ def run =
       .repeatN(1).run
 ```
 
-We _cannot_ repeat our executed effect.
+The chain produces a new Effect.
+Calling `.run` executes that new Effect.
+Since `.debug` appears before `repeatN(1)`, `effect8.debug` executes once and is then repeated once.
+
+We _cannot_ repeat our executed effect by putting `.run` in the middle of the chain:
 
 ```scala 3 mdoc:fail
 val programManipulatingBeforeRun =
@@ -515,10 +518,11 @@ val programManipulatingBeforeRun =
     effect8.run.repeatN(3)
 ```
 
-We get the same error as the previous example, because the once an effect has been `.run`, you only have the result, not the deferred computation.
+Once an effect is `.run`, you only have the result of running it, not the deferred computation. Thus there’s no appropriate place to attach `repeatN(3)`.
 
-Note that these calls to `.run` are all within a `defer` block, so when `effect8` is defined, we still have not actually executed anything.
-We have described a program that knows the order in which to execute our individual effects _when the program is executed_.
+All calls to `.run` must happen within a `defer` block, so when `effect8` is defined, we still have not actually executed anything—we’ve only created a new Effect.
+A `defer` block creates a new Effect that describes a program that knows the order in which to execute the individual effects.
+But that Effect only runs when the program is executed.
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -533,8 +537,7 @@ val surroundedProgram =
     Console.printLine("**After**").run
 ```
 
-Even now, we have not executed anything.
-It is only when we pass our completed program over to the effect system that the program is executed.
+`surroundedProgram` only runs when we pass it to the effect system:
 
 ```scala 3 mdoc:runzio
 import zio.*
@@ -543,3 +546,5 @@ import zio.direct.*
 def run =
   surroundedProgram
 ```
+
+Deferred execution can seem strange at first, but it is key to enabling us to insert new functionality at the Effects in our program.
