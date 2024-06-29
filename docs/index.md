@@ -1,6 +1,6 @@
 # Effect Oriented Programming
 
-Support site for the book *Effect Oriented Programming*.
+Resources for the book *Effect Oriented Programming*.
 
 ## [EBook](https://leanpub.com/effect-oriented-programming)
 
