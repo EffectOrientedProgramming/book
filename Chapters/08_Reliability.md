@@ -711,7 +711,7 @@ def run =
     val contractBreaches =
       Ref.make(0).run
 
-    val request =
+    val makeRequest =
       defer:
         val hedged =
           logicThatSporadicallyLocksUp.race:
@@ -730,7 +730,7 @@ def run =
     //       happy birthday bill
     ZIO
       .foreachPar(List.fill(50_000)(())):
-        _ => request
+        _ => makeRequest
       .run
 
     contractBreaches
