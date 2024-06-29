@@ -38,7 +38,7 @@ hello, world
 ```
 
 ```scala
-// NOTE We cannot execute invoke main on this
+// NOTE We cannot invoke main on this
 object RunningZIOs extends ZIOAppDefault:
   def run =
     Console.printLine:
@@ -59,15 +59,13 @@ When you run the same `ZIO` in these 2 contexts, the only thing that changes are
 ```scala
 import zio.test.*
 
-// TODO: Decide which scenario to test
-
 object TestingZIOs extends ZIOSpecDefault:
   def spec =
     test("Hello Tests"):
       defer:
-        ZIO.console.run
+        ZIO.debug("** logic **").run
         assertTrue:
-          Random.nextIntBounded(10).run > 10
+          10 > 2
 ```
 
 For this book we can shorten the test definition to:
@@ -78,41 +76,28 @@ import zio.test.*
 def spec =
   test("random is random"):
     defer:
+      ZIO.debug("** logic **").run
       assertTrue:
-        Random.nextIntBounded(10).run < 10
-
+        10 > 2
 ```
 
 Output:
 
 ```shell
-TODO: Justify defer syntax over for-comp for multi-statement assertions
-     Change this to a Console app, where the logic & testing is more visceral
-Log: Signup initiated for Morty
+** logic **
 + random is random
 ```
 
-```scala
-import zio.test.*
+## Console Testing 
 
-def spec =
-  test("random is still random"):
-    defer:
-      assertTrue:
-        Random.nextIntBetween(0, 10).run <=
-          10 &&
-          Random
-            .nextIntBetween(10, 20)
-            .run <= 20 &&
-          Random
-            .nextIntBetween(20, 30)
-            .run <= 30
+```scala
+
 ```
 
 Output:
 
 ```shell
-+ random is still random
+TODO Either find a better home for this, or delete.
 ```
 
 Consider a `Console` application:
@@ -172,16 +157,16 @@ Output:
 
 ```shell
 - console works
-  Exception in thread "zio-fiber-1007485988" scala.NotImplementedError: an implementation is missing
+  Exception in thread "zio-fiber-1911826038" scala.NotImplementedError: an implementation is missing
   	at scala.Predef$.$qmark$qmark$qmark(Predef.scala:344)
   	at zio.Console$.print$$anonfun$6(Console.scala:122)
   	at zio.ZIO$.consoleWith$$anonfun$1(ZIO.scala:3121)
   	at zio.FiberRef$unsafe$$anon$2.getWith$$anonfun$1(FiberRef.scala:474)
-  	at logic(<input>:100)
+  	at logic(<input>:72)
   	at zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19)
-  	at logic(<input>:110)
+  	at logic(<input>:82)
   	at zio.direct.ZioMonad.Success.$anon.flatMap(ZioMonad.scala:19)
-  	at Chapter57Spec.spec(<input>:146)
+  	at Chapter59Spec.spec(<input>:118)
 ```
 
 ## Interop with existing/legacy code
