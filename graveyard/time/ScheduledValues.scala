@@ -3,7 +3,6 @@ package time
 import java.time.Instant
 import scala.concurrent.TimeoutException
 
-// TODO Consider deleting
 object InstantOps:
   extension (i: Instant)
     def plusZ(duration: zio.Duration): Instant =
