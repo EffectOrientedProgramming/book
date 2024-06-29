@@ -714,18 +714,18 @@ def run =
 Output:
 
 ```shell
-Heads
 Tails
 Tails
 Heads
 Tails
+Heads
+Heads
+Heads
 Tails
 Tails
-Heads
-Heads
-Heads
-Num Heads = 5
-Result: 5
+Tails
+Num Heads = 4
+Result: 4
 ```
 
 ```scala
