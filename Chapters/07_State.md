@@ -62,7 +62,7 @@ Each time we publish a copy of this book, the code is re-executed and a differen
 However, conflicts are extremely likely, so some of our writes get clobbered by others, and we end up with less than the expected 100,000.
 Ultimately, we lose information with this approach.
 
-Performing our side effects inside ZIO's does not magically make them safe.
+Performing our Side Effects inside ZIO's does not magically make them safe.
 We need to fully embrace the ZIO components, utilizing `Ref` for correct mutation.
 
 ## Reliable State
@@ -100,7 +100,7 @@ This is achieved through a strategy called "Compare & Swap", which we will not c
 Although there are significant advantages; a basic `Ref` is not the solution for everything.
 We can only pass pure functions into `update`.
 The API of the plain Atomic `Ref` steers you in the right direction by not accepting `ZIO`s as parameters to any of its methods.
-To demonstrate why this restriction exists, we will deliberately undermine the system by sneaking in a side effect.
+To demonstrate why this restriction exists, we will deliberately undermine the system by sneaking in a Side Effect.
 First, we will create a helper function that imitates a long-running calculation.
 
 ```scala 3 mdoc
@@ -112,7 +112,7 @@ def expensiveCalculation() =
     35
 ```
 
-Our side effect will be a mock alert that is sent anytime our count is updated:
+Our Side Effect will be a mock alert that is sent anytime our count is updated:
 
 ```scala 3 mdoc
 import zio.*

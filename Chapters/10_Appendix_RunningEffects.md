@@ -161,7 +161,7 @@ def spec =
 ## Interop with existing/legacy code
 
 In some cases your ZIOs may need to be run outside a *main* program, for example when embedded into other programs.
-In this case you can use ZIO's `Unsafe` utility which is called `Unsafe` to indicate that the code may perform side effects.  
+In this case you can use ZIO's `Unsafe` utility which is called `Unsafe` to indicate that the code may perform Side Effects.  
 To do the same `ZIO.debug` with `Unsafe` do:
 
 ```scala 3 mdoc

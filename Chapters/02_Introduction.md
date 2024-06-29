@@ -56,8 +56,8 @@ Our housing example is a decent reflection of where most programming is now: we 
 We have improved our type systems and the ways we create data structures.
 What wall are we facing now?
 
-To return to our home-building system, we've solved the problem of assembling rooms, but adding functionality to those rooms is quite difficult.
-If we decide we want electricity in a room, we have to tear up the walls and insert electrical conduits.
+Returning to our home-building system, we've solved the problem of assembling rooms, but adding functionality to those rooms is quite difficult.
+If we want electricity in a room, we have to tear up the walls and insert electrical conduits.
 To add a vent we must tunnel up through the building to the roof.
 Adding plumbing is very challenging because it runs through the concrete foundation and the walls.
 We can assemble rooms, but if we want a room to do anything interesting, we must remodel the house.
@@ -202,6 +202,21 @@ These can have domain-specific forms:
 - Stabilize an airplane
 - Detonate explosives
 
+### Side Effects
+
+Effects sound similar to *Side Effects*, but they are different. 
+A Side Effect is a change outside the scope of a function that occurs when a function runs. 
+A common Side Effect is modifying a global variable.
+If you call that function, it leaves the global variable in a new state, for all other code in the system to see.
+Usually that function is not only writing to the global variable, it also reads it and includes it to produce the function result.
+This means that every time you call the function with the same input(s), you get a different result: the function is impure.
+
+An Effect, on the other hand, is the "thing we can put a box around."
+It is managed.
+For example, we can turn the Side Effect caused by the global variable into an Effect by managing it.
+
+Thus, Side Effects are un-managed and Effects are managed.
+
 ### Failures
 
 Failures, especially the way we currently report and handle them using exceptions, are another form of unpredictability.
@@ -236,12 +251,12 @@ def saveInformation(info: String): Unit =
 
 Returning `Unit` is the simplest indication of an Effectful function.
 You don't call it to produce a result value. 
-We know there must be a side effect—there's no other reason to call it.
+We know there must be a Side Effect—there's no other reason to call it.
 
 If a function has no parameters, this is equivalent to a `Unit` argument.
 Here, an Effect is used inside the function to produce the result.
 
-A function that has a `Unit` argument and `Unit` return only produces side effects.
+A function that has a `Unit` argument and `Unit` return only produces Side Effects.
 
 ## Improving Your Life
 
@@ -254,4 +269,3 @@ With most languages, the first thing you learn is to write "Hello, World!"
 You then accumulate the other language features as standalone concepts.
 Effect Systems require a shift in perception of what code is, and how it executes.
 We hope to introduce Effect Systems in a way that is not overwhelming, so you are inspired to keep working toward that shift.
-
