@@ -204,40 +204,23 @@ These can have domain-specific forms:
 
 ### Side Effects
 
-Effects sound similar to *Side Effects*, but they are different. 
-A Side Effect is a change outside the scope of a function that occurs when a function runs. 
-A common Side Effect is modifying a global variable.
-If you call that function, it leaves the global variable in a new state, for all other code in the system to see.
-Usually that function is not only writing to the global variable, it also reads it and includes it to produce the function result.
-This means that every time you call the function with the same input(s), you get a different result: the function is impure.
+You’ve probably heard about *Side Effects.*
+A Side Effect happens when you call a function and something changes in your program or in the environment.
+So you don’t just get a result from your function call, you change your surroundings—and this might also affect your function the next time you call it, or even the behavior of the rest of the program.
 
-An Effect, on the other hand, is the "thing we can put a box around."
-It is managed.
-For example, we can turn the Side Effect caused by the global variable into an Effect by managing it.
+We hope that at this point you are thinking, “Isn’t that what we’ve been talking about? Isn’t that just an Effect?”
 
-Thus, Side Effects are un-managed and Effects are managed.
+The difference between a Side Effect and an Effect is that a side effect “just happens,” while an Effect is something that can be managed. 
+For example, suppose you write to the console using the standard console library provided by your language.
+That library was not designed for Effect Systems, so we don’t have any way to put a box around it and control it like we do with Effects.
+When you write to the console, the surroundings change (output appears on the console) and there’s nothing we can do about it.
+That’s a Side Effect.
 
-### Failures
+For this reason, we must often use special libraries from the Effect System when performing some kinds of Effects such as console I/O.
+Those libraries are written to keep track of and manage the Effects.
 
-Failures, especially the way we currently report and handle them using exceptions, are another form of unpredictability.
+The simple answer is that Side Effects are un-managed and Effects are managed.
 
-Not only are failures themselves unpredictable, exceptions are not part of the type system.
-This means that when you call a function, you cannot reliably know what exceptions might emerge from that function call (some languages have attempted a *parallel type system* via *exception specifications* but these experiments have universally failed).
-If we could somehow include failure information in the type system, the type checker could ensure that all possible failures are accounted for in your code.
-
-Failure is unpredictable, which makes it another kind of Effect.
-Failure is also managed by an Effect System. 
-
-A function typically returns the anticipated “answer,” even though you know that might not happen—there could be failures. 
-An Effect System creates a structure as the return type from a function.
-This structure contains the expected “answer,” but it also contains failure information.
-Every possible failure type is enumerated in this return structure.
-Like everything else, the return structure has a type—and this incorporates all possible failure types.
-Failures are now part of the type system.
-The type-checking system can now determine, from this return type, whether your code handles all possible failures.
-
-The return type also includes the other (non-failure) Effect types.
-This new return type is what provides the channel that we need to enable easily-adaptable systems.
 ### `Unit` and Effects
 
 `Unit` can be viewed as the bare minimum of Effect tracking.
@@ -254,18 +237,38 @@ You don't call it to produce a result value.
 We know there must be a Side Effect—there's no other reason to call it.
 
 If a function has no parameters, this is equivalent to a `Unit` argument.
-Here, an Effect is used inside the function to produce the result.
+In this case, an Effect is used inside the function to produce the result.
 
 A function that has a `Unit` argument and `Unit` return only produces Side Effects.
+### Failures
 
+Failures, especially the way we currently report and handle them using exceptions, are another form of unpredictability.
+
+Not only are failures themselves unpredictable, exceptions are not part of the type system.
+This means that when you call a function, you cannot reliably know what exceptions might emerge from that function call (some languages have attempted a *parallel type system* via *exception specifications* but these experiments have universally failed).
+By moving failure information into the type system, the type checker ensures that all possible failures are accounted for in your code.
+
+Because failure is unpredictable, it is another kind of Effect.
+An Effect System also manages failure. 
+
+A function typically returns the anticipated “answer,” even though you know that might not happen—there could be failures. 
+An Effect System creates a structure as the return type from a function.
+This structure contains the expected “answer,” but it also contains failure information.
+Every possible failure type is enumerated in this return structure.
+Like everything else, the return structure has a type—and this incorporates all the failure types.
+Failures are now part of the type system.
+The type-checking system can now determine, from this return type, whether your code handles all possible failures.
+
+The return type also includes the other (non-failure) Effect types.
+This new return type is what provides the channel that we need to enable easily-adaptable systems.
 ## Improving Your Life
 
 Effect Systems make it easy to add functionality to existing code.
 For example, you can add a time-out to any Effect to control its maximum duration.
-Applying such operations starts to feel like a superpower, and that's what we show in the next chapter.
+Applying such operations feels like a superpower, and that's what we show in the next chapter.
 
 Learning about Effect Systems requires patience.
 With most languages, the first thing you learn is to write "Hello, World!"
-You then accumulate the other language features as standalone concepts.
+You then accumulate additional language features as standalone concepts.
 Effect Systems require a shift in perception of what code is, and how it executes.
 We hope to introduce Effect Systems in a way that is not overwhelming, so you are inspired to keep working toward that shift.
