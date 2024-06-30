@@ -1,4 +1,4 @@
-# Effect Superpowers
+# Superpowers
 
 
 Once programs are defined in terms of Effects, we use operations from the Effect System to add new functionality.
@@ -261,8 +261,6 @@ Output:
 
 ```shell
 Log: **Database crashed!!**
-Log: **Database crashed!!**
-Log: **Database crashed!!**
 Result: Please manually provision Morty
 ```
 
@@ -292,6 +290,7 @@ def run =
 Output:
 
 ```shell
+Log: Signup initiated for Morty
 Result: User saved
 ```
 
@@ -317,7 +316,8 @@ def run =
 Output:
 
 ```shell
-Result: (PT0.07954212S,User saved)
+Log: Signup initiated for Morty
+Result: (PT0.024389893S,User saved)
 ```
 
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.

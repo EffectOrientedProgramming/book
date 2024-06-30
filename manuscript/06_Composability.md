@@ -425,6 +425,7 @@ Output:
 ```shell
 AI - summarize - start
 AI - summarize - end
+AI **INTERRUPTED**
 Result: AITooSlow()
 ```
 

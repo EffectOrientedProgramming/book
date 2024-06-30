@@ -2,7 +2,7 @@
 01_Preface.md
 02_Introduction.md
 03_Superpowers.md
-04_Configuration.md
+04_Initialization.md
 05_Managing_Failure.md
 06_Composability.md
 07_State.md
