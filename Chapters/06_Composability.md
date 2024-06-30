@@ -828,22 +828,32 @@ def run =
     researchHeadline.run
 ```
 
-```scala 3 mdoc:runzio
-override val bootstrap =
-  stockMarketHeadline
+Suppose the requirements of the system change, and now you need to ensure that the whole process completes within a strict time limit.
+Even though we already have a narrow timeout attached to the AI summarize call, we are still free to attach a more restrictive timeout.
 
-def run =
-  researchHeadline.repeatN(2)
-```
-
-```scala 3 mdoc:runzio
-override val bootstrap =
-  stockMarketHeadline
-
-def run =
+```scala 3 mdoc
+val strictResearch =
   researchHeadline.timeoutFail(
-    "Super strict timeout"
-  )(1.millis)
+    "strict timeout"
+  )(1.second)
 ```
 
-Repeating is a form of composability, because you are composing a program with itself
+```scala 3 mdoc:runzio
+override val bootstrap =
+  stockMarketHeadline
+
+def run =
+  strictResearch
+```
+Repeating is a form of composability, because you are composing a program with itself.
+Now that we have a nice, single-shot workflow that will analyze the current headline, we can make it run every day.
+
+```scala 3 mdoc:runzio
+override val bootstrap =
+  stockMarketHeadline
+
+def run =
+  strictResearch
+    .repeat(Schedule.spaced(24.hours))
+```
+
