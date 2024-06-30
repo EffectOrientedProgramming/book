@@ -415,7 +415,6 @@ def summarizeZ(article: String) =
 
 Now we have a way to confine the impact that this function has on our application.
 
-
 ```scala
 def run =
   summarizeZ("long article")
@@ -772,11 +771,11 @@ File - contains(stock market) => false
 Wiki - articleFor(stock market)
 AI - summarize - start
 AI - summarize - end
-AI **INTERRUPTED**
+File - write: market is not rational
 File - CLOSE
 File - CLOSE
 File - CLOSE
-Result: AITooSlow()
+Result: market is not rational
 ```
 
 ```scala
@@ -800,9 +799,8 @@ File - contains(stock market) => false
 Wiki - articleFor(stock market)
 AI - summarize - start
 AI - summarize - end
-File - write: market is not rational
 File - CLOSE
-Result: market is not rational
+Result: Super strict timeout
 ```
 
 Repeating is a form of composability, because you are composing a program with itself

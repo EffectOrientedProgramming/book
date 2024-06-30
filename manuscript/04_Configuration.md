@@ -159,8 +159,8 @@ def run =
 Output:
 
 ```shell
-Oven: Heated
 Dough: Mixed
+Oven: Heated
 BreadHomeMade: Baked
 Bread: Eating
 ```
@@ -214,7 +214,6 @@ BreadHomeMade: Baked
 Toast: Made
 Result: Toast(Heat(),BreadHomeMade(Heat(),Dough()))
 ```
-
 
 However, the oven uses a lot of energy to make `Toast`.
 It would be great if we can instead use our dedicated toaster!
@@ -382,7 +381,6 @@ val ovenSafe =
             .orDie
 ```
 
-
 ```scala
 def run =
   ZIO
@@ -399,13 +397,12 @@ def run =
 Output:
 
 ```shell
-Dough: Mixed
 Oven: Heated
+Dough: Mixed
 BreadHomeMade: Baked
 Bread: Eating
 Oven: Turning off!
 ```
-
 
 ## Step 8: Construction Failure
 
@@ -716,16 +713,16 @@ Output:
 ```shell
 Tails
 Tails
-Heads
 Tails
-Heads
-Heads
-Heads
+Tails
 Tails
 Tails
 Heads
-Num Heads = 5
-Result: 5
+Tails
+Heads
+Tails
+Num Heads = 2
+Result: 2
 ```
 
 ```scala
@@ -758,7 +755,6 @@ Heads
 Num Heads = 10
 + flips 10 times
 ```
-
 
 The `Random` Effect uses an injected something which when running the ZIO uses the system's unpredictable random number generator.  In ZIO Test the `Random` Effect uses a different something which can predictably generate "random" numbers.  `TestRandom` provides a way to define what those numbers are.  This example feeds in the `Int`s `1` and `2` so the first time we ask for a random number we get `1` and the second time we get `2`.
 
