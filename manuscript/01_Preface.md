@@ -10,7 +10,7 @@ With Effect Systems, developers can more easily build systems that are reliable,
 
 Many programming languages do not have an Effect System.
 Some languages have built-in support for managing Effects while others have support through libraries.
-New languages that incorporate Effect management include OCaml, Unison, and Roc.
+New languages that incorporate Effect Systems include OCaml, Unison, and Roc.
 
 ## This book is for...
 
