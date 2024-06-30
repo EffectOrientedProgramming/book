@@ -194,7 +194,6 @@ def run =
     )
 ```
 
-
 However, the oven uses a lot of energy to make `Toast`.
 It would be great if we can instead use our dedicated toaster!
 
@@ -342,7 +341,6 @@ val ovenSafe =
             .orDie
 ```
 
-
 ```scala 3 mdoc:runzio
 import zio.*
 import zio.direct.*
@@ -358,7 +356,6 @@ def run =
       Scope.default
     )
 ```
-
 
 ## Step 8: Construction Failure
 
@@ -730,7 +727,6 @@ def spec =
       assertTrue:
         flipTen.run == 10
 ```
-
 
 The `Random` Effect uses an injected something which when running the ZIO uses the system's unpredictable random number generator.  In ZIO Test the `Random` Effect uses a different something which can predictably generate "random" numbers.  `TestRandom` provides a way to define what those numbers are.  This example feeds in the `Int`s `1` and `2` so the first time we ask for a random number we get `1` and the second time we get `2`.
 

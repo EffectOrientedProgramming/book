@@ -635,7 +635,6 @@ def summarizeZ(article: String) =
 
 Now we have a way to confine the impact that this function has on our application.
 
-
 ```scala 3 mdoc:runzio
 def run =
   summarizeZ("long article")

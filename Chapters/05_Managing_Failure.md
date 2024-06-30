@@ -348,7 +348,6 @@ def run =
 All the possible failure types, across the sequence of Effects, have been handled at the top-level Effect.
 It is up to you when and how you want to handle possible failures.
 
-
 ## Handling Thrown Exceptions
 
 So far we've used Effects to encapsulate failures, but you may have legacy code or external libraries which throw `Exception`s instead.
