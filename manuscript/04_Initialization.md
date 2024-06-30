@@ -9,7 +9,7 @@ Dependency Inversion enables *Dependency Injection* which produces more flexible
 
 Instead of manually constructing and passing all dependencies through the application,  an "Injector" automatically provides instances of those dependencies when they are needed.
 
-Understanding these terms is not crucial for writing Effect Oriented code, but helps when building the layers in your application.
+Understanding these terms is not crucial for writing Effect Oriented code, but helps when building the `Layer`s for your application.
 {{TODO: Do we need to describe “layers”? }}
 
 Common approaches to implement Dependency Injection rely on runtime magic (e.g. reflection) and require everything to be created through a Dependency Injection manager (the “Injector”). This complicates construction and can make it difficult or impossible to express dependencies at compile time.
@@ -48,12 +48,10 @@ case class Dough():
 
 object Dough:
   val fresh =
-    ZLayer
-      .derive[Dough]
-      .tap:
-        _ =>
-          Console.printLine:
-            "Dough: Mixed"
+    ZLayer.fromZIO:
+      defer:
+        Console.printLine("Dough: Mixed").run
+        Dough()
 ```
 
 ## Step 1: Provide Dependencies
@@ -111,12 +109,10 @@ The requirements for each ZIO operation are tracked and combined automatically.
 case class Heat()
 
 val oven =
-  ZLayer
-    .derive[Heat]
-    .tap:
-      _ =>
-        Console.printLine:
-          "Oven: Heated"
+  ZLayer.fromZIO:
+    defer:
+      Console.printLine("Oven: Heated").run
+      Heat()
 ```
 
 ```scala
@@ -132,12 +128,15 @@ case class BreadHomeMade(
 
 object Bread:
   val homemade =
-    ZLayer
-      .derive[BreadHomeMade]
-      .tap:
-        _ =>
-          Console.printLine:
-            "BreadHomeMade: Baked"
+    ZLayer.fromZIO:
+      defer:
+        Console
+          .printLine("BreadHomeMade: Baked")
+          .run
+        BreadHomeMade(
+          ZIO.service[Heat].run,
+          ZIO.service[Dough].run
+        )
 ```
 
 Something around how like typical DI, the "graph" of dependencies gets resolved "for you"
@@ -159,8 +158,8 @@ def run =
 Output:
 
 ```shell
-Oven: Heated
 Dough: Mixed
+Oven: Heated
 BreadHomeMade: Baked
 Bread: Eating
 ```
@@ -220,12 +219,12 @@ It would be great if we can instead use our dedicated toaster!
 
 ```scala
 val toaster =
-  ZLayer
-    .derive[Heat]
-    .tap:
-      _ =>
-        Console.printLine:
-          "Toaster: Heated"
+  ZLayer.fromZIO:
+    defer:
+      Console
+        .printLine("Toaster: Heated")
+        .run
+      Heat()
 ```
 
 ```scala
@@ -289,12 +288,12 @@ In our case, we choose to distinguish our `Heat` sources, so that they are only 
 case class Toaster()
 object Toaster:
   val layer =
-    ZLayer
-      .derive[Toaster]
-      .tap:
-        _ =>
-          Console.printLine:
-            "Toaster: Heating"
+    ZLayer.fromZIO:
+      defer:
+        Console
+          .printLine("Toaster: Heating")
+          .run
+        Toaster()
 ```
 
 ```scala
@@ -397,8 +396,8 @@ def run =
 Output:
 
 ```shell
-Oven: Heated
 Dough: Mixed
+Oven: Heated
 BreadHomeMade: Baked
 Bread: Eating
 Oven: Turning off!
@@ -711,18 +710,18 @@ def run =
 Output:
 
 ```shell
-Heads
-Tails
 Tails
 Heads
 Heads
 Tails
-Heads
 Tails
 Tails
-Heads
-Num Heads = 5
-Result: 5
+Tails
+Tails
+Tails
+Tails
+Num Heads = 2
+Result: 2
 ```
 
 ```scala
