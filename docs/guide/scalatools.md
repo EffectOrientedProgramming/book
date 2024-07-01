@@ -52,17 +52,11 @@ OpenJDK Runtime Environment Temurin-21.0.3+9 (build 21.0.3+9-LTS)
 OpenJDK 64-Bit Server VM Temurin-21.0.3+9 (build 21.0.3+9-LTS, mixed mode, sharing)
 ```
 
-
-
 If your version is not 21, update with:
 
 ```text
 > cs java --jvm 21 --setup
 ```
-
-<!-- TODO: if we don't run the previous command first, will this command do everything? Try on laptop. -->
-
-
 
 2. `scalac -version`
   Output will be something like:
@@ -70,7 +64,7 @@ If your version is not 21, update with:
 Scala compiler version 3.4.2 -- Copyright 2002-2024, LAMP/EPFL
 ```
 
-2. `sbt help`
+3. `sbt help`
   Output will be something like:
 ```text
 [info] welcome to sbt 1.10.0 (Eclipse Adoptium Java 21.0.3)
