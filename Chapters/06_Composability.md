@@ -854,6 +854,8 @@ override val bootstrap =
 def run =
   strictResearch
     .repeat(Schedule.spaced(24.hours))
-    .timeout(2.seconds) // So our demo does not hang forevery
+    .timeout(
+      2.seconds
+    ) // So our demo does not hang forevery
 ```
 

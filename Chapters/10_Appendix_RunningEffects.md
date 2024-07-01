@@ -87,7 +87,6 @@ def spec =
       ZIO.debug("** logic **").run
       assertTrue:
         10 > 2
-
 ```
 
 ## Interop with existing/legacy code

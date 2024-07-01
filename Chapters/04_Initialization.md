@@ -109,11 +109,10 @@ import zio.direct.*
 case class Heat()
 
 val oven =
-  ZLayer
-    .fromZIO:
-      defer:
-        Console.printLine("Oven: Heated").run
-        Heat()
+  ZLayer.fromZIO:
+    defer:
+      Console.printLine("Oven: Heated").run
+      Heat()
 ```
 
 ```scala 3 mdoc:silent
@@ -132,14 +131,15 @@ case class BreadHomeMade(
 
 object Bread:
   val homemade =
-    ZLayer
-      .fromZIO:
-        defer:
-          Console.printLine("BreadHomeMade: Baked").run
-          BreadHomeMade(
-            ZIO.service[Heat].run,
-            ZIO.service[Dough].run
-          )
+    ZLayer.fromZIO:
+      defer:
+        Console
+          .printLine("BreadHomeMade: Baked")
+          .run
+        BreadHomeMade(
+          ZIO.service[Heat].run,
+          ZIO.service[Dough].run
+        )
 ```
 
 Something around how like typical DI, the "graph" of dependencies gets resolved "for you"
@@ -177,14 +177,13 @@ case class Toast(heat: Heat, bread: Bread):
 
 object Toast:
   val make =
-    ZLayer
-      .fromZIO:
-        defer:
-          Console.printLine("Toast: Made").run
-          Toast(
-            ZIO.service[Heat].run,
-            ZIO.service[Bread].run
-          )
+    ZLayer.fromZIO:
+      defer:
+        Console.printLine("Toast: Made").run
+        Toast(
+          ZIO.service[Heat].run,
+          ZIO.service[Bread].run
+        )
 ```
 
 It is possible to also use the oven to provide `Heat` to make the `Toast`.
@@ -217,11 +216,12 @@ import zio.*
 import zio.direct.*
 
 val toaster =
-  ZLayer
-    .fromZIO:
-      defer:
-        Console.printLine("Toaster: Heated").run
-        Heat()
+  ZLayer.fromZIO:
+    defer:
+      Console
+        .printLine("Toaster: Heated")
+        .run
+      Heat()
 ```
 
 ```scala 3 mdoc:runzio
@@ -264,11 +264,12 @@ import zio.direct.*
 case class Toaster()
 object Toaster:
   val layer =
-    ZLayer
-      .fromZIO:
-        defer:
-          Console.printLine( "Toaster: Heating" ).run
-          Toaster()
+    ZLayer.fromZIO:
+      defer:
+        Console
+          .printLine("Toaster: Heating")
+          .run
+        Toaster()
 ```
 
 ```scala 3 mdoc:silent
@@ -285,14 +286,13 @@ case class ToastZ(
 
 object ToastZ:
   val make =
-    ZLayer
-      .fromZIO:
-        defer:
-          Console.printLine("ToastZ: Made").run
-          ToastZ(
-            ZIO.service[Toaster].run,
-            ZIO.service[Bread].run
-          )
+    ZLayer.fromZIO:
+      defer:
+        Console.printLine("ToastZ: Made").run
+        ToastZ(
+          ZIO.service[Toaster].run,
+          ZIO.service[Bread].run
+        )
 ```
 
 We can explicitly provide dependencies when needed, to prevent ambiguity.
@@ -777,9 +777,7 @@ def spec =
         24.hours
 
     defer:
-      nightlyBatch
-        .zipPar(timeTravel)
-        .run
+      nightlyBatch.zipPar(timeTravel).run
 //      val fork =
 //        nightlyBatch.fork.run
 //      timeTravel.run
