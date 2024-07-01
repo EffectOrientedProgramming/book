@@ -750,9 +750,9 @@ strictResearch: ZIO[Scope, Scenario | NoSummaryAvailable | String, String] = Fla
   trace = "strictResearch(<input>:738)",
   first = Sync(
     trace = "strictResearch(<input>:738)",
-    eval = zio.ZIOCompanionVersionSpecific$$Lambda$3704/0x0000000800e2a040@7d26898e
+    eval = zio.ZIOCompanionVersionSpecific$$Lambda$3492/0x0000000800df8040@28f7845b
   ),
-  successK = zio.ZIO$$$Lambda$3713/0x0000000800e38840@6d631f98
+  successK = zio.ZIO$$$Lambda$3500/0x0000000800dfc840@19af441e
 )
 ```
 
@@ -775,8 +775,9 @@ File - contains(stock market) => false
 Wiki - articleFor(stock market)
 AI - summarize - start
 AI - summarize - end
+File - write: market is not rational
 File - CLOSE
-Result: strict timeout
+Result: market is not rational
 ```
 Repeating is a form of composability, because you are composing a program with itself.
 Now that we have a nice, single-shot workflow that will analyze the current headline, we can make it run every day.
@@ -788,6 +789,9 @@ override val bootstrap =
 def run =
   strictResearch
     .repeat(Schedule.spaced(24.hours))
+    .timeout(
+      2.seconds
+    ) // So our demo does not hang forevery
 ```
 
 Output:
@@ -801,6 +805,7 @@ File - contains(stock market) => false
 Wiki - articleFor(stock market)
 AI - summarize - start
 AI - summarize - end
+File - write: market is not rational
 File - CLOSE
-Result: strict timeout
+Result: None
 ```
