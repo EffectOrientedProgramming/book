@@ -159,7 +159,9 @@ To exit the sbt shell, press **ctrl + d**.
 
 * Downloads can take a long time and might appear to be frozen. Just wait it out.
 
-<!-- *  `eval "$(cs install --env)"` {{ What does this do? }} -->
+* If Java is already installed, you might be missing the JDK, so execute 
+  this command to be sure:    
+  `cs java --jvm 21 --setup`
 
 * Periodically update to the latest Coursier version:
 
@@ -167,9 +169,7 @@ To exit the sbt shell, press **ctrl + d**.
 > cs update cs
 ```
 
-* If Java is already installed, you might be missing the JDK, so execute 
-  this command to be sure:    
-  `cs java --jvm 21 --setup`
-
 * Periodically update your executables by re-installing them, e.g.:    
   `cs install scalafmt`
+
+<!-- *  `eval "$(cs install --env)"` {{ What does this do? }} -->
