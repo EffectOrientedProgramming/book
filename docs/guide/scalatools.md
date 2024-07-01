@@ -41,6 +41,8 @@ We want a newer version of Java which we specify on the `cs` command line:
 
 This may take a few minutes. When prompted with a `[Y/n]` query, enter `y` for all options.
 
+## 3. Test Your Installation
+
 Once installation is complete, close the current shell and open a new one. 
 Now you can run a few simple tests to ensure the installation was successful:
 
@@ -71,7 +73,7 @@ Scala compiler version 3.4.2 -- Copyright 2002-2024, LAMP/EPFL
 ...
 ```
 
-## 3. Using SBT
+## 4. Using SBT
 
 In a terminal, move to the directory where you extracted the [examples](https://github.com/EffectOrientedProgramming/examples) repository and run:
 
@@ -155,7 +157,7 @@ Pressing the `ENTER` key stops the automated command.
 
 To exit the sbt shell, press **ctrl + d**.
 
-## 4. Misc Recommendations
+## 5. Misc Recommendations
 
 * Downloads can take a long time and might appear to be frozen. Just wait it out.
 
