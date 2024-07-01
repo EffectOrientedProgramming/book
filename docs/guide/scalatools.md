@@ -107,10 +107,11 @@ package:
 
 ## 2. Use Coursier to Install the Required Tools
 
-This command installs the JDK, Scala 3, the SBT build tool, and several other tools:
+This command installs the JDK, Scala 3, the SBT build tool, and several other tools.
+We want a newer version of Java which we specify on the `cs` command line:
 
 ```
-> cs setup
+> cs setup --jvm 21
 ```
 
 This may take a few minutes. When prompted with a `[Y/n]` query, enter `y` for all options.
@@ -118,27 +119,45 @@ This may take a few minutes. When prompted with a `[Y/n]` query, enter `y` for a
 Once installation is complete, close the current shell and open a new one. 
 Now you can run a few simple tests to ensure the installation was successful:
 
-1. `java -version`
+1. `cs java -version`
   Output will be something like:
 ```text
-java version "1.8.0_211"
-Java(TM) SE Runtime Environment (build 1.8.0_211-b12)
-Java HotSpot(TM) 64-Bit Server VM (build 25.211-b12, mixed mode)
+openjdk version "21.0.3" 2024-04-16 LTS
+OpenJDK Runtime Environment Temurin-21.0.3+9 (build 21.0.3+9-LTS)
+OpenJDK 64-Bit Server VM Temurin-21.0.3+9 (build 21.0.3+9-LTS, mixed mode, sharing)
 ```
 
-2. `javac -version`
+<!-- However, we want the latest Long Term Support (LTS) version. At this writing it's version 21, so enter:
+
+```text
+> cs java --jvm 21 -version
+```
+
+This installs the latest Java version 21, but does not use it as the default version, as you'll see if you run `cs java -version`. 
+To switch to the newly-installed version, enter:
+-->
+
+If your version is not 21, update with:
+
+```text
+> cs java --jvm 21 --setup
+```
+
+<!-- TODO: if we don't run the previous command first, will this command do everything? Try on laptop. -->
+
+<!-- 2. `javac -version`
   Output will be something like:
 ```text
-javac 1.8.0_211
-```
+javac 11.0.23
+``` -->
 
-3. `scalac -version`
+2. `scalac -version`
   Output will be something like:
 ```text
-Scala compiler version 2.13.6 -- Copyright 2002-2021, LAMP/EPFL and Lightbend, Inc.
+Scala compiler version 3.4.2 -- Copyright 2002-2024, LAMP/EPFL
 ```
 
-4. `sbt help`
+2. `sbt help`
   Output will be something like:
 ```text
 [info] welcome to sbt 1.5.5 (Oracle Corporation Java 1.8.0_211)
@@ -161,7 +180,7 @@ Do this periodically to make sure you have the latest Coursier version.
 
 ## 3. Using SBT
 
-In a terminal, run the command:
+In a terminal, move to the directory where you extracted the [examples](https://github.com/EffectOrientedProgramming/examples) repository and run:
 
 ```
 > sbt
@@ -183,6 +202,8 @@ To compile all the files in the current project, run the following inside the sb
 sbt:EffectOrientedProgramming> compile
 ```
 
+You might see some warnings the first time you run `compile` after installing the repository but you can ignore them.
+
 ### Running a Program
 
 (All commands here are run from within the sbt shell)
@@ -199,22 +220,21 @@ To run a specific program, use `runMain`:
 sbt:EffectOrientedProgramming> runMain programName
 ```
 
-For example, the main function of the `HelloWorld` object is located in
-the directory `Examples`. To run `helloWorld`:
+For example, to run  `App0` from `Chapter03_Superpowers`:
 
 ```
 sbt:EffectOrientedProgramming> run
 (sbt displays number list of main programs)
-Enter number: (input the index of helloWorld)
+Enter number: 1
 ```
 
 or
 
 ```
-sbt:EffectOrientedProgramming> runMain helloWorld
+sbt:examples> runMain Chapter03_Superpowers.App0
 ```
 
-To run a program in a package, use the format **runMain packagename.mainName**.
+<!-- TODO: Some way for the reader to run all programs with a single command? -->
 
 ### Automatic Command Execution
 
@@ -222,10 +242,10 @@ If you precede any command with `~`, sbt automatically runs that command wheneve
 For example:
 
 ```
-sbt:EffectOrientedProgramming> ~runMain helloWorld
+sbt:EffectOrientedProgramming> ~runMain Chapter03_Superpowers.App0
 ```
 
-automatically runs `helloWorld` whenever any of that program's files change.
+automatically runs `Chapter03_Superpowers.App0` whenever any of that program's files change.
 Pressing the `ENTER` key stops the automated command.
 
 ### Exiting
@@ -236,11 +256,11 @@ To exit the sbt shell, press **ctrl + d**.
 
 * Downloads can take a long time and might appear to be frozen. Just wait it out.
 
-*  `eval "$(cs install --env)"` {{ What does this do? }}
+<!-- *  `eval "$(cs install --env)"` {{ What does this do? }} -->
 
 * If Java is already installed, you might be missing the JDK, so execute 
   this command to be sure:    
-  `cs java --jvm adopt:11 --setup`
+  `cs java --jvm 21 --setup`
 
-* Periodically update your exectuables by re-installing them, e.g.:    
+* Periodically update your executables by re-installing them, e.g.:    
   `cs install scalafmt`

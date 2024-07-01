@@ -40,7 +40,7 @@ On the right side of that message bar, you'll see:
 Setup Scala SDK
 ```
 Click on this. In the resulting dialog box, select "Create" and choose the latest Coursier version of Scala, which will be
-version 2.x. The Dialog box will now look something like this:
+version 3.x. The Dialog box will now look something like this:
 
 ![image](https://user-images.githubusercontent.com/1001900/126879631-6490636e-7db5-4e4f-90c6-82292ff2569f.png)
 
