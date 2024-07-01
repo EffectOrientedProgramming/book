@@ -44,7 +44,7 @@ This may take a few minutes. When prompted with a `[Y/n]` query, enter `y` for a
 Once installation is complete, close the current shell and open a new one. 
 Now you can run a few simple tests to ensure the installation was successful:
 
-1. `cs java -version`
+- `cs java -version`
   Output will be something like:
 ```text
 openjdk version "21.0.3" 2024-04-16 LTS
@@ -58,13 +58,13 @@ If your version is not 21, update with:
 > cs java --jvm 21 --setup
 ```
 
-2. `scalac -version`
+- `scalac -version`
   Output will be something like:
 ```text
 Scala compiler version 3.4.2 -- Copyright 2002-2024, LAMP/EPFL
 ```
 
-3. `sbt help`
+- `sbt help`
   Output will be something like:
 ```text
 [info] welcome to sbt 1.10.0 (Eclipse Adoptium Java 21.0.3)
