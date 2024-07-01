@@ -351,8 +351,8 @@ Output:
 
 ```shell
 Toaster: Heating
-Oven: Heated
 Dough: Mixed
+Oven: Heated
 BreadHomeMade: Baked
 ToastZ: Made
 Toast: Eating
@@ -726,18 +726,18 @@ def run =
 Output:
 
 ```shell
-Tails
-Tails
-Tails
-Tails
-Tails
-Tails
+Heads
+Heads
+Heads
+Heads
 Heads
 Tails
 Heads
+Tails
 Heads
-Num Heads = 3
-Result: 3
+Heads
+Num Heads = 8
+Result: 8
 ```
 
 ```scala
