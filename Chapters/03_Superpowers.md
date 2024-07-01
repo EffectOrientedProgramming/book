@@ -332,9 +332,8 @@ To ensure that some logging happens after the logic completes, regardless of fai
 
 ```scala 3 mdoc:silent
 val effect5 =
-  ZIO.scoped:
-    effect4.withFinalizer:
-      _ => logUserSignup
+  effect4.withFinalizer:
+    _ => logUserSignup
 ```
 
 `withFinalizer` expects a function as its argument; `_ => logUserSignup` creates a function that takes no arguments and calls `logUserSignup`.
