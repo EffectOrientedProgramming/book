@@ -74,3 +74,23 @@ package:
 > ./cs install cs
 > eval "$(cs install --env)"
 ``` -->
+
+
+
+
+<!-- However, we want the latest Long Term Support (LTS) version. At this writing it's version 21, so enter:
+
+```text
+> cs java --jvm 21 -version
+```
+
+This installs the latest Java version 21, but does not use it as the default version, as you'll see if you run `cs java -version`. 
+To switch to the newly-installed version, enter:
+-->
+
+
+<!-- 2. `javac -version`
+  Output will be something like:
+```text
+javac 11.0.23
+``` -->

@@ -52,15 +52,7 @@ OpenJDK Runtime Environment Temurin-21.0.3+9 (build 21.0.3+9-LTS)
 OpenJDK 64-Bit Server VM Temurin-21.0.3+9 (build 21.0.3+9-LTS, mixed mode, sharing)
 ```
 
-<!-- However, we want the latest Long Term Support (LTS) version. At this writing it's version 21, so enter:
 
-```text
-> cs java --jvm 21 -version
-```
-
-This installs the latest Java version 21, but does not use it as the default version, as you'll see if you run `cs java -version`. 
-To switch to the newly-installed version, enter:
--->
 
 If your version is not 21, update with:
 
@@ -70,11 +62,7 @@ If your version is not 21, update with:
 
 <!-- TODO: if we don't run the previous command first, will this command do everything? Try on laptop. -->
 
-<!-- 2. `javac -version`
-  Output will be something like:
-```text
-javac 11.0.23
-``` -->
+
 
 2. `scalac -version`
   Output will be something like:
