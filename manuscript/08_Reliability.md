@@ -221,14 +221,14 @@ Output:
 
 ```shell
 Bill called API [took 0s]
-Bruce called API [took 1s]
-James called API [took 2s]
+James called API [took 1s]
+Bruce called API [took 2s]
 Bill called API [took 3s]
-Bruce called API [took 3s]
 James called API [took 3s]
+Bruce called API [took 3s]
 Bill called API [took 3s]
-Bruce called API [took 3s]
 James called API [took 3s]
+Bruce called API [took 3s]
 Total time [took 8s]
 ```
 
@@ -257,10 +257,10 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(387)
-Current requests: List(727, 387)
-Current requests: List(713, 727, 387)
-Current requests: List(35, 713, 727, 387)
+Current requests: List(416)
+Current requests: List(375, 416)
+Current requests: List(586, 375, 416)
+Current requests: List(18, 586, 375, 416)
 Result: Crashed the server!!
 ```
 
@@ -303,16 +303,16 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(749)
-Current requests: List(106, 749)
-Current requests: List(383, 106, 749)
-Current requests: List(71, 873)
-Current requests: List(873)
-Current requests: List(235, 71, 873)
-Current requests: List(337, 716, 235)
-Current requests: List(716, 235)
-Current requests: List(801, 337, 716)
-Current requests: List(110)
+Current requests: List(824)
+Current requests: List(695, 824)
+Current requests: List(177, 695, 824)
+Current requests: List(219, 719)
+Current requests: List(719)
+Current requests: List(25, 219, 719)
+Current requests: List(263, 25)
+Current requests: List(873, 263, 25)
+Current requests: List(191, 873, 263)
+Current requests: List(262, 191)
 Result: All Requests Succeeded
 ```
 
@@ -415,7 +415,7 @@ def run =
 Output:
 
 ```shell
-Result: Calls prevented: 75 Calls made: 66
+Result: Calls prevented: 74 Calls made: 67
 ```
 
 Now we see that our code prevented the majority of the doomed calls to the external service.
@@ -478,8 +478,8 @@ def run =
 Output:
 
 ```shell
-Contract Breaches: 0
-Result: 0
+Contract Breaches: 1
+Result: 1
 ```
 
 ## Test Reliability
@@ -559,7 +559,6 @@ def spec =
 Output:
 
 ```shell
-Failed!
 Failed!
 Success!
 + long test!
