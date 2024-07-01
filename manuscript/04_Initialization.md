@@ -727,17 +727,17 @@ Output:
 
 ```shell
 Tails
-Tails
-Tails
-Tails
 Heads
 Heads
 Heads
 Tails
+Tails
 Heads
 Tails
-Num Heads = 4
-Result: 4
+Tails
+Heads
+Num Heads = 5
+Result: 5
 ```
 
 ```scala
