@@ -27,8 +27,9 @@ instructions on [YouTube](https://www.youtube.com/).
 ## 1. Install Coursier
 
 The process for installing Coursier is different for each operating system.
+The [Coursier Installation Instructions](https://get-coursier.io/docs/cli-installation) provide a detailed guide for each system.
 
-### Windows
+<!-- ### Windows
 
 Run the following commands (**Note:** Use cmd.exe, not Powershell):
 
@@ -103,7 +104,7 @@ package:
 > chmod +x cs
 > ./cs install cs
 > eval "$(cs install --env)"
-```
+``` -->
 
 ## 2. Use Coursier to Install the Required Tools
 
@@ -160,23 +161,9 @@ Scala compiler version 3.4.2 -- Copyright 2002-2024, LAMP/EPFL
 2. `sbt help`
   Output will be something like:
 ```text
-[info] welcome to sbt 1.5.5 (Oracle Corporation Java 1.8.0_211)
-[info] loading settings for project book-build from plugins.sbt ...
-[info] loading project definition from C:\Users\bruce\Documents\Git\book\projec
-[info] loading settings for project book from build.sbt ...
-[info] set current project to EffectOrientedProgramming
+[info] welcome to sbt 1.10.0 (Eclipse Adoptium Java 21.0.3)
 ...
 ```
-
-### Update Coursier
-
-After Coursier is installed, it can be updated with:
-
-```
-> cs update cs
-```
-
-Do this periodically to make sure you have the latest Coursier version.
 
 ## 3. Using SBT
 
@@ -257,6 +244,12 @@ To exit the sbt shell, press **ctrl + d**.
 * Downloads can take a long time and might appear to be frozen. Just wait it out.
 
 <!-- *  `eval "$(cs install --env)"` {{ What does this do? }} -->
+
+* Periodically update to the latest Coursier version:
+
+```
+> cs update cs
+```
 
 * If Java is already installed, you might be missing the JDK, so execute 
   this command to be sure:    
