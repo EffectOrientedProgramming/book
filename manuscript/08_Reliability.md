@@ -257,10 +257,11 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(734)
-Current requests: List(435, 734)
-Current requests: List(210, 435, 734)
-Current requests: List(466, 210, 435, 734)
+Current requests: List(866)
+Current requests: List(5, 866)
+Current requests: List(413, 5, 866)
+Current requests: List(622, 413, 5, 866)
+Current requests: List(600, 622, 413, 5, 866)
 Result: Crashed the server!!
 ```
 
@@ -303,16 +304,16 @@ Output:
 ```shell
 Delicate Resource constructed.
 Do not make more than 3 concurrent requests!
-Current requests: List(388)
-Current requests: List(775, 388)
-Current requests: List(854, 775, 388)
-Current requests: List(336, 854)
-Current requests: List(254, 336)
-Current requests: List(314, 254, 336)
-Current requests: List(576, 314)
-Current requests: List(805, 576, 314)
-Current requests: List(295, 805, 576)
-Current requests: List(204)
+Current requests: List(479)
+Current requests: List(658, 479)
+Current requests: List(668, 658, 479)
+Current requests: List(36)
+Current requests: List(119, 36)
+Current requests: List(497, 119, 36)
+Current requests: List(96, 497)
+Current requests: List(164, 96, 497)
+Current requests: List(879, 164, 96)
+Current requests: List(740)
 Result: All Requests Succeeded
 ```
 
