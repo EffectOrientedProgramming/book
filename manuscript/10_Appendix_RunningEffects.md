@@ -85,8 +85,6 @@ Output:
 
 ```shell
 ** logic **
-Log: Signup initiated for Morty
-Log: Signup initiated for Morty
 + random is random
 ```
 
