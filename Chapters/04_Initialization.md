@@ -34,7 +34,7 @@ ZIO’s dependency management provides capabilities that are not possible in oth
 
 ## Let's Make Bread
 
-To illustrate how ZIO can assemble our programs, we will use it to make and eat `Bread`, and later `Toast`. [^footnote]
+To illustrate how ZIO can assemble our programs, we make and eat `Bread`. [^footnote]
 [^footnote]: Although we are utilizing very different tools with different goals, we were inspired by Li Haoyi's excellent article ["What is Functional Programming All About?"](https://www.lihaoyi.com/post/WhatsFunctionalProgrammingAllAbout.html)
 
 ```scala 3 mdoc:silent
@@ -54,8 +54,25 @@ object Dough:
         Dough()
 ```
 
+In this book, we follow the Scala practice of preferring `case` classes over ordinary classes.
+`case` classes are immutable by default and automatically provide commonly-needed functionality.
+
+The companion object `Dough` creates a `ZLayer`, which you can think of as a more-powerful constructor. 
+Calling `fresh` produces a new instance of `Dough` within a `ZLayer`.
+This `ZLayer` provides the `Dough` instance as a dependency to any other Effect that needs it.
+
+Looking at the code from the inside out, the `defer` block executes the `printLine` Effect by calling `.run`, but does *not* call `.run` for `Dough`. 
+The result of the `defer` is an Effect, because `defer` always produces an Effect.
+In ZIO all managed Effects are contained in ZIO objects.
+Thus, all Effectful functions return a ZIO object.
+
+This ZIO is passed to `ZLayer.fromZIO` which produces a `ZLayer` object (which is also a ZIO) containing a `Dough` object.
 ## Step 1: Provide Dependencies
 
+`Dough.fresh` produces a `ZLayer` containing a `Dough` for use as a dependency by other Effects.
+How is that dependency provided?
+
+If an Effect requires a dependency
 We must provide all required dependencies to an Effect before you can run it.
 
 ```scala 3 mdoc:runzio
