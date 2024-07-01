@@ -161,11 +161,13 @@ case class Toast(heat: Heat, bread: Bread):
 object Toast:
   val make =
     ZLayer
-      .derive[Toast]
-      .tap:
-        _ =>
-          Console.printLine:
-            "Toast: Made"
+      .fromZIO:
+        defer:
+          Console.printLine("Toast: Made").run
+          Toast(
+            ZIO.service[Heat].run,
+            ZIO.service[Bread].run
+          )
 ```
 
 It is possible to also use the oven to provide `Heat` to make the `Toast`.
@@ -267,11 +269,13 @@ case class ToastZ(
 object ToastZ:
   val make =
     ZLayer
-      .derive[ToastZ]
-      .tap:
-        _ =>
-          Console.printLine:
-            "ToastZ: Made"
+      .fromZIO:
+        defer:
+          Console.printLine("ToastZ: Made").run
+          ToastZ(
+            ZIO.service[Toaster].run,
+            ZIO.service[Bread].run
+          )
 ```
 
 We can explicitly provide dependencies when needed, to prevent ambiguity.
