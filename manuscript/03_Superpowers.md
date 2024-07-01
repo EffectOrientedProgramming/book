@@ -261,6 +261,8 @@ Output:
 
 ```shell
 Log: **Database crashed!!**
+Log: **Database crashed!!**
+Log: **Database crashed!!**
 Result: Please manually provision Morty
 ```
 
@@ -317,7 +319,7 @@ Output:
 
 ```shell
 Log: Signup initiated for Morty
-Result: (PT5.06187516S,User saved)
+Result: (PT0.041363879S,User saved)
 ```
 
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.

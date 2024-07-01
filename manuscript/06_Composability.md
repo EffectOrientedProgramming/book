@@ -750,9 +750,9 @@ strictResearch: ZIO[Scope, Scenario | NoSummaryAvailable | String, String] = Fla
   trace = "strictResearch(<input>:738)",
   first = Sync(
     trace = "strictResearch(<input>:738)",
-    eval = zio.ZIOCompanionVersionSpecific$$Lambda$3687/0x0000000800e69440@47bb1546
+    eval = zio.ZIOCompanionVersionSpecific$$Lambda$3680/0x0000000800e48c40@757c8212
   ),
-  successK = zio.ZIO$$$Lambda$3689/0x0000000800e6e840@17812036
+  successK = zio.ZIO$$$Lambda$3683/0x0000000800e4e040@3a9b5cb7
 )
 ```
 
@@ -797,5 +797,15 @@ def run =
 Output:
 
 ```shell
+Network - Getting headline
+Analytics - Scanning for topic
+Analytics - topic: Some(stock market)
+File - OPEN
+File - contains(stock market) => false
+Wiki - articleFor(stock market)
+AI - summarize - start
+AI - summarize - end
+File - write: market is not rational
+File - CLOSE
 Result: None
 ```
