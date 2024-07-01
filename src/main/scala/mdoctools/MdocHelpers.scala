@@ -66,7 +66,7 @@ trait ToRun(
             .unsafe
             .fromLayer(myBootstrap ++ bootstrap)
             .unsafe
-            .run(e.provide(Scope.default)) match
+            .run(ZIO.scoped(e)) match
             case Exit.Success(value) =>
               value
             case Exit.Failure(cause) =>
