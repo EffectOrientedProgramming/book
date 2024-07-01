@@ -157,7 +157,7 @@ Pressing the `ENTER` key stops the automated command.
 
 To exit the sbt shell, press **ctrl + d**.
 
-## 5. Misc Recommendations
+## 5. Troubleshooting
 
 * Downloads can take a long time and might appear to be frozen. Just wait it out.
 
