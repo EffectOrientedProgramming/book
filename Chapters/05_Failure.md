@@ -1,4 +1,4 @@
-# Managing Failure
+# Failure
 
 Given that Effects encapsulate the unpredictable parts of a system,
 they must have a way to express failure.
