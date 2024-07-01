@@ -833,9 +833,8 @@ Even though we already have a narrow timeout attached to the AI summarize call, 
 
 ```scala 3 mdoc
 val strictResearch =
-  researchHeadline.timeoutFail(
-    "strict timeout"
-  )(1.second)
+  researchHeadline
+    .timeoutFail("strict timeout")(1.second)
 ```
 
 ```scala 3 mdoc:runzio
@@ -855,5 +854,6 @@ override val bootstrap =
 def run =
   strictResearch
     .repeat(Schedule.spaced(24.hours))
+    .timeout(2.seconds) // So our demo does not hang forevery
 ```
 
