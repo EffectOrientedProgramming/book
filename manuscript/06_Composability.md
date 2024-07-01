@@ -425,7 +425,7 @@ Output:
 ```shell
 AI - summarize - start
 AI - summarize - end
-Result: short summary
+Result: AITooSlow()
 ```
 
 Long-running invocations will be interrupted if they take too long.
@@ -750,9 +750,9 @@ strictResearch: ZIO[Scope, Scenario | NoSummaryAvailable | String, String] = Fla
   trace = "strictResearch(<input>:738)",
   first = Sync(
     trace = "strictResearch(<input>:738)",
-    eval = zio.ZIOCompanionVersionSpecific$$Lambda$3571/0x0000000800dfa040@eb6d913
+    eval = zio.ZIOCompanionVersionSpecific$$Lambda$3687/0x0000000800e69440@47bb1546
   ),
-  successK = zio.ZIO$$$Lambda$3580/0x0000000800dfd040@760f0b04
+  successK = zio.ZIO$$$Lambda$3689/0x0000000800e6e840@17812036
 )
 ```
 
@@ -797,15 +797,5 @@ def run =
 Output:
 
 ```shell
-Network - Getting headline
-Analytics - Scanning for topic
-Analytics - topic: Some(stock market)
-File - OPEN
-File - contains(stock market) => false
-Wiki - articleFor(stock market)
-AI - summarize - start
-AI - summarize - end
-File - write: market is not rational
-File - CLOSE
 Result: None
 ```
