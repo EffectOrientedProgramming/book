@@ -1,0 +1,755 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Support Site for the Book">
+      
+      
+      
+        <meta name="author" content="Bill Frasure, James Ward and Bruce Eckel">
+      
+      
+        <link rel="canonical" href="https://EffectOrientedProgramming.com/guide/scalatools/">
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-7.3.4">
+    
+    
+      
+        <title>Installing Scala & Tools - Effect Oriented Programming</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.db9e7362.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.3f5d1f46.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>:root{--md-text-font-family:"Roboto";--md-code-font-family:"Roboto Mono"}</style>
+      
+    
+    
+    
+    
+      
+
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+  
+    
+    <script>function __prefix(e){return new URL("../..",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#installing-scala-tools" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Effect Oriented Programming" class="md-header__button md-logo" aria-label="Effect Oriented Programming" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Effect Oriented Programming
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Installing Scala & Tools
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Effect Oriented Programming" class="md-nav__button md-logo" aria-label="Effect Oriented Programming" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    Effect Oriented Programming
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2">
+          Guide
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Guide" data-md-level="1">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          Guide
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Installing Scala & Tools
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Installing Scala & Tools
+      </a>
+      
+        
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#notes" class="md-nav__link">
+    Notes
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-install-coursier" class="md-nav__link">
+    1. Install Coursier
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-use-coursier-to-install-the-required-tools" class="md-nav__link">
+    2. Use Coursier to Install the Required Tools
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-test-your-installation" class="md-nav__link">
+    3. Test Your Installation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-using-sbt" class="md-nav__link">
+    4. Using SBT
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Using SBT">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#compiling" class="md-nav__link">
+    Compiling
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#running-a-program" class="md-nav__link">
+    Running a Program
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#automatic-command-execution" class="md-nav__link">
+    Automatic Command Execution
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#exiting" class="md-nav__link">
+    Exiting
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-troubleshooting" class="md-nav__link">
+    5. Troubleshooting
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/" class="md-nav__link">
+        Running the Book Code
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3">
+          About
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="About" data-md-level="1">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          About
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../about/authors/" class="md-nav__link">
+        Authors
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../about/license/" class="md-nav__link">
+        License
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#notes" class="md-nav__link">
+    Notes
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-install-coursier" class="md-nav__link">
+    1. Install Coursier
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-use-coursier-to-install-the-required-tools" class="md-nav__link">
+    2. Use Coursier to Install the Required Tools
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-test-your-installation" class="md-nav__link">
+    3. Test Your Installation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-using-sbt" class="md-nav__link">
+    4. Using SBT
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Using SBT">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#compiling" class="md-nav__link">
+    Compiling
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#running-a-program" class="md-nav__link">
+    Running a Program
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#automatic-command-execution" class="md-nav__link">
+    Automatic Command Execution
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#exiting" class="md-nav__link">
+    Exiting
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-troubleshooting" class="md-nav__link">
+    5. Troubleshooting
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                
+                <h1 id="installing-scala-tools">Installing Scala &amp; Tools</h1>
+<p>This is an overview of the setup process to use these examples. The following sections provide detailed instructions.</p>
+<ol>
+<li>Download and install <a href="https://get-coursier.io/">Coursier</a>.
+    <a href="https://get-coursier.io/docs/cli-overview">Coursier</a> is the Scala installer we use to ensure that a JVM and standard Scala tools are installed on your system.
+    Details are <a href="https://docs.scala-lang.org/scala3/getting-started.html">here</a>.</li>
+<li>Run <code>cs setup</code>. This installs a Java Development Kit (JDK), Scala 3 {{ Does it? }}, and support tools such as the Scala Build Tool (<a href="https://www.scala-sbt.org/">SBT</a>).</li>
+<li>Install an Integrated Development Environment (IDE): either IntelliJ IDEA or Visual Studio Code (VSCode).</li>
+<li>Install the Scala add-on for your IDE.</li>
+<li>Clone/download this repository.</li>
+<li>Open the <code>build.sbt</code> file in your IDE.</li>
+</ol>
+<h2 id="notes">Notes</h2>
+<ol>
+<li>
+<p>We assume you know how to use the Command-Line Interface (CLI) for your Operating System (OS: Windows, Macintosh or Linux).
+If you do not, you can find instructions <a href="https://github.com/BruceEckel/AtomicKotlinExamples/blob/master/README.md#appendix-a-command-line-basics">here</a>.
+These instructions were written for <a href="https://www.atomickotlin.com/">Atomic Kotlin</a>, so Kotlin will be referenced.</p>
+</li>
+<li>
+<p>If any terminology or processes described here are still not clear, you can usually find explanations or answers through
+<a href="https://www.google.com/">Google</a>. For more specific issues or problems, try
+<a href="http://stackoverflow.com/">StackOverflow</a>. Sometimes you can find installation
+instructions on <a href="https://www.youtube.com/">YouTube</a>.</p>
+</li>
+<li>
+<p>If after any installation step something doesn't seem to work, try closing your shell and opening a new one.</p>
+</li>
+</ol>
+<h2 id="1-install-coursier">1. Install Coursier</h2>
+<p>The process for installing Coursier is different for each operating system.
+The <a href="https://get-coursier.io/docs/cli-installation">Coursier Installation Instructions</a> provide a detailed guide for each system.</p>
+<h2 id="2-use-coursier-to-install-the-required-tools">2. Use Coursier to Install the Required Tools</h2>
+<p>This command installs the JDK, Scala 3, the SBT build tool, and several other tools.
+We want a newer version of Java which we specify on the <code>cs</code> command line:</p>
+<pre><code>&gt; cs setup --jvm 21
+</code></pre>
+<p>This may take a few minutes. When prompted with a <code>[Y/n]</code> query, enter <code>y</code> for all options.</p>
+<h2 id="3-test-your-installation">3. Test Your Installation</h2>
+<p>Once installation is complete, close the current shell and open a new one. 
+Now you can run a few simple tests to ensure the installation was successful:</p>
+<p>1. <code>cs java -version</code><br />
+  Output will be something like:</p>
+<pre><code class="language-text">openjdk version &quot;21.0.3&quot; 2024-04-16 LTS
+OpenJDK Runtime Environment Temurin-21.0.3+9 (build 21.0.3+9-LTS)
+OpenJDK 64-Bit Server VM Temurin-21.0.3+9 (build 21.0.3+9-LTS, mixed mode, sharing)
+</code></pre>
+<p>If your version is not 21, update with:</p>
+<pre><code class="language-text">&gt; cs java --jvm 21 --setup
+</code></pre>
+<p>2. <code>scalac -version</code><br />
+  Output will be something like:</p>
+<pre><code class="language-text">Scala compiler version 3.4.2 -- Copyright 2002-2024, LAMP/EPFL
+</code></pre>
+<p>3. <code>sbt help</code><br />
+  Output will be something like:</p>
+<pre><code class="language-text">[info] welcome to sbt 1.10.0 (Eclipse Adoptium Java 21.0.3)
+...
+</code></pre>
+<h2 id="4-using-sbt">4. Using SBT</h2>
+<p>In a terminal, move to the directory where you extracted the <a href="https://github.com/EffectOrientedProgramming/examples">examples</a> repository and run:</p>
+<pre><code>&gt; sbt
+</code></pre>
+<p>This opens the sbt shell. For this project, the prompt will look like this:</p>
+<pre><code>sbt:EffectOrientedProgramming&gt;
+</code></pre>
+<p>From here, you can run the programs in your project.</p>
+<h3 id="compiling">Compiling</h3>
+<p>To compile all the files in the current project, run the following inside the sbt shell:</p>
+<pre><code>sbt:EffectOrientedProgramming&gt; compile
+</code></pre>
+<p>You might see some warnings the first time you run <code>compile</code> after installing the repository but you can ignore them.</p>
+<h3 id="running-a-program">Running a Program</h3>
+<p>(All commands here are run from within the sbt shell)</p>
+<p>To display a list of all executables in the project:</p>
+<pre><code>sbt:EffectOrientedProgramming&gt; run
+</code></pre>
+<p>To run a specific program, use <code>runMain</code>:</p>
+<pre><code>sbt:EffectOrientedProgramming&gt; runMain programName
+</code></pre>
+<p>For example, to run  <code>App0</code> from <code>Chapter03_Superpowers</code>:</p>
+<pre><code>sbt:EffectOrientedProgramming&gt; run
+(sbt displays number list of main programs)
+Enter number: 1
+</code></pre>
+<p>or</p>
+<pre><code>sbt:examples&gt; runMain Chapter03_Superpowers.App0
+</code></pre>
+<blockquote>
+<p><strong>NOTE: Some output might be out-of-order vs. output shown in the book</strong>.<br />
+Nodes in the same layer of the dependency graph have arbitrary ordering.
+The ordering of initialization in the dependency graph is only guaranteed in the sense that 'If B depends on A, then A will be constructed first.'
+But anytime there are unrelated pieces, the ordering is arbitrary.
+C could be constructed at any point:<br />
+- Before A<br />
+- In between A and B<br />
+- After B<br />
+As long as C doesn't depend on A or B.</p>
+</blockquote>
+<!-- TODO: Some way for the reader to run all programs with a single command? runMainClassesToleratesFailures -->
+
+<h3 id="automatic-command-execution">Automatic Command Execution</h3>
+<p>If you precede any command with <code>~</code>, sbt automatically runs that command whenever there is a change to the associated files.
+For example:</p>
+<pre><code>sbt:EffectOrientedProgramming&gt; ~runMain Chapter03_Superpowers.App0
+</code></pre>
+<p>automatically runs <code>Chapter03_Superpowers.App0</code> whenever any of that program's files change.
+Pressing the <code>ENTER</code> key stops the automated command.</p>
+<h3 id="exiting">Exiting</h3>
+<p>To exit the sbt shell, press <strong>ctrl + d</strong>.</p>
+<h2 id="5-troubleshooting">5. Troubleshooting</h2>
+<ul>
+<li>
+<p>Downloads can take a long time and might appear to be frozen. Just wait it out.</p>
+</li>
+<li>
+<p>If Java is already installed, you might be missing the JDK, so execute 
+  this command to be sure:  <br />
+<code>cs java --jvm 21 --setup</code></p>
+</li>
+<li>
+<p>Periodically update to the latest Coursier version:</p>
+</li>
+</ul>
+<pre><code>&gt; cs update cs
+</code></pre>
+<ul>
+<li>Periodically update your executables by re-installing them, e.g.:  <br />
+<code>cs install scalafmt</code></li>
+</ul>
+<!-- *  `eval "$(cs install --env)"` {{ What does this do? }} -->
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+        
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <nav class="md-footer__inner md-grid" aria-label="Footer">
+      
+        
+        <a href="../.." class="md-footer__link md-footer__link--prev" aria-label="Previous: Home" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Home
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../examples/" class="md-footer__link md-footer__link--next" aria-label="Next: Running the Book Code" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Running the Book Code
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        
+          Made with
+          <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+            Material for MkDocs
+          </a>
+        
+        
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../assets/javascripts/workers/search.8397ff9e.min.js", "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.1e84347e.min.js"></script>
+      
+    
+  </body>
+</html>
