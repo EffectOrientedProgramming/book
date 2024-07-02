@@ -57,16 +57,31 @@ trait ToRun(
         val e =
           Rendering
             .renderEveryPossibleOutcomeZio:
-              run
+              ZIO.scoped: // run this in a scope to insure that the finalizers run in a scope for the ToRun
+                run
             .withConsole(ourConsole)
             .withClock(ourClock)
+
+        val ourEnvironment =
+          ZEnvironment[
+            Clock,
+            Console,
+            System,
+            Random
+          ](
+            ourClock,
+            ourConsole,
+            System.SystemLive,
+            Random.RandomLive
+          )
 
         val result =
           Runtime
             .unsafe
             .fromLayer(myBootstrap ++ bootstrap)
+            .withEnvironment(ourEnvironment) // just to be extra sure that the Console & Clock are ours
             .unsafe
-            .run(ZIO.scoped(e)) match
+            .run(e) match
             case Exit.Success(value) =>
               value
             case Exit.Failure(cause) =>

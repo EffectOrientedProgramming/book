@@ -139,6 +139,12 @@ mdocWatch := Def.taskDyn {
   }
 }.value
 
+lazy val mdocWatchFresh = taskKey[Unit]("mdoc watch with fresh build")
+mdocWatchFresh := {
+  mdocRunForceAll.value
+  (Compile / runMain).toTask(s" mdoc.mdocWatch $examplesDir").value
+}
+
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
 // windows sometimes produces OverlappingFileLockException
