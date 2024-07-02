@@ -5,15 +5,15 @@ This is an overview of the setup process to use these examples. The following se
 1.  Download and install [Coursier](https://get-coursier.io/).
     [Coursier](https://get-coursier.io/docs/cli-overview) is the Scala installer we use to ensure that a JVM and standard Scala tools are installed on your system.
     Details are [here](https://docs.scala-lang.org/scala3/getting-started.html).
-2.  Run `cs setup`. This installs a Java Development Kit (JDK), Scala 3 {{ Does it? }}, and support tools such as the Scala Build Tool ([SBT](https://www.scala-sbt.org/)).
-3.  Install an Integrated Development Environment (IDE): either IntelliJ IDEA or Visual Studio Code (VSCode).
-4.  Install the Scala add-on for your IDE.
-5.  Clone/download this repository.
-6.  Open the `build.sbt` file in your IDE.
+1.  Run `cs setup --jvm 21`. This installs the Java Development Kit (JDK) version 21, Scala 3, and support tools such as the Scala Build Tool ([SBT](https://www.scala-sbt.org/)).
+1.  Install an Integrated Development Environment (IDE): either IntelliJ IDEA or Visual Studio Code (VSCode).
+1.  Download or clone this repository.
+1.  Open the repository in your IDE.
+1.  Install the Scala add-on for your IDE.
 
 ## Notes
 
-1. We assume you know how to use the Command-Line Interface (CLI) for your Operating System (OS: Windows, Macintosh or Linux).
+1. We assume you know how to use the Command-Line Interface (CLI) a.k.a *shell* for your Operating System (OS: Windows, Macintosh or Linux).
 If you do not, you can find instructions [here](https://github.com/BruceEckel/AtomicKotlinExamples/blob/master/README.md#appendix-a-command-line-basics).
 These instructions were written for [Atomic Kotlin](https://www.atomickotlin.com/), so Kotlin will be referenced.
 
@@ -32,11 +32,11 @@ The [Coursier Installation Instructions](https://get-coursier.io/docs/cli-instal
 
 ## 2. Use Coursier to Install the Required Tools
 
-This command installs the JDK, Scala 3, the SBT build tool, and several other tools.
-We want a newer version of Java which we specify on the `cs` command line:
+This command installs the JDK version 21, Scala 3, the SBT build tool, and several other tools.
+We specify version 21 of Java on the `cs` command line:
 
 ```
-> cs setup --jvm 21
+cs setup --jvm 21
 ```
 
 This may take a few minutes. When prompted with a `[Y/n]` query, enter `y` for all options.
@@ -57,7 +57,7 @@ OpenJDK 64-Bit Server VM Temurin-21.0.3+9 (build 21.0.3+9-LTS, mixed mode, shari
 If your version is not 21, update with:
 
 ```text
-> cs java --jvm 21 --setup
+cs java --jvm 21 --setup
 ```
 
 2\. `scalac -version`  
@@ -75,13 +75,13 @@ Scala compiler version 3.4.2 -- Copyright 2002-2024, LAMP/EPFL
 
 ## 4. Using SBT
 
-In a terminal, move to the directory where you extracted the [examples](https://github.com/EffectOrientedProgramming/examples) repository and run:
+In a terminal, move to the directory where you extracted the [examples](examples.md) repository and run:
 
 ```
-> sbt
+sbt
 ```
 
-This opens the sbt shell. For this project, the prompt will look like this:
+This opens the sbt shell. For this project, the prompt will look something like this:
 
 ```
 sbt:EffectOrientedProgramming>
@@ -91,7 +91,7 @@ From here, you can run the programs in your project.
 
 ### Compiling
 
-To compile all the files in the current project, run the following inside the sbt shell:
+To compile all the files in the current project, run the `compile` inside the sbt shell:
 
 ```
 sbt:EffectOrientedProgramming> compile
@@ -103,7 +103,7 @@ You might see some warnings the first time you run `compile` after installing th
 
 (All commands here are run from within the sbt shell)
 
-To display a list of all executables in the project:
+`run` displays a list of all executables in the project:
 
 ```
 sbt:EffectOrientedProgramming> run
@@ -119,14 +119,14 @@ For example, to run  `App0` from `Chapter03_Superpowers`:
 
 ```
 sbt:EffectOrientedProgramming> run
-(sbt displays number list of main programs)
+(sbt displays numbered list of main programs)
 Enter number: 1
 ```
 
 or
 
 ```
-sbt:examples> runMain Chapter03_Superpowers.App0
+sbt:EffectOrientedProgramming> runMain Chapter03_Superpowers.App0
 ```
 
 > **NOTE: Some output might be out-of-order vs. output shown in the book**.  
@@ -139,7 +139,7 @@ sbt:examples> runMain Chapter03_Superpowers.App0
 > - After B  
 > As long as C doesn't depend on A or B.
 
-<!-- TODO: Some way for the reader to run all programs with a single command? runMainClassesToleratesFailures -->
+<!-- Run all programs with a single command: runMainClassesToleratesFailures -->
 
 ### Automatic Command Execution
 
@@ -161,17 +161,19 @@ To exit the sbt shell, press **ctrl + d**.
 
 * Downloads can take a long time and might appear to be frozen. Just wait it out.
 
-* If Java is already installed, you might be missing the JDK, so execute 
-  this command to be sure:    
+* If Java is already installed, you might be missing the JDK or using the wrong version of Java. 
+  Execute this command to fix the problem:    
   `cs java --jvm 21 --setup`
 
 * Periodically update to the latest Coursier version:
 
-```
-> cs update cs
+```text
+cs update cs
 ```
 
-* Periodically update your executables by re-installing them, e.g.:    
-  `cs install scalafmt`
+* Periodically update your executables by re-installing them, e.g.:
+```text
+cs install scalafmt
+```
 
 <!-- *  `eval "$(cs install --env)"` {{ What does this do? }} -->
