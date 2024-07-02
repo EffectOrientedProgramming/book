@@ -270,6 +270,16 @@ The retries do not succeed so the fallback is applied.
 
 ## Logging
 
+```scala
+
+```
+
+Output:
+
+```shell
+TODO withFinalizer is not restricted to logging. this is a misleading section header
+```
+
 To ensure that some logging happens after the logic completes, regardless of failures, we use `withFinalizer`:
 
 ```scala
@@ -319,7 +329,7 @@ Output:
 
 ```shell
 Log: Signup initiated for Morty
-Result: (PT0.024948707S,User saved)
+Result: (PT0.037148772S,User saved)
 ```
 
 We run the Effect in the "HappyPath" Scenario; now the timing information is packaged with the original output `String`.

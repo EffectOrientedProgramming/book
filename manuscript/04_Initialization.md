@@ -172,8 +172,8 @@ def run =
 Output:
 
 ```shell
-Dough: Mixed
 Oven: Heated
+Dough: Mixed
 BreadHomeMade: Baked
 Bread: Eating
 ```
@@ -351,8 +351,8 @@ Output:
 
 ```shell
 Toaster: Heating
-Dough: Mixed
 Oven: Heated
+Dough: Mixed
 BreadHomeMade: Baked
 ToastZ: Made
 Toast: Eating
@@ -412,8 +412,8 @@ def run =
 Output:
 
 ```shell
-Dough: Mixed
 Oven: Heated
+Dough: Mixed
 BreadHomeMade: Baked
 Bread: Eating
 Oven: Turning off!
@@ -726,13 +726,13 @@ def run =
 Output:
 
 ```shell
-Tails
-Heads
-Heads
 Heads
 Tails
+Heads
 Tails
 Tails
+Tails
+Heads
 Tails
 Heads
 Tails
