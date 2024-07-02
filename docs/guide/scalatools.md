@@ -1,13 +1,14 @@
 # Installing Scala & Tools
 
-This is an overview of the setup process to use these examples. The following sections provide detailed instructions.
+This is an overview of the setup process to install the tools necessary to run the examples from the book. 
+The following sections provide detailed instructions.
 
 1.  Download and install [Coursier](https://get-coursier.io/).
-    [Coursier](https://get-coursier.io/docs/cli-overview) is the Scala installer we use to ensure that a JVM and standard Scala tools are installed on your system.
+    [Coursier](https://get-coursier.io/docs/cli-overview) is the Scala installer we use to ensure that the right JVM and standard Scala tools are installed on your system.
     Details are [here](https://docs.scala-lang.org/scala3/getting-started.html).
 1.  Run `cs setup --jvm 21`. This installs the Java Development Kit (JDK) version 21, Scala 3, and support tools such as the Scala Build Tool ([SBT](https://www.scala-sbt.org/)).
-1.  Install an Integrated Development Environment (IDE): either IntelliJ IDEA or Visual Studio Code (VSCode).
-1.  Download or clone this repository.
+1.  Install an Integrated Development Environment (IDE): either [IntelliJ IDEA](https://www.jetbrains.com/help/idea/installation-guide.html) or Visual Studio Code (VSCode).
+1.  Download or clone the [examples repository](examples.md).
 1.  Open the repository in your IDE.
 1.  Install the Scala add-on for your IDE.
 
@@ -18,9 +19,8 @@ If you do not, you can find instructions [here](https://github.com/BruceEckel/At
 These instructions were written for [Atomic Kotlin](https://www.atomickotlin.com/), so Kotlin will be referenced.
 
 2. If any terminology or processes described here are still not clear, you can usually find explanations or answers through
-[Google](https://www.google.com/). For more specific issues or problems, try
-[StackOverflow](http://stackoverflow.com/). Sometimes you can find installation
-instructions on [YouTube](https://www.youtube.com/).
+[Google](https://www.google.com/). For more specific issues or problems, try [StackOverflow](http://stackoverflow.com/).
+Sometimes you can find installation instructions on [YouTube](https://www.youtube.com/).
 
 3. If after any installation step something doesn't seem to work, try closing your shell and opening a new one.
 
@@ -44,7 +44,7 @@ This may take a few minutes. When prompted with a `[Y/n]` query, enter `y` for a
 ## 3. Test Your Installation
 
 Once installation is complete, close the current shell and open a new one. 
-Now you can run a few simple tests to ensure the installation was successful:
+You can run a few quick tests to ensure the installation is successful:
 
 1\. `cs java -version`  
   Output will be something like:
@@ -54,7 +54,7 @@ OpenJDK Runtime Environment Temurin-21.0.3+9 (build 21.0.3+9-LTS)
 OpenJDK 64-Bit Server VM Temurin-21.0.3+9 (build 21.0.3+9-LTS, mixed mode, sharing)
 ```
 
-If your version is not 21, update with:
+If your Java version is not 21, update it with:
 
 ```text
 cs java --jvm 21 --setup
@@ -87,11 +87,12 @@ This opens the sbt shell. For this project, the prompt will look something like 
 sbt:EffectOrientedProgramming>
 ```
 
-From here, you can run the programs in your project.
+There are numerous commands available in the sbt command shell.
+To see them, type `help` at the sbt prompt.
 
 ### Compiling
 
-To compile all the files in the current project, run the `compile` inside the sbt shell:
+To compile all the files in the current project, run `compile` in the sbt shell:
 
 ```
 sbt:EffectOrientedProgramming> compile
@@ -100,8 +101,6 @@ sbt:EffectOrientedProgramming> compile
 You might see some warnings the first time you run `compile` after installing the repository but you can ignore them.
 
 ### Running a Program
-
-(All commands here are run from within the sbt shell)
 
 `run` displays a list of all executables in the project:
 
@@ -132,7 +131,7 @@ sbt:EffectOrientedProgramming> runMain Chapter03_Superpowers.App0
 > **NOTE: Some output might be out-of-order vs. output shown in the book**.  
 > Nodes in the same layer of the dependency graph have arbitrary ordering.
 > The ordering of initialization in the dependency graph is only guaranteed in the sense that 'If B depends on A, then A will be constructed first.'
-> But anytime there are unrelated pieces, the ordering is arbitrary.
+> But whenever there are unrelated pieces, the ordering is arbitrary.
 > C could be constructed at any point:  
 > - Before A  
 > - In between A and B  

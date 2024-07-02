@@ -207,8 +207,9 @@ These can have domain-specific forms:
 You’ve probably heard about *Side Effects.*
 A Side Effect happens when you call a function and something changes in your program or in the environment.
 So you don’t just get a result from your function call, you change your surroundings—and this might also affect your function the next time you call it, or even the behavior of the rest of the program.
+Basically, if you have to read the documentation to figure out what happens when you call the function, it's a Side Effect.
 
-We hope that at this point you are thinking, “Isn’t that what we’ve been talking about? Isn’t that just an Effect?”
+We hope you are thinking, “Isn’t that what we’ve been talking about? Isn’t that just an Effect?”
 
 The difference between a Side Effect and an Effect is that a side effect “just happens,” while an Effect is something that can be managed. 
 For example, suppose you write to the console using the standard console library provided by your language.
@@ -216,7 +217,7 @@ That library was not designed for Effect Systems, so we don’t have any way to 
 When you write to the console, the surroundings change (output appears on the console) and there’s nothing we can do about it.
 That’s a Side Effect.
 
-For this reason, we must often use special libraries from the Effect System when performing some kinds of Effects such as console I/O.
+For this reason, we must use special libraries from the Effect System when performing some kinds of Effects such as console I/O.
 Those libraries are written to keep track of and manage the Effects.
 
 The simple answer is that Side Effects are un-managed and Effects are managed.
@@ -240,6 +241,7 @@ If a function has no parameters, this is equivalent to a `Unit` argument.
 In this case, an Effect is used inside the function to produce the result.
 
 A function that has a `Unit` argument and `Unit` return only produces Side Effects.
+
 ### Failures
 
 Failures, especially the way we currently report and handle them using exceptions, are another form of unpredictability.
@@ -261,6 +263,7 @@ The type-checking system can now determine, from this return type, whether your 
 
 The return type also includes the other (non-failure) Effect types.
 This new return type is what provides the channel that we need to enable easily-adaptable systems.
+
 ## Improving Your Life
 
 Effect Systems make it easy to add functionality to existing code.
