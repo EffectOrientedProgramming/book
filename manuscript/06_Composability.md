@@ -662,9 +662,8 @@ File - contains(genome) => false
 Wiki - articleFor(genome)
 AI - summarize - start
 AI - summarize - end
-File - disk full!
 File - CLOSE
-Result: DiskFull()
+Result: AITooSlow()
 ```
 
 ### Happy Path
@@ -750,9 +749,9 @@ strictResearch: ZIO[Scope, Scenario | NoSummaryAvailable | String, String] = Fla
   trace = "strictResearch(<input>:738)",
   first = Sync(
     trace = "strictResearch(<input>:738)",
-    eval = zio.ZIOCompanionVersionSpecific$$Lambda$3439/0x0000000800dc8040@15f2afc8
+    eval = zio.ZIOCompanionVersionSpecific$$Lambda$3350/0x0000000800d83440@4f74a8fd
   ),
-  successK = zio.ZIO$$$Lambda$3441/0x0000000800dce840@736b722d
+  successK = zio.ZIO$$$Lambda$3366/0x0000000800d95040@2aaa8390
 )
 ```
 
