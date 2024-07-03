@@ -16,9 +16,10 @@ Common approaches to implement Dependency Injection rely on runtime magic (e.g. 
 
 If we instead express dependencies through the type system, the compiler can verify that the needed parts are available given a particular path of execution (main app, test suite one, test suite two, etc.).
 
-## What ZIO Provides
+## Effects and Dependencies
 
-All the same capabilities that ZIO gives you in the logic of your application can also be used during initialization.
+The powers that Effects give you can also be used during initialization.
+
 
 With ZIO's approach to dependencies, you get many desirable characteristics at compile-time, using plain function calls.
 Your services are defined as classes with constructor arguments, just as in any vanilla Scala application.
@@ -35,24 +36,32 @@ ZIO’s dependency management provides capabilities that are not possible in oth
 ## Let's Make Bread
 
 To illustrate how ZIO can assemble our programs, we make and eat `Bread`. [^footnote]
-[^footnote]: Although we are utilizing very different tools with different goals, we were inspired by Li Haoyi's excellent article ["What is Functional Programming All About?"](https://www.lihaoyi.com/post/WhatsFunctionalProgrammingAllAbout.html)
+[^footnote]: Although we are utilizing very different tools with different goals, we were inspired by Li Haoyi's excellent article ["What's Functional Programming All About?"](https://www.lihaoyi.com/post/WhatsFunctionalProgrammingAllAbout.html)
 
 ```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
 
-case class Dough():
-  val letRise =
+trait Bread:
+  def eat =
     Console.printLine:
-      "Dough is rising"
-
-object Dough:
-  val fresh =
-    ZLayer.fromZIO:
-      defer:
-        Console.printLine("Dough: Mixed").run
-        Dough()
+      "Bread: Eating"
 ```
+
+```scala 3 mdoc:silent
+import zio.*
+import zio.direct.*
+
+case class BreadStoreBought() extends Bread
+
+object BreadStoreBought:
+  val layer =
+    ZLayer
+      .succeed:
+        BreadStoreBought()
+```
+
+{{ TODO: Needs some refactoring }}
 
 In this book, we follow the Scala practice of preferring `case` classes over ordinary classes.
 `case` classes are immutable by default and automatically provide commonly-needed functionality.
@@ -67,7 +76,10 @@ In ZIO all managed Effects are contained in ZIO objects.
 Thus, all Effectful functions return a ZIO object.
 
 This ZIO is passed to `ZLayer.fromZIO` which produces a `ZLayer` object (which is also a ZIO) containing a `Dough` object.
+
 ## Step 1: Provide Dependencies
+
+{{ TODO: Move up to initial example }}
 
 `Dough.fresh` produces a `ZLayer` containing a `Dough` for use as a dependency by other Effects.
 How is that dependency provided?
@@ -80,11 +92,10 @@ import zio.*
 import zio.direct.*
 
 def run =
-  ZIO
-    .serviceWithZIO[Dough]:
-      dough => dough.letRise
-    .provide:
-      Dough.fresh
+  ZIO.serviceWithZIO[Bread]:
+    bread => bread.eat
+  .provide:
+    BreadStoreBought.layer
 ```
 
 ## Step 2: Missing Dependencies
@@ -98,7 +109,35 @@ ZIO
   .provide()
 ```
 
-## Step 3: Automatically Assemble Dependencies 
+## Step 3: Dependencies From Effects
+
+{{ TODO: now let's make bread from components }}
+
+```scala 3 mdoc:silent
+import zio.*
+import zio.direct.*
+
+// todo: explain the letRise being an Effect, i.e. dependencies can themselves be Effects
+class Dough():
+  val letRise =
+    Console.printLine:
+      "Dough is rising"
+```
+
+
+```scala 3 mdoc:silent
+import zio.*
+import zio.direct.*
+
+object Dough:
+  val fresh =
+    ZLayer.fromZIO:
+      defer:
+        Console.printLine("Dough: Mixed").run
+        Dough()
+```
+
+## Step 4: Automatically Assemble Dependencies 
 
 The requirements for each ZIO operation are tracked and combined automatically.
 
@@ -118,11 +157,6 @@ val oven =
 ```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
-
-trait Bread:
-  def eat =
-    Console.printLine:
-      "Bread: Eating"
 
 case class BreadHomeMade(
     heat: Heat,
@@ -161,7 +195,7 @@ def run =
     )
 ```
 
-## Step 4: Sharing Dependencies
+## Step 5: Sharing Dependencies
 
 Eventually, we grow tired of eating plain `Bread` and decide to start making `Toast`.
 Both of these processes require `Heat`.
@@ -235,7 +269,7 @@ def run =
       toaster
 ```
 
-## Step 5: Unique Dependencies
+## Step 6: Unique Dependencies
 
 ```scala 3 mdoc:fail
 ZIO
@@ -252,7 +286,7 @@ ZIO
 Unfortunately our program is now ambiguous.
 It cannot decide if we should be making `Toast` in the oven, `Bread` in the toaster, or any other combination.
 
-## Step 6: Disambiguating Dependencies
+## Step 7: Disambiguating Dependencies
 
 If you find discover that your existing types produce ambiguous dependencies, introduce more specific types.
 In our case, we choose to distinguish our `Heat` sources, so that they are only used where they are intended.
@@ -327,7 +361,7 @@ Output:
 [info]   ╰─◑ Dough.fresh
 ```
 
-## Step 7: Constructing Dependencies from Effects 
+## Step 8: Constructing Dependencies from Effects 
 
 So far, we have focused on providing `Layer`s to Effects, but this can also go the other way!
 If an Effect already has no outstanding dependencies, it can be used to construct a `Layer`.
@@ -372,7 +406,7 @@ def run =
     )
 ```
 
-## Step 8: Construction Failure
+## Step 9: Construction Failure
 
 Since dependencies can be built with Effects, this means that they can fail.
 
@@ -432,34 +466,9 @@ def run =
       )
 ```
 
-## Step 9: Fallback Dependencies
-
-```scala 3 mdoc:silent
-import zio.*
-import zio.direct.*
-
-case class BreadStoreBought() extends Bread
-
-val buyBread =
-  ZIO.succeed:
-    BreadStoreBought()
-```
+## Step 10: Fallback Dependencies
 
 We can rely on this method of acquiring `Bread`, but we are going to be paying for that convenience.
-
-```scala 3 mdoc:silent
-import zio.*
-import zio.direct.*
-
-val storeBought =
-  ZLayer
-    .fromZIO:
-      buyBread
-    .tap:
-      _ =>
-        Console.printLine:
-          "BreadStoreBought: Bought"
-```
 
 ```scala 3 mdoc:runzio
 import zio.*
@@ -474,10 +483,10 @@ def run =
           3
         )
         .orElse:
-          storeBought
+          BreadStoreBought.layer
 ```
 
-## Step 10: Retries
+## Step 11: Retries
 
 ```scala 3 mdoc
 import zio.*
@@ -507,7 +516,7 @@ def run =
   )
 ```
 
-## Step 11: External Configuration
+## Step 12: External Configuration
 
 Our programs often need to change their behavior based on the environment during startup.
 Three typical ways are:
@@ -591,7 +600,7 @@ def run =
 Now we have bridged the gap between our logic and configuration files.
 This was a longer detour than our other steps, but a common requirement in real-world applications.
 
-## Step 12 Test Dependencies
+## Step 13: Test Dependencies
 
 Effects need access to external systems thus are unpredictable.  
 It is great to have these abilities for responding to the messiness of the real world, but we want to be able to test our programs in a predictable way.
