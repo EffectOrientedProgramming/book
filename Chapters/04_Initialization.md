@@ -128,9 +128,10 @@ ZIO
   .provide()
 ```
 
-You can see that the error tells you exactly what you're missing---and remember that you will see this in your IDE when you are writing the code.
+The error tells you exactly what you're missing---and remember that you will see this in your IDE when you are writing the code.
+Traditional dependency injection systems can't tell you until runtime if you're missing something, and even then they typically cannot know for sure if you've covered all your bases.
 
-## Dependencies From Effects
+## Making Bread from Scratch
 
 {{ TODO: now let's make bread from components }}
 
@@ -139,7 +140,7 @@ import zio.*
 import zio.direct.*
 
 // todo: explain the letRise being an Effect, i.e. dependencies can themselves be Effects
-class Dough():
+case class Dough():
   val letRise =
     Console.printLine:
       "Dough is rising"
