@@ -326,13 +326,9 @@ def run =
 
 The retries do not succeed so the fallback is applied.
 
-## Logging
+## Finalization
 
-```scala 3
-// TODO withFinalizer is not restricted to logging. this is a misleading section header
-```
-
-To ensure that some logging happens after the logic completes, regardless of failures, we use `withFinalizer`:
+To ensure that something happens after an Effect completes, regardless of failures, we use `withFinalizer`:
 
 ```scala 3 mdoc:silent
 val effect5 =
