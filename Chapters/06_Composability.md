@@ -652,28 +652,12 @@ Carefully consider the trade-offs between implementing an upper bound vs slowing
 
 ## Losing your Composure
 
-```scala 3
-// TODO: James/Bruce, like the new name? Another option - Compound Fracture
-```
-
-Each of original approaches gives you benefits, but you can't easily assemble a program that utilizes all of them.
+Each of the original approaches gives you benefits, but you can't easily assemble a program that utilizes all of them.
 They must be manually transformed into each other.
 
 Instead of the best of all worlds, you get the pain of all worlds.
 eg `Closeable[Future[Either[Throwable, A]]]`
 The ordering of the nesting is significant, confusing, and not easily changed.
-
-### Short-circuiting
-
-```scala 3
-// TODO Where does this short-circuiting section fit?
-```
-
-Short-circuiting is an essential part of a user-friendly Effect Systems.
-They enable a linear sequence of expressions which helps make code much easier to understand.
-The explicit knowledge of exactly how each Effect can fail is part of definition of the Effect.
-
-In order for Effect Systems to have recovery operations, they must know when failure happens.
 
 ## Fully Composed
 

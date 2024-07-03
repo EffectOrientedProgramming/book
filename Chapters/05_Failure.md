@@ -309,14 +309,14 @@ def check(temperature: Temperature) =
       ClimateFailure("**Machine froze**")
 ```
 
-We can now create a new Effect from `getTemperature` and `check` that can fail with either an `Exception` or a `LocalizeFailure`:
+We can now create a new Effect from `getTemperature` and `check` that can fail with either an `Exception` or a `ClimateFailure`:
 
 ```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
 
 // can fail with an Exception or a ClimateFailure
-val getTemperatureLocal =
+val getTemperatureWithCheck =
   defer:
     // can fail with an Exception
     val temperature =
@@ -326,7 +326,25 @@ val getTemperatureLocal =
     check(temperature).run
 ```
 
-To handle the possible failures for this new Effect, we now need to handle both the `Exception` and `LocalizeFailure`:
+Short-circuiting is an essential part of a user-friendly Effect Systems.
+They enable a linear sequence of expressions which helps make code much easier to understand.
+The explicit knowledge of exactly how each Effect can fail is part of definition of the Effect.
+
+In order for Effect Systems to have recovery operations, they must know when failure happens.
+
+```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
+// TODO: some prose needed to explain short-circuiting run example
+override val bootstrap =
+  gpsFailure
+
+def run =
+  getTemperatureWithCheck
+```
+
+To handle the possible failures for this new Effect, we now need to handle both the `Exception` and `ClimateFailure`:
 
 ```scala 3 mdoc:runzio
 import zio.*
@@ -336,7 +354,7 @@ override val bootstrap =
   weird
 
 def run =
-  getTemperatureLocal.catchAll:
+  getTemperatureWithCheck.catchAll:
     case exception: Exception =>
       Console.printLine:
         exception.getMessage
