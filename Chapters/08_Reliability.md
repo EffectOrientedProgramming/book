@@ -768,6 +768,7 @@ you can use `TestAspect.timeout` to ensure that your tests complete within a cer
 ```scala 3 mdoc:testzio manuscript-only
 import zio.test.*
 
+// TODO: Watch for indeterminate output - test should fail
 def spec =
   test("long testZ"):
     defer:
@@ -795,6 +796,7 @@ This can be caused by a number of factors:
   Your tests might be occasionally failing due to timeouts or lack of memory.
 
 ```scala 3 mdoc:invisible
+// TODO: Maybe use a Ref to avoid zio.direct warning
 var attempts =
   0
 
@@ -806,17 +808,12 @@ def spottyLogic =
           attempts + 1
       }
       .run
-    if (ZIO.attempt(attempts).run > 1)
-      Random.nextIntBounded(3).run match
-        case 0 =>
-          Console.printLine("Success!").run
-          ZIO.succeed(1).run
-        case _ =>
-          Console.printLine("Failed!").run
-          ZIO.fail("Failed").run
+    if ZIO.attempt(attempts).run == 3 then
+      Console.printLine("Success!").run
+        ZIO.succeed(1).run
     else
       Console.printLine("Failed!").run
-      ZIO.fail("Failed").run
+        ZIO.fail("Failed").run
 ```
 
 ```scala 3 mdoc:testzio
@@ -827,6 +824,5 @@ def spec =
     defer:
       spottyLogic.run
       assertCompletes
-  @@ TestAspect.withLiveRandom @@
-    TestAspect.flaky
+  @@ TestAspect.flaky
 ```
