@@ -77,7 +77,7 @@ Thus, all Effectful functions return a ZIO object.
 
 This ZIO is passed to `ZLayer.fromZIO` which produces a `ZLayer` object (which is also a ZIO) containing a `Dough` object.
 
-## Step 1: Provide Dependencies
+## Provide Dependencies
 
 {{ TODO: Move up to initial example }}
 
@@ -98,7 +98,7 @@ def run =
     BreadStoreBought.layer
 ```
 
-## Step 2: Missing Dependencies
+## Missing Dependencies
 
 If the dependency for an Effect isn't provided, we get a compile error:
 
@@ -109,7 +109,7 @@ ZIO
   .provide()
 ```
 
-## Step 3: Dependencies From Effects
+## Dependencies From Effects
 
 {{ TODO: now let's make bread from components }}
 
@@ -137,7 +137,7 @@ object Dough:
         Dough()
 ```
 
-## Step 4: Automatically Assemble Dependencies 
+## Automatically Assemble Dependencies
 
 The requirements for each ZIO operation are tracked and combined automatically.
 
@@ -195,7 +195,7 @@ def run =
     )
 ```
 
-## Step 5: Sharing Dependencies
+## Sharing Dependencies
 
 Eventually, we grow tired of eating plain `Bread` and decide to start making `Toast`.
 Both of these processes require `Heat`.
@@ -269,7 +269,7 @@ def run =
       toaster
 ```
 
-## Step 6: Unique Dependencies
+## Unique Dependencies
 
 ```scala 3 mdoc:fail
 ZIO
@@ -286,7 +286,7 @@ ZIO
 Unfortunately our program is now ambiguous.
 It cannot decide if we should be making `Toast` in the oven, `Bread` in the toaster, or any other combination.
 
-## Step 7: Disambiguating Dependencies
+## Disambiguating Dependencies
 
 If you find discover that your existing types produce ambiguous dependencies, introduce more specific types.
 In our case, we choose to distinguish our `Heat` sources, so that they are only used where they are intended.
@@ -361,7 +361,7 @@ Output:
 [info]   ╰─◑ Dough.fresh
 ```
 
-## Step 8: Constructing Dependencies from Effects 
+## Dependency Cleanup
 
 So far, we have focused on providing `Layer`s to Effects, but this can also go the other way!
 If an Effect already has no outstanding dependencies, it can be used to construct a `Layer`.
@@ -406,7 +406,7 @@ def run =
     )
 ```
 
-## Step 9: Construction Failure
+## Construction Failure
 
 Since dependencies can be built with Effects, this means that they can fail.
 
@@ -466,7 +466,7 @@ def run =
       )
 ```
 
-## Step 10: Fallback Dependencies
+## Fallback Dependencies
 
 We can rely on this method of acquiring `Bread`, but we are going to be paying for that convenience.
 
@@ -486,7 +486,7 @@ def run =
           BreadStoreBought.layer
 ```
 
-## Step 11: Retries
+## Retries
 
 ```scala 3 mdoc
 import zio.*
@@ -516,7 +516,7 @@ def run =
   )
 ```
 
-## Step 12: External Configuration
+## External Configuration
 
 Our programs often need to change their behavior based on the environment during startup.
 Three typical ways are:
@@ -600,7 +600,7 @@ def run =
 Now we have bridged the gap between our logic and configuration files.
 This was a longer detour than our other steps, but a common requirement in real-world applications.
 
-## Step 13: Test Dependencies
+## Test Dependencies
 
 Effects need access to external systems thus are unpredictable.  
 It is great to have these abilities for responding to the messiness of the real world, but we want to be able to test our programs in a predictable way.
