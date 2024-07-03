@@ -56,9 +56,8 @@ case class BreadStoreBought() extends Bread
 
 object BreadStoreBought:
   val layer =
-    ZLayer
-      .succeed:
-        BreadStoreBought()
+    ZLayer.succeed:
+      BreadStoreBought()
 ```
 
 {{ TODO: Needs some refactoring }}
@@ -92,10 +91,11 @@ import zio.*
 import zio.direct.*
 
 def run =
-  ZIO.serviceWithZIO[Bread]:
-    bread => bread.eat
-  .provide:
-    BreadStoreBought.layer
+  ZIO
+    .serviceWithZIO[Bread]:
+      bread => bread.eat
+    .provide:
+      BreadStoreBought.layer
 ```
 
 ## Missing Dependencies

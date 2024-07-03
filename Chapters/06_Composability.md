@@ -832,16 +832,9 @@ def run =
 Repeating is a form of composability, because you are composing a program with itself.
 Now that we have a nice, single-shot workflow that will analyze the current headline, we can make it run every day.
 
-```scala 3 mdoc:runzio
-override val bootstrap =
-  stockMarketHeadline
-
-def run =
-  strictResearch
-    .repeat:
-      Schedule.spaced(24.hours)
-    .timeout:
-      2.seconds
-    // So our demo does not hang forever
+```scala 3 mdoc:silent
+val daily =
+  strictResearch.repeat:
+    Schedule.spaced(24.hours)
 ```
 
