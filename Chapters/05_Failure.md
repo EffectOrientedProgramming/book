@@ -157,9 +157,8 @@ def run =
   defer:
     getTemperature.run
     Console
-      .printLine(
+      .printLine:
         "only prints if getTemperature succeeds"
-      )
       .run
 ```
 
@@ -177,16 +176,14 @@ def run =
   val safeGetTemperature =
     getTemperature.catchAll:
       case e: Exception =>
-        ZIO.succeed(
+        ZIO.succeed:
           "Could not get temperature"
-        )
 
   defer:
     safeGetTemperature.run
     Console
-      .printLine(
+      .printLine:
         "will not print if getTemperature fails"
-      )
       .run
 ```
 
@@ -197,13 +194,14 @@ With `catchAll` we must handle all the types of failures and the implementation 
 We may want to be more specific about how we handle different types of failures.
 For example, let's try to catch the `NetworkException`:
 
+<!-- We do not use mdoc:warn because of bugs in mdoc -->
+
 ```scala 3 mdoc:silent
 val bad =
   getTemperature.catchAll:
     case ex: NetworkException =>
       ZIO.succeed:
         "Network Unavailable"
-
 // [E029] Pattern Match Exhaustivity Warning:
 //     case ex: NetworkException =>
 //     ^
@@ -244,9 +242,8 @@ def run =
     val result =
       temperatureAppComplete.run
     Console
-      .printLine(
+      .printLine:
         s"Didn't fail, despite: $result"
-      )
       .run
 ```
 
@@ -255,7 +252,7 @@ Trying to do so will result in a compile error:
 
 ```scala 3 mdoc:fail
 temperatureAppComplete.catchAll:
-  case ex: Exception =>
+  case ex: GpsException =>
     ZIO.succeed:
       "This cannot happen"
 ```
@@ -295,37 +292,38 @@ There are many different ways to handle failures with Effects.
 You've already seen some of the others, like `retry` and `orElse` in the **Superpowers** chapter.
 
 With Effects, failures are aggregated across the chain of Effects, unless handled.
-For instance, a new `localize` Effect might fail with a new type:
+For instance, a new `check` Effect might fail with a new type:
 
 ```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
 
-case class LocalizeFailure(s: String)
+case class ClimateFailure(message: String)
 
-def localize(temperature: Temperature) =
+def check(temperature: Temperature) =
   if temperature.degrees > 0 then
-    ZIO.succeed("Not too cold.")
+    ZIO.succeed:
+      "Not too cold."
   else
     ZIO.fail:
-      LocalizeFailure("**Machine froze**")
+      ClimateFailure("**Machine froze**")
 ```
 
-We can now create a new Effect from `getTemperature` and `localize` that can fail with either an `Exception` or a `LocalizeFailure`:
+We can now create a new Effect from `getTemperature` and `check` that can fail with either an `Exception` or a `LocalizeFailure`:
 
 ```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
 
-// can fail with an Exception or a LocalizeFailure
+// can fail with an Exception or a ClimateFailure
 val getTemperatureLocal =
   defer:
     // can fail with an Exception
     val temperature =
       getTemperature.run
 
-    // can fail with a LocalizeFailure
-    localize(temperature).run
+    // can fail with a ClimateFailure
+    check(temperature).run
 ```
 
 To handle the possible failures for this new Effect, we now need to handle both the `Exception` and `LocalizeFailure`:
@@ -339,10 +337,12 @@ override val bootstrap =
 
 def run =
   getTemperatureLocal.catchAll:
-    case e: Exception =>
-      Console.printLine(e.getMessage)
-    case LocalizeFailure(s: String) =>
-      Console.printLine(s)
+    case exception: Exception =>
+      Console.printLine:
+        exception.getMessage
+    case failure: ClimateFailure =>
+      Console.printLine:
+        failure.message
 ```
 
 All the possible failure types, across the sequence of Effects, have been handled at the top-level Effect.
