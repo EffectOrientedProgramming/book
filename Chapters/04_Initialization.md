@@ -74,7 +74,7 @@ You aren't required to use `case` classes to work with the Effect system, but th
 
 The companion object `BreadStoreBought` contains a single method called `layer`. 
 This produces a special kind of Effect: the `ZLayer`.
-`ZLayer`s are what the Effect System uses to automatically inject and validate dependencies *at compile time*.
+`ZLayer`s are used by the Effect System to automatically inject and validate dependencies *at compile time*.
 Your experience will actually be inside your IDE---when you do something problematic your IDE will immediately notify you with a useful error message.
 You aren't required to put the function producing a `ZLayer` in a companion object but it is often convenient.
 
@@ -84,15 +84,15 @@ In that chapter, you'll learn that every returned Effect contains information ab
 Each step along the way, that information is checked, and if it fails the operation is short-circuited and the failure information is produced.
 This way you won't have failures randomly propagating through your system, as you do with exceptions.
 
-Sometimes you need to be able to say, "Here's the answer and it's OK."
+Sometimes you need to say, "Here's the answer and it's OK."
 The `succeed` method produces such an Effect; it is available for both regular `ZIO`s as well as `ZLayers` (There is also a `fail` method to produce a failed Effect).
-So what `layer` does is create a `BreadStoreBought` object and turns it into a successful `ZLayer` Effect.
+So `layer` creates a `BreadStoreBought` object and turns it into a successful `ZLayer` Effect.
 
 You can also think of a `ZLayer` as a more-powerful constructor. 
 Calling `layer` produces a new instance of `BreadStoreBought` within a `ZLayer`.
 This `ZLayer` provides the `BreadStoreBought` instance as a dependency to any other Effect that needs it.
 
-Now we're ready to incorporate the `BreadStoreBought` dependency into a program:
+Now we'll incorporate the `BreadStoreBought` dependency into a program:
 
 ```scala 3 mdoc:runzio
 import zio.*
@@ -106,17 +106,18 @@ def run =
       BreadStoreBought.layer
 ```
 
-`serviceWithZIO` takes a generic parameter, which is the type it needs to do the work specified by the argument.
-That argument must be a function; here it is the lambda `bread => bread.eat`.
+`serviceWithZIO` takes a generic parameter, which is the *type* it needs to do the work.
 Here, `serviceWithZIO` says, "I need an object that conforms to the `trait Bread`."
-Once it gets that object it becomes the `bread` parameter in the lambda.
+The argument to `serviceWithZIO` does the work.
+That argument must be a function that returns an Effect---in this case it is the lambda `bread => bread.eat`.
+The object it receives from `serviceWithZIO` becomes the `bread` parameter in the lambda.
 
 The whole point of this mechanism is to separate the argument from the function call so that we can make that argument part of the initialization specification.
 The initialization specification is the `provide` method,
   which takes one or more `ZLayer` objects and uses them to get the necessary arguments to fill in and complete the code, in this case `bread => bread.eat`.
 
-Although this example is simple enough that you could easily write it without using `ZLayer`, when you start dealing with multiple dependencies, things rapidly get unmanageable.
-`ZLayer` keeps everything organized and ensures that all the startup dependencies are provided and correct.
+Although this example is simple enough that you could easily write it without using `ZLayer`, when you start dealing with multiple dependencies, things rapidly become unmanageable.
+`ZLayer` keeps everything organized and ensures that all startup dependencies are provided and correct.
 
 ### Missing Dependencies
 
@@ -135,18 +136,22 @@ Traditional dependency injection systems can't tell you until runtime if you're 
 
 ## Making Bread from Scratch
 
-{{ TODO: now let's make bread from components }}
+Instead of buying bread, let's make it from `Dough`:
 
 ```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
 
-// todo: explain the letRise being an Effect, i.e. dependencies can themselves be Effects
 case class Dough():
   val letRise =
     Console.printLine:
       "Dough is rising"
 ```
+
+We will provide `Dough` as a dependency, and note that calling `letRise` produces an Effect. 
+Dependencies can be anything, including an object that produces an Effect.
+
+
 
 
 ```scala 3 mdoc:silent
