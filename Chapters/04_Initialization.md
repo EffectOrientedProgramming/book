@@ -54,7 +54,7 @@ trait Bread:
 
 This uses ZIO's `Console.printLine`; as a reminder, calling `eat` just returns an Effect and doesn't display anything on the console until that Effect is run.
 
-Let's first use the simplest approach of just buying `Bread` from the store:
+We'll start with the simplest approach of just buying `Bread` from the store:
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -76,6 +76,7 @@ The companion object `BreadStoreBought` contains a single method called `layer`.
 This produces a special kind of Effect: the `ZLayer`.
 `ZLayer`s are what the Effect System uses to automatically inject and validate dependencies *at compile time*.
 Your experience will actually be inside your IDE---when you do something problematic your IDE will immediately notify you with a useful error message.
+You aren't required to put the function producing a `ZLayer` in a companion object but it is often convenient.
 
 There's something new here: `succeed`.
 We need to cheat a little and take some information from the [Failure](05_Failure.md) chapter, which is the next one.
@@ -105,8 +106,9 @@ def run =
       BreadStoreBought.layer
 ```
 
-`serviceWithZIO` takes a generic parameter, which is the type it needs to do the work specified by the argument, which is the lambda `bread => bread.eat`.
-Here, it's saying, "I need an object that conforms to the `trait Bread`."
+`serviceWithZIO` takes a generic parameter, which is the type it needs to do the work specified by the argument.
+That argument must be a function; here it is the lambda `bread => bread.eat`.
+Here, `serviceWithZIO` says, "I need an object that conforms to the `trait Bread`."
 Once it gets that object it becomes the `bread` parameter in the lambda.
 
 The whole point of this mechanism is to separate the argument from the function call so that we can make that argument part of the initialization specification.
@@ -128,7 +130,7 @@ ZIO
   .provide()
 ```
 
-The error tells you exactly what you're missing---and remember that you will see this in your IDE when you are writing the code.
+The error tells you exactly what you're missing---and remember that you will see this error in your IDE when you are writing the code.
 Traditional dependency injection systems can't tell you until runtime if you're missing something, and even then they typically cannot know for sure if you've covered all your bases.
 
 ## Making Bread from Scratch
@@ -166,7 +168,7 @@ Thus, all Effectful functions return a ZIO object.
 
 This ZIO is passed to `ZLayer.fromZIO` which produces a `ZLayer` object (which is also a ZIO) containing a `Dough` object.
 
-## Automatically Assemble Dependencies
+## Multiple Dependencies
 
 The requirements for each ZIO operation are tracked and combined automatically.
 
