@@ -3,6 +3,7 @@
 ```scala 3 mdoc:invisible
 import zio.*
 import zio.direct.*
+import zio.Console._
 
 enum Scenario:
   case HappyPath
@@ -71,7 +72,7 @@ def saveUser(username: String) =
         "**Database crashed!!**"
       .tapError:
         error =>
-          Console.printLine:
+          printLine:
             "Log: " + error
 
   def saveForScenario(
@@ -426,23 +427,28 @@ You might think this should work:
 
 ```scala 3 mdoc:runzio
 import zio.*
+import zio.Console._
 
 def run =
-  Console.printLine("Before save")
+  printLine("Before save")
   effect1
 ```
 
 The result returned by `run` is the final value of the function: `effect1`.
 The Effect System takes `effect1` returned by `run` and only runs that.
-Since Effects are deferred, `Console.printLine` never runs.
+Since Effects are deferred, `zio.Console.printLine` never runs.
 
-To sequence multiple Effects, we construct a new `Effect` that contains the sequence.
+To sequence multiple Effects, we construct an `Effect` that contains the sequence.
 `defer` produces a new Effect containing a sequence of other Effects:
 
 ```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+import zio.Console._
+
 def run =
   defer:
-    Console.printLine("Before save").run
+    printLine("Before save").run
     effect1.run // Display each save
 ```
 
@@ -459,9 +465,13 @@ We want this explicit control so we can attach operations to our Effects before 
 We can assign the new Effect to a `val` like we did with `effect1` - `effect7`:
 
 ```scala 3 mdoc:silent
+import zio.*
+import zio.direct.*
+import zio.Console._
+
 val effect8 =
   defer:
-    Console.printLine("Before save").run
+    printLine("Before save").run
     effect1.run
 ```
 
@@ -528,14 +538,15 @@ But that Effect only runs when the program is executed.
 ```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
+import zio.Console._
 
 val surroundedProgram =
   defer:
-    Console.printLine("**Before**").run
+    printLine("**Before**").run
     effect8
       .debug // Display each save
       .repeatN(1).run
-    Console.printLine("**After**").run
+    printLine("**After**").run
 ```
 
 `surroundedProgram` only runs when we pass it to the Effect System:

@@ -359,6 +359,7 @@ import zio.direct.*
 import zio.Console._
 
 case class Toaster()
+
 object Toaster:
   val layer =
     ZLayer.fromZIO:
