@@ -13,13 +13,13 @@ These approaches do not address all aspects of composition.
 For example, you cannot compose functions using resources that need to be opened and closed.
 Issues that complicate composition include:
 
-- failures
-- async
-- blocking
-- managed resource
-- cancellation
-- either-ness
-- environmental requirements
+- Failures
+- Async
+- Blocking
+- Managed resource
+- Cancellation
+- Either-ness
+- Environmental requirements
 
 These concepts and their competing solutions will be expanded on and contrasted with ZIO throughout this chapter.
 
@@ -488,6 +488,7 @@ With each new file we open, we have to nest our code deeper.
 ```scala 3 mdoc:runzio
 import zio.*
 import zio.direct.*
+import zio.Console._
 
 def run =
   defer:
@@ -495,10 +496,9 @@ def run =
       openFileZ("file1.txt").run
     val file2 =
       openFileZ("file2.txt").run
-    Console
-      .printLine:
-        file1.sameContent(file2)
-      .run
+    printLine:
+      file1.sameContent(file2)
+    .run
 ```
 
 Our code remains flat.
@@ -837,4 +837,3 @@ val daily =
   strictResearch.repeat:
     Schedule.spaced(24.hours)
 ```
-
