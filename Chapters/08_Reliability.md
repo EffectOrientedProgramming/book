@@ -689,37 +689,33 @@ val logicThatSporadicallyLocksUp =
       Random.nextIntBounded(1_000).run
     random match
       case 0 =>
-        ZIO
-          .sleep:
-            3.seconds
-          .run
-        ZIO
-          .succeed:
-            2.second
-          .run
+        3.seconds
       case _ =>
         10.millis
+```
+
+```scala 3 mdoc
+case class LogicHolder(logic: ZIO[Any, Nothing, Duration])
 ```
 
 ```scala 3 mdoc:runzio:liveclock
 import zio.*
 import zio.direct.*
 
-def run =
+// TODO LogicHolder is the only I could think
+//  of to let us pass in the original and 
+//  hedged logic without re-writing everything 
+//  around it. Worthwhile, or just a 
+//  complicated distraction?
+def businessLogic(logicHolder: LogicHolder) =
   defer:
     val contractBreaches =
       Ref.make(0).run
 
     val makeRequest =
       defer:
-        val hedged =
-          logicThatSporadicallyLocksUp.race:
-            logicThatSporadicallyLocksUp
-              .delay:
-                25.millis
-
         val duration =
-          hedged.run
+          logicHolder.logic.run
         if (duration > 1.second)
           contractBreaches.update(_ + 1).run
 
@@ -737,6 +733,14 @@ def run =
       .get
       .debug("Contract Breaches")
       .run
+
+def run =
+  val hedged = 
+    logicThatSporadicallyLocksUp.race:
+      logicThatSporadicallyLocksUp
+        .delay:
+          25.millis
+  businessLogic(LogicHolder(logicThatSporadicallyLocksUp))
 ```
 
 ## Test Reliability
