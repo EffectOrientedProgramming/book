@@ -147,7 +147,7 @@ import zio.direct.*
 case class Dough():
   val letRise =
     Console.printLine:
-      "Dough is rising"
+      "Dough: rising"
 ```
 
 Note that calling `letRise` produces an Effect.
@@ -156,7 +156,8 @@ Dependencies can be anything, including an object that produces an Effect.
 TODO: is that true (anything)?`
 ```
 
-Following the pattern of the previous example, a `ZLayer` is produced in the companion object. This time we create a ZIO object and then convert it using `ZLayer.fromZIO`:
+Following the pattern of the previous example, a `ZLayer` is produced in the companion object.
+This time we create a ZIO object and then convert it using `ZLayer.fromZIO`:
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -193,7 +194,8 @@ val oven =
       Heat()
 ```
 
-Note that `oven` is a free-standing function in this case; it was not necessary to create it in a companion object. All you need is some way to produce a `ZLayer`.
+Note that `oven` is a free-standing function in this case; it was not necessary to create it in a companion object.
+All you need is some way to produce a `ZLayer`.
 
 We'll make the ability to produce `BreadHomeMade` yet another service, called `homemade`.
 That service, in turn, requires two other services, one to produce `Dough` and another that creates `Heat`:
@@ -211,8 +213,7 @@ object Bread:
   val homemade =
     ZLayer.fromZIO:
       defer:
-        Console
-          .printLine("BreadHomeMade: Baked")
+        Console.printLine("BreadHomeMade: Baked")
           .run
         BreadHomeMade(
           ZIO.service[Heat].run,
@@ -227,7 +228,7 @@ Also note that in the `ZIO.service` calls, we only need to say, "I need `Heat`" 
 TODO: Do `ZIO.service` calls have to be called within a ZLayer construction?
 ```
 
-The main program starts out looking identical to the previous example: we just need a service that provides us with `Bread`:
+The main program starts out looking identical to the previous example: we just need a service that provides `Bread`:
 
 ```scala 3 mdoc:runzio
 import zio.*
@@ -249,7 +250,7 @@ If we don't, the type checker produces helpful error messages (try removing one 
 
 The interrelationships in the `provide` are often called the *dependency graph*.
 Here, `Bread.homemade` satisfies the dependency in `serviceWithZIO[Bread]`.
-But `Bread.homemade` depends on `Dough.fresh` and `oven`, which might have each have their own dependencies.
+But `Bread.homemade` depends on `Dough.fresh` and `oven`.
 You can imagine a tree of dependencies, which is the simplest form of this graph.
 
 In most dependency injection systems, the dependency graph is resolved for you.
@@ -258,8 +259,8 @@ Such systems don't always find all dependencies and you don't find out the ones 
 
 ## Sharing Dependencies
 
-Eventually, we grow tired of eating plain `Bread` and decide to start making `Toast`.
-Both of these processes require `Heat`.
+Next, we'd like to start making `Toast`.
+Both `Bread` and `Toast` require `Heat`.
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -281,12 +282,8 @@ object Toast:
         )
 ```
 
-It is possible to also use the oven to provide `Heat` to make the `Toast`.
-
-The dependencies are tracked by their type.
-In this case both `Toast.make` and `Bread.homemade` require `Heat`.
-
-Notice - Even though we provide the same dependencies in this example, oven is _also_ required by `Toast.make`
+To make `Toast`, we apply some form of `Heat` to some form of `Bread`.
+In the `Toast`-making application, we can use `oven` to provide both forms of `Heat`:
 
 ```scala 3 mdoc:runzio
 import zio.*
@@ -303,8 +300,8 @@ def run =
     )
 ```
 
-However, the oven uses a lot of energy to make `Toast`.
-It would be great if we can instead use our dedicated toaster!
+An `oven` uses a lot of energy to make `Toast`.
+Let's create a dedicated `toaster`:
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -313,8 +310,7 @@ import zio.direct.*
 val toaster =
   ZLayer.fromZIO:
     defer:
-      Console
-        .printLine("Toaster: Heated")
+      Console.printLine("Toaster: Heated")
         .run
       Heat()
 ```
@@ -361,8 +357,7 @@ object Toaster:
   val layer =
     ZLayer.fromZIO:
       defer:
-        Console
-          .printLine("Toaster: Heating")
+        Console.printLine("Toaster: Heating")
           .run
         Toaster()
 ```
@@ -445,10 +440,9 @@ val ovenSafe =
             "Oven: Heated"
       .withFinalizer:
         _ =>
-          Console
-            .printLine:
-              "Oven: Turning off!"
-            .orDie
+          Console.printLine:
+            "Oven: Turning off!"
+          .orDie
 ```
 
 ```scala 3 mdoc:runzio
@@ -479,8 +473,7 @@ case class BreadFromFriend() extends Bread()
 object Friend:
   def forcedFailure(invocations: Int) =
     defer:
-      Console
-        .printLine(
+      Console.printLine(
           s"Attempt $invocations: Failure(Friend Unreachable)"
         )
         .run
@@ -504,13 +497,12 @@ object Friend:
       else if invocations == 1 then
         ZIO.succeed(BreadFromFriend())
       else
-        Console
-          .printLine(
+        Console.printLine(
             s"Attempt $invocations: Succeeded"
-          )
-          .orDie
-          .as:
-            BreadFromFriend()
+        )
+        .orDie
+        .as:
+          BreadFromFriend()
 end Friend
 ```
 
