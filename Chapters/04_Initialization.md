@@ -305,6 +305,8 @@ def run =
     )
 ```
 
+The order of the `provide` arguments is unimportant---try reordering them to prove this.
+
 An `oven` uses a lot of energy to make `Toast`.
 Let's create a dedicated `toaster`:
 
