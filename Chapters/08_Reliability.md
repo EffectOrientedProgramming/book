@@ -206,6 +206,7 @@ At the very least, you will be charged more for exceeding it.
 ```scala 3 mdoc:invisible
 import zio.*
 import zio.direct.*
+import zio.Console._
 
 val expensiveApiCall =
   ZIO.unit
@@ -217,12 +218,11 @@ extension [R, E, A](z: ZIO[R, E, A])
     z.timed
       .tap:
         (duration, _) =>
-          Console
-            .printLine(
-              message + " [took " +
-                duration.getSeconds + "s]"
-            )
-            .orDie
+          printLine(
+            message + " [took " +
+              duration.getSeconds + "s]"
+          )
+          .orDie
       .map(_._2)
 ```
 
@@ -303,6 +303,7 @@ If we want to ensure we don't accidentally DDOS a service, we can restrict the n
 ```scala 3 mdoc:invisible
 import zio.*
 import zio.direct.*
+import zio.Console._
 
 trait DelicateResource:
   val request: ZIO[Any, String, Int]
@@ -349,14 +350,12 @@ object DelicateResource:
   val live =
     ZLayer.fromZIO:
       defer:
-        Console
-          .printLine:
-            "Delicate Resource constructed."
-          .run
-        Console
-          .printLine:
-            "Do not make more than 3 concurrent requests!"
-          .run
+        printLine:
+          "Delicate Resource constructed."
+        .run
+        printLine:
+          "Do not make more than 3 concurrent requests!"
+        .run
         Live(
           Ref
             .make[List[Int]](List.empty)
@@ -796,6 +795,8 @@ This can be caused by a number of factors:
   Your tests might be occasionally failing due to timeouts or lack of memory.
 
 ```scala 3 mdoc:invisible
+import zio.Console._
+
 val attemptsR = 
   Unsafe.unsafe { implicit unsafe =>
     Runtime.default.unsafe.run(Ref.make(0)).getOrThrowFiberFailure()
@@ -806,21 +807,22 @@ def spottyLogic =
     val attemptsCur = 
         attemptsR.getAndUpdate(_+1).run
     if ZIO.attempt(attemptsCur).run == 3 then
-      Console.printLine("Success!").run
+      printLine("Success!").run
         ZIO.succeed(1).run
     else
-      Console.printLine("Failed!").run
+      printLine("Failed!").run
         ZIO.fail("Failed").run
 ```
 
 ```scala 3 mdoc:testzio
 import zio.test.*
+import zio.Console._
 
 def spec =
   test("flaky test!"):
     defer:
       spottyLogic.run
-      Console.printLine("Continuing...").run
+      printLine("Continuing...").run
       assertCompletes
   @@ TestAspect.flaky
 ```
