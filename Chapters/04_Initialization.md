@@ -7,8 +7,8 @@ TODO: Rewrite 'Initialization' intro material once I understand it by working th
 Initializing an application from values provided at startup is a perennial challenge in software.
 Solutions are diverse, impressive, and often completely bewildering.
 
-One reason to modularize an application into parts is that the relationship between those parts can be expressed and changed based on a particular path of execution through the program.  
-Breaking things into parts and expressing what they need is commonly called *Dependency Inversion*. 
+One reason to modularize an application into parts is that the relationship between those parts can be expressed and changed based on a particular path of execution through the program.
+Breaking things into parts and expressing what they need is commonly called *Dependency Inversion*.
 
 Dependency Inversion enables *Dependency Injection* which produces more flexible code.
 Instead of manually constructing and passing all dependencies through the application,  an "Injector" automatically provides instances of those dependencies when they are needed.
@@ -38,7 +38,7 @@ ZIO’s dependency management provides capabilities that are not possible in oth
 
 ## Let Them Eat Bread
 
-To illustrate how ZIO can assemble our programs, we'll simulate making and eating `Bread`. [^footnote]
+To illustrate how ZIO can assemble our programs, we simulate making and eating `Bread`. [^footnote]
 [^footnote]: Although we are utilizing very different tools with different goals, we were inspired by Li Haoyi's excellent article ["What's Functional Programming All About?"](https://www.lihaoyi.com/post/WhatsFunctionalProgrammingAllAbout.html)
 Because we will create different types of `Bread`, we start by defining `trait Bread`:
 
@@ -54,7 +54,7 @@ trait Bread:
 
 This uses ZIO's `Console.printLine`; as a reminder, calling `eat` just returns an Effect and doesn't display anything on the console until that Effect is run.
 
-We'll start with the simplest approach of just buying `Bread` from the store:
+We start with the simplest approach of just buying `Bread` from the store:
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -72,23 +72,25 @@ In this book, we follow the Scala practice of preferring `case` classes over ord
 `case` classes are immutable by default and automatically provide commonly-needed functionality.
 You aren't required to use `case` classes to work with the Effect system, but they provide valuable conveniences.
 
-The companion object `BreadStoreBought` contains a single method called `layer`. 
+The companion object `BreadStoreBought` contains a single method called `layer`.
 This produces a special kind of Effect: the `ZLayer`.
-`ZLayer`s are used by the Effect System to automatically inject and validate dependencies *at compile time*.
+`ZLayer`s are used by the Effect System to automatically inject dependencies.
+An essential difference between `ZLayer` and other dependency injection systems you might have used is that `ZLayer` validates dependencies *at compile time*.
 Your experience will actually be inside your IDE---when you do something problematic your IDE will immediately notify you with a useful error message.
 You aren't required to put the function producing a `ZLayer` in a companion object but it is often convenient.
 
 There's something new here: `succeed`.
 We need to cheat a little and take some information from the [Failure](05_Failure.md) chapter, which is the next one.
 In that chapter, you'll learn that every returned Effect contains information about whether that Effect is successful or has failed.
-Each step along the way, that information is checked, and if it fails the operation is short-circuited and the failure information is produced.
+Each step along the way, that information is checked.
+If it fails, the operation is short-circuited and the failure information is produced.
 This way you won't have failures randomly propagating through your system, as you do with exceptions.
 
 Sometimes you need to say, "Here's the answer and it's OK."
 The `succeed` method produces such an Effect; it is available for both regular `ZIO`s as well as `ZLayers` (There is also a `fail` method to produce a failed Effect).
 So `layer` creates a `BreadStoreBought` object and turns it into a successful `ZLayer` Effect.
 
-You can also think of a `ZLayer` as a more-powerful constructor. 
+You can think of a `ZLayer` as a more-powerful constructor.
 Calling `layer` produces a new instance of `BreadStoreBought` within a `ZLayer`.
 This `ZLayer` provides the `BreadStoreBought` instance as a dependency to any other Effect that needs it.
 
@@ -136,7 +138,7 @@ Traditional dependency injection systems can't tell you until runtime if you're 
 
 ## Making Bread from Scratch
 
-Instead of buying bread, let's make it from `Dough`, which we provide as a dependency: 
+Instead of buying bread, let's make it from `Dough`, which we will provide as a dependency:
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -148,11 +150,13 @@ case class Dough():
       "Dough is rising"
 ```
 
-Note that calling `letRise` produces an Effect. 
+Note that calling `letRise` produces an Effect.
 Dependencies can be anything, including an object that produces an Effect.
+```
+TODO: is that true (anything)?`
+```
 
-
-
+Following the pattern of the previous example, a `ZLayer` is produced in the companion object. This time we create a ZIO object and then convert it using `ZLayer.fromZIO`:
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -166,16 +170,15 @@ object Dough:
         Dough()
 ```
 
-Looking at the code from the inside out, the `defer` block executes the `printLine` Effect by calling `.run`, but does *not* call `.run` for `Dough`. 
-The result of the `defer` is an Effect, because `defer` always produces an Effect.
-In ZIO all managed Effects are contained in ZIO objects.
-Thus, all Effectful functions return a ZIO object.
+In ZIO all managed Effects are contained in ZIO objects, and all Effectful functions return a ZIO object.
 
-This ZIO is passed to `ZLayer.fromZIO` which produces a `ZLayer` object (which is also a ZIO) containing a `Dough` object.
+Looking at the code from the inside out, the `defer` block executes the `printLine` Effect by calling `.run`, but does *not* call `.run` for `Dough`.
+`defer` always produces an Effect, so the result of the `defer` block is an Effect.
+The `defer` Effect is passed to `ZLayer.fromZIO` which produces a `ZLayer` object (also an Effect) containing a `Dough` object.
 
 ## Multiple Dependencies
 
-The requirements for each ZIO operation are tracked and combined automatically.
+Once the `Dough` has risen, we need to bake it. For this we will need some way to apply `Heat`:
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -189,6 +192,10 @@ val oven =
       Console.printLine("Oven: Heated").run
       Heat()
 ```
+
+Note that `oven` is a free-standing function in this case; it was not necessary to create it in a companion object. All you need is some way to produce a `ZLayer`.
+
+Producing `BreadHomeMade` is a more complex process, as we now need both a service that produces `Dough` and another that creates `Heat`:
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -212,9 +219,14 @@ object Bread:
         )
 ```
 
-Something around how like typical DI, the "graph" of dependencies gets resolved "for you"
-This typically happens in some completely new/custom phase, that does follow standard code paths.
-Dependencies on Effects propagate to Effects which use Effects.
+`object Bread` is a companion object to `trait Bread`.
+Notice that the `homemade` method produces a `ZLayer` that itself relies on two other `ZLayer`s, for `Heat` and `Dough`, in order to construce the `BreadHomeMade` object produced by the `homemade` `ZLayer`.
+Also note that in the `ZIO.service` calls, we only need to say, "I need `Heat`" and "I need `Dough`" and the Effect System will ensure that those services are (eventually) found.
+```
+TODO: Do ZIO.service calls have to be called within a ZLayer construction?
+```
+
+In the main program, as before, we just need a service that provides us with `Bread`:
 
 ```scala 3 mdoc:runzio
 import zio.*
@@ -230,6 +242,14 @@ def run =
       oven
     )
 ```
+
+But in this case, the `Bread` service is `Bread.homemade`, which itself relies on a source of `Dough` and a source of `Heat`, so we must include all necessary services as arguments to `provide`.
+If we don't, the type checker produces helpful error messages (try removing one of the services to see this).
+
+Something around how like typical DI, the "graph" of dependencies gets resolved "for you"
+This typically happens in some completely new/custom phase, that does follow standard code paths.
+Dependencies on Effects propagate to Effects which use Effects.
+
 
 ## Sharing Dependencies
 
@@ -386,10 +406,10 @@ def run =
 
 Author Note: Hardcoded, because mdoc doesn't properly support the `ZLayer.Debug.tree` output.
 
-Output: 
+Output:
 
 ```terminal
-[info]   ZLayer Wiring Graph  
+[info]   ZLayer Wiring Graph
 [info] ◉ ToastZ.make
 [info] ├─◑ Toaster.layer
 [info] ╰─◑ Bread.homemade
@@ -638,7 +658,7 @@ This was a longer detour than our other steps, but a common requirement in real-
 
 ## Test Dependencies
 
-Effects need access to external systems thus are unpredictable.  
+Effects need access to external systems thus are unpredictable.
 It is great to have these abilities for responding to the messiness of the real world, but we want to be able to test our programs in a predictable way.
 So how do we write tests for Effects that are predictable?
 With ZIO we can replace the external systems with predictable ones when running our tests.
@@ -840,9 +860,9 @@ By default, in ZIO Test, the clock does not change unless instructed to.
 Calling a time based Effect like `timeout` would hang indefinitely with a warning like:
 
 ```terminal
-Warning: A test is using time, but is not 
-advancing the test clock, which may result 
-in the test hanging.  Use TestClock.adjust 
+Warning: A test is using time, but is not
+advancing the test clock, which may result
+in the test hanging.  Use TestClock.adjust
 to manually advance the time.
 ```
 
