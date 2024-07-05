@@ -796,19 +796,16 @@ This can be caused by a number of factors:
   Your tests might be occasionally failing due to timeouts or lack of memory.
 
 ```scala 3 mdoc:invisible
-// TODO: Maybe use a Ref to avoid zio.direct warning
-var attempts =
-  0
+val attemptsR = 
+  Unsafe.unsafe { implicit unsafe =>
+    Runtime.default.unsafe.run(Ref.make(0)).getOrThrowFiberFailure()
+  }
 
 def spottyLogic =
   defer:
-    ZIO
-      .attempt {
-        attempts =
-          attempts + 1
-      }
-      .run
-    if ZIO.attempt(attempts).run == 3 then
+    val attemptsCur = 
+        attemptsR.getAndUpdate(_+1).run
+    if ZIO.attempt(attemptsCur).run == 3 then
       Console.printLine("Success!").run
         ZIO.succeed(1).run
     else
@@ -820,9 +817,10 @@ def spottyLogic =
 import zio.test.*
 
 def spec =
-  test("long test!"):
+  test("flaky test!"):
     defer:
       spottyLogic.run
+      Console.printLine("Continuing...").run
       assertCompletes
   @@ TestAspect.flaky
 ```
