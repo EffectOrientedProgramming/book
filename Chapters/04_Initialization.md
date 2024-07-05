@@ -178,7 +178,7 @@ The `defer` Effect is passed to `ZLayer.fromZIO` which produces a `ZLayer` objec
 
 ## Multiple Dependencies
 
-Once the `Dough` has risen, we need to bake it. For this we will need some way to apply `Heat`:
+Once the `Dough` has risen, we want to bake it. For this we will need some way to apply `Heat`:
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -195,7 +195,8 @@ val oven =
 
 Note that `oven` is a free-standing function in this case; it was not necessary to create it in a companion object. All you need is some way to produce a `ZLayer`.
 
-Producing `BreadHomeMade` is a more complex process, as we now need both a service that produces `Dough` and another that creates `Heat`:
+We'll make the ability to produce `BreadHomeMade` yet another service, called `homemade`.
+That service, in turn, requires two other services, one to produce `Dough` and another that creates `Heat`:
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -220,13 +221,13 @@ object Bread:
 ```
 
 `object Bread` is a companion object to `trait Bread`.
-Notice that the `homemade` method produces a `ZLayer` that itself relies on two other `ZLayer`s, for `Heat` and `Dough`, in order to construce the `BreadHomeMade` object produced by the `homemade` `ZLayer`.
+The `homemade` method produces a `ZLayer` that itself relies on two other `ZLayer`s, for `Heat` and `Dough`, in order to construce the `BreadHomeMade` object produced by the `homemade` `ZLayer`.
 Also note that in the `ZIO.service` calls, we only need to say, "I need `Heat`" and "I need `Dough`" and the Effect System will ensure that those services are (eventually) found.
 ```
-TODO: Do ZIO.service calls have to be called within a ZLayer construction?
+TODO: Do `ZIO.service` calls have to be called within a ZLayer construction?
 ```
 
-In the main program, as before, we just need a service that provides us with `Bread`:
+The main program starts out looking identical to the previous example: we just need a service that provides us with `Bread`:
 
 ```scala 3 mdoc:runzio
 import zio.*
@@ -246,10 +247,14 @@ def run =
 But in this case, the `Bread` service is `Bread.homemade`, which itself relies on a source of `Dough` and a source of `Heat`, so we must include all necessary services as arguments to `provide`.
 If we don't, the type checker produces helpful error messages (try removing one of the services to see this).
 
-Something around how like typical DI, the "graph" of dependencies gets resolved "for you"
-This typically happens in some completely new/custom phase, that does follow standard code paths.
-Dependencies on Effects propagate to Effects which use Effects.
+The interrelationships in the `provide` are often called the *dependency graph*.
+Here, `Bread.homemade` satisfies the dependency in `serviceWithZIO[Bread]`.
+But `Bread.homemade` depends on `Dough.fresh` and `oven`, which might have each have their own dependencies.
+You can imagine a tree of dependencies, which is the simplest form of this graph.
 
+In most dependency injection systems, the dependency graph is resolved for you.
+This typically happens in some special startup phase of the program which attempts to discover dependencies by following code paths.
+Such systems don't always find all dependencies and you don't find out the ones they do discover until runtime.
 
 ## Sharing Dependencies
 
