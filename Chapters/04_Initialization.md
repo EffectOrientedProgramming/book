@@ -45,14 +45,15 @@ Because we will create different types of `Bread`, we start by defining `trait B
 ```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
+import zio.Console._
 
 trait Bread:
   def eat =
-    Console.printLine:
+    printLine:
       "Bread: Eating"
 ```
 
-This uses ZIO's `Console.printLine`; as a reminder, calling `eat` just returns an Effect and doesn't display anything on the console until that Effect is run.
+This uses `zio.Console.printLine`; as a reminder, calling `eat` just returns an Effect and doesn't display anything on the console until that Effect is run.
 
 We start with the simplest approach of just buying `Bread` from the store:
 
@@ -143,10 +144,11 @@ Instead of buying bread, let's make it from `Dough`, which we will provide as a 
 ```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
+import zio.Console._
 
 case class Dough():
   val letRise =
-    Console.printLine:
+    printLine:
       "Dough: rising"
 ```
 
@@ -162,12 +164,13 @@ This time we create a ZIO object and then convert it using `ZLayer.fromZIO`:
 ```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
+import zio.Console._
 
 object Dough:
   val fresh =
     ZLayer.fromZIO:
       defer:
-        Console.printLine("Dough: Mixed").run
+        printLine("Dough: Mixed").run
         Dough()
 ```
 
@@ -184,13 +187,14 @@ Once the `Dough` has risen, we want to bake it. For this we will need some way t
 ```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
+import zio.Console._
 
 case class Heat()
 
 val oven =
   ZLayer.fromZIO:
     defer:
-      Console.printLine("Oven: Heated").run
+      printLine("Oven: Heated").run
       Heat()
 ```
 
@@ -203,6 +207,7 @@ That service, in turn, requires two other services, one to produce `Dough` and a
 ```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
+import zio.Console._
 
 case class BreadHomeMade(
     heat: Heat,
@@ -213,8 +218,7 @@ object Bread:
   val homemade =
     ZLayer.fromZIO:
       defer:
-        Console.printLine("BreadHomeMade: Baked")
-          .run
+        printLine("BreadHomeMade: Baked").run
         BreadHomeMade(
           ZIO.service[Heat].run,
           ZIO.service[Dough].run
@@ -222,7 +226,7 @@ object Bread:
 ```
 
 `object Bread` is a companion object to `trait Bread`.
-The `homemade` method produces a `ZLayer` that itself relies on two other `ZLayer`s, for `Heat` and `Dough`, in order to construce the `BreadHomeMade` object produced by the `homemade` `ZLayer`.
+The `homemade` method produces a `ZLayer` that itself relies on two other `ZLayer`s, for `Heat` and `Dough`, in order to construct the `BreadHomeMade` object produced by the `homemade` `ZLayer`.
 Also note that in the `ZIO.service` calls, we only need to say, "I need `Heat`" and "I need `Dough`" and the Effect System will ensure that those services are (eventually) found.
 ```
 TODO: Do `ZIO.service` calls have to be called within a ZLayer construction?
@@ -265,17 +269,18 @@ Both `Bread` and `Toast` require `Heat`.
 ```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
+import zio.Console._
 
 case class Toast(heat: Heat, bread: Bread):
   val eat =
-    Console.printLine:
+    printLine:
       "Toast: Eating"
 
 object Toast:
   val make =
     ZLayer.fromZIO:
       defer:
-        Console.printLine("Toast: Made").run
+        printLine("Toast: Made").run
         Toast(
           ZIO.service[Heat].run,
           ZIO.service[Bread].run
@@ -306,12 +311,12 @@ Let's create a dedicated `toaster`:
 ```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
+import zio.Console._
 
 val toaster =
   ZLayer.fromZIO:
     defer:
-      Console.printLine("Toaster: Heated")
-        .run
+      printLine("Toaster: Heated").run
       Heat()
 ```
 
@@ -351,34 +356,35 @@ In our case, we choose to distinguish our `Heat` sources, so that they are only 
 ```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
+import zio.Console._
 
 case class Toaster()
 object Toaster:
   val layer =
     ZLayer.fromZIO:
       defer:
-        Console.printLine("Toaster: Heating")
-          .run
+        printLine("Toaster: Heating").run
         Toaster()
 ```
 
 ```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
+import zio.Console._
 
 case class ToastZ(
     heat: Toaster,
     bread: Bread
 ):
   val eat =
-    Console.printLine:
+    printLine:
       "Toast: Eating"
 
 object ToastZ:
   val make =
     ZLayer.fromZIO:
       defer:
-        Console.printLine("ToastZ: Made").run
+        printLine("ToastZ: Made").run
         ToastZ(
           ZIO.service[Toaster].run,
           ZIO.service[Bread].run
@@ -429,6 +435,7 @@ We can build an oven that turns itself off when it is no longer needed.
 ```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
+import zio.Console._
 
 val ovenSafe =
   ZLayer.fromZIO:
@@ -436,11 +443,11 @@ val ovenSafe =
       .succeed(Heat())
       .tap:
         _ =>
-          Console.printLine:
+          printLine:
             "Oven: Heated"
       .withFinalizer:
         _ =>
-          Console.printLine:
+          printLine:
             "Oven: Turning off!"
           .orDie
 ```
@@ -468,15 +475,13 @@ Since dependencies can be built with Effects, this means that they can fail.
 ```scala 3 mdoc:invisible
 import zio.*
 import zio.direct.*
+import zio.Console._
 
 case class BreadFromFriend() extends Bread()
 object Friend:
   def forcedFailure(invocations: Int) =
     defer:
-      Console.printLine(
-          s"Attempt $invocations: Failure(Friend Unreachable)"
-        )
-        .run
+      printLine(s"Attempt $invocations: Failure(Friend Unreachable)").run
       ZIO
         .when(true)(
           ZIO.fail(
@@ -497,9 +502,7 @@ object Friend:
       else if invocations == 1 then
         ZIO.succeed(BreadFromFriend())
       else
-        Console.printLine(
-            s"Attempt $invocations: Succeeded"
-        )
+        printLine(s"Attempt $invocations: Succeeded")
         .orDie
         .as:
           BreadFromFriend()
