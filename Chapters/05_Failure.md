@@ -149,6 +149,7 @@ For example, if we try to print something after trying to get the temperature,
 ```scala 3 mdoc:runzio
 import zio.*
 import zio.direct.*
+import zio.Console._
 
 override val bootstrap =
   networkFailure
@@ -156,10 +157,9 @@ override val bootstrap =
 def run =
   defer:
     getTemperature.run
-    Console
-      .printLine:
-        "only prints if getTemperature succeeds"
-      .run
+    printLine:
+      "only prints if getTemperature succeeds"
+    .run
 ```
 
 We can add various forms of failure handling.
@@ -168,6 +168,7 @@ One is to "catch" the failure and transform it into another Effect which can als
 ```scala 3 mdoc:runzio
 import zio.*
 import zio.direct.*
+import zio.Console._
 
 override val bootstrap =
   networkFailure
@@ -181,10 +182,9 @@ def run =
 
   defer:
     safeGetTemperature.run
-    Console
-      .printLine:
-        "will not print if getTemperature fails"
-      .run
+    printLine:
+      "will not print if getTemperature fails"
+    .run
 ```
 
 This time the second Effect will run because we've transformed the `getTemperature` failure into a successful result.
@@ -233,6 +233,7 @@ Now even if there is a network or GPS failure, the Effect completes successfully
 ```scala 3 mdoc:runzio
 import zio.*
 import zio.direct.*
+import zio.Console._
 
 override val bootstrap =
   gpsFailure
@@ -241,10 +242,9 @@ def run =
   defer:
     val result =
       temperatureAppComplete.run
-    Console
-      .printLine:
-        s"Didn't fail, despite: $result"
-      .run
+    printLine:
+      s"Didn't fail, despite: $result"
+    .run
 ```
 
 Since the new `temperatureAppComplete` can no longer fail, we can no longer "catch" failures.
@@ -278,14 +278,14 @@ Now we can again use `catchAll` but can handle the `String` failure type:
 ```scala 3 mdoc:runzio
 import zio.*
 import zio.direct.*
+import zio.Console._
 
 override val bootstrap =
   gpsFailure
 
 def run =
   getTemperatureBad.catchAll:
-    case s: String =>
-      Console.printLine(s)
+    case s: String => printLine(s)
 ```
 
 There are many different ways to handle failures with Effects.
@@ -349,6 +349,7 @@ To handle the possible failures for this new Effect, we now need to handle both 
 ```scala 3 mdoc:runzio
 import zio.*
 import zio.direct.*
+import zio.Console._
 
 override val bootstrap =
   weird
@@ -356,10 +357,10 @@ override val bootstrap =
 def run =
   getTemperatureWithCheck.catchAll:
     case exception: Exception =>
-      Console.printLine:
+      printLine:
         exception.getMessage
     case failure: ClimateFailure =>
-      Console.printLine:
+      printLine:
         failure.message
 ```
 
