@@ -92,7 +92,7 @@ You can also think of a `ZLayer` as a more-powerful constructor.
 Calling `layer` produces a new instance of `BreadStoreBought` within a `ZLayer`.
 This `ZLayer` provides the `BreadStoreBought` instance as a dependency to any other Effect that needs it.
 
-Now we'll incorporate the `BreadStoreBought` dependency into a program:
+Now we incorporate the `BreadStoreBought` dependency into a program:
 
 ```scala 3 mdoc:runzio
 import zio.*
@@ -136,7 +136,7 @@ Traditional dependency injection systems can't tell you until runtime if you're 
 
 ## Making Bread from Scratch
 
-Instead of buying bread, let's make it from `Dough`:
+Instead of buying bread, let's make it from `Dough`, which we provide as a dependency: 
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -148,7 +148,7 @@ case class Dough():
       "Dough is rising"
 ```
 
-We will provide `Dough` as a dependency, and note that calling `letRise` produces an Effect. 
+Note that calling `letRise` produces an Effect. 
 Dependencies can be anything, including an object that produces an Effect.
 
 
