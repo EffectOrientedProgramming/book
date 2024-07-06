@@ -307,7 +307,7 @@ def run =
 
 The order of the `provide` arguments is unimportant---try reordering them to prove this.
 
-An `oven` uses a lot of energy to make `Toast`.
+An `oven` is an energy-wasteful way to make `Toast`.
 Let's create a dedicated `toaster`:
 
 ```scala 3 mdoc:silent
@@ -520,14 +520,12 @@ def run =
   ZIO
     .service[Bread]
     .provide:
-      Friend.bread(worksOnAttempt =
-        3
-      )
+      Friend.bread(worksOnAttempt = 3)
 ```
 
 ## Fallback Dependencies
 
-We can rely on this method of acquiring `Bread`, but we are going to be paying for that convenience.
+Relying on this method of acquiring `Bread` means we must pay for that convenience.
 
 ```scala 3 mdoc:runzio
 import zio.*
@@ -538,9 +536,7 @@ def run =
     .service[Bread]
     .provide:
       Friend
-        .bread(worksOnAttempt =
-          3
-        )
+        .bread(worksOnAttempt = 3)
         .orElse:
           BreadStoreBought.layer
 ```
@@ -557,9 +553,7 @@ def logicWithRetries(retries: Int) =
       bread => bread.eat
     .provide:
       Friend
-        .bread(worksOnAttempt =
-          3
-        )
+        .bread(worksOnAttempt = 3)
         .retry:
           Schedule.recurs:
             retries
@@ -570,14 +564,12 @@ import zio.*
 import zio.direct.*
 
 def run =
-  logicWithRetries(retries =
-    2
-  )
+  logicWithRetries(retries = 2)
 ```
 
 ## External Configuration
 
-Our programs often need to change their behavior based on the environment during startup.
+Programs often need to configure their behavior based on the environment during startup.
 Three typical ways are:
 
 - Command Line Parameters
@@ -594,8 +586,8 @@ import zio.direct.*
 import zio.config.*
 ```
 
-This import brings in most of the core Config datatypes and functions that we need.
-Next we make a case class that will hold our values.
+This imports most of the core "Config" datatypes and functions that we need.
+We make a case class to hold our values:
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -604,7 +596,7 @@ import zio.direct.*
 case class RetryConfig(times: Int)
 ```
 
-To automatically map values in config files to our case class, we import a macro from the zio-config "magnolia" module.
+To automatically map values in configuration files to our case class, we import a macro from the `zio.config.magnolia` module:
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -661,11 +653,11 @@ This was a longer detour than our other steps, but a common requirement in real-
 
 ## Test Dependencies
 
-Effects need access to external systems thus are unpredictable.
-It is great to have these abilities for responding to the messiness of the real world, but we want to be able to test our programs in a predictable way.
-So how do we write tests for Effects that are predictable?
-With ZIO we can replace the external systems with predictable ones when running our tests.
-Rather than actually trying to get bread from our living, fallible friend, we can create an ideal friend that will always give us `Bread`.
+Effects that use external systems are unpredictable.
+However, we want to be able to test our programs in a predictable way.
+How do we write tests for Effects that are predictable?
+We can replace the external systems with predictable ones when running tests.
+Rather than trying to get `Bread` from a fallible human, we can create an `IdealFriend` that will always give us `Bread`.
 
 ```scala 3 mdoc
 object IdealFriend:
@@ -744,13 +736,14 @@ def spec =
 
 ## Testing Effects
 
-For user-defined types, calling `.provide` with your test implementation is the way to go.
-However, for built-in types like `Console`, `Random`, and `Clock`, ZIO Test provides special APIs.
-We will demonstrate a few, but not exhaustively cover them.
+For user-defined types, call `.provide` with your test implementation.
+But for built-in types like `Console`, `Random`, and `Clock`, ZIO Test provides special APIs.
+We demonstrate some of the most common.
 
 ### Random
 
-An example of this is Random numbers.  Randomness is inherently unpredictable.  But in ZIO Test, without changing our Effects we can change the underlying systems with something predictable:
+Randomness is inherently unpredictable.
+With ZIO Test, we can produce predictable random numbers for testing, but without changing any Effects:
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -760,16 +753,10 @@ val coinToss =
   defer:
     if Random.nextBoolean.run then
       ZIO.debug("Heads").run
-      ZIO
-        .succeed:
-          "Heads"
-        .run
+      ZIO.succeed("Heads").run
     else
       ZIO.debug("Tails").run
-      ZIO
-        .fail:
-          "Tails"
-        .run
+      ZIO.fail("Tails").run
 ```
 
 ```scala 3 mdoc:silent
@@ -811,9 +798,13 @@ def spec =
         flipTen.run == 10
 ```
 
-The `Random` Effect uses an injected something which when running the ZIO uses the system's unpredictable random number generator.  In ZIO Test the `Random` Effect uses a different something which can predictably generate "random" numbers.  `TestRandom` provides a way to define what those numbers are.  This example feeds in the `Int`s `1` and `2` so the first time we ask for a random number we get `1` and the second time we get `2`.
+The `Random` Effect uses an injected something which when running the ZIO uses the system's unpredictable random number generator.
+In ZIO Test the `Random` Effect uses a different something which can predictably generate "random" numbers.
+`TestRandom` provides a way to define what those numbers are.
+This example feeds in the `Int`s `1` and `2` so the first time we ask for a random number we get `1` and the second time we get `2`.
 
-Anything an Effect needs (from the system or the environment) can be substituted in tests for something predictable.  For example, an Effect that fetches users from a database can be simulated with a predictable set of users instead of having to setup a test database with predictable users.
+Anything an Effect needs (from the system or the environment) can be substituted in tests for something predictable.
+For example, an Effect that fetches users from a database can be simulated with a predictable set of users instead of having to setup a test database with predictable users.
 
 When your program treats randomness as an Effect, testing unusual scenarios becomes straightforward.
 You can preload "Random" data that will result in deterministic behavior.
@@ -821,7 +812,7 @@ ZIO gives you built-in methods to support this.
 
 ### Time
 
-Even time can be simulated as using the clock is an Effect.
+Even time can be simulated, as using the clock is an Effect.
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -869,15 +860,19 @@ in the test hanging.  Use TestClock.adjust
 to manually advance the time.
 ```
 
-To test time based Effects we need to `fork` those Effects so that then we can adjust the clock.
+To test time based Effects we need to `fork` those Effects so we can adjust the clock.
 After adjusting the clock, we can then `join` the Effect where in this case the timeout has then been reached causing the Effect to return a `None`.
 
-Using a simulated Clock means that we no longer rely on real-world time for time.
-So this example runs in milliseconds of real-world time instead of taking an actual 1 second to hit the timeout.
-This way our time-based tests run much more quickly since they are not based on actual system time.
+Using a simulated Clock means we no longer rely on real-world time.
+The example now runs in real-world milliseconds instead of the original 1 second.
+Our time-based tests are not based on actual system time so they run much more quickly.
 They are also more predictable as the time adjustments are fully controlled by the tests.
 
 #### Targeting Failure-Prone Time Bands
 
 Using real-world time also can be error prone because Effects may have unexpected results in certain time bands.
-For instance, if you have code that gets the time and it happens to be 23:59:59, then after some operations that take a few seconds, you get some database records for the current day, those records may no longer be the day associated with previously received records.  This scenario can be very hard to test for when using real-world time.  When using a simulated clock in tests, you can write tests that adjust the clock to reliably reproduce the condition.
+Suppose you have code that gets the time and it happens to be 23:59:59.
+After some operations that take a few seconds, you get database records for the current day.
+Those records may no longer be the day associated with previously received records.
+This scenario can be very hard to test when using real-world time.
+With a simulated clock, your tests can adjust the clock to reliably reproduce the test conditions.
