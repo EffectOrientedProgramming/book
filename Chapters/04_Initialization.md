@@ -92,7 +92,7 @@ The `succeed` method produces such an Effect; it is available for both regular `
 So `layer` creates a `BreadStoreBought` object and turns it into a successful `ZLayer` Effect.
 
 You can think of a `ZLayer` as a more-powerful constructor.
-Calling `layer` produces a new instance of `BreadStoreBought` within a `ZLayer`.
+Like `ZIO` effects, they are deferred, so merely referencing `BreadStoreBought.layer` will not construct anything.
 This `ZLayer` provides the `BreadStoreBought` instance as a dependency to any other Effect that needs it.
 
 Now we incorporate the `BreadStoreBought` dependency into a program:
