@@ -227,10 +227,7 @@ object Bread:
 
 `object Bread` is a companion object to `trait Bread`.
 The `homemade` method produces a `ZLayer` that itself relies on two other `ZLayer`s, for `Heat` and `Dough`, in order to construct the `BreadHomeMade` object produced by the `homemade` `ZLayer`.
-Also note that in the `ZIO.service` calls, we only need to say, "I need `Heat`" and "I need `Dough`" and the Effect System will ensure that those services are (eventually) found.
-```
-TODO: Do `ZIO.service` calls have to be called within a ZLayer construction?
-```
+Also note that in the `ZIO.service` calls, we only need to say, "I need `Heat`" and "I need `Dough`" and the Effect System will ensure that those services are found.
 
 The main program starts out looking identical to the previous example: we just need a service that provides `Bread`:
 
@@ -287,8 +284,8 @@ object Toast:
         )
 ```
 
-To make `Toast`, we apply some form of `Heat` to some form of `Bread`.
-In the `Toast`-making application, we can use `oven` to provide both forms of `Heat`:
+To create `Toast`, we apply some form of `Heat` to some form of `Bread`.
+We can use `oven` to provide both forms of `Heat`:
 
 ```scala 3 mdoc:runzio
 import zio.*
@@ -347,13 +344,12 @@ ZIO
   )
 ```
 
-Unfortunately our program is now ambiguous.
-It cannot decide if we should be making `Toast` in the oven, `Bread` in the toaster, or any other combination.
+This program is ambiguous---it doesn't know whether to make `Toast` in the oven or `Bread` in the toaster.
 
 ## Disambiguating Dependencies
 
-If you find discover that your existing types produce ambiguous dependencies, introduce more specific types.
-In our case, we choose to distinguish our `Heat` sources, so that they are only used where they are intended.
+To solve the problem, introduce more specific types.
+We'll distinguish our `Heat` sources, so they are only used where intended.
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -708,7 +704,7 @@ def spec =
 
 Historically, when call we call `println`, that output disappears into the void.
 `zio-test` provides us a `TestConsole`, which captures all the output produced during a test.
-This allows us to make assertions on something that is typically a black hole of our code.
+This allows us to make assertions on something that is typically a black hole in our code.
 
 Armed with these tools, we can now return to the kitchen to test our `Bread` eating with our ideal friend.
 
@@ -851,7 +847,7 @@ The `race` is between `nightlyBatch` and `timeTravel`.
 It completes when the first Effect succeeds and cancels the losing Effect, using the Effect System's cancellation mechanism.
 
 By default, in ZIO Test, the clock does not change unless instructed to.
-Calling a time based Effect like `timeout` would hang indefinitely with a warning like:
+Calling a time-based Effect like `timeout` would hang indefinitely with a warning like:
 
 ```terminal
 Warning: A test is using time, but is not
@@ -860,7 +856,7 @@ in the test hanging.  Use TestClock.adjust
 to manually advance the time.
 ```
 
-To test time based Effects we need to `fork` those Effects so we can adjust the clock.
+To test time-based Effects we need to `fork` those Effects so we can adjust the clock.
 After adjusting the clock, we can then `join` the Effect where in this case the timeout has then been reached causing the Effect to return a `None`.
 
 Using a simulated Clock means we no longer rely on real-world time.
