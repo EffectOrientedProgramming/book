@@ -694,7 +694,7 @@ val logicThatSporadicallyLocksUp =
         10.millis
 ```
 
-```scala 3 mdoc
+```scala 3 mdoc:invisible
 case class LogicHolder(logic: ZIO[Any, Nothing, Duration])
 ```
 
