@@ -554,7 +554,7 @@ openFile("file1").summaryFor("space")
 ```
 
 ```scala 3 mdoc:crash
-// TODO: Can we make the output show up in our seperate fence?
+// TODO: Can we make the "mdoc:crash" output show up in our separate fence?
 openFile("file1").summaryFor("unicode")
 ```
 
@@ -797,25 +797,18 @@ def run =
 
 ## Effects are Values
 
-```scala 3 mdoc:runzio
-// TODO: enables, reuse, repeats, delays, etc
-override val bootstrap =
-  stockMarketHeadline
-
-def run =
-  defer:
-    researchHeadline.run
-    researchHeadline.run
-```
+We want to revisit and re-emphasize that Effects are values.
+This can be difficult to remember when viewing and executing larger programs.
+Representing a complex workflow as a value allows us to manipulate it in ways that are not possible with other approaches.
 
 Suppose the requirements of the system change, and now you need to ensure that the whole process completes within a strict time limit.
 Even though we already have a narrow timeout attached to the AI summarize call, we are still free to attach a more restrictive timeout.
 
-```scala 3 mdoc
+```scala 3 mdoc:silent
 val strictResearch =
   researchHeadline
     .timeoutFail("strict timeout"):
-      1.second
+      1.millisecond
 ```
 
 ```scala 3 mdoc:runzio
@@ -825,7 +818,7 @@ override val bootstrap =
 def run =
   strictResearch
 ```
-Repeating is a form of composability, because you are composing a program with itself.
+Repeating is a form of composability, because you are composing a program value with itself and a delay.
 Now that we have a nice, single-shot workflow that will analyze the current headline, we can make it run every day.
 
 ```scala 3 mdoc:silent
