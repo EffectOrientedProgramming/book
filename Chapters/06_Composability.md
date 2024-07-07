@@ -695,13 +695,9 @@ val researchHeadline =
       summary
 ```
 
-We consider this example the most significant achievement of this book.
+We consider this sequence the most significant achievement of this book.
 Without a powerful, general Effect type, you are constantly struggling to jump from 1 limited Effect to the next.
 With ZIO, you can build real-word, complex applications that all flow cleanly into one supreme type.
-
-```scala 3
-// TODO: Emphasize just how important this example is.
-```
 
 We now step through all the possible scenarios that can occur in our application.
 
