@@ -694,19 +694,19 @@ val logicThatSporadicallyLocksUp =
       Random.nextIntBounded(1_000).run
     random match
       case 0 =>
+        ZIO.sleep(3.second).run
         3.seconds
       case _ =>
         10.millis
 ```
 
 ```scala 3 mdoc:invisible
-// eh?
 case class LogicHolder(
     logic: ZIO[Any, Nothing, Duration]
 )
 ```
 
-```scala 3 mdoc:runzio:liveclock
+```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
 
@@ -717,15 +717,8 @@ import zio.direct.*
 //  complicated distraction?
 def businessLogic(logicHolder: LogicHolder) =
   defer:
-    val contractBreaches =
-      Ref.make(0).run
-
     val makeRequest =
-      defer:
-        val duration =
-          logicHolder.logic.run
-        if (duration > 1.second)
-          contractBreaches.update(_ + 1).run
+      logicHolder.logic.timeoutFail("took too long")(1.second)
 
     val totalRequests = 50_000
     val successes = 
@@ -738,19 +731,12 @@ def businessLogic(logicHolder: LogicHolder) =
        
     "Contract Breaches: " + 
       contractBreaches
-
 ```
-
-```scala 3 mdoc:invisible
-// happy birthday bill. The foreachPar above is acceptable and explained in prose.
-```
-
-Since `ZIO` does not a `repeatNPar` operator, we have to build our own.
-We achieve this using a slightly-awkward combination of `.foreachPar` and a large `List` of values that we ignore.
 
 ```scala 3 mdoc:runzio:liveclock
 import zio.*
 import zio.direct.*
+
 def run =
   val logic =
     logicThatSporadicallyLocksUp
@@ -762,13 +748,15 @@ def run =
 ```scala 3 mdoc:runzio:liveclock
 import zio.*
 import zio.direct.*
+
 def run =
   val hedged =
     logicThatSporadicallyLocksUp.race:
       logicThatSporadicallyLocksUp.delay:
         25.millis
+
   businessLogic(
-    LogicHolder(logicThatSporadicallyLocksUp)
+    LogicHolder(hedged)
   )
 ```
 
