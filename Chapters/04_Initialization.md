@@ -480,7 +480,9 @@ case class BreadFromFriend() extends Bread()
 object Friend:
   def forcedFailure(invocations: Int) =
     defer:
-      printLine(s"Attempt $invocations: Failure(Friend Unreachable)").run
+      printLine(
+        s"Attempt $invocations: Failure(Friend Unreachable)"
+      ).run
       ZIO
         .when(true)(
           ZIO.fail(
@@ -501,10 +503,11 @@ object Friend:
       else if invocations == 1 then
         ZIO.succeed(BreadFromFriend())
       else
-        printLine(s"Attempt $invocations: Succeeded")
-        .orDie
-        .as:
-          BreadFromFriend()
+        printLine(
+          s"Attempt $invocations: Succeeded"
+        ).orDie
+          .as:
+            BreadFromFriend()
 end Friend
 ```
 
@@ -516,7 +519,9 @@ def run =
   ZIO
     .service[Bread]
     .provide:
-      Friend.bread(worksOnAttempt = 3)
+      Friend.bread(worksOnAttempt =
+        3
+      )
 ```
 
 ## Fallback Dependencies
@@ -532,7 +537,9 @@ def run =
     .service[Bread]
     .provide:
       Friend
-        .bread(worksOnAttempt = 3)
+        .bread(worksOnAttempt =
+          3
+        )
         .orElse:
           BreadStoreBought.layer
 ```
@@ -549,7 +556,9 @@ def logicWithRetries(retries: Int) =
       bread => bread.eat
     .provide:
       Friend
-        .bread(worksOnAttempt = 3)
+        .bread(worksOnAttempt =
+          3
+        )
         .retry:
           Schedule.recurs:
             retries
@@ -560,7 +569,9 @@ import zio.*
 import zio.direct.*
 
 def run =
-  logicWithRetries(retries = 2)
+  logicWithRetries(retries =
+    2
+  )
 ```
 
 ## External Configuration

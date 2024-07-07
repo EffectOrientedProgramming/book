@@ -221,8 +221,7 @@ extension [R, E, A](z: ZIO[R, E, A])
           printLine(
             message + " [took " +
               duration.getSeconds + "s]"
-          )
-          .orDie
+          ).orDie
       .map(_._2)
 ```
 
@@ -258,12 +257,17 @@ def run =
   defer:
     val rateLimiter =
       makeRateLimiter.run
+
     rateLimiter:
       expensiveApiCall
     .timedSecondsDebug:
       s"called API"
-    .repeatN(2) // Repeats as fast as allowed
-      .timedSecondsDebug("Result").run
+      // Repeats as fast as allowed
+    .repeatN:
+      2
+    .timedSecondsDebug:
+      "Result"
+    .run
 ```
 
 Most impressively, we can use the same `RateLimiter` across our application.
@@ -695,7 +699,10 @@ val logicThatSporadicallyLocksUp =
 ```
 
 ```scala 3 mdoc:invisible
-case class LogicHolder(logic: ZIO[Any, Nothing, Duration])
+// eh?
+case class LogicHolder(
+    logic: ZIO[Any, Nothing, Duration]
+)
 ```
 
 ```scala 3 mdoc:runzio:liveclock
@@ -703,9 +710,9 @@ import zio.*
 import zio.direct.*
 
 // TODO LogicHolder is the only I could think
-//  of to let us pass in the original and 
-//  hedged logic without re-writing everything 
-//  around it. Worthwhile, or just a 
+//  of to let us pass in the original and
+//  hedged logic without re-writing everything
+//  around it. Worthwhile, or just a
 //  complicated distraction?
 def businessLogic(logicHolder: LogicHolder) =
   defer:
@@ -721,8 +728,9 @@ def businessLogic(logicHolder: LogicHolder) =
 
     // TODO: explain the reason for silly
     // List of ()
-    //       talk about how it'd be nice to have a
-    //       ZIO operator for repeatNPar
+    //       talk about how it'd be nice to
+    //       have a ZIO operator for
+    //       repeatNPar
     //       happy birthday bill
     ZIO
       .foreachPar(List.fill(50_000)(())):
@@ -732,15 +740,17 @@ def businessLogic(logicHolder: LogicHolder) =
     contractBreaches
       .get
       .debug("Contract Breaches")
+      .unit
       .run
 
 def run =
-  val hedged = 
+  val hedged =
     logicThatSporadicallyLocksUp.race:
-      logicThatSporadicallyLocksUp
-        .delay:
-          25.millis
-  businessLogic(LogicHolder(logicThatSporadicallyLocksUp))
+      logicThatSporadicallyLocksUp.delay:
+        25.millis
+  businessLogic(
+    LogicHolder(logicThatSporadicallyLocksUp)
+  )
 ```
 
 ## Test Reliability
@@ -801,21 +811,26 @@ This can be caused by a number of factors:
 ```scala 3 mdoc:invisible
 import zio.Console._
 
-val attemptsR = 
-  Unsafe.unsafe { implicit unsafe =>
-    Runtime.default.unsafe.run(Ref.make(0)).getOrThrowFiberFailure()
+val attemptsR =
+  Unsafe.unsafe {
+    implicit unsafe =>
+      Runtime
+        .default
+        .unsafe
+        .run(Ref.make(0))
+        .getOrThrowFiberFailure()
   }
 
 def spottyLogic =
   defer:
-    val attemptsCur = 
-        attemptsR.getAndUpdate(_+1).run
+    val attemptsCur =
+      attemptsR.getAndUpdate(_ + 1).run
     if ZIO.attempt(attemptsCur).run == 3 then
       printLine("Success!").run
-        ZIO.succeed(1).run
+      ZIO.succeed(1).run
     else
       printLine("Failed!").run
-        ZIO.fail("Failed").run
+      ZIO.fail("Failed").run
 ```
 
 ```scala 3 mdoc:testzio

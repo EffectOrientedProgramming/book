@@ -285,7 +285,8 @@ override val bootstrap =
 
 def run =
   getTemperatureBad.catchAll:
-    case s: String => printLine(s)
+    case s: String =>
+      printLine(s)
 ```
 
 There are many different ways to handle failures with Effects.
