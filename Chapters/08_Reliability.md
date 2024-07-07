@@ -690,19 +690,17 @@ import zio.direct.*
 
 val logicThatSporadicallyLocksUp =
   defer:
-    val random =
-      Random.nextIntBounded(1_000).run
-    random match
-      case 0 =>
-        ZIO.sleep(3.second).run
-        3.seconds
-      case _ =>
-        10.millis
+    if(Random.nextIntBounded(1_000).run == 0)
+      ZIO
+        .sleep:
+          3.second
+        .run
+        
 ```
 
 ```scala 3 mdoc:invisible
 case class LogicHolder(
-    logic: ZIO[Any, Nothing, Duration]
+    logic: ZIO[Any, Nothing, Unit]
 )
 ```
 
@@ -726,6 +724,7 @@ def businessLogic(logicHolder: LogicHolder) =
 
     val totalRequests =
       50_000
+
     val successes =
       ZIO
         .collectAllSuccessesPar(
@@ -745,11 +744,19 @@ import zio.*
 import zio.direct.*
 
 def run =
-  val logic =
-    logicThatSporadicallyLocksUp
   businessLogic:
     LogicHolder:
-      logic
+      logicThatSporadicallyLocksUp
+```
+
+Sadly, we have breached our contract many times in this scenario.
+Now, what would it take to build our hedged logic?
+
+```scala 3 mdoc:silent
+val hedged =
+  logicThatSporadicallyLocksUp.race:
+    logicThatSporadicallyLocksUp.delay:
+      25.millis
 ```
 
 ```scala 3 mdoc:runzio:liveclock
@@ -757,12 +764,9 @@ import zio.*
 import zio.direct.*
 
 def run =
-  val hedged =
-    logicThatSporadicallyLocksUp.race:
-      logicThatSporadicallyLocksUp.delay:
-        25.millis
-
-  businessLogic(LogicHolder(hedged))
+  businessLogic:
+    LogicHolder:
+      hedged
 ```
 
 ## Test Reliability
