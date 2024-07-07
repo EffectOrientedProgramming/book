@@ -718,19 +718,26 @@ import zio.direct.*
 def businessLogic(logicHolder: LogicHolder) =
   defer:
     val makeRequest =
-      logicHolder.logic.timeoutFail("took too long")(1.second)
+      logicHolder
+        .logic
+        .timeoutFail("took too long")(
+          1.second
+        )
 
-    val totalRequests = 50_000
-    val successes = 
+    val totalRequests =
+      50_000
+    val successes =
       ZIO
-        .collectAllSuccessesPar(List.fill(totalRequests)(makeRequest))
+        .collectAllSuccessesPar(
+          List
+            .fill(totalRequests)(makeRequest)
+        )
         .run
 
-    val contractBreaches = 
+    val contractBreaches =
       totalRequests - successes.length
-       
-    "Contract Breaches: " + 
-      contractBreaches
+
+    "Contract Breaches: " + contractBreaches
 ```
 
 ```scala 3 mdoc:runzio:liveclock
@@ -755,9 +762,7 @@ def run =
       logicThatSporadicallyLocksUp.delay:
         25.millis
 
-  businessLogic(
-    LogicHolder(hedged)
-  )
+  businessLogic(LogicHolder(hedged))
 ```
 
 ## Test Reliability
