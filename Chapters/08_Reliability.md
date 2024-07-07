@@ -2,6 +2,9 @@
 
 ```scala 3
 // TODO: really "advanced recover techniques" as basic ones should have already been covered
+//    Bill - Disagree with this name/framing proposal. "Recovery" is for when things have already gone wrong, and you're trying to respond to them.
+//           Caching, RateLimiting, Bulk-heading (and possibly Hedging) are all _proactive_ steps we take to ensure the program runs as
+//           desired. There might be a better name here, but I think "recovery" is a step in the wrong direction.
 ```
 
 For our purposes,
