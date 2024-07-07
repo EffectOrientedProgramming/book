@@ -41,6 +41,7 @@ def run =
 ```scala 3 mdoc
 import zio.*
 import zio.direct.*
+import zio.Console._
 
 // NOTE We cannot invoke main on this
 // because it crashes mdoc in the CI process
