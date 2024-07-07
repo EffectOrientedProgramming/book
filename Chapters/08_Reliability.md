@@ -645,6 +645,7 @@ def run =
       Ref.make[Int](0).run
 
     val protectedCall =
+      // TODO Note/explain `catchSome`
       cb(externalSystem(numCalls)).catchSome:
         case CircuitBreakerOpen =>
           numPrevented.update(_ + 1)
@@ -726,23 +727,41 @@ def businessLogic(logicHolder: LogicHolder) =
         if (duration > 1.second)
           contractBreaches.update(_ + 1).run
 
-    // TODO: explain the reason for silly
-    // List of ()
-    //       talk about how it'd be nice to
-    //       have a ZIO operator for
-    //       repeatNPar
-    //       happy birthday bill
-    ZIO
-      .foreachPar(List.fill(50_000)(())):
-        _ => makeRequest
-      .run
+    val totalRequests = 50_000
+    val successes = 
+      ZIO
+        .collectAllSuccessesPar(List.fill(totalRequests)(makeRequest))
+        .run
 
-    contractBreaches
-      .get
-      .debug("Contract Breaches")
-      .unit
-      .run
+    val contractBreaches = 
+      totalRequests - successes.length
+       
+    "Contract Breaches: " + 
+      contractBreaches
 
+```
+
+```scala 3 mdoc:invisible
+// happy birthday bill. The foreachPar above is acceptable and explained in prose.
+```
+
+Since `ZIO` does not a `repeatNPar` operator, we have to build our own.
+We achieve this using a slightly-awkward combination of `.foreachPar` and a large `List` of values that we ignore.
+
+```scala 3 mdoc:runzio:liveclock
+import zio.*
+import zio.direct.*
+def run =
+  val logic =
+    logicThatSporadicallyLocksUp
+  businessLogic:
+    LogicHolder:
+      logic
+```
+
+```scala 3 mdoc:runzio:liveclock
+import zio.*
+import zio.direct.*
 def run =
   val hedged =
     logicThatSporadicallyLocksUp.race:
