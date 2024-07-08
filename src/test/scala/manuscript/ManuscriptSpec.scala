@@ -3,9 +3,20 @@ package manuscript
 import zio.test.*
 import zio.*
 
+import os.up
+
 object ManuscriptSpec extends ZIOSpecDefault{
-  val wd = os.pwd / "manuscript"
+
+  val wd =
+    if (os.pwd.toString.contains("/book/book"))
+      os.pwd/ up / "manuscript"
+    else
+      os.pwd / "manuscript"
   val chapters = os.list(wd)
+
+  val composabilityChapter =
+    chapters.find(_.toString.contains("Composability"))
+      .getOrElse(throw new IllegalStateException("Composability chapter not found"))
 
   def spec =
     suite("ManuscriptSpec")(
@@ -17,6 +28,14 @@ object ManuscriptSpec extends ZIOSpecDefault{
                 line.trim == "Timeout of 1 s exceeded."
               )
             )
+          )
+      },
+      test("confirm that onInterrupt output is in Composability chapter") {
+        defer:
+          assertTrue(
+              os.read.lines(composabilityChapter).count(line =>
+                line.trim == "AI **INTERRUPTED**"
+              ) == 2
           )
       }
     )
