@@ -3,14 +3,9 @@ package manuscript
 import zio.test.*
 import zio.*
 
-import os.up
-
 object ManuscriptSpec extends ZIOSpecDefault{
 
   val wd =
-//    if (os.pwd.toString.contains("/book/book"))
-//      os.pwd/ up / "manuscript"
-//    else
       os.pwd / "manuscript"
   val chapters = os.list(wd)
 
