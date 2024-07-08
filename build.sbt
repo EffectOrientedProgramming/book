@@ -94,16 +94,17 @@ formatMarkdown := Def.sequential {
   file("Chapters").file.listFiles().map(doFormat)
 }.value
 
-// TODO define inputKey entirely by depending on other inputKeys
-lazy val genManuscript = inputKey[Unit]("Make manuscript")
+lazy val genManuscript = taskKey[Unit]("Make manuscript")
 
 genManuscript := Def.sequential(
   formatMarkdown,
   cleanManuscript,
   mdocRun,
 ).value
-// we aren't adding the edit links anymore
-//  BuildTooling.produceLeanpubManuscript(mdocOut.value)
+
+// Tests won't run until the full genManuscript process completes.
+// This is much slower, but opens the door for us to run tests on the manuscript contents.
+Test/test := ((Test/test) dependsOn genManuscript).value
 
 lazy val mdocRun = taskKey[Unit]("mdoc run")
 mdocRun := Def.taskDyn {
