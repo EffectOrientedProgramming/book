@@ -22,9 +22,9 @@ Created in Crested Butte, Colorado, USA.
 
 Text printed in the United States
 
-> **Ebook: Version 1.0, Month Year**
+> **Ebook: Version @VERSION@, @MONTH@ @YEAR@**
 >
-> **First printing Month Year**
+> **First printing @MONTH@ @YEAR@**
 
 Cover design by Daniel Will-Harris,
 [www.Will-Harris.com](http://www.Will-Harris.com)

@@ -1,4 +1,9 @@
+import java.time.LocalDate
+import java.time.format.TextStyle
+import java.util.Locale
+
 enablePlugins(MdocPlugin)
+enablePlugins(GitVersioning)
 
 name := "EffectOrientedProgramming"
 
@@ -8,6 +13,22 @@ initialize := {
   val current = VersionNumber(sys.props("java.specification.version"))
   assert(current.get(0).get >= required.get(0).get, s"Java $required or above required")
 }
+
+git.formattedShaVersion := git.gitHeadCommit.value.map { sha =>
+  val short = sha.take(7)
+  if (git.gitUncommittedChanges.value) {
+    short + "-SNAPSHOT"
+  }
+  else {
+    short
+  }
+}
+
+mdocVariables := Map(
+  "VERSION" -> version.value,
+  "MONTH" -> LocalDate.now().getMonth.getDisplayName(TextStyle.FULL, Locale.US),
+  "YEAR" -> LocalDate.now().getYear.toString,
+)
 
 scalaVersion := "3.4.2"
 
@@ -116,7 +137,9 @@ mdocRun := Def.taskDyn {
   }
 }.value
 
-import complete.DefaultParsers._
+import complete.DefaultParsers.*
+
+import java.time.LocalDate
 lazy val mdocRunForce = inputKey[Unit]("mdoc run with force")
 mdocRunForce := Def.inputTaskDyn {
   bookTxt.value

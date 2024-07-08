@@ -2,22 +2,11 @@ package mdoc
 
 import io.methvin.watcher.DirectoryChangeEvent
 import io.methvin.watcher.DirectoryChangeEvent.EventType
-import mdoc.internal.cli.{
-  Context,
-  InputFile,
-  Settings
-}
+import mdoc.internal.cli.{Context, InputFile, Settings}
 import mdoc.internal.io.MdocFileListener
 import mdoc.internal.livereload.UndertowLiveReload
-import mdoc.internal.markdown.{
-  MarkdownFile,
-  Processor
-}
-import mdoc.parser.{
-  CodeFence,
-  MarkdownPart,
-  Text
-}
+import mdoc.internal.markdown.{MarkdownFile, Processor, VariableRegex}
+import mdoc.parser.{CodeFence, MarkdownPart, Text}
 
 import java.nio.file.{Files, Paths}
 import java.util.concurrent.Executors
@@ -466,8 +455,15 @@ def processFile(
       .replace("import zio.direct.*\n\n", "")
       .replace("import zio.direct.*\n", "")
 
-  val preprocessedInput =
+  val sourceInput =
     Input.String(source)
+
+  val preprocessedInput = VariableRegex.replaceVariables(
+    sourceInput,
+    settings.site,
+    reporter,
+    settings
+  )
 
   val parsed =
     MarkdownFile.parse(
