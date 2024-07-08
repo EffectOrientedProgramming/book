@@ -693,12 +693,13 @@ import zio.direct.*
 
 val logicThatSporadicallyLocksUp =
   defer:
-    if(Random.nextIntBounded(1_000).run == 0)
+    if (
+      Random.nextIntBounded(1_000).run == 0
+    )
       ZIO
         .sleep:
           3.second
         .run
-        
 ```
 
 ```scala 3 mdoc:invisible
