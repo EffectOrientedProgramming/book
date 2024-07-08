@@ -38,8 +38,8 @@ ZIO’s dependency management provides capabilities that are not possible in oth
 
 ## Let Them Eat Bread
 
-To illustrate how ZIO can assemble our programs, we simulate making and eating `Bread`. [^footnote]
-[^footnote]: Although we are utilizing very different tools with different goals, we were inspired by Li Haoyi's excellent article ["What's Functional Programming All About?"](https://www.lihaoyi.com/post/WhatsFunctionalProgrammingAllAbout.html)
+To illustrate how ZIO can assemble our programs, we simulate making and eating `Bread`. [^1]
+[^1]: Although we are utilizing very different tools with different goals, we were inspired by Li Haoyi's excellent article ["What's Functional Programming All About?"](https://www.lihaoyi.com/post/WhatsFunctionalProgrammingAllAbout.html)
 Because we will create different types of `Bread`, we start by defining `trait Bread`:
 
 ```scala 3 mdoc:silent
@@ -750,8 +750,8 @@ val testCase =
     logic
 ```
 
-Finally, we assign it to the `spec` field of a test class. [^footnote]
-[^footnote]: In real test code, you would be using `ZIOSpecDefault`, or one of the other `ZIOSpec*` variants. We use our custom test runner here for brevity.
+Finally, we assign it to the `spec` field of a test class.
+In real test code, you would be using `ZIOSpecDefault`, or one of the other `ZIOSpec*` variants. We use our custom test runner here for brevity.
 
 ```scala 3 mdoc:testzio
 import zio.*
