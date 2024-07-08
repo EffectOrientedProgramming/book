@@ -225,7 +225,7 @@ def partsToExamples(
           rcf
     RunnableCodeFence(codeFence, rcfs.size)
 
-  val (mainParts, testParts) =
+  val (mainParts: Seq[CodeFence | RunnableCodeFence], testParts: Seq[CodeFence]) =
     markdownFile
       .parts
       .foldLeft(
