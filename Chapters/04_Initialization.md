@@ -38,7 +38,7 @@ ZIO’s dependency management provides capabilities that are not possible in oth
 
 ## Let Them Eat Bread
 
-To illustrate how ZIO can assemble our programs, we simulate making and eating `Bread`. [^1]
+To illustrate how ZIO can assemble our programs, we simulate making and eating `Bread`.[^1]
 [^1]: Although we are utilizing very different tools with different goals, we were inspired by Li Haoyi's excellent article ["What's Functional Programming All About?"](https://www.lihaoyi.com/post/WhatsFunctionalProgrammingAllAbout.html)
 Because we will create different types of `Bread`, we start by defining `trait Bread`:
 
@@ -153,9 +153,7 @@ import zio.Console.*
 import zio.direct.*
 
 case class X():
-  val f =
-    defer:
-      printLine("X.f").run
+  val f = printLine("X.f")
 
 val make =
   defer:

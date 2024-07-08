@@ -5,9 +5,7 @@ import zio.Console.*
 import zio.direct.*
 
 case class X():
-  val f =
-    defer:
-      printLine("X.f").run
+  val f = printLine("X.f")
 
 val make =
   defer:
