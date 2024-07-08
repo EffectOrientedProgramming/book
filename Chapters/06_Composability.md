@@ -764,7 +764,6 @@ override val bootstrap =
 
 def run =
   researchHeadline
-// TODO: make sure onInterrupt debug shows up
 ```
 
 ### Disk Full
