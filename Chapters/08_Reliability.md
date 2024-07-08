@@ -801,7 +801,6 @@ you can use `TestAspect.timeout` to ensure that your tests complete within a cer
 ```scala 3 mdoc:testzio manuscript-only
 import zio.test.*
 
-// TODO: Watch for indeterminate output - test should fail
 def spec =
   test("long testZ"):
     defer:

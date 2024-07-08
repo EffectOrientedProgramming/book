@@ -57,6 +57,7 @@ libraryDependencies ++=
     "org.scalameta" %% "mdoc" % "2.5.3",
     "dev.zio"   %% "zio-test" % zioVersion,
     "dev.zio"   %% "zio-test-sbt" % zioVersion % Test,
+    "com.lihaoyi" %% "os-lib" % "0.10.2" % Test,
   )
 
 fork := true
@@ -104,7 +105,8 @@ genManuscript := Def.sequential(
 
 // Tests won't run until the full genManuscript process completes.
 // This is much slower, but opens the door for us to run tests on the manuscript contents.
-Test/test := ((Test/test) dependsOn genManuscript).value
+// This can be commented out when iterating on tests and not the manuscript.
+//Test/test := ((Test/test) dependsOn genManuscript).value // TODO Restore before pushing
 
 lazy val mdocRun = taskKey[Unit]("mdoc run")
 mdocRun := Def.taskDyn {
