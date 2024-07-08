@@ -137,6 +137,54 @@ ZIO
 The error tells you exactly what you're missing---and remember that you will see this error in your IDE when you are writing the code.
 Traditional dependency injection systems can't tell you until runtime if you're missing something, and even then they typically cannot know for sure if you've covered all your bases.
 
+### Names
+
+ZIOs are verbs while ZLayers are nouns. 
+A ZLayer is a service that provides the *result* of a ZIO (not the ZIO).
+The ZIO is the effect that constructs your instance.
+The ZLayer is the structure that ensures it is provided to your application where needed.
+To provide something to your application so it can run, you provide "a thing", a noun (a ZLayer).
+
+Here, `make` is a verb describing the act of creation:
+
+```scala 3 mdoc:silent
+import zio.*
+import zio.Console.*
+import zio.direct.*
+
+case class X():
+  val f =
+    defer:
+      printLine("X.f").run
+
+val make =
+  defer:
+    printLine("Creating X").run
+    X()
+```
+
+The ZLayer is the thing that’s available after it's been made:
+
+```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+object X:
+  val made =
+    ZLayer.fromZIO:
+      make
+
+def run =
+  ZIO
+    .serviceWithZIO[X]:
+      x => x.f
+    .provide:
+      X.made
+```
+
+`serviceWithZIO` needs an `X` object that it substitutes as `x` in the lambda.
+This is provided via the `ZLayer` `made`, which holds the object produced by `make`.
+
+
 ## Making Bread from Scratch
 
 Instead of buying bread, let's make it from `Dough`, which we will provide as a dependency:
