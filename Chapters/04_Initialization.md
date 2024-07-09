@@ -14,7 +14,6 @@ Dependency Inversion enables *Dependency Injection* which produces more flexible
 Instead of manually constructing and passing all dependencies through the application,  an "Injector" automatically provides instances of those dependencies when they are needed.
 
 Understanding these terms is not crucial for writing Effect Oriented code, but helps when building the `Layer`s for your application.
-{{TODO: Do we need to describe “layers”? }}
 
 Common approaches to implement Dependency Injection rely on runtime magic (e.g. reflection) and require everything to be created through a Dependency Injection manager (the “Injector”). This complicates construction and can make it difficult or impossible to express dependencies at compile time.
 
@@ -73,7 +72,7 @@ In this book, we follow the Scala practice of preferring `case` classes over ord
 `case` classes are immutable by default and automatically provide commonly-needed functionality.
 You aren't required to use `case` classes to work with the Effect system, but they provide valuable conveniences.
 
-The companion object `BreadStoreBought` contains a single method called `layer`.
+The companion object `BreadStoreBought` contains a single value called `layer`.
 This produces a special kind of Effect: the `ZLayer`.
 `ZLayer`s are used by the Effect System to automatically inject dependencies.
 An essential difference between `ZLayer` and other dependency injection systems you might have used is that `ZLayer` validates dependencies *at compile time*.
@@ -199,7 +198,7 @@ case class Dough():
 ```
 
 Note that calling `letRise` produces an Effect.
-Dependencies can be anything, including an object that produces an Effect.
+Dependencies can be anything, including Effects.
 ```
 TODO: is that true (anything)?`
 ```
@@ -533,7 +532,7 @@ object Friend:
         .when(true)(
           ZIO.fail(
             "Failure(Friend Unreachable)"
-          ) // TODO: Replace error with failure pervasively
+          )
         )
         .as(???)
         .run
@@ -879,30 +878,6 @@ val nightlyBatch =
       "Parsing CSV"
 ```
 
-```scala 3 mdoc:testzio
-import zio.test.*
-
-def spec =
-  test("batch runs after 24 hours"):
-    val timeTravel =
-      TestClock.adjust:
-        24.hours
-
-    defer:
-      nightlyBatch.zipPar(timeTravel).run
-//      val fork =
-//        nightlyBatch.fork.run
-//      timeTravel.run
-//      fork.join.run
-
-      assertCompletes
-
-// TODO: update prose on zip
-```
-
-The `race` is between `nightlyBatch` and `timeTravel`.
-It completes when the first Effect succeeds and cancels the losing Effect, using the Effect System's cancellation mechanism.
-
 By default, in ZIO Test, the clock does not change unless instructed to.
 Calling a time-based Effect like `timeout` would hang indefinitely with a warning like:
 
@@ -913,12 +888,34 @@ in the test hanging.  Use TestClock.adjust
 to manually advance the time.
 ```
 
-To test time-based Effects we need to `fork` those Effects so we can adjust the clock.
-After adjusting the clock, we can then `join` the Effect where in this case the timeout has then been reached causing the Effect to return a `None`.
+We need to explicitly advance the time to make the test complete.
+
+```scala 3 mdoc:silent
+import zio.test.*
+
+val timeTravel =
+  TestClock.adjust:
+    24.hours
+```
+
+However, be aware that it is not correct to call `TestClock.adjust` before or after we execute `nightlyBatch`.
+We need to adjust the clock *while `nightlyBatch` is running*.
+
+```scala 3 mdoc:testzio
+import zio.test.*
+
+def spec =
+  test("batch runs after 24 hours"):
+    defer:
+      nightlyBatch.zipPar(timeTravel).run
+      assertCompletes
+
+```
+
+By running `nightlyBatch` and `timeTravel` in parallel, we can ensure that the `nightlyBatch` Effect completes after "24 hours".
 
 Using a simulated Clock means we no longer rely on real-world time.
-The example now runs in real-world milliseconds instead of the original 1 second.
-Our time-based tests are not based on actual system time so they run much more quickly.
+The example now runs in real-world milliseconds instead an entire day.
 They are also more predictable as the time adjustments are fully controlled by the tests.
 
 #### Targeting Failure-Prone Time Bands

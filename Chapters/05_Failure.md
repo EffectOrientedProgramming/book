@@ -5,6 +5,10 @@ they must have a way to express failure.
 
 ## Handling Failures
 
+```scala
+// TODO: Replace error with failure pervasively
+```
+
 ```scala 3 mdoc:invisible
 import zio.*
 import zio.direct.*
