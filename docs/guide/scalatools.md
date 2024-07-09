@@ -26,7 +26,7 @@ Sometimes you can find installation instructions on [YouTube](https://www.youtub
 
 ## 1. Install Coursier
 
-**Windows Users:** [Go Here First](https://effectorientedprogramming.com/guide/scalatools/#6-windows-installation)
+**Windows Users:** [Go Here First](#6-windows-installation)
 
 The process for installing Coursier is different for each operating system.
 The [Coursier Installation Instructions](https://get-coursier.io/docs/cli-installation) provide a detailed guide for each system.
@@ -40,6 +40,8 @@ We specify version 21 of Java on the `cs` command line:
 ```
 cs setup --jvm 21
 ```
+
+**Windows:** Just run `cs setup` and it will find the JDK you installed [here](#6-windows-installation).
 
 This may take a few minutes. When prompted with a `[Y/n]` query, enter `y` for all options.
 
@@ -184,17 +186,17 @@ cs install scalafmt
 Coursier might not be able to install Java 21 on your system, so it's much
 safer to install Java BEFORE installing Coursier:
 
-1. **Install Chocolatey (if not already installed)**:
-    - Open PowerShell as Administrator.
-    - Run the following command to install Chocolatey:
-      ```
-      Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
-      ```
+1. **Install Chocolatey (if not already installed)**:  
+    - Open PowerShell as Administrator.  
+    - Run the following command to install Chocolatey:  
+```
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+```
 
-2. **Install JDK 21 using Chocolatey**:
-   ```
-   choco install openjdk --version 21
-   ```
+2\. **Install JDK 21 using Chocolatey**:
+```
+choco install openjdk --version 21
+```
 
 Chocolatey also handles environment variable setup. 
 Once you finish, close the shell and open a new one.
