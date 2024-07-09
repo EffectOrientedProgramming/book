@@ -718,7 +718,7 @@ import zio.direct.*
 //  of to let us pass in the original and
 //  hedged logic without re-writing everything
 //  around it. Worthwhile, or just a
-//  complicated distraction?
+//  complicated distraction? Consider using bootstrap
 def businessLogic(logicHolder: LogicHolder) =
   defer:
     val makeRequest =
