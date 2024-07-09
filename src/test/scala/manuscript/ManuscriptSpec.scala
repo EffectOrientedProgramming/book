@@ -32,6 +32,17 @@ object ManuscriptSpec extends ZIOSpecDefault{
                 line.trim == "AI **INTERRUPTED**"
               ) == 2
           )
+      },
+      test("ensure no long lines") {
+
+        defer:
+          assertTrue(
+            ! chapters.exists(path =>
+              os.read.lines(path).exists(line =>
+                line.trim == "TODO Handle long line"
+              )
+            )
+          )
       }
     )
 

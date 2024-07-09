@@ -649,9 +649,11 @@ def run =
 
     val protectedCall =
       // TODO Note/explain `catchSome`
-      cb(externalSystem(numCalls)).catchSome:
+      cb(externalSystem(numCalls)).catchAll:
         case CircuitBreakerOpen =>
           numPrevented.update(_ + 1)
+        case other =>
+          ZIO.unit
 
     protectedCall
       .ignore

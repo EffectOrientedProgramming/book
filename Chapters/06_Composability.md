@@ -396,7 +396,7 @@ def openFile(path: String) =
       if (searchTerm == "unicode")
         println("File - * Threw Exception *")
         throw Exception(
-          s"No summary available for $searchTerm"
+          s"No summary found"
         )
       else if (searchTerm == "stock market")
         "stock markets are neat"
@@ -549,13 +549,16 @@ def run =
 We covered the deficiencies of throwing functions in the previous chapter, so we will not belabor the point here.
 We still want to show how they can be converted to Effects and cleanly fit into our composability story.
 
-```scala 3 mdoc:compile-only
-openFile("file1").summaryFor("space")
+```scala 3 mdoc:runzio
+def run =
+  defer:
+    openFile("file1").summaryFor("space")
 ```
 
-```scala 3 mdoc:crash
-// TODO: Can we make the "mdoc:crash" output show up in our separate fence?
-openFile("file1").summaryFor("unicode")
+```scala 3 mdoc:runzio
+def run =
+  defer:
+    openFile("file1").summaryFor("unicode")
 ```
 
 ```scala 3 mdoc
