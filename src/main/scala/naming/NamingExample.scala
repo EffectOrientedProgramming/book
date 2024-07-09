@@ -10,21 +10,7 @@ case class X():
 val makeX =
   defer:
     printLine("Creating X").run
-    val x = X()
-    x.f.run
-    printLine(s"Inside makeX: $x").run
-    x
-
-object makeXTest extends ZIOAppDefault:
-  def run =
-    defer:
-      val x = makeX
-      printLine(s"x = $x").run
-      val r = x.run
-      printLine(s"r = $r").run
-
-
-
+    X()
 
 object X:
   val made =
@@ -39,24 +25,41 @@ object NamingExampleX extends ZIOAppDefault:
       .provide:
         X.made
 
+// ----------------------------------------------------
+
 case class Y():
   val f = printLine("Y.f")
 
 val makeY =
   defer:
     printLine("Creating Y").run
-    Y()
+    val y = Y()
+    y.f.run
+    printLine(s"Inside makeY: $y").run
+    y
 
 object Y:
   val made =
     ZLayer.fromZIO:
       makeY
 
-object NamingExampleY extends ZIOAppDefault:
+object makeYTest extends ZIOAppDefault:
   def run =
-    ZIO
-      .serviceWithZIO[Y]:
-        y => y.f
-      .provide:
-        Y.made
+    defer:
+      val y = makeY
+      printLine(s"y = $y").run
+      val r = y.run
+      printLine(s"r = $r").run
 
+      val m = Y.made
+      printLine(s"m = $m").run
+
+      val yy =
+        ZIO.serviceWithZIO[Y]:
+          y => printLine(s"y = $y")
+        .provide:
+          Y.made
+
+      printLine(s"yy = $yy").run
+      yy.run
+      printLine("yy.run complete").run
