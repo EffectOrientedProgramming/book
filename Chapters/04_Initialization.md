@@ -891,7 +891,7 @@ to manually advance the time.
 
 We need to explicitly advance the time to make the test complete.
 
-```scala 3 mdoc:silent
+```scala 3 mdoc:silent testzio
 import zio.test.*
 
 val timeTravel =
