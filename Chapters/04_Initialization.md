@@ -152,7 +152,8 @@ import zio.Console.*
 import zio.direct.*
 
 case class X():
-  val f = printLine("X.f")
+  val f =
+    printLine("X.f")
 
 val make =
   defer:
@@ -902,6 +903,7 @@ However, be aware that it is not correct to call `TestClock.adjust` before or af
 We need to adjust the clock *while `nightlyBatch` is running*.
 
 ```scala 3 mdoc:testzio
+
 import zio.test.*
 
 def spec =
@@ -909,7 +911,6 @@ def spec =
     defer:
       nightlyBatch.zipPar(timeTravel).run
       assertCompletes
-
 ```
 
 By running `nightlyBatch` and `timeTravel` in parallel, we can ensure that the `nightlyBatch` Effect completes after "24 hours".
