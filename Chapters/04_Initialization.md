@@ -903,9 +903,6 @@ However, be aware that it is not correct to call `TestClock.adjust` before or af
 We need to adjust the clock *while `nightlyBatch` is running*.
 
 ```scala 3 mdoc:testzio
-
-import zio.test.*
-
 def spec =
   test("batch runs after 24 hours"):
     defer:
