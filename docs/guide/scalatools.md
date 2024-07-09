@@ -208,4 +208,7 @@ Now if you install and run Coursier it should find your newly-installed JDK 21 r
 
 - Follow the [Coursier Windows Installation Instructions](https://get-coursier.io/docs/cli-installation#windows).
 - Run `cs setup`.
-- Coursier should find your freshly-installed JDK 21, which you can check with `cs java -version`.
+- Coursier should find your freshly-installed JDK 21, which you can check with:
+```
+cs java -version
+```
