@@ -161,7 +161,7 @@ val make =
     X()
 ```
 
-The ZLayer is the thing that’s available after it's been made:
+The ZLayer produces the object after it's been made:
 
 ```scala 3 mdoc:runzio
 import zio.*
@@ -181,6 +181,7 @@ def run =
 
 `serviceWithZIO` needs an `X` object that it substitutes as `x` in the lambda.
 This is provided via the `ZLayer` `made`, which holds the object produced by `make`.
+The `ZLayer` `made` is the holder for the object produced by `make`, and it provides a way to get to that object. 
 
 
 ## Making Bread from Scratch
