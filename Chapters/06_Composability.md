@@ -589,8 +589,10 @@ def summarize(article: String): String =
   println(s"AI - summarize - start")
   // Represents the AI taking a long time to
   // summarize the content
-  if (article.contains("space"))
+  if (article.contains("space")) {
+    println("AI - taking a long time")
     Thread.sleep(5000)
+  }
 
   println(s"AI - summarize - end")
   if (article.contains("stock market"))
