@@ -1,27 +1,20 @@
-# Reliability
-
-```scala 3
-// TODO: really "advanced recover techniques" as basic ones should have already been covered
-//    Bill - Disagree with this name/framing proposal. "Recovery" is for when things have already gone wrong, and you're trying to respond to them.
-//           Caching, RateLimiting, Bulk-heading (and possibly Hedging) are all _proactive_ steps we take to ensure the program runs as
-//           desired. There might be a better name here, but I think "recovery" is a step in the wrong direction.
-```
+# Resilience
 
 For our purposes,
-  A reliable system behaves predictably in normal circumstances as well as high loads or even hostile situations.
+  A resilient system behaves predictably in normal circumstances as well as high loads or even hostile situations.
 If failures do occur, the system either recovers or shuts down in a well-defined manner.
 
 Effects are the parts of your system that are unpredictable.
-When we talk about reliability in terms of Effects, the goal is to mitigate these unpredictabilities.
+When we talk about resilience in terms of Effects, the goal is to mitigate these unpredictabilities.
 For example, if you make a request of a remote service, you don't know if the network is working or if that service is online.
 Also, the service might be under a heavy load and slow to respond.
 There are strategies to compensate for those issues without invasive restructuring.
 For example, we can attach fallback behavior:
   make a request to our preferred service, and if we don't get a response soon enough, make a request to a secondary service.
 
-Traditional coding often requires extensive re-architecting to apply and adapt reliability strategies, and further rewriting if they fail.
-In a functional Effect-based system, reliability strategies can be easily incorporated and modified.
-This chapter demonstrates components that enhance Effect reliability.
+Traditional coding often requires extensive re-architecting to apply and adapt resilience strategies, and further rewriting if they fail.
+In a functional Effect-based system, resilience strategies can be easily incorporated and modified.
+This chapter demonstrates components that enhance program resilience.
 
 ## Caching
 
@@ -775,7 +768,7 @@ def run =
       hedged
 ```
 
-## Test Reliability
+## Test Resilience
 
 ZIO Test has a feature called `TestAspect`s.
 These are used to attach additional capabilities or restrictions to your tests, while keeping your test code clean and focused.
