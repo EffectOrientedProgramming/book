@@ -124,7 +124,7 @@ Although this example is simple enough that you could easily write it without us
 ### Missing Dependencies
 
 You must provide all required dependencies to an Effect before you can run it.
-If the dependency for an Effect isn't provided, you'll get a compile error:
+If the dependency for an Effect isn't provided, you'll get a compiler error:
 
 ```scala 3 mdoc:fail
 ZIO
@@ -918,8 +918,8 @@ They are also more predictable as the time adjustments are fully controlled by t
 
 #### Targeting Failure-Prone Time Bands
 
-Using real-world time also can be error prone because Effects may have unexpected results in certain time bands.
-Suppose you have code that gets the time and it happens to be 23:59:59.
+Using real-world time also can be error-prone because Effects may have unexpected results in certain time bands.
+Suppose you have code that gets the time, and it happens to be 23:59:59.
 After some operations that take a few seconds, you get database records for the current day.
 Those records may no longer be the day associated with previously received records.
 This scenario can be very hard to test when using real-world time.

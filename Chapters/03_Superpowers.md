@@ -191,7 +191,7 @@ def run =
   effect0
 ```
 
-Don’t assume the happy path or you’ll end up with strange unhandled errors lurking in your code.
+Don’t assume the happy path, or you will end up with unhandled failure paths lurking in your code.
 
 We can override the `bootstrap` value to simulate failure:
 
@@ -242,23 +242,24 @@ def run =
   effect1
 ```
 
-After the failed retries, the program returns an error.
+After the failed retries, the program fails.
 
-## Modify Error
+## Modifying Failure
 
-Let's attach a nicer error onto the previously defined operations (the retries). 
-We use `orElseFail` to transform the failure into a user-friendly error:
+We do not want our user to see anything about our database crashing.
+Let's transform the failure of the first operation. 
+We use `orElseFail` to transform the failure into a user-friendly message:
 
 ```scala 3 mdoc:silent
 val effect2 =
   effect1.orElseFail:
-    "ERROR: User could not be saved"
+    "FAILURE: User could not be saved"
 ```
 
 `orElseFail` is attached to the prior Effect that contains the retry.
-This creates a new Effect that has both error handling operations.
+This creates a new Effect that handles both failures.
 
-Running this new Effect in the `neverWorks` scenario produces the error:
+Running this new Effect in the `neverWorks` scenario fails:
 
 ```scala 3 mdoc:runzio
 override val bootstrap =
@@ -273,7 +274,8 @@ We alter the behavior but without restructuring the original Effect.
 
 Sometimes an Effect fails quickly, as we saw with retries.
 Sometimes an Effect that takes too long is itself a failure.
-The `timeoutFail` operation can be chained to our previous Effect to specify a maximum time the Effect can run before producing an error:
+
+`timeoutFail` can be chained to our previous Effect to specify the maximum time the Effect runs before failing:
 
 ```scala 3 mdoc:silent
 val effect3 =
@@ -282,11 +284,11 @@ val effect3 =
       5.seconds
 ```
 
-`timeoutFail` takes a single String argument which we parenthesize.
+`timeoutFail` takes a single String argument which we parenthesize.
 The result of this call is a function that also takes a single argument that we pass using significant indentation.
 Although we prefer significant indentation whenever possible, sometimes the code is easier to read by introducing parentheses. 
 
-If the Effect does not complete within the time limit, it is canceled and returns our error message.
+If the Effect does not complete within the time limit, it is canceled and fails.
 Timeouts can be added to any Effect.
 
 The `slow` scenario runs longer than our specified time limit of five seconds:
@@ -299,7 +301,7 @@ def run =
   effect3
 ```
 
-The Effect takes too long and produces the error.
+The Effect takes too long and fails.
 
 ## Fallback
 
@@ -348,7 +350,7 @@ def run =
   effect5
 ```
 
-We can add numerous behaviors to an Effect regardless of that Effect’s error and result types.
+We can add numerous behaviors to an Effect regardless of that Effect’s failure and success types.
 
 ## Timing
 
@@ -399,7 +401,7 @@ We started with:
 
 Effects 1 - 7 are new Effects, each built on the previous Effect:
 - `effect1`: Retry
-- `effect2`: Modify Error
+- `effect2`: Modifying Failure
 - `effect3`: Timeout
 - `effect4`: Fallback
 - `effect5`: Logging
@@ -490,7 +492,7 @@ Having 2 versions of `run` seems confusing, but they serve different purposes:
 
 ### The `.run` Method
 
-Calling `.run` on anything other than an Effect produces an error:
+Calling `.run` on anything other than an Effect produces a compiler error:
 
 ```scala 3 mdoc:invisible
 // NOTE: If you alter the sample below, you need to explicitly change the brittle error msg manipulation in Main

@@ -5,10 +5,6 @@ they must have a way to express failure.
 
 ## Handling Failures
 
-```scala 3
-// TODO: Replace error with failure pervasively
-```
-
 ```scala 3 mdoc:invisible
 import zio.*
 import zio.direct.*
@@ -252,7 +248,7 @@ def run =
 ```
 
 Since the new `temperatureAppComplete` can no longer fail, we can no longer "catch" failures.
-Trying to do so will result in a compile error:
+Trying to do so will result in a compiler error:
 
 ```scala 3 mdoc:fail
 temperatureAppComplete.catchAll:

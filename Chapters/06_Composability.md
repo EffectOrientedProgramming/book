@@ -251,7 +251,7 @@ val result: Option[String] =
 ```
 
 If you want to treat the case of a missing value as a failure, you can again use `ZIO.from`:
-ZIO will convert `None` into a generic failure type, giving you the opportunity to define a more specific error type.
+ZIO will convert `None` into a generic failure, giving you the opportunity to define a more specific type.
 
 ```scala 3 mdoc
 import zio.*
@@ -395,9 +395,7 @@ def openFile(path: String) =
       )
       if (searchTerm == "unicode")
         println("File - * Threw Exception *")
-        throw Exception(
-          s"No summary found"
-        )
+        throw Exception(s"No summary found")
       else if (searchTerm == "stock market")
         "stock markets are neat"
       else if (searchTerm == "space")

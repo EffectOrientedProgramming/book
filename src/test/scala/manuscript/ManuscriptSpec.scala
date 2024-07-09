@@ -43,6 +43,17 @@ object ManuscriptSpec extends ZIOSpecDefault{
               )
             )
           )
+      },
+      test("ensure we always say 'compiler error' instead of 'compile error'") {
+
+        defer:
+          assertTrue(
+            ! chapters.exists(path =>
+              os.read.lines(path).exists(line =>
+                line.toLowerCase.contains("compile error")
+              )
+            )
+          )
       }
     )
 
