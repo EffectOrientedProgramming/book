@@ -5,8 +5,8 @@ The following sections provide detailed instructions.
 
 1.  Download and install [Coursier](https://get-coursier.io/).
     [Coursier](https://get-coursier.io/docs/cli-overview) is the Scala installer we use to ensure that the right JVM and standard Scala tools are installed on your system.
-    Details are [here](https://docs.scala-lang.org/scala3/getting-started.html).
-1.  Run `cs setup --jvm 21`. This installs the Java Development Kit (JDK) version 21, Scala 3, and support tools such as the Scala Build Tool ([SBT](https://www.scala-sbt.org/)).
+    Details are [here](https://docs.scala-lang.org/scala3/getting-started.html). **Windows:** [Do This Instead](#6-windows-installation).
+1.  Run `cs setup --jvm 21`. This installs the Java Development Kit (JDK) version 21, Scala 3, and support tools such as the Scala Build Tool ([SBT](https://www.scala-sbt.org/)). **Windows:** Just run `cs setup`.
 1.  Install an Integrated Development Environment (IDE): either [IntelliJ IDEA](https://www.jetbrains.com/help/idea/installation-guide.html) or Visual Studio Code (VSCode).
 1.  Download or clone the [examples repository](examples.md).
 1.  Open the repository in your IDE.
@@ -186,14 +186,15 @@ cs install scalafmt
 Coursier might not be able to install Java 21 on your system, so it's much
 safer to install Java BEFORE installing Coursier:
 
-1. **Install Chocolatey (if not already installed)**:  
-    - Open PowerShell as Administrator.  
-    - Run the following command to install Chocolatey:  
+1\. **Install Chocolatey (if not already installed)**  
+
+- Open PowerShell as Administrator.  
+- Run the following command to install Chocolatey:  
 ```
 Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
 ```
 
-2\. **Install JDK 21 using Chocolatey**:
+2\. **Install JDK 21 using Chocolatey**
 ```
 choco install openjdk --version 21
 ```
@@ -202,3 +203,9 @@ Chocolatey also handles environment variable setup.
 Once you finish, close the shell and open a new one.
 Verify `JAVA_HOME` and `PATH` variables to ensure they are pointed to the JDK 21 installation.
 Now if you install and run Coursier it should find your newly-installed JDK 21 rather than installing a JDK.
+
+3\. **Install and Run Coursier**
+
+- Follow the [Coursier Windows Installation Instructions](https://get-coursier.io/docs/cli-installation#windows).
+- Run `cs setup`.
+- Coursier should find your freshly-installed JDK 21, which you can check with `cs java -version`.
