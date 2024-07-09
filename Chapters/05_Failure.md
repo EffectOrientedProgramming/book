@@ -5,7 +5,7 @@ they must have a way to express failure.
 
 ## Handling Failures
 
-```scala
+```scala 3
 // TODO: Replace error with failure pervasively
 ```
 
@@ -315,6 +315,12 @@ def check(temperature: Temperature) =
 ```
 
 We can now create a new Effect from `getTemperature` and `check` that can fail with either an `Exception` or a `ClimateFailure`:
+The explicit knowledge of exactly how each Effect can fail is part of definition of the Effect.
+
+## Short-circuiting Failures
+
+Short-circuiting is an essential part of a user-friendly Effect Systems.
+With it, we can write a linear sequence of fallible expressions, while maintaining complete failure tracking.
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -331,17 +337,12 @@ val getTemperatureWithCheck =
     check(temperature).run
 ```
 
-Short-circuiting is an essential part of a user-friendly Effect Systems.
-They enable a linear sequence of expressions which helps make code much easier to understand.
-The explicit knowledge of exactly how each Effect can fail is part of definition of the Effect.
-
-In order for Effect Systems to have recovery operations, they must know when failure happens.
+Now we see what happens when a `gpsFailure` causes our first Effect to fail:
 
 ```scala 3 mdoc:runzio
 import zio.*
 import zio.direct.*
 
-// TODO: some prose needed to explain short-circuiting run example
 override val bootstrap =
   gpsFailure
 
@@ -349,6 +350,9 @@ def run =
   getTemperatureWithCheck
 ```
 
+The program fails with the GPS failure, and the `check` Effect is not run.
+
+In order for Effect Systems to have recovery operations, they must know when failure happens.
 To handle the possible failures for this new Effect, we now need to handle both the `Exception` and `ClimateFailure`:
 
 ```scala 3 mdoc:runzio
