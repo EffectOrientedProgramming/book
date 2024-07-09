@@ -1,5 +1,7 @@
 package mdoc
 
+import java.util.regex.Pattern
+
 object ErrorMessageManipulation {
   def cleanupZioErrorOutput(raw: String) =
     def isCommentedStackTraceLine(line: String): Boolean =
@@ -57,25 +59,29 @@ object ErrorMessageManipulation {
       """value run is not a member of Int.""".stripMargin
 
 
-    withoutTrailingBlankLine
-      .mkString("\n")
-      .replace("java.lang.Exception", "Exception")
-      .replace("Result: Defect: Exception:", "Defect:")
-      .replace(effectCantFailMsg, effectCantFailMsgSimple)
-      .replace(canOnlyCallRunOnZiosMsg, canOnlyCallRunOnZiosMsgSimple)
-      .replace(
-        "error:\n\n\n──── ZLAYER ERROR ────────────────────────────────────────────────────",
-        "──── ZLAYER ERROR ───────────"
-      )
-      .replace(
-        "──────────────────────────────────────────────────────────────────────",
-        "─────────────────────────────"
-      )
-      .replace("repl.MdocSession.MdocApp.", "")
-      .replace(
-        "Please provide a layer for the following type",
-        "Please provide a layer for"
-      )
+    val almostClean =
+      withoutTrailingBlankLine
+        .mkString("\n")
+        .replace("java.lang.Exception", "Exception")
+        .replace("Result: Defect: Exception:", "Defect:")
+        .replace(effectCantFailMsg, effectCantFailMsgSimple)
+        .replace(canOnlyCallRunOnZiosMsg, canOnlyCallRunOnZiosMsgSimple)
+        .replace(
+          "error:\n\n\n──── ZLAYER ERROR ────────────────────────────────────────────────────",
+          "──── ZLAYER ERROR ───────────"
+        )
+        .replace(
+          "──────────────────────────────────────────────────────────────────────",
+          "─────────────────────────────"
+        )
+        .replace("repl.MdocSession.MdocApp.", "")
+        .replace(
+          "Please provide a layer for the following type",
+          "Please provide a layer for"
+        )
+    val pattern = Pattern.compile("─────────────────────────────(.*?)```", Pattern.DOTALL)
+    val matcher = pattern.matcher(almostClean)
+    matcher.replaceAll("─────────────────────────────\n```")
   end cleanupZioErrorOutput
 
 }

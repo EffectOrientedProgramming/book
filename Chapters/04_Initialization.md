@@ -247,7 +247,7 @@ val oven =
 Note that `oven` is a free-standing function in this case; it was not necessary to create it in a companion object.
 All you need is some way to produce a `ZLayer`.
 
-We'll make the ability to produce `BreadHomeMade` yet another service, called `homemade`.
+We will make the ability to produce `BreadHomeMade` yet another service, called `homemade`.
 That service, in turn, requires two other services, one to produce `Dough` and another that creates `Heat`:
 
 ```scala 3 mdoc:silent
@@ -910,7 +910,7 @@ def spec =
       assertCompletes
 ```
 
-By running `nightlyBatch` and `timeTravel` in parallel, we can ensure that the `nightlyBatch` Effect completes after "24 hours".
+By running `nightlyBatch` and `timeTravel` in parallel, we ensure that the `nightlyBatch` Effect completes after "24 hours".
 
 Using a simulated Clock means we no longer rely on real-world time.
 The example now runs in real-world milliseconds instead an entire day.
