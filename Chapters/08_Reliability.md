@@ -663,7 +663,7 @@ def run =
 
     val made =
       numCalls.get.run
-    s"Calls prevented: $prevented Calls made: $made"
+    s"Prevented: $prevented Made: $made"
 ```
 
 Now we see that our code prevented the majority of the doomed calls to the external service.
