@@ -578,7 +578,7 @@ def summaryForZ(file: File, topic: String) =
 ## Slow, blocking functions
 
 Most of our examples in this chapter have specific failure behaviors that we handle.
-However, we must also consider functions that are simply too slow.
+However, we must also consider functions that are too slow.
 Up to a point, latency is just the normal cost of doing business, but eventually it becomes unacceptable. 
 
 Here, we are using a local Large Language Model to summarize content.

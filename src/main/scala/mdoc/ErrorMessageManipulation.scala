@@ -60,6 +60,7 @@ object ErrorMessageManipulation {
     withoutTrailingBlankLine
       .mkString("\n")
       .replace("java.lang.Exception", "Exception")
+      .replace("Result: Defect: Exception:", "Defect:")
       .replace(effectCantFailMsg, effectCantFailMsgSimple)
       .replace(canOnlyCallRunOnZiosMsg, canOnlyCallRunOnZiosMsgSimple)
       .replace(
