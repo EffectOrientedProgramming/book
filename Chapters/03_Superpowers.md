@@ -203,7 +203,7 @@ def run =
   effect0
 ```
 
-This program logs and returns the failure.
+This program logs and fails.
 
 ## Retry
 

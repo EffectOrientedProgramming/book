@@ -1,7 +1,7 @@
 # Introduction
 
 Most existing languages are built for rapid development.
-You build a system as quickly as possible, then begin isolating areas of failure, finding and fixing bugs until the system is tolerable and can be delivered.
+You build a system as quickly as possible, then begin isolating failure points, finding and fixing bugs until the system is tolerable and can be delivered.
 
 Over the lifetime of a system, new needs are discovered and the system is adapted to meet those needs.
 Many of these adaptations don’t conform to the original vision and architecture of the system, and will be forced in.
@@ -261,8 +261,8 @@ Like everything else, the return structure has a type—and this incorporates al
 Failures are now part of the type system.
 The type-checking system can now determine, from this return type, whether your code handles all possible failures.
 
-The return type also includes the other (non-failure) Effect types.
-This new return type is what provides the channel that we need to enable easily-adaptable systems.
+The return type also includes the Effect requirements, which we explore later.
+This new return type provides the channel that we need to enable easily-adaptable systems.
 
 ## Improving Your Life
 

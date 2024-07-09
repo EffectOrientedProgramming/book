@@ -142,7 +142,7 @@ def run =
   getTemperature
 ```
 
-Without any failure handling, the program will not continue past the failed Effect.
+Unless we handle failure, the program ends here.
 For example, if we try to print something after trying to get the temperature,
   an unhandled failure will not allow the program to continue.
 
@@ -162,8 +162,9 @@ def run =
     .run
 ```
 
-We can add various forms of failure handling.
+We handle failure in various ways.
 One is to "catch" the failure and transform it into another Effect which can also succeed or fail.
+Note that this is a method in our Effect System, *not* the `catch` mechanism of the language.
 
 ```scala 3 mdoc:runzio
 import zio.*
@@ -210,9 +211,9 @@ val bad =
 // It would fail on pattern case: _: GpsException
 ```
 
-This produces a compiler warning because our `catchAll` does not actually catch all possible types of failure.
+This produces a compiler warning because our `catchAll` does not actually catch all possible failures.
 
-We should handle all the types of failures:
+We should handle all failures:
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -316,7 +317,7 @@ The explicit knowledge of exactly how each Effect can fail is part of definition
 ## Short-circuiting Failures
 
 Short-circuiting is an essential part of a user-friendly Effect Systems.
-With it, we can write a linear sequence of fallible expressions, while maintaining complete failure tracking.
+With it, we can write a linear sequence of fallible expressions, while tracking all possible failures.
 
 ```scala 3 mdoc:silent
 import zio.*
