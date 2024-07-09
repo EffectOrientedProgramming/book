@@ -26,6 +26,8 @@ Sometimes you can find installation instructions on [YouTube](https://www.youtub
 
 ## 1. Install Coursier
 
+**Windows Users:** [Go Here First](https://effectorientedprogramming.com/guide/scalatools/#6-windows-installation)
+
 The process for installing Coursier is different for each operating system.
 The [Coursier Installation Instructions](https://get-coursier.io/docs/cli-installation) provide a detailed guide for each system.
 
@@ -176,3 +178,25 @@ cs install scalafmt
 ```
 
 <!-- *  `eval "$(cs install --env)"` {{ What does this do? }} -->
+
+## 6. Windows Installation
+
+Coursier might not be able to install Java 21 on your system, so it's much
+safer to install Java BEFORE installing Coursier:
+
+1. **Install Chocolatey (if not already installed)**:
+    - Open PowerShell as Administrator.
+    - Run the following command to install Chocolatey:
+      ```
+      Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+      ```
+
+2. **Install JDK 21 using Chocolatey**:
+   ```
+   choco install openjdk --version 21
+   ```
+
+Chocolatey also handles environment variable setup. 
+Once you finish, close the shell and open a new one.
+Verify `JAVA_HOME` and `PATH` variables to ensure they are pointed to the JDK 21 installation.
+Now if you install and run Coursier it should find your newly-installed JDK 21 rather than installing a JDK.
