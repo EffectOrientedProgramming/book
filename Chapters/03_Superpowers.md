@@ -178,8 +178,8 @@ def run =
 
 By default, `effect0` runs in the "happy path" so it will not fail.
 
-We can specify the way an Effect runs. 
-To do this, we configure the program by overriding the `bootstrap` value. 
+We can specify the way an Effect runs.
+To do this, we configure the program by overriding the `bootstrap` value.
 A `bootstrap` creates a scenario for the execution of the program.
 Here we explicitly provide the happy path:
 
@@ -207,7 +207,7 @@ This program logs and fails.
 
 ## Retry
 
-Sometimes things work when you keep trying.  
+Sometimes things work when you keep trying.
 We can retry `effect0` by attaching the `retryN` operation:
 
 ```scala 3 mdoc:silent
@@ -247,7 +247,7 @@ After the failed retries, the program fails.
 ## Modifying Failure
 
 We do not want our user to see anything about our database crashing.
-Let's transform the failure of the first operation. 
+Let's transform the failure of the first operation.
 We use `orElseFail` to transform the failure into a user-friendly message:
 
 ```scala 3 mdoc:silent
@@ -286,7 +286,7 @@ val effect3 =
 
 `timeoutFail` takes a single String argument which we parenthesize.
 The result of this call is a function that also takes a single argument that we pass using significant indentation.
-Although we prefer significant indentation whenever possible, sometimes the code is easier to read by introducing parentheses. 
+Although we prefer significant indentation whenever possible, sometimes the code is easier to read by introducing parentheses.
 
 If the Effect does not complete within the time limit, it is canceled and fails.
 Timeouts can be added to any Effect.
@@ -454,17 +454,17 @@ def run =
     effect1.run // Display each save
 ```
 
-A `defer` block creates a new Effect, which is returned by `run`.
-The `.run` called on each Effect constructs the sequence.
+A `defer` block creates a new Effect containing a sequence of other Effects.
+Here, the resulting Effect is assigned to `run`.
+The `.run` called on each Effect within the `defer` constructs the sequence.
 Even though we say `.run`, the Effects are still deferred.
-They get run, in order, when the Effect produced by the `defer` block is run.
+They run, in order, when you run the enclosing Effect produced by the `defer` block.
 
-The `.run` method is only available for Effect values.
-We explicitly call `.run` whenever we want to sequence Effects.
+The `.run` method is only available to Effects within a `defer` block.
 If we do not call `.run`, we end up with an un-executed Effect.
-We want this explicit control so we can attach operations to our Effects before we run them.
+With this explicit control, we can attach operations to Effects before they run.
 
-We can assign the new Effect to a `val` like we did with `effect1` - `effect7`:
+We assign the new Effect to a `val` like we did with `effect1` - `effect7`:
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -477,7 +477,7 @@ val effect8 =
     effect1.run
 ```
 
-When you finish assembling your Effect and are ready to run it, you utilize the other important `run` method:
+To run the Effect after assembling it as a `defer`, use the other important `run` method:
 
 ```scala 3 mdoc:runzio
 val run =
@@ -487,7 +487,7 @@ val run =
 Having 2 versions of `run` seems confusing, but they serve different purposes:
 - Attaching `.run` to Effects in a `defer` establishes the order of execution for that Effect.
   This can happen many times throughout your program.
-- Assigning an Effect to `def run` actually executes the program.
+- Assigning an Effect to `def run` executes that effect as the program.
   This typically happens only once in your code.
 
 ### The `.run` Method
@@ -519,8 +519,8 @@ def run =
       .repeatN(1).run
 ```
 
-The chain produces a new Effect.
-Calling `.run` executes that new Effect.
+The chain `effect8.debug.repeatN(1)` produces a new Effect.
+Calling `.run` executes that new Effect and yields its result.
 Since `.debug` appears before `repeatN(1)`, `effect8.debug` executes once and is then repeated once.
 
 We _cannot_ repeat our executed Effect by putting `.run` in the middle of the chain:
@@ -533,9 +533,9 @@ val programManipulatingBeforeRun =
 
 Running an Effect produces its result, not the deferred computation. Thus there’s no appropriate place to attach `repeatN(3)`.
 
-All calls to `.run` must happen within a `defer` block, so when `effect8` is defined, we haven’t executed anything—we’ve only created a new Effect.
-A `defer` block creates a new Effect that describes a program that knows the order in which to execute the individual Effects.
-But that Effect only runs when the program is executed.
+All calls to `.run` must happen within a `defer` block, so when `effect8` is defined, we haven’t executed anything—we’ve only used `defer` to create a new Effect.
+A `defer` block creates a new Effect that contains a program to execute the individual Effects, in order.
+This combined Effect only runs when the program is executed.
 
 ```scala 3 mdoc:silent
 import zio.*
