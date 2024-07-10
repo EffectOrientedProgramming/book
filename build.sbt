@@ -75,7 +75,7 @@ libraryDependencies ++=
           ) excludeAll
           ("com.geirsson", "metaconfig-core"),
     "nl.vroste" %% "rezilience"   % "0.9.4",
-    "org.scalameta" %% "mdoc" % "2.5.3",
+    "org.scalameta" %% "mdoc" % "2.5.4",
     "dev.zio"   %% "zio-test" % zioVersion,
     "dev.zio"   %% "zio-test-sbt" % zioVersion % Test,
     "com.lihaoyi" %% "os-lib" % "0.10.2" % Test,
