@@ -42,7 +42,7 @@ mdocOut := file("manuscript")
 // Tells our example extraction code where to put the extracted examples
 val examplesDir = "examples"
 
-val zioVersion = "2.1.5"
+val zioVersion = "2.1.6"
 
 scalacOptions +=
   Seq(
