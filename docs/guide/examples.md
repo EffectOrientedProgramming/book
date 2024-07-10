@@ -14,15 +14,18 @@ You may use another environment such as VSCode but if you do you'll need to figu
 1. Follow the instructions [here](https://www.jetbrains.com/help/idea/installation-guide.html)
    to install IntelliJ IDEA.
 
-2. Start IntelliJ IDEA, and choose 'Open' to open an existing project.
+1. Start IntelliJ IDEA, and choose 'Open' to open an existing project.
    Navigate to where you unzipped the repository.
 
-3. If the Scala plugin isn't installed, IDEA will prompt you.
+1. If the Scala plugin isn't installed, IDEA will prompt you.
    Accept the prompt to install the plugin.
 
-4. When you open any of the chapter files in `src/main/scala`, as you scroll down you will
+1. When you open any of the chapter files in `src/main/scala`, as you scroll down you will
    see green arrows on the left of each runnable example.
    When you press an arrow, that example will run in a console and show you the output.
+
+1. You might need to restart JetBrains IDEA after configuring. 
+   Also check for running tasks in the IDE; you might need to wait the first time you open the project before the green arrows appear.
 
 <!-- 
 3. Go to the menu and select:

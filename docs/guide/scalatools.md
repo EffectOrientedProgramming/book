@@ -5,8 +5,10 @@ The following sections provide detailed instructions.
 
 1.  Download and install [Coursier](https://get-coursier.io/).
     [Coursier](https://get-coursier.io/docs/cli-overview) is the Scala installer we use to ensure that the right JVM and standard Scala tools are installed on your system.
-    Details are [here](https://docs.scala-lang.org/scala3/getting-started.html). **Windows:** [Do This Instead](#6-windows-installation).
-1.  Run `cs setup --jvm 21`. This installs the Java Development Kit (JDK) version 21, Scala 3, and support tools such as the Scala Build Tool ([SBT](https://www.scala-sbt.org/)). **Windows:** Just run `cs setup`.
+    Details are [here](https://docs.scala-lang.org/scala3/getting-started.html).  
+    **Windows:** [Do This Instead](#6-windows-installation).
+1.  Run `cs setup --jvm 21`. This installs the Java Development Kit (JDK) version 21, Scala 3, and support tools such as the Scala Build Tool ([SBT](https://www.scala-sbt.org/)).  
+    **Windows:** Just run `cs setup`.
 1.  Install an Integrated Development Environment (IDE): either [IntelliJ IDEA](https://www.jetbrains.com/help/idea/installation-guide.html) or Visual Studio Code (VSCode).
 1.  Download or clone the [examples repository](examples.md).
 1.  Open the repository in your IDE.
