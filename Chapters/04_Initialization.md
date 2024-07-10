@@ -7,39 +7,39 @@
 Initializing an application from values provided at startup is a perennial challenge in software.
 Solutions are diverse, impressive, and often completely bewildering.
 
-One reason to modularize an application into parts is that the relationship between those parts can be expressed and changed based on a particular path of execution through the program.
+One reason to modularize an application into parts is that the relationship between those parts can be adapted for different paths of execution through the program, such as "main app", "test suite one", "test suite two", etc.
 Breaking things into parts and expressing what they need is commonly called *Dependency Inversion*.
 
 Dependency Inversion enables *Dependency Injection* which produces more flexible code.
-Instead of manually constructing and passing all dependencies through the application,  an "Injector" automatically provides instances of those dependencies when they are needed.
+Instead of manually constructing and passing all dependencies through the application, an "Injector" automatically provides instances of those dependencies when they are needed.
 
-Understanding these terms is not crucial for writing Effect Oriented code, but helps when building the `Layer`s for your application.
+Common approaches to implement Dependency Injection rely on runtime inspection (typically using reflection) and require everything to be created through a Dependency Injection manager (the “Injector”).
+This complicates construction and can make it difficult or impossible to express dependencies at compile time.
 
-Common approaches to implement Dependency Injection rely on runtime magic (e.g. reflection) and require everything to be created through a Dependency Injection manager (the “Injector”). This complicates construction and can make it difficult or impossible to express dependencies at compile time.
-
-If we instead express dependencies through the type system, the compiler can verify that the needed parts are available given a particular path of execution (main app, test suite one, test suite two, etc.).
+If we instead express dependencies through the type system, the compiler can verify that the needed parts are available given a particular path of execution.
 
 ## Effects and Dependencies
 
-The benefits of Effects also benefit initialization.
-
-Using an Effect System for dependencies produces many desirable characteristics at compile time, using plain function calls.
+Using an Effect System for dependencies produces many desirable compile-time characteristics.
 Services are defined as classes with constructor arguments, just as in any vanilla Scala application.
-
-For any given service in your application, you define what it needs in order to execute.
-Finally, when it is time to build your application, all of these pieces can be provided in one, flat space.
+When an application needs startup configuration, you define those configuration elements as services.
+When building the application, these services can be provided in a single flat space.
 Each component automatically finds its dependencies, and makes itself available to other components that need it.
 
 Dependency cycles are not allowed by ZIO—you cannot build a program where `A` depends on `B`, and `B` depends on `A`.
 You are alerted at compile time about illegal cycles.
 
-ZIO’s dependency management provides capabilities that are not possible in other approaches, such as sharing a single instance of a dependency across multiple test classes, or even multiple applications.
+ZIO’s dependency management provides capabilities that are not possible in other approaches.
+For example, you can share a single instance of a dependency across multiple test classes, or even multiple applications.
+```
+// TODO: Should we demonstrate this?
+```
 
 ## Let Them Eat Bread
 
-To illustrate how ZIO can assemble our programs, we simulate making and eating `Bread`.[^1]
-[^1]: Although we are utilizing very different tools with different goals, we were inspired by Li Haoyi's excellent article ["What's Functional Programming All About?"](https://www.lihaoyi.com/post/WhatsFunctionalProgrammingAllAbout.html)
-Because we will create different types of `Bread`, we start by defining `trait Bread`:
+To illustrate how ZIO assembles programs, we simulate making and eating `Bread`.[^1]
+[^1]: We were inspired by Li Haoyi's excellent article ["What's Functional Programming All About?"](https://www.lihaoyi.com/post/WhatsFunctionalProgrammingAllAbout.html)
+We will create different types of `Bread`, so we start by defining `trait Bread`:
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -52,7 +52,8 @@ trait Bread:
       "Bread: Eating"
 ```
 
-This uses `zio.Console.printLine`; as a reminder, calling `eat` just returns an Effect and doesn't display anything on the console until that Effect is run.
+This uses `zio.Console.printLine`, which is an Effect.
+Calling `eat` just returns an Effect and doesn't display anything on the console until that Effect is run.
 
 We start with the simplest approach of just buying `Bread` from the store:
 
@@ -167,7 +168,7 @@ The ZLayer produces the object after it's been made:
 import zio.*
 import zio.direct.*
 object X:
-  val made =
+  val dependency =
     ZLayer.fromZIO:
       make
 
@@ -176,13 +177,12 @@ def run =
     .serviceWithZIO[X]:
       x => x.f
     .provide:
-      X.made
+      X.dependency
 ```
 
 `serviceWithZIO` needs an `X` object that it substitutes as `x` in the lambda.
-This is provided via the `ZLayer` `made`, which holds the object produced by `make`.
-The `ZLayer` `made` is the holder for the object produced by `make`, and it provides a way to get to that object.
-
+This is provided via `dependency`, which yeilds a `ZLayer` holding the object produced by `make`.
+The `ZLayer` is the holder for the object produced by `make`, and it provides a way to get to that object.
 
 ## Making Bread from Scratch
 
@@ -211,7 +211,7 @@ import zio.direct.*
 import zio.Console._
 
 object Dough:
-  val fresh =
+  val fresh = // TODO: should be a noun
     ZLayer.fromZIO:
       defer:
         printLine("Dough: Mixed").run
@@ -259,7 +259,7 @@ case class BreadHomeMade(
 ) extends Bread
 
 object Bread:
-  val homemade =
+  val homemade = // TODO: should be a noun
     ZLayer.fromZIO:
       defer:
         printLine("BreadHomeMade: Baked").run
@@ -318,7 +318,7 @@ case class Toast(heat: Heat, bread: Bread):
       "Toast: Eating"
 
 object Toast:
-  val make =
+  val make =  // TODO: should be a noun
     ZLayer.fromZIO:
       defer:
         printLine("Toast: Made").run
@@ -424,7 +424,7 @@ case class ToastZ(
       "Toast: Eating"
 
 object ToastZ:
-  val make =
+  val make = // TODO: should be a noun
     ZLayer.fromZIO:
       defer:
         printLine("ToastZ: Made").run

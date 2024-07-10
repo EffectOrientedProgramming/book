@@ -7,8 +7,7 @@ import zio.direct.*
 
 trait Bread:
   def eat =
-    printLine:
-      "Bread: Eating"
+    printLine("Bread: Eating")
 
 case class BreadStoreBought() extends Bread
 
@@ -18,9 +17,8 @@ object BreadStoreBought:
       BreadStoreBought()
 
 case class Dough():
-  val letRise =
-    printLine:
-      "Dough: rising"
+  val rise =
+    printLine("Dough: rising")
 
 object Dough:
   val fresh =
@@ -33,19 +31,18 @@ trait HeatSource
 case class Oven() extends HeatSource
 
 object Oven:
-  val preheat =
+  val preheated =
     ZLayer.fromZIO:
       defer:
         printLine("Oven: Heated").run
         Oven()
 
-case class BreadHomeMade(
-                          oven: Oven,
-                          dough: Dough
-                        ) extends Bread
+case class
+BreadHomeMade(oven: Oven, dough: Dough)
+  extends Bread
 
 object BreadHomeMade:
-  val make =
+  val ready =
     ZLayer.fromZIO:
       defer:
         printLine("BreadHomeMade: Baked").run
@@ -57,13 +54,12 @@ object BreadHomeMade:
 trait Toast:
   def bread: Bread
   def heat: HeatSource
-  val eat =
-    printLine("Toast: Eating")
+  val eat = printLine("Toast: Eating")
 
 case class ToastA(heat: HeatSource, bread: Bread) extends Toast
 
 object ToastA:
-  val make =
+  val toast =
     ZLayer.fromZIO:
       defer:
         printLine("ToastA: Made").run
@@ -75,7 +71,7 @@ object ToastA:
 case class Toaster() extends HeatSource
 
 object Toaster:
-  val toast = // 'toast' as a verb
+  val ready = // 'toast' as a verb
     ZLayer.fromZIO:
       defer:
         printLine("Toaster: Toasting").run
@@ -86,10 +82,10 @@ val ambiguous =
   ZIO
     .service[Toast]
     .provide(
-      ToastA.make,
+      ToastA.toast,
       Dough.fresh,
-      BreadHomeMade.make,
-      Oven.preheat,
+      BreadHomeMade.ready,
+      Oven.preheated,
 //      Toaster.toast,  // Produces ambiguity error
     )
 
@@ -97,7 +93,7 @@ case class ToastB(heat: Toaster, bread: Bread) extends Toast
 // ToastA used HeatSource for heat
 
 object ToastB:
-  val make =
+  val toast =
     ZLayer.fromZIO:
       defer:
         printLine("ToastB: Made").run
@@ -111,12 +107,12 @@ val not_ambiguous =
   ZIO
     .service[Toast]
     .provide(
-      ToastB.make,
+      ToastB.toast,
       Dough.fresh,
-      BreadHomeMade.make,
+      BreadHomeMade.ready,
       // The two HeatSources don't clash:
-      Oven.preheat,
-      Toaster.toast,
+      Oven.preheated,
+      Toaster.ready,
     )
 
 

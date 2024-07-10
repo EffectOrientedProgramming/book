@@ -13,7 +13,7 @@ val makeX =
     X()
 
 object X:
-  val made =
+  val dependency =
     ZLayer.fromZIO:
       makeX
 
@@ -23,7 +23,7 @@ object NamingExampleX extends ZIOAppDefault:
       .serviceWithZIO[X]:
         x => x.f
       .provide:
-        X.made
+        X.dependency
 
 // ----------------------------------------------------
 
@@ -39,7 +39,7 @@ val makeY =
     y
 
 object Y:
-  val made =
+  val dependency =
     ZLayer.fromZIO:
       makeY
 
@@ -51,14 +51,14 @@ object makeYTest extends ZIOAppDefault:
       val r = y.run
       printLine(s"r = $r").run
 
-      val m = Y.made
+      val m = Y.dependency
       printLine(s"m = $m").run
 
       val yy =
         ZIO.serviceWithZIO[Y]:
           y => printLine(s"y = $y")
         .provide:
-          Y.made
+          Y.dependency
 
       printLine(s"yy = $yy").run
       yy.run
