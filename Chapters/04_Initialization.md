@@ -1,7 +1,7 @@
 # Initialization
 
 ```
-TODO: Rewrite 'Initialization' intro material once I understand it by working through the rest of the chapter
+// TODO: Rewrite 'Initialization' intro material once I understand it by working through the rest of the chapter
 ```
 
 Initializing an application from values provided at startup is a perennial challenge in software.
@@ -138,10 +138,10 @@ Traditional dependency injection systems can't tell you until runtime if you're 
 
 ### Names
 
-ZIOs are verbs while ZLayers are nouns. 
+ZIOs are verbs while ZLayers are nouns.
 A ZLayer is a service that provides the *result* of a ZIO (not the ZIO).
-The ZIO is the effect that constructs your instance.
-The ZLayer is the structure that ensures it is provided to your application where needed.
+The ZIO is the Effect that constructs your instance.
+The ZLayer is the structure that ensures an instance is provided to your application where needed.
 To provide something to your application so it can run, you provide "a thing", a noun (a ZLayer).
 
 Here, `make` is a verb describing the act of creation:
@@ -181,7 +181,7 @@ def run =
 
 `serviceWithZIO` needs an `X` object that it substitutes as `x` in the lambda.
 This is provided via the `ZLayer` `made`, which holds the object produced by `make`.
-The `ZLayer` `made` is the holder for the object produced by `make`, and it provides a way to get to that object. 
+The `ZLayer` `made` is the holder for the object produced by `make`, and it provides a way to get to that object.
 
 
 ## Making Bread from Scratch
@@ -200,10 +200,7 @@ case class Dough():
 ```
 
 Note that calling `letRise` produces an Effect.
-Dependencies can be anything, including Effects.
-```
-TODO: is that true (anything)?`
-```
+Dependencies can be anything (except `Nothing`), including Effects, primitives, custom types, unions, etc.
 
 Following the pattern of the previous example, a `ZLayer` is produced in the companion object.
 This time we create a ZIO object and then convert it using `ZLayer.fromZIO`:
@@ -276,7 +273,7 @@ object Bread:
 The `homemade` method produces a `ZLayer` that itself relies on two other `ZLayer`s, for `Heat` and `Dough`, in order to construct the `BreadHomeMade` object produced by the `homemade` `ZLayer`.
 Also note that in the `ZIO.service` calls, we only need to say, "I need `Heat`" and "I need `Dough`" and the Effect System will ensure that those services are found.
 
-The main program starts out looking identical to the previous example: we just need a service that provides `Bread`:
+The main program starts out looking identical to the previous example---we just need a service that provides `Bread`:
 
 ```scala 3 mdoc:runzio
 import zio.*
