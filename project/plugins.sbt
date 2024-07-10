@@ -15,7 +15,7 @@ addSbtPlugin(
 )
 
 addSbtPlugin(
-  "ch.epfl.scala" % "sbt-bloop" % "1.5.18"
+  "ch.epfl.scala" % "sbt-bloop" % "1.6.0"
 )
 
 //ThisBuild / libraryDependencySchemes ++=
