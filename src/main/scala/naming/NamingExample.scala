@@ -5,25 +5,31 @@ import zio.Console.*
 import zio.direct.*
 
 case class X():
-  val f = printLine("X.f")
+  val display = printLine("X.f")
 
 val makeX =
   defer:
     printLine("Creating X").run
     X()
 
+val dependency =
+  ZLayer.fromZIO:
+    makeX
+
 object X:
-  val dependency =
+  val dependent =
     ZLayer.fromZIO:
       makeX
+
 
 object NamingExampleX extends ZIOAppDefault:
   def run =
     ZIO
       .serviceWithZIO[X]:
-        x => x.f
+        x => x.display
       .provide:
-        X.dependency
+        X.dependent   // The "adjectivized object"
+        // dependency // Or the noun version
 
 // ----------------------------------------------------
 

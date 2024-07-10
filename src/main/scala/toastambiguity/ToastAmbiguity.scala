@@ -6,19 +6,17 @@ import zio.Console.*
 import zio.direct.*
 
 trait Bread:
-  def eat =
-    printLine("Bread: Eating")
+  def eat = printLine("Bread: Eating")
 
 case class BreadStoreBought() extends Bread
 
 object BreadStoreBought:
-  val layer =
+  val purchased =
     ZLayer.succeed:
       BreadStoreBought()
 
 case class Dough():
-  val rise =
-    printLine("Dough: rising")
+  val rise = printLine("Dough: rising")
 
 object Dough:
   val fresh =
@@ -42,7 +40,7 @@ BreadHomeMade(oven: Oven, dough: Dough)
   extends Bread
 
 object BreadHomeMade:
-  val ready =
+  val baked =
     ZLayer.fromZIO:
       defer:
         printLine("BreadHomeMade: Baked").run
@@ -59,7 +57,7 @@ trait Toast:
 case class ToastA(heat: HeatSource, bread: Bread) extends Toast
 
 object ToastA:
-  val toast =
+  val toasted =
     ZLayer.fromZIO:
       defer:
         printLine("ToastA: Made").run
@@ -71,10 +69,10 @@ object ToastA:
 case class Toaster() extends HeatSource
 
 object Toaster:
-  val ready = // 'toast' as a verb
+  val ready =
     ZLayer.fromZIO:
       defer:
-        printLine("Toaster: Toasting").run
+        printLine("Toaster: Ready").run
         Toaster()
 
 
@@ -82,18 +80,18 @@ val ambiguous =
   ZIO
     .service[Toast]
     .provide(
-      ToastA.toast,
+      ToastA.toasted,
       Dough.fresh,
-      BreadHomeMade.ready,
+      BreadHomeMade.baked,
       Oven.preheated,
-//      Toaster.toast,  // Produces ambiguity error
+//      Toaster.ready,  // Produces ambiguity error
     )
 
 case class ToastB(heat: Toaster, bread: Bread) extends Toast
 // ToastA used HeatSource for heat
 
 object ToastB:
-  val toast =
+  val toasted =
     ZLayer.fromZIO:
       defer:
         printLine("ToastB: Made").run
@@ -107,9 +105,9 @@ val not_ambiguous =
   ZIO
     .service[Toast]
     .provide(
-      ToastB.toast,
+      ToastB.toasted,
       Dough.fresh,
-      BreadHomeMade.ready,
+      BreadHomeMade.baked,
       // The two HeatSources don't clash:
       Oven.preheated,
       Toaster.ready,

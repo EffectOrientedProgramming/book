@@ -47,9 +47,7 @@ import zio.direct.*
 import zio.Console._
 
 trait Bread:
-  def eat =
-    printLine:
-      "Bread: Eating"
+  def eat = printLine("Bread: Eating")
 ```
 
 This uses `zio.Console.printLine`, which is an Effect.
@@ -139,13 +137,14 @@ Traditional dependency injection systems can't tell you until runtime if you're 
 
 ### Names
 
-ZIOs are verbs while ZLayers are nouns.
-A ZLayer is a service that provides the *result* of a ZIO (not the ZIO).
-The ZIO is the Effect that constructs your instance.
-The ZLayer is the structure that ensures an instance is provided to your application where needed.
-To provide something to your application so it can run, you provide "a thing", a noun (a ZLayer).
+An Effect is something that produces an action, so we name ZIOs with verbs.
+The ZLayer is the structure that provides an instance to your application.
+This instance is a thing.
+Thus, the net effect of the name of a ZLayer should be a noun.
+We say "net effect" here because, inside the companion object, we typically use an adjective for the method that produces the ZLayer.
+However, the name of the companion object *together* with the adjective still produces a noun.
 
-Here, `make` is a verb describing the act of creation:
+Here, `makeX` is a verb describing the act of creation:
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -153,36 +152,58 @@ import zio.Console.*
 import zio.direct.*
 
 case class X():
-  val f =
-    printLine("X.f")
+  val display = printLine("X.f")
 
-val make =
+val makeX =
   defer:
     printLine("Creating X").run
     X()
 ```
 
-The ZLayer produces the object after it's been made:
+As a standalone function, the ZLayer name should be a noun:
+
+```scala 3 mdoc:silent
+import zio.*
+
+val dependency =
+  ZLayer.fromZIO:
+    makeX
+```
+
+Inside the companion object, we can use an adjective, because in order to reference the ZLayer you must include the class name, producing the noun `X.dependent`:
+
+```scala 3 mdoc:silent
+import zio.*
+
+object X:
+  val dependent =
+    ZLayer.fromZIO:
+      makeX
+```
+
+We declare `X.dependent` a noun in the world of programming where we mash words together.
+Now we provide the dependency in a program:
 
 ```scala 3 mdoc:runzio
 import zio.*
-import zio.direct.*
-object X:
-  val dependency =
-    ZLayer.fromZIO:
-      make
 
-def run =
-  ZIO
-    .serviceWithZIO[X]:
-      x => x.f
-    .provide:
-      X.dependency
+object NamingExampleX extends ZIOAppDefault:
+  def run =
+    ZIO
+      .serviceWithZIO[X]:
+        x => x.display
+      .provide:
+        X.dependent   // The "adjectivized object"
+        // dependency // Or the noun version
 ```
 
 `serviceWithZIO` needs an `X` object that it substitutes as `x` in the lambda.
-This is provided via `dependency`, which yeilds a `ZLayer` holding the object produced by `make`.
+This is provided by either `X.dependent` or `dependency`, which yields a `ZLayer` holding the object produced by `make`.
 The `ZLayer` is the holder for the object produced by `make`, and it provides a way to get to that object.
+
+```
+// TODO: Better names than `dependent` and `dependency`?
+```
 
 ## Making Bread from Scratch
 
