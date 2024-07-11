@@ -38,9 +38,9 @@ case class Y():
 
 val makeY =
   defer:
-    printLine("makeY Creating Y").run
+    printLine("makeY.run Creating Y").run
     val y = Y()
-    printLine(s"makeY returns: $y").run
+    printLine(s"makeY.run returning $y").run
     y
 
 object Y:
@@ -51,21 +51,21 @@ object Y:
 object makeYTest extends ZIOAppDefault:
   def run =
     defer:
-      printLine(s"makeY: $makeY").run
+      printLine(s"makeY: ${makeY.getClass}").run
       val r = makeY.run
-      printLine(s"makeY.run: $r").run
+      printLine(s"makeY.run returned $r").run
 
-      printLine(s"Y.dependency = ${Y.dependency}").run
+      printLine(s"Y.dependency: ${Y.dependency.getClass}").run
 
       val program =
         ZIO.serviceWithZIO[Y]:
           y =>
             defer:
-              printLine(s"y = $y").run
+              printLine(s"y: $y").run
               y.display.run
         .provide:
           Y.dependency
 
-      printLine(s"program = $program").run
+      printLine(s"program: ${program.getClass}").run
       program.run
       printLine("program.run complete").run
