@@ -62,7 +62,7 @@ import zio.direct.*
 case class BreadStoreBought() extends Bread
 
 object BreadStoreBought:
-  val layer =
+  val purchased =
     ZLayer.succeed:
       BreadStoreBought()
 ```
@@ -71,7 +71,7 @@ In this book, we follow the Scala practice of preferring `case` classes over ord
 `case` classes are immutable by default and automatically provide commonly-needed functionality.
 You aren't required to use `case` classes to work with the Effect system, but they provide valuable conveniences.
 
-The companion object `BreadStoreBought` contains a single value called `layer`.
+The companion object `BreadStoreBought` contains a single value called `purchased`.
 This produces a special kind of Effect: the `ZLayer`.
 `ZLayer`s are used by the Effect System to automatically inject dependencies.
 An essential difference between `ZLayer` and other dependency injection systems you might have used is that `ZLayer` validates dependencies *at compile time*.
@@ -86,11 +86,11 @@ If it fails, the operation is short-circuited and the entire Effect fails.
 This way you won't have failures randomly propagating through your system, as you do with exceptions.
 
 Sometimes you need to say, "Here's the answer and it's OK."
-The `succeed` method produces such an Effect; it is available for both regular ZIOs as well as `ZLayers` (There is also a `fail` method to produce a failed Effect).
-So `layer` creates a `BreadStoreBought` object and turns it into a successful `ZLayer` Effect.
+The `succeed` method produces such an Effect; it is available for both regular ZIOs and `ZLayers` (There is also a `fail` method to produce a failed Effect).
+So `purchased` creates a `BreadStoreBought` object and turns it into a successful `ZLayer` Effect.
 
 You can think of a `ZLayer` as a more-powerful constructor.
-Like `ZIO` effects, they are deferred, so merely referencing `BreadStoreBought.layer` will not construct anything.
+Like `ZIO` effects, they are deferred, so merely referencing `BreadStoreBought.purchased` will not construct anything.
 This `ZLayer` provides the `BreadStoreBought` instance as a dependency to any other Effect that needs it.
 
 Now we incorporate the `BreadStoreBought` dependency into a program:
@@ -104,7 +104,7 @@ def run =
     .serviceWithZIO[Bread]:
       bread => bread.eat
     .provide:
-      BreadStoreBought.layer
+      BreadStoreBought.purchased
 ```
 
 `serviceWithZIO` takes a generic parameter, which is the *type* it needs to do the work.
@@ -258,7 +258,7 @@ def run =
     printLine("main.run complete").run
 ```
 
-`showType` is a hidden function which produces a ZIO that displays type information for an object.
+`showType` is a hidden function producing a ZIO that displays type information for an object.
 `makeY` produces a ZIO, which is an un-executed program.
 We execute it with `.run` and capture the result in `r`.
 The result in `r` is a `Y` object, the one we return at the end of `makeY`.
@@ -278,9 +278,7 @@ import zio.direct.*
 import zio.Console._
 
 case class Dough():
-  val letRise =
-    printLine:
-      "Dough: rising"
+  val letRise = printLine("Dough: rising")
 ```
 
 Note that calling `letRise` produces an Effect.
@@ -310,27 +308,27 @@ The `defer` Effect is passed to `ZLayer.fromZIO` which produces a `ZLayer` objec
 
 ## Multiple Dependencies
 
-Once the `Dough` has risen, we want to bake it. For this we will need some way to apply `Heat`:
+Once the `Dough` has risen, we want to bake it. For this we will need some kind of `HeatSource`:
 
 ```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
 import zio.Console._
 
-case class Heat()
+trait HeatSource
+case class Oven() extends HeatSource
 
-val oven =
-  ZLayer.fromZIO:
-    defer:
-      printLine("Oven: Heated").run
-      Heat()
+object Oven:
+  val heated =
+    ZLayer.fromZIO:
+      defer:
+        printLine("Oven: Heated").run
+        Oven()
 ```
 
-Note that `oven` is a free-standing function in this case; it was not necessary to create it in a companion object.
-All you need is some way to produce a `ZLayer`.
+`Oven.headed` is a `ZLayer` that produces an `Oven` object.
 
-We will make the ability to produce `BreadHomeMade` yet another service, called `homemade`.
-That service, in turn, requires two other services, one to produce `Dough` and another that creates `Heat`:
+In the following, `baked` is a `ZLayer` that produces `BreadHomeMade`.
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -338,26 +336,26 @@ import zio.direct.*
 import zio.Console._
 
 case class BreadHomeMade(
-    heat: Heat,
-    dough: Dough
+  heat: Heat,
+  dough: Dough
 ) extends Bread
 
-object Bread:
-  val homemade =
+object BreadHomeMade:
+  val baked =
     ZLayer.fromZIO:
       defer:
         printLine("BreadHomeMade: Baked").run
         BreadHomeMade(
-          ZIO.service[Heat].run,
+          ZIO.service[Oven].run,
           ZIO.service[Dough].run
         )
 ```
 
-`object Bread` is a companion object to `trait Bread`.
-The `homemade` method produces a `ZLayer` that itself relies on two other `ZLayer`s, for `Heat` and `Dough`, in order to construct the `BreadHomeMade` object produced by the `homemade` `ZLayer`.
-Also note that in the `ZIO.service` calls, we only need to say, "I need `Heat`" and "I need `Dough`" and the Effect System will ensure that those services are found.
+The `baked` method is a `ZLayer` which itself relies on two other `ZLayer`s, for `HeatSource` and `Dough`.
+With these it constructs the `BreadHomeMade` object produced by the `baked` `ZLayer`.
+In the `ZIO.service` calls, we only need to say, "I need an `Oven`" and "I need `Dough`" and the Effect System ensures those services are found.
 
-The main program starts out looking identical to the previous example---we just need a service that provides `Bread`:
+Initially, the `run` looks identical to the previous example---we just need a service that provides `Bread`:
 
 ```scala 3 mdoc:runzio
 import zio.*
@@ -368,18 +366,18 @@ def run =
     .serviceWithZIO[Bread]:
       bread => bread.eat
     .provide(
-      Bread.homemade,
+      BreadHomeMade.baked,
       Dough.fresh,
-      oven
+      Oven.heated
     )
 ```
 
-But in this case, the `Bread` service is `Bread.homemade`, which itself relies on a source of `Dough` and a source of `Heat`, so we must include all necessary services as arguments to `provide`.
+But in this case, the `Bread` service is `BreadHomeMade.baked`, which itself relies on a source of `Dough` and a `HeatSource`, so we must include all necessary services as arguments to `provide`.
 If we don't, the type checker produces helpful error messages (try removing one of the services to see this).
 
-The interrelationships in the `provide` are often called the *dependency graph*.
-Here, `Bread.homemade` satisfies the dependency in `serviceWithZIO[Bread]`.
-But `Bread.homemade` depends on `Dough.fresh` and `oven`.
+The interrelationships in `provide` are often called the *dependency graph*.
+Here, `BreadHomeMade.baked` satisfies the dependency in `serviceWithZIO[Bread]`.
+But `BreadHomeMade.baked` depends on `Dough.fresh` and `Oven.heated`.
 You can imagine a tree of dependencies, which is the simplest form of this graph.
 
 In most dependency injection systems, the dependency graph is resolved for you.
@@ -389,136 +387,118 @@ Such systems don't always find all dependencies and you don't find out the ones 
 ## Sharing Dependencies
 
 Next, we'd like to start making `Toast`.
-Both `Bread` and `Toast` require `Heat`.
+Both `Bread` and `Toast` require a `HeatSource`.
 
 ```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
 import zio.Console._
 
-case class Toast(heat: Heat, bread: Bread):
-  val eat =
-    printLine:
-      "Toast: Eating"
+trait Toast:
+  def bread: Bread
+  def heat: HeatSource
+  val eat = printLine("Toast: Eating")
 
-object Toast:
-  val make =
+case class ToastA(heat: HeatSource, bread: Bread) extends Toast
+
+object ToastA:
+  val toasted =
     ZLayer.fromZIO:
       defer:
-        printLine("Toast: Made").run
-        Toast(
-          ZIO.service[Heat].run,
+        printLine("ToastA: Made").run
+        ToastA(
+          ZIO.service[HeatSource].run,
           ZIO.service[Bread].run
         )
 ```
 
-To create `Toast`, we apply some form of `Heat` to some form of `Bread`.
-We can use `oven` to provide both forms of `Heat`:
+A `Toaster` is a `HeatSource`:
 
-```scala 3 mdoc:runzio
+```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
+
+case class Toaster() extends HeatSource
+
+object Toaster:
+  val ready =
+    ZLayer.fromZIO:
+      defer:
+        printLine("Toaster: Ready").run
+        Toaster()
+```
+
+Here's the definition of `Toast`:
+
+```scala 3 mdoc:silent
+import zio.*
+import zio.direct.*
+
+trait Toast:
+  def bread: Bread
+  def heat: HeatSource
+  val eat = printLine("Toast: Eating")
+
+case class ToastA(heat: HeatSource, bread: Bread) extends Toast
+
+object ToastA:
+  val toasted =
+    ZLayer.fromZIO:
+      defer:
+        printLine("ToastA: Made").run
+        ToastA(
+          ZIO.service[HeatSource].run,
+          ZIO.service[Bread].run
+        )
+````
+
+Now we have all the ingredients we need to make `Toast`:
+
+```scala 3 mdoc:fail
+import zio.*
 
 def run =
   ZIO
     .service[Toast]
     .provide(
-      Toast.make,
-      Bread.homemade,
+      ToastA.toasted,
       Dough.fresh,
-      oven
+      BreadHomeMade.baked,
+      Oven.heated,
+      Toaster.ready,
     )
 ```
 
 The order of the `provide` arguments is unimportant---try reordering them to prove this.
 
-An `oven` is an energy-wasteful way to make `Toast`.
-Let's create a dedicated `toaster`:
+Because both `Oven` and `Toaster` are `HeatSource`s, trying to include `Toaster` produces an ambiguity error.
+If we comment the `Toaster.ready` line, the program uses the `Oven` for both. 
 
-```scala 3 mdoc:silent
-import zio.*
-import zio.direct.*
-import zio.Console._
-
-val toaster =
-  ZLayer.fromZIO:
-    defer:
-      printLine("Toaster: Heated").run
-      Heat()
-```
-
-```scala 3 mdoc:runzio
-import zio.*
-import zio.direct.*
-
-def run =
-  ZIO
-    .service[Heat]
-    .provide:
-      toaster
-```
-
-## Unique Dependencies
-
-```scala 3 mdoc:fail
-ZIO
-  .service[Toast]
-  .provide(
-    Toast.make,
-    Dough.fresh,
-    Bread.homemade,
-    oven,
-    toaster
-  )
-```
-
-This program is ambiguous---it doesn't know whether to make `Toast` in the oven or `Bread` in the toaster.
-
-## Disambiguating Dependencies
+### Disambiguating Dependencies
 
 To solve the problem, introduce more specific types.
-We'll distinguish our `Heat` sources, so they are only used where intended.
+We create a type of `Toast` that requires a `Toaster` rather than just any `HeatSource`:
 
 ```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
 import zio.Console._
 
-case class Toaster()
+case class ToastB(heat: Toaster, bread: Bread) extends Toast
+// ToastA used HeatSource for heat
 
-object Toaster:
-  val layer =
+object ToastB:
+  val toasted =
     ZLayer.fromZIO:
       defer:
-        printLine("Toaster: Heating").run
-        Toaster()
-```
-
-```scala 3 mdoc:silent
-import zio.*
-import zio.direct.*
-import zio.Console._
-
-case class ToastZ(
-    heat: Toaster,
-    bread: Bread
-):
-  val eat =
-    printLine:
-      "Toast: Eating"
-
-object ToastZ:
-  val make =
-    ZLayer.fromZIO:
-      defer:
-        printLine("ToastZ: Made").run
-        ToastZ(
+        printLine("ToastB: Made").run
+        ToastB(
           ZIO.service[Toaster].run,
           ZIO.service[Bread].run
         )
 ```
 
-We can explicitly provide dependencies when needed, to prevent ambiguity.
+Now we only use the `Oven` to bake the `Bread` and the `Toaster` to make `Toast`:
 
 ```scala 3 mdoc:runzio
 import zio.*
@@ -526,57 +506,60 @@ import zio.direct.*
 
 def run =
   ZIO
-    .serviceWithZIO[ToastZ]:
+    .serviceWithZIO[Toast]:
       toast => toast.eat
     .provide(
-      ToastZ.make,
-      Toaster.layer,
-      Bread.homemade,
+      ToastB.toasted,
       Dough.fresh,
-      oven
+      BreadHomeMade.baked,
+      // The two HeatSources don't clash:
+      Oven.heated,
+      Toaster.ready,
     )
 ```
 
-Author Note: Hardcoded, because mdoc doesn't properly support the `ZLayer.Debug.tree` output.
-
-Output:
+We can create a *wiring graph*:
 
 ```terminal
 [info]   ZLayer Wiring Graph
-[info] ◉ ToastZ.make
-[info] ├─◑ Toaster.layer
-[info] ╰─◑ Bread.homemade
-[info]   ├─◑ oven
+[info] ◉ ToastB.toasted
+[info] ├─◑ Toaster.ready
+[info] ╰─◑ BreadHomeMade.baked
+[info]   ├─◑ Oven.heated
 [info]   ╰─◑ Dough.fresh
 ```
 
+`ToastB` requires a `Toaster` and `Bread` (try rewriting the example to use `BreadStoreBought`).
+To provide `BreadHomeMade`, we need `Dough` and an `Oven`.
+
 ## Dependency Cleanup
 
-So far, we have focused on providing `Layer`s to Effects, but this can also go the other way!
-If an Effect already has no outstanding dependencies, it can be used to construct a `Layer`.
+If an Effect has no outstanding dependencies, it can be used to construct a `Layer`.
 
-We can use this to correct a dangerous oversight in our scenarios.
-We heat up our oven, but then never turn it off!
-We can build an oven that turns itself off when it is no longer needed.
+We can use this to correct a dangerous oversight: We heat up our `Oven`, but never turn it off!
+We can build an `Oven` that turns itself off when it is no longer needed.
 
 ```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
 import zio.Console._
 
-val ovenSafe =
-  ZLayer.fromZIO:
-    ZIO
-      .succeed(Heat())
-      .tap:
-        _ =>
-          printLine:
-            "Oven: Heated"
-      .withFinalizer:
-        _ =>
-          printLine:
-            "Oven: Turning off!"
-          .orDie
+case class OvenSafe() extends HeatSource
+
+object OvenSafe:
+  val heated =
+    ZLayer.fromZIO:
+      ZIO
+        .succeed(Heat())
+        .tap:
+          _ =>
+            printLine:
+              "Oven: Heated"
+        .withFinalizer:
+          _ =>
+            printLine:
+              "Oven: Turning off!"
+            .orDie
 ```
 
 ```scala 3 mdoc:runzio
@@ -588,9 +571,9 @@ def run =
     .serviceWithZIO[Bread]:
       bread => bread.eat
     .provide(
-      Bread.homemade,
+      BreadHomeMade.baked,
       Dough.fresh,
-      ovenSafe,
+      OvenSafe.heated,
       Scope.default
     )
 ```
@@ -598,6 +581,7 @@ def run =
 ## Construction Failure
 
 Since dependencies can be built with Effects, this means that they can fail.
+Suppose we have a `Friend` who will sometimes give us `Bread`, but not right away:
 
 ```scala 3 mdoc:invisible
 import zio.*
@@ -605,6 +589,7 @@ import zio.direct.*
 import zio.Console._
 
 case class BreadFromFriend() extends Bread()
+
 object Friend:
   def forcedFailure(invocations: Int) =
     defer:
@@ -622,8 +607,7 @@ object Friend:
       ZIO.succeed(BreadFromFriend()).run
 
   def bread(worksOnAttempt: Int) =
-    var invocations =
-      0
+    var invocations = 0
     ZLayer.fromZIO:
       invocations += 1
       if invocations < worksOnAttempt then
@@ -652,9 +636,11 @@ def run =
       )
 ```
 
-## Fallback Dependencies
+If we keep asking, we eventually get `Bread`.
 
-Relying on this method of acquiring `Bread` means we must pay for that convenience.
+### Fallback Dependencies
+
+If our `Friend` doesn't have `Bread` to give us, we can set up a fallback strategy:
 
 ```scala 3 mdoc:runzio
 import zio.*
@@ -665,42 +651,33 @@ def run =
     .service[Bread]
     .provide:
       Friend
-        .bread(worksOnAttempt =
-          3
-        )
+        .bread(worksOnAttempt = 3)
         .orElse:
           BreadStoreBought.layer
 ```
 
-## Retries
+### Retries
 
-```scala 3 mdoc
-import zio.*
-import zio.direct.*
-
-def logicWithRetries(retries: Int) =
-  ZIO
-    .serviceWithZIO[Bread]:
-      bread => bread.eat
-    .provide:
-      Friend
-        .bread(worksOnAttempt =
-          3
-        )
-        .retry:
-          Schedule.recurs:
-            retries
-```
+We can add a `retry` to the `ZLayer` produced by `Friend.bread`:
 
 ```scala 3 mdoc:runzio
 import zio.*
 import zio.direct.*
 
 def run =
-  logicWithRetries(retries =
-    2
-  )
+  val retries = 2
+  ZIO
+    .serviceWithZIO[Bread]:
+      bread => bread.eat
+    .provide:
+      Friend
+        .bread(worksOnAttempt = 3)
+        .retry:
+          Schedule.recurs:
+            retries
 ```
+
+Extension operations like `retry` also work on `ZLayer`s!
 
 ## External Configuration
 
@@ -721,7 +698,7 @@ import zio.direct.*
 import zio.config.*
 ```
 
-This imports most of the core "Config" datatypes and functions that we need.
+This imports most of the core "Config" datatypes and functions we need.
 We make a case class to hold our values:
 
 ```scala 3 mdoc:silent
@@ -744,7 +721,7 @@ val configDescriptor: Config[RetryConfig] =
 ```
 
 It is heavily modularized so that you only pull in the integrations for the technologies used in your project.
-We want to use the Typesafe config format, so we import everything from that module.
+We want to use the Typesafe config format, so we import everything from that module:
 
 ```scala 3 mdoc:silent
 import zio.*

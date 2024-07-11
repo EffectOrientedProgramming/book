@@ -29,7 +29,7 @@ trait HeatSource
 case class Oven() extends HeatSource
 
 object Oven:
-  val preheated =
+  val heated =
     ZLayer.fromZIO:
       defer:
         printLine("Oven: Heated").run
@@ -83,7 +83,7 @@ val ambiguous =
       ToastA.toasted,
       Dough.fresh,
       BreadHomeMade.baked,
-      Oven.preheated,
+      Oven.heated,
 //      Toaster.ready,  // Produces ambiguity error
     )
 
@@ -109,7 +109,7 @@ val not_ambiguous =
       Dough.fresh,
       BreadHomeMade.baked,
       // The two HeatSources don't clash:
-      Oven.preheated,
+      Oven.heated,
       Toaster.ready,
     )
 
