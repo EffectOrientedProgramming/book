@@ -76,7 +76,7 @@ This produces a special kind of Effect: the `ZLayer`.
 `ZLayer`s are used by the Effect System to automatically inject dependencies.
 An essential difference between `ZLayer` and other dependency injection systems you might have used is that `ZLayer` validates dependencies *at compile time*.
 Your experience will actually be inside your IDE---when you do something problematic your IDE will immediately notify you with a useful error message.
-You aren't required to put the function producing a `ZLayer` in a companion object but it is often convenient.
+You aren't required to put the function producing a `ZLayer` in a companion object, but it is often convenient.
 
 There's something new here: `succeed`.
 We need to cheat a little and take some information from the [Failure](05_Failure.md) chapter, which is the next one.
@@ -206,7 +206,7 @@ The `ZLayer` is the holder for the object produced by `make`, and it provides a 
 
 ### Initialization Steps
 
-We can add trace information to the previous example to show us the steps of program initialization:
+Adding trace information to the previous example reveals the steps of program initialization:
 
 ```scala 3 mdoc:silent
 case class Y():
@@ -284,8 +284,8 @@ case class Dough():
 Note that calling `letRise` produces an Effect.
 Dependencies can be anything (except `Nothing`), including Effects, primitives, custom types, unions, etc.
 
-Following the pattern of the previous example, a `ZLayer` is produced in the companion object.
-This time we create a ZIO object and then convert it using `ZLayer.fromZIO`:
+Following the pattern of previous examples, a `ZLayer` is produced in the companion object.
+This time we create a ZIO object using `defer` and then convert it using `ZLayer.fromZIO`:
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -303,12 +303,13 @@ object Dough:
 In ZIO all managed Effects are contained in ZIO objects, and all Effectful functions return a ZIO object.
 
 Looking at the code from the inside out, the `defer` block executes the `printLine` Effect by calling `.run`, but does *not* call `.run` for `Dough`.
-`defer` always produces an Effect, so the result of the `defer` block is an Effect.
+`defer` always produces an Effect, so the result of the `defer` block is an Effect that produces `Dough`.
 The `defer` Effect is passed to `ZLayer.fromZIO` which produces a `ZLayer` object (also an Effect) containing a `Dough` object.
 
 ## Multiple Dependencies
 
-Once the `Dough` has risen, we want to bake it. For this we will need some kind of `HeatSource`:
+Once the `Dough` has risen, we want to bake it.
+For this we need some kind of `HeatSource`:
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -326,9 +327,9 @@ object Oven:
         Oven()
 ```
 
-`Oven.headed` is a `ZLayer` that produces an `Oven` object.
+`Oven.heated` is a `ZLayer` that produces an `Oven` object.
 
-In the following, `baked` is a `ZLayer` that produces `BreadHomeMade`.
+In the following, `baked` produces `BreadHomeMade`:
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -372,22 +373,21 @@ def run =
     )
 ```
 
-But in this case, the `Bread` service is `BreadHomeMade.baked`, which itself relies on a source of `Dough` and a `HeatSource`, so we must include all necessary services as arguments to `provide`.
+In this case, the `Bread` service is `BreadHomeMade.baked`, which needs `Dough` and a `HeatSource`, so we must include all necessary services as arguments to `provide`.
 If we don't, the type checker produces helpful error messages (try removing one of the services to see this).
 
 The interrelationships in `provide` are often called the *dependency graph*.
 Here, `BreadHomeMade.baked` satisfies the dependency in `serviceWithZIO[Bread]`.
-But `BreadHomeMade.baked` depends on `Dough.fresh` and `Oven.heated`.
+But `BreadHomeMade.baked` needs the services `Dough.fresh` and `Oven.heated`.
 You can imagine a tree of dependencies, which is the simplest form of this graph.
 
 In most dependency injection systems, the dependency graph is resolved for you.
-This typically happens in some special startup phase of the program which attempts to discover dependencies by following code paths.
-Such systems don't always find all dependencies and you don't find out the ones they do discover until runtime.
+This typically happens in some special startup phase of the program that attempts to discover dependencies by following code paths.
+Such systems don't always find all dependencies, and you don't see the ones they find until runtime.
 
 ## Sharing Dependencies
 
-Next, we'd like to start making `Toast`.
-Both `Bread` and `Toast` require a `HeatSource`.
+Next, we'd like to make `Toast`:
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -412,6 +412,7 @@ object ToastA:
         )
 ```
 
+Both `Bread` and `Toast` require a `HeatSource`.
 A `Toaster` is a `HeatSource`:
 
 ```scala 3 mdoc:silent
@@ -428,7 +429,7 @@ object Toaster:
         Toaster()
 ```
 
-Now we have all the ingredients we need to make `Toast`:
+Now we have all the services necessary for `Toast`:
 
 ```scala 3 mdoc:fail
 import zio.*
@@ -445,9 +446,7 @@ def run =
     )
 ```
 
-The order of the `provide` arguments is unimportant---try reordering them to prove this.
-
-Because both `Oven` and `Toaster` are `HeatSource`s, trying to include `Toaster` produces an ambiguity error.
+Because both `Oven` and `Toaster` are `HeatSource`s, trying to include `Toaster.ready` produces an ambiguity error.
 If we comment the `Toaster.ready` line, the program uses the `Oven` for both. 
 
 ### Disambiguating Dependencies
@@ -494,6 +493,8 @@ def run =
     )
 ```
 
+The order of the `provide` arguments is unimportant---try reordering them to prove this.
+
 We can create a *wiring graph*:
 
 ```terminal
@@ -510,8 +511,7 @@ To provide `BreadHomeMade`, we need `Dough` and an `Oven`.
 
 ## Dependency Cleanup
 
-If an Effect has no outstanding dependencies, it can be used to construct a `Layer`.
-
+An Effect without outstanding dependencies can be used to construct a `ZLayer`.
 We can use this to correct a dangerous oversight: We heat up our `Oven`, but never turn it off!
 We can build an `Oven` that turns itself off when it is no longer needed.
 
@@ -538,6 +538,10 @@ object OvenSafe:
             .orDie
 ```
 
+```
+// TODO: Only time .tap is used visibly in the book. Intended? 
+```
+
 ```scala 3 mdoc:runzio
 import zio.*
 import zio.direct.*
@@ -553,6 +557,11 @@ def run =
       Scope.default
     )
 ```
+
+```
+// TODO: First occurrence of Scope.default
+```
+
 
 ## Construction Failure
 
@@ -632,6 +641,8 @@ def run =
           BreadStoreBought.purchased
 ```
 
+If we can't get `Bread` from our `Friend`, we go to the store and buy it.
+
 ### Retries
 
 We can add a `retry` to the `ZLayer` produced by `Friend.bread`:
@@ -684,7 +695,7 @@ import zio.direct.*
 case class RetryConfig(times: Int)
 ```
 
-To automatically map values in configuration files to our case class, we import a macro from the `zio.config.magnolia` module:
+To automatically map values from configuration files to our case class, we the `deriveConfig` macro from the `zio.config.magnolia` module:
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -695,9 +706,13 @@ import zio.config.magnolia.deriveConfig
 val configDescriptor: Config[RetryConfig] =
   deriveConfig[RetryConfig]
 ```
+```
+// TODO: Is the type annotation required here because of the macro?
+```
 
-It is heavily modularized so that you only pull in the integrations for the technologies used in your project.
-We want to use the Typesafe config format, so we import everything from that module:
+
+The library is modularized, so you only import the tools you need.
+To use the Typesafe configuration format, we import everything from that module:
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -736,10 +751,19 @@ def run =
       config
 ```
 
+```
+// TODO where did logicWithRetries come from?
+```
+
+
 Now we have bridged the gap between our logic and configuration files.
 This was a longer detour than our other steps, but a common requirement in real-world applications.
 
 ## Test Dependencies
+```
+// TODO: This really feels like a separate chapter, even if it ends up being the shortest.
+```
+
 
 Effects that use external systems are unpredictable.
 However, we want to be able to test our programs in a predictable way.
@@ -755,6 +779,9 @@ object IdealFriend:
 ```
 
 We take another brief detour into `zio-test`, to provide just enough context to understand the tests.
+```
+// TODO: This is the first mention. Was it to be introduced earlier? Also seems like it should be zio.test not zio-test
+```
 
 In `zio-test`, we build tests that are Effects that return an `Assertion`.
 We will do this incrementally, starting with some logic.
@@ -794,7 +821,7 @@ def spec =
   testCase
 ```
 
-Historically, when call we call `println`, that output disappears into the void.
+Historically, when call we call `println`, its output disappears into the void.
 `zio-test` provides us a `TestConsole`, which captures all the output produced during a test.
 This allows us to make assertions on something that is typically a black hole in our code.
 
@@ -892,7 +919,7 @@ In ZIO Test the `Random` Effect uses a different something which can predictably
 This example feeds in the `Int`s `1` and `2` so the first time we ask for a random number we get `1` and the second time we get `2`.
 
 Anything an Effect needs (from the system or the environment) can be substituted in tests for something predictable.
-For example, an Effect that fetches users from a database can be simulated with a predictable set of users instead of having to setup a test database with predictable users.
+For example, an Effect that fetches users from a database can be simulated with a predictable set of users instead of having to set up a test database with predictable users.
 
 When your program treats randomness as an Effect, testing unusual scenarios becomes straightforward.
 You can preload "Random" data that will result in deterministic behavior.
