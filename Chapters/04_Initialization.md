@@ -336,7 +336,7 @@ import zio.direct.*
 import zio.Console._
 
 case class BreadHomeMade(
-  heat: Heat,
+  heat: HeatSource,
   dough: Dough
 ) extends Bread
 
@@ -427,30 +427,6 @@ object Toaster:
         printLine("Toaster: Ready").run
         Toaster()
 ```
-
-Here's the definition of `Toast`:
-
-```scala 3 mdoc:silent
-import zio.*
-import zio.direct.*
-
-trait Toast:
-  def bread: Bread
-  def heat: HeatSource
-  val eat = printLine("Toast: Eating")
-
-case class ToastA(heat: HeatSource, bread: Bread) extends Toast
-
-object ToastA:
-  val toasted =
-    ZLayer.fromZIO:
-      defer:
-        printLine("ToastA: Made").run
-        ToastA(
-          ZIO.service[HeatSource].run,
-          ZIO.service[Bread].run
-        )
-````
 
 Now we have all the ingredients we need to make `Toast`:
 
@@ -550,7 +526,7 @@ object OvenSafe:
   val heated =
     ZLayer.fromZIO:
       ZIO
-        .succeed(Heat())
+        .succeed(HeatSource())
         .tap:
           _ =>
             printLine:
@@ -653,7 +629,7 @@ def run =
       Friend
         .bread(worksOnAttempt = 3)
         .orElse:
-          BreadStoreBought.layer
+          BreadStoreBought.purchased
 ```
 
 ### Retries
