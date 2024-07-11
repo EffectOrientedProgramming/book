@@ -606,12 +606,13 @@ def summarize(article: String): String =
     ???
 ```
 
-```scala 3 mdoc:silent
+```scala 3 mdoc:runzio
 import zio.*
 import zio.direct.*
 
-val summaryTmp: String =
-  summarize("long article")
+def run =
+  defer:
+    summarize("long article")
 ```
 
 This function is blocking, although it is not obvious from the signature.
