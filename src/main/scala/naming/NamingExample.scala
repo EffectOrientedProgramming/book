@@ -49,15 +49,18 @@ object Y:
 def _type(obj: Any): String =
   obj.getClass.getName.split("\\$")(0)
 
+def showType(id: String, obj: Any) =
+  printLine(s"$id is a ${_type(obj)}")
+
 object makeYTest extends ZIOAppDefault:
   def run =
     defer:
-      printLine(s"makeY: ${_type(makeY)}").run
+      showType("makeY", makeY).run
       val r = makeY.run
       printLine(s"makeY.run returned $r").run
-      printLine(s"Y.dependency: ${_type(Y.dependency)}").run
+      showType("Y.dependency", Y.dependency).run
 
-      val program =
+      val main =
         ZIO.serviceWithZIO[Y]:
           y =>
             defer:
@@ -66,6 +69,6 @@ object makeYTest extends ZIOAppDefault:
         .provide:
           Y.dependency
 
-      printLine(s"program: ${_type(program)}").run
-      program.run
-      printLine("program.run complete").run
+      showType("main", main).run
+      main.run
+      printLine("main.run complete").run

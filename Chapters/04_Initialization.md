@@ -206,7 +206,7 @@ The `ZLayer` is the holder for the object produced by `make`, and it provides a 
 
 ### Initialization Steps
 
-We can add trace information to the previous example to show us the steps a program goes through to perform initialization:
+We can add trace information to the previous example to show us the steps of program initialization:
 
 ```scala 3 mdoc:silent
 case class Y():
@@ -228,6 +228,9 @@ In the main program we capture and display the intermediate values:
 ```scala 3 mdoc:invisible
 def _type(obj: Any): String =
   obj.getClass.getName.split("\\$")(0)
+
+def showType(id: String, obj: Any) =
+  printLine(s"$id is a ${_type(obj)}")
 ```
 
 ```scala 3 mdoc:runzio
@@ -236,12 +239,12 @@ import zio.direct.*
 
 def run =
   defer:
-    printLine(s"makeY: ${_type(makeY)}").run
+    showType("makeY", makeY).run
     val r = makeY.run
     printLine(s"makeY.run returned $r").run
-    printLine(s"Y.dependency: ${_type(Y.dependency)}").run
+    showType("Y.dependency", Y.dependency).run
 
-    val program =
+    val main =
       ZIO.serviceWithZIO[Y]:
         y =>
           defer:
@@ -250,20 +253,20 @@ def run =
       .provide:
         Y.dependency
 
-    printLine(s"program: ${_type(program)}").run
-    program.run
-    printLine("program.run complete").run
+    showType("main", main).run
+    main.run
+    printLine("main.run complete").run
 ```
 
+`showType` is a hidden function which produces a ZIO that displays type information for an object.
 `makeY` produces a ZIO, which is an un-executed program.
-When we execute it by calling `.run` and capturing the result in `r`, we see the steps of `makeY` executed.
+We execute it with `.run` and capture the result in `r`.
 The result in `r` is a `Y` object, the one we return at the end of `makeY`.
 
-When we call `Y.dependency`, the result is a `ZLayer`.
-We use that `ZLayer` in the `provide` inside `program`, where it produces the required `Y` object.
-You can see that `program` is also a ZIO.
-When we call `program.run`, `makeY` is called to produce the necessary `Y`.
-This is shown in the `printLine`, then used in `y.display.run`.
+`Y.dependency` produces a `ZLayer`.
+We use that `ZLayer` in the `provide` inside `main`, where it produces the required `Y` object.
+`main` is also a ZIO.
+When we call `main.run`, `makeY` is called to produce the necessary `Y`.
 
 ## Making Bread from Scratch
 
@@ -292,7 +295,7 @@ import zio.direct.*
 import zio.Console._
 
 object Dough:
-  val fresh = // TODO: should be a noun
+  val fresh =
     ZLayer.fromZIO:
       defer:
         printLine("Dough: Mixed").run
@@ -340,7 +343,7 @@ case class BreadHomeMade(
 ) extends Bread
 
 object Bread:
-  val homemade = // TODO: should be a noun
+  val homemade =
     ZLayer.fromZIO:
       defer:
         printLine("BreadHomeMade: Baked").run
@@ -399,7 +402,7 @@ case class Toast(heat: Heat, bread: Bread):
       "Toast: Eating"
 
 object Toast:
-  val make =  // TODO: should be a noun
+  val make =
     ZLayer.fromZIO:
       defer:
         printLine("Toast: Made").run
@@ -505,7 +508,7 @@ case class ToastZ(
       "Toast: Eating"
 
 object ToastZ:
-  val make = // TODO: should be a noun
+  val make =
     ZLayer.fromZIO:
       defer:
         printLine("ToastZ: Made").run

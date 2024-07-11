@@ -16,7 +16,7 @@ object BreadStoreBought:
       BreadStoreBought()
 
 case class Dough():
-  val rise = printLine("Dough: rising")
+  val letRise = printLine("Dough: rising")
 
 object Dough:
   val fresh =
