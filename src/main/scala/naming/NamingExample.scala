@@ -48,14 +48,17 @@ object Y:
     ZLayer.fromZIO:
       makeY
 
+def _type(obj: Any): String =
+  obj.getClass.getName.split("\\$")(0)
+
 object makeYTest extends ZIOAppDefault:
   def run =
     defer:
-      printLine(s"makeY: ${makeY.getClass}").run
+      printLine(s"makeY: ${_type(makeY)}").run
       val r = makeY.run
       printLine(s"makeY.run returned $r").run
 
-      printLine(s"Y.dependency: ${Y.dependency.getClass}").run
+      printLine(s"Y.dependency: ${_type(Y.dependency)}").run
 
       val program =
         ZIO.serviceWithZIO[Y]:
@@ -66,6 +69,6 @@ object makeYTest extends ZIOAppDefault:
         .provide:
           Y.dependency
 
-      printLine(s"program: ${program.getClass}").run
+      printLine(s"program: ${_type(program)}").run
       program.run
       printLine("program.run complete").run

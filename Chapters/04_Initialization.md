@@ -50,7 +50,7 @@ trait Bread:
   def eat = printLine("Bread: Eating")
 ```
 
-This uses `zio.Console.printLine`, which is an Effect.
+This uses `zio.Console.printLine`, which is an Effect because it modifies an external system.
 Calling `eat` just returns an Effect and doesn't display anything on the console until that Effect is run.
 
 We start with the simplest approach of just buying `Bread` from the store:
@@ -227,17 +227,22 @@ object Y:
 
 In the main program we capture and display the intermediate values:
 
+```scala 3 mdoc:invisible
+def _type(obj: Any): String =
+  obj.getClass.getName.split("\\$")(0)
+```
+
 ```scala 3 mdoc:runzio
 import zio.*
 import zio.direct.*
 
 def run =
   defer:
-    printLine(s"makeY: ${makeY.getClass}").run
+    printLine(s"makeY: ${_type(makeY)}").run
     val r = makeY.run
     printLine(s"makeY.run returned $r").run
 
-    printLine(s"Y.dependency: ${Y.dependency.getClass}").run
+    printLine(s"Y.dependency: ${_type(Y.dependency)}").run
 
     val program =
       ZIO.serviceWithZIO[Y]:
@@ -248,18 +253,16 @@ def run =
       .provide:
         Y.dependency
 
-    printLine(s"program: ${program.getClass}").run
+    printLine(s"program: ${_type(program)}").run
     program.run
     printLine("program.run complete").run
 ```
 
 `makeY` produces a ZIO, which is an un-executed program.
-When we display it, you see `FlatMap` followed by arguments which appear themselves to be nested function calls.
-This is the un-executed code.
 When we execute it by calling `.run` and capturing the result in `r`, we see the steps of `makeY` executed.
 The result in `r` is a `Y` object, the one we return at the end of `makeY`.
 
-When we call `Y.dependency`, the result is a `ZLayer` that starts with `Suspend`.
+When we call `Y.dependency`, the result is a `ZLayer`.
 We use that `ZLayer` in the `provide` inside `program`, where it produces the required `Y` object.
 You can see that `program` is also a ZIO.
 When we call `program.run`, `makeY` is called to produce the necessary `Y`.
