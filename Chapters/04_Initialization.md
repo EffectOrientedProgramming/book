@@ -214,10 +214,8 @@ case class Y():
 
 val makeY =
   defer:
-    printLine("makeY Creating Y").run
-    val y = Y()
-    printLine(s"makeY returns: $y").run
-    y
+    printLine("makeY.run creating Y()").run
+    Y()
 
 object Y:
   val dependency =
@@ -241,7 +239,6 @@ def run =
     printLine(s"makeY: ${_type(makeY)}").run
     val r = makeY.run
     printLine(s"makeY.run returned $r").run
-
     printLine(s"Y.dependency: ${_type(Y.dependency)}").run
 
     val program =
@@ -266,7 +263,7 @@ When we call `Y.dependency`, the result is a `ZLayer`.
 We use that `ZLayer` in the `provide` inside `program`, where it produces the required `Y` object.
 You can see that `program` is also a ZIO.
 When we call `program.run`, `makeY` is called to produce the necessary `Y`.
-This is shown in the `printLine` then used in `y.display.run`.
+This is shown in the `printLine`, then used in `y.display.run`.
 
 ## Making Bread from Scratch
 

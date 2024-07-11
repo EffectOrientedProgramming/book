@@ -38,10 +38,8 @@ case class Y():
 
 val makeY =
   defer:
-    printLine("makeY.run Creating Y").run
-    val y = Y()
-    printLine(s"makeY.run returning $y").run
-    y
+    printLine("makeY.run creating Y()").run
+    Y()
 
 object Y:
   val dependency =
@@ -57,7 +55,6 @@ object makeYTest extends ZIOAppDefault:
       printLine(s"makeY: ${_type(makeY)}").run
       val r = makeY.run
       printLine(s"makeY.run returned $r").run
-
       printLine(s"Y.dependency: ${_type(Y.dependency)}").run
 
       val program =
