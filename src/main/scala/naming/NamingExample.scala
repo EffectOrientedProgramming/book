@@ -5,7 +5,7 @@ import zio.Console.*
 import zio.direct.*
 
 case class X():
-  val display = printLine("X.f")
+  val display = printLine("X.display")
 
 val makeX =
   defer:
@@ -34,14 +34,13 @@ object NamingExampleX extends ZIOAppDefault:
 // ----------------------------------------------------
 
 case class Y():
-  val f = printLine("Y.f")
+  val display = printLine("Y.display")
 
 val makeY =
   defer:
-    printLine("Creating Y").run
+    printLine("makeY Creating Y").run
     val y = Y()
-    y.f.run
-    printLine(s"Inside makeY: $y").run
+    printLine(s"makeY returns: $y").run
     y
 
 object Y:
@@ -52,20 +51,21 @@ object Y:
 object makeYTest extends ZIOAppDefault:
   def run =
     defer:
-      val y = makeY
-      printLine(s"y = $y").run
-      val r = y.run
-      printLine(s"r = $r").run
+      printLine(s"makeY: $makeY").run
+      val r = makeY.run
+      printLine(s"makeY.run: $r").run
 
-      val m = Y.dependency
-      printLine(s"m = $m").run
+      printLine(s"Y.dependency = ${Y.dependency}").run
 
-      val yy =
+      val program =
         ZIO.serviceWithZIO[Y]:
-          y => printLine(s"y = $y")
+          y =>
+            defer:
+              printLine(s"y = $y").run
+              y.display.run
         .provide:
           Y.dependency
 
-      printLine(s"yy = $yy").run
-      yy.run
-      printLine("yy.run complete").run
+      printLine(s"program = $program").run
+      program.run
+      printLine("program.run complete").run

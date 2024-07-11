@@ -86,7 +86,7 @@ If it fails, the operation is short-circuited and the entire Effect fails.
 This way you won't have failures randomly propagating through your system, as you do with exceptions.
 
 Sometimes you need to say, "Here's the answer and it's OK."
-The `succeed` method produces such an Effect; it is available for both regular `ZIO`s as well as `ZLayers` (There is also a `fail` method to produce a failed Effect).
+The `succeed` method produces such an Effect; it is available for both regular ZIOs as well as `ZLayers` (There is also a `fail` method to produce a failed Effect).
 So `layer` creates a `BreadStoreBought` object and turns it into a successful `ZLayer` Effect.
 
 You can think of a `ZLayer` as a more-powerful constructor.
@@ -138,10 +138,10 @@ Traditional dependency injection systems can't tell you until runtime if you're 
 ### Names
 
 An Effect is something that produces an action, so we name ZIOs with verbs.
-The ZLayer is the structure that provides an instance to your application.
+The `ZLayer` is the structure that provides an instance to your application.
 This instance is a thing.
-Thus, the net effect of the name of a ZLayer should be a noun.
-We say "net effect" here because, inside the companion object, we typically use an adjective for the method that produces the ZLayer.
+Thus, the net effect of the name of a `ZLayer` should be a noun.
+We say "net effect" here because, inside the companion object, we typically use an adjective for the method that produces the `ZLayer`.
 However, the name of the companion object *together* with the adjective still produces a noun.
 
 Here, `makeX` is a verb describing the act of creation:
@@ -152,7 +152,7 @@ import zio.Console.*
 import zio.direct.*
 
 case class X():
-  val display = printLine("X.f")
+  val display = printLine("X.display")
 
 val makeX =
   defer:
@@ -160,7 +160,7 @@ val makeX =
     X()
 ```
 
-As a standalone function, the ZLayer name should be a noun:
+As a standalone function, the `ZLayer` name should be a noun:
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -170,7 +170,7 @@ val dependency =
     makeX
 ```
 
-Inside the companion object, we can use an adjective, because in order to reference the ZLayer you must include the class name, producing the noun `X.dependent`:
+Inside the companion object, we can use an adjective, because in order to reference the `ZLayer` you must include the class name, producing the noun `X.dependent`:
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -187,14 +187,13 @@ Now we provide the dependency in a program:
 ```scala 3 mdoc:runzio
 import zio.*
 
-object NamingExampleX extends ZIOAppDefault:
-  def run =
-    ZIO
-      .serviceWithZIO[X]:
-        x => x.display
-      .provide:
-        X.dependent   // The "adjectivized object"
-        // dependency // Or the noun version
+def run =
+  ZIO
+    .serviceWithZIO[X]:
+      x => x.display
+    .provide:
+      X.dependent   // The "adjectivized object"
+      // dependency // Or the noun version
 ```
 
 `serviceWithZIO` needs an `X` object that it substitutes as `x` in the lambda.
@@ -204,6 +203,67 @@ The `ZLayer` is the holder for the object produced by `make`, and it provides a 
 ```
 // TODO: Better names than `dependent` and `dependency`?
 ```
+
+### Initialization Steps
+
+We can add trace information to the previous example to show us the steps a program goes through to perform initialization:
+
+```scala 3 mdoc:silent
+case class Y():
+  val display = printLine("Y.display")
+
+val makeY =
+  defer:
+    printLine("makeY Creating Y").run
+    val y = Y()
+    printLine(s"makeY returns: $y").run
+    y
+
+object Y:
+  val dependency =
+    ZLayer.fromZIO:
+      makeY
+```
+
+In the main program we capture and display the intermediate values:
+
+```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
+def run =
+  defer:
+    printLine(s"makeY: $makeY").run
+    val r = makeY.run
+    printLine(s"makeY.run: $r").run
+
+    printLine(s"Y.dependency = ${Y.dependency}").run
+
+    val program =
+      ZIO.serviceWithZIO[Y]:
+        y =>
+          defer:
+            printLine(s"y = $y").run
+            y.display.run
+      .provide:
+        Y.dependency
+
+    printLine(s"program = $program").run
+    program.run
+    printLine("program.run complete").run
+```
+
+`makeY` produces a ZIO, which is an un-executed program.
+When we display it, you see `FlatMap` followed by arguments which appear themselves to be nested function calls.
+This is the un-executed code.
+When we execute it by calling `.run` and capturing the result in `r`, we see the steps of `makeY` executed.
+The result in `r` is a `Y` object, the one we return at the end of `makeY`.
+
+When we call `Y.dependency`, the result is a `ZLayer` that starts with `Suspend`.
+We use that `ZLayer` in the `provide` inside `program`, where it produces the required `Y` object.
+You can see that `program` is also a ZIO.
+When we call `program.run`, `makeY` is called to produce the necessary `Y`.
+This is shown in the `printLine` then used in `y.display.run`.
 
 ## Making Bread from Scratch
 
