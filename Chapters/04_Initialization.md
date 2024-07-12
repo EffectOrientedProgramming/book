@@ -30,10 +30,13 @@ Dependency cycles are not allowed by ZIO—you cannot build a program where `A` 
 You are alerted at compile time about illegal cycles.
 
 ZIO's dependency management provides capabilities that are not possible in other approaches.
-For example, you can share a single instance of a dependency across multiple test classes, or even multiple applications. See more details in the [ZIO docs](https://effectorientedprogramming.com/resources/sharing-layers-between-multiple-files/).
+For example, you can share a single instance of a dependency across multiple test classes, or even multiple applications. See more details in the [ZIO docs](https://effectorientedprogramming.com/sharing-layers-between-multiple-files/).
+```
+TODO: Add link checker to Github actions or `sbt test`?
+```
 
-```ignorelang
-TODO add webpage that points to the ZIO docs: https://zio.dev/reference/test/sharing-layers-between-multiple-files/
+```
+TODO: Figure out whether we can have subdirectories in our redirect paths, and decide what strategy we want to use for these.
 ```
 
 ## Let Them Eat Bread

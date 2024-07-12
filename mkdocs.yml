@@ -12,3 +12,8 @@ nav:
   - About:
     - Authors: about/authors.md
     - License: about/license.md
+
+plugins:
+  - redirects:
+      redirect_maps:
+        'sharing-layers-between-multiple-files.md':  'https://zio.dev/reference/test/sharing-layers-between-multiple-files/'
