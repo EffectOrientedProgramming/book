@@ -607,7 +607,7 @@ def summarize(article: String): String =
     ???
 ```
 
-```scala 3 mdoc:runzio
+```scala 3 mdoc:runzio:liveclock
 import zio.*
 import zio.direct.*
 
@@ -640,14 +640,14 @@ def summarizeZ(article: String) =
 
 Now we have a way to confine the impact that this function has on our application.
 
-```scala 3 mdoc:runzio
+```scala 3 mdoc:runzio:liveclock
 def run =
   summarizeZ("long article")
 ```
 
 Long-running invocations will be interrupted if they take too long.
 
-```scala 3 mdoc:runzio
+```scala 3 mdoc:runzio:liveclock
 def run =
   summarizeZ("space")
 ```
@@ -708,7 +708,7 @@ We now step through all the possible scenarios that can occur in our application
 
 ### Headline Not Available
 
-```scala 3 mdoc:runzio
+```scala 3 mdoc:runzio:liveclock
 import zio.*
 import zio.direct.*
 
@@ -721,7 +721,7 @@ def run =
 
 ### No Interesting Topic In Headline
 
-```scala 3 mdoc:runzio
+```scala 3 mdoc:runzio:liveclock
 import zio.*
 import zio.direct.*
 
@@ -734,7 +734,7 @@ def run =
 
 ### Exception when reading from file
 
-```scala 3 mdoc:runzio
+```scala 3 mdoc:runzio:liveclock
 import zio.*
 import zio.direct.*
 
@@ -747,7 +747,7 @@ def run =
 
 ### No Wiki Article Available
 
-```scala 3 mdoc:runzio
+```scala 3 mdoc:runzio:liveclock
 import zio.*
 import zio.direct.*
 
@@ -760,7 +760,7 @@ def run =
 
 ### AI Too Slow
 
-```scala 3 mdoc:runzio
+```scala 3 mdoc:runzio:liveclock
 import zio.*
 import zio.direct.*
 
@@ -773,7 +773,7 @@ def run =
 
 ### Disk Full
 
-```scala 3 mdoc:runzio
+```scala 3 mdoc:runzio:liveclock
 import zio.*
 import zio.direct.*
 
@@ -815,7 +815,7 @@ val strictResearch =
       1.millisecond
 ```
 
-```scala 3 mdoc:runzio
+```scala 3 mdoc:runzio:liveclock
 override val bootstrap =
   stockMarketHeadline
 
