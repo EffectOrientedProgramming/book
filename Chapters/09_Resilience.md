@@ -495,7 +495,7 @@ def scheduledValues[A](
     A,
   ],
 ] =
-  defer {
+  defer:
     val startTime =
       Clock.instant.run
     val timeTable =
@@ -505,7 +505,6 @@ def scheduledValues[A](
         values* // Yay Scala3 :)
       )
     accessX(timeTable)
-  }
 
 // make this function more obvious
 private def createTimeTableX[A](
@@ -518,7 +517,7 @@ private def createTimeTableX[A](
       startTime.plusZ(value._1),
       value._2,
     )
-  ) {
+  ):
     case (
           ExpiringValue(elapsed, _),
           (duration, value),
@@ -527,7 +526,6 @@ private def createTimeTableX[A](
         elapsed.plusZ(duration),
         value,
       )
-  }
 
 /** Input: (1 minute, "value1") (2 minute,
   * "value2")
@@ -544,21 +542,19 @@ private def createTimeTableX[A](
 private def accessX[A](
     timeTable: Seq[ExpiringValue[A]]
 ): ZIO[Any, TimeoutException, A] =
-  defer {
+  defer:
     val now =
       Clock.instant.run
     ZIO
       .getOrFailWith(
         new TimeoutException("TOO LATE")
-      ) {
+      ):
         timeTable
           .find(
             _.expirationTime.isAfter(now)
           )
           .map(_.value)
-      }
       .run
-  }
 
 private case class ExpiringValue[A](
     expirationTime: Instant,
@@ -826,14 +822,13 @@ This can be caused by a number of factors:
 import zio.Console.*
 
 val attemptsR =
-  Unsafe.unsafe {
+  Unsafe.unsafe:
     implicit unsafe =>
       Runtime
         .default
         .unsafe
         .run(Ref.make(0))
         .getOrThrowFiberFailure()
-  }
 
 def spottyLogic =
   defer:
