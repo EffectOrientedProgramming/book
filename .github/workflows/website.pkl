@@ -27,7 +27,7 @@ jobs {
         env {
           ["GITHUB_TOKEN"] = "${{ secrets.API_TOKEN_GITHUB }}"
           ["CUSTOM_DOMAIN"] = "EffectOrientedProgramming.com"
-          ["CONFIG_FILE"] = "mkdocs.yml"
+          //["CONFIG_FILE"] = "docs/mkdocs.yml"
           ["REQUIREMENTS"] = "docs/requirements.txt"
         }
       }
