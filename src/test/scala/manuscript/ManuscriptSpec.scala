@@ -91,7 +91,17 @@ object ManuscriptSpec extends ZIOSpecDefault{
               )
             )
           )
-      }
+      },
+      test("no deep indentation") {
+        defer:
+          assertTrue(
+            ! chapters.exists(path =>
+              os.read.lines(path).exists(line =>
+                line.startsWith("              ")
+              )
+            )
+          )
+      },
     )
 
 }

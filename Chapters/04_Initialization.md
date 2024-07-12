@@ -250,10 +250,12 @@ val main =
     .provide:
       Y.layer
 
+// TODO scalafmt rule change to not make that y wrap lines
 def run =
   defer:
     showType("makeY", makeY).run
-    val y = makeY.run
+    val y =
+      makeY.run
     printLine(s"makeY.run returned $y").run
     showType("Y.layer", Y.layer).run
     showType("main", main).run
