@@ -68,7 +68,21 @@ object ManuscriptSpec extends ZIOSpecDefault{
           )
       },
       test("no forbidden words") {
-        val forbiddenWords = Set("monad", "map", "flatmap", "applicative", "monoid", "typeclass").map(_.toLowerCase)
+        // TODO could match on whole words only or use regex or something more specialized
+        val forbiddenWords = Set(
+          "monad",
+          "map",
+          "flatmap",
+          "applicative",
+          "monoid",
+          "typeclass",
+          "functor",
+          "category theory",
+          "combinator",
+          "fiber",
+          "fork",
+        ).map(_.toLowerCase)
+
         defer:
           assertTrue(
             !chapters.exists(path =>

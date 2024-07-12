@@ -110,7 +110,7 @@ val out =
         .run:
           ZIO.debug:
             "hello, world"
-        .getOrThrowFiberFailure()
+        .getOrThrow()
 ```
 
 If needed you can even interop to Scala Futures through `Unsafe`, transforming the output of a ZIO into a Future.

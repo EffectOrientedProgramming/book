@@ -158,7 +158,7 @@ Now, we have the opposite problem!
 We are sending far more alerts than intended, even though we can see that our final count is 4.
 
 Now we must consider the limitations of the "Compare & Swap" system.
-It achieves lock-free performance by letting each fiber freely make their updates, and then doing a last-second check to see if the underlying value changed during its update.
+It achieves lock-free performance by letting each Effect freely make their updates, and then doing a last-second check to see if the underlying value changed during its update.
 If the value has not changed, the update is made.
 If it has changed, then the entire function that was passed into `update` is re-executed until it completes with a stable value.
 The higher the parallelism, or the longer the operation takes, the higher the likelihood of a compare-and-swap retry.

@@ -713,11 +713,8 @@ import zio.direct.*
 
 import zio.config.magnolia.deriveConfig
 
-val configDescriptor: Config[RetryConfig] =
+val configDescriptor =
   deriveConfig[RetryConfig]
-```
-```
-// TODO: Is the type annotation required here because of the macro?
 ```
 
 
