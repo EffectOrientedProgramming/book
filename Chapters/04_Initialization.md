@@ -126,6 +126,7 @@ You must provide all required dependencies to an Effect before you can run it.
 If the dependency for an Effect isn't provided, you'll get a compiler error:
 
 ```scala 3 mdoc:fail
+// TODO This error is screwed up now.
 ZIO
   .serviceWithZIO[Bread]:
     bread => bread.eat
