@@ -51,42 +51,34 @@ import Scenario.*
 
 // the scenario is used from non-ZIO code, so we don't use the config / bootstrap approach to passing it.
 // but we do still use bootstrap to set the scenario, just for consistency with how the scenario is set in other chapters
-var scenario: Scenario =
-  StockMarketHeadline
+var scenario: Scenario = StockMarketHeadline
 
 def stockMarketHeadline =
-  scenario =
-    StockMarketHeadline
+  scenario = StockMarketHeadline
   ZLayer.empty
 
 def headlineNotAvailable =
-  scenario =
-    HeadlineNotAvailable
+  scenario = HeadlineNotAvailable
   ZLayer.empty
 
 def noInterestingTopic =
-  scenario =
-    NoInterestingTopic()
+  scenario = NoInterestingTopic()
   ZLayer.empty
 
 def summaryReadThrows =
-  scenario =
-    SummaryReadThrows()
+  scenario = SummaryReadThrows()
   ZLayer.empty
 
 def noWikiArticleAvailable =
-  scenario =
-    NoWikiArticleAvailable()
+  scenario = NoWikiArticleAvailable()
   ZLayer.empty
 
 def aiTooSlow =
-  scenario =
-    AITooSlow()
+  scenario = AITooSlow()
   ZLayer.empty
 
 def diskFull =
-  scenario =
-    DiskFull()
+  scenario = DiskFull()
   ZLayer.empty
 ```
 
@@ -141,8 +133,7 @@ def findTopicOfInterest(
       "unicode",
       "genome",
     )
-  val res =
-    topics.find(content.contains)
+  val res = topics.find(content.contains)
   println(s"Analytics - topic: $res")
   res
 
@@ -185,8 +176,7 @@ There is a function that returns a Future:
 import zio.*
 import zio.direct.*
 
-val future: Future[String] =
-  getHeadLine()
+val future: Future[String] = getHeadLine()
 ```
 
 By wrapping this in `ZIO.from`, it will:
@@ -213,8 +203,7 @@ def getHeadlineZ() =
 import zio.*
 import zio.direct.*
 
-override val bootstrap =
-  stockMarketHeadline
+override val bootstrap = stockMarketHeadline
 
 def run =
   getHeadlineZ()
@@ -226,8 +215,7 @@ Now let's confirm the behavior when the headline is not available.
 import zio.*
 import zio.direct.*
 
-override val bootstrap =
-  headlineNotAvailable
+override val bootstrap = headlineNotAvailable
 
 def run =
   getHeadlineZ()
@@ -299,8 +287,7 @@ import zio.direct.*
 val wikiResult: Either[
   NoWikiArticleAvailable,
   String,
-] =
-  wikiArticle("stock market")
+] = wikiArticle("stock market")
 ```
 
 ```scala 3 mdoc
@@ -417,8 +404,7 @@ def openFile(path: String) =
         )
       else
         println("File - write: " + entry)
-        contents =
-          entry :: contents
+        contents = entry :: contents
         Try(entry)
 ```
 
@@ -428,8 +414,7 @@ We have an existing function that produces an `AutoCloseable`.
 import zio.*
 import zio.direct.*
 
-val file: AutoCloseable =
-  openFile("file1")
+val file: AutoCloseable = openFile("file1")
 ```
 
 Since `AutoCloseable` is a trait that can be implemented by arbitrary classes, we can't rely on `ZIO.from` to automatically manage this conversion for us.
@@ -456,8 +441,7 @@ import zio.direct.*
 
 def run =
   defer:
-    val file =
-      openFileZ("file1.txt").run
+    val file = openFileZ("file1.txt").run
     file.contains:
       "topicOfInterest"
 ```
@@ -494,10 +478,8 @@ import zio.Console.*
 
 def run =
   defer:
-    val file1 =
-      openFileZ("file1.txt").run
-    val file2 =
-      openFileZ("file2.txt").run
+    val file1 = openFileZ("file1.txt").run
+    val file2 = openFileZ("file2.txt").run
     printLine:
       file1.sameContent(file2)
     .run
@@ -540,8 +522,7 @@ import zio.direct.*
 
 def run =
   defer:
-    val file =
-      openFileZ("file1").run
+    val file = openFileZ("file1").run
     writeToFileZ(file, "New data on topic")
       .run
 ```
@@ -677,8 +658,7 @@ import zio.direct.*
 
 val researchHeadline =
   defer:
-    val headline: String =
-      getHeadlineZ().run
+    val headline: String = getHeadlineZ().run
 
     val topic: String =
       topicOfInterestZ(headline).run
@@ -715,8 +695,7 @@ We now step through all the possible scenarios that can occur in our application
 import zio.*
 import zio.direct.*
 
-override val bootstrap =
-  headlineNotAvailable
+override val bootstrap = headlineNotAvailable
 
 def run =
   researchHeadline
@@ -728,8 +707,7 @@ def run =
 import zio.*
 import zio.direct.*
 
-override val bootstrap =
-  noInterestingTopic
+override val bootstrap = noInterestingTopic
 
 def run =
   researchHeadline
@@ -741,8 +719,7 @@ def run =
 import zio.*
 import zio.direct.*
 
-override val bootstrap =
-  summaryReadThrows
+override val bootstrap = summaryReadThrows
 
 def run =
   researchHeadline
@@ -767,8 +744,7 @@ def run =
 import zio.*
 import zio.direct.*
 
-override val bootstrap =
-  aiTooSlow
+override val bootstrap = aiTooSlow
 
 def run =
   researchHeadline
@@ -780,8 +756,7 @@ def run =
 import zio.*
 import zio.direct.*
 
-override val bootstrap =
-  diskFull
+override val bootstrap = diskFull
 
 def run =
   researchHeadline
@@ -795,8 +770,7 @@ And finally, we see the longest, successful pathway through our application:
 import zio.*
 import zio.direct.*
 
-override val bootstrap =
-  stockMarketHeadline
+override val bootstrap = stockMarketHeadline
 
 def run =
   researchHeadline
@@ -819,8 +793,7 @@ val strictResearch =
 ```
 
 ```scala 3 mdoc:runzio:liveclock
-override val bootstrap =
-  stockMarketHeadline
+override val bootstrap = stockMarketHeadline
 
 def run =
   strictResearch

@@ -155,8 +155,7 @@ import zio.Console.*
 import zio.direct.*
 
 case class X():
-  val display =
-    printLine("X.display")
+  val display = printLine("X.display")
 
 val makeX =
   defer:
@@ -210,8 +209,7 @@ Adding trace information to the previous example reveals the steps of program in
 
 ```scala 3 mdoc:silent
 case class Y():
-  val display =
-    printLine("Y.display")
+  val display = printLine("Y.display")
 
 val makeY =
   defer:
@@ -254,8 +252,7 @@ val main =
 def run =
   defer:
     showType("makeY", makeY).run
-    val y =
-      makeY.run
+    val y = makeY.run
     printLine(s"makeY.run returned $y").run
     showType("Y.layer", Y.layer).run
     showType("main", main).run
@@ -283,8 +280,7 @@ import zio.direct.*
 import zio.Console.*
 
 case class Dough():
-  val letRise =
-    printLine("Dough: rising")
+  val letRise = printLine("Dough: rising")
 ```
 
 Note that calling `letRise` produces an Effect.
@@ -400,8 +396,7 @@ import zio.Console.*
 trait Toast:
   def bread: Bread
   def heat: HeatSource
-  val eat =
-    printLine("Toast: Eating")
+  val eat = printLine("Toast: Eating")
 
 case class ToastA(
     heat: HeatSource,
@@ -589,8 +584,7 @@ object Friend:
       ZIO.succeed(BreadFromFriend()).run
 
   def bread(worksOnAttempt: Int) =
-    var invocations =
-      0
+    var invocations = 0
     ZLayer.fromZIO:
       invocations += 1
       if invocations < worksOnAttempt then
@@ -613,9 +607,7 @@ import zio.direct.*
 // TODO the formatting on the named params is terrible
 def run =
   eatBread.provide:
-    Friend.bread(worksOnAttempt =
-      3
-    )
+    Friend.bread(worksOnAttempt = 3)
 ```
 
 If we keep asking, we eventually get `Bread`.
@@ -633,9 +625,7 @@ def run =
     .service[Bread]
     .provide:
       Friend
-        .bread(worksOnAttempt =
-          3
-        )
+        .bread(worksOnAttempt = 3)
         .orElse:
           BreadStoreBought.purchased
 ```
@@ -653,9 +643,7 @@ import zio.direct.*
 def logicWithRetries(retries: Int) =
   eatBread.provide:
     Friend
-      .bread(worksOnAttempt =
-        3
-      )
+      .bread(worksOnAttempt = 3)
       .retry:
         Schedule.recurs:
           retries
@@ -666,9 +654,7 @@ import zio.*
 import zio.direct.*
 
 def run =
-  logicWithRetries(retries =
-    2
-  )
+  logicWithRetries(retries = 2)
 ```
 
 Operations like `retry` also work on `ZLayer`s!

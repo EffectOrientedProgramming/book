@@ -87,8 +87,7 @@ def spec =
         .serviceWithZIO[Bread]:
           bread => bread.eat
         .run
-      val output =
-        TestConsole.output.run
+      val output = TestConsole.output.run
       assertTrue(
         output.contains("Bread: Eating\n")
       )

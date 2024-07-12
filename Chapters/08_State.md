@@ -31,12 +31,10 @@ import zio.*
 import zio.direct.*
 
 val unreliableCounting =
-  var counter =
-    0
+  var counter = 0
   val increment =
     ZIO.succeed:
-      counter =
-        counter + 1
+      counter = counter + 1
 
   defer:
     ZIO
@@ -77,8 +75,7 @@ lazy val reliableCounting =
       _ + 1
 
   defer:
-    val counter =
-      Ref.make(0).run
+    val counter = Ref.make(0).run
     ZIO
       .foreachParDiscard(Range(0, 100000)):
         _ =>
@@ -141,14 +138,12 @@ import zio.direct.*
 
 def run =
   defer:
-    val counter =
-      Ref.make(0).run
+    val counter = Ref.make(0).run
     ZIO
       .foreachParDiscard(Range(0, 4)):
         _ => update(counter)
       .run
-    val finalCount =
-      counter.get.run
+    val finalCount = counter.get.run
     s"Final count: $finalCount"
 ```
 
@@ -184,8 +179,7 @@ val sideEffectingUpdatesSync =
       .foreachParDiscard(Range(0, 4)):
         _ => update(counter)
       .run
-    val finalCount =
-      counter.get.run
+    val finalCount = counter.get.run
     s"Final count: $finalCount"
 ```
 

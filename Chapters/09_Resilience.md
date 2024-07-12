@@ -45,8 +45,7 @@ case class FSLive(requests: Ref[Int])
 
   val invoice: ZIO[Any, Nothing, String] =
     defer:
-      val count =
-        requests.get.run
+      val count = requests.get.run
 
       "Amount owed: $" + count
 
@@ -159,10 +158,8 @@ val makeCachedPopularService =
     val cache =
       Cache
         .make(
-          capacity =
-            100,
-          timeToLive =
-            Duration.Infinity,
+          capacity = 100,
+          timeToLive = Duration.Infinity,
           lookup =
             Lookup(cloudStorage.retrieve),
         )
@@ -204,8 +201,7 @@ import zio.*
 import zio.direct.*
 import zio.Console.*
 
-val expensiveApiCall =
-  ZIO.unit
+val expensiveApiCall = ZIO.unit
 
 extension [R, E, A](z: ZIO[R, E, A])
   def timedSecondsDebug(
@@ -234,12 +230,8 @@ import zio.direct.*
 import nl.vroste.rezilience.RateLimiter
 
 val makeRateLimiter =
-  RateLimiter.make(
-    max =
-      1,
-    interval =
-      1.second,
-  )
+  RateLimiter
+    .make(max = 1, interval = 1.second)
 ```
 
 Now, we wrap our unrestricted logic with our `RateLimiter`.
@@ -251,8 +243,7 @@ import zio.direct.*
 
 def run =
   defer:
-    val rateLimiter =
-      makeRateLimiter.run
+    val rateLimiter = makeRateLimiter.run
 
     rateLimiter:
       expensiveApiCall
@@ -275,8 +266,7 @@ import zio.direct.*
 
 def run =
   defer:
-    val rateLimiter =
-      makeRateLimiter.run
+    val rateLimiter = makeRateLimiter.run
     val people =
       List("Bill", "Bruce", "James")
 
@@ -392,9 +382,7 @@ import zio.direct.*
 
 import nl.vroste.rezilience.Bulkhead
 val makeOurBulkhead =
-  Bulkhead.make(maxInFlightCalls =
-    3
-  )
+  Bulkhead.make(maxInFlightCalls = 3)
 ```
 
 Next, we wrap our original request with this `Bulkhead`.
@@ -405,8 +393,7 @@ import zio.direct.*
 
 def run =
   defer:
-    val bulkhead =
-      makeOurBulkhead.run
+    val bulkhead = makeOurBulkhead.run
 
     val delicateResource =
       ZIO.service[DelicateResource].run
@@ -461,8 +448,7 @@ val timeSensitiveValue =
 def externalSystem(numCalls: Ref[Int]) =
   defer:
     numCalls.update(_ + 1).run
-    val b =
-      timeSensitiveValue.run
+    val b = timeSensitiveValue.run
     if b then
       ZIO.unit.run
     else
@@ -496,8 +482,7 @@ def scheduledValues[A](
   ],
 ] =
   defer:
-    val startTime =
-      Clock.instant.run
+    val startTime = Clock.instant.run
     val timeTable =
       createTimeTableX(
         startTime,
@@ -543,8 +528,7 @@ private def accessX[A](
     timeTable: Seq[ExpiringValue[A]]
 ): ZIO[Any, TimeoutException, A] =
   defer:
-    val now =
-      Clock.instant.run
+    val now = Clock.instant.run
     ZIO
       .getOrFailWith(
         new TimeoutException("TOO LATE")
@@ -581,16 +565,14 @@ import zio.direct.*
 
 def run =
   defer:
-    val numCalls =
-      Ref.make[Int](0).run
+    val numCalls = Ref.make[Int](0).run
 
     externalSystem(numCalls)
       .ignore
       .repeat(repeatSchedule)
       .run
 
-    val made =
-      numCalls.get.run
+    val made = numCalls.get.run
 
     s"Calls made: $made"
 ```
@@ -611,11 +593,8 @@ val makeCircuitBreaker =
   CircuitBreaker.make(
     trippingStrategy =
       TrippingStrategy
-        .failureCount(maxFailures =
-          2
-        ),
-    resetPolicy =
-      Retry.Schedules.common(),
+        .failureCount(maxFailures = 2),
+    resetPolicy = Retry.Schedules.common(),
   )
 ```
 
@@ -629,13 +608,10 @@ import CircuitBreaker.CircuitBreakerOpen
 
 def run =
   defer:
-    val cb =
-      makeCircuitBreaker.run
+    val cb = makeCircuitBreaker.run
 
-    val numCalls =
-      Ref.make[Int](0).run
-    val numPrevented =
-      Ref.make[Int](0).run
+    val numCalls     = Ref.make[Int](0).run
+    val numPrevented = Ref.make[Int](0).run
 
     val protectedCall =
       // TODO Note/explain `catchSome`
@@ -650,11 +626,9 @@ def run =
       .repeat(repeatSchedule)
       .run
 
-    val prevented =
-      numPrevented.get.run
+    val prevented = numPrevented.get.run
 
-    val made =
-      numCalls.get.run
+    val made = numCalls.get.run
     s"Prevented: $prevented Made: $made"
 ```
 
@@ -717,8 +691,7 @@ def businessLogic(logicHolder: LogicHolder) =
           1.second
         )
 
-    val totalRequests =
-      50_000
+    val totalRequests = 50_000
 
     val successes =
       ZIO

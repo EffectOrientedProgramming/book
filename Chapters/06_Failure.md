@@ -70,8 +70,7 @@ def gpsFailure =
   )
 
 def weird =
-  scenarioForNonZio =
-    Some(Scenario.TooCold)
+  scenarioForNonZio = Some(Scenario.TooCold)
 
   Runtime.setConfigProvider(
     ErrorsStaticConfigProvider(
@@ -121,8 +120,7 @@ First let's run it in the "happy path" assuming it won't fail:
 import zio.*
 import zio.direct.*
 
-override val bootstrap =
-  happyPath
+override val bootstrap = happyPath
 
 def run =
   getTemperature
@@ -135,8 +133,7 @@ But if we run it and simulate a network failure, the program will fail.
 import zio.*
 import zio.direct.*
 
-override val bootstrap =
-  networkFailure
+override val bootstrap = networkFailure
 
 def run =
   getTemperature
@@ -151,8 +148,7 @@ import zio.*
 import zio.direct.*
 import zio.Console.*
 
-override val bootstrap =
-  networkFailure
+override val bootstrap = networkFailure
 
 def run =
   defer:
@@ -171,8 +167,7 @@ import zio.*
 import zio.direct.*
 import zio.Console.*
 
-override val bootstrap =
-  networkFailure
+override val bootstrap = networkFailure
 
 def run =
   val safeGetTemperature =
@@ -236,13 +231,11 @@ import zio.*
 import zio.direct.*
 import zio.Console.*
 
-override val bootstrap =
-  gpsFailure
+override val bootstrap = gpsFailure
 
 def run =
   defer:
-    val result =
-      temperatureAppComplete.run
+    val result = temperatureAppComplete.run
     printLine:
       s"Didn't fail, despite: $result"
     .run
@@ -281,8 +274,7 @@ import zio.*
 import zio.direct.*
 import zio.Console.*
 
-override val bootstrap =
-  gpsFailure
+override val bootstrap = gpsFailure
 
 def run =
   getTemperatureBad.catchAll:
@@ -327,8 +319,7 @@ import zio.direct.*
 val getTemperatureWithCheck =
   defer:
     // can fail with an Exception
-    val temperature =
-      getTemperature.run
+    val temperature = getTemperature.run
 
     // can fail with a ClimateFailure
     check(temperature).run
@@ -340,8 +331,7 @@ Now we see what happens when a `gpsFailure` causes our first Effect to fail:
 import zio.*
 import zio.direct.*
 
-override val bootstrap =
-  gpsFailure
+override val bootstrap = gpsFailure
 
 def run =
   getTemperatureWithCheck
@@ -357,8 +347,7 @@ import zio.*
 import zio.direct.*
 import zio.Console.*
 
-override val bootstrap =
-  weird
+override val bootstrap = weird
 
 def run =
   getTemperatureWithCheck.catchAll:
@@ -401,8 +390,7 @@ If we try to just call this function from an Effect, in the case of failure, the
 import zio.*
 import zio.direct.*
 
-override val bootstrap =
-  networkFailure
+override val bootstrap = networkFailure
 
 def run =
   ZIO.succeed:
@@ -426,8 +414,7 @@ Then you can use any of the failure handling mechanisms in Effects to deal with 
 import zio.*
 import zio.direct.*
 
-override val bootstrap =
-  networkFailure
+override val bootstrap = networkFailure
 
 def run =
   safeTemperatureApp.orElse:

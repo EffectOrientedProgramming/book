@@ -135,8 +135,7 @@ Let's start with the "happy path" where we save a user to a database (this is an
 Here we save `userName` to a database via `saveUser`:
 
 ```scala 3 mdoc:silent
-val userName =
-  "Morty"
+val userName = "Morty"
 ```
 
 ```scala 3 mdoc:silent
@@ -184,8 +183,7 @@ A `bootstrap` creates a scenario for the execution of the program.
 Here we explicitly provide the happy path:
 
 ```scala 3 mdoc:runzio
-override val bootstrap =
-  happyPath
+override val bootstrap = happyPath
 
 def run =
   effect0
@@ -196,8 +194,7 @@ Don't assume the happy path, or you will end up with unhandled failure paths lur
 We can override the `bootstrap` value to simulate failure:
 
 ```scala 3 mdoc:runzio
-override val bootstrap =
-  neverWorks
+override val bootstrap = neverWorks
 
 def run =
   effect0
@@ -211,8 +208,7 @@ Sometimes things work when you keep trying.
 We can retry `effect0` by attaching the `retryN` operation:
 
 ```scala 3 mdoc:silent
-val effect1 =
-  effect0.retryN(2)
+val effect1 = effect0.retryN(2)
 ```
 
 `effect0.retryN` becomes a new Effect and is assigned to a `val` to create `effect1`, which also has delayed execution.
@@ -221,8 +217,7 @@ Almost always, when you apply an operation to an Effect, you get a new Effect.
 We run the new Effect in the scenario `doesNotWorkInitially` which works on the third try:
 
 ```scala 3 mdoc:runzio
-override val bootstrap =
-  doesNotWorkInitially
+override val bootstrap = doesNotWorkInitially
 
 def run =
   effect1
@@ -235,8 +230,7 @@ From the output you can see that running the Effect works after the initial atte
 In the `neverWorks` scenario, the Effect fails its initial attempt and all subsequent retries:
 
 ```scala 3 mdoc:runzio
-override val bootstrap =
-  neverWorks
+override val bootstrap = neverWorks
 
 def run =
   effect1
@@ -262,8 +256,7 @@ This creates a new Effect that handles both failures.
 Running this new Effect in the `neverWorks` scenario fails:
 
 ```scala 3 mdoc:runzio
-override val bootstrap =
-  neverWorks
+override val bootstrap = neverWorks
 
 def run =
   effect2
@@ -294,8 +287,7 @@ Timeouts can be added to any Effect.
 The `slow` scenario runs longer than our specified time limit of five seconds:
 
 ```scala 3 mdoc:runzio
-override val bootstrap =
-  slow
+override val bootstrap = slow
 
 def run =
   effect3
@@ -320,8 +312,7 @@ val effect4 =
 Let's run the new Effect in the `neverWorks` scenario to ensure we reach the fallback:
 
 ```scala 3 mdoc:runzio
-override val bootstrap =
-  neverWorks
+override val bootstrap = neverWorks
 
 def run =
   effect4
@@ -343,8 +334,7 @@ val effect5 =
 `withFinalizer` attaches this behavior without changing the types contained in the original Effect.
 
 ```scala 3 mdoc:runzio
-override val bootstrap =
-  happyPath
+override val bootstrap = happyPath
 
 def run =
   effect5
@@ -357,13 +347,11 @@ We can add numerous behaviors to an Effect regardless of that Effect's failure a
 For diagnostic information you can track timing:
 
 ```scala 3 mdoc:silent
-val effect6 =
-  effect5.timed
+val effect6 = effect5.timed
 ```
 
 ```scala 3 mdoc:runzio
-override val bootstrap =
-  happyPath
+override val bootstrap = happyPath
 
 def run =
   effect6
@@ -382,8 +370,7 @@ val effect7 =
 ```
 
 ```scala 3 mdoc:runzio
-override val bootstrap =
-  happyPath
+override val bootstrap = happyPath
 
 def run =
   effect7
@@ -480,8 +467,7 @@ val effect8 =
 To run the Effect after assembling it as a `defer`, use the other important `run` method:
 
 ```scala 3 mdoc:runzio
-val run =
-  effect8
+val run = effect8
 ```
 
 Having 2 versions of `run` seems confusing, but they serve different purposes:
