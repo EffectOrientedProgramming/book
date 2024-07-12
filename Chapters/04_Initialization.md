@@ -194,9 +194,9 @@ def run =
   ZIO
     .serviceWithZIO[X]:
       x => x.display
+    // dependency // Or the noun version
     .provide:
       X.dependent // The "adjectivized object"
-    // dependency // Or the noun version
 ```
 
 `serviceWithZIO` needs an `X` object that it substitutes as `x` in the lambda.
