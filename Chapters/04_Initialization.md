@@ -180,7 +180,7 @@ Inside the companion object, we can use an adjective, because in order to refere
 import zio.*
 
 object X:
-  val dependent =
+  val layer =
     ZLayer.fromZIO:
       makeX
 ```
@@ -197,16 +197,12 @@ def run =
       x => x.display
     // dependency // Or the noun version
     .provide:
-      X.dependent // The "adjectivized object"
+      X.layer // The "adjectivized object"
 ```
 
 `serviceWithZIO` needs an `X` object that it substitutes as `x` in the lambda.
-This is provided by either `X.dependent` or `dependency`, which yields a `ZLayer` holding the object produced by `make`.
+This is provided by either `X.layer` or `layer`, which yields a `ZLayer` holding the object produced by `make`.
 The `ZLayer` is the holder for the object produced by `make`, and it provides a way to get to that object.
-
-```
-// TODO: Better names than `dependent` and `dependency`?
-```
 
 ### Initialization Steps
 
@@ -223,7 +219,7 @@ val makeY =
     Y()
 
 object Y:
-  val dependency =
+  val layer =
     ZLayer.fromZIO:
       makeY
 ```
@@ -242,25 +238,24 @@ def showType(id: String, obj: Any) =
 import zio.*
 import zio.direct.*
 
+def show(y: Y) =
+  defer:
+    printLine(s"y: $y").run
+    y.display.run
+
+val main =
+  ZIO
+    .serviceWithZIO[Y]:
+      y => show(y)
+    .provide:
+      Y.layer
+
 def run =
   defer:
     showType("makeY", makeY).run
-    val r =
-      makeY.run
-    printLine(s"makeY.run returned $r").run
-    showType("Y.dependency", Y.dependency)
-      .run
-
-    val main =
-      ZIO
-        .serviceWithZIO[Y]:
-          y =>
-            defer:
-              printLine(s"y: $y").run
-              y.display.run
-        .provide:
-          Y.dependency
-
+    val y = makeY.run
+    printLine(s"makeY.run returned $y").run
+    showType("Y.layer", Y.layer).run
     showType("main", main).run
     main.run
     printLine("main.run complete").run
