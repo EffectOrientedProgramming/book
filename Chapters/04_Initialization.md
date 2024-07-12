@@ -247,7 +247,6 @@ val main =
     .provide:
       Y.layer
 
-// TODO scalafmt rule change to not make that y wrap lines
 def run =
   defer:
     showType("makeY", makeY).run
@@ -603,7 +602,6 @@ end Friend
 import zio.*
 import zio.direct.*
 
-// TODO the formatting on the named params is terrible
 def run =
   eatBread.provide:
     Friend.bread(worksOnAttempt = 3)
