@@ -705,7 +705,7 @@ import zio.direct.*
 case class RetryConfig(times: Int)
 ```
 
-To automatically map values from configuration files to our case class, we the `deriveConfig` macro from the `zio.config.magnolia` module:
+To automatically populate our case class from configuration files, we the `deriveConfig` macro from the `zio.config.magnolia` module:
 
 ```scala 3 mdoc:silent
 import zio.*
