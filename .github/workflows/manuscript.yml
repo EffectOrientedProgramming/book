@@ -30,7 +30,7 @@ jobs:
         cd ..
 
     - run: |
-        ./sbt genManuscript
+        ./sbt test
 
     - name: Update Examples
       run: |
