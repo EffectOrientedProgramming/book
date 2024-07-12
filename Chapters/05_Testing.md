@@ -6,6 +6,18 @@ How do we write tests for Effects that are predictable?
 We can replace the external systems with predictable ones when running tests.
 Rather than trying to get `Bread` from a fallible human, we can create an `IdealFriend` that will always give us `Bread`.
 
+```scala 3 mdoc:invisible
+import zio.*
+import zio.direct.*
+import zio.Console.*
+
+trait Bread:
+  def eat =
+    printLine("Bread: Eating")
+
+case class BreadFromFriend() extends Bread
+```
+
 ```scala 3 mdoc
 object IdealFriend:
   val bread =
