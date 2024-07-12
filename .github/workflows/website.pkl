@@ -8,7 +8,6 @@ on {
     // todo: branch main
     paths {
       "docs"
-      "mkdocs.yml"
     }
   }
 }
