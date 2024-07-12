@@ -1,7 +1,6 @@
 // pkl eval --format yaml -o website.yml website.pkl
 
 amends "package://pkg.pkl-lang.org/github.com/jamesward/pklgha/pklgha@0.0.13#/GitHubAction.pkl"
-import "package://pkg.pkl-lang.org/github.com/jamesward/pklgha/pklgha@0.0.13#/GitHubAction.pkl"
 
 
 on {
@@ -15,7 +14,7 @@ on {
 }
 
 jobs {
-  ["test"] = new {
+  ["deploy"] = new {
     `runs-on` = "ubuntu-latest"
 
     steps {

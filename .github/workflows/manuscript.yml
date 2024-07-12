@@ -4,6 +4,7 @@ on:
       - main
     paths-ignore:
       - examples
+      - docs
 
 jobs:
   gen-and-preview:
