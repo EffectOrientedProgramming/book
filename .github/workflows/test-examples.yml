@@ -1,6 +1,8 @@
 # Generated file. DO NOT EDIT.
 'on':
-  push: {}
+  push:
+    paths:
+    - examples
   pull_request: {}
 jobs:
   test:
@@ -15,7 +17,5 @@ jobs:
         distribution: temurin
         java-version: '21'
         cache: sbt
-    - run: rm -rf examples/src/main/scala/Chapter*.scala examples/src/test/scala/Chapter*.scala
-    - run: sbt test genManuscript
     - run: sbt test:compile
       working-directory: examples

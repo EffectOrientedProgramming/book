@@ -1,11 +1,13 @@
-// pkl eval --format yaml -o test.yml test.pkl
+// pkl eval --format yaml -o test-examples.yml test-examples.pkl
 
 amends "package://pkg.pkl-lang.org/github.com/jamesward/pklgha/pklgha@0.0.13#/GitHubAction.pkl"
 import "package://pkg.pkl-lang.org/github.com/jamesward/pklgha/pklgha@0.0.13#/GitHubAction.pkl"
 
 on {
   push {
-
+    paths {
+      "examples"
+    }
   }
   pull_request {
 
@@ -26,14 +28,6 @@ jobs {
       }
 
       GitHubAction.Java.setupJava(null, "21", "sbt")
-
-      new {
-        run = "rm -rf examples/src/main/scala/Chapter*.scala examples/src/test/scala/Chapter*.scala"
-      }
-
-      new {
-        run = "sbt test genManuscript"
-      }
 
       new {
         run = "sbt test:compile"
