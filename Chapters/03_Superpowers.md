@@ -3,7 +3,7 @@
 ```scala 3 mdoc:invisible
 import zio.*
 import zio.direct.*
-import zio.Console._
+import zio.Console.*
 
 enum Scenario:
   case HappyPath
@@ -429,7 +429,7 @@ You might think this should work:
 
 ```scala 3 mdoc:runzio
 import zio.*
-import zio.Console._
+import zio.Console.*
 
 def run =
   printLine("Before save")
@@ -446,7 +446,7 @@ To sequence multiple Effects, we construct an `Effect` that contains the sequenc
 ```scala 3 mdoc:runzio
 import zio.*
 import zio.direct.*
-import zio.Console._
+import zio.Console.*
 
 def run =
   defer:
@@ -469,7 +469,7 @@ We assign the new Effect to a `val` like we did with `effect1` - `effect7`:
 ```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
-import zio.Console._
+import zio.Console.*
 
 val effect8 =
   defer:
@@ -540,7 +540,7 @@ This combined Effect only runs when the program is executed.
 ```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
-import zio.Console._
+import zio.Console.*
 
 val surroundedProgram =
   defer:

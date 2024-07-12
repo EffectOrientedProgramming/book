@@ -486,7 +486,7 @@ With each new file we open, we have to nest our code deeper.
 ```scala 3 mdoc:runzio
 import zio.*
 import zio.direct.*
-import zio.Console._
+import zio.Console.*
 
 def run =
   defer:

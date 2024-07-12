@@ -31,7 +31,7 @@ For this book we shorten the definition for running ZIO Effects to:
 ```scala 3 mdoc:runzio
 import zio.*
 import zio.direct.*
-import zio.Console._
+import zio.Console.*
 
 def run =
   ZIO.debug:
@@ -41,7 +41,7 @@ def run =
 ```scala 3 mdoc
 import zio.*
 import zio.direct.*
-import zio.Console._
+import zio.Console.*
 
 // NOTE We cannot invoke main on this
 // because it crashes mdoc in the CI process

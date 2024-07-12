@@ -202,7 +202,7 @@ At the very least, you will be charged more for exceeding it.
 ```scala 3 mdoc:invisible
 import zio.*
 import zio.direct.*
-import zio.Console._
+import zio.Console.*
 
 val expensiveApiCall =
   ZIO.unit
@@ -303,7 +303,7 @@ If we want to ensure we don't accidentally DDOS a service, we can restrict the n
 ```scala 3 mdoc:invisible
 import zio.*
 import zio.direct.*
-import zio.Console._
+import zio.Console.*
 
 trait DelicateResource:
   val request: ZIO[Any, String, Int]
@@ -823,7 +823,7 @@ This can be caused by a number of factors:
   Your tests might be occasionally failing due to timeouts or lack of memory.
 
 ```scala 3 mdoc:invisible
-import zio.Console._
+import zio.Console.*
 
 val attemptsR =
   Unsafe.unsafe {
@@ -849,7 +849,7 @@ def spottyLogic =
 
 ```scala 3 mdoc:testzio
 import zio.test.*
-import zio.Console._
+import zio.Console.*
 
 def spec =
   test("flaky test!"):

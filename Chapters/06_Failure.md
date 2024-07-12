@@ -149,7 +149,7 @@ For example, if we try to print something after trying to get the temperature,
 ```scala 3 mdoc:runzio
 import zio.*
 import zio.direct.*
-import zio.Console._
+import zio.Console.*
 
 override val bootstrap =
   networkFailure
@@ -169,7 +169,7 @@ Note that this is a method in our Effect System, *not* the `catch` mechanism of 
 ```scala 3 mdoc:runzio
 import zio.*
 import zio.direct.*
-import zio.Console._
+import zio.Console.*
 
 override val bootstrap =
   networkFailure
@@ -234,7 +234,7 @@ Now even if there is a network or GPS failure, the Effect completes successfully
 ```scala 3 mdoc:runzio
 import zio.*
 import zio.direct.*
-import zio.Console._
+import zio.Console.*
 
 override val bootstrap =
   gpsFailure
@@ -279,7 +279,7 @@ Now we can again use `catchAll` but can handle the `String` failure type:
 ```scala 3 mdoc:runzio
 import zio.*
 import zio.direct.*
-import zio.Console._
+import zio.Console.*
 
 override val bootstrap =
   gpsFailure
@@ -355,7 +355,7 @@ To handle the possible failures for this new Effect, we now need to handle both 
 ```scala 3 mdoc:runzio
 import zio.*
 import zio.direct.*
-import zio.Console._
+import zio.Console.*
 
 override val bootstrap =
   weird

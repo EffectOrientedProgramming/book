@@ -44,7 +44,7 @@ We will create different types of `Bread`, so we start by defining `trait Bread`
 ```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
-import zio.Console._
+import zio.Console.*
 
 trait Bread:
   def eat =
@@ -282,7 +282,7 @@ Instead of buying bread, let's make it from `Dough`, which we will provide as a 
 ```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
-import zio.Console._
+import zio.Console.*
 
 case class Dough():
   val letRise =
@@ -298,7 +298,7 @@ This time we create a ZIO object using `defer` and then convert it using `ZLayer
 ```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
-import zio.Console._
+import zio.Console.*
 
 object Dough:
   val fresh =
@@ -322,7 +322,7 @@ For this we need some kind of `HeatSource`:
 ```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
-import zio.Console._
+import zio.Console.*
 
 trait HeatSource
 case class Oven() extends HeatSource
@@ -342,7 +342,7 @@ In the following, `baked` produces `BreadHomeMade`:
 ```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
-import zio.Console._
+import zio.Console.*
 
 case class BreadHomeMade(
     heat: HeatSource,
@@ -400,7 +400,7 @@ Next, we'd like to make `Toast`:
 ```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
-import zio.Console._
+import zio.Console.*
 
 trait Toast:
   def bread: Bread
@@ -469,7 +469,7 @@ We create a type of `Toast` that requires a `Toaster` rather than just any `Heat
 ```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
-import zio.Console._
+import zio.Console.*
 
 case class ToastB(
     heat: Toaster,
@@ -533,7 +533,7 @@ We can build an `Oven` that turns itself off when it is no longer needed.
 ```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
-import zio.Console._
+import zio.Console.*
 
 object OvenSafe:
   val heated =
@@ -576,7 +576,7 @@ Suppose we have a `Friend` who will sometimes give us `Bread`, but not right awa
 ```scala 3 mdoc:invisible
 import zio.*
 import zio.direct.*
-import zio.Console._
+import zio.Console.*
 
 case class BreadFromFriend() extends Bread()
 
