@@ -76,7 +76,7 @@ case class PopularService(
     retrieveContents: Path => ZIO[
       Any,
       Nothing,
-      FileContents
+      FileContents,
     ]
 ):
   def retrieve(name: Path) =
@@ -140,7 +140,7 @@ import zio.direct.*
 def run =
   thunderingHerds.provide(
     CloudStorage.live,
-    ZLayer.fromZIO(makePopularService)
+    ZLayer.fromZIO(makePopularService),
   )
 ```
 
@@ -164,7 +164,7 @@ val makeCachedPopularService =
           timeToLive =
             Duration.Infinity,
           lookup =
-            Lookup(cloudStorage.retrieve)
+            Lookup(cloudStorage.retrieve),
         )
         .run
 
@@ -185,7 +185,7 @@ import zio.direct.*
 def run =
   thunderingHerds.provide(
     CloudStorage.live,
-    ZLayer.fromZIO(makeCachedPopularService)
+    ZLayer.fromZIO(makeCachedPopularService),
   )
 ```
 
@@ -238,7 +238,7 @@ val makeRateLimiter =
     max =
       1,
     interval =
-      1.second
+      1.second,
   )
 ```
 
@@ -312,7 +312,7 @@ trait DelicateResource:
 // that has usage constraints
 case class Live(
     currentRequests: Ref[List[Int]],
-    alive: Ref[Boolean]
+    alive: Ref[Boolean],
 ) extends DelicateResource:
   val request =
     defer:
@@ -360,7 +360,7 @@ object DelicateResource:
           Ref
             .make[List[Int]](List.empty)
             .run,
-          Ref.make(true).run
+          Ref.make(true).run,
         )
 ```
 
@@ -418,7 +418,7 @@ def run =
       .run
   .provide(
     DelicateResource.live,
-    Scope.default
+    Scope.default,
   )
 ```
 
@@ -451,7 +451,7 @@ val timeSensitiveValue =
           scheduledValues(
             (1100.millis, true),
             (4100.millis, false),
-            (5000.millis, true)
+            (5000.millis, true),
           )
         )
         .getOrThrowFiberFailure()
@@ -491,8 +491,8 @@ def scheduledValues[A](
   ZIO[
     Any, // access time
     TimeoutException,
-    A
-  ]
+    A,
+  ],
 ] =
   defer {
     val startTime =
@@ -515,16 +515,16 @@ private def createTimeTableX[A](
   values.scanLeft(
     ExpiringValue(
       startTime.plusZ(value._1),
-      value._2
+      value._2,
     )
   ) {
     case (
           ExpiringValue(elapsed, _),
-          (duration, value)
+          (duration, value),
         ) =>
       ExpiringValue(
         elapsed.plusZ(duration),
-        value
+        value,
       )
   }
 
@@ -561,7 +561,7 @@ private def accessX[A](
 
 private case class ExpiringValue[A](
     expirationTime: Instant,
-    value: A
+    value: A,
 )
 ```
 
@@ -607,7 +607,7 @@ import zio.direct.*
 import nl.vroste.rezilience.{
   CircuitBreaker,
   TrippingStrategy,
-  Retry
+  Retry,
 }
 
 val makeCircuitBreaker =
@@ -618,7 +618,7 @@ val makeCircuitBreaker =
           2
         ),
     resetPolicy =
-      Retry.Schedules.common()
+      Retry.Schedules.common(),
   )
 ```
 

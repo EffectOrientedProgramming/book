@@ -11,7 +11,7 @@ enum Scenario:
   case Slow
   case WorksOnTry(
       attempts: Int,
-      ref: Ref[Int]
+      ref: Ref[Int],
   )
 
 // This configuration is used by Effects to get the scenario that
@@ -56,7 +56,7 @@ val doesNotWorkInitially =
             .default
             .unsafe
             .run(Ref.make(1))
-            .getOrThrow()
+            .getOrThrow(),
         )
   Runtime.setConfigProvider:
     StaticConfigProvider(scenario)

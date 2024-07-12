@@ -139,7 +139,7 @@ def findTopicOfInterest(
       "space",
       "barn",
       "unicode",
-      "genome"
+      "genome",
     )
   val res =
     topics.find(content.contains)
@@ -149,7 +149,7 @@ def findTopicOfInterest(
 import scala.util.Either
 def wikiArticle(topic: String): Either[
   Scenario.NoWikiArticleAvailable,
-  String
+  String,
 ] =
   println(s"Wiki - articleFor($topic)")
   topic match
@@ -297,7 +297,7 @@ import zio.direct.*
 
 val wikiResult: Either[
   NoWikiArticleAvailable,
-  String
+  String,
 ] =
   wikiArticle("stock market")
 ```
@@ -520,7 +520,7 @@ import zio.direct.*
 
 def writeToFileZ(
     file: File,
-    content: String
+    content: String,
 ) =
   ZIO
     .from:

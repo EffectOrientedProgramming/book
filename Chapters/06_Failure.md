@@ -84,7 +84,7 @@ case class Temperature(degrees: Int)
 val getTemperature: ZIO[
   Any,
   GpsException | NetworkException,
-  Temperature
+  Temperature,
 ] =
   defer:
     val maybeScenario =

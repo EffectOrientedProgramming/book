@@ -346,7 +346,7 @@ import zio.Console.*
 
 case class BreadHomeMade(
     heat: HeatSource,
-    dough: Dough
+    dough: Dough,
 ) extends Bread
 
 object BreadHomeMade:
@@ -356,7 +356,7 @@ object BreadHomeMade:
         printLine("BreadHomeMade: Baked").run
         BreadHomeMade(
           ZIO.service[Oven].run,
-          ZIO.service[Dough].run
+          ZIO.service[Dough].run,
         )
 ```
 
@@ -377,7 +377,7 @@ def run =
     .provide(
       BreadHomeMade.baked,
       Dough.fresh,
-      Oven.heated
+      Oven.heated,
     )
 ```
 
@@ -410,7 +410,7 @@ trait Toast:
 
 case class ToastA(
     heat: HeatSource,
-    bread: Bread
+    bread: Bread,
 ) extends Toast
 
 object ToastA:
@@ -420,7 +420,7 @@ object ToastA:
         printLine("ToastA: Made").run
         ToastA(
           ZIO.service[HeatSource].run,
-          ZIO.service[Bread].run
+          ZIO.service[Bread].run,
         )
 ```
 
@@ -454,7 +454,7 @@ def run =
       Dough.fresh,
       BreadHomeMade.baked,
       Oven.heated,
-      Toaster.ready
+      Toaster.ready,
     )
 ```
 
@@ -473,7 +473,7 @@ import zio.Console.*
 
 case class ToastB(
     heat: Toaster,
-    bread: Bread
+    bread: Bread,
 ) extends Toast
 // ToastA used HeatSource for heat
 
@@ -484,7 +484,7 @@ object ToastB:
         printLine("ToastB: Made").run
         ToastB(
           ZIO.service[Toaster].run,
-          ZIO.service[Bread].run
+          ZIO.service[Bread].run,
         )
 ```
 
@@ -504,7 +504,7 @@ def run =
       BreadHomeMade.baked,
       // The two HeatSources don't clash:
       Oven.heated,
-      Toaster.ready
+      Toaster.ready,
     )
 ```
 
@@ -559,7 +559,7 @@ def run =
       BreadHomeMade.baked,
       Dough.fresh,
       OvenSafe.heated,
-      Scope.default
+      Scope.default,
     )
 ```
 
