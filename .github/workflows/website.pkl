@@ -8,6 +8,7 @@ on {
     // todo: branch main
     paths {
       "docs"
+      ".github/workflows/website.yml"
     }
   }
 }
