@@ -393,12 +393,13 @@ def openFile(path: String) =
       println(
         s"File - summaryFor($searchTerm)"
       )
-      if (searchTerm == "unicode")
+      if searchTerm == "unicode" then
         println("File - * Threw Exception *")
         throw Exception(s"No summary found")
-      else if (searchTerm == "stock market")
+      else if searchTerm == "stock market"
+      then
         "stock markets are neat"
-      else if (searchTerm == "space")
+      else if searchTerm == "space" then
         "space is huge"
       else
         ???
@@ -406,14 +407,14 @@ def openFile(path: String) =
     override def write(
         entry: String
     ): Try[String] =
-      if (entry.contains("genome")) {
+      if entry.contains("genome") then
         println("File - disk full!")
         Try(
           throw new Exception(
             "Disk is full!"
           )
         )
-      } else {
+      else {
         println("File - write: " + entry)
         contents =
           entry :: contents
@@ -590,17 +591,17 @@ def summarize(article: String): String =
   println(s"AI - summarize - start")
   // Represents the AI taking a long time to
   // summarize the content
-  if (article.contains("space")) {
+  if article.contains("space") then
     println("AI - taking a long time")
     Thread.sleep(5000)
-  }
 
   println(s"AI - summarize - end")
-  if (article.contains("stock market"))
+  if article.contains("stock market") then
     s"market is not rational"
-  else if (article.contains("genome"))
+  else if article.contains("genome") then
     "The human genome is huge!"
-  else if (article.contains("long article"))
+  else if article.contains("long article")
+  then
     "short summary"
   else
     ???
@@ -686,7 +687,7 @@ val researchHeadline =
       summaryFile.contains:
         topic
 
-    if (knownTopic)
+    if knownTopic then
       summaryForZ(summaryFile, topic).run
     else
       val wikiArticle: String =

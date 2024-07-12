@@ -319,7 +319,8 @@ case class Live(
       val res =
         Random.nextIntBounded(1000).run
 
-      if (currentRequests.get.run.length > 3)
+      if currentRequests.get.run.length > 3
+      then
         alive.set(false).run
         ZIO.fail("Crashed the server!!").run
 
@@ -333,7 +334,7 @@ case class Live(
       ZIO.sleep(1.second).run
       removeRequest(res).run
 
-      if (alive.get.run)
+      if alive.get.run then
         res
       else
         ZIO
@@ -474,7 +475,7 @@ object InstantOps:
     ): Instant =
       i.plus(duration.asJava)
 
-import InstantOps._
+import InstantOps.*
 
 /* Goal: If I accessed this from:
  * 0-1 seconds, I would get "First Value" 1-4
@@ -688,9 +689,8 @@ import zio.direct.*
 
 val logicThatSporadicallyLocksUp =
   defer:
-    if (
-      Random.nextIntBounded(1_000).run == 0
-    )
+    if Random.nextIntBounded(1_000).run == 0
+    then
       ZIO
         .sleep:
           3.second
