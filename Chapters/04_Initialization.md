@@ -47,7 +47,8 @@ import zio.direct.*
 import zio.Console._
 
 trait Bread:
-  def eat = printLine("Bread: Eating")
+  def eat =
+    printLine("Bread: Eating")
 ```
 
 This uses `zio.Console.printLine`, which is an Effect because it modifies an external system.
@@ -153,7 +154,8 @@ import zio.Console.*
 import zio.direct.*
 
 case class X():
-  val display = printLine("X.display")
+  val display =
+    printLine("X.display")
 
 val makeX =
   defer:
@@ -193,8 +195,8 @@ def run =
     .serviceWithZIO[X]:
       x => x.display
     .provide:
-      X.dependent   // The "adjectivized object"
-      // dependency // Or the noun version
+      X.dependent // The "adjectivized object"
+    // dependency // Or the noun version
 ```
 
 `serviceWithZIO` needs an `X` object that it substitutes as `x` in the lambda.
@@ -211,7 +213,8 @@ Adding trace information to the previous example reveals the steps of program in
 
 ```scala 3 mdoc:silent
 case class Y():
-  val display = printLine("Y.display")
+  val display =
+    printLine("Y.display")
 
 val makeY =
   defer:
@@ -241,18 +244,21 @@ import zio.direct.*
 def run =
   defer:
     showType("makeY", makeY).run
-    val r = makeY.run
+    val r =
+      makeY.run
     printLine(s"makeY.run returned $r").run
-    showType("Y.dependency", Y.dependency).run
+    showType("Y.dependency", Y.dependency)
+      .run
 
     val main =
-      ZIO.serviceWithZIO[Y]:
-        y =>
-          defer:
-            printLine(s"y: $y").run
-            y.display.run
-      .provide:
-        Y.dependency
+      ZIO
+        .serviceWithZIO[Y]:
+          y =>
+            defer:
+              printLine(s"y: $y").run
+              y.display.run
+        .provide:
+          Y.dependency
 
     showType("main", main).run
     main.run
@@ -279,7 +285,8 @@ import zio.direct.*
 import zio.Console._
 
 case class Dough():
-  val letRise = printLine("Dough: rising")
+  val letRise =
+    printLine("Dough: rising")
 ```
 
 Note that calling `letRise` produces an Effect.
@@ -338,8 +345,8 @@ import zio.direct.*
 import zio.Console._
 
 case class BreadHomeMade(
-  heat: HeatSource,
-  dough: Dough
+    heat: HeatSource,
+    dough: Dough
 ) extends Bread
 
 object BreadHomeMade:
@@ -398,9 +405,13 @@ import zio.Console._
 trait Toast:
   def bread: Bread
   def heat: HeatSource
-  val eat = printLine("Toast: Eating")
+  val eat =
+    printLine("Toast: Eating")
 
-case class ToastA(heat: HeatSource, bread: Bread) extends Toast
+case class ToastA(
+    heat: HeatSource,
+    bread: Bread
+) extends Toast
 
 object ToastA:
   val toasted =
@@ -443,7 +454,7 @@ def run =
       Dough.fresh,
       BreadHomeMade.baked,
       Oven.heated,
-      Toaster.ready,
+      Toaster.ready
     )
 ```
 
@@ -460,7 +471,10 @@ import zio.*
 import zio.direct.*
 import zio.Console._
 
-case class ToastB(heat: Toaster, bread: Bread) extends Toast
+case class ToastB(
+    heat: Toaster,
+    bread: Bread
+) extends Toast
 // ToastA used HeatSource for heat
 
 object ToastB:
@@ -490,7 +504,7 @@ def run =
       BreadHomeMade.baked,
       // The two HeatSources don't clash:
       Oven.heated,
-      Toaster.ready,
+      Toaster.ready
     )
 ```
 
@@ -524,21 +538,13 @@ import zio.Console._
 object OvenSafe:
   val heated =
     ZLayer.fromZIO:
-      ZIO
-        .succeed(Oven())
-        .tap:
-          _ =>
-            printLine:
-              "Oven: Heated"
-        .withFinalizer:
-          _ =>
-            printLine:
-              "Oven: Turning off!"
+      defer:
+        printLine("Oven: Heated").run
+        Oven()
+      .withFinalizer:
+        _ =>
+          printLine("Oven: Turning off")
             .orDie
-```
-
-```
-// TODO: Only time .tap is used visibly in the book. Intended? 
 ```
 
 ```scala 3 mdoc:runzio
@@ -591,7 +597,8 @@ object Friend:
       ZIO.succeed(BreadFromFriend()).run
 
   def bread(worksOnAttempt: Int) =
-    var invocations = 0
+    var invocations =
+      0
     ZLayer.fromZIO:
       invocations += 1
       if invocations < worksOnAttempt then
@@ -635,7 +642,9 @@ def run =
     .service[Bread]
     .provide:
       Friend
-        .bread(worksOnAttempt = 3)
+        .bread(worksOnAttempt =
+          3
+        )
         .orElse:
           BreadStoreBought.purchased
 ```
