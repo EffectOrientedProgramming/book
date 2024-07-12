@@ -521,13 +521,11 @@ import zio.*
 import zio.direct.*
 import zio.Console._
 
-case class OvenSafe() extends HeatSource
-
 object OvenSafe:
   val heated =
     ZLayer.fromZIO:
       ZIO
-        .succeed(OvenSafe())
+        .succeed(Oven())
         .tap:
           _ =>
             printLine:
@@ -648,24 +646,35 @@ If we can't get `Bread` from our `Friend`, we go to the store and buy it.
 
 We can add a `retry` to the `ZLayer` produced by `Friend.bread`:
 
-```scala 3 mdoc:runzio
+```scala 3 mdoc
 import zio.*
 import zio.direct.*
 
-def run =
-  val retries = 2
+def logicWithRetries(retries: Int) =
   ZIO
     .serviceWithZIO[Bread]:
       bread => bread.eat
     .provide:
       Friend
-        .bread(worksOnAttempt = 3)
+        .bread(worksOnAttempt =
+          3
+        )
         .retry:
           Schedule.recurs:
             retries
 ```
 
-Extension operations like `retry` also work on `ZLayer`s!
+```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
+def run =
+  logicWithRetries(retries =
+    2
+  )
+```
+
+Operations like `retry` also work on `ZLayer`s!
 
 ## External Configuration
 
