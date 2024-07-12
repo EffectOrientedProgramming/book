@@ -96,16 +96,19 @@ This `ZLayer` provides the `BreadStoreBought` instance as a dependency to any ot
 
 Now we incorporate the `BreadStoreBought` dependency into a program:
 
+```scala 3 mdoc:silent
+val eatBread =
+  ZIO.serviceWithZIO[Bread]:
+    bread => bread.eat
+```
+
 ```scala 3 mdoc:runzio
 import zio.*
 import zio.direct.*
 
 def run =
-  ZIO
-    .serviceWithZIO[Bread]:
-      bread => bread.eat
-    .provide:
-      BreadStoreBought.purchased
+  eatBread.provide:
+    BreadStoreBought.purchased
 ```
 
 `serviceWithZIO` takes a generic parameter, which is the *type* it needs to do the work.
@@ -128,10 +131,7 @@ If the dependency for an Effect isn't provided, you'll get a compiler error:
 
 ```scala 3 mdoc:fail
 // TODO This error is screwed up now.
-ZIO
-  .serviceWithZIO[Bread]:
-    bread => bread.eat
-  .provide()
+eatBread.provide()
 ```
 
 The error tells you exactly what you're missing---and remember that you will see this error in your IDE when you are writing the code.
@@ -371,14 +371,11 @@ import zio.*
 import zio.direct.*
 
 def run =
-  ZIO
-    .serviceWithZIO[Bread]:
-      bread => bread.eat
-    .provide(
-      BreadHomeMade.baked,
-      Dough.fresh,
-      Oven.heated,
-    )
+  eatBread.provide(
+    BreadHomeMade.baked,
+    Dough.fresh,
+    Oven.heated,
+  )
 ```
 
 In this case, the `Bread` service is `BreadHomeMade.baked`, which needs `Dough` and a `HeatSource`, so we must include all necessary services as arguments to `provide`.
@@ -552,15 +549,12 @@ import zio.*
 import zio.direct.*
 
 def run =
-  ZIO
-    .serviceWithZIO[Bread]:
-      bread => bread.eat
-    .provide(
-      BreadHomeMade.baked,
-      Dough.fresh,
-      OvenSafe.heated,
-      Scope.default,
-    )
+  eatBread.provide(
+    BreadHomeMade.baked,
+    Dough.fresh,
+    OvenSafe.heated,
+    Scope.default,
+  )
 ```
 
 ```
@@ -618,13 +612,12 @@ end Friend
 import zio.*
 import zio.direct.*
 
+// TODO the formatting on the named params is terrible
 def run =
-  ZIO
-    .service[Bread]
-    .provide:
-      Friend.bread(worksOnAttempt =
-        3
-      )
+  eatBread.provide:
+    Friend.bread(worksOnAttempt =
+      3
+    )
 ```
 
 If we keep asking, we eventually get `Bread`.
@@ -660,17 +653,14 @@ import zio.*
 import zio.direct.*
 
 def logicWithRetries(retries: Int) =
-  ZIO
-    .serviceWithZIO[Bread]:
-      bread => bread.eat
-    .provide:
-      Friend
-        .bread(worksOnAttempt =
-          3
-        )
-        .retry:
-          Schedule.recurs:
-            retries
+  eatBread.provide:
+    Friend
+      .bread(worksOnAttempt =
+        3
+      )
+      .retry:
+        Schedule.recurs:
+          retries
 ```
 
 ```scala 3 mdoc:runzio
@@ -769,11 +759,6 @@ def run =
     .provide:
       config
 ```
-
-```
-// TODO where did logicWithRetries come from?
-```
-
 
 Now we have bridged the gap between our logic and configuration files.
 This was a longer detour than our other steps, but a common requirement in real-world applications.

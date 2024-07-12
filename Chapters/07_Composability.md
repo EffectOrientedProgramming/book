@@ -201,6 +201,7 @@ import zio.*
 import zio.direct.*
 
 def getHeadlineZ() =
+// TODO should we put .from on the same line as ZIO
   ZIO
     .from:
       getHeadLine()
