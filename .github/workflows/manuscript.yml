@@ -59,6 +59,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         CUSTOM_DOMAIN: EffectOrientedProgramming.com
         CONFIG_FILE: mkdocs.yml
+        REQUIREMENTS: docs/requirements.txt
 
     - id: preview
       if: ${{ github.ref == 'refs/heads/main' }}

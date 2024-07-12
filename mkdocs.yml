@@ -16,4 +16,4 @@ nav:
 plugins:
   - redirects:
       redirect_maps:
-        'sharing-layers-between-multiple-files.md':  'https://zio.dev/reference/test/sharing-layers-between-multiple-files/'
+        '/resources/zio/sharing-layers-between-multiple-files':  'https://zio.dev/reference/test/sharing-layers-between-multiple-files/'
