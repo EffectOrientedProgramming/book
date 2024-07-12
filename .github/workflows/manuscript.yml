@@ -5,6 +5,7 @@ on:
     paths-ignore:
       - examples
       - docs
+      - mkdocs.yml
 
 jobs:
   gen-and-preview:
