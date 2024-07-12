@@ -54,13 +54,6 @@ jobs:
         commit-msg: Update manuscript
         github-token: ${{ secrets.GITHUB_TOKEN }}
 
-    - uses: mhausenblas/mkdocs-deploy-gh-pages@1.24
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        CUSTOM_DOMAIN: EffectOrientedProgramming.com
-        CONFIG_FILE: mkdocs.yml
-        REQUIREMENTS: docs/requirements.txt
-
     - id: preview
       if: ${{ github.ref == 'refs/heads/main' }}
       uses: jamesward/leanpub-actions/preview@main

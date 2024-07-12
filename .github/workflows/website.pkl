@@ -1,0 +1,37 @@
+// pkl eval --format yaml -o website.yml website.pkl
+
+amends "package://pkg.pkl-lang.org/github.com/jamesward/pklgha/pklgha@0.0.13#/GitHubAction.pkl"
+import "package://pkg.pkl-lang.org/github.com/jamesward/pklgha/pklgha@0.0.13#/GitHubAction.pkl"
+
+
+on {
+  push {
+    // todo: branch main
+    paths {
+      "docs"
+      "mkdocs.yml"
+    }
+  }
+}
+
+jobs {
+  ["test"] = new {
+    `runs-on` = "ubuntu-latest"
+
+    steps {
+      new {
+        uses = "actions/checkout@v4"
+      }
+
+      new {
+        uses = "mhausenblas/mkdocs-deploy-gh-pages@1.24"
+        env {
+          ["GITHUB_TOKEN"] = "${{ secrets.API_TOKEN_GITHUB }}"
+          ["CUSTOM_DOMAIN"] = "EffectOrientedProgramming.com"
+          ["CONFIG_FILE"] = "docs/mkdocs.yml"
+          ["REQUIREMENTS"] = "docs/requirements.txt"
+        }
+      }
+    }
+  }
+}
