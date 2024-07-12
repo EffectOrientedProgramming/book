@@ -4,17 +4,17 @@ Most existing languages are built for rapid development.
 You build a system as quickly as possible, then begin isolating failure points, finding and fixing bugs until the system is tolerable and can be delivered.
 
 Over the lifetime of a system, new needs are discovered and the system is adapted to meet those needs.
-Many of these adaptations don’t conform to the original vision and architecture of the system, and will be forced in.
+Many of these adaptations don't conform to the original vision and architecture of the system, and will be forced in.
 Each forced feature degrades the structure and integrity of the system, and makes additional features even harder to force in.
 This degradation is commonly called *technical debt.*
-It’s debt because you are accumulating costs that must be borne by future programmers.
+It's debt because you are accumulating costs that must be borne by future programmers.
 The idea is that you will one day stop adding new features, and pay down the accumulated debt by rewriting the system without adding new features (this is called *refactoring*).
 
 Often the debt never gets paid down.
 The system eventually becomes un-maintainable.
 It is difficult or even impossible to add new functionality.
 
-Bruce’s father was a builder and, when people wanted to remodel their house, they would often desire enough changes that it was cheaper and more sensible to tear the house down and start over.
+Bruce's father was a builder and, when people wanted to remodel their house, they would often desire enough changes that it was cheaper and more sensible to tear the house down and start over.
 This point was reached far sooner than the owners imagined.
 
 For the past generation of languages, it made sense to focus on rapid development.
@@ -22,10 +22,10 @@ That was the most pressing problem.
 Although rapid development will always be important, we have reached a new era where *modification of existing systems* is paramount.
 
 It is expensive and impractical to rewrite a system that is overwhelmed with debt.
-The costs are numerous, especially because the business probably can’t run without the software:
+The costs are numerous, especially because the business probably can't run without the software:
 - You need programmers to maintain the existing software while the new system is developed. 
   This means continuing to force in new features as it gets harder and harder.
-  At the end, the software you’ve been working on is discarded and you might become redundant.
+  At the end, the software you've been working on is discarded and you might become redundant.
   None of this makes for a desirable job. 
 - You need an additional team to create the new system.
 - You have no certainty that the new project will succeed, or when.
@@ -39,7 +39,7 @@ When building a system from pieces, the parts will not become buried within the 
 They will still be accessible, and changeable.
 The entire system becomes far more adaptable.
 
-It’s hard to imagine what this means, and it does require a new way of thinking about programming.
+It's hard to imagine what this means, and it does require a new way of thinking about programming.
 The goal of this book is to introduce you to that new way of thinking.
 ## The Pursuit of Adaptability
 
@@ -78,7 +78,7 @@ This book introduces *Effect Systems*, which allow you to do the same thing for 
 
 ## What's Stopping Us?
 
-We don't have the home-building system’s channel.
+We don't have the home-building system's channel.
 It's hard to imagine what that channel would look like, or how it behaves.
 To get there we must examine some basic issues.
 A dominant issue is *predictability*.
@@ -94,7 +94,7 @@ def fp(a: Int, b: Int): Int =
 - `fp(a, b)` always produces an `Int` result.
 - It never fails.
 - The same inputs always produce the same outputs.
-- It’s so consistent that instead of calling the function you could just look up results in a table (it can be *cached*).
+- It's so consistent that instead of calling the function you could just look up results in a table (it can be *cached*).
 
 A predictable function has a special name: *pure*.
 
@@ -146,16 +146,16 @@ Deferred execution is part of the solution for easily attaching functionality to
 
 Consider the module that gets data from a server, processes it, then displays it.
 That code is executed all at once.
-If the server we’re trying to connect to is flaky and we’d like to add a retry, we don’t have direct access to the server call, which is hidden behind a wall of code.
+If the server we're trying to connect to is flaky and we'd like to add a retry, we don't have direct access to the server call, which is hidden behind a wall of code.
 
-Now let’s treat the call to the server as an Effect.
+Now let's treat the call to the server as an Effect.
 We manage it by putting a box around the server Effect like we did with `ControlledRandom`.
 Because the execution of that Effect is now deferred, we have the option of attaching the retry (or another strategy such as a timeout) directly to that Effect, when it is executed.
-Deferred execution adds a “cut point” where we can insert functionality on any Effect. 
+Deferred execution adds a "cut point" where we can insert functionality on any Effect. 
 Effects are the unpredictable points in a program, and thus comprise most of the places where we are likely to want to insert such functionality.
 
 This still sounds complicated.
-It’s hard to imagine how to write this kind of code.
+It's hard to imagine how to write this kind of code.
 Fortunately, *Effect Systems* provide the structure for you.
 An Effect System enables us to add almost any functionality to a program.
 
@@ -204,18 +204,18 @@ These can have domain-specific forms:
 
 ### Side Effects
 
-You’ve probably heard about *Side Effects.*
+You've probably heard about *Side Effects.*
 A Side Effect happens when you call a function and something changes in your program or in the environment.
-So you don’t just get a result from your function call, you change your surroundings—and this might also affect your function the next time you call it, or even the behavior of the rest of the program.
+So you don't just get a result from your function call, you change your surroundings—and this might also affect your function the next time you call it, or even the behavior of the rest of the program.
 Basically, if you have to read the documentation to figure out what happens when you call the function, it's a Side Effect.
 
-We hope you are thinking, “Isn’t that what we’ve been talking about? Isn’t that just an Effect?”
+We hope you are thinking, "Isn't that what we've been talking about? Isn't that just an Effect?"
 
-The difference between a Side Effect and an Effect is that a side effect “just happens,” while an Effect is something that can be managed. 
+The difference between a Side Effect and an Effect is that a side effect "just happens," while an Effect is something that can be managed. 
 For example, suppose you write to the console using the standard console library provided by your language.
-That library was not designed for Effect Systems, so we don’t have any way to put a box around it and control it like we do with Effects.
-When you write to the console, the surroundings change (output appears on the console) and there’s nothing we can do about it.
-That’s a Side Effect.
+That library was not designed for Effect Systems, so we don't have any way to put a box around it and control it like we do with Effects.
+When you write to the console, the surroundings change (output appears on the console) and there's nothing we can do about it.
+That's a Side Effect.
 
 For this reason, we must use special libraries from the Effect System when performing some kinds of Effects such as console I/O.
 Those libraries are written to keep track of and manage the Effects.
@@ -253,9 +253,9 @@ By moving failure information into the type system, the type checker ensures tha
 Because failure is unpredictable, it is another kind of Effect.
 An Effect System also manages failure. 
 
-A function typically returns the anticipated “answer,” even though you know that might not happen—there could be failures. 
+A function typically returns the anticipated "answer," even though you know that might not happen—there could be failures. 
 An Effect System creates a structure as the return type from a function.
-This structure contains the expected “answer,” but it also contains failure information.
+This structure contains the expected "answer," but it also contains failure information.
 Every possible failure type is enumerated in this return structure.
 Like everything else, the return structure has a type—and this incorporates all the failure types.
 Failures are now part of the type system.

@@ -145,7 +145,7 @@ val effect0 =
     userName
 ```
 
-Instead of parentheses to delimit function arguments, we use Scala’s newer “colon plus indent” (*significant indentation*) syntax.
+Instead of parentheses to delimit function arguments, we use Scala's newer "colon plus indent" (*significant indentation*) syntax.
 Here, `saveUser` is the function and `userName` is the single argument to that function.
 
 `effect0` is a value containing the code that produces the Effect.
@@ -169,7 +169,7 @@ object MyApp extends ZIOAppDefault:
 The overridden value of `run` must be an Effect.
 `run` is special and passes the Effect to `MyApp`, which runs it.
 
-For noise reduction we’ve been able to shorten this to:
+For noise reduction we've been able to shorten this to:
 
 ```scala 3 mdoc:runzio
 def run =
@@ -191,7 +191,7 @@ def run =
   effect0
 ```
 
-Don’t assume the happy path, or you will end up with unhandled failure paths lurking in your code.
+Don't assume the happy path, or you will end up with unhandled failure paths lurking in your code.
 
 We can override the `bootstrap` value to simulate failure:
 
@@ -350,7 +350,7 @@ def run =
   effect5
 ```
 
-We can add numerous behaviors to an Effect regardless of that Effect’s failure and success types.
+We can add numerous behaviors to an Effect regardless of that Effect's failure and success types.
 
 ## Timing
 
@@ -531,9 +531,9 @@ val programManipulatingBeforeRun =
     effect8.run.repeatN(3)
 ```
 
-Running an Effect produces its result, not the deferred computation. Thus there’s no appropriate place to attach `repeatN(3)`.
+Running an Effect produces its result, not the deferred computation. Thus there's no appropriate place to attach `repeatN(3)`.
 
-All calls to `.run` must happen within a `defer` block, so when `effect8` is defined, we haven’t executed anything—we’ve only used `defer` to create a new Effect.
+All calls to `.run` must happen within a `defer` block, so when `effect8` is defined, we haven't executed anything—we've only used `defer` to create a new Effect.
 A `defer` block creates a new Effect that contains a program to execute the individual Effects, in order.
 This combined Effect only runs when the program is executed.
 

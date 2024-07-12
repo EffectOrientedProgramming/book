@@ -415,12 +415,11 @@ def openFile(path: String) =
             "Disk is full!"
           )
         )
-      else {
+      else
         println("File - write: " + entry)
         contents =
           entry :: contents
         Try(entry)
-      }
 ```
 
 We have an existing function that produces an `AutoCloseable`.

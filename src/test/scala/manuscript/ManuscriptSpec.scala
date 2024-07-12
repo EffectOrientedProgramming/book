@@ -54,6 +54,29 @@ object ManuscriptSpec extends ZIOSpecDefault{
               )
             )
           )
+      },
+      test("no round quotes") {
+        // TODO this test could be better for error reporting
+        val roundQuotes = Set("’", "‘", "“", "”")
+        defer:
+          assertTrue(
+            ! chapters.exists(path =>
+              os.read.lines(path).exists(line =>
+                roundQuotes.exists(line.contains)
+              )
+            )
+          )
+      },
+      test("no forbidden words") {
+        val forbiddenWords = Set("monad").map(_.toLowerCase)
+        defer:
+          assertTrue(
+            !chapters.exists(path =>
+              os.read.lines(path).exists(line =>
+                forbiddenWords.exists(line.toLowerCase.contains)
+              )
+            )
+          )
       }
     )
 

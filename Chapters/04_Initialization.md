@@ -13,7 +13,7 @@ Breaking things into parts and expressing what they need is commonly called *Dep
 Dependency Inversion enables *Dependency Injection* which produces more flexible code.
 Instead of manually constructing and passing all dependencies through the application, an "Injector" automatically provides instances of those dependencies when they are needed.
 
-Common approaches to implement Dependency Injection rely on runtime inspection (typically using reflection) and require everything to be created through a Dependency Injection manager (the “Injector”).
+Common approaches to implement Dependency Injection rely on runtime inspection (typically using reflection) and require everything to be created through a Dependency Injection manager (the "Injector").
 This complicates construction and can make it difficult or impossible to express dependencies at compile time.
 
 If we instead express dependencies through the type system, the compiler can verify that the needed parts are available given a particular path of execution.
@@ -29,10 +29,11 @@ Each component automatically finds its dependencies, and makes itself available 
 Dependency cycles are not allowed by ZIO—you cannot build a program where `A` depends on `B`, and `B` depends on `A`.
 You are alerted at compile time about illegal cycles.
 
-ZIO’s dependency management provides capabilities that are not possible in other approaches.
-For example, you can share a single instance of a dependency across multiple test classes, or even multiple applications.
-```
-// TODO: Should we demonstrate this?
+ZIO's dependency management provides capabilities that are not possible in other approaches.
+For example, you can share a single instance of a dependency across multiple test classes, or even multiple applications. See more details in the [ZIO docs](https://effectorientedprogramming.com/resources/sharing-layers-between-multiple-files/).
+
+```ignorelang
+TODO add webpage that points to the ZIO docs: https://zio.dev/reference/test/sharing-layers-between-multiple-files/
 ```
 
 ## Let Them Eat Bread
