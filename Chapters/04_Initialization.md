@@ -527,7 +527,7 @@ object OvenSafe:
   val heated =
     ZLayer.fromZIO:
       ZIO
-        .succeed(HeatSource())
+        .succeed(OvenSafe())
         .tap:
           _ =>
             printLine:
@@ -626,7 +626,7 @@ If we keep asking, we eventually get `Bread`.
 
 ### Fallback Dependencies
 
-If our `Friend` doesn't have `Bread` to give us, we can set up a fallback strategy:
+If our `Friend` does not have `Bread` to give us, we can set up a fallback strategy:
 
 ```scala 3 mdoc:runzio
 import zio.*
