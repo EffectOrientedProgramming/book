@@ -57,14 +57,19 @@ def use(t: Tool, m: Material) =
 val tools = List(Nailer.hand, Nailer.power, Screwer.hand, Screwer.power, Drill.hand, Drill.power)
 val materials = List(wood, metal, plastic)
 
-val combinations = for {
-  tool <- tools
-  material <- materials
-} yield (tool, material)
+//val combinations = for {
+//  tool <- tools
+//  material <- materials
+//} yield (tool, material)
+
+// invisible
+def allCombinations[A, B](list1: List[A], list2: List[B]): List[(A, B)] =
+  list1.flatMap(elem1 => list2.map(elem2 => (elem1, elem2)))
+//
 
 object materialWithTool extends ZIOAppDefault:
   def run =
-    ZIO.foreach(combinations):
+    ZIO.foreach(allCombinations(tools, materials)):
       case (tool, material) =>
         defer:
           val tool = ZIO.service[Tool].run
