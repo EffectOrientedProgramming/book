@@ -18,14 +18,14 @@ object Nailer:
   val hand = ZLayer.succeed(Hammer())
   val power = ZLayer.succeed(NailGun())
 
-trait Screwer extends Tool:
-  override val action = "screwing"
-case class Screwdriver() extends Screwer
-case class PowerScrewer() extends Screwer
+trait Saw extends Tool:
+  override val action = "sawing"
+case class HandSaw() extends Saw
+case class PowerSaw() extends Saw
 
-object Screwer:
-  val hand = ZLayer.succeed(Screwdriver())
-  val power = ZLayer.succeed(PowerScrewer())
+object Saw:
+  val hand = ZLayer.succeed(HandSaw())
+  val power = ZLayer.succeed(PowerSaw())
 
 trait Drill extends Tool:
   override val action = "drilling"
@@ -39,7 +39,7 @@ object Drill:
 object testTools extends ZIOAppDefault:
   def run =
     defer:
-      List(Hammer(), NailGun(), Screwdriver(), PowerScrewer(), HandDrill(), PowerDrill())
+      List(Hammer(), NailGun(), HandSaw(), PowerSaw(), HandDrill(), PowerDrill())
         .foreach(_.act.run)
 
 trait Material
@@ -54,8 +54,8 @@ val plastic = ZLayer.succeed(Plastic())
 def use(t: Tool, m: Material) =
   printLine(s"Using $t on $m")
 
-val tools = List(Nailer.hand, Nailer.power, Screwer.hand, Screwer.power, Drill.hand, Drill.power)
-val materials = List(wood, metal, plastic)
+val tools = List(Saw.hand, Saw.power, Nailer.hand, Nailer.power/*, Drill.hand, Drill.power */)
+val materials = List(wood, metal /*, plastic */)
 
 //val combinations = for {
 //  tool <- tools
@@ -70,6 +70,29 @@ def allCombinations[A, B](list1: List[A], list2: List[B]): List[(A, B)] =
 object materialWithTool extends ZIOAppDefault:
   def run =
     ZIO.foreach(allCombinations(tools, materials)):
+      case (tool, material) =>
+        defer:
+          val tool = ZIO.service[Tool].run
+          val material = ZIO.service[Material].run
+          use(tool, material).run
+        .provide(tool, material)
+
+import zio.test.*
+
+val handTools = List(Saw.hand, Nailer.hand)
+val powerTools = List(Saw.power, Nailer.power)
+
+def spec =
+  zio.test.test("hand"):
+    ZIO.foreach(allCombinations(handTools, materials)):
+      case (tool, material) =>
+        defer:
+          val tool = ZIO.service[Tool].run
+          val material = ZIO.service[Material].run
+          use(tool, material).run
+        .provide(tool, material)
+  zio.test.test("power"):
+    ZIO.foreach(allCombinations(handTools, materials)):
       case (tool, material) =>
         defer:
           val tool = ZIO.service[Tool].run
