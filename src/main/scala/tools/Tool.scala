@@ -108,6 +108,6 @@ object TestTools extends ZIOSpecDefault:
                 use(tool, material).run
               .provide(tool, material)
           .run
-          assertCompletes
+          assertNever("power test failed")
       },
     )
