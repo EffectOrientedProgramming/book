@@ -1,9 +1,14 @@
-## Test Dependencies
+# Testing
 
+Testing requires predictability.
 Effects that use external systems are unpredictable.
-However, we want to be able to test our programs in a predictable way.
-How do we write tests for Effects that are predictable?
-We can replace the external systems with predictable ones when running tests.
+How do we write predictable tests for Effects?
+When testing, we replace external systems with predictable ones.
+We can do this because Effects are isolated and accessible, and because they delay execution.
+
+To easily replace external systems during testing, we provide that external system via `ZLayer` (covered in the [Initialization](04_Initialization.md) chapter).
+The `provide` method contains different `ZLayer` resources depending on whether we're testing, debugging, running normally, etc. 
+
 Rather than trying to get `Bread` from a fallible human, we can create an `IdealFriend` that will always give us `Bread`.
 
 ```scala 3 mdoc:invisible
@@ -31,7 +36,7 @@ We take another brief detour into `zio-test`, to provide just enough context to 
 ```
 
 In `zio-test`, we build tests that are Effects that return an `Assertion`.
-We will do this incrementally, starting with some logic.
+We will do this incrementally, starting with some test logic:
 
 ```scala 3 mdoc:silent testzio
 import zio.*
@@ -39,12 +44,12 @@ import zio.direct.*
 
 import zio.test.assertTrue
 
-val logic =
+val testLogic =
   defer:
     assertTrue(1 == 1)
 ```
 
-Next, we turn it into a test case by giving it a name via the `test` function.
+We turn it into a test case by giving it a name via the `test` function:
 
 ```scala 3 mdoc:silent testzio
 import zio.*
@@ -54,10 +59,10 @@ import zio.test.test
 
 val testCase =
   test("eat Bread"):
-    logic
+    testLogic
 ```
 
-Finally, we assign it to the `spec` field of a test class.
+To execute the test, we assign it to the `spec` field of a test class.
 In real test code, you would be using `ZIOSpecDefault`, or one of the other `ZIOSpec*` variants. We use our custom test runner here for brevity.
 
 ```scala 3 mdoc:testzio
