@@ -65,7 +65,7 @@ val combinations = for {
 object materialWithTool extends ZIOAppDefault:
   def run =
     ZIO.foreach(combinations):
-      case (tool, material):
+      case (tool, material) =>
         defer:
           val tool = ZIO.service[Tool].run
           val material = ZIO.service[Material].run
