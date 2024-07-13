@@ -614,7 +614,7 @@ def run =
     val numPrevented = Ref.make[Int](0).run
 
     val protectedCall =
-      // TODO Note/explain `catchSome`
+// TODO Note/explain `catchSome`
       cb(externalSystem(numCalls)).catchAll:
         case CircuitBreakerOpen =>
           numPrevented.update(_ + 1)
@@ -677,9 +677,7 @@ case class LogicHolder(
 import zio.*
 import zio.direct.*
 
-// TODO LogicHolder is the only I could think
-//  of to let us pass in the original and
-//  hedged logic without re-writing everything
+// TODO LogicHolder is the only approach I could think of to let us pass in the original and  hedged logic without re-writing everything
 //  around it. Worthwhile, or just a
 //  complicated distraction? Consider using bootstrap
 def businessLogic(logicHolder: LogicHolder) =

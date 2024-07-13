@@ -5,12 +5,18 @@ import zio.ZIO.*
 import zio.Console.*
 import zio.direct.*
 
+trait Foo:
+  val s: String = "Hodor"
+
+class Bar extends Foo:
+  override val s = "Hold the door"
+
 trait Tool:
   val action: String
   val act = printLine(s"$this $action")
 
 trait Nailer extends Tool:
-  override val action = "nailing"
+  val action = "nailing"
 case class Hammer() extends Nailer
 case class NailGun() extends Nailer
 
@@ -19,7 +25,7 @@ object Nailer:
   val power = ZLayer.succeed(NailGun())
 
 trait Saw extends Tool:
-  override val action = "sawing"
+  val action = "sawing"
 case class HandSaw() extends Saw
 case class PowerSaw() extends Saw
 
@@ -28,7 +34,7 @@ object Saw:
   val power = ZLayer.succeed(PowerSaw())
 
 trait Drill extends Tool:
-  override val action = "drilling"
+  val action = "drilling"
 case class HandDrill() extends Drill
 case class PowerDrill() extends Drill
 
@@ -36,7 +42,7 @@ object Drill:
   val hand = ZLayer.succeed(HandDrill())
   val power = ZLayer.succeed(PowerDrill())
 
-object testTools extends ZIOAppDefault:
+object AllTools extends ZIOAppDefault:
   def run =
     defer:
       List(Hammer(), NailGun(), HandSaw(), PowerSaw(), HandDrill(), PowerDrill())
@@ -57,17 +63,12 @@ def use(t: Tool, m: Material) =
 val tools = List(Saw.hand, Saw.power, Nailer.hand, Nailer.power/*, Drill.hand, Drill.power */)
 val materials = List(wood, metal /*, plastic */)
 
-//val combinations = for {
-//  tool <- tools
-//  material <- materials
-//} yield (tool, material)
-
 // invisible
 def allCombinations[A, B](list1: List[A], list2: List[B]): List[(A, B)] =
   list1.flatMap(elem1 => list2.map(elem2 => (elem1, elem2)))
 //
 
-object materialWithTool extends ZIOAppDefault:
+object MaterialWithTool extends ZIOAppDefault:
   def run =
     ZIO.foreach(allCombinations(tools, materials)):
       case (tool, material) =>

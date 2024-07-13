@@ -32,7 +32,7 @@ You are alerted at compile time about illegal cycles.
 ZIO's dependency management provides capabilities that are not possible in other approaches.
 For example, you can share a single instance of a dependency across multiple test classes, or even multiple applications. See more details in the [ZIO docs](https://effectorientedprogramming.com/resources/zio/sharing-layers-between-multiple-files).
 ```
-TODO: Add link checker to Github actions or `sbt test`?
+// TODO: Add link checker to Github actions or `sbt test`?
 ```
 
 ## Let Them Eat Bread

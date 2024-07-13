@@ -30,10 +30,10 @@ object IdealFriend:
       BreadFromFriend()
 ```
 
+```
+// TODO: What follows is the first mention. Was it to be introduced earlier? Also seems like it should be zio.test not zio-test
+```
 We take another brief detour into `zio-test`, to provide just enough context to understand the tests.
-```
-// TODO: This is the first mention. Was it to be introduced earlier? Also seems like it should be zio.test not zio-test
-```
 
 In `zio-test`, we build tests that are Effects that return an `Assertion`.
 We will do this incrementally, starting with some test logic:
