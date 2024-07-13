@@ -6,7 +6,7 @@ How do we write predictable tests for Effects?
 When testing, we replace external systems with predictable ones.
 We can do this because Effects are isolated and accessible, and because they delay execution.
 
-To easily replace external systems during testing, we provide that external system via `ZLayer` (covered in the [Initialization](04_Initialization.md) chapter).
+To easily replace external systems during testing, we provide that external system via a `ZLayer` (covered in the [Initialization](04_Initialization.md) chapter).
 The `provide` method contains different `ZLayer` resources depending on whether we're testing, debugging, running normally, etc. 
 
 Rather than trying to get `Bread` from a fallible human, we can create an `IdealFriend` that will always give us `Bread`.
