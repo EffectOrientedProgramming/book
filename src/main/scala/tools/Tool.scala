@@ -82,24 +82,32 @@ import zio.test.*
 val handTools = List(Saw.hand, Nailer.hand)
 val powerTools = List(Saw.power, Nailer.power)
 
-def spec =
-  suite("Tools")(
-    zio.test.test("hand") {
-      ZIO.foreach(allCombinations(handTools, materials)):
-        case (tool, material) =>
-          defer:
-            val tool = ZIO.service[Tool].run
-            val material = ZIO.service[Material].run
-            use(tool, material).run
-          .provide(tool, material)
-    },
-    zio.test.test("power") {
-      ZIO.foreach(allCombinations(handTools, materials)):
-        case (tool, material) =>
-          defer:
-            val tool = ZIO.service[Tool].run
-            val material = ZIO.service[Material].run
-            use(tool, material).run
-          .provide(tool, material)
-    },
-  )
+
+object TestTools extends ZIOSpecDefault:
+  def spec =
+    suite("Tools")(
+      zio.test.test("hand") {
+        defer:
+          ZIO.foreach(allCombinations(handTools, materials)):
+            case (tool, material) =>
+              defer:
+                val tool = ZIO.service[Tool].run
+                val material = ZIO.service[Material].run
+                use(tool, material).run
+              .provide(tool, material)
+          .run
+          assertCompletes
+      },
+      zio.test.test("power") {
+        defer:
+          ZIO.foreach(allCombinations(powerTools, materials)):
+            case (tool, material) =>
+              defer:
+                val tool = ZIO.service[Tool].run
+                val material = ZIO.service[Material].run
+                use(tool, material).run
+              .provide(tool, material)
+          .run
+          assertCompletes
+      },
+    )
