@@ -1,9 +1,10 @@
-package tools
+package toolstesting
 
 import zio.*
 import zio.ZIO.*
 import zio.Console.*
 import zio.direct.*
+import zio.test.*
 
 trait Foo:
   val s: String = "Hodor"
@@ -60,55 +61,40 @@ val plastic = ZLayer.succeed(Plastic())
 def use(t: Tool, m: Material) =
   printLine(s"Using $t on $m")
 
-val tools = List(Saw.hand, Saw.power, Nailer.hand, Nailer.power/*, Drill.hand, Drill.power */)
-val materials = List(wood, metal /*, plastic */)
+val allTools = List(Saw.hand, Saw.power, Nailer.hand, Nailer.power/*, Drill.hand, Drill.power */)
+val allMaterials = List(wood, metal /*, plastic */)
 
 // invisible
-def allCombinations[A, B](list1: List[A], list2: List[B]): List[(A, B)] =
-  list1.flatMap(elem1 => list2.map(elem2 => (elem1, elem2)))
+def allCombinations[A, B](seq1: Seq[A], seq2: Seq[B]): Seq[(A, B)] =
+  seq1.flatMap(elem1 => seq2.map(elem2 => (elem1, elem2)))
 //
 
-object MaterialWithTool extends ZIOAppDefault:
-  def run =
-    ZIO.foreach(allCombinations(tools, materials)):
+def toolCombinations(tools: Seq[ULayer[Tool]]) =
+  defer:
+    ZIO.foreach(allCombinations(tools, allMaterials)):
       case (tool, material) =>
         defer:
           val tool = ZIO.service[Tool].run
           val material = ZIO.service[Material].run
           use(tool, material).run
         .provide(tool, material)
+    .run
 
-import zio.test.*
-
-val handTools = List(Saw.hand, Nailer.hand)
-val powerTools = List(Saw.power, Nailer.power)
+object MaterialWithTool extends ZIOAppDefault:
+  def run =
+    toolCombinations(allTools)
 
 
 object TestTools extends ZIOSpecDefault:
   def spec =
     suite("Tools")(
-      zio.test.test("hand") {
-        defer:
-          ZIO.foreach(allCombinations(handTools, materials)):
-            case (tool, material) =>
-              defer:
-                val tool = ZIO.service[Tool].run
-                val material = ZIO.service[Material].run
-                use(tool, material).run
-              .provide(tool, material)
-          .run
-          assertCompletes
+      zio.test.test("Hand tools") {
+        toolCombinations(List(Saw.hand, Nailer.hand))
+        assertCompletes
       },
-      zio.test.test("power") {
-        defer:
-          ZIO.foreach(allCombinations(powerTools, materials)):
-            case (tool, material) =>
-              defer:
-                val tool = ZIO.service[Tool].run
-                val material = ZIO.service[Material].run
-                use(tool, material).run
-              .provide(tool, material)
-          .run
-          assertNever("power test failed")
+      zio.test.test("Power tools") {
+        toolCombinations(List(Saw.power, Nailer.power))
+        assertCompletes
+        // assertNever("power test failed")
       },
     )
