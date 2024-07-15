@@ -16,10 +16,9 @@ New languages that incorporate Effect Systems include OCaml, Unison, and Roc.
 
 We focus on the concepts of Effect Systems, rather than language and library specifics.
 Since Effect Systems are a new and emerging paradigm, we have limited choices.
-In this book, we use Scala 3, which has several Effect System libraries including Cats Effects and Kyo.
+In this book, we use Scala 3, which has several Effect System libraries including ZIO, Cats Effects, and Kyo.
 These libraries (and others) have all contributed to the understanding of Effect Systems and how they are used.
-We chose the ZIO library for this book because of both our satsifaction with it, and our experience---one 
-  author (Bill) was an engineer at Ziverge, the company that created and maintains ZIO, for several years.
+We chose the ZIO library for this book because of both our satisfaction with it, and our experience --- one author (Bill) was an engineer at Ziverge, the company that created and maintains ZIO, for several years.
 
 If you are using a different language, the concepts of Effect Systems may only be useful when your language or a library supports them.
 However, learning the concepts will help prepare you.
@@ -29,6 +28,11 @@ While Scala knowledge is not required to learn the concepts, this book assumes y
 - Functions
 - Strong static typing
 - Chaining operations on objects (`"asdf ".trim.length`)
+
+You should not need experience or understanding of ZIO to understand the code in this book.
+For this book, ZIO is just a means to an end (understanding of how to program with Effects).
+This is not a book about ZIO.
+If you want to learn more about ZIO, [check out their docs](https://effectorientedprogramming.com/resources/zio/docs).
 
 ## Code examples
 
@@ -65,6 +69,7 @@ The book's build system ensures that all the examples are correct (or if they ar
 In order to keep the book examples easy to understand, they are supported by invisible code which does not appear in the book but is automatically extracted into the [Examples](https://effectorientedprogramming.com/#examples) repository.
 When you clone this repository and run the examples yourself, the invisible code is necessary to run them.
 However, you do not need to study or understand the invisible code in order to learn from this book.
+
 ## Acknowledgements
 
 Kit Langton, for being a kindred spirit in software interests and an inspiring contributor to the open source world.
