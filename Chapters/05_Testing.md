@@ -120,9 +120,8 @@ def spec =
           bread => bread.eat
         .run
       val output = TestConsole.output.run
-      assertTrue(
+      assertTrue:
         output.contains("Bread: Eating\n")
-      )
   .provide:
     IdealFriend.bread
 ```
