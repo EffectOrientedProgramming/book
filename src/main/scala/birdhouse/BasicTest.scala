@@ -1,11 +1,11 @@
 package birdhouse
+
 import zio.test.*
 
 object Basic extends ZIOSpecDefault:
   def spec =
     test("basic"):
       assertTrue(1 == 1)
-
 
 object Basic2 extends ZIOSpecDefault:
   def spec =
@@ -17,7 +17,7 @@ object Basic3 extends ZIOSpecDefault:
   def spec =
     test("basic3"):
       // Multiple boolean expressions:
-      assertTrue(true, true, true)
+      assertTrue(1 == 1, 2 == 2, 3 == 3)
 
 import zio.Console.*
 
@@ -50,7 +50,8 @@ object Basic6 extends ZIOSpecDefault:
   def spec =
     suite("Creating Suites of Tests")(
       test("basic5 in suite"):
-        basic5,
+        basic5
+      ,
       test("basic6 in suite"):
         basic6,
     )

@@ -39,48 +39,80 @@ def spec =
     assertTrue(1 == 1)
 ```
 
-
-
-
-
-```scala 3 mdoc:silent testzio
-import zio.*
-import zio.direct.*
-
-import zio.test.assertTrue
-
-val testLogic =
-  defer:
-    assertTrue(1 == 1)
-```
-
-We turn it into a test case by giving it a name via the `test` function:
-
-```scala 3 mdoc:silent testzio
-import zio.*
-import zio.direct.*
-
-import zio.test.test
-
-val testCase =
-  test("eat Bread"):
-    testLogic
-```
-
-To execute the test, we assign it to the `spec` field of a test class.
-In real test code, you would be using `ZIOSpecDefault`, or one of the other `ZIOSpec*` variants. We use our custom test runner here for brevity.
+Assertions that *do not* appear at the end of the test are ignored:
 
 ```scala 3 mdoc:testzio
 import zio.*
 import zio.direct.*
 
 def spec =
-  testCase
+  test("basic2"):
+    assertTrue(1 != 1) // Ignored
+    assertTrue(1 == 1)
 ```
 
-Historically, when call we call `println`, its output disappears into the void.
-ZIO Test provides us a `TestConsole`, which captures all the output produced during a test.
-This allows us to make assertions on something that is typically a black hole in our code.
+You can, however, put multiple Boolean evaluations within a single `assertTrue` by separating them with commas:
+
+```scala 3 mdoc:testzio
+import zio.*
+import zio.direct.*
+
+def spec =
+  test("basic3"):
+    // Multiple boolean expressions:
+    assertTrue(1 == 1, 2 == 2, 3 == 3)
+```
+
+A test can be an Effect as long as the final expression is an assertion.
+The Effect is automatically run by the test framework:
+
+```scala 3 mdoc:testzio
+import zio.*
+import zio.direct.*
+
+def spec =
+  test("basic4"):
+    defer:
+      printLine("testing basic4").run
+      assertCompletes
+```
+
+The `defer` produces an Effect that runs the `printLine` and returns `assertCompletes`.
+
+`assertCompletes` is another useful assertion that indicates that everything ran successfully, but without any explicit Boolean test.
+
+We can assign the Effect to a `val` and use that as the test:
+
+```scala 3 mdoc:testzio
+val basic5 =
+  defer:
+    printLine("testing basic5").run
+    assertCompletes
+
+def spec =
+  test("basic5"):
+    basic5
+```
+
+We create *suites* of tests that all run together:
+
+```scala 3 mdoc:testzio
+val basic6 =
+  defer:
+    printLine("testing basic6").run
+    assertTrue(1 == 1)
+
+def spec =
+  suite("Creating a Suite of Tests")(
+    test("basic5 in suite"):
+      basic5
+    ,
+    test("basic6 in suite"):
+      basic6,
+  )
+```
+
+Note that these tests run in parallel so the output does not appear in the order the tests are listed.
 
 ## Testing Bread
 
