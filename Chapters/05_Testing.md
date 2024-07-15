@@ -12,11 +12,9 @@ The `provide` method contains different `ZLayer` resources depending on whether 
 ## Basic ZIO Testing
 
 A test is something that returns an `Assertion`.
-The ZIO test framework includes a `String` test name which it displays in the test report.
+To create a test, import `zio.test.*` and create an `object` that extends `ZIOSpecDefault` with a `spec` function:
 
-To create a test, import `zio.test.*` and create an `object` that extends `ZIOSpecDefault` and has a `spec` function:
-
-```scala 3 mdoc
+```scala 3 mdoc:testzio
 import zio.test.*
 
 object Basic extends ZIOSpecDefault:
@@ -24,6 +22,7 @@ object Basic extends ZIOSpecDefault:
     test("basic"):
       assertTrue(1 == 1)
 ```
+The `String` argument to `test` is displayed in the test report.
 
 Note that the final expression is the assertion `assertTrue`.
 Because of its power and flexibility, you'll probably use `assertTrue` most of the time.
@@ -31,7 +30,7 @@ However, there are numerous other assertions in the [test library](https://effec
 
 For this book we've created an abbreviation, so our examples will instead look like this:
 
-```scala 3 mdoc:silent testzio
+```scala 3 mdoc:testzio
 import zio.*
 import zio.direct.*
 
@@ -40,7 +39,6 @@ def spec =
     assertTrue(1 == 1)
 ```
 
-// Checking that abbreviation example works
 
 
 
