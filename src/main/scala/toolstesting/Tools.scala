@@ -84,15 +84,14 @@ object MaterialWithTool extends ZIOAppDefault:
   def run =
     toolCombinations(allTools)
 
-
 object TestTools extends ZIOSpecDefault:
   def spec =
     suite("Tools")(
-      zio.test.test("Hand tools") {
+      test("Hand tools") {
         toolCombinations(List(Saw.hand, Nailer.hand))
         assertCompletes
       },
-      zio.test.test("Power tools") {
+      test("Power tools") {
         toolCombinations(List(Saw.power, Nailer.power))
         assertCompletes
         // assertNever("power test failed")

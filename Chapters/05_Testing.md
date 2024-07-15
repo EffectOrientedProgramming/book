@@ -9,33 +9,9 @@ We can do this because Effects are isolated and accessible, and because they del
 To easily replace external systems during testing, we provide that external system via a `ZLayer` (covered in the [Initialization](04_Initialization.md) chapter).
 The `provide` method contains different `ZLayer` resources depending on whether we're testing, debugging, running normally, etc. 
 
-Rather than trying to get `Bread` from a fallible human, we can create an `IdealFriend` that will always give us `Bread`.
+## Basic ZIO Testing
 
-```scala 3 mdoc:invisible
-import zio.*
-import zio.direct.*
-import zio.Console.*
-
-trait Bread:
-  def eat =
-    printLine("Bread: Eating")
-
-case class BreadFromFriend() extends Bread
-```
-
-```scala 3 mdoc
-object IdealFriend:
-  val bread =
-    ZLayer.succeed:
-      BreadFromFriend()
-```
-
-```
-// TODO: What follows is the first mention. Was it to be introduced earlier? Also seems like it should be zio.test not zio-test
-```
-We take another brief detour into `zio-test`, to provide just enough context to understand the tests.
-
-In `zio-test`, we build tests that are Effects that return an `Assertion`.
+In the ZIO Test library, tests are Effects that return an `Assertion`.
 We will do this incrementally, starting with some test logic:
 
 ```scala 3 mdoc:silent testzio
@@ -74,8 +50,30 @@ def spec =
 ```
 
 Historically, when call we call `println`, its output disappears into the void.
-`zio-test` provides us a `TestConsole`, which captures all the output produced during a test.
+ZIO Test provides us a `TestConsole`, which captures all the output produced during a test.
 This allows us to make assertions on something that is typically a black hole in our code.
+
+## Testing Bread
+
+```scala 3 mdoc:invisible
+import zio.*
+import zio.direct.*
+import zio.Console.*
+
+trait Bread:
+  def eat =
+    printLine("Bread: Eating")
+
+case class BreadFromFriend() extends Bread
+```
+Rather than trying to get `Bread` from a fallible human, we can create an `IdealFriend` that will always give us `Bread`.
+
+```scala 3 mdoc
+object IdealFriend:
+  val bread =
+    ZLayer.succeed:
+      BreadFromFriend()
+```
 
 Armed with these tools, we can now return to the kitchen to test our `Bread` eating with our ideal friend.
 
