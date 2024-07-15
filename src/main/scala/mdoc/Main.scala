@@ -291,8 +291,6 @@ def partsToExamples(
     if mainParts.isEmpty then
       ""
     else
-      // todo: sandbox so otherParts across
-      // chapters do not conflict
       mainParts
         .map:
           case rcf: RunnableCodeFence =>
@@ -319,6 +317,7 @@ def partsToExamples(
          |
          |import zio.*
          |import zio.direct.*
+         |import zio.Console.*
          |
          |""".stripMargin,
           "\n\n",
@@ -354,6 +353,7 @@ def partsToExamples(
              |
              |import zio.*
              |import zio.direct.*
+             |import zio.Console.*
              |import zio.test.*
              |
              |""".stripMargin,
@@ -454,6 +454,8 @@ def processFile(
       .replace("import zio.*\n", "")
       .replace("import zio.direct.*\n\n", "")
       .replace("import zio.direct.*\n", "")
+      .replace("import zio.Console.*\n\n", "")
+      .replace("import zio.Console.*\n", "")
 
   val sourceInput =
     Input.String(source)

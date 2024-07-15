@@ -51,6 +51,7 @@ scalacOptions +=
     "scala.Predef",
     "zio",
     "zio.direct",
+    "zio.Console",
   ).mkString(
     start =
       "-Yimports:",
