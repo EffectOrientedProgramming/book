@@ -30,6 +30,9 @@ object Basic4 extends ZIOSpecDefault:
         printLine("testing basic4").run
         assertCompletes
 
+object Sanity extends ZIOAppDefault:
+  def run = printLine("Sanity")
+
 // Can extract the Effect:
 val basic5 =
   defer:

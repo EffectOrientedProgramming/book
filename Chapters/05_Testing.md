@@ -7,7 +7,11 @@ When testing, we replace external systems with predictable ones.
 We can do this because Effects are isolated and accessible, and because they delay execution.
 
 To easily replace external systems during testing, we provide that external system via a `ZLayer` (covered in the [Initialization](04_Initialization.md) chapter).
-The `provide` method contains different `ZLayer` resources depending on whether we're testing, debugging, running normally, etc. 
+The `provide` method contains different `ZLayer` resources depending on whether we're testing, debugging, running normally, etc.
+
+```scala 3 mdoc:runzio
+def run = printLine("Sanity check")
+```
 
 ## Basic ZIO Testing
 
