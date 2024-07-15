@@ -659,7 +659,9 @@ import zio.direct.*
 import zio.Console.*
 
 object Scenario:
-  def apply(z: ZIO[Any, String, Unit]): ZLayer[Any, Nothing, Unit] =
+  def apply(
+      z: ZIO[Any, String, Unit]
+  ): ZLayer[Any, Nothing, Unit] =
     Runtime.setConfigProvider:
       StaticConfigProvider(z)
 
@@ -667,18 +669,25 @@ object Scenario:
 // may have been passed in via `bootstrap`
 // The configuration is optional and the default of `Config.fail`
 // sets the Option to None.
-val scenarioConfig: Config[Option[ZIO[Any, String, Unit]]] =
+val scenarioConfig: Config[
+  Option[ZIO[Any, String, Unit]]
+] =
   Config.Optional[ZIO[Any, String, Unit]]:
     Config.fail("no default scenario")
 
-class StaticConfigProvider(z: ZIO[Any, String, Unit]) extends ConfigProvider:
-  override def load[A](config: Config[A])(implicit trace: Trace): IO[Config.Error, A] =
+class StaticConfigProvider(
+    z: ZIO[Any, String, Unit]
+) extends ConfigProvider:
+  override def load[A](config: Config[A])(
+      implicit trace: Trace
+  ): IO[Config.Error, A] =
     ZIO.succeed:
       Some(z).asInstanceOf[A]
 
 val sometimesSlowRequest =
   defer:
-    if Random.nextIntBounded(1_000).run == 0 then
+    if Random.nextIntBounded(1_000).run == 0
+    then
       ZIO.sleep(3.second).run
 
 // based on our config from bootstrap, make the request with the additional logic
@@ -697,16 +706,17 @@ val makeRequest =
 val makeLotsOfRequests =
   defer:
     val totalRequests = 50_000
-  
+
     val successes =
       ZIO
         .collectAllSuccessesPar:
-          List.fill(totalRequests)(makeRequest)
+          List
+            .fill(totalRequests)(makeRequest)
         .run
-  
+
     val contractBreaches =
       totalRequests - successes.length
-  
+
     "Contract Breaches: " + contractBreaches
 ```
 

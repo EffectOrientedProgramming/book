@@ -637,7 +637,7 @@ We can add a `retry` to the `ZLayer` produced by `Friend.bread`:
 import zio.*
 import zio.direct.*
 
-def logicWithRetries(retries: Int) =
+def eatEatEat(retries: Int) =
   eatBread.provide:
     Friend
       .bread(worksOnAttempt = 3)
@@ -651,7 +651,7 @@ import zio.*
 import zio.direct.*
 
 def run =
-  logicWithRetries(retries = 2)
+  eatEatEat(retries = 2)
 ```
 
 Operations like `retry` also work on `ZLayer`s!
@@ -731,9 +731,8 @@ def run =
   ZIO
     .serviceWithZIO[RetryConfig]:
       retryConfig =>
-        logicWithRetries(retries =
-          retryConfig.times
-        )
+        val times = retryConfig.times
+        eatEatEat(retries = times)
     .provide:
       config
 ```

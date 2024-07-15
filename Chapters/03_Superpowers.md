@@ -502,8 +502,7 @@ def run =
   defer:
     effect8
       .debug // Display each save
-      .repeatN(1)
-      .run
+      .repeatN(1).run
 ```
 
 The chain `effect8.debug.repeatN(1)` produces a new Effect.
@@ -534,8 +533,7 @@ val surroundedProgram =
     printLine("**Before**").run
     effect8
       .debug // Display each save
-      .repeatN(1)
-      .run
+      .repeatN(1).run
     printLine("**After**").run
 ```
 
