@@ -11,8 +11,39 @@ The `provide` method contains different `ZLayer` resources depending on whether 
 
 ## Basic ZIO Testing
 
-In the ZIO Test library, tests are Effects that return an `Assertion`.
-We will do this incrementally, starting with some test logic:
+A test is something that returns an `Assertion`.
+The ZIO test framework includes a `String` test name which it displays in the test report.
+
+To create a test, import `zio.test.*` and create an `object` that extends `ZIOSpecDefault` and has a `spec` function:
+
+```scala 3 mdoc
+import zio.test.*
+
+object Basic extends ZIOSpecDefault:
+  def spec =
+    test("basic"):
+      assertTrue(1 == 1)
+```
+
+Note that the final expression is the assertion `assertTrue`.
+Because of its power and flexibility, you'll probably use `assertTrue` most of the time.
+However, there are numerous other assertions in the [test library](https://effectorientedprogramming.com/resources/zio/test-assertion-library).
+
+For this book we've created an abbreviation, so our examples will instead look like this:
+
+```scala 3 mdoc:silent testzio
+import zio.*
+import zio.direct.*
+
+def spec =
+  test("basic"):
+    assertTrue(1 == 1)
+```
+
+// Checking that abbreviation example works
+
+
+
 
 ```scala 3 mdoc:silent testzio
 import zio.*

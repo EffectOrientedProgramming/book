@@ -1,6 +1,5 @@
 package birdhouse
 import zio.test.*
-import zio.Console.*
 
 object Basic extends ZIOSpecDefault:
   def spec =
@@ -19,6 +18,8 @@ object Basic3 extends ZIOSpecDefault:
     test("basic3"):
       // Multiple boolean expressions:
       assertTrue(true, true, true)
+
+import zio.Console.*
 
 // Test can be an Effect as long as the final expression is an assertion.
 // The Effect is automatically run by the test framework.
