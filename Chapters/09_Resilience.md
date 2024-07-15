@@ -614,7 +614,7 @@ def run =
     val numPrevented = Ref.make[Int](0).run
 
     val protectedCall =
-// TODO Note/explain `catchSome`
+      // TODO Note/explain `catchSome`
       cb(externalSystem(numCalls)).catchAll:
         case CircuitBreakerOpen =>
           numPrevented.update(_ + 1)
@@ -656,63 +656,77 @@ Then, you end up with `1/n^3` chance of getting that worst performance.
 ```scala 3 mdoc:invisible
 import zio.*
 import zio.direct.*
+import zio.Console.*
 
-val logicThatSporadicallyLocksUp =
+object Scenario:
+  def apply(z: ZIO[Any, String, Unit]): ZLayer[Any, Nothing, Unit] =
+    Runtime.setConfigProvider:
+      StaticConfigProvider(z)
+
+// This configuration is used by Effects to get the scenario that
+// may have been passed in via `bootstrap`
+// The configuration is optional and the default of `Config.fail`
+// sets the Option to None.
+val scenarioConfig: Config[Option[ZIO[Any, String, Unit]]] =
+  Config.Optional[ZIO[Any, String, Unit]]:
+    Config.fail("no default scenario")
+
+class StaticConfigProvider(z: ZIO[Any, String, Unit]) extends ConfigProvider:
+  override def load[A](config: Config[A])(implicit trace: Trace): IO[Config.Error, A] =
+    ZIO.succeed:
+      Some(z).asInstanceOf[A]
+
+val sometimesSlowRequest =
   defer:
-    if Random.nextIntBounded(1_000).run == 0
-    then
-      ZIO
-        .sleep:
-          3.second
-        .run
-```
+    if Random.nextIntBounded(1_000).run == 0 then
+      ZIO.sleep(3.second).run
 
-```scala 3 mdoc:invisible
-case class LogicHolder(
-    logic: ZIO[Any, Nothing, Unit]
-)
+// based on our config from bootstrap, make the request with the additional logic
+val makeRequest =
+  defer:
+    ZIO.config(scenarioConfig).run match
+      case Some(z: ZIO[Any, String, Unit]) =>
+        z.run
+      case _ =>
+        ZIO.fail("No scenario")
 ```
 
 ```scala 3 mdoc:silent
-import zio.*
-import zio.direct.*
-
-// TODO LogicHolder is the only approach I could think of to let us pass in the original and  hedged logic without re-writing everything
-//  around it. Worthwhile, or just a
-//  complicated distraction? Consider using bootstrap
-def businessLogic(logicHolder: LogicHolder) =
+// TODO not sure yet how I feel about this
+//   It should be a def that takes a ZIO, but we are avoiding that
+val makeLotsOfRequests =
   defer:
-    val makeRequest =
-      logicHolder
-        .logic
-        .timeoutFail("took too long")(
-          1.second
-        )
-
     val totalRequests = 50_000
-
+  
     val successes =
       ZIO
-        .collectAllSuccessesPar(
-          List
-            .fill(totalRequests)(makeRequest)
-        )
+        .collectAllSuccessesPar:
+          List.fill(totalRequests)(makeRequest)
         .run
-
+  
     val contractBreaches =
       totalRequests - successes.length
-
+  
     "Contract Breaches: " + contractBreaches
+```
+
+```scala 3 mdoc:silent
+val requestWithTimeout =
+  sometimesSlowRequest
+    .timeoutFail("took too long"):
+      1.second
 ```
 
 ```scala 3 mdoc:runzio:liveclock
 import zio.*
 import zio.direct.*
 
+override val bootstrap =
+  Scenario:
+    requestWithTimeout
+
 def run =
-  businessLogic:
-    LogicHolder:
-      logicThatSporadicallyLocksUp
+  makeLotsOfRequests
 ```
 
 Sadly, we have breached our contract many times in this scenario.
@@ -720,8 +734,8 @@ Now, what would it take to build our hedged logic?
 
 ```scala 3 mdoc:silent
 val hedged =
-  logicThatSporadicallyLocksUp.race:
-    logicThatSporadicallyLocksUp.delay:
+  sometimesSlowRequest.race:
+    sometimesSlowRequest.delay:
       25.millis
 ```
 
@@ -729,10 +743,12 @@ val hedged =
 import zio.*
 import zio.direct.*
 
+override val bootstrap =
+  Scenario:
+    hedged
+
 def run =
-  businessLogic:
-    LogicHolder:
-      hedged
+  makeLotsOfRequests
 ```
 
 ## Test Resilience
