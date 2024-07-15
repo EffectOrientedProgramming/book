@@ -23,7 +23,7 @@ import zio.test.*
 
 object Basic extends ZIOSpecDefault:
   def spec =
-    test("basic"):
+    zio.test.test("basic"):
       assertTrue(1 == 1)
 ```
 The `String` argument to `test` is displayed in the test report.
@@ -39,7 +39,7 @@ import zio.*
 import zio.direct.*
 
 def spec =
-  test("basic"):
+  zio.test.test("basic"):
     assertTrue(1 == 1)
 ```
 
@@ -50,7 +50,7 @@ import zio.*
 import zio.direct.*
 
 def spec =
-  test("basic2"):
+  zio.test.test("basic2"):
     assertTrue(1 != 1) // Ignored
     assertTrue(1 == 1)
 ```
@@ -62,7 +62,7 @@ import zio.*
 import zio.direct.*
 
 def spec =
-  test("basic3"):
+  zio.test.test("basic3"):
     // Multiple boolean expressions:
     assertTrue(1 == 1, 2 == 2, 3 == 3)
 ```
@@ -75,7 +75,7 @@ import zio.*
 import zio.direct.*
 
 def spec =
-  test("basic4"):
+  zio.test.test("basic4"):
     defer:
       printLine("testing basic4").run
       assertCompletes
@@ -94,7 +94,7 @@ val basic5 =
     assertCompletes
 
 def spec =
-  test("basic5"):
+  zio.test.test("basic5"):
     basic5
 ```
 
@@ -108,10 +108,10 @@ val basic6 =
 
 def spec =
   suite("Creating a Suite of Tests")(
-    test("basic5 in suite"):
-      basic5
+    zio.test.test("basic5 in suite"):
+      basic6  // Duplicate to get it working
     ,
-    test("basic6 in suite"):
+    zio.test.test("basic6 in suite"):
       basic6,
   )
 ```
@@ -149,7 +149,7 @@ import zio.direct.*
 import zio.test.*
 
 def spec =
-  test("eat Bread"):
+  zio.test.test("eat Bread"):
     defer:
       ZIO
         .serviceWithZIO[Bread]:
@@ -216,7 +216,7 @@ def run =
 import zio.test.*
 
 def spec =
-  test("flips 10 times"):
+  zio.test.test("flips 10 times"):
     defer:
       TestRandom
         .feedBooleans(true)
@@ -279,7 +279,7 @@ We need to adjust the clock *while `nightlyBatch` is running*.
 
 ```scala 3 mdoc:testzio
 def spec =
-  test("batch runs after 24 hours"):
+  zio.test.test("batch runs after 24 hours"):
     defer:
       nightlyBatch.zipPar(timeTravel).run
       assertCompletes

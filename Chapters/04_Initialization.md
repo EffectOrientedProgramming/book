@@ -716,7 +716,7 @@ val configProvider =
   ConfigProvider.fromHoconString:
     "{ times: 2 }"
 
-val config =
+val configuration =
   ZLayer.fromZIO:
     read:
       configDescriptor.from:
@@ -734,7 +734,7 @@ def run =
         val times = retryConfig.times
         eatEatEat(retries = times)
     .provide:
-      config
+      configuration
 ```
 
 Now we have bridged the gap between our logic and configuration files.

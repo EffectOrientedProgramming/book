@@ -74,33 +74,33 @@ val testToolWithMaterial =
 
 object BirdHouseTest extends ZIOSpecDefault:
   def spec =
-    suite("Tools and BuildingMaterials")(
-      test("Hand tools & Wood"):
+    suite("Materials with different Tools")(
+      test("Wood with Hand tools"):
         testToolWithMaterial.provide(
-          Saw.hand,
-          Nailer.hand,
           Material.wood,
-        )
-      ,
-      test("Hand tools & Plastic"):
-        testToolWithMaterial.provide(
           Saw.hand,
           Nailer.hand,
-          Material.plastic,
         )
       ,
-      test("Robo tools & Plastic"):
+      test("Plastic with Hand tools"):
         testToolWithMaterial.provide(
+          Material.plastic,
+          Saw.hand,
+          Nailer.hand,
+        )
+      ,
+      test("Plastic with Robo tools"):
+        testToolWithMaterial.provide(
+          Material.plastic,
           Saw.robotic,
           Nailer.robotic,
-          Material.plastic,
         )
       ,
-      test("Robo saw, hammer & Plastic"):
+      test("Plastic with Robo saw & hammer"):
         testToolWithMaterial.provide(
+          Material.plastic,
           Saw.robotic,
           Nailer.hand,
-          Material.plastic,
         ),
     )
 end BirdHouseTest

@@ -790,7 +790,7 @@ you can use `TestAspect.timeout` to ensure that your tests complete within a cer
 import zio.test.*
 
 def spec =
-  test("long testZ"):
+  zio.test.test("long testZ"):
     defer:
       ZIO.sleep(1.hour).run
       assertCompletes
@@ -844,7 +844,7 @@ import zio.test.*
 import zio.Console.*
 
 def spec =
-  test("flaky test!"):
+  zio.test.test("flaky test!"):
     defer:
       spottyLogic.run
       printLine("Continuing...").run

@@ -69,7 +69,7 @@ import zio.test.*
 
 object TestingZIOs extends ZIOSpecDefault:
   def spec =
-    test("Hello Tests"):
+    zio.test.test("Hello Tests"):
       defer:
         ZIO.debug("** logic **").run
         assertTrue:
@@ -84,7 +84,7 @@ import zio.direct.*
 import zio.test.*
 
 def spec =
-  test("random is random"):
+  zio.test.test("random is random"):
     defer:
       ZIO.debug("** logic **").run
       assertTrue:

@@ -21,6 +21,9 @@ object Basic3 extends ZIOSpecDefault:
 
 import zio.Console.*
 
+object Sanity extends ZIOAppDefault:
+  def run = printLine("Sanity Check")
+
 // Test can be an Effect as long as the final expression is an assertion.
 // The Effect is automatically run by the test framework.
 object Basic4 extends ZIOSpecDefault:
@@ -29,9 +32,6 @@ object Basic4 extends ZIOSpecDefault:
       defer:
         printLine("testing basic4").run
         assertCompletes
-
-object Sanity extends ZIOAppDefault:
-  def run = printLine("Sanity")
 
 // Can extract the Effect:
 val basic5 =
