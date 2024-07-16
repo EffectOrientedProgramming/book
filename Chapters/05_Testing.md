@@ -14,7 +14,7 @@ The `provide` method contains different `ZLayer` resources depending on whether 
 A test is something that returns an `Assertion`.
 To create a test, import `zio.test.*` and create an `object` that extends `ZIOSpecDefault` with a `spec` function:
 
-```
+```terminal
 import zio.test.*
 
 object Basic extends ZIOSpecDefault:
