@@ -157,55 +157,104 @@ object Material:
   val plastic = ZLayer.succeed(Plastic())
 ```
 
+We can define `Tool`s in a similar way. 
+Each type of `Tool` has an `intensity` which relates it to `Material.brittleness`.
 
-
-## Testing Bread
-
-```scala 3 mdoc:invisible
+```scala 3 mdoc:silent testzio
 import zio.*
 import zio.Console.*
 
-trait Bread:
-  def eat =
-    printLine("Bread: Eating")
+trait Tool:
+  val action: String
+  val intensity: Int
+  val use =
+    printLine(
+      s"$this $action, intensity $intensity"
+    )
 
-case class BreadFromFriend() extends Bread
-```
-Rather than trying to get `Bread` from a fallible human, we can create an `IdealFriend` that will always give us `Bread`.
+trait Saw extends Tool:
+  val action = "sawing"
+case class HandSaw() extends Saw:
+  val intensity = 4
+case class RoboSaw() extends Saw:
+  val intensity = 8
 
-```scala 3 mdoc:silent
-import zio.*
+object Saw:
+  val hand    = ZLayer.succeed(HandSaw())
+  val robotic = ZLayer.succeed(RoboSaw())
 
-object IdealFriend:
-  val bread =
-    ZLayer.succeed:
-      BreadFromFriend()
-```
+trait Nailer extends Tool:
+  val action = "nailing"
+case class Hammer() extends Nailer:
+  val intensity = 4
+case class RoboNailer() extends Nailer:
+  val intensity = 11
 
-Armed with these tools, we can now return to the kitchen to test our `Bread` eating with our ideal friend.
+object Nailer:
+  val hand    = ZLayer.succeed(Hammer())
+  val robotic = ZLayer.succeed(RoboNailer())
+````
 
-```scala 3 mdoc:testzio
+The test takes a `Material` and checks it against a `Saw` and a `Nailer`:
+
+```scala 3 mdoc:silent testzio
 import zio.*
 import zio.direct.*
-import zio.test.{
-  test,
-  assertTrue,
-  TestConsole,
-}
+import zio.test.assertTrue
 
-def spec =
-  test("eat Bread"):
-    defer:
-      ZIO
-        .serviceWithZIO[Bread]:
-          bread => bread.eat
-        .run
-      val output = TestConsole.output.run
-      assertTrue:
-        output.contains("Bread: Eating\n")
-  .provide:
-    IdealFriend.bread
+val testToolWithMaterial =
+  defer:
+    val material = ZIO.service[Material].run
+    val saw      = ZIO.service[Saw].run
+    val nailer   = ZIO.service[Nailer].run
+    assertTrue(
+      saw.intensity < material.brittleness,
+      nailer.intensity < material.brittleness,
+    )
 ```
+
+Notice that in `testToolWithMaterial`, all the services are unfulfilled.
+This way, each `test` can `provide` different combinations of services:
+
+```scala 3 mdoc:testzio
+import zio.test.{test, suite}
+
+  def spec =
+    suite("Materials with different Tools")(
+      test("Wood with Hand tools"):
+        testToolWithMaterial.provide(
+          Material.wood,
+          Saw.hand,
+          Nailer.hand,
+        )
+      ,
+      test("Plastic with Hand tools"):
+        testToolWithMaterial.provide(
+          Material.plastic,
+          Saw.hand,
+          Nailer.hand,
+        )
+      ,
+      test("Plastic with Robo tools"):
+        testToolWithMaterial.provide(
+          Material.plastic,
+          Saw.robotic,
+          Nailer.robotic,
+        )
+      ,
+      test("Plastic with Robo saw & hammer"):
+        testToolWithMaterial.provide(
+          Material.plastic,
+          Saw.robotic,
+          Nailer.hand,
+        )
+      ,
+    )
+```
+
+We've only shown a few combinations here.
+As an exercise, try adding others.
+Then add a new `Material` called `Metal`, and a new `Tool` category, `Power`, with an additional type `Drill`.
 
 ## Testing Effects
 
