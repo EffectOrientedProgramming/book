@@ -674,10 +674,16 @@ def fileChange(
       mainSettings
     ) match
       case (
-            manuscriptFile,
-            maybeMainFile,
-            maybeTestFile
+            manuscriptFile: AbsolutePath,
+            maybeMainFile: Option[AbsolutePath],
+            maybeTestFile: Option[AbsolutePath]
           ) =>
+
+        // we use the lastModified to determine if
+        // the manuscript is up-to-date
+        manuscriptFile.toFile.setLastModified:
+          inputFile.inputFile.toFile.lastModified()
+
         println("Done:")
         println("  " + manuscriptFile.toRelative)
         maybeMainFile.foreach {
@@ -692,17 +698,7 @@ def fileChange(
       case _ =>
         ()
     end match
-    // we use the lastModified to determine if
-    // the manuscript is up-to-date
-    event
-      .path()
-      .toFile
-      .setLastModified(
-        inputFile
-          .outputFile
-          .toFile
-          .lastModified()
-      )
+
     Some(inputFile.outputFile)
   else
     None
