@@ -9,10 +9,6 @@ We can do this because Effects are isolated and accessible, and because they del
 To easily replace external systems during testing, we provide that external system via a `ZLayer` (covered in the [Initialization](04_Initialization.md) chapter).
 The `provide` method contains different `ZLayer` resources depending on whether we're testing, debugging, running normally, etc.
 
-```scala 3 mdoc:runzio
-def run = printLine("Sanity check")
-```
-
 ## Basic ZIO Testing
 
 A test is something that returns an `Assertion`.
@@ -36,7 +32,7 @@ For this book we've created an abbreviation, so our examples will instead look l
 
 ```scala 3 mdoc:testzio
 import zio.*
-import zio.direct.*
+import zio.test.*
 
 def spec =
   zio.test.test("basic"):
@@ -47,7 +43,7 @@ Assertions that *do not* appear at the end of the test are ignored:
 
 ```scala 3 mdoc:testzio
 import zio.*
-import zio.direct.*
+import zio.test.*
 
 def spec =
   zio.test.test("basic2"):
@@ -59,7 +55,7 @@ You can, however, put multiple Boolean evaluations within a single `assertTrue` 
 
 ```scala 3 mdoc:testzio
 import zio.*
-import zio.direct.*
+import zio.test.*
 
 def spec =
   zio.test.test("basic3"):
@@ -72,6 +68,7 @@ The Effect is automatically run by the test framework:
 
 ```scala 3 mdoc:testzio
 import zio.*
+import zio.test.*
 import zio.direct.*
 
 def spec =
@@ -88,6 +85,10 @@ The `defer` produces an Effect that runs the `printLine` and returns `assertComp
 We can assign the Effect to a `val` and use that as the test:
 
 ```scala 3 mdoc:testzio
+import zio.*
+import zio.test.*
+import zio.direct.*
+
 val basic5 =
   defer:
     printLine("testing basic5").run
@@ -101,6 +102,10 @@ def spec =
 We create *suites* of tests that all run together:
 
 ```scala 3 mdoc:testzio
+import zio.*
+import zio.test.*
+import zio.direct.*
+
 val basic6 =
   defer:
     printLine("testing basic6").run
@@ -122,7 +127,6 @@ Note that these tests run in parallel so the output does not appear in the order
 
 ```scala 3 mdoc:invisible
 import zio.*
-import zio.direct.*
 import zio.Console.*
 
 trait Bread:
@@ -134,6 +138,9 @@ case class BreadFromFriend() extends Bread
 Rather than trying to get `Bread` from a fallible human, we can create an `IdealFriend` that will always give us `Bread`.
 
 ```scala 3 mdoc
+import zio.*
+
+
 object IdealFriend:
   val bread =
     ZLayer.succeed:
@@ -145,7 +152,6 @@ Armed with these tools, we can now return to the kitchen to test our `Bread` eat
 ```scala 3 mdoc:testzio
 import zio.*
 import zio.direct.*
-
 import zio.test.*
 
 def spec =
@@ -206,13 +212,14 @@ val flipTen =
 
 ```scala 3 mdoc:runzio
 import zio.*
-import zio.direct.*
 
 def run =
   flipTen
 ```
 
 ```scala 3 mdoc:testzio
+import zio.*
+import zio.direct.*
 import zio.test.*
 
 def spec =
@@ -244,7 +251,6 @@ Even time can be simulated, as using the clock is an Effect.
 
 ```scala 3 mdoc:silent
 import zio.*
-import zio.direct.*
 
 val nightlyBatch =
   ZIO
@@ -267,7 +273,7 @@ to manually advance the time.
 We need to explicitly advance the time to make the test complete.
 
 ```scala 3 mdoc:silent testzio
-import zio.test.*
+import zio.*
 
 val timeTravel =
   TestClock.adjust:
@@ -278,6 +284,10 @@ However, be aware that it is not correct to call `TestClock.adjust` before or af
 We need to adjust the clock *while `nightlyBatch` is running*.
 
 ```scala 3 mdoc:testzio
+import zio.*
+import zio.direct.*
+import zio.test.*
+
 def spec =
   zio.test.test("batch runs after 24 hours"):
     defer:
