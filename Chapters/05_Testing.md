@@ -283,6 +283,8 @@ We'll look at the two most-commonly encountered ones, after `Console`: randomnes
 
 Randomness is inherently unpredictable.
 To perform testing when randomness is involved, we must treat it as an Effect and then swap in a controlled sequence of fake random numbers.
+Anything an Effect needs (from the system or the environment) can be substituted in tests for something predictable.
+For example, an Effect that fetches users from a database can be simulated with a predictable set of users instead of having to set up a test database with predictable users.
 
 In the following `coinToss` function, you can guess that `Random.nextBoolean` is an Effect from the ZIO library (rather than `Scala.util.Random`) by the `.run` at the end:
 
@@ -299,6 +301,7 @@ val coinToss =
       printLine("Tails").run
       ZIO.fail("Tails").run
 ```
+
 
 ```scala 3 mdoc:silent
 import zio.{Console, *}
@@ -324,6 +327,9 @@ def run =
   flipTen
 ```
 
+`Random.nextBoolean` fetches the next random Boolean value from the source of randomness.
+With `Scala.util.Random` this source is hardwired into the function, but with `ZIO.Random` we can feed numbers to the function using `TestRandom.feedBooleans`:
+
 ```scala 3 mdoc:testzio
 import zio.*
 import zio.direct.*
@@ -336,21 +342,18 @@ def spec =
         .feedBooleans(true)
         .repeatN(9)
         .run
-      assertTrue:
-        flipTen.run == 10
+      assertTrue(flipTen.run == 10)
 ```
 
-The `Random` Effect uses an injected something which when running the ZIO uses the system's unpredictable random number generator.
-In ZIO Test the `Random` Effect uses a different something which can predictably generate "random" numbers.
-`TestRandom` provides a way to define what those numbers are.
-This example feeds in the `Int`s `1` and `2` so the first time we ask for a random number we get `1` and the second time we get `2`.
-
-Anything an Effect needs (from the system or the environment) can be substituted in tests for something predictable.
-For example, an Effect that fetches users from a database can be simulated with a predictable set of users instead of having to set up a test database with predictable users.
+Notice that our use of `TestRandom.feedBooleans` seems completely disconnected from `coinToss`, which is used via `flipTen`.
+But `coinToss` is asking for random numbers, and `TestRandom.feedBooleans` provides them.
+In the absence of `TestRandom.feedBooleans`, `coinToss` just uses the normal random generator provided by `Scala.util.Random`.
+Whenever something in your system needs random numbers, you can do nothing and get the default behavior, or you can provide your own sequence using `TestRandom`.
+In this case, `feedBooleans` is just given the constant value of `true` for each iteration, but you can also provide a function.
+This function could, for example, read the values from a file.
 
 When your program treats randomness as an Effect, testing unusual scenarios becomes straightforward.
-You can preload "Random" data that will result in deterministic behavior.
-ZIO gives you built-in methods to support this.
+With ZIO's builtin methods, you can transparently provide random data that results in deterministic behavior.
 
 ### Time
 
