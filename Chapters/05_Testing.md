@@ -15,11 +15,11 @@ A test is something that returns an `Assertion`.
 To create a test, import some elements of `zio.test` and create an `object` that extends `ZIOSpecDefault` with a `spec` function:
 
 ```terminal
-import zio.test.{test, assertTrue}
+import zio.test.{test, assertTrue, ZIOSpecDefault}
 
 object Basic extends ZIOSpecDefault:
   def spec =
-    zio.test.test("basic"):
+    test("basic"):
       assertTrue(1 == 1)
 ```
 The `String` argument to `test` is displayed in the test report.
