@@ -14,11 +14,8 @@ A test is something that returns an `Assertion`.
 To create a test, import some elements of `zio.test` and create an `object` that extends `ZIOSpecDefault` with a `spec` function:
 
 ```scala 3 mdoc:compile-only
-import zio.test.{
-  test,
-  assertTrue,
-  ZIOSpecDefault,
-}
+import zio.test.{test, *}
+
 
 object Basic extends ZIOSpecDefault:
   def spec =
@@ -35,7 +32,7 @@ For this book we've created an abbreviation, so our examples will instead look l
 
 ```scala 3 mdoc:testzio
 import zio.*
-import zio.test.{test, assertTrue}
+import zio.test.{test, *}
 
 def spec =
   test("basic"):
@@ -46,7 +43,7 @@ Assertions that *do not* appear at the end of the test are ignored:
 
 ```scala 3 mdoc:testzio
 import zio.*
-import zio.test.{test, assertTrue}
+import zio.test.{test, *}
 
 def spec =
   test("Only the last assertTrue matters"):
@@ -58,7 +55,7 @@ You can, however, put multiple Boolean evaluations within a single `assertTrue` 
 
 ```scala 3 mdoc:testzio
 import zio.*
-import zio.test.{test, assertTrue}
+import zio.test.{test, *}
 
 def spec =
   test("Multiple Boolean expressions"):
@@ -69,7 +66,7 @@ You can also combine multiple `assertTrue` expressions using `&&`, `||` and `!`:
 
 ```scala 3 mdoc:testzio
 import zio.*
-import zio.test.{test, assertTrue}
+import zio.test.{test, *}
 
 def spec =
   test("Combine using operators"):
@@ -84,7 +81,7 @@ The Effect is automatically run by the test framework:
 ```scala 3 mdoc:testzio
 import zio.*
 import zio.direct.*
-import zio.test.{test, assertCompletes}
+import zio.test.{test, *}
 
 def spec =
   test("Effect as test"):
@@ -125,7 +122,7 @@ Tests in `suite`s run as a group:
 ```scala 3 mdoc:testzio
 import zio.*
 import zio.direct.*
-import zio.test.{test, suite, assertTrue}
+import zio.test.{test, *}
 
 val bTest =
   defer:
@@ -230,7 +227,7 @@ Notice that in `testToolWithMaterial`, all the services are unfulfilled.
 This way, each `test` can `provide` different combinations of services:
 
 ```scala 3 mdoc:testzio
-import zio.test.{test, suite}
+import zio.test.{test, *}
 
   def spec =
     suite("Materials with different Tools")(
@@ -285,9 +282,9 @@ We'll look at the two most-commonly encountered ones, after `Console`: randomnes
 ### Randomness
 
 Randomness is inherently unpredictable.
-To perform testing when randomness is involved, we must treat it as an Effect and then swap in a controlled sequence of fake-random numbers.
+To perform testing when randomness is involved, we must treat it as an Effect and then swap in a controlled sequence of fake random numbers.
 
-
+In the following `coinToss` function, you can guess that `Random.nextBoolean` is an Effect from the ZIO library (rather than `Scala.util.Random`) by the `.run` at the end:
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -330,11 +327,7 @@ def run =
 ```scala 3 mdoc:testzio
 import zio.*
 import zio.direct.*
-import zio.test.{
-  test,
-  assertTrue,
-  TestRandom,
-}
+import zio.test.{test, *}
 
 def spec =
   test("flips 10 times"):
@@ -400,7 +393,7 @@ We need to adjust the clock *while `nightlyBatch` is running*.
 ```terminal
 import zio.*
 import zio.direct.*
-import zio.test.{test, assertCompletes, TestRandom}
+import zio.test.{test, *}
 
 def spec =
   test("batch runs after 24 hours"):

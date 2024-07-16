@@ -505,6 +505,8 @@ def run =
       .repeatN(1).run
 ```
 
+`debug` is a ZIO function that will display the Effect it's attached to.
+You can optionally give `debug` an argument that will be displayed before the Effect.
 The chain `effect8.debug.repeatN(1)` produces a new Effect.
 Calling `.run` executes that new Effect and yields its result.
 Since `.debug` appears before `repeatN(1)`, `effect8.debug` executes once and is then repeated once.
