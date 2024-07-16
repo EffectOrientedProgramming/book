@@ -15,23 +15,25 @@ on {
 }
 
 jobs {
-  ["test"] = new {
-    `runs-on` = "ubuntu-latest"
+  for (os in List("ubuntu-latest", "windows-latest")) {
+    ["test-\(os)"] = new {
+      `runs-on` = os
 
-    steps {
-      new {
-        uses = "actions/checkout@v4"
-        with {
-          ["submodules"] = "recursive"
-          ["token"] = "${{ secrets.API_TOKEN_GITHUB }}"
+      steps {
+        new {
+          uses = "actions/checkout@v4"
+          with {
+            ["submodules"] = "recursive"
+            ["token"] = "${{ secrets.API_TOKEN_GITHUB }}"
+          }
         }
-      }
 
-      GitHubAction.Java.setupJava(null, "21", "sbt")
+        GitHubAction.Java.setupJava(null, "21", "sbt")
 
-      new {
-        run = "sbt test:compile"
-        `working-directory` = "examples"
+        new {
+          run = "sbt test:compile"
+          `working-directory` = "examples"
+        }
       }
     }
   }

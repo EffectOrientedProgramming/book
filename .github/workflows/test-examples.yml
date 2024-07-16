@@ -5,8 +5,22 @@
     - examples
   pull_request: {}
 jobs:
-  test:
+  test-ubuntu-latest:
     runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        token: ${{ secrets.API_TOKEN_GITHUB }}
+    - uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: '21'
+        cache: sbt
+    - run: sbt test:compile
+      working-directory: examples
+  test-windows-latest:
+    runs-on: windows-latest
     steps:
     - uses: actions/checkout@v4
       with:
