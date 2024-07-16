@@ -84,7 +84,7 @@ The `defer` produces an Effect that runs the `printLine` and returns `assertComp
 
 We can assign the Effect to a `val` and use that as the test:
 
-```scala 3 mdoc:silent
+```scala 3 mdoc:silent testzio
 import zio.*
 import zio.direct.*
 import zio.test.assertCompletes
