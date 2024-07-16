@@ -127,7 +127,7 @@ def spec =
   )
 ```
 
-Note that these tests run in parallel so the output does not appear in the order the tests are listed.
+Note that these tests run in parallel so the output does not necessarily appear in the order the tests are listed.
 
 ## Testing Bread
 
