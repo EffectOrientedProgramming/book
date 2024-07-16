@@ -287,21 +287,21 @@ To perform testing when randomness is involved, we must treat it as an Effect an
 In the following `coinToss` function, you can guess that `Random.nextBoolean` is an Effect from the ZIO library (rather than `Scala.util.Random`) by the `.run` at the end:
 
 ```scala 3 mdoc:silent
-import zio.*
+import zio.{Console, *}
 import zio.direct.*
 
 val coinToss =
   defer:
     if Random.nextBoolean.run then
-      ZIO.debug("Heads").run
+      printLine("Heads").run
       ZIO.succeed("Heads").run
     else
-      ZIO.debug("Tails").run
+      printLine("Tails").run
       ZIO.fail("Tails").run
 ```
 
 ```scala 3 mdoc:silent
-import zio.*
+import zio.{Console, *}
 import zio.direct.*
 
 val flipTen =
@@ -313,7 +313,7 @@ val flipTen =
             coinToss
         .run
         .size
-    ZIO.debug(s"Num Heads = $numHeads").run
+    printLine(s"Num Heads = $numHeads").run
     numHeads
 ```
 
@@ -361,10 +361,8 @@ import zio.*
 
 val nightlyBatch =
   ZIO
-    .sleep:
-      24.hours
-    .debug:
-      "Parsing CSV"
+    .sleep(24.hours)
+    .debug("Parsing CSV")
 ```
 
 By default, in ZIO Test, the clock does not change unless instructed to.
