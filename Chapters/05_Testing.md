@@ -84,15 +84,21 @@ The `defer` produces an Effect that runs the `printLine` and returns `assertComp
 
 We can assign the Effect to a `val` and use that as the test:
 
-```scala 3 mdoc:testzio
+```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
-import zio.test.{test, assertCompletes}
+import zio.test.assertCompletes
 
 val basic5 =
   defer:
     printLine("testing basic5").run
     assertCompletes
+```
+
+```scala 3 mdoc:testzio
+import zio.*
+import zio.direct.*
+import zio.test.test
 
 def spec =
   test("basic5"):
@@ -114,7 +120,7 @@ val basic6 =
 def spec =
   suite("Creating a Suite of Tests")(
     test("basic5 in suite"):
-      basic6  // Duplicate to get it working
+      basic5
     ,
     test("basic6 in suite"):
       basic6,
