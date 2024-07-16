@@ -1,21 +1,19 @@
 # Testing
 
-Testing requires predictability.
-Effects that use external systems are unpredictable.
-To create predictable tests for Effects, we replace the external systems with predictable ones.
+Testing requires predictability, but Effects that use external systems are unpredictable.
+To create predictable tests for Effects, we swap the external systems with our own, controlled, sources.
 We can do this because Effects are isolated and accessible, and because they delay execution.
 
-To easily replace external systems during testing, we provide that external system via a `ZLayer` (covered in the [Initialization](04_Initialization.md) chapter).
-The `provide` method contains different `ZLayer` resources depending on whether we're testing, debugging, running normally, etc.
+To easily replace external systems during testing, we supply that external system via a `ZLayer` (covered in the [Initialization](04_Initialization.md) chapter).
+The `provide` method proxies different `ZLayer` resources for different scenarios: testing, debugging, running normally, etc.
 
 ## Basic ZIO Testing
 
-A test is something that returns an `Assertion`.
-To create a test, import some elements of `zio.test` and create an `object` that extends `ZIOSpecDefault` with a `spec` function:
+A test must return an `Assertion`.
+To create a test, import elements from `zio.test` and create an `object` that extends `ZIOSpecDefault` with a `spec` function:
 
 ```scala 3 mdoc:compile-only
 import zio.test.{test, *}
-
 
 object Basic extends ZIOSpecDefault:
   def spec =
