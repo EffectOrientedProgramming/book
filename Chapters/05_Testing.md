@@ -2,8 +2,7 @@
 
 Testing requires predictability.
 Effects that use external systems are unpredictable.
-How do we write predictable tests for Effects?
-When testing, we replace external systems with predictable ones.
+To create predictable tests for Effects, we replace the external systems with predictable ones.
 We can do this because Effects are isolated and accessible, and because they delay execution.
 
 To easily replace external systems during testing, we provide that external system via a `ZLayer` (covered in the [Initialization](04_Initialization.md) chapter).
@@ -108,7 +107,7 @@ def spec =
     basic5
 ```
 
-We create *suites* of tests that all run together:
+We create A *suite* of tests that all run together:
 
 ```scala 3 mdoc:testzio
 import zio.*
@@ -121,11 +120,11 @@ val basic6 =
     assertTrue(1 == 1)
 
 def spec =
-  suite("Creating a Suite of Tests")(
-    test("basic5 in suite"):
+  suite("A Suite of Tests")(
+    test("basic5 in Suite"):
       basic5
     ,
-    test("basic6 in suite"):
+    test("basic6 in Suite"):
       basic6,
   )
 ```
@@ -157,7 +156,7 @@ object Material:
   val plastic = ZLayer.succeed(Plastic())
 ```
 
-We can define `Tool`s in a similar way. 
+We define `Tool`s in a similar way. 
 Each type of `Tool` has an `intensity` which relates it to `Material.brittleness`.
 
 ```scala 3 mdoc:silent testzio
@@ -252,15 +251,22 @@ import zio.test.{test, suite}
     )
 ```
 
+Notice the clarity of the failure report.
+It gives you all the information you need to see exactly what's happening.
+
 We've only shown a few combinations here.
 As an exercise, try adding others.
-Then add a new `Material` called `Metal`, and a new `Tool` category, `Power`, with an additional type `Drill`.
+Then add a new `Material` called `Metal`, and a new `Tool` category called `Power`, with an additional type `Drill`.
 
 ## Testing Effects
 
-For user-defined types, call `.provide` with your test implementation.
-But for built-in types like `Console`, `Random`, and `Clock`, ZIO Test provides special APIs.
-We demonstrate some of the most common.
+As you've seen, whenever you create a user-defined type, you can include a method to produce a `ZLayer` containing an instance of that type.
+When you have a test that needs to vary the types it is testing, those types are supplied using `provide`.
+
+But this only works for user-defined types. 
+What about built-in types like `Console`, `Random`, and `Clock`? 
+For these, ZIO Test provides special APIs.
+We'll look at the two most-commonly encountered ones: randomness and time.
 
 ### Random
 
