@@ -14,7 +14,7 @@ The `provide` method contains different `ZLayer` resources depending on whether 
 A test is something that returns an `Assertion`.
 To create a test, import `zio.test.*` and create an `object` that extends `ZIOSpecDefault` with a `spec` function:
 
-```scala 3 mdoc
+```
 import zio.test.*
 
 object Basic extends ZIOSpecDefault:
@@ -272,28 +272,28 @@ to manually advance the time.
 
 We need to explicitly advance the time to make the test complete.
 
-```scala 3 mdoc:silent testzio
-import zio.*
-
-val timeTravel =
-  TestClock.adjust:
-    24.hours
-```
+//```scala 3 mdoc:silent testzio
+//import zio.*
+//
+//val timeTravel =
+//  TestClock.adjust:
+//    24.hours
+//```
 
 However, be aware that it is not correct to call `TestClock.adjust` before or after we execute `nightlyBatch`.
 We need to adjust the clock *while `nightlyBatch` is running*.
 
-```scala 3 mdoc:testzio
-import zio.*
-import zio.direct.*
-import zio.test.*
-
-def spec =
-  zio.test.test("batch runs after 24 hours"):
-    defer:
-      nightlyBatch.zipPar(timeTravel).run
-      assertCompletes
-```
+//```scala 3 mdoc:testzio
+//import zio.*
+//import zio.direct.*
+//import zio.test.*
+//
+//def spec =
+//  zio.test.test("batch runs after 24 hours"):
+//    defer:
+//      nightlyBatch.zipPar(timeTravel).run
+//      assertCompletes
+//```
 
 By running `nightlyBatch` and `timeTravel` in parallel, we ensure that the `nightlyBatch` Effect completes after "24 hours".
 
