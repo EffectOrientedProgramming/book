@@ -16,7 +16,6 @@ object Material:
   val plastic = ZLayer.succeed(Plastic())
 
 import zio.Console.*
-import zio.direct.*
 
 trait Tool:
   val action: String
@@ -49,6 +48,9 @@ object Nailer:
   val robotic = ZLayer.succeed(RoboNailer())
 
 // Just checking
+
+import zio.direct.*
+
 object UseTools extends ZIOAppDefault:
   def run =
     defer:

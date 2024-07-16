@@ -83,8 +83,7 @@ def spec =
 ```
 
 The `defer` produces an Effect that runs the `printLine` and returns `assertCompletes`.
-
-`assertCompletes` is another useful assertion that indicates that everything ran successfully, but without any explicit Boolean test.
+`assertCompletes` indicates that everything ran successfully, but without any explicit Boolean test.
 
 We can assign the Effect to a `val` and use that as the test:
 
@@ -132,6 +131,33 @@ def spec =
 ```
 
 Note that these tests run in parallel so the output does not necessarily appear in the order the tests are listed.
+
+## Birdhouse Factory
+
+Suppose you want to build as many birdhouses as possible, and you have the choice of materials for building them.
+These `Material`s have different levels of `brittleness` so some `Tool`s might break some `Material`s.
+We want to test the different `Material`s with different combinations of `Tool`s, so we'll give them all `ZLayer` services.
+
+We define `Wood` and `Plastic` as `Material`s and give them different `brittleness` factors:
+
+```scala 3 mdoc:silent testzio
+import zio.*
+
+trait Material:
+  val brittleness: Int
+
+case class Wood() extends Material:
+  val brittleness = 5
+
+case class Plastic() extends Material:
+  val brittleness = 10
+
+object Material:
+  val wood    = ZLayer.succeed(Wood())
+  val plastic = ZLayer.succeed(Plastic())
+```
+
+
 
 ## Testing Bread
 
