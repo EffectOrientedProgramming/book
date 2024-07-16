@@ -19,10 +19,18 @@ object Basic3 extends ZIOSpecDefault:
       // Multiple boolean expressions:
       assertTrue(1 == 1, 2 == 2, 3 == 3)
 
+object Basic3A extends ZIOSpecDefault:
+  def spec =
+    test("basic3A"):
+      assertTrue(1 == 1) ||
+      assertTrue(2 == 2) &&
+      !assertTrue(42 == 47)
+
 import zio.Console.*
 
 object Sanity extends ZIOAppDefault:
-  def run = printLine("Sanity Check")
+  def run =
+    printLine("Sanity Check")
 
 // Test can be an Effect as long as the final expression is an assertion.
 // The Effect is automatically run by the test framework.

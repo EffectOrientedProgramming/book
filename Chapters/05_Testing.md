@@ -49,7 +49,7 @@ import zio.*
 import zio.test.{test, assertTrue}
 
 def spec =
-  test("basic2"):
+  test("Only the last assertTrue matters"):
     assertTrue(1 != 1) // Ignored
     assertTrue(1 == 1)
 ```
@@ -61,12 +61,24 @@ import zio.*
 import zio.test.{test, assertTrue}
 
 def spec =
-  test("basic3"):
-    // Multiple boolean expressions:
+  test("Multiple Boolean expressions"):
     assertTrue(1 == 1, 2 == 2, 3 == 3)
 ```
 
-A test can be an Effect as long as the final expression is an assertion.
+You can also combine multiple `assertTrue` expressions using `&&`, `||` and `!`:
+
+```scala 3 mdoc:testzio
+import zio.*
+import zio.test.{test, assertTrue}
+
+def spec =
+  test("Combine using operators"):
+    assertTrue(1 == 1) ||
+    assertTrue(2 == 2) &&
+    !assertTrue(42 == 47)
+```
+
+A test can be an Effect as long as the final expression of that Effect is an assertion.
 The Effect is automatically run by the test framework:
 
 ```scala 3 mdoc:testzio
@@ -75,9 +87,9 @@ import zio.direct.*
 import zio.test.{test, assertCompletes}
 
 def spec =
-  test("basic4"):
+  test("Effect as test"):
     defer:
-      printLine("testing basic4").run
+      printLine("This test is an Effect").run
       assertCompletes
 ```
 
@@ -91,9 +103,9 @@ import zio.*
 import zio.direct.*
 import zio.test.assertCompletes
 
-val basic5 =
+val aTest =
   defer:
-    printLine("testing basic5").run
+    printLine("This is aTest").run
     assertCompletes
 ```
 
@@ -103,29 +115,30 @@ import zio.direct.*
 import zio.test.test
 
 def spec =
-  test("basic5"):
-    basic5
+  test("aTest"):
+    aTest
 ```
 
-We create A *suite* of tests that all run together:
+Tests are typically collected into a `suite`. 
+Tests in `suite`s run as a group:
 
 ```scala 3 mdoc:testzio
 import zio.*
 import zio.direct.*
 import zio.test.{test, suite, assertTrue}
 
-val basic6 =
+val bTest =
   defer:
-    printLine("testing basic6").run
+    printLine("This is bTest").run
     assertTrue(1 == 1)
 
 def spec =
   suite("A Suite of Tests")(
-    test("basic5 in Suite"):
-      basic5
+    test("aTest in Suite"):
+      aTest
     ,
-    test("basic6 in Suite"):
-      basic6,
+    test("bTest in Suite"):
+      bTest,
   )
 ```
 
@@ -133,9 +146,10 @@ Note that these tests run in parallel so the output does not necessarily appear 
 
 ## Birdhouse Factory
 
-Suppose you want to build as many birdhouses as possible, and you have the choice of materials for building them.
+Suppose you want to build birdhouses as fast as possible, and you have the choice of materials for building them.
 These `Material`s have different levels of `brittleness` so some `Tool`s might break some `Material`s.
-We want to test the different `Material`s with different combinations of `Tool`s, so we'll give them all `ZLayer` services.
+We want to test different `Material`s with different combinations of `Tool`s
+By giving them all `ZLayer` services, we'll easily swap them around during testing.
 
 We define `Wood` and `Plastic` as `Material`s and give them different `brittleness` factors:
 
@@ -220,28 +234,28 @@ import zio.test.{test, suite}
 
   def spec =
     suite("Materials with different Tools")(
-      test("Wood with Hand tools"):
+      test("Wood with hand tools"):
         testToolWithMaterial.provide(
           Material.wood,
           Saw.hand,
           Nailer.hand,
         )
       ,
-      test("Plastic with Hand tools"):
+      test("Plastic with hand tools"):
         testToolWithMaterial.provide(
           Material.plastic,
           Saw.hand,
           Nailer.hand,
         )
       ,
-      test("Plastic with Robo tools"):
+      test("Plastic with robo tools"):
         testToolWithMaterial.provide(
           Material.plastic,
           Saw.robotic,
           Nailer.robotic,
         )
       ,
-      test("Plastic with Robo saw & hammer"):
+      test("Plastic with robo saw & hammer"):
         testToolWithMaterial.provide(
           Material.plastic,
           Saw.robotic,
@@ -261,17 +275,19 @@ Then add a new `Material` called `Metal`, and a new `Tool` category called `Powe
 ## Testing Effects
 
 As you've seen, whenever you create a user-defined type, you can include a method to produce a `ZLayer` containing an instance of that type.
-When you have a test that needs to vary the types it is testing, those types are supplied using `provide`.
+When you need to vary the types across multiple tests, those types are supplied using `provide`.
 
-But this only works for user-defined types. 
+This only works for user-defined types. 
 What about built-in types like `Console`, `Random`, and `Clock`? 
 For these, ZIO Test provides special APIs.
-We'll look at the two most-commonly encountered ones: randomness and time.
+We'll look at the two most-commonly encountered ones, after `Console`: randomness and time.
 
-### Random
+### Randomness
 
 Randomness is inherently unpredictable.
-With ZIO Test, we can produce predictable random numbers for testing, but without changing any Effects:
+To perform testing when randomness is involved, we must treat it as an Effect and then swap in a controlled sequence of fake-random numbers.
+
+
 
 ```scala 3 mdoc:silent
 import zio.*
