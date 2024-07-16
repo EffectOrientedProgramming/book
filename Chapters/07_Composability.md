@@ -156,7 +156,7 @@ def wikiArticle(topic: String): Either[
 
 ## Future
 
-```scala 3 mdoc
+```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
 
@@ -241,7 +241,7 @@ val result: Option[String] =
 If you want to treat the case of a missing value as a failure, you can again use `ZIO.from`:
 ZIO will convert `None` into a generic failure, giving you the opportunity to define a more specific type.
 
-```scala 3 mdoc
+```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
 
@@ -289,7 +289,7 @@ val wikiResult: Either[
 ] = wikiArticle("stock market")
 ```
 
-```scala 3 mdoc
+```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
 
@@ -499,7 +499,7 @@ val writeResult: Try[String] =
   openFile("file1").write("asdf")
 ```
 
-```scala 3 mdoc
+```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
 
@@ -543,7 +543,7 @@ def run =
     openFile("file1").summaryFor("unicode")
 ```
 
-```scala 3 mdoc
+```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
 
@@ -606,7 +606,7 @@ This brings several downsides:
 - Very difficult to manage
 - Blocking performance varies wildly between environments
 
-```scala 3 mdoc
+```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
 

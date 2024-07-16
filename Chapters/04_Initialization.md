@@ -633,7 +633,7 @@ If we can't get `Bread` from our `Friend`, we go to the store and buy it.
 
 We can add a `retry` to the `ZLayer` produced by `Friend.bread`:
 
-```scala 3 mdoc
+```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
 

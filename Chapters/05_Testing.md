@@ -14,7 +14,7 @@ The `provide` method contains different `ZLayer` resources depending on whether 
 A test is something that returns an `Assertion`.
 To create a test, import some elements of `zio.test` and create an `object` that extends `ZIOSpecDefault` with a `spec` function:
 
-```terminal
+```scala 3 mdoc:compile-only
 import zio.test.{test, assertTrue, ZIOSpecDefault}
 
 object Basic extends ZIOSpecDefault:
@@ -143,7 +143,7 @@ case class BreadFromFriend() extends Bread
 ```
 Rather than trying to get `Bread` from a fallible human, we can create an `IdealFriend` that will always give us `Bread`.
 
-```scala 3 mdoc
+```scala 3 mdoc:silent
 import zio.*
 
 object IdealFriend:

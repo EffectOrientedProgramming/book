@@ -226,7 +226,7 @@ The simple answer is that Side Effects are un-managed and Effects are managed.
 
 Consider `saveInformation`, which has a type of `String => Unit`.
 
-```scala 3 mdoc manuscript-only
+```scala 3 mdoc:compile-only
 def saveInformation(info: String): Unit =
   ???
 ```

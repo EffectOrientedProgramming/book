@@ -100,7 +100,7 @@ The API of the plain Atomic `Ref` steers you in the right direction by not accep
 To demonstrate why this restriction exists, we will deliberately undermine the system by sneaking in a Side Effect.
 First, we will create a helper function that imitates a long-running calculation.
 
-```scala 3 mdoc
+```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
 
@@ -111,7 +111,7 @@ def expensiveCalculation() =
 
 Our Side Effect will be a mock alert that is sent anytime our count is updated:
 
-```scala 3 mdoc
+```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
 
@@ -120,7 +120,7 @@ def sendNotification() =
     "Alert: updating count!"
 ```
 
-```scala 3 mdoc
+```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
 
