@@ -15,7 +15,11 @@ A test is something that returns an `Assertion`.
 To create a test, import some elements of `zio.test` and create an `object` that extends `ZIOSpecDefault` with a `spec` function:
 
 ```scala 3 mdoc:compile-only
-import zio.test.{test, assertTrue, ZIOSpecDefault}
+import zio.test.{
+  test,
+  assertTrue,
+  ZIOSpecDefault,
+}
 
 object Basic extends ZIOSpecDefault:
   def spec =
@@ -157,7 +161,11 @@ Armed with these tools, we can now return to the kitchen to test our `Bread` eat
 ```scala 3 mdoc:testzio
 import zio.*
 import zio.direct.*
-import zio.test.{test, assertTrue, TestConsole}
+import zio.test.{
+  test,
+  assertTrue,
+  TestConsole,
+}
 
 def spec =
   test("eat Bread"):
@@ -225,7 +233,11 @@ def run =
 ```scala 3 mdoc:testzio
 import zio.*
 import zio.direct.*
-import zio.test.{test, assertTrue, TestRandom}
+import zio.test.{
+  test,
+  assertTrue,
+  TestRandom,
+}
 
 def spec =
   test("flips 10 times"):

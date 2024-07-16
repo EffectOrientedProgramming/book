@@ -9,7 +9,7 @@ name := "EffectOrientedProgramming"
 
 initialize := {
   initialize.value
-  val required = VersionNumber("17")
+  val required = VersionNumber("11")
   val current = VersionNumber(sys.props("java.specification.version"))
   assert(current.get(0).get >= required.get(0).get, s"Java $required or above required")
 }
