@@ -12,10 +12,10 @@ The `provide` method contains different `ZLayer` resources depending on whether 
 ## Basic ZIO Testing
 
 A test is something that returns an `Assertion`.
-To create a test, import `zio.test.*` and create an `object` that extends `ZIOSpecDefault` with a `spec` function:
+To create a test, import some elements of `zio.test` and create an `object` that extends `ZIOSpecDefault` with a `spec` function:
 
 ```terminal
-import zio.test.*
+import zio.test.{test, assertTrue}
 
 object Basic extends ZIOSpecDefault:
   def spec =
@@ -32,10 +32,10 @@ For this book we've created an abbreviation, so our examples will instead look l
 
 ```scala 3 mdoc:testzio
 import zio.*
-import zio.test.*
+import zio.test.{test, assertTrue}
 
 def spec =
-  zio.test.test("basic"):
+  test("basic"):
     assertTrue(1 == 1)
 ```
 
@@ -43,10 +43,10 @@ Assertions that *do not* appear at the end of the test are ignored:
 
 ```scala 3 mdoc:testzio
 import zio.*
-import zio.test.*
+import zio.test.{test, assertTrue}
 
 def spec =
-  zio.test.test("basic2"):
+  test("basic2"):
     assertTrue(1 != 1) // Ignored
     assertTrue(1 == 1)
 ```
@@ -55,10 +55,10 @@ You can, however, put multiple Boolean evaluations within a single `assertTrue` 
 
 ```scala 3 mdoc:testzio
 import zio.*
-import zio.test.*
+import zio.test.{test, assertTrue}
 
 def spec =
-  zio.test.test("basic3"):
+  test("basic3"):
     // Multiple boolean expressions:
     assertTrue(1 == 1, 2 == 2, 3 == 3)
 ```
@@ -68,11 +68,11 @@ The Effect is automatically run by the test framework:
 
 ```scala 3 mdoc:testzio
 import zio.*
-import zio.test.*
 import zio.direct.*
+import zio.test.{test, assertCompletes}
 
 def spec =
-  zio.test.test("basic4"):
+  test("basic4"):
     defer:
       printLine("testing basic4").run
       assertCompletes
@@ -86,8 +86,8 @@ We can assign the Effect to a `val` and use that as the test:
 
 ```scala 3 mdoc:testzio
 import zio.*
-import zio.test.*
 import zio.direct.*
+import zio.test.{test, assertCompletes}
 
 val basic5 =
   defer:
@@ -95,7 +95,7 @@ val basic5 =
     assertCompletes
 
 def spec =
-  zio.test.test("basic5"):
+  test("basic5"):
     basic5
 ```
 
@@ -103,8 +103,8 @@ We create *suites* of tests that all run together:
 
 ```scala 3 mdoc:testzio
 import zio.*
-import zio.test.*
 import zio.direct.*
+import zio.test.{test, suite, assertTrue}
 
 val basic6 =
   defer:
@@ -113,10 +113,10 @@ val basic6 =
 
 def spec =
   suite("Creating a Suite of Tests")(
-    zio.test.test("basic5 in suite"):
+    test("basic5 in suite"):
       basic6  // Duplicate to get it working
     ,
-    zio.test.test("basic6 in suite"):
+    test("basic6 in suite"):
       basic6,
   )
 ```
@@ -140,7 +140,6 @@ Rather than trying to get `Bread` from a fallible human, we can create an `Ideal
 ```scala 3 mdoc
 import zio.*
 
-
 object IdealFriend:
   val bread =
     ZLayer.succeed:
@@ -152,10 +151,10 @@ Armed with these tools, we can now return to the kitchen to test our `Bread` eat
 ```scala 3 mdoc:testzio
 import zio.*
 import zio.direct.*
-import zio.test.*
+import zio.test.{test, assertTrue, TestConsole}
 
 def spec =
-  zio.test.test("eat Bread"):
+  test("eat Bread"):
     defer:
       ZIO
         .serviceWithZIO[Bread]:
@@ -220,10 +219,10 @@ def run =
 ```scala 3 mdoc:testzio
 import zio.*
 import zio.direct.*
-import zio.test.*
+import zio.test.{test, assertTrue, TestRandom}
 
 def spec =
-  zio.test.test("flips 10 times"):
+  test("flips 10 times"):
     defer:
       TestRandom
         .feedBooleans(true)
@@ -286,10 +285,10 @@ We need to adjust the clock *while `nightlyBatch` is running*.
 ```terminal
 import zio.*
 import zio.direct.*
-import zio.test.*
+import zio.test.{test, assertCompletes, TestRandom}
 
 def spec =
-  zio.test.test("batch runs after 24 hours"):
+  test("batch runs after 24 hours"):
     defer:
       nightlyBatch.zipPar(timeTravel).run
       assertCompletes

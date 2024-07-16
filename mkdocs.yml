@@ -17,5 +17,5 @@ plugins:
   - redirects:
       redirect_maps:
         'resources/zio/sharing-layers-between-multiple-files.md':  'https://zio.dev/reference/test/sharing-layers-between-multiple-files/'
-        'resources/zio/test-assertion-library': 'https://zio.dev/reference/test/assertions/'
+        'resources/zio/test-assertion-library.md': 'https://zio.dev/reference/test/assertions/'
         'resources/zio/docs.md':  'https://zio.dev/reference/'
