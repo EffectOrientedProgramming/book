@@ -274,7 +274,41 @@ To vary the types across multiple tests, supply different types to each test usi
 This only works for user-defined types. 
 What about built-in types like `Console`, `Random`, and `Clock`? 
 For these, ZIO Test provides special APIs.
-We'll look at the two most-commonly encountered ones, after `Console`: randomness and time.
+We'll look at the three most-commonly used builtins: the console, randomness, and time.
+
+### The Console
+
+When you are using any ZIO output facilities such as `printLine`, the output is automatically captured by the `TestConsole`.
+It is always available from `TestConsole.output`, which produces a `Vector` of `String`.
+Each element of the `Vector` is an output line:
+
+```scala 3 mdoc:testzio
+import zio.test.*
+
+def spec =
+  test("Capture output"):
+    defer:
+      printLine("Morty").run
+      val out1 = TestConsole.output.run
+      printLine("Beth").run
+      val out2 = TestConsole.output.run
+      printLine(s"$out1\n****\n$out2").run
+      printLine(out2(1)).run
+      assertCompletes
+```
+
+If you need to artificially provide your own input to the console, use `TestConsole.feedLines`:
+
+```scala 3 mdoc:testzio
+val spec =
+  test("Substitute input"):
+    defer:
+      TestConsole.feedLines("Morty", "Beth").run
+      val input = readLine.run
+      printLine(input).run
+      assertTrue(input == "Morty")
+```
+
 
 ### Randomness
 

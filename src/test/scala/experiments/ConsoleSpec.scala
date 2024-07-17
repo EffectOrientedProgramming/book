@@ -2,31 +2,25 @@ package experiments
 
 import zio.test.*
 
-object ConsoleSpec extends ZIOSpecDefault:
+object ConsoleOutputSpec
+    extends ZIOSpecDefault:
   def spec =
-    suite("Hijacking the Console")(
-      test("Capturing output"):
-        defer:
-          printLine("output").run
-          assertTrue(
-            TestConsole.output.run ==
-              Vector("output\n")
-          )
-      ,
-      test("Substituting input"):
-        defer:
-          val console =
-            ZIO.service[Console].run
-          val input = console.readLine.run
-          printLine(s"$input").run
-          assertTrue(input == "input")
-        .provideLayer(
-          TestConsole.make(
-            TestConsole.Data(
-              List("input", "more"),
-              Vector.empty,
-            )
-          )
-        ),
-    )
-end ConsoleSpec
+    test("Capture output"):
+      defer:
+        printLine("Morty").run
+        val out1 = TestConsole.output.run
+        printLine("Beth").run
+        val out2 = TestConsole.output.run
+        printLine(s"$out1\n****\n$out2").run
+        printLine(out2(1)).run
+        assertCompletes
+
+object NewerTestConsole
+  extends ZIOSpecDefault:
+  val spec =
+    test("Substitute input"):
+      defer:
+        TestConsole.feedLines("Morty", "Beth").run
+        val input = readLine.run
+        printLine(input).run
+        assertTrue(input == "Morty")
