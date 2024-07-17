@@ -89,7 +89,7 @@ def spec =
 ```
 
 The `defer` produces an Effect that runs the `printLine` and returns `assertCompletes`.
-`assertCompletes` indicates that everything ran successfully, but without any explicit Boolean test.
+`assertCompletes` unconditionally indicates that everything ran successfully.
 
 We can assign the Effect to a `val` and use that as the test:
 
@@ -115,7 +115,7 @@ def spec =
 ```
 
 Tests are typically collected into a `suite`. 
-Tests in `suite`s run as a group:
+The tests in a `suite` run as a group:
 
 ```scala 3 mdoc:testzio
 import zio.*
@@ -137,14 +137,14 @@ def spec =
   )
 ```
 
-Note that these tests run in parallel so the output does not necessarily appear in the order the tests are listed.
+Tests run in parallel so the output does not necessarily appear in the order the tests are listed.
 
 ## Birdhouse Factory
 
 Suppose you want to build birdhouses as fast as possible, and you have the choice of materials for building them.
 These `Material`s have different levels of `brittleness` so some `Tool`s might break some `Material`s.
-We want to test different `Material`s with different combinations of `Tool`s
-By giving them all `ZLayer` services, we'll easily swap them around during testing.
+We want to test different `Material`s with different combinations of `Tool`s.
+All `Material`s and `Tool`s have `ZLayer` services, so we easily swap them around during testing.
 
 We define `Wood` and `Plastic` as `Material`s and give them different `brittleness` factors:
 
@@ -261,7 +261,7 @@ import zio.test.{test, *}
 ```
 
 Notice the clarity of the failure report.
-It gives you all the information you need to see exactly what's happening.
+It gives all the information you need to see exactly what's happening.
 
 We've only shown a few combinations here.
 As an exercise, try adding others.
@@ -269,8 +269,8 @@ Then add a new `Material` called `Metal`, and a new `Tool` category called `Powe
 
 ## Testing Effects
 
-As you've seen, whenever you create a user-defined type, you can include a method to produce a `ZLayer` containing an instance of that type.
-When you need to vary the types across multiple tests, those types are supplied using `provide`.
+As you've just seen, whenever you create a user-defined type, you can include a method to produce a `ZLayer` containing an instance of that type.
+To vary the types across multiple tests, supply different types to each test using `provide`.
 
 This only works for user-defined types. 
 What about built-in types like `Console`, `Random`, and `Clock`? 
