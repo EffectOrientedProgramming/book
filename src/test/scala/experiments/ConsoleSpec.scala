@@ -24,3 +24,15 @@ object NewerTestConsole
         val input = readLine.run
         printLine(input).run
         assertTrue(input == "Morty")
+
+object Cyclic
+  extends ZIOSpecDefault:
+  val spec =
+    test("Substitute input"):
+      defer:
+        TestConsole.feedLines("Morty", "Beth").run
+        val input = readLine.run
+        printLine(input).run
+        val output = TestConsole.output.run
+        printLine(output).run
+        assertTrue(input == "Morty")

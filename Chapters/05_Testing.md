@@ -278,8 +278,8 @@ We'll look at the three most-commonly used builtins: the console, randomness, an
 
 ### The Console
 
-When you are using any ZIO output facilities such as `printLine`, the output is automatically captured by the `TestConsole`.
-It is always available from `TestConsole.output`, which produces a `Vector` of `String`.
+When using any ZIO output facilities such as `printLine`, output is automatically captured by the `TestConsole`.
+The captured output is always available from `TestConsole.output`, which produces a `Vector` of `String`.
 Each element of the `Vector` is an output line:
 
 ```scala 3 mdoc:testzio
@@ -297,6 +297,12 @@ def spec =
       assertCompletes
 ```
 
+As usual, `printLine` displays on the console, so we see "Morty" and "Beth" appear as expected.
+However, the console output is also being captured into `TestConsole.output`
+Displaying `out1` produces a `Vector` containing `Morty` plus a newline.
+Displaying `out2` gives us that same `Vector` with an additional entry: `Beth` plus a newline.
+Since this is a `Vector` we can index into `out2`, selecting element one which produces `Beth`.
+
 If you need to artificially provide your own input to the console, use `TestConsole.feedLines`:
 
 ```scala 3 mdoc:testzio
@@ -306,9 +312,14 @@ val spec =
       TestConsole.feedLines("Morty", "Beth").run
       val input = readLine.run
       printLine(input).run
+      val output = TestConsole.output.run
+      printLine(output).run      
       assertTrue(input == "Morty")
 ```
 
+Each argument to `feedLines` becomes an input line.
+We've only called `readLine` once, so only `Morty` appears, while `"Beth"` remains unread.
+We can also produce our own input as captured in `TestConsole.output`, which is always tracking the output whether we use it or not.
 
 ### Randomness
 
