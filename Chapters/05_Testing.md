@@ -347,19 +347,20 @@ val coinToss =
 
 The `if` looks at whether `nextBoolean` is `true` or `false` and produces `succeed("Heads")` or `fail("Tails")` accordingly.
 
-Now we use `coinToss` to fill a `List` with ten tosses, then `collectAllSuccesses` tells us how many of those were `ZIO.succeed("Heads")`.
+Now we use `coinToss` to fill a `List` with five tosses.
+`collectAllSuccesses` tells us how many of those were `ZIO.succeed("Heads")`.
 Note that `collectAllSuccesses` is not looking at `true` or `false` values, but rather `succeed` vs. `fail` objects:
 
 ```scala 3 mdoc:silent
 import zio.{Console, *}
 import zio.direct.*
 
-val flipTen =
+val flipFive =
   defer:
     val numHeads =
       ZIO
         .collectAllSuccesses:
-          List.fill(10):
+          List.fill(5):
             coinToss
         .run
         .size
@@ -373,7 +374,7 @@ Running this as a normal program, we see the expected random assortment of `Head
 import zio.*
 
 def run =
-  flipTen
+  flipFive
 ```
 
 `Random.nextBoolean` fetches the next random Boolean value from the source of randomness.
@@ -385,23 +386,18 @@ import zio.direct.*
 import zio.test.*
 
 def spec =
-  test("flips 10 times"):
+  test("flips 5 times"):
     defer:
       TestRandom
-        .feedBooleans(true, true, false)
-        .repeatN(9)
+        .feedBooleans(true, true, false, true, false)
         .run
-      val result = flipTen.run
-      assertTrue(result == 7)
+      val heads = flipFive.run
+      assertTrue(heads == 3)
 ```
 
-`feedBooleans` repeatedly cycles through the argument values.
-If you give it a single value such as `true`, it will just produce a stream of `true` results.
-Here it produces two `true`s and a `false` and then starts over again.
-You can also provide a function to `feedBooleans`
-That function could, for example, read the values from a file.
+`feedBooleans` provides its argument values to `Random.nextBoolean`. 
 
-Notice that our use of `TestRandom.feedBooleans` seems completely disconnected from `coinToss`, which is used via `flipTen`.
+Notice that our use of `TestRandom.feedBooleans` seems completely disconnected from `coinToss`, which is used via `flipFive`.
 But `coinToss` is asking for random numbers, and `TestRandom.feedBooleans` provides them.
 Even though the Effect is buried in two other functions, it can still be accessed here, and its behavior controlled to produce a consistent test.
 
@@ -410,21 +406,22 @@ Those values are typically provided to `ZIO.Random` by calling `Scala.util.Rando
 
 If something in your system needs random numbers, you can use the default behavior, or you can provide your own sequence using `TestRandom`.
 When your program treats randomness as an Effect, testing unusual scenarios is straightforward.
-With ZIO's builtin methods, you can transparently provide random data that results in deterministic behavior.
+You can transparently provide random data that results in deterministic behavior.
 
 ### Time
 
-Even time can be simulated, as using the clock is an Effect.
+Using the clock is an Effect, but during testing the time can be simulated.
 
-```scala 3 mdoc:silent
+```scala 3 mdoc:silent 
 import zio.*
 
 val nightlyBatch =
   ZIO.sleep(24.hours).debug("Parsing CSV")
 ```
 
-By default, in ZIO Test, the clock does not change unless instructed to.
-Calling a time-based Effect like `timeout` would hang indefinitely with a warning like:
+When using ZIO Test, the clock does not move forward on its own.
+You must explicitly change the clock.
+Unless you move the time forward, calling a time-based Effect like `timeout` hangs indefinitely with the message:
 
 ```terminal
 Warning: A test is using time, but is not
@@ -433,9 +430,9 @@ in the test hanging.  Use TestClock.adjust
 to manually advance the time.
 ```
 
-We need to explicitly advance the time to make the test complete.
+To explicitly advance the time, call `adjust`:
 
-```terminal
+```scala 3 mdoc:silent
 import zio.*
 
 val timeTravel =
@@ -443,10 +440,11 @@ val timeTravel =
     24.hours
 ```
 
-However, be aware that it is not correct to call `TestClock.adjust` before or after we execute `nightlyBatch`.
-We need to adjust the clock *while `nightlyBatch` is running*.
+It won't work to call `adjust` before or after we execute `nightlyBatch`.
+We must move the clock *while `nightlyBatch` is running*---that is, *in parallel*.
+This is accomplished with `zipPar`:
 
-```terminal
+```scala 3 mdoc:testzio
 import zio.*
 import zio.direct.*
 import zio.test.*
@@ -458,17 +456,18 @@ def spec =
       assertCompletes
 ```
 
-By running `nightlyBatch` and `timeTravel` in parallel, we ensure that the `nightlyBatch` Effect completes after "24 hours".
+Here, `zipPar` runs the `nightlyBatch` and `timeTravel` operations in parallel. 
+This ensures that the `nightlyBatch` Effect completes by moving the clock forward 24 hours.
 
-Using a simulated Clock means we no longer rely on real-world time.
-The example now runs in real-world milliseconds instead an entire day.
-They are also more predictable as the time adjustments are fully controlled by the tests.
+By using a simulated Clock, we no longer rely on real-world time.
+This test runs in real-world milliseconds instead of an entire day.
+Tests are also more predictable because time adjustments are fully controlled.
 
 #### Targeting Failure-Prone Time Bands
 
-Using real-world time also can be error-prone because Effects may have unexpected results in certain time bands.
-Suppose you have code that gets the time, and it happens to be 23:59:59.
-After some operations that take a few seconds, you get database records for the current day.
-Those records may no longer be the day associated with previously received records.
+Using real-world time can be error-prone because Effects can have unexpected results in certain time bands.
+Consider fetching a time that happens to be 23:59:59.
+After performing some operations, you get database records for the current day.
+Those records may no longer be from the day associated with previously received records.
 This scenario can be very hard to test when using real-world time.
 With a simulated clock, your tests can adjust the clock to reliably reproduce the test conditions.
