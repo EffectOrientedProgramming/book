@@ -227,37 +227,36 @@ This way, each `test` can `provide` different combinations of services:
 ```scala 3 mdoc:testzio
 import zio.test.{test, *}
 
-  def spec =
-    suite("Materials with different Tools")(
-      test("Wood with hand tools"):
-        testToolWithMaterial.provide(
-          Material.wood,
-          Saw.hand,
-          Nailer.hand,
-        )
-      ,
-      test("Plastic with hand tools"):
-        testToolWithMaterial.provide(
-          Material.plastic,
-          Saw.hand,
-          Nailer.hand,
-        )
-      ,
-      test("Plastic with robo tools"):
-        testToolWithMaterial.provide(
-          Material.plastic,
-          Saw.robotic,
-          Nailer.robotic,
-        )
-      ,
-      test("Plastic with robo saw & hammer"):
-        testToolWithMaterial.provide(
-          Material.plastic,
-          Saw.robotic,
-          Nailer.hand,
-        )
-      ,
-    )
+def spec =
+  suite("Materials with different Tools")(
+    test("Wood with hand tools"):
+      testToolWithMaterial.provide(
+        Material.wood,
+        Saw.hand,
+        Nailer.hand,
+      )
+    ,
+    test("Plastic with hand tools"):
+      testToolWithMaterial.provide(
+        Material.plastic,
+        Saw.hand,
+        Nailer.hand,
+      )
+    ,
+    test("Plastic with robo tools"):
+      testToolWithMaterial.provide(
+        Material.plastic,
+        Saw.robotic,
+        Nailer.robotic,
+      )
+    ,
+    test("Plastic with robo saw & hammer"):
+      testToolWithMaterial.provide(
+        Material.plastic,
+        Saw.robotic,
+        Nailer.hand,
+      ),
+  )
 ```
 
 Notice the clarity of the failure report.
@@ -361,9 +360,7 @@ Even time can be simulated, as using the clock is an Effect.
 import zio.*
 
 val nightlyBatch =
-  ZIO
-    .sleep(24.hours)
-    .debug("Parsing CSV")
+  ZIO.sleep(24.hours).debug("Parsing CSV")
 ```
 
 By default, in ZIO Test, the clock does not change unless instructed to.

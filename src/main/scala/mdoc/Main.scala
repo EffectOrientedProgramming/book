@@ -450,12 +450,12 @@ def processFile(
     input
       .text
       .replace("```scala 3", "```scala")
-      .replace("import zio.*\n\n", "")
-      .replace("import zio.*\n", "")
-      .replace("import zio.direct.*\n\n", "")
-      .replace("import zio.direct.*\n", "")
-      .replace("import zio.Console.*\n\n", "")
-      .replace("import zio.Console.*\n", "")
+      .replaceAll("import zio\\.\\*\\r?\\n\\r?\\n", "")
+      .replaceAll("import zio\\.\\*\\r?\\n", "")
+      .replaceAll("import zio\\.direct\\.\\*\\r?\\n\\r?\\n", "")
+      .replaceAll("import zio\\.direct\\.\\*\\r?\\n", "")
+      .replaceAll("import zio\\.Console\\.\\*\\r?\\n\\r?\\n", "")
+      .replaceAll("import zio\\.Console\\.\\*\\r?\\n", "")
 
   val sourceInput =
     Input.String(source)

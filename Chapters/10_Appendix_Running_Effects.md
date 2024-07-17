@@ -81,7 +81,7 @@ For this book we can shorten the test definition to:
 ```scala 3 mdoc:testzio
 import zio.*
 import zio.direct.*
-import zio.test.{test, assertTrue}
+import zio.test.*
 
 def spec =
   test("random is random"):
