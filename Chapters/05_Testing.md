@@ -13,7 +13,7 @@ A test must return an `Assertion`.
 To create a test, import elements from `zio.test` and create an `object` that extends `ZIOSpecDefault` with a `spec` function:
 
 ```scala 3 mdoc:compile-only
-import zio.test.{test, *}
+import zio.test.*
 
 object Basic extends ZIOSpecDefault:
   def spec =
@@ -30,7 +30,7 @@ For this book we've created an abbreviation, so our examples will instead look l
 
 ```scala 3 mdoc:testzio
 import zio.*
-import zio.test.{test, *}
+import zio.test.*
 
 def spec =
   test("basic"):
@@ -41,7 +41,7 @@ Assertions that *do not* appear at the end of the test are ignored:
 
 ```scala 3 mdoc:testzio
 import zio.*
-import zio.test.{test, *}
+import zio.test.*
 
 def spec =
   test("Only the last assertTrue matters"):
@@ -53,7 +53,7 @@ You can, however, put multiple Boolean evaluations within a single `assertTrue` 
 
 ```scala 3 mdoc:testzio
 import zio.*
-import zio.test.{test, *}
+import zio.test.*
 
 def spec =
   test("Multiple Boolean expressions"):
@@ -64,7 +64,7 @@ You can also combine multiple `assertTrue` expressions using `&&`, `||` and `!`:
 
 ```scala 3 mdoc:testzio
 import zio.*
-import zio.test.{test, *}
+import zio.test.*
 
 def spec =
   test("Combine using operators"):
@@ -79,7 +79,7 @@ The Effect is automatically run by the test framework:
 ```scala 3 mdoc:testzio
 import zio.*
 import zio.direct.*
-import zio.test.{test, *}
+import zio.test.*
 
 def spec =
   test("Effect as test"):
@@ -96,7 +96,7 @@ We can assign the Effect to a `val` and use that as the test:
 ```scala 3 mdoc:silent testzio
 import zio.*
 import zio.direct.*
-import zio.test.assertCompletes
+import zio.test.*
 
 val aTest =
   defer:
@@ -107,7 +107,7 @@ val aTest =
 ```scala 3 mdoc:testzio
 import zio.*
 import zio.direct.*
-import zio.test.test
+import zio.test.*
 
 def spec =
   test("aTest"):
@@ -120,7 +120,7 @@ The tests in a `suite` run as a group:
 ```scala 3 mdoc:testzio
 import zio.*
 import zio.direct.*
-import zio.test.{test, *}
+import zio.test.*
 
 val bTest =
   defer:
@@ -208,7 +208,7 @@ The test takes a `Material` and checks it against a `Saw` and a `Nailer`:
 ```scala 3 mdoc:silent testzio
 import zio.*
 import zio.direct.*
-import zio.test.assertTrue
+import zio.test.*
 
 val testToolWithMaterial =
   defer:
@@ -225,7 +225,7 @@ Notice that in `testToolWithMaterial`, all the services are unfulfilled.
 This way, each `test` can `provide` different combinations of services:
 
 ```scala 3 mdoc:testzio
-import zio.test.{test, *}
+import zio.test.*
 
 def spec =
   suite("Materials with different Tools")(
@@ -330,7 +330,7 @@ With `Scala.util.Random` this source is hardwired into the function, but with `Z
 ```scala 3 mdoc:testzio
 import zio.*
 import zio.direct.*
-import zio.test.{test, *}
+import zio.test.*
 
 def spec =
   test("flips 10 times"):
@@ -390,7 +390,7 @@ We need to adjust the clock *while `nightlyBatch` is running*.
 ```terminal
 import zio.*
 import zio.direct.*
-import zio.test.{test, *}
+import zio.test.*
 
 def spec =
   test("batch runs after 24 hours"):
