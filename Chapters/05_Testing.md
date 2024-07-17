@@ -336,10 +336,14 @@ def spec =
   test("flips 10 times"):
     defer:
       TestRandom
-        .feedBooleans(true)
+        .feedBooleans(false)
         .repeatN(9)
         .run
-      assertTrue(flipTen.run == 10)
+      // TODO Are we going to explain the
+      //   macro behavior that prevents
+      //   putting .run inside assertTrue?
+      val result = flipTen.run
+      assertTrue(result == 10)
 ```
 
 Notice that our use of `TestRandom.feedBooleans` seems completely disconnected from `coinToss`, which is used via `flipTen`.
