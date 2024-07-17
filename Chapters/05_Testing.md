@@ -4,6 +4,9 @@ Testing requires predictability, but Effects that use external systems are unpre
 To create predictable tests for Effects, we swap the external systems with our own, controlled, sources.
 We can do this because Effects are isolated and accessible, and because they delay execution.
 
+Anything an Effect needs (from the system or the environment) can be substituted in tests for something predictable.
+For example, an Effect that fetches users from a database can use simulated data without creating a test database.
+
 To easily replace external systems during testing, we supply that external system via a `ZLayer` (covered in the [Initialization](04_Initialization.md) chapter).
 The `provide` method proxies different `ZLayer` resources for different scenarios: testing, debugging, running normally, etc.
 
@@ -274,7 +277,7 @@ To vary the types across multiple tests, supply different types to each test usi
 This only works for user-defined types. 
 What about built-in types like `Console`, `Random`, and `Clock`? 
 For these, ZIO Test provides special APIs.
-We'll look at the three most-commonly used builtins: the console, randomness, and time.
+We'll look at the three most-commonly used built-ins: the console, randomness, and time.
 
 ### The Console
 
@@ -301,7 +304,7 @@ As usual, `printLine` displays on the console, so we see "Morty" and "Beth" appe
 However, the console output is also being captured into `TestConsole.output`
 Displaying `out1` produces a `Vector` containing `Morty` plus a newline.
 Displaying `out2` gives us that same `Vector` with an additional entry: `Beth` plus a newline.
-Since this is a `Vector` we can index into `out2`, selecting element one which produces `Beth`.
+Since this is a `Vector` we can index into `out2`, selecting element one, producing `Beth`.
 
 If you need to artificially provide your own input to the console, use `TestConsole.feedLines`:
 
@@ -319,16 +322,14 @@ val spec =
 
 Each argument to `feedLines` becomes an input line.
 We've only called `readLine` once, so only `Morty` appears, while `"Beth"` remains unread.
-We can also produce our own input as captured in `TestConsole.output`, which is always tracking the output whether we use it or not.
+We can also display the input captured by `TestConsole.output`, which is always tracking the output whether we use it or not.
 
 ### Randomness
 
 Randomness is inherently unpredictable.
-To perform testing when randomness is involved, we must treat it as an Effect and then swap in a controlled sequence of fake random numbers.
-Anything an Effect needs (from the system or the environment) can be substituted in tests for something predictable.
-For example, an Effect that fetches users from a database can be simulated with a predictable set of users instead of having to set up a test database with predictable users.
-
-In the following `coinToss` function, you can guess that `Random.nextBoolean` is an Effect from the ZIO library (rather than `Scala.util.Random`) by the `.run` at the end:
+To test when randomness is involved, we must treat it as an Effect and swap in a controlled sequence of fake random numbers.
+In the following `coinToss` function, you can guess that `Random.nextBoolean` comes from the ZIO library.
+The `.run` at the end tells you that this must be an Effect, and not a call to `Scala.util.Random`):
 
 ```scala 3 mdoc:silent
 import zio.{Console, *}
