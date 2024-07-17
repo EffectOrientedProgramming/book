@@ -336,7 +336,7 @@ def spec =
   test("flips 10 times"):
     defer:
       TestRandom
-        .feedBooleans(false)
+        .feedBooleans(true)
         .repeatN(9)
         .run
       // TODO Are we going to explain the
