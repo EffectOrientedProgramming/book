@@ -339,9 +339,6 @@ def spec =
         .feedBooleans(true)
         .repeatN(9)
         .run
-      // TODO Are we going to explain the
-      //   macro behavior that prevents
-      //   putting .run inside assertTrue?
       val result = flipTen.run
       assertTrue(result == 10)
 ```
