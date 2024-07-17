@@ -300,9 +300,9 @@ def spec =
       assertCompletes
 ```
 
-As usual, `printLine` displays on the console, so we see "Morty" and "Beth" appear as expected.
-However, the console output is also being captured into `TestConsole.output`
-Displaying `out1` produces a `Vector` containing `Morty` plus a newline.
+As usual, `printLine` displays on the console, so we see "Morty" and "Beth" as expected.
+However, the console output is also being captured into `TestConsole.output`.
+Displaying `out1` produces a `Vector` containing `Morty` plus a newline (inserted by `printLine`).
 Displaying `out2` gives us that same `Vector` with an additional entry: `Beth` plus a newline.
 Since this is a `Vector` we can index into `out2`, selecting element one, producing `Beth`.
 
@@ -327,9 +327,9 @@ We can also display the input captured by `TestConsole.output`, which is always 
 ### Randomness
 
 Randomness is inherently unpredictable.
-To test when randomness is involved, we must treat it as an Effect and swap in a controlled sequence of fake random numbers.
+To perform tests involving randomness, we treat it as an Effect and swap in a controlled sequence of fake random numbers.
 In the following `coinToss` function, you can guess that `Random.nextBoolean` comes from the ZIO library.
-The `.run` at the end tells you that this must be an Effect, and not a call to `Scala.util.Random`):
+The `.run` at the end tells you that this must be an Effect, and not a call to `Scala.util.Random`:
 
 ```scala 3 mdoc:silent
 import zio.{Console, *}
@@ -345,6 +345,10 @@ val coinToss =
       ZIO.fail("Tails").run
 ```
 
+The `if` looks at whether `nextBoolean` is `true` or `false` and produces `succeed("Heads")` or `fail("Tails")` accordingly.
+
+Now we use `coinToss` to fill a `List` with ten tosses, then `collectAllSuccesses` tells us how many of those were `ZIO.succeed("Heads")`.
+Note that `collectAllSuccesses` is not looking at `true` or `false` values, but rather `succeed` vs. `fail` objects:
 
 ```scala 3 mdoc:silent
 import zio.{Console, *}
@@ -362,6 +366,8 @@ val flipTen =
     printLine(s"Num Heads = $numHeads").run
     numHeads
 ```
+
+Running this as a normal program, we see the expected random assortment of `Heads` and `Tails`:
 
 ```scala 3 mdoc:runzio
 import zio.*
@@ -382,21 +388,28 @@ def spec =
   test("flips 10 times"):
     defer:
       TestRandom
-        .feedBooleans(true)
+        .feedBooleans(true, true, false)
         .repeatN(9)
         .run
       val result = flipTen.run
-      assertTrue(result == 10)
+      assertTrue(result == 7)
 ```
+
+`feedBooleans` repeatedly cycles through the argument values.
+If you give it a single value such as `true`, it will just produce a stream of `true` results.
+Here it produces two `true`s and a `false` and then starts over again.
+You can also provide a function to `feedBooleans`
+That function could, for example, read the values from a file.
 
 Notice that our use of `TestRandom.feedBooleans` seems completely disconnected from `coinToss`, which is used via `flipTen`.
 But `coinToss` is asking for random numbers, and `TestRandom.feedBooleans` provides them.
-In the absence of `TestRandom.feedBooleans`, `coinToss` just uses the normal random generator provided by `Scala.util.Random`.
-Whenever something in your system needs random numbers, you can do nothing and get the default behavior, or you can provide your own sequence using `TestRandom`.
-In this case, `feedBooleans` is just given the constant value of `true` for each iteration, but you can also provide a function.
-This function could, for example, read the values from a file.
+Even though the Effect is buried in two other functions, it can still be accessed here, and its behavior controlled to produce a consistent test.
 
-When your program treats randomness as an Effect, testing unusual scenarios becomes straightforward.
+In the absence of `TestRandom.feedBooleans`, `coinToss` just uses the normal `ZIO.Random` generator.
+Those values are typically provided to `ZIO.Random` by calling `Scala.util.Random`.
+
+If something in your system needs random numbers, you can use the default behavior, or you can provide your own sequence using `TestRandom`.
+When your program treats randomness as an Effect, testing unusual scenarios is straightforward.
 With ZIO's builtin methods, you can transparently provide random data that results in deterministic behavior.
 
 ### Time
