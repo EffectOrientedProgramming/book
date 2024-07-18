@@ -69,7 +69,7 @@ def gpsFailure =
     )
   )
 
-def weird =
+def tooCold =
   scenarioForNonZio = Some(Scenario.TooCold)
 
   Runtime.setConfigProvider(
@@ -88,6 +88,7 @@ val getTemperature: ZIO[
   defer:
     val maybeScenario =
       ZIO.config(scenarioConfig).orDie.run
+    printLine("Getting Temperature").orDie.run
 
     maybeScenario match
       case Some(Scenario.GPSFailure) =>
@@ -135,6 +136,8 @@ import zio.direct.*
 
 override val bootstrap = networkFailure
 
+// TODO Reduce output here
+
 def run =
   getTemperature
 ```
@@ -153,9 +156,7 @@ override val bootstrap = networkFailure
 def run =
   defer:
     getTemperature.run
-    printLine:
-      "only prints if getTemperature succeeds"
-    .run
+    printLine("getTemperature succeeded").run
 ```
 
 We handle failure in various ways.
@@ -177,10 +178,8 @@ def run =
           "Could not get temperature"
 
   defer:
-    safeGetTemperature.run
-    printLine:
-      "will not print if getTemperature fails"
-    .run
+    val result = safeGetTemperature.run
+    printLine(result).run
 ```
 
 This time the second Effect will run because we've transformed the `getTemperature` failure into a successful result.
@@ -198,7 +197,7 @@ val bad =
     case ex: NetworkException =>
       ZIO.succeed:
         "Network Unavailable"
-// [E029] Pattern Match Exhaustivity Warning:
+// Pattern Match Exhaustivity Warning:
 //     case ex: NetworkException =>
 //     ^
 // match may not be exhaustive.
@@ -236,9 +235,7 @@ override val bootstrap = gpsFailure
 def run =
   defer:
     val result = temperatureAppComplete.run
-    printLine:
-      s"Didn't fail, despite: $result"
-    .run
+    printLine(result).run
 ```
 
 Since the new `temperatureAppComplete` can no longer fail, we can no longer "catch" failures.
@@ -251,105 +248,74 @@ temperatureAppComplete.catchAll:
       "This cannot happen"
 ```
 
-The types of failures from `getTemperature` were both an `Exception`.
-But failures can be any type.
-For example, we can change the `Exceptions` into another type, like a `String`
-  (which is not a good idea, but shows that failures are not constrained to only be `Exception`s)
+## Custom Error Types
 
-```scala 3 mdoc:silent
+The failures from `getTemperature` were both `Exception`s, but failures can be any type.
+
+Consider a `check` Effect (implementation hidden) that can fail with a custom type:
+
+```scala 3 mdoc
+case class ClimateFailure(message: String)
+```
+
+```scala 3 mdoc:invisible
 import zio.*
 import zio.direct.*
 
-val getTemperatureBad =
-  getTemperature.catchAll:
-    case e: Exception =>
+def check(temperature: Temperature) =
+  defer:
+    printLine("Checking Temperature").run
+    if temperature.degrees > 0 then
+      ZIO.succeed:
+        "Comfortable Temperature"
+      .run
+    else
       ZIO.fail:
-        e.getMessage
+        ClimateFailure("**Too Cold**")
+      .run
 ```
-
-Now we can again use `catchAll` but can handle the `String` failure type:
 
 ```scala 3 mdoc:runzio
 import zio.*
 import zio.direct.*
 import zio.Console.*
 
-override val bootstrap = gpsFailure
+def run =
+  check(Temperature(-20))
+```
+
+```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+import zio.Console.*
 
 def run =
-  getTemperatureBad.catchAll:
-    case s: String =>
-      printLine(s)
+  check(Temperature(15))
 ```
 
-There are many different ways to handle failures with Effects.
-You've already seen some of the others, like `retry` and `orElse` in the **Superpowers** chapter.
+## Multiple Error Types 
 
-With Effects, failures are aggregated across the chain of Effects, unless handled.
-For instance, a new `check` Effect might fail with a new type:
+```scala 3
+// TODO Subheader name
+```
+
+We can now create a new Effect that calls `getTemperature` and then `check`.
+The Effect System tracks all possible failures in a sequence of Effects.
 
 ```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
 
-case class ClimateFailure(message: String)
-
-def check(temperature: Temperature) =
-  if temperature.degrees > 0 then
-    ZIO.succeed:
-      "Not too cold."
-  else
-    ZIO.fail:
-      ClimateFailure("**Machine froze**")
-```
-
-We can now create a new Effect from `getTemperature` and `check` that can fail with either an `Exception` or a `ClimateFailure`:
-The explicit knowledge of exactly how each Effect can fail is part of definition of the Effect.
-
-## Short-circuiting Failures
-
-Short-circuiting is an essential part of a user-friendly Effect Systems.
-With it, we can write a linear sequence of fallible expressions, while tracking all possible failures.
-
-```scala 3 mdoc:silent
-import zio.*
-import zio.direct.*
-
-// can fail with an Exception or a ClimateFailure
 val getTemperatureWithCheck =
   defer:
-    // can fail with an Exception
     val temperature = getTemperature.run
-
-    // can fail with a ClimateFailure
     check(temperature).run
 ```
 
-Now we see what happens when a `gpsFailure` causes our first Effect to fail:
+To handle all possible failures for this new Effect, we must handle both `Exception` and `ClimateFailure`:
 
-```scala 3 mdoc:runzio
-import zio.*
-import zio.direct.*
-
-override val bootstrap = gpsFailure
-
-def run =
-  getTemperatureWithCheck
-```
-
-The program fails with the GPS failure, and the `check` Effect is not run.
-
-In order for Effect Systems to have recovery operations, they must know when failure happens.
-To handle the possible failures for this new Effect, we now need to handle both the `Exception` and `ClimateFailure`:
-
-```scala 3 mdoc:runzio
-import zio.*
-import zio.direct.*
-import zio.Console.*
-
-override val bootstrap = weird
-
-def run =
+```scala 3 mdoc:silent
+val getTemperatureWithCheckComplete =
   getTemperatureWithCheck.catchAll:
     case exception: Exception =>
       printLine:
@@ -359,13 +325,47 @@ def run =
         failure.message
 ```
 
-All the possible failure types, across the sequence of Effects, have been handled at the top-level Effect.
-It is up to you when and how you want to handle possible failures.
+All possible failure types, across the sequence of Effects, are handled.
+As before, the Effect System will produce a compiler error if we miss an error type.
+
+When our combined Effect
+
+```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+import zio.Console.*
+
+override val bootstrap = tooCold
+
+def run =
+  getTemperatureWithCheckComplete
+```
+
+## Short-circuiting Failures
+
+Now we see what happens when a `gpsFailure` causes the *first* Effect to fail:
+
+```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+
+override val bootstrap = gpsFailure
+
+def run =
+  getTemperatureWithCheckComplete
+```
+
+The program fails with the GPS failure, and the `check` Effect is not run.
+
+
+Short-circuiting is an essential part of a user-friendly Effect Systems.
+With it, we can write a linear sequence of fallible expressions, while tracking all possible failures.
+
 
 ## Handling Thrown Exceptions
 
-So far we've used Effects to encapsulate failures, but you may have legacy code or external libraries which throw `Exception`s instead.
-In these situations there are ways to wrap the `Exception` throwing code and instead have the failures as part of the Effect.
+So far our example Effects have **returned** `Exception`s to indicate failure, but you may have legacy code or external libraries which **throw** `Exception`s instead.
+In these situations there are ways to wrap the `Exception`-throwing code so that we get back to our preferred style of returning `Exception`s.
 
 ```scala 3 mdoc:invisible
 import zio.*
@@ -396,8 +396,10 @@ def run =
   ZIO.succeed:
     getTemperatureOrThrow()
 ```
+So despite our claim that this Effect would `succeed`, it actually crashes with a defect.
+When we call side-effecting code, our Effect System can't warn us about the potential failure.
 
-Using `ZIO.attempt` we can catch the thrown `Exception`s and instead encapsulate the failure in the Effect.
+The right way is to use `ZIO.attempt` which captures thrown `Exception`s as the error type of the Effect.
 
 ```scala 3 mdoc:silent
 import zio.*
