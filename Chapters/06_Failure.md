@@ -343,7 +343,15 @@ def run =
 
 ## Short-circuiting Failures
 
-Now we see what happens when a `gpsFailure` causes the *first* Effect to fail:
+```scala 3 mdoc:invisible
+// TODO Ensure we've explicitly laid out the downsides of throwing Exceptions. Seems like that might have been deleted at some point.
+```
+Despite the downsides of throwing `Exception`s, there is a reason why it is a common practice.
+It is a quick and easy way to ensure that your function stops immediately if something goes wrong, without needing to wrap all your logic in `if/else`.
+
+With Effects, we can achieve the same behavior without the downsides.
+
+Now we trigger a `gpsFailure` that causes the *first* Effect to fail:
 
 ```scala 3 mdoc:runzio
 import zio.*
@@ -356,7 +364,6 @@ def run =
 ```
 
 The program fails with the GPS failure, and the `check` Effect is not run.
-
 
 Short-circuiting is an essential part of a user-friendly Effect Systems.
 With it, we can write a linear sequence of fallible expressions, while tracking all possible failures.
