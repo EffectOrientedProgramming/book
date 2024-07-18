@@ -38,7 +38,7 @@ For example, you can share a single instance of a dependency across multiple tes
 ## Let Them Eat Bread
 
 To illustrate how ZIO assembles programs, we simulate making and eating `Bread`.[^1]
-[^1]: We were inspired by Li Haoyi's excellent article ["What's Functional Programming All About?"](https://www.lihaoyi.com/post/WhatsFunctionalProgrammingAllAbout.html)
+[^1]: We were inspired by Li Haoyi's excellent article ["What's Functional Programming All About?"](https://effectorientedprogramming.com/resources/zio/whats-functional-programming-all-about)
 We will create different types of `Bread`, so we start by defining `trait Bread`:
 
 ```scala 3 mdoc:silent
@@ -624,7 +624,7 @@ If we keep asking, we eventually get `Bread`.
 
 ### Fallback Dependencies
 
-If our `Friend` does not have `Bread` to give us, we can set up a fallback strategy:
+If our `Friend` does not have `Bread` to give us, we can set up a fallback strategy using `orElse`:
 
 ```scala 3 mdoc:runzio
 import zio.*
@@ -659,6 +659,8 @@ def eatEatEat(retries: Int) =
           retries
 ```
 
+`retries` is then passed as the argument to `eatEatEat`:
+
 ```scala 3 mdoc:runzio
 import zio.*
 import zio.direct.*
@@ -667,7 +669,7 @@ def run =
   eatEatEat(retries = 2)
 ```
 
-Operations like `retry` also work on `ZLayer`s!
+This shows that operations like `retry` also work on `ZLayer`s.
 
 ## External Configuration
 
@@ -678,7 +680,7 @@ Three typical ways are:
 - Configuration Files
 - OS Environment Variables
 
-We can use the [ZIO Config library](https://github.com/zio/zio-config) to read these.
+We can use the [ZIO Config library](https://effectorientedprogramming.com/resources/zio/zio-config/) to read these.
 This is one of the few additional libraries used in this book on top of core ZIO.
 
 ```scala 3 mdoc:silent

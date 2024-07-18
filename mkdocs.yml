@@ -19,3 +19,5 @@ plugins:
         'resources/zio/sharing-layers-between-multiple-files.md':  'https://zio.dev/reference/test/sharing-layers-between-multiple-files/'
         'resources/zio/test-assertion-library.md': 'https://zio.dev/reference/test/assertions/'
         'resources/zio/docs.md':  'https://zio.dev/reference/'
+        'resources/zio/zio-config.md':  'https://zio.dev/zio-config/'
+        'resources/zio/whats-functional-programming-all-about.md':  'https://www.lihaoyi.com/post/WhatsFunctionalProgrammingAllAbout.html'

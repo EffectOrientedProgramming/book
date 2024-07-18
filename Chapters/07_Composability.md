@@ -430,7 +430,7 @@ def openFileZ(path: String) =
 ```
 
 Once we do this, the `ZIO` runtime will manage the lifecycle of this object via the `Scope` mechanism.
-For a more thorough discussion of this, see the [ZIO documentation](https://www.zio.dev/reference/resource/scope/).
+For a more thorough discussion of this, see the [ZIO documentation](https://effectorientedprogramming.com/resources/zio/docs).
 
 Now we open a `File`, and check if it contains a topic of interest.
 
