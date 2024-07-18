@@ -18,7 +18,7 @@ We focus on the concepts of Effect Systems, rather than language and library spe
 Since Effect Systems are a new and emerging paradigm, we have limited choices.
 In this book, we use Scala 3, which has several Effect System libraries including ZIO, Cats Effects, and Kyo.
 These libraries (and others) have all contributed to the understanding of Effect Systems and how they are used.
-We chose the ZIO library for this book because of both our satisfaction with it, and our experience --- one author (Bill) was an engineer at Ziverge, the company that created and maintains ZIO, for several years.
+We chose the ZIO library for this book because of both our satisfaction with it, and our experience -- one author (Bill) was an engineer at Ziverge, the company that created and maintains ZIO, for several years.
 
 If you are using a different language, the concepts of Effect Systems may only be useful when your language or a library supports them.
 However, learning the concepts will help prepare you.

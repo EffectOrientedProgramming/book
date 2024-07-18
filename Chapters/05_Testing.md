@@ -399,7 +399,7 @@ In the absence of `TestRandom.feedBooleans`, `coinToss` just uses the normal `ZI
 Those values are typically provided to `ZIO.Random` by calling `Scala.util.Random`.
 
 If something in your system needs random numbers, you can use the default behavior, or you can provide your own sequence using `TestRandom`.
-When your program treats randomness as an Effect, testing unusual scenarios is straightforward---you transparently provide data that produces deterministic behavior.
+When your program treats randomness as an Effect, testing unusual scenarios is straightforward--you transparently provide data that produces deterministic behavior.
 
 ### Time
 
@@ -434,7 +434,7 @@ val timeTravel =
 ```
 
 It won't work to call `adjust` before or after we execute `nightlyBatch`.
-We must move the clock *while `nightlyBatch` is running*---that is, *in parallel*.
+We must move the clock *while `nightlyBatch` is running*--that is, *in parallel*.
 This is accomplished with `zipPar`:
 
 ```scala 3 mdoc:testzio

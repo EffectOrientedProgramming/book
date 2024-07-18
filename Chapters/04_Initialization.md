@@ -76,7 +76,7 @@ The companion object `BreadStoreBought` contains a single value called `purchase
 This produces a special kind of Effect: the `ZLayer`.
 `ZLayer`s are used by the Effect System to automatically inject dependencies.
 An essential difference between `ZLayer` and other dependency injection systems you might have used is that `ZLayer` validates dependencies *at compile time*.
-Your experience will actually be inside your IDE---when you do something problematic your IDE will immediately notify you with a useful error message.
+Your experience will actually be inside your IDE--when you do something problematic your IDE will immediately notify you with a useful error message.
 You aren't required to put the function producing a `ZLayer` in a companion object, but it is often convenient.
 
 There's something new here: `succeed`.
@@ -114,7 +114,7 @@ def run =
 `serviceWithZIO` takes a generic parameter, which is the *type* it needs to do the work.
 Here, `serviceWithZIO` says, "I need an object that conforms to the `trait Bread`."
 The argument to `serviceWithZIO` does the work.
-That argument must be a function that returns an Effect---in this case it is the lambda `bread => bread.eat`.
+That argument must be a function that returns an Effect--in this case it is the lambda `bread => bread.eat`.
 The object it receives from `serviceWithZIO` becomes the `bread` parameter in the lambda.
 
 The whole point of this mechanism is to separate the argument from the function call so that we can make that argument part of the initialization specification.
@@ -134,7 +134,7 @@ If the dependency for an Effect isn't provided, you'll get a compiler error:
 eatBread.provide()
 ```
 
-The error tells you exactly what you're missing---and remember that you will see this error in your IDE when you are writing the code.
+The error tells you exactly what you're missing--and remember that you will see this error in your IDE when you are writing the code.
 Traditional dependency injection systems can't tell you until runtime if you're missing something, and even then they typically cannot know for sure if you've covered all your bases.
 
 ### Names
@@ -356,7 +356,7 @@ The `baked` method is a `ZLayer` which itself relies on two other `ZLayer`s, for
 With these it constructs the `BreadHomeMade` object produced by the `baked` `ZLayer`.
 In the `ZIO.service` calls, we only need to say, "I need an `Oven`" and "I need `Dough`" and the Effect System ensures those services are found.
 
-Initially, the `run` looks identical to the previous example---we just need a service that provides `Bread`:
+Initially, the `run` looks identical to the previous example--we just need a service that provides `Bread`:
 
 ```scala 3 mdoc:runzio
 import zio.*
@@ -381,10 +381,11 @@ You can imagine a tree of dependencies, which is the simplest form of this graph
 In most dependency injection systems, the dependency graph is resolved for you.
 This typically happens in some special startup phase of the program that attempts to discover dependencies by following code paths.
 Such systems don't always find all dependencies, and you don't see the ones they find until runtime.
+ZIO's compile-time focus means you discover any problems within your IDE, saving potentially vast amounts of time.
 
 ## Sharing Dependencies
 
-Next, we'd like to make `Toast`:
+Next, we'd like to make `Toast`. We will need different kinds of `Toast`, so we'll make it a `trait`:
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -451,8 +452,8 @@ If we comment the `Toaster.ready` line, the program uses the `Oven` for both.
 
 ### Disambiguating Dependencies
 
-To solve the problem, introduce more specific types.
-We create a type of `Toast` that requires a `Toaster` rather than just any `HeatSource`:
+We can solve this problem by introducing more specific types.
+`ToastB` specifies a `Toaster` rather than just any `HeatSource`:
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -476,7 +477,7 @@ object ToastB:
         )
 ```
 
-Now we only use the `Oven` to bake the `Bread` and the `Toaster` to make `Toast`:
+Now the `Oven` bakes the `Bread` and the `Toaster` makes the `Toast`:
 
 ```scala 3 mdoc:runzio
 import zio.*
@@ -496,7 +497,7 @@ def run =
     )
 ```
 
-The order of the `provide` arguments is unimportant---try reordering them to prove this.
+The order of the `provide` arguments is unimportant--try reordering them to prove this.
 
 We can create a *wiring graph*:
 
@@ -515,8 +516,8 @@ To provide `BreadHomeMade`, we need `Dough` and an `Oven`.
 ## Dependency Cleanup
 
 An Effect without outstanding dependencies can be used to construct a `ZLayer`.
-We can use this to correct a dangerous oversight: We heat up our `Oven`, but never turn it off!
-We can build an `Oven` that turns itself off when it is no longer needed.
+This will correct a dangerous oversight: we heat up our `Oven`, but never turn it off!
+An `OvenSafe` turns itself off when it is no longer needed.
 
 ```scala 3 mdoc:silent
 import zio.*
