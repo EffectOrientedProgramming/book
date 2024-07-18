@@ -270,13 +270,12 @@ To vary the types across multiple tests, supply different types to each test usi
 This only works for user-defined types. 
 What about built-in types like `Console`, `Random`, and `Clock`? 
 For these, ZIO Test provides special APIs.
-We'll look at the three most-commonly used built-ins: the console, randomness, and time.
 
 ### The Console
 
 When using any ZIO output facilities such as `printLine`, output is automatically captured by the `TestConsole`.
 The captured output is always available from `TestConsole.output`, which produces a `Vector` of `String`.
-Each element of the `Vector` is an output line:
+Each element of the `Vector` contains an output line:
 
 ```scala 3 mdoc:testzio
 import zio.test.*
@@ -297,7 +296,7 @@ As usual, `printLine` displays on the console, so we see "Morty" and "Beth" as e
 However, the console output is also being captured into `TestConsole.output`.
 Displaying `out1` produces a `Vector` containing `Morty` plus a newline (inserted by `printLine`).
 Displaying `out2` gives us that same `Vector` with an additional entry: `Beth` plus a newline.
-Since this is a `Vector` we can index into `out2`, selecting element one, producing `Beth`.
+We index into the `Vector` `out2`, selecting element one, producing `Beth`.
 
 To artificially provide your own input to the console, use `TestConsole.feedLines`:
 
@@ -319,8 +318,8 @@ We can also display the input captured by `TestConsole.output`, which is always 
 
 ### Randomness
 
-Randomness is inherently unpredictable.
-To perform tests involving randomness, we treat it as an Effect and swap in a controlled sequence of fake random numbers.
+Randomness is intentionally unpredictable.
+When testing, we treat randomness as an Effect and swap in a controlled sequence of fake random numbers.
 In the following `coinToss` function, you can guess that `Random.nextBoolean` comes from the ZIO library.
 The `.run` at the end tells you that this must be an Effect, and not a call to `Scala.util.Random`:
 
