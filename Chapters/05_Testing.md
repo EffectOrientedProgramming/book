@@ -25,9 +25,9 @@ object Basic extends ZIOSpecDefault:
 ```
 The `String` argument to `test` is displayed in the test report.
 
-Note that the final expression is the assertion `assertTrue`.
+Note that the final expression is the `Assertion` `assertTrue`.
 Because of its power and flexibility, you'll probably use `assertTrue` most of the time.
-However, there are numerous other assertions in the [test library](https://effectorientedprogramming.com/resources/zio/test-assertion-library).
+However, there are numerous other `Assertion`s in the [test library](https://effectorientedprogramming.com/resources/zio/test-assertion-library).
 
 For this book we've created an abbreviation, so our examples will instead look like this:
 
@@ -40,7 +40,7 @@ def spec =
     assertTrue(1 == 1)
 ```
 
-Assertions that *do not* appear at the end of the test are ignored:
+`Assertion`s that *do not* appear at the end of the test are ignored:
 
 ```scala 3 mdoc:testzio
 import zio.*
@@ -76,7 +76,7 @@ def spec =
     !assertTrue(42 == 47)
 ```
 
-A test can be an Effect as long as the final expression of that Effect is an assertion.
+A test can be an Effect as long as the final expression of that Effect is an `Assertion`.
 The Effect is automatically run by the test framework:
 
 ```scala 3 mdoc:testzio
@@ -389,7 +389,9 @@ def spec =
   test("flips 5 times"):
     defer:
       TestRandom
-        .feedBooleans(true, true, false, true, false)
+        .feedBooleans(
+          true, true, false, true, false,
+        )
         .run
       val heads = flipFive.run
       assertTrue(heads == 3)
