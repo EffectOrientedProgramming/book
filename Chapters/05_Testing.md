@@ -144,12 +144,12 @@ Tests run in parallel so the output does not necessarily appear in the order the
 
 ## Birdhouse Factory
 
-Suppose you want to build birdhouses as fast as possible, and you have the choice of materials for building them.
-These `Material`s have different levels of `brittleness` so some `Tool`s might break some `Material`s.
+Suppose you want to build birdhouses as fast as possible, and you have a choice of materials for building them.
+The `Material`s have different levels of `brittleness` so some `Tool`s might break some `Material`s.
 We want to test different `Material`s with different combinations of `Tool`s.
 All `Material`s and `Tool`s have `ZLayer` services, so we easily swap them around during testing.
 
-We define `Wood` and `Plastic` as `Material`s and give them different `brittleness` factors:
+`Wood` and `Plastic` are `Material`s with different `brittleness` factors:
 
 ```scala 3 mdoc:silent testzio
 import zio.*
@@ -169,22 +169,16 @@ object Material:
 ```
 
 We define `Tool`s in a similar way. 
-Each type of `Tool` has an `intensity` which relates it to `Material.brittleness`.
+Each type of `Tool` has an `intensity` that relates it to `Material.brittleness`.
 
 ```scala 3 mdoc:silent testzio
 import zio.*
 import zio.Console.*
 
 trait Tool:
-  val action: String
   val intensity: Int
-  val use =
-    printLine(
-      s"$this $action, intensity $intensity"
-    )
 
-trait Saw extends Tool:
-  val action = "sawing"
+trait Saw extends Tool
 case class HandSaw() extends Saw:
   val intensity = 4
 case class RoboSaw() extends Saw:
@@ -194,8 +188,7 @@ object Saw:
   val hand    = ZLayer.succeed(HandSaw())
   val robotic = ZLayer.succeed(RoboSaw())
 
-trait Nailer extends Tool:
-  val action = "nailing"
+trait Nailer extends Tool
 case class Hammer() extends Nailer:
   val intensity = 4
 case class RoboNailer() extends Nailer:
