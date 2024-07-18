@@ -515,6 +515,15 @@ To provide `BreadHomeMade`, we need `Dough` and an `Oven`.
 
 ## Dependency Cleanup
 
+We briefly saw `withFinalizer` in the [Superpowers](03_Superpowers.md) chapter.
+There's more to it, however.
+How does `withFinalizer` know when to perform its finalization?
+It uses `ZIO`'s *scoping*.
+
+[[ Maybe an intro example here; we'll see ]]
+
+### A Safer Oven
+
 An Effect without outstanding dependencies can be used to construct a `ZLayer`.
 This will correct a dangerous oversight: we heat up our `Oven`, but never turn it off!
 An `OvenSafe` turns itself off when it is no longer needed.
@@ -526,14 +535,13 @@ import zio.Console.*
 
 object OvenSafe:
   val heated =
-    ZLayer.fromZIO:
+    ZLayer.scoped:
       defer:
         printLine("Oven: Heated").run
         Oven()
       .withFinalizer:
         _ =>
-          printLine("Oven: Turning off")
-            .orDie
+          printLine("Oven: Turning off").orDie
 ```
 
 ```scala 3 mdoc:runzio
@@ -545,7 +553,6 @@ def run =
     BreadHomeMade.baked,
     Dough.fresh,
     OvenSafe.heated,
-    Scope.default,
   )
 ```
 

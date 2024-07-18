@@ -322,7 +322,7 @@ The retries do not succeed so the fallback is applied.
 
 ## Finalization
 
-To ensure that something happens after an Effect completes, regardless of failures, we use `withFinalizer`:
+To ensure that something happens after an Effect completes, regardless of failures, we can attach `withFinalizer` to any Effect:
 
 ```scala 3 mdoc:silent
 val effect5 =
@@ -331,7 +331,7 @@ val effect5 =
 ```
 
 `withFinalizer` expects a function as its argument; `_ => logUserSignup` creates a function that takes no arguments and calls `logUserSignup`.
-`withFinalizer` attaches this behavior without changing the types contained in the original Effect.
+`withFinalizer` attaches this behavior with no impact on the types contained in the original Effect.
 
 ```scala 3 mdoc:runzio
 override val bootstrap = happyPath
