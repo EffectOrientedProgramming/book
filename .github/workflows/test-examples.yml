@@ -17,7 +17,7 @@ jobs:
         distribution: temurin
         java-version: '21'
         cache: sbt
-    - run: sbt test:compile
+    - run: sbt test:compile runMainClassesToleratesFailures
       working-directory: examples
   test-windows-latest:
     runs-on: windows-latest
@@ -31,5 +31,5 @@ jobs:
         distribution: temurin
         java-version: '21'
         cache: sbt
-    - run: sbt test:compile
+    - run: sbt test:compile runMainClassesToleratesFailures
       working-directory: examples
