@@ -10,7 +10,7 @@ Languages and libraries provide different ways to enable composability.
 - Functions can be composed by calling functions within other functions.
 
 These approaches do not address all aspects of composition.
-For example, you cannot compose functions using resources that need to be opened and closed.
+For example, you cannot compose functions using resources that must be opened and closed.
 Issues that complicate composition include:
 
 - Failures
@@ -781,7 +781,7 @@ We want to revisit and re-emphasize that Effects are values.
 This can be difficult to remember when viewing and executing larger programs.
 Representing a complex workflow as a value allows us to manipulate it in ways that are not possible with other approaches.
 
-Suppose the requirements of the system change, and now you need to ensure that the whole process completes within a strict time limit.
+Suppose the requirements of the system change, and now you must ensure that the whole process completes within a strict time limit.
 Even though we already have a narrow timeout attached to the AI summarize call, we are still free to attach a more restrictive timeout.
 
 ```scala 3 mdoc:silent

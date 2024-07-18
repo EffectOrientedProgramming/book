@@ -598,7 +598,7 @@ val makeCircuitBreaker =
   )
 ```
 
-Once again, the only thing that we need to do is wrap our original Effect with the `CircuitBreaker`.
+Once again, the only thing that we must do is wrap our original Effect with the `CircuitBreaker`.
 
 ```scala 3 mdoc:runzio:liveclock
 import zio.*
@@ -772,7 +772,7 @@ You are also free to make your own, attaching any capabilities/restrictions that
 ### Test Timeouts
 
 Sometimes, it's not enough to simply track the time that a test takes.
-If you have specific Service Level Agreements (SLAs) that you need to meet, you want your tests to help ensure that you are meeting them.
+If you have specific Service Level Agreements (SLAs) that you must meet, you want your tests to help ensure that you are meeting them.
 However, even if you don't have contracts bearing down on you, there are still good reasons to ensure that your tests complete in a timely manner.
 Services like GitHub Actions will automatically cancel your build if it takes too long, but this only happens at a very coarse level.
 It simply kills the job and won't actually help you find the specific test responsible.

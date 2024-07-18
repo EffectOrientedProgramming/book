@@ -21,7 +21,7 @@ In order to confidently use them, we need certain guarantees about the behavior:
 - The underlying value cannot be changed during a read
 - Multiple writes cannot happen concurrently, which would result in lost updates
 
-Less obviously, we also need to create the Mutable reference itself.
+Less obviously, we must also create the Mutable reference itself.
 We are changing the world, by creating a space that we can manipulate.
 
 ## Unreliable State
@@ -42,7 +42,7 @@ val unreliableCounting =
         _ => increment
       .run
     // It's not obvious to the reader why
-    // we need to wrap counter in .succeed
+    // we must wrap counter in .succeed
     "Final count: " +
       ZIO.succeed(counter).run
 ```
@@ -61,7 +61,7 @@ However, conflicts are extremely likely, so some of our writes get clobbered by 
 Ultimately, we lose information with this approach.
 
 Performing our Side Effects inside ZIO's does not magically make them safe.
-We need to fully embrace the ZIO components, utilizing `Ref` for correct mutation.
+We must fully embrace the ZIO components, utilizing `Ref` for correct mutation.
 
 ## Reliable State
 

@@ -658,7 +658,7 @@ Operations like `retry` also work on `ZLayer`s!
 
 ## External Configuration
 
-Programs often need to configure their behavior based on the environment during startup.
+Programs must often configure their behavior based on the environment during startup.
 Three typical ways are:
 
 - Command Line Parameters

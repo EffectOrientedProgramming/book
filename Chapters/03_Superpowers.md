@@ -481,7 +481,7 @@ Having 2 versions of `run` seems confusing, but they serve different purposes:
 Calling `.run` on anything other than an Effect produces a compiler error:
 
 ```scala 3 mdoc:invisible
-// NOTE: If you alter the sample below, you need to explicitly change the brittle error msg manipulation in Main
+// NOTE: If you alter the sample below, you must explicitly change the brittle error msg manipulation in Main
 val x =
   2 // This is just a dumb way to keep the code block from being empty, so it's properly hidden
 ```

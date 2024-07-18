@@ -32,7 +32,7 @@ The costs are numerous, especially because the business probably can't run witho
 - New functionality must be incorporated into both the old and new systems.
 - You have all the problems of software development multiplied by (at least) two.
 
-We need to change systems rather than rewrite them.
+We must change systems rather than rewrite them.
 We will always want rapid development, but we also need easy adaptability.
 What if we could shift our thinking around the problem of building software systems?
 When building a system from pieces, the parts will not become buried within the whole.

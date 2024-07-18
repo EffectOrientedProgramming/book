@@ -299,7 +299,7 @@ Displaying `out1` produces a `Vector` containing `Morty` plus a newline (inserte
 Displaying `out2` gives us that same `Vector` with an additional entry: `Beth` plus a newline.
 Since this is a `Vector` we can index into `out2`, selecting element one, producing `Beth`.
 
-If you need to artificially provide your own input to the console, use `TestConsole.feedLines`:
+To artificially provide your own input to the console, use `TestConsole.feedLines`:
 
 ```scala 3 mdoc:testzio
 val spec =
