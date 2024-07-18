@@ -319,7 +319,7 @@ We can also display the input captured by `TestConsole.output`, which is always 
 ### Randomness
 
 Randomness is intentionally unpredictable.
-When testing, we treat randomness as an Effect and swap in a controlled sequence of fake random numbers.
+When testing, we treat randomness as an Effect and swap in our own sequence of numbers.
 In the following `coinToss` function, you can guess that `Random.nextBoolean` comes from the ZIO library.
 The `.run` at the end tells you that this must be an Effect, and not a call to `Scala.util.Random`:
 
@@ -399,12 +399,12 @@ In the absence of `TestRandom.feedBooleans`, `coinToss` just uses the normal `ZI
 Those values are typically provided to `ZIO.Random` by calling `Scala.util.Random`.
 
 If something in your system needs random numbers, you can use the default behavior, or you can provide your own sequence using `TestRandom`.
-When your program treats randomness as an Effect, testing unusual scenarios is straightforward.
-You can transparently provide random data that results in deterministic behavior.
+When your program treats randomness as an Effect, testing unusual scenarios is straightforward---you transparently provide data that produces deterministic behavior.
 
 ### Time
 
-Using the clock is an Effect, but during testing the time can be simulated.
+Using the clock is an Effect: when testing, the time can be simulated.
+Suppose we want to parse the accumulated CSV files from each day, every 24 hours:
 
 ```scala 3 mdoc:silent 
 import zio.*
@@ -413,8 +413,7 @@ val nightlyBatch =
   ZIO.sleep(24.hours).debug("Parsing CSV")
 ```
 
-When using ZIO Test, the clock does not move forward on its own.
-You must explicitly change the clock.
+When using ZIO Test, the clock does not move forward on its own; you must explicitly change it.
 Unless you move the time forward, calling a time-based Effect like `timeout` hangs indefinitely with the message:
 
 ```terminal
@@ -424,7 +423,7 @@ in the test hanging.  Use TestClock.adjust
 to manually advance the time.
 ```
 
-To explicitly advance the time, call `adjust`:
+To advance the `TestClock`, call `adjust`:
 
 ```scala 3 mdoc:silent testzio
 import zio.*
@@ -452,9 +451,9 @@ def spec =
 
 Here, `zipPar` runs the `nightlyBatch` and `timeTravel` operations in parallel. 
 This ensures that the `nightlyBatch` Effect completes by moving the clock forward 24 hours.
-
-By using a simulated Clock, we no longer rely on real-world time.
 This test runs in real-world milliseconds instead of an entire day.
+
+Using a simulated Clock means we no longer rely on real-world time.
 Tests are also more predictable because time adjustments are fully controlled.
 
 #### Targeting Failure-Prone Time Bands
