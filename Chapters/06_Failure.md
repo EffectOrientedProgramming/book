@@ -262,10 +262,10 @@ case class ClimateFailure(message: String)
 import zio.*
 import zio.direct.*
 
-def check(temperature: Temperature) =
+def check(t: Temperature) =
   defer:
     printLine("Checking Temperature").run
-    if temperature.degrees > 0 then
+    if t.degrees > 0 then
       ZIO.succeed:
         "Comfortable Temperature"
       .run
@@ -306,17 +306,17 @@ The Effect System tracks all possible failures in a sequence of Effects.
 import zio.*
 import zio.direct.*
 
-val getTemperatureWithCheck =
+val weatherReportFaulty =
   defer:
-    val temperature = getTemperature.run
-    check(temperature).run
+    val result = getTemperature.run
+    check(result).run
 ```
 
 To handle all possible failures for this new Effect, we must handle both `Exception` and `ClimateFailure`:
 
 ```scala 3 mdoc:silent
-val getTemperatureWithCheckComplete =
-  getTemperatureWithCheck.catchAll:
+val weatherReport =
+  weatherReportFaulty.catchAll:
     case exception: Exception =>
       printLine:
         exception.getMessage
@@ -338,7 +338,7 @@ import zio.Console.*
 override val bootstrap = tooCold
 
 def run =
-  getTemperatureWithCheckComplete
+  weatherReport
 ```
 
 ## Short-circuiting Failures
@@ -352,7 +352,7 @@ import zio.direct.*
 override val bootstrap = gpsFailure
 
 def run =
-  getTemperatureWithCheckComplete
+  weatherReport
 ```
 
 The program fails with the GPS failure, and the `check` Effect is not run.
