@@ -120,6 +120,10 @@ val logUserSignup =
     .orDie
 ```
 
+```scala 3
+// TODO explain orDie
+```
+
 Once programs are defined in terms of Effects, we use operations from the Effect System to add new functionality.
 Combining Effects with these operations feels like a superpower.
 The reason we call them "superpowers" is that the operations can be attached to **any** Effect.

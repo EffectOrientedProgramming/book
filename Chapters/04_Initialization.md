@@ -544,6 +544,14 @@ object OvenSafe:
           printLine("Oven: Turning off").orDie
 ```
 
+```scala 3
+// TODO can we link to specific paragraphs or at least subsections?
+```
+
+Here, `scoped` produces a `ZLayer` with a finalizer linked to the `Oven` object it provides.
+When that `Oven` is no longer used, the finalizer automatically runs.
+`orDie` was explained [here](link to paragraph in Superpowers).
+
 ```scala 3 mdoc:runzio
 import zio.*
 import zio.direct.*
@@ -556,15 +564,12 @@ def run =
   )
 ```
 
-```
-// TODO: First occurrence of Scope.default
-```
-
+Whenever you procure an `OvenSafe` via its `heated` `ZLayer`, that `Oven` automatically turns itself off after its last use.
 
 ## Construction Failure
 
-Since dependencies can be built with Effects, this means that they can fail.
-Suppose we have a `Friend` who will sometimes give us `Bread`, but not right away:
+Since dependencies can be built with Effects, this means they can fail.
+Suppose we have a `Friend` who sometimes gives us `Bread`, but not right away:
 
 ```scala 3 mdoc:invisible
 import zio.*
