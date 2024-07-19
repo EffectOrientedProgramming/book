@@ -1,4 +1,4 @@
-# Appendix Running Effects {#CAppendix-Running-Effects}
+# Appendix Running Effects {#Appendix-Running-Effects}
 
 One way to run ZIOs is to use a "main method" program (something you can start in the JVM).
 However, setting up the pieces needed for this is a bit cumbersome if done without helpers.
