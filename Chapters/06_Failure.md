@@ -141,8 +141,8 @@ def run =
   getTemperature
 ```
 
-Unless we handle failure, the program ends here.
-For example, if we try to print something after trying to get the temperature, an unhandled failure will not allow the program to continue.
+Unless we handle failure, the program terminates.
+For example, if we try to print something after trying to get the temperature, any unhandled failure prevents it:
 
 ```scala 3 mdoc:runzio
 import zio.*
@@ -157,9 +157,8 @@ def run =
     printLine("getTemperature succeeded").run
 ```
 
-We handle failure in various ways.
-One is to "catch" the failure and transform it into another Effect which can also succeed or fail.
-Note that this is a method in our Effect System, *not* the `catch` mechanism of the language.
+One solution is to "catch" the failure and transform it into another Effect which can also succeed or fail.
+Note that this is a method in the Effect System, *not* the `catch` mechanism of the language:
 
 ```scala 3 mdoc:runzio
 import zio.*
@@ -180,7 +179,7 @@ def run =
     printLine(result).run
 ```
 
-This time the second Effect will run because we've transformed the `getTemperature` failure into a successful result.
+This time, the second Effect runs because we transformed the `getTemperature` failure into a successful result.
 
 With `catchAll` we must handle all the types of failures and the implementation of `getTemperature` can only fail with an Exception.
 
@@ -203,9 +202,9 @@ val bad =
 // It would fail on pattern case: _: GpsException
 ```
 
-This produces a compiler warning because our `catchAll` does not actually catch all possible failures.
+This produces a compiler warning because `catchAll` does not catch all possible failures.
 
-We should handle all failures:
+Here, we handle all failures:
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -221,7 +220,7 @@ val temperatureAppComplete =
         "GPS Hardware Failure"
 ```
 
-Now even if there is a network or GPS failure, the Effect completes successfully:
+Now, even if there is a network or GPS failure, the Effect completes successfully:
 
 ```scala 3 mdoc:runzio
 import zio.*
@@ -236,8 +235,8 @@ def run =
     printLine(result).run
 ```
 
-Since the new `temperatureAppComplete` can no longer fail, we can no longer "catch" failures.
-Trying to do so will result in a compiler error:
+Since the new `temperatureAppComplete` can no longer fail, there are no failures to "catch".
+Trying will result in a compiler error:
 
 ```scala 3 mdoc:fail
 temperatureAppComplete.catchAll:
@@ -250,7 +249,7 @@ temperatureAppComplete.catchAll:
 
 The failures from `getTemperature` were both `Exception`s, but failures can be any type.
 
-Consider a `check` Effect (implementation hidden) that can fail with a custom type:
+Consider a `check` Effect (implementation hidden) that fails with a custom type `ClimateFailure`:
 
 ```scala 3 mdoc
 case class ClimateFailure(message: String)
@@ -298,7 +297,7 @@ def run =
 ```
 
 We can now create a new Effect that calls `getTemperature` and then `check`.
-The Effect System tracks all possible failures in a sequence of Effects.
+The Effect System tracks all failures that occur during a sequence of Effects:
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -310,7 +309,7 @@ val weatherReportFaulty =
     check(result).run
 ```
 
-To handle all possible failures for this new Effect, we must handle both `Exception` and `ClimateFailure`:
+To handle all failures for `weatherReportFaulty`, we provide cases for both `Exception` and `ClimateFailure`:
 
 ```scala 3 mdoc:silent
 val weatherReport =
@@ -323,7 +322,7 @@ val weatherReport =
         failure.message
 ```
 
-All possible failure types, across the sequence of Effects, are handled.
+All failure types, across the sequence of Effects, are now handled.
 As before, the Effect System will produce a compiler error if we miss an error type.
 
 When our combined Effect
@@ -344,12 +343,12 @@ def run =
 ```scala 3 mdoc:invisible
 // TODO Ensure we've explicitly laid out the downsides of throwing Exceptions. Seems like that might have been deleted at some point.
 ```
-Despite the downsides of throwing `Exception`s, there is a reason why it is a common practice.
-It is a quick and easy way to ensure that your function stops immediately if something goes wrong, without needing to wrap all your logic in `if/else`.
+Despite the downsides of throwing `Exception`s, there is a reason it is a common practice.
+It is a quick and easy way to ensure that your function stops immediately if something goes wrong, without needing to wrap your logic in `if/else`.
 
-With Effects, we can achieve the same behavior without the downsides.
+With Effects, we achieve the same behavior without the downsides.
 
-Now we trigger a `gpsFailure` that causes the *first* Effect to fail:
+This triggers a `gpsFailure`, causing the *first* Effect to fail:
 
 ```scala 3 mdoc:runzio
 import zio.*
@@ -361,16 +360,15 @@ def run =
   weatherReport
 ```
 
-The program fails with the GPS failure, and the `check` Effect is not run.
+The program fails with the GPS failure, and the `check` Effect does not run.
 
-Short-circuiting is an essential part of a user-friendly Effect Systems.
+Short-circuiting is an essential part of user-friendly Effect Systems.
 With it, we can write a linear sequence of fallible expressions, while tracking all possible failures.
-
 
 ## Handling Thrown Exceptions
 
 So far our example Effects have **returned** `Exception`s to indicate failure, but you may have legacy code or external libraries which **throw** `Exception`s instead.
-In these situations there are ways to wrap the `Exception`-throwing code so that we get back to our preferred style of returning `Exception`s.
+In these situations there are ways to wrap the `Exception`-throwing code so that we achieve our preferred style of returning `Exception`s.
 
 ```scala 3 mdoc:invisible
 import zio.*
@@ -387,9 +385,8 @@ def getTemperatureOrThrow(): String =
       "35 degrees"
 ```
 
-We have an existing `getTemperatureOrThrow` function that can fail by throwing an `Exception`.
-
-If we try to just call this function from an Effect, in the case of failure, the program will fail.
+The `getTemperatureOrThrow` function can fail by throwing an `Exception`.
+If we call this function from an Effect, a failure causes the program to fail:
 
 ```scala 3 mdoc:runzio
 import zio.*
@@ -401,10 +398,10 @@ def run =
   ZIO.succeed:
     getTemperatureOrThrow()
 ```
-So despite our claim that this Effect would `succeed`, it actually crashes with a defect.
-When we call side-effecting code, our Effect System can't warn us about the potential failure.
+Despite our claim that this Effect `succeed`s, it crashes with a defect.
+When we call side-effecting code, the Effect System can't warn us about the potential failure.
 
-The right way is to use `ZIO.attempt` which captures thrown `Exception`s as the error type of the Effect.
+The solution is to use `ZIO.attempt`, which captures thrown `Exception`s as the error type of the Effect:
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -415,7 +412,7 @@ val safeTemperatureApp =
     getTemperatureOrThrow()
 ```
 
-Then you can use any of the failure handling mechanisms in Effects to deal with the failure.
+Now you can use any of the failure handling mechanisms in Effects to deal with the failure:
 
 ```scala 3 mdoc:runzio
 import zio.*
@@ -429,7 +426,7 @@ def run =
       "Could not get temperature"
 ```
 
-In this case we handle the Effect's failure with a fallback Effect which succeeds.
+Here we handle the Effect's failure with a fallback Effect, which succeeds.
 
-Since thrown `Exception`s are inherently unpredictable, it is preferable to encapsulate all functions that may throw, into Effects.
-This helps make the unpredictability more clear and provides many mechanisms for handling the possible failures. 
+Thrown `Exception`s are inherently unpredictable, so it is preferable to encapsulate all exception-throwing functions into Effects.
+This makes that unpredictability clear and provides mechanisms for handling possible failures. 
