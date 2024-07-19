@@ -509,18 +509,9 @@ To provide `BreadHomeMade`, we need `Dough` and an `Oven`.
 
 ## Dependency Cleanup
 
-We briefly saw `withFinalizer` in the [Superpowers](#withFinalizer-intro) chapter.
-There's more to it, however.
-How does `withFinalizer` know when to perform its finalization?
-It uses `ZIO`'s *scoping*.
-
-[[ Maybe an intro example here; we'll see ]]
-
-### A Safer Oven
-
-An Effect without outstanding dependencies can be used to construct a `ZLayer`.
-This will correct a dangerous oversight: we heat up our `Oven`, but never turn it off!
-An `OvenSafe` turns itself off when it is no longer needed.
+Our basic `Oven` contains a dangerous oversight: we heat it up, but never turn it off!
+To solve the problem we can use `withFinalizer`, which we briefly saw in the [Superpowers](#withFinalizer-intro) chapter.
+An `OvenSafe` turns itself off when it is no longer needed:
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -538,13 +529,11 @@ object OvenSafe:
           printLine("Oven: Turning off").orDie
 ```
 
-```scala 3
-// TODO can we link to specific paragraphs or at least subsections?
-```
-
-Here, `scoped` produces a `ZLayer` with a finalizer linked to the `Oven` object it provides.
+Here, `scoped` produces a `ZLayer` with a finalizer attached to the `Oven` object it provides.
 When that `Oven` is no longer used, the finalizer automatically runs.
 `orDie` was explained [here](#orDie-intro).
+
+Now we can substitute `OvenSafe` into our bread-making provisions: 
 
 ```scala 3 mdoc:runzio
 import zio.*
@@ -562,7 +551,7 @@ Whenever you procure an `OvenSafe` via its `heated` `ZLayer`, that `Oven` automa
 
 ## Construction Failure
 
-Since dependencies can be built with Effects, this means they can fail.
+Since dependencies can be built with Effects, they can fail.
 Suppose we have a `Friend` who sometimes gives us `Bread`, but not right away:
 
 ```scala 3 mdoc:invisible
@@ -638,7 +627,7 @@ If we can't get `Bread` from our `Friend`, we go to the store and buy it.
 
 ### Retries
 
-We can add a `retry` to the `ZLayer` produced by `Friend.bread`:
+We can add a `retry` to the `ZLayer` produced by `Friend.bread`:{i: retry}
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -665,16 +654,16 @@ def run =
 
 This shows that operations like `retry` also work on `ZLayer`s.
 
-## External Configuration
+## External Configuration {i: configuration, startup}{i: startup configuration}
 
-Programs must often configure their behavior based on the environment during startup.
+Programs must often configure their behavior based on the startup environment.
 There are three typical ways to do this:
 
 - Command Line Parameters
 - Configuration Files
 - OS Environment Variables
 
-We can use the [ZIO Config library](https://effectorientedprogramming.com/resources/zio/zio-config/) for all of these:
+We can use the [ZIO Config library](http://effectorientedprogramming.com/resources/zio/zio-config-docs-index) for all of these:
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -683,8 +672,8 @@ import zio.direct.*
 import zio.config.*
 ```
 
-This imports most of the core "Config" datatypes and functions we need.
-A case class holds our configuration information:
+This imports most of the core "Config" datatypes and functions.
+A case class holds configuration information:
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -705,7 +694,6 @@ val configDescriptor =
   deriveConfig[RetryConfig]
 ```
 
-This library is modularized so you only import the tools you need.
 To use the Typesafe configuration format, we import everything from that module:
 
 ```scala 3 mdoc:silent
@@ -718,7 +706,7 @@ import zio.config.typesafe.*
 This imports the TypeSafe `ConfigProvider`.
 One configuration format is called HOCON, for *Human-Optimized Configuration Object Notation*.
 This is a straightforward, text-based key-value format similar to JSON.
-We must provide all arguments required to create a `RetryConfig`:
+We must provide all arguments to create a `RetryConfig`:
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -755,5 +743,5 @@ def run =
       configuration
 ```
 
-`zio.config` provides easy access to configuration data, solving a common requirement in real-world applications.
-You can find information about configuring via the command-line [here]() and using OS environment variables [here]().
+`zio.config` gives easy access to configuration data, solving a common requirement in real-world applications.
+Further details can be found in the [ZIO-config documentation](http://effectorientedprogramming.com/resources/zio/zio-config-docs-index).

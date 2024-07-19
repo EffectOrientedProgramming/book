@@ -1,7 +1,6 @@
 # Failure {#Chapter-Failure}
 
-Given that Effects encapsulate the unpredictable parts of a system,
-they must have a way to express failure.
+Effects encapsulate the unpredictable parts of a system, so they must be able to express failure.
 
 ## Handling Failures
 
@@ -115,7 +114,7 @@ val getTemperature: ZIO[
 ```
 
 Let's say we have an Effect `getTemperature` which can fail as it tries to make a network request.
-First let's run it in the "happy path" assuming it won't fail:
+Let's assume it won't fail by running it in the "happy path":
 
 ```scala 3 mdoc:runzio
 import zio.*
@@ -127,8 +126,8 @@ def run =
   getTemperature
 ```
 
-As expected, the program succeeds with the temperature.
-But if we run it and simulate a network failure, the program will fail.
+As expected, the program succeeds and produces the temperature.
+If we run it with a simulated network failure, the program fails:
 
 ```scala 3 mdoc:runzio
 import zio.*
@@ -143,8 +142,7 @@ def run =
 ```
 
 Unless we handle failure, the program ends here.
-For example, if we try to print something after trying to get the temperature,
-  an unhandled failure will not allow the program to continue.
+For example, if we try to print something after trying to get the temperature, an unhandled failure will not allow the program to continue.
 
 ```scala 3 mdoc:runzio
 import zio.*
