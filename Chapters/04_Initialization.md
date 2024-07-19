@@ -689,7 +689,7 @@ import zio.config.*
 ```
 
 This imports most of the core "Config" datatypes and functions we need.
-We make a case class to hold our configuration information:
+A case class holds our configuration information:
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -698,7 +698,7 @@ import zio.direct.*
 case class RetryConfig(times: Int)
 ```
 
-We can automatically populate our case class from configuration files using the `deriveConfig` macro from the `zio.config.magnolia` module:
+We can automatically populate `RetryConfig` from a configuration file using the `deriveConfig` macro from the `zio.config.magnolia` module:
 
 ```scala 3 mdoc:silent
 import zio.*
