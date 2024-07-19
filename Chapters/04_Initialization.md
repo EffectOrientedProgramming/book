@@ -1,45 +1,39 @@
 # Initialization
 
-```
-// TODO: Rewrite 'Initialization' intro material once I understand it by working through the rest of the chapter
-```
-
 Initializing an application from values provided at startup is a perennial challenge in software.
 Solutions are diverse, impressive, and often completely bewildering.
 
-One reason to modularize an application into parts is that the relationship between those parts can be adapted for different paths of execution through the program, such as "main app", "test suite one", "test suite two", etc.
-Breaking things into parts and expressing what they need is commonly called *Dependency Inversion*.
+By modularizing an application, the parts support different paths of execution, such as "main app", "test suite one", "test suite two", etc.
 
+Creating parts and expressing what they need is commonly called *Dependency Inversion*.{i: "dependency inversion"}{i: "inversion, dependency"}
 Dependency Inversion enables *Dependency Injection*{i: "dependency injection"}{i: "injection, dependency"} which produces more flexible code.
 Instead of manually constructing and passing all dependencies through the application, an "Injector" automatically provides instances of those dependencies when they are needed.
 
-Common approaches to implement Dependency Injection rely on runtime inspection (typically using reflection) and require everything to be created through a Dependency Injection manager (the "Injector").
-This complicates construction and can make it difficult or impossible to express dependencies at compile time.
+Common approaches to implement Dependency Injection rely on runtime inspection (typically using reflection).
+This requires all the dependencies to be created through a Dependency Injection manager (the "Injector").
+Construction is complicated and can make it difficult or impossible to express dependencies at compile time.
 
-If we instead express dependencies through the type system, the compiler can verify that the needed parts are available given a particular path of execution.
+If instead we express dependencies through the type system, the compiler verifies that the necessary parts are available.
 
 ## Effects and Dependencies
 {i: "dependency"}
-Using an Effect System for dependencies produces many desirable compile-time characteristics.
+An Effect System for dependencies produces desirable compile-time characteristics.
 Services are defined as classes with constructor arguments, just as in an ordinary Scala application.
-When an application needs startup configuration, you define those configuration elements as services.
-When building the application, these services can be provided in a single flat space.
+When building the application, these services are provided in a single flat space.
 Each component automatically finds its dependencies, and makes itself available to other components that need it.
 
 Dependency cycles are not allowed by ZIO—you cannot build a program where `A` depends on `B`, and `B` depends on `A`.
 You are alerted at compile time about illegal cycles.
 
 ZIO's dependency management provides capabilities that are not possible in other approaches.
-For example, you can share a single instance of a dependency across multiple test classes, or even multiple applications. See more details in the [ZIO docs](https://effectorientedprogramming.com/resources/zio/sharing-layers-between-multiple-files).
-```
-// TODO: Add link checker to Github actions or `sbt test`?
-```
+For example, you can share a single instance of a dependency across multiple test classes, or even multiple applications.
+See more details in the [ZIO docs](https://effectorientedprogramming.com/resources/zio/sharing-layers-between-multiple-files).
 
 ## Let Them Eat Bread
 
 To illustrate how ZIO assembles programs, we simulate making and eating `Bread`.[^1]
 [^1]: We were inspired by Li Haoyi's excellent article ["What's Functional Programming All About?"](https://effectorientedprogramming.com/resources/zio/whats-functional-programming-all-about)
-We will create different types of `Bread`, so we start by defining `trait Bread`:
+We create different types of `Bread`, so we start by defining `trait Bread`:
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -54,7 +48,7 @@ trait Bread:
 This uses `zio.Console.printLine`, which is an Effect because it modifies an external system.
 Calling `eat` just returns an Effect and doesn't display anything on the console until that Effect is run.
 
-We start with the simplest approach of just buying `Bread` from the store:
+The simplest approach is to buy `Bread` from the store:
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -68,19 +62,20 @@ object BreadStoreBought:
       BreadStoreBought()
 ```
 
-In this book, we follow the Scala practice of preferring `case` classes{i: "case class"} over ordinary classes.
+In this book, we follow the Scala practice of preferring `case` classes over ordinary classes.{i: "case class"}{i: "class, case"}
 `case` classes are immutable by default and automatically provide commonly-needed functionality.
 You aren't required to use `case` classes to work with the Effect system, but they provide valuable conveniences.
 
 The companion object `BreadStoreBought` contains a single value called `purchased`.
 This produces a special kind of Effect: the `ZLayer`.{i: "ZLayer"}
-`ZLayer`s are used by the Effect System to automatically inject dependencies.
-An essential difference between `ZLayer` and other dependency injection systems you might have used is that `ZLayer` validates dependencies *at compile time*.
-Your experience will actually be inside your IDE--when you do something problematic your IDE will immediately notify you with a useful error message.
+The Effect System uses `ZLayer`s to automatically inject dependencies.
+An essential difference between `ZLayer` and other dependency injection systems is that `ZLayer` validates dependencies *at compile time*.
+When you do something problematic, your IDE will immediately notify you with a useful error message.
+
 You aren't required to put the function producing a `ZLayer` in a companion object, but it is often convenient.
 
 There's something new here: `succeed`.{i: "succeed, ZIO"}{i: "fail, ZIO"}
-We're taking some information from the [Failure](06_Failure) chapter, which is the next one.
+Here, we're introducing some information from the [Failure](./06_Failure.md) chapter, which is later in the book.
 In that chapter, you'll learn that every returned Effect contains information about whether that Effect is successful or has failed.
 Each step along the way, that information is checked.
 If it fails, the operation is short-circuited and the entire Effect fails.{i: "short-circuiting"}
@@ -514,7 +509,7 @@ To provide `BreadHomeMade`, we need `Dough` and an `Oven`.
 
 ## Dependency Cleanup
 
-We briefly saw `withFinalizer` in the [Superpowers](03_Superpowers.md) chapter.
+We briefly saw `withFinalizer` in the [Superpowers](./03_Superpowers.md) chapter.
 There's more to it, however.
 How does `withFinalizer` know when to perform its finalization?
 It uses `ZIO`'s *scoping*.
