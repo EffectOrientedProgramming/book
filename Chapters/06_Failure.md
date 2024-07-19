@@ -1,6 +1,66 @@
 # Failure {#Chapter-Failure}
 
-Effects encapsulate the unpredictable parts of a system, so they must be able to express failure.
+Exceptions seemed like a great idea:
+
+- A standardized way to correct problems so that an operation can recover and retry.
+- There's only one way to report errors.
+- Errors cannot be ignored--they flow upward until caught or displayed on the console with program termination.
+- Errors can be handled close to the origin, or generalized by catching them "further out" so that multiple error sources can be managed with a single handler.
+- Exception hierarchies allow more general exception handlers to handle multiple exception subtypes.
+
+Exceptions were certainly a big improvement over the previous attempts to solve the error reporting problem. 
+Exceptions moved us forward for a while (and became entrenched in programming culture), until folks discovered pain points. 
+As is often the case, this happened as we tried to scale up to create larger and more complex systems. 
+The underlying issue was _composability_, which is the ability to easily take smaller parts and assemble them into larger parts.
+
+The main problem with exceptions is that they are not part of the type system.
+If the type system doesn't include exceptions as part of a function signature, you can't know what exceptions you must handle when calling other functions (i.e.: composing). 
+Even if you track down all possible exceptions thrown explicitly in the code (by hunting for them in their source code!), built-in exceptions can still happen without evidence in the code: divide-by-zero is a great example of this.
+
+Suppose you're handling all the exceptions from a library--or at least the ones you found in the documentation. 
+Now a newer version of that library comes out.
+You upgrade, assuming it must be better.
+Unbeknownst to you, the new version quietly added an exception. 
+Because exceptions are not part of the type system, the compiler cannot detect the change.
+But now your code is not handling that exception.
+Your code was working.
+Nobody changed anything in your code.
+And yet now it's broken.
+Worse, you only find out at runtime, when your system fails.
+
+Languages like C++ and Java tried to solve this problem by adding exception specifications.
+This notation adds exception types that may be thrown as part of the function's type signature.
+Although it appeared to be a solution, exception specifications are actually a second, shadow type system, independent of the main type system.
+All attempts at using exception specifications have failed, and C++ has abandoned exception specifications and adopted the functional approach.
+
+Object-oriented languages allow exception hierarchies, which introduces another problem.
+Exception hierarchies allow the library programmer to use an exception base type in the exception specification.
+This obscures important details; if the exception specification only uses a base type, there's no way for the compiler to enforce coverage of specific exceptions.
+
+When errors are part of the type system, you see all possible errors by looking at the type information.
+If a library component adds a new error, it must be reflected in the type signature. 
+You immediately know if your code no longer covers all error conditions.
+
+## The Functional Solution
+
+Instead of creating a complex implementation to report and handle errors, the functional approach creates a "return package." 
+This can hold either the answer or error information. 
+Instead of only returning the answer, we return this package from the function.
+This package is a new type that includes the types of all possible failures.
+Now the compiler has enough information to tell you whether you've covered all the failure possibilities.
+
+How is success and failure information encoded into the function return type?
+Well, this is what we've been doing whenever we've used `ZIO.succeed` and `ZIO.fail`.
+The argument to `succeed` is the successful result value that you want to return.
+`succeed` also provides the information that says, "This Effect is OK."
+The argument to `fail` is the failure information.
+Although most of the examples in this book use a `String` argument to `fail`, you can give it any type.
+The fact that you are calling `fail` provides the information that says, "Something went wrong in this Effect."
+
+You can even use an exception object as the argument to `fail`.
+As long as that exception is never thrown, all it does is provide information about the failure.
+This is typically more information than a `String` provides, because the exception is a type.
+One reason to return an exception inside a `fail` is if you've caught that exception and want to incorporate this information in the returned Effect.
 
 ## Handling Failures
 
@@ -113,6 +173,7 @@ val getTemperature: ZIO[
     end match
 ```
 
+Effects encapsulate the unpredictable parts of a system, so they must be able to express failure.
 Let's say we have an Effect `getTemperature` which can fail as it tries to make a network request.
 Let's assume it won't fail by running it in the "happy path":
 
