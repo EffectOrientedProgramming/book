@@ -10,7 +10,7 @@ Solutions are diverse, impressive, and often completely bewildering.
 One reason to modularize an application into parts is that the relationship between those parts can be adapted for different paths of execution through the program, such as "main app", "test suite one", "test suite two", etc.
 Breaking things into parts and expressing what they need is commonly called *Dependency Inversion*.
 
-Dependency Inversion enables *Dependency Injection* which produces more flexible code.
+Dependency Inversion enables *Dependency Injection*{i: "dependency injection"}{i: "injection, dependency"} which produces more flexible code.
 Instead of manually constructing and passing all dependencies through the application, an "Injector" automatically provides instances of those dependencies when they are needed.
 
 Common approaches to implement Dependency Injection rely on runtime inspection (typically using reflection) and require everything to be created through a Dependency Injection manager (the "Injector").
@@ -19,9 +19,9 @@ This complicates construction and can make it difficult or impossible to express
 If we instead express dependencies through the type system, the compiler can verify that the needed parts are available given a particular path of execution.
 
 ## Effects and Dependencies
-
+{i: "dependency"}
 Using an Effect System for dependencies produces many desirable compile-time characteristics.
-Services are defined as classes with constructor arguments, just as in any vanilla Scala application.
+Services are defined as classes with constructor arguments, just as in an ordinary Scala application.
 When an application needs startup configuration, you define those configuration elements as services.
 When building the application, these services can be provided in a single flat space.
 Each component automatically finds its dependencies, and makes itself available to other components that need it.
@@ -68,22 +68,22 @@ object BreadStoreBought:
       BreadStoreBought()
 ```
 
-In this book, we follow the Scala practice of preferring `case` classes over ordinary classes.
+In this book, we follow the Scala practice of preferring `case` classes{i: "case class"} over ordinary classes.
 `case` classes are immutable by default and automatically provide commonly-needed functionality.
 You aren't required to use `case` classes to work with the Effect system, but they provide valuable conveniences.
 
 The companion object `BreadStoreBought` contains a single value called `purchased`.
-This produces a special kind of Effect: the `ZLayer`.
+This produces a special kind of Effect: the `ZLayer`.{i: "ZLayer"}
 `ZLayer`s are used by the Effect System to automatically inject dependencies.
 An essential difference between `ZLayer` and other dependency injection systems you might have used is that `ZLayer` validates dependencies *at compile time*.
 Your experience will actually be inside your IDE--when you do something problematic your IDE will immediately notify you with a useful error message.
 You aren't required to put the function producing a `ZLayer` in a companion object, but it is often convenient.
 
-There's something new here: `succeed`.
-We need to cheat a little and take some information from the [Failure](06_Failure) chapter, which is the next one.
+There's something new here: `succeed`.{i: "succeed, ZIO"}{i: "fail, ZIO"}
+We're taking some information from the [Failure](06_Failure) chapter, which is the next one.
 In that chapter, you'll learn that every returned Effect contains information about whether that Effect is successful or has failed.
 Each step along the way, that information is checked.
-If it fails, the operation is short-circuited and the entire Effect fails.
+If it fails, the operation is short-circuited and the entire Effect fails.{i: "short-circuiting"}
 This way you won't have failures randomly propagating through your system, as you do with exceptions.
 
 Sometimes you need to say, "Here's the answer and it's OK."
@@ -111,14 +111,14 @@ def run =
     BreadStoreBought.purchased
 ```
 
-`serviceWithZIO` takes a generic parameter, which is the *type* it needs to do the work.
+`serviceWithZIO` takes a generic parameter, which is the *type* it needs to do the work.{i: "serviceWithZIO"}
 Here, `serviceWithZIO` says, "I need an object that conforms to the `trait Bread`."
 The argument to `serviceWithZIO` does the work.
 That argument must be a function that returns an Effect--in this case it is the lambda `bread => bread.eat`.
 The object it receives from `serviceWithZIO` becomes the `bread` parameter in the lambda.
 
-The whole point of this mechanism is to separate the argument from the function call so that we can make that argument part of the initialization specification.
-The initialization specification is the `provide` method,
+The point of this mechanism is to separate the argument from the function call so we can make that argument part of the initialization specification.
+The initialization specification is the `provide` method,{i: "provide, for dependency injection"}
   which takes one or more `ZLayer` objects and uses them to get the necessary arguments to fill in and complete the code, in this case `bread => bread.eat`.
 
 Although this example is simple enough that you could easily write it without using `ZLayer`, when you start dealing with multiple dependencies, things rapidly become unmanageable.
@@ -138,7 +138,7 @@ The error tells you exactly what you're missing--and remember that you will see 
 Traditional dependency injection systems can't tell you until runtime if you're missing something, and even then they typically cannot know for sure if you've covered all your bases.
 
 ### Names
-
+{i: "naming, ZIO and ZLayer"}
 An Effect is something that produces an action, so we name ZIOs with verbs.
 The `ZLayer` is the structure that provides an instance to your application.
 This instance is a thing.
@@ -172,7 +172,7 @@ val dependency =
     makeX
 ```
 
-Inside the companion object, we can use an adjective, because in order to reference the `ZLayer` you must include the class name, producing the noun `X.dependent`:
+Inside the companion object, we can use an adjective, because in order to reference the `ZLayer` you must include the class name, producing the noun `X.layer`:
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -183,8 +183,8 @@ object X:
       makeX
 ```
 
-We declare `X.dependent` a noun in the world of programming where we mash words together.
-Now we provide the dependency in a program:
+In the world of programming where we mash words together, we declare `X.layer` a noun.
+Now we provide the dependency to a program:
 
 ```scala 3 mdoc:runzio
 import zio.*
@@ -193,18 +193,17 @@ def run =
   ZIO
     .serviceWithZIO[X]:
       x => x.display
-    // dependency // Or the noun version
     .provide:
-      X.layer // The "adjectivized object"
+      X.layer
 ```
 
 `serviceWithZIO` needs an `X` object that it substitutes as `x` in the lambda.
-This is provided by either `X.layer` or `layer`, which yields a `ZLayer` holding the object produced by `make`.
+This is provided by either `X.layer` or `dependency`, which yields a `ZLayer` holding the object produced by `make`.
 The `ZLayer` is the holder for the object produced by `make`, and it provides a way to get to that object.
 
 ### Initialization Steps
 
-Adding trace information to the previous example reveals the steps of program initialization:
+Adding trace information to the previous example reveals the steps of program initialization:{i: "initialization, steps"}
 
 ```scala 3 mdoc:silent
 case class Y():
@@ -266,7 +265,7 @@ The result in `r` is a `Y` object, the one we return at the end of `makeY`.
 `Y.dependency` produces a `ZLayer`.
 We use that `ZLayer` in the `provide` inside `main`, where it produces the required `Y` object.
 `main` is also a ZIO.
-When we call `main.run`, `makeY` is called to produce the necessary `Y`.
+When we execute `main.run`, `makeY` is called to produce the necessary `Y`.
 
 ## Making Bread from Scratch
 
@@ -300,7 +299,7 @@ object Dough:
         Dough()
 ```
 
-In ZIO all managed Effects are contained in ZIO objects, and all Effectful functions return a ZIO object.
+In ZIO, all managed Effects are contained in ZIO objects, and all functions that run Effects return a ZIO object.
 
 Looking at the code from the inside out, the `defer` block executes the `printLine` Effect by calling `.run`, but does *not* call `.run` for `Dough`.
 `defer` always produces an Effect, so the result of the `defer` block is an Effect that produces `Dough`.
@@ -674,14 +673,13 @@ This shows that operations like `retry` also work on `ZLayer`s.
 ## External Configuration
 
 Programs must often configure their behavior based on the environment during startup.
-Three typical ways are:
+There are three typical ways to do this:
 
 - Command Line Parameters
 - Configuration Files
 - OS Environment Variables
 
-We can use the [ZIO Config library](https://effectorientedprogramming.com/resources/zio/zio-config/) to read these.
-This is one of the few additional libraries used in this book on top of core ZIO.
+We can use the [ZIO Config library](https://effectorientedprogramming.com/resources/zio/zio-config/) for all of these:
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -691,7 +689,7 @@ import zio.config.*
 ```
 
 This imports most of the core "Config" datatypes and functions we need.
-We make a case class to hold our values:
+We make a case class to hold our configuration information:
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -700,7 +698,7 @@ import zio.direct.*
 case class RetryConfig(times: Int)
 ```
 
-To automatically populate our case class from configuration files, we the `deriveConfig` macro from the `zio.config.magnolia` module:
+We can automatically populate our case class from configuration files using the `deriveConfig` macro from the `zio.config.magnolia` module:
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -712,8 +710,7 @@ val configDescriptor =
   deriveConfig[RetryConfig]
 ```
 
-
-The library is modularized, so you only import the tools you need.
+This library is modularized so you only import the tools you need.
 To use the Typesafe configuration format, we import everything from that module:
 
 ```scala 3 mdoc:silent
@@ -747,11 +744,11 @@ def run =
     .serviceWithZIO[RetryConfig]:
       retryConfig =>
         val times = retryConfig.times
+        println(s"Retrying $times times")
         eatEatEat(retries = times)
     .provide:
       configuration
 ```
 
-Now we have bridged the gap between our logic and configuration files.
-This was a longer detour than our other steps, but a common requirement in real-world applications.
+`zio.config` bridges the gap between logic and configuration files, solving common requirement in real-world applications.
 
