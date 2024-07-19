@@ -75,7 +75,7 @@ When you do something problematic, your IDE will immediately notify you with a u
 You aren't required to put the function producing a `ZLayer` in a companion object, but it is often convenient.
 
 There's something new here: `succeed`.{i: "succeed, ZIO"}{i: "fail, ZIO"}
-Here, we're introducing some information from the [Failure](./06_Failure.md) chapter, which is later in the book.
+Here, we're introducing some information from the [Failure](#Chapter-Failure) chapter, which is later in the book.
 In that chapter, you'll learn that every returned Effect contains information about whether that Effect is successful or has failed.
 Each step along the way, that information is checked.
 If it fails, the operation is short-circuited and the entire Effect fails.{i: "short-circuiting"}
