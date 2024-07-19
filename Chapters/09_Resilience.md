@@ -1,4 +1,4 @@
-# Resilience
+# Resilience {#Chapter-Reilience}
 
 For our purposes,
   A resilient system behaves predictably in normal circumstances as well as high loads or even hostile situations.

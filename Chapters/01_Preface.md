@@ -1,4 +1,4 @@
-# Preface
+# Preface {#Chapter-Preface}
 
 *Effects* are the unpredictable parts of a system.
 Traditional programs do not isolate these unpredictable parts, making it hard to manage them.

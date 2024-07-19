@@ -1,4 +1,4 @@
-# Superpowers
+# Superpowers {#Chapter-Superpowers}
 
 ```scala 3 mdoc:invisible
 import zio.*

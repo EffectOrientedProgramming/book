@@ -1,4 +1,4 @@
-# Composability
+# Composability {#Chapter-Composability}
 
 An essential part of creating programs is the ability to combine small pieces into larger pieces.  
 We call this *composability*.

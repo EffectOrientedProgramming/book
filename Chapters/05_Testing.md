@@ -1,4 +1,4 @@
-# Testing
+# Testing {#Chapter-Testing}
 
 Testing requires predictability, but Effects that use external systems are unpredictable.
 To create predictable tests for Effects, we swap the external systems with our own, controlled, sources.
