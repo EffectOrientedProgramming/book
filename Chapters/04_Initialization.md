@@ -695,7 +695,7 @@ A case class holds our configuration information:
 import zio.*
 import zio.direct.*
 
-case class RetryConfig(times: Int)
+case class RetryConfig(times: Int, msg: String)
 ```
 
 We can automatically populate `RetryConfig` from a configuration file using the `deriveConfig` macro from the `zio.config.magnolia` module:
@@ -720,13 +720,18 @@ import zio.direct.*
 import zio.config.typesafe.*
 ```
 
+This imports the TypeSafe `ConfigProvider`.
+One configuration format is called HOCON, for *Human-Optimized Configuration Object Notation*.
+This is a straightforward, text-based key-value format similar to JSON.
+We must provide all arguments required to create a `RetryConfig`:
+
 ```scala 3 mdoc:silent
 import zio.*
 import zio.direct.*
 
 val configProvider =
   ConfigProvider.fromHoconString:
-    "{ times: 2 }"
+    "{ times: 2, msg: 'Trying to eat bread' }"
 
 val configuration =
   ZLayer.fromZIO:
@@ -734,6 +739,9 @@ val configuration =
       configDescriptor.from:
         configProvider
 ```
+
+`configuration` uses `Console.read` with our `configDescriptor` together with the data read from the `configProvider` to create a `ZLayer`.
+We can use the `ZLayer` with `provide` to produce configuration data:
 
 ```scala 3 mdoc:runzio
 import zio.*
@@ -744,11 +752,13 @@ def run =
     .serviceWithZIO[RetryConfig]:
       retryConfig =>
         val times = retryConfig.times
+        val msg = retryConfig.msg
+        println(msg)
         println(s"Retrying $times times")
         eatEatEat(retries = times)
     .provide:
       configuration
 ```
 
-`zio.config` bridges the gap between logic and configuration files, solving common requirement in real-world applications.
+`zio.config` provides easy access to configuration data, solving a common requirement in real-world applications.
 
