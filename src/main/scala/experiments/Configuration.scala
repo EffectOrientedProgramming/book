@@ -11,7 +11,7 @@ val configDescriptor = deriveConfig[MyConfig]
 
 val configProvider =
   ConfigProvider.fromHoconString:
-    "{ ldap: 'Foo', port: 42, dburl: 'Bar' }"
+    "{ ldap: Foo babble, port: 42, dburl: Bar wiggly }"
 
 val configuration =
   ZLayer.fromZIO:

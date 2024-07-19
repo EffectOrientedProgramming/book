@@ -731,7 +731,7 @@ import zio.direct.*
 
 val configProvider =
   ConfigProvider.fromHoconString:
-    "{ times: 2, msg: 'Trying to eat bread' }"
+    "{ times: 2, msg: Trying to eat bread }"
 
 val configuration =
   ZLayer.fromZIO:
@@ -761,4 +761,4 @@ def run =
 ```
 
 `zio.config` provides easy access to configuration data, solving a common requirement in real-world applications.
-
+You can find information about configuring via the command-line [here]() and using OS environment variables [here]().
