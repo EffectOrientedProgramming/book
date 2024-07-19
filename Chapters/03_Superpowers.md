@@ -119,7 +119,7 @@ val logUserSignup =
       s"Log: Signup initiated for $userName"
     .orDie
 ```
-
+{#orDie-intro}
 ```scala 3
 // TODO explain orDie
 ```
@@ -326,7 +326,7 @@ The retries do not succeed so the fallback is applied.
 
 ## Finalization
 
-To ensure that something happens after an Effect completes, regardless of failures, we can attach `withFinalizer` to any Effect:
+To ensure that something happens after an Effect completes, regardless of failures, we can attach `withFinalizer` to any Effect:{#withFinalizer-intro}
 
 ```scala 3 mdoc:silent
 val effect5 =

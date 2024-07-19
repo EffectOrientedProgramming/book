@@ -7,7 +7,7 @@ We can do this because Effects are isolated and accessible, and because they del
 Anything an Effect needs (from the system or the environment) can be substituted in tests for something predictable.
 For example, an Effect that fetches users from a database can use simulated data without creating a test database.
 
-To easily replace external systems during testing, we supply a substitute system via a `ZLayer` (covered in the [Initialization](./04_Initialization.md) chapter).
+To easily replace external systems during testing, we supply a substitute system via a `ZLayer` (covered in the [Initialization](#Chapter-Initialization) chapter).
 The `provide` method proxies different `ZLayer` resources for different scenarios: testing, debugging, running normally, etc.
 
 ## Basic ZIO Testing

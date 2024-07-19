@@ -509,7 +509,7 @@ To provide `BreadHomeMade`, we need `Dough` and an `Oven`.
 
 ## Dependency Cleanup
 
-We briefly saw `withFinalizer` in the [Superpowers](./03_Superpowers.md) chapter.
+We briefly saw `withFinalizer` in the [Superpowers](#withFinalizer-intro) chapter.
 There's more to it, however.
 How does `withFinalizer` know when to perform its finalization?
 It uses `ZIO`'s *scoping*.
@@ -544,7 +544,7 @@ object OvenSafe:
 
 Here, `scoped` produces a `ZLayer` with a finalizer linked to the `Oven` object it provides.
 When that `Oven` is no longer used, the finalizer automatically runs.
-`orDie` was explained [here](link to paragraph in Superpowers).
+`orDie` was explained [here](#orDie-intro).
 
 ```scala 3 mdoc:runzio
 import zio.*
