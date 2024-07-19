@@ -2,6 +2,7 @@
 'on':
   push:
     paths:
+    - mkdocs.yml
     - docs
     - .github/workflows/website.yml
 jobs:
