@@ -29,7 +29,7 @@ Note that the final expression is the `Assertion` `assertTrue`.
 Because of its power and flexibility, you'll probably use `assertTrue` most of the time.
 However, there are numerous other `Assertion`s in the [test library](https://effectorientedprogramming.com/resources/zio/test-assertion-library).
 
-For this book we've created an abbreviation, so our examples will instead look like this:
+We created an abbreviation for this book, so our examples will instead look like this:
 
 ```scala 3 mdoc:testzio
 import zio.*
@@ -87,8 +87,7 @@ import zio.test.*
 def spec =
   test("Effect as test"):
     defer:
-      printLine("Running Effect in a test")
-        .run
+      printLine("Effect in a test").run
       assertCompletes
 ```
 
@@ -98,8 +97,7 @@ The `defer` produces an Effect that runs the `printLine` and returns `assertComp
 ```scala 3 mdoc:silent
 import zio.test.*
 
-// TODO Better name for this function
-def testLogic(label: String) =
+def showLabel(label: String) =
   defer:
     printLine(s"Running $label").run
     assertCompletes
@@ -112,7 +110,7 @@ import zio.*
 import zio.direct.*
 import zio.test.*
 
-val effectA = testLogic("A")
+val effectA = showLabel("A")
 ```
 
 ```scala 3 mdoc:testzio
@@ -133,7 +131,7 @@ import zio.*
 import zio.direct.*
 import zio.test.*
 
-val effectB = testLogic("B")
+val effectB = showLabel("B")
 
 def spec =
   suite("Suite of Tests")(
@@ -141,18 +139,19 @@ def spec =
       effectA
     ,
     test("case A in Suite"):
-      effectB,
+      effectB
+    ,
   )
 ```
 
-Tests run in parallel by default so the output does not necessarily appear in the order the tests are listed.
+Tests run in parallel by default, so the output does not necessarily appear in the order the tests are listed.
 
-Going further with our values, we can store complete test cases in `val`s:
+We can also store complete test cases in `val`s:
 
 ```scala 3 mdoc:silent
 def testCase(label: String) =
   test(s"case $label in a value"):
-    testLogic(label)
+    showLabel(label)
 ```
 
 ```scala 3 mdoc:silent
@@ -169,13 +168,12 @@ def spec =
   suite("A Suite of Tests")(testA, testB)
 ```
 
-This flexibility is very empowering.
-Traditionally, you have to compromise between concise tests and the clarity of the test output.
+Notice how much flexibility this imparts.
+Traditionally, you must compromise between concise tests and the clarity of the test output.
 Do you want to write 1 test with 100 assertions, or 100 tests with 1 assertion each?
-The first is concise and quick to write but failures are difficult to read.
-The second is very clear about what failed, but requires writing a lot of boilerplate.
-
-With an Effect Oriented test library, it is possible to generate tests programmatically, getting the best of both worlds.
+The first is concise and quick to write, but failures are difficult to read.
+The second is clear about what failed, but requires a lot of boilerplate.
+An Effect Oriented test library produces the best of both worlds by generating tests programmatically.
 
 ## Birdhouse Factory
 
