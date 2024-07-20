@@ -359,7 +359,6 @@ In the following `coinToss` function, we use `Random.nextBoolean` from the ZIO l
 The `.run` at the end tells you that this must be an Effect, and not a call to `Scala.util.Random`:
 
 ```scala 3 mdoc:silent
-import zio.{Console, *}
 import zio.direct.*
 
 val coinToss =
@@ -431,7 +430,7 @@ But `coinToss` is asking for random numbers, and `TestRandom.feedBooleans` provi
 Even though the Effect is buried in two other functions, it can still be accessed here, and its behavior controlled to produce a consistent test.
 
 In the absence of `TestRandom.feedBooleans`, `coinToss` just uses the normal `ZIO.Random` generator.
-Those values are typically provided to `ZIO.Random` by calling `Scala.util.Random`.
+Those values are provided by calling `Scala.util.Random`.
 
 If something in your system needs random numbers, you can use the default behavior, or you can provide your own sequence using `TestRandom`.
 When your program treats randomness as an Effect, testing unusual scenarios is straightforward--you transparently provide data that produces deterministic behavior.
