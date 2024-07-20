@@ -526,7 +526,8 @@ object OvenSafe:
         Oven()
       .withFinalizer:
         _ =>
-          printLine("Oven: Turning off").orDie
+          printLine("Oven: Turning off")
+            .orDie
 ```
 
 Here, `scoped` produces a `ZLayer` with a finalizer attached to the `Oven` object it provides.
@@ -679,7 +680,10 @@ A case class holds configuration information:
 import zio.*
 import zio.direct.*
 
-case class RetryConfig(times: Int, msg: String)
+case class RetryConfig(
+    times: Int,
+    msg: String,
+)
 ```
 
 We can automatically populate `RetryConfig` from a configuration file using the `deriveConfig` macro from the `zio.config.magnolia` module:
@@ -735,7 +739,7 @@ def run =
     .serviceWithZIO[RetryConfig]:
       retryConfig =>
         val times = retryConfig.times
-        val msg = retryConfig.msg
+        val msg   = retryConfig.msg
         println(msg)
         println(s"Retrying $times times")
         eatEatEat(retries = times)

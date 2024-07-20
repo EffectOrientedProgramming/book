@@ -304,11 +304,13 @@ To artificially provide your own input to the console, use `TestConsole.feedLine
 val spec =
   test("Substitute input"):
     defer:
-      TestConsole.feedLines("Morty", "Beth").run
+      TestConsole
+        .feedLines("Morty", "Beth")
+        .run
       val input = readLine.run
       printLine(input).run
       val output = TestConsole.output.run
-      printLine(output).run      
+      printLine(output).run
       assertTrue(input == "Morty")
 ```
 

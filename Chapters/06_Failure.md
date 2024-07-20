@@ -147,7 +147,9 @@ val getTemperature: ZIO[
   defer:
     val maybeScenario =
       ZIO.config(scenarioConfig).orDie.run
-    printLine("Getting Temperature").orDie.run
+    printLine("Getting Temperature")
+      .orDie
+      .run
 
     maybeScenario match
       case Some(Scenario.GPSFailure) =>
@@ -324,13 +326,15 @@ def check(t: Temperature) =
   defer:
     printLine("Checking Temperature").run
     if t.degrees > 0 then
-      ZIO.succeed:
-        "Comfortable Temperature"
-      .run
+      ZIO
+        .succeed:
+          "Comfortable Temperature"
+        .run
     else
-      ZIO.fail:
-        ClimateFailure("**Too Cold**")
-      .run
+      ZIO
+        .fail:
+          ClimateFailure("**Too Cold**")
+        .run
 ```
 
 ```scala 3 mdoc:runzio
