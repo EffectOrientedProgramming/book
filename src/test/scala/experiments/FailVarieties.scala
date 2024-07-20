@@ -36,19 +36,23 @@ object FailVarieties extends ZIOSpecDefault:
   def spec =
     suite("Suite of Tests")(
       test("one"):
-        completeTo(1)
-        assertCompletes
+        defer:
+          completeTo(1).run
+          assertCompletes
       ,
       test("two"):
-        completeTo(2)
-        assertCompletes
+        defer:
+          completeTo(2).run
+          assertCompletes
       ,
       test("three"):
-        completeTo(3)
-        assertCompletes
+        defer:
+          completeTo(3).run
+          assertCompletes
       ,
       test("four"):
-        completeTo(4)
-        assertCompletes
+        defer:
+          completeTo(4).run
+          assertCompletes
       ,
     )
