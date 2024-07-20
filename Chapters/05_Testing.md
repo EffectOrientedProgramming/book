@@ -355,7 +355,7 @@ We can also display the input captured by `TestConsole.output`, which is always 
 
 Randomness is intentionally unpredictable.
 When testing, we treat randomness as an Effect and swap in our own sequence of numbers.
-In the following `coinToss` function, you can guess that `Random.nextBoolean` comes from the ZIO library.
+In the following `coinToss` function, we use `Random.nextBoolean` from the ZIO library.
 The `.run` at the end tells you that this must be an Effect, and not a call to `Scala.util.Random`:
 
 ```scala 3 mdoc:silent
