@@ -614,7 +614,6 @@ def run =
     val numPrevented = Ref.make[Int](0).run
 
     val protectedCall =
-      // TODO Note/explain `catchSome`
       cb(externalSystem(numCalls)).catchAll:
         case CircuitBreakerOpen =>
           numPrevented.update(_ + 1)
