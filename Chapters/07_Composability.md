@@ -1,6 +1,6 @@
 # Composability {#Chapter-Composability}
 
-An essential part of creating programs is the ability to combine small pieces into larger pieces.  
+An essential part of creating programs is the ability to combine small pieces into larger pieces.
 We call this *composability*.
 This might seem so simple that it must be a solved problem.
 
