@@ -81,6 +81,7 @@ object ManuscriptSpec extends ZIOSpecDefault{
           "combinator",
           "fiber",
           "fork",
+          "fold",
         ).map(_.toLowerCase)
 
         defer:
