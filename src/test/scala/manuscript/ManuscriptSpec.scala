@@ -12,6 +12,22 @@ object ManuscriptSpec extends ZIOSpecDefault{
   val composabilityChapter =
     chapters.find(_.toString.contains("Composability"))
       .getOrElse(throw new IllegalStateException("Composability chapter not found"))
+    
+  val forbiddenWords = List(
+    "monad",
+    "map",
+    "flatmap",
+    "applicative",
+    "monoid",
+    "typeclass",
+    "functor",
+    "category theory",
+    "combinator",
+    "fiber",
+    "fork",
+    "fold",
+  ).map(_.toLowerCase)
+
 
   def spec =
     suite("ManuscriptSpec")(
@@ -85,14 +101,30 @@ object ManuscriptSpec extends ZIOSpecDefault{
         ).map(_.toLowerCase)
 
         defer:
-          assertTrue(
-            !chapters.exists(path =>
-              os.read.lines(path).exists(line =>
-                forbiddenWords.exists(line.toLowerCase.contains)
-              )
-            )
-          )
+          assertTrue:
+            !chapters.exists:
+              path =>
+                os.read.lines(path).exists:
+                  line =>
+                    forbiddenWords.exists:
+                      line.toLowerCase.contains
       },
+      
+      suite("no forbidden words") (
+        // TODO could match on whole words only or use regex or something more specialized
+        (forbiddenWords.map:
+          word =>
+            test(word) {
+              defer:
+                assertTrue(
+                  ! chapters.exists:
+                    path =>
+                      os.read.lines(path).exists:
+                        line =>
+                          line.toLowerCase.contains(word)
+                )
+            })*
+      ),
       test("no deep indentation") {
         defer:
           assertTrue(
