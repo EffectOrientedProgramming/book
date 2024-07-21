@@ -317,18 +317,15 @@ def spec =
   test("Capture output"):
     defer:
       printLine("Morty").run
-      val out1 = TestConsole.output.run
       printLine("Beth").run
       val out2 = TestConsole.output.run
-      printLine(s"$out1\n****\n$out2").run
-      printLine(out2(1)).run
-      assertCompletes
+      assertTrue:
+        out2 == Vector("Morty\n", "Beth\n")
 ```
 
 As usual, `printLine` displays on the console, so we see "Morty" and "Beth" as expected.
 However, the console output is also being captured into `TestConsole.output`.
-Displaying `out1` produces a `Vector` containing `Morty` plus a newline (inserted by `printLine`).
-Displaying `out2` gives us that same `Vector` with an additional entry: `Beth` plus a newline.
+Displaying `out2` gives us a `Vector` containing `Morty` plus `Beth` each followed by a newline (inserted by `printLine`).
 We index into the `Vector` `out2`, selecting element one, producing `Beth`.
 
 To artificially provide your own input to the console, use `TestConsole.feedLines`:
@@ -341,15 +338,12 @@ val spec =
         .feedLines("Morty", "Beth")
         .run
       val input = readLine.run
-      printLine(input).run
-      val output = TestConsole.output.run
-      printLine(output).run
-      assertTrue(input == "Morty")
+      assertTrue:
+        input == "Morty"
 ```
 
 Each argument to `feedLines` becomes an input line.
 We've only called `readLine` once, so only `Morty` appears, while `"Beth"` remains unread.
-We can also display the input captured by `TestConsole.output`, which is always tracking the output whether we use it or not.
 
 ### Randomness
 
