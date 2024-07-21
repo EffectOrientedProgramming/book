@@ -94,7 +94,7 @@ def spec =
 The `defer` produces an Effect that runs the `printLine` and returns `assertCompletes`.
 `assertCompletes` unconditionally indicates that everything ran successfully.
 
-```scala 3 mdoc:silent
+```scala 3 mdoc:silent testzio
 import zio.test.*
 
 def showLabel(label: String) =
@@ -148,13 +148,15 @@ Tests run in parallel by default, so the output does not necessarily appear in t
 
 We can also store complete test cases in `val`s:
 
-```scala 3 mdoc:silent
+```scala 3 mdoc:silent testzio
+import zio.test.test
+
 def testCase(label: String) =
   test(s"case $label in a value"):
     showLabel(label)
 ```
 
-```scala 3 mdoc:silent
+```scala 3 mdoc:silent testzio
 val testA = testCase("A")
 val testB = testCase("B")
 ```
