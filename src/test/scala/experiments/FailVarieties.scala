@@ -3,33 +3,51 @@ package experiments
 import zio.*
 import zio.test.*
 
-case object ErrorObject1:
-  val msg = "Failed: ErrorObject1"
-case object ErrorObject2 extends Exception("Failed: ErrorObject2")
+case object ErrorObjectA:
+  val msg = "Failed: ErrorObjectA"
+case object ErrorObjectB
+    extends Exception("Failed: ErrorObjectB")
 
 def matchTo1(n: Int) =
   if n == 1 then
-    ZIO.fail("Failed at 1")
+    defer:
+      printLine("Failed at 1").run
+      ZIO.fail("Failed at 1")
   else
-    ZIO.succeed("Passed 1")
+    defer:
+      printLine("Passed 1").run
+      ZIO.succeed("Passed 1")
 
 def matchTo2(n: Int) =
   if n == 2 then
-    ZIO.fail(ErrorObject1)
+    defer:
+      printLine("Failed at 2").run
+      ZIO.fail(ErrorObjectA)
   else
-    ZIO.succeed("Passed 2")
+    defer:
+      printLine("Passed 2").run
+      ZIO.succeed("Passed 2")
 
 def matchTo3(n: Int) =
-  if n == 3 then
-    ZIO.fail(ErrorObject2)
+  if n == 2 then
+    defer:
+      printLine("Failed at 3").run
+      ZIO.fail(ErrorObjectB)
   else
-    ZIO.succeed("Passed 3")
+    defer:
+      printLine("Passed 3").run
+      ZIO.succeed("Passed 3")
 
 def completeTo(n: Int) =
   defer:
-    val r1 = matchTo1(n).run
-    val r2 = matchTo2(n).run
-    val r3 = matchTo3(n).run
+    val r1 =  matchTo1(n).catchAll:
+        e => ZIO.debug(s"Caught: $e").as(e)
+    printLine(r1).run
+    val r2 =  matchTo2(n).catchAll:
+        e => ZIO.debug(s"Caught: $e").as(e)
+    printLine(r2).run
+    val r3 = matchTo3(n).catchAll:
+        e => ZIO.debug(s"Caught: $e").as(e)
     printLine(s"Success: $r1 $r2 $r3").run
 
 object FailVarieties extends ZIOSpecDefault:
@@ -53,6 +71,6 @@ object FailVarieties extends ZIOSpecDefault:
       test("four"):
         defer:
           completeTo(4).run
-          assertCompletes
-      ,
+          assertCompletes,
     )
+end FailVarieties
