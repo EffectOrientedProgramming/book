@@ -392,7 +392,7 @@ val weatherReport =
 All failure types, across the sequence of Effects, are now handled.
 As before, the Effect System will produce a compiler error if we miss an error type.
 
-When our combined Effect
+When our combined Effect runs under conditions that are too cold, we get a `ClimateFailure`:
 
 ```scala 3 mdoc:runzio
 import zio.*
@@ -405,13 +405,12 @@ def run =
   weatherReport
 ```
 
+We don't see the `ClimateFailure` error, we only get its `message` as produce by the `catchAll`.
+
 ## Short-circuiting Failures
 
-```scala 3 mdoc:invisible
-// TODO Ensure we've explicitly laid out the downsides of throwing Exceptions. Seems like that might have been deleted at some point.
-```
 Despite the downsides of throwing `Exception`s, there is a reason it is a common practice.
-It is a quick and easy way to ensure that your function stops immediately if something goes wrong, without needing to wrap your logic in `if/else`.
+It is a quick and easy way to stop the function when something goes wrong, without wrapping your logic in `if/else`.
 
 With Effects, we achieve the same behavior without the downsides.
 
