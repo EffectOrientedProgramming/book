@@ -56,21 +56,25 @@ object FailVarieties extends ZIOSpecDefault:
       test("one"):
         defer:
           completeTo(1).run
+          printLine("completeTo(1) ran").run
           assertCompletes
       ,
       test("two"):
         defer:
           completeTo(2).run
+          printLine("completeTo(2) ran").run
           assertCompletes
       ,
       test("three"):
         defer:
           completeTo(3).run
+          printLine("completeTo(3) ran").run
           assertCompletes
       ,
       test("four"):
         defer:
           completeTo(4).run
+          printLine("completeTo(4) ran").run
           assertCompletes,
     )
 end FailVarieties
