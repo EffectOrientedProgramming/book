@@ -1,7 +1,6 @@
 package experiments
 
 import zio.*
-import zio.test.*
 
 def testLimit(n: Int, limit: Int) =
   println(s"testLimit($n, $limit)")
@@ -33,6 +32,10 @@ object ShortCircuitingFailure1 extends ZIOAppDefault:
       printLine(s"result1: $result1").run
       val result2 = shortCircuiting(2).flip.run
       printLine(s"result2: $result2").run
+
+//----------------------------------------------
+
+import zio.test.*
 
 object ShortCircuitingFailure2 extends ZIOSpecDefault:
   def spec =

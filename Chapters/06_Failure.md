@@ -51,26 +51,116 @@ You immediately know if your code no longer covers all error conditions.
 ## The Functional Solution
 
 Instead of creating a complex implementation to report and handle errors, the functional approach creates a "return package." 
-This can hold either the answer or error information. 
-Instead of only returning the answer, we return this package from the function.
+This is returned from the function, holding either the answer or error information. 
 This package is a new type that includes the types of all possible failures.
-Now the compiler has enough information to tell you whether you've covered all the failure possibilities.
+Now the compiler has enough information to tell you whether you've covered all failure possibilities.
 
 Effects encapsulate the unpredictable parts of a system, so they must be able to express failure.
-How is success and failure information encoded into the function return type?
+How is success and failure information encoded into the function return type for an Effect System?
 Well, this is what we've been doing whenever we've used `ZIO.succeed` and `ZIO.fail`.
 The argument to `succeed` is the successful result value that you want to return.
 `succeed` also provides the information that says, "This Effect is OK."
 The argument to `fail` is the failure information.
 The fact that you are calling `fail` provides the information that says, "Something went wrong in this Effect."
 
-Although most of the examples in this book use a `String` argument to `fail`, you can give it any type.
-You can even use an exception object as the argument to `fail`.
-As long as that exception is never thrown, it only provides information about the failure.
+## Failure Types
+
+Although most of the examples in this book use a `String` argument to `fail`, you can give it any type:
+
+```scala 3 mdoc:silent
+import zio.*
+
+case object ObjectX
+case object ExceptionX extends Exception:
+  override def toString: String = "ExceptionX"
+
+def failureTypes(n: Int) =
+  n match
+    case 0 =>
+      ZIO.fail("String fail")
+    case 1 =>
+      ZIO.fail(ObjectX)
+    case _ =>
+      ZIO.fail(ExceptionX)
+```
+
+`failureTypes` fails in three different ways. 
+`case 0` returns a failing `ZIO` object containing a `String`, as we do in most examples in the book.
+`case 1` returns an object of type `ObjectX`, demonstrating that you can return any object as your failure information.
+The default case returns an `ExceptionX`--but notice that this exception is never thrown.
+The exception only provides information about the failure.
 This is typically more information than a `String` provides, because the exception is a type.
 One reason to return an exception inside a `fail` is if you've caught that exception and want to incorporate this information in the returned Effect.
 
-## Handling Failures
+To make our code easier to read, we have avoided function type signatures in this book, and instead rely on type inference.
+The inferred type signature for `failureTypes` includes all three types: `String`, `ObjectX` and `ExceptionX`.
+This way, the compiler can verify that all error conditions are handled.
+
+Here we exercise all cases of `failureTypes`:
+
+```scala 3 mdoc
+def run =
+  defer:
+    val r0 = failureTypes(0).flip.run
+    printLine(s"r0: $r0").run
+    val r1 = failureTypes(1).flip.run
+    printLine(s"r1: $r1").run
+    val r2 = failureTypes(2).flip.run
+    printLine(s"r2: $r2").run
+```
+
+(Describe output)
+
+## Short-Circuiting
+
+The other benefit of handling errors with an Effect System is called _short-circuiting_.
+This means that, when an error is encountered, the function stops executing.
+Although stopping after you encounter an error seems obvious, in practice it can be hard to enforce.
+An Effect System guarantees that you will not execute further code, regardless of how the error occurs.
+
+To demonstrate, we'll use a function that fails if a value `n` is greater than or equal to a `limit` value:
+
+```scala 3 mdoc:silent
+import zio.*
+
+def testLimit(n: Int, limit: Int) =
+  println(s"testLimit($n, $limit)")
+  if n < limit then
+    ZIO.succeed(s"Passed $n")
+  else
+    println("n >= limit: testLimit failed")
+    ZIO.fail(s"Failed at $n")
+```
+
+(prose)
+
+```scala 3 mdoc:silent
+def shortCircuiting(n: Int) =
+  defer:
+    val r1 = testLimit(0, n).run
+    printLine(s"-> n: $n, r1: $r1").run
+    val r2 = testLimit(1, n).run
+    printLine(s"-> n: $n, r2: $r2").run
+    val r3 = testLimit(2, n).run
+    printLine(s"-> n: $n, r3: $r3").run
+```
+
+(prose)
+
+```scala 3 mdoc
+def run =
+  defer:
+    val result0 = shortCircuiting(0).flip.run
+    printLine(s"result0: $result0").run
+    val result1 = shortCircuiting(1).flip.run
+    printLine(s"result1: $result1").run
+    val result2 = shortCircuiting(2).flip.run
+    printLine(s"result2: $result2").run
+```
+
+(prose)
+
+## Reading Temperature
 
 ```scala 3 mdoc:invisible
 import zio.*

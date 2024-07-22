@@ -1,7 +1,6 @@
 package experiments
 
 import zio.*
-import zio.test.*
 
 case object ObjectX
 case object ExceptionX extends Exception:
@@ -72,6 +71,8 @@ def completeTo(n: Int) =
       matchTo3(n).catchAll:
         e => ZIO.debug(s"Caught: $e").as(e)
     printLine(s"Success: $r1 $r2 $r3").run
+
+import zio.test.*
 
 object FailVarieties extends ZIOSpecDefault:
   def spec =
