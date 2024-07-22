@@ -47,7 +47,7 @@ object ManuscriptSpec extends ZIOSpecDefault{
           assertTrue(
               os.read.lines(composabilityChapter).count(line =>
                 line.trim == "AI **INTERRUPTED**"
-              ) == 3
+              ) == 2
           )
       },
       test("ensure no long lines") {
