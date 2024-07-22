@@ -98,7 +98,7 @@ This way, the compiler can verify that all error conditions are handled.
 
 Here we exercise all cases of `failureTypes`:
 
-```scala 3 mdoc
+```scala 3 mdoc:runzio
 def run =
   defer:
     val r0 = failureTypes(0).flip.run
@@ -118,7 +118,7 @@ This means that, when an error is encountered, the function stops executing.
 Although stopping after you encounter an error seems obvious, in practice it can be hard to enforce.
 An Effect System guarantees that you will not execute further code, regardless of how the error occurs.
 
-To demonstrate, we'll use a function that fails if a value `n` is greater than or equal to a `limit` value:
+To demonstrate, we'll use a function that fails if a value `n` is greater than or equal to a `limit` value: 
 
 ```scala 3 mdoc:silent
 import zio.*
@@ -147,7 +147,7 @@ def shortCircuiting(n: Int) =
 
 (prose)
 
-```scala 3 mdoc
+```scala 3 mdoc:runzio
 def run =
   defer:
     val result0 = shortCircuiting(0).flip.run
