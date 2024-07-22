@@ -111,7 +111,7 @@ genManuscript := Def.sequential(
 // Tests won't run until the full genManuscript process completes.
 // This is much slower, but opens the door for us to run tests on the manuscript contents.
 // This can be commented out when iterating on tests and not the manuscript.
-//Test/test := ((Test/test) dependsOn genManuscript).value // TODO Restore before pushing
+Test/test := ((Test/test) dependsOn genManuscript).value // TODO Restore before pushing
 
 lazy val mdocRun = taskKey[Unit]("mdoc run")
 mdocRun := Def.taskDyn {
