@@ -58,7 +58,7 @@ libraryDependencies ++=
             "metaconfig-typesafe-config"
           ) excludeAll
           ("com.geirsson", "metaconfig-core"),
-    "nl.vroste" %% "rezilience"   % "0.9.4",
+    "nl.vroste" %% "rezilience"   % "0.10.1",
     "org.scalameta" %% "mdoc" % "2.5.4",
     "dev.zio"   %% "zio-test" % zioVersion,
     "dev.zio"   %% "zio-test-sbt" % zioVersion % Test,
