@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 set +e
-declare builtin_sbt_version="1.9.2"
+declare builtin_sbt_version="1.10.1"
 declare -a residual_args
 declare -a java_args
 declare -a scalac_args
@@ -14,7 +14,7 @@ declare -a shutdownall
 declare -a original_args
 declare java_cmd=java
 declare java_version
-declare init_sbt_version=1.9.2
+declare init_sbt_version=1.10.1
 declare sbt_default_mem=1024
 declare -r default_sbt_opts=""
 declare -r default_java_opts="-Dfile.encoding=UTF-8"
@@ -24,7 +24,7 @@ declare build_props_sbt_version=
 declare use_sbtn=
 declare no_server=
 declare sbtn_command="$SBTN_CMD"
-declare sbtn_version="1.9.0"
+declare sbtn_version="1.10.0"
 
 ###  ------------------------------- ###
 ###  Helper methods for BASH scripts ###
@@ -182,8 +182,8 @@ acquire_sbtn () {
       exit 2
     fi
   elif [[ "$OSTYPE" == "darwin"* ]]; then
-    archive_target="$p/sbtn-x86_64-apple-darwin-${sbtn_v}.tar.gz"
-    url="https://github.com/sbt/sbtn-dist/releases/download/v${sbtn_v}/sbtn-x86_64-apple-darwin-${sbtn_v}.tar.gz"
+    archive_target="$p/sbtn-universal-apple-darwin-${sbtn_v}.tar.gz"
+    url="https://github.com/sbt/sbtn-dist/releases/download/v${sbtn_v}/sbtn-universal-apple-darwin-${sbtn_v}.tar.gz"
   elif [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "win32" ]]; then
     target="$p/sbtn.exe"
     archive_target="$p/sbtn-x86_64-pc-win32-${sbtn_v}.zip"
@@ -320,7 +320,8 @@ addSbtScriptProperty () {
     :
   else
     sbt_script=$0
-    sbt_script=${sbt_script/ /%20}
+    # Use // to replace all spaces with %20.
+    sbt_script=${sbt_script// /%20}
     addJava "-Dsbt.script=$sbt_script"
   fi
 }
@@ -514,6 +515,7 @@ run() {
     execRunner "$java_cmd" \
       "${java_args[@]}" \
       "${sbt_options[@]}" \
+      "${java_tool_options[@]}" \
       -jar "$sbt_jar" \
       "${sbt_commands[@]}" \
       "${residual_args[@]}"
@@ -784,6 +786,7 @@ original_args=("$@")
 
 java_args=($JAVA_OPTS)
 sbt_options0=(${SBT_OPTS:-$default_sbt_opts})
+java_tool_options=($JAVA_TOOL_OPTIONS)
 if [[ "$SBT_NATIVE_CLIENT" == "true" ]]; then
   use_sbtn=1
 fi
