@@ -1,30 +1,35 @@
 # Failure {#Chapter-Failure}
 
-Exceptions seemed like a great idea:
+Error reporting and handling has always been a challenge.
+Early solutions often involved setting global flags, which might be overwritten before the error condition was noticed.
+People also tried returning improbable values from a function, but this required programmers to know about it and to write code that analyzed the return values.
+The biggest problem was psychological: programmers tend to be more interested in the "happy path" where everything works right.
+It was too easy to forget or ignore error information.
 
-- A standardized way to correct problems so that an operation can recover and retry.
-- There's only one way to report errors.
+Exceptions were a big step forward, because they provide:
+
+- Unified error reporting: there's only one way to do it.
 - Errors cannot be ignored--they flow upward until caught or displayed on the console with program termination.
+- A standardized way to correct problems so that an operation can recover and retry.
 - Errors can be handled close to the origin, or generalized by catching them "further out" so that multiple error sources can be managed with a single handler.
 - Exception hierarchies allow more general exception handlers to handle multiple exception subtypes.
 
-Exceptions were certainly a big improvement over the previous attempts to solve the error reporting problem. 
-Exceptions moved us forward for a while (and became entrenched in programming culture), until folks discovered pain points. 
+Exceptions were certainly an improvement over previous attempts to solve the error reporting problem. 
+Eventually, however, programmers began encountering pain points. 
 As is often the case, this happened as we tried to scale up to create larger and more complex systems. 
-The underlying issue was _composability_, which is the ability to easily take smaller parts and assemble them into larger parts.
+The underlying issue was _composability_, which takes smaller parts and assembles them into larger parts.
 
 The main problem with exceptions is that they are not part of the type system.
-If the type system doesn't include exceptions as part of a function signature, you can't know what exceptions you must handle when calling other functions (i.e.: composing). 
-You can track down all possible exceptions thrown explicitly in the code by hunting for them in the source code.
-Even then, built-in exceptions can still happen without evidence in the code.
-Divide-by-zero is an example of this.
+When exception types are not part of a function signature, you can't know what exceptions you must handle when calling other functions (i.e.: composing). 
+You can track down explicitly thrown exceptions by searching for them in the source code.
+Even then, built-in exceptions can occur without evidence in the code--for example, divide-by-zero.
 
-Suppose you're handling all the exceptions from a library--or at least the ones you found in the documentation. 
-Now a newer version of that library comes out.
+Suppose you're handling all exceptions from a library--or at least, the ones you found in the documentation. 
+Now a new version of that library comes out.
 You upgrade, assuming it must be better.
 Unbeknownst to you, the new version quietly added an exception. 
 Because exceptions are not part of the type system, the compiler cannot detect the change.
-Now your code is not handling that exception.
+Your code doesn't handle that exception.
 Your code was working.
 Nobody changed anything in your code.
 And yet now it's broken.
@@ -32,10 +37,10 @@ Worse, you only find out at runtime, when your system fails.
 
 Languages like C++ and Java tried to solve this problem by adding exception specifications.
 This notation adds exception types that may be thrown as part of the function's type signature.
-Although it appeared to be a solution, exception specifications are actually a second, shadow type system, independent of the main type system.
+Although this appeared to be a solution, exception specifications are actually a second, shadow type system, independent of the main type system.
 All attempts at using exception specifications have failed, and C++ has abandoned exception specifications and adopted the functional approach.
 
-Object-oriented languages allow exception hierarchies, which introduces another problem.
+Object-oriented languages have exception hierarchies, which introduces another problem.
 Exception hierarchies allow the library programmer to use an exception base type in the exception specification.
 This obscures important details; if the exception specification only uses a base type, the compiler cannot enforce coverage of specific exceptions.
 
