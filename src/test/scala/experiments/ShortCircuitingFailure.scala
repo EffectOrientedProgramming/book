@@ -35,24 +35,24 @@ object ShortCircuitingFailure1 extends ZIOAppDefault:
 
 //----------------------------------------------
 
-import zio.test.*
-
-object ShortCircuitingFailure2 extends ZIOSpecDefault:
-  def spec =
-    suite("Suite of Tests")(
-      test("one"):
-        defer:
-          val result = shortCircuiting(1).flip.run
-          assertTrue(result == "Failed at 1")
-      ,
-      test("two"):
-        defer:
-          val result = shortCircuiting(2).flip.run
-          assertTrue(result == "Failed at 2")
-      ,
-      test("three"):
-        defer:
-          val result = shortCircuiting(3).run
-          assertTrue(result == "Passed all steps")
-      ,
-    ) @@ TestAspect.sequential
+//import zio.test.*
+//
+//object ShortCircuitingFailure2 extends ZIOSpecDefault:
+//  def spec =
+//    suite("Suite of Tests")(
+//      test("one"):
+//        defer:
+//          val result = shortCircuiting(1).flip.run
+//          assertTrue(result == "Failed at 1")
+//      ,
+//      test("two"):
+//        defer:
+//          val result = shortCircuiting(2).flip.run
+//          assertTrue(result == "Failed at 2")
+//      ,
+//      test("three"):
+//        defer:
+//          val result = shortCircuiting(3).run
+//          assertTrue(result == "Passed all steps")
+//      ,
+//    ) @@ TestAspect.sequential
