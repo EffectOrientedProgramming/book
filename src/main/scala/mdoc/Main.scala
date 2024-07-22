@@ -3,7 +3,7 @@ package mdoc
 import io.methvin.watcher.DirectoryChangeEvent
 import io.methvin.watcher.DirectoryChangeEvent.EventType
 import mdoc.internal.cli.{Context, InputFile, Settings}
-import mdoc.internal.io.MdocFileListener
+import mdoc.internal.io.{ConsoleReporter, MdocFileListener}
 import mdoc.internal.livereload.UndertowLiveReload
 import mdoc.internal.markdown.{MarkdownFile, Processor, VariableRegex}
 import mdoc.parser.{CodeFence, MarkdownPart, Text}
@@ -14,7 +14,6 @@ import scala.jdk.StreamConverters.*
 import scala.meta.Input
 import scala.meta.internal.io.FileIO
 import scala.meta.io.AbsolutePath
-import zio.test.*
 
 // todo: get rid of mutables
 def embed(
@@ -311,7 +310,7 @@ def partsToExamples(
              |""".stripMargin
 
           case codeFence: CodeFence =>
-            codeFence.body.value
+            codeFence.newBody.getOrElse(codeFence.body.value)
         .mkString(
           s"""package Chapter$baseName
          |
@@ -450,12 +449,6 @@ def processFile(
     input
       .text
       .replace("```scala 3", "```scala")
-      .replaceAll("import zio\\.\\*\\r?\\n\\r?\\n", "")
-      .replaceAll("import zio\\.\\*\\r?\\n", "")
-      .replaceAll("import zio\\.direct\\.\\*\\r?\\n\\r?\\n", "")
-      .replaceAll("import zio\\.direct\\.\\*\\r?\\n", "")
-      .replaceAll("import zio\\.Console\\.\\*\\r?\\n\\r?\\n", "")
-      .replaceAll("import zio\\.Console\\.\\*\\r?\\n", "")
 
   val sourceInput =
     Input.String(source)
@@ -507,6 +500,7 @@ def processFile(
               .info
               .value
               .contains("scala mdoc") =>
+
           // turn scala mdoc(*) into just scala
           codeFence.newInfo =
             Some(
@@ -515,6 +509,20 @@ def processFile(
                 .value
                 .takeWhile(_ != ' ') + "\n"
             )
+
+          // remove stuff from code for the manuscript
+          codeFence.newBody = Some:
+            codeFence.newBody.getOrElse(codeFence.body.value)
+              .linesIterator
+              // remove the zio imports that we add
+              .filterNot(_ == "import zio.*")
+              .filterNot(_ == "import zio.direct.*")
+              .filterNot(_ == "import zio.Console.*")
+              .filterNot(_ == "import zio.test.*")
+              // remove empty lines at beginning of code
+              .dropWhile(_.isEmpty)
+              .mkString("\n")
+
           codeFence
         case p: MarkdownPart =>
           p
@@ -535,14 +543,16 @@ def processFile(
       Option[AbsolutePath],
       Option[AbsolutePath]
   ) =
-  mainSettings.reporter.reset()
+
+  // we do this so that the reporter isn't shared across concurrent runs of processFile
+  val mainSettingsForThisFile = mainSettings.withReporter(ConsoleReporter.default)
 
   val newSettings =
-    mainSettings
+    mainSettingsForThisFile
       .settings
       .copy(
         scalacOptions =
-          mainSettings
+          mainSettingsForThisFile
             .settings
             .scalacOptions
             .replace("-unchecked", "")
@@ -571,10 +581,10 @@ def processFile(
       input,
       inputFile,
       newSettings,
-      mainSettings.reporter
+      mainSettingsForThisFile.reporter
     )
 
-  if mainSettings.reporter.hasErrors then
+  if mainSettingsForThisFile.reporter.hasErrors then
     println(
       s"Not writing outputs due to errors in ${inputFile.inputFile.toRelative}"
     )
@@ -588,7 +598,7 @@ def processFile(
       inputFile.outputFile.toNIO,
       ErrorMessageManipulation.cleanupZioErrorOutput(
         manuscriptMarkdown.renderToString
-      ).getBytes(mainSettings.settings.charset)
+      ).getBytes(mainSettingsForThisFile.settings.charset)
     )
 
     val baseName =
@@ -618,7 +628,7 @@ def processFile(
         Files.write(
           mainFile.toNIO,
           mainParts.getBytes(
-            mainSettings.settings.charset
+            mainSettingsForThisFile.settings.charset
           )
         )
         mainFile
@@ -635,7 +645,7 @@ def processFile(
         Files.write(
           testFile.toNIO,
           testParts.getBytes(
-            mainSettings.settings.charset
+            mainSettingsForThisFile.settings.charset
           )
         )
         testFile

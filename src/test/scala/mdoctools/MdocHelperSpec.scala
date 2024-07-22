@@ -4,6 +4,8 @@ import java.io.{
   ByteArrayOutputStream,
   PrintStream
 }
+import zio.*
+import zio.direct.*
 import zio.test.*
 
 object MdocHelperSpec extends ZIOSpecDefault:

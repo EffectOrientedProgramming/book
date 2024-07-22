@@ -83,6 +83,7 @@ The Effect is automatically run by the test framework:
 import zio.*
 import zio.direct.*
 import zio.test.*
+import zio.Console.*
 
 def spec =
   test("Effect as test"):
@@ -95,7 +96,9 @@ The `defer` produces an Effect that runs the `printLine` and returns `assertComp
 `assertCompletes` unconditionally indicates that everything ran successfully.
 
 ```scala 3 mdoc:silent testzio
+import zio.direct.*
 import zio.test.*
+import zio.Console.*
 
 def showLabel(label: String) =
   defer:
@@ -139,8 +142,7 @@ def spec =
       effectA
     ,
     test("case A in Suite"):
-      effectB
-    ,
+      effectB,
   )
 ```
 
@@ -313,6 +315,7 @@ The captured output is always available from `TestConsole.output`, which produce
 Each element of the `Vector` contains an output line:
 
 ```scala 3 mdoc:testzio
+import zio.direct.*
 import zio.test.*
 
 def spec =
@@ -374,8 +377,9 @@ Now we use `coinToss` to fill a `List` with five tosses.
 Note that `collectAllSuccesses` is not looking at `true` or `false` values, but rather `succeed` vs. `fail` objects:
 
 ```scala 3 mdoc:silent
-import zio.{Console, *}
+import zio.*
 import zio.direct.*
+import zio.Console.*
 
 val flipFive =
   defer:

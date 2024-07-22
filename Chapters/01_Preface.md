@@ -44,7 +44,6 @@ To accomplish this, ***when functions have single parameters*** we generally use
 
 ```scala 3 mdoc:compile-only
 import zio.*
-import zio.direct.*
 
 Console.printLine:
   "hello, world"
@@ -58,7 +57,6 @@ For multi-parameter functions and in cases where the single argument is very sho
 
 ```scala 3 mdoc:compile-only
 import zio.*
-import zio.direct.*
 
 Console.printLine(1)
 ```

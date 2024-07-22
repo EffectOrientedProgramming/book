@@ -1,13 +1,12 @@
 package mdoctools
 
+import zio.*
+import zio.direct.*
+import zio.internal.stacktracer.SourceLocation
 import zio.test.ReporterEventRenderer.ConsoleEventRenderer
 import zio.test.*
 
-import java.util.concurrent.{
-  LinkedBlockingQueue,
-  ThreadPoolExecutor,
-  TimeUnit
-}
+import java.util.concurrent.{LinkedBlockingQueue, ThreadPoolExecutor, TimeUnit}
 
 extension [R, E, A](z: ZLayer[R, E, A])
   def tapWithMessage(
@@ -95,6 +94,17 @@ trait ToRun(
 end ToRun
 
 abstract class ToTest extends ToRun:
+
+  // copied from ZIOSpec to avoid a clash in the resolution of `test` with the imports
+  def test[In](label: String)(
+    assertion: => In
+  )(implicit
+    testConstructor: TestConstructor[Nothing, In],
+    sourceLocation: SourceLocation,
+    trace: Trace
+              ): testConstructor.Out =
+    zio.test.test(label)(assertion)
+
   def spec: Spec[TestEnvironment & Scope, Any]
 
   // todo: E A instead of Any

@@ -1,6 +1,8 @@
 package experiments
 
 import zio.*
+import zio.direct.*
+import zio.Console.*
 
 def testLimit(n: Int, limit: Int) =
   println(s"testLimit($n, $limit)")

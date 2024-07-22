@@ -1,6 +1,8 @@
 package experiments
 
 import zio.*
+import zio.direct.*
+import zio.Console.*
 
 case object ObjectX
 case object ExceptionX extends Exception:

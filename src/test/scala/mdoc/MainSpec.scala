@@ -17,6 +17,8 @@ object MainSpec extends ZIOSpecDefault:
 
         val source =
           """```scala mdoc
+            |import zio.*
+            |
             |class Foo extends mdoctools.ToRun:
             |  def run =
             |    Console.printLine("hello, world")
@@ -63,7 +65,10 @@ object MainSpec extends ZIOSpecDefault:
 
           val source =
             """```scala mdoc
+          |import zio.*
+          |import zio.direct.*
           |import zio.test.*
+          |
           |class FooSpec extends mdoctools.ToTest:
           |  def spec =
           |    test("foo"):
@@ -127,9 +132,10 @@ object MainSpec extends ZIOSpecDefault:
 
           val source =
             """```scala 3 mdoc:runzio:liveclock
-          |def run = ZIO.sleep(1.second).timed
-          |```
-          |""".stripMargin
+            |import zio.*
+            |def run = ZIO.sleep(1.second).timed
+            |```
+            |""".stripMargin
 
           val input =
             Input.VirtualFile("foo.md", source)
@@ -160,6 +166,8 @@ object MainSpec extends ZIOSpecDefault:
 
           val source =
             """```scala mdoc
+          |import zio.*
+          |import zio.direct.*
           |import zio.test.*
           |
           |class FooSpec extends mdoctools.ToTest:
@@ -231,6 +239,8 @@ object MainSpec extends ZIOSpecDefault:
             |```
             |
             |```scala 3 mdoc:runzio
+            |import zio.*
+            |
             |def run = ZIO.debug(foo)
             |```
             |
@@ -239,6 +249,8 @@ object MainSpec extends ZIOSpecDefault:
             |```
             |
             |```scala 3 mdoc:runzio
+            |import zio.*
+            |
             |def run = ZIO.debug(asdf)
             |```
             |""".stripMargin
@@ -360,6 +372,8 @@ object MainSpec extends ZIOSpecDefault:
 
           val source =
             """```scala 3 mdoc:runzio
+              |import zio.*
+              |
               |def run = ZIO.debug("hello, world")
               |```
               |""".stripMargin

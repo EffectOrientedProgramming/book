@@ -1,5 +1,7 @@
 package mdoctools
 
+import zio.*
+
 object LineLength:
   val commentPrefix =
     "// "

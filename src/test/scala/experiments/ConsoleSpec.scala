@@ -1,5 +1,8 @@
 package experiments
 
+import zio.*
+import zio.direct.*
+import zio.Console.*
 import zio.test.*
 
 object ConsoleOutputSpec

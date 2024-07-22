@@ -1,7 +1,7 @@
 package experiments
 
 import zio.*
-import zio.test.{test, *}
+import zio.test.*
 
 def add(a: Int, b: Int): Int =
   a + b
@@ -22,7 +22,7 @@ def loadTestData =
   )
 
 def makeTest(a: Int, b: Int, expected: Int) =
-  test(s"test add($a, $b) == $expected"):
+  zio.test.test(s"test add($a, $b) == $expected"):
     assertTrue(add(a, b) == expected)
 
 def makeTests =

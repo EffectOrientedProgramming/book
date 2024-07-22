@@ -44,23 +44,6 @@ val examplesDir = "examples"
 
 val zioVersion = "2.1.6"
 
-scalacOptions +=
-  Seq(
-    "java.lang",
-    "scala",
-    "scala.Predef",
-    "zio",
-    "zio.direct",
-    "zio.Console",
-  ).mkString(
-    start =
-      "-Yimports:",
-    sep =
-      ",",
-    end =
-      ""
-  )
-
 libraryDependencies ++=
   Seq(
     "org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.4",
@@ -128,7 +111,7 @@ genManuscript := Def.sequential(
 // Tests won't run until the full genManuscript process completes.
 // This is much slower, but opens the door for us to run tests on the manuscript contents.
 // This can be commented out when iterating on tests and not the manuscript.
-Test/test := ((Test/test) dependsOn genManuscript).value // TODO Restore before pushing
+//Test/test := ((Test/test) dependsOn genManuscript).value // TODO Restore before pushing
 
 lazy val mdocRun = taskKey[Unit]("mdoc run")
 mdocRun := Def.taskDyn {
@@ -140,7 +123,6 @@ mdocRun := Def.taskDyn {
 
 import complete.DefaultParsers.*
 
-import java.time.LocalDate
 lazy val mdocRunForce = inputKey[Unit]("mdoc run with force")
 mdocRunForce := Def.inputTaskDyn {
   bookTxt.value

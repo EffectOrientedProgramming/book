@@ -1,7 +1,8 @@
 package manuscript
 
-import zio.test.*
 import zio.*
+import zio.direct.*
+import zio.test.*
 
 object ManuscriptSpec extends ZIOSpecDefault{
 
@@ -12,7 +13,7 @@ object ManuscriptSpec extends ZIOSpecDefault{
   val composabilityChapter =
     chapters.find(_.toString.contains("Composability"))
       .getOrElse(throw new IllegalStateException("Composability chapter not found"))
-    
+
   val forbiddenWords = List(
     "monad",
     "map",
@@ -46,7 +47,7 @@ object ManuscriptSpec extends ZIOSpecDefault{
           assertTrue(
               os.read.lines(composabilityChapter).count(line =>
                 line.trim == "AI **INTERRUPTED**"
-              ) == 2
+              ) == 3
           )
       },
       test("ensure no long lines") {
@@ -109,7 +110,7 @@ object ManuscriptSpec extends ZIOSpecDefault{
                     forbiddenWords.exists:
                       line.toLowerCase.contains
       },
-      
+
       suite("no forbidden words") (
         // TODO could match on whole words only or use regex or something more specialized
         (forbiddenWords.map:

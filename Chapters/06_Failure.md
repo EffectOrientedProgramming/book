@@ -72,7 +72,8 @@ import zio.*
 
 case object ObjectX
 case object ExceptionX extends Exception:
-  override def toString: String = "ExceptionX"
+  override def toString: String =
+    "ExceptionX"
 
 def failureTypes(n: Int) =
   n match
@@ -99,6 +100,10 @@ This way, the compiler can verify that all error conditions are handled.
 Here we exercise all cases of `failureTypes`:
 
 ```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+import zio.Console.*
+
 def run =
   defer:
     val r0 = failureTypes(0).flip.run
@@ -135,6 +140,10 @@ def testLimit(n: Int, limit: Int) =
 (prose)
 
 ```scala 3 mdoc:silent
+import zio.*
+import zio.direct.*
+import zio.Console.*
+
 def shortCircuiting(n: Int) =
   defer:
     val r1 = testLimit(0, n).run
@@ -148,6 +157,10 @@ def shortCircuiting(n: Int) =
 (prose)
 
 ```scala 3 mdoc:runzio
+import zio.*
+import zio.direct.*
+import zio.Console.*
+
 def run =
   defer:
     val result0 = shortCircuiting(0).flip.run
@@ -349,6 +362,10 @@ For example, we'll try to catch the `NetworkException`:
 <!-- We do not use mdoc:warn because of bugs in mdoc -->
 
 ```scala 3 mdoc:silent
+import zio.*
+import zio.direct.*
+import zio.Console.*
+
 val bad =
   getTemperature.catchAll:
     case ex: NetworkException =>
@@ -399,6 +416,8 @@ Since the new `temperatureAppComplete` can no longer fail, there are no failures
 Trying will result in a compiler error:
 
 ```scala 3 mdoc:fail
+import zio.*
+
 temperatureAppComplete.catchAll:
   case ex: GpsException =>
     ZIO.succeed:
@@ -418,6 +437,7 @@ case class ClimateFailure(message: String)
 ```scala 3 mdoc:invisible
 import zio.*
 import zio.direct.*
+import zio.Console.*
 
 def check(t: Temperature) =
   defer:
@@ -474,6 +494,10 @@ val weatherReportFaulty =
 To handle all failures for `weatherReportFaulty`, we provide cases for both `Exception` and `ClimateFailure`:
 
 ```scala 3 mdoc:silent
+import zio.*
+import zio.direct.*
+import zio.Console.*
+
 val weatherReport =
   weatherReportFaulty.catchAll:
     case exception: Exception =>
