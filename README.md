@@ -1,5 +1,2 @@
-# Effect Oriented Programming
+# Effect Oriented Programming - Website
 
-The book is coming soon!
-
-[Get notified when it is available](https://leanpub.com/effect-oriented-programming)

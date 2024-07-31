@@ -1,0 +1,64 @@
+// pkl eval --format yaml -o release.yml release.pkl
+
+amends "package://pkg.pkl-lang.org/github.com/jamesward/pklgha/pklgha@0.0.14#/GitHubAction.pkl"
+
+on {
+  push {
+
+  }
+  workflow_dispatch {
+
+  }
+}
+
+permissions {
+  contents = "read"
+  pages = "write"
+  `id-token` = "write"
+}
+
+concurrency {
+  group = "pages"
+  `cancel-in-progress` = false
+}
+
+jobs {
+  ["deploy"] = new {
+    environment {
+      name = "github-pages"
+      url = "${{ steps.deployment.outputs.page_url }}"
+    }
+    `runs-on` = "ubuntu-latest"
+
+    steps {
+      new {
+        uses = "actions/checkout@v4"
+      }
+
+      new {
+        name = "generate website"
+        run = """
+          pip install -r requirements.txt
+
+          mkdocs build
+          """
+      }
+
+      new {
+        uses = "actions/configure-pages@v5"
+      }
+
+      new {
+        uses = "actions/upload-pages-artifact@v3"
+        with {
+          ["path"] = "site"
+        }
+      }
+
+      new {
+        id = "deployment"
+        uses = "actions/deploy-pages@v4"
+      }
+    }
+  }
+}
