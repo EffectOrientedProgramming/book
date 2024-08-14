@@ -16,6 +16,7 @@ nav:
 plugins:
   - redirects:
       redirect_maps:
+        'resources/zio/examples.md': 'https://github.com/effectorientedprogramming/examples'
         'resources/zio/sharing-layers-between-multiple-files.md':  'https://zio.dev/reference/test/sharing-layers-between-multiple-files/'
         'resources/zio/test-assertion-library.md': 'https://zio.dev/reference/test/assertions/'
         'resources/zio/docs.md':  'https://zio.dev/reference/'
