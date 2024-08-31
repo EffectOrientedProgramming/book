@@ -23,3 +23,4 @@ plugins:
         'resources/zio/whats-functional-programming-all-about.md':  'https://www.lihaoyi.com/post/WhatsFunctionalProgrammingAllAbout.html'
         'resources/zio/zio-config-docs-index.md':  'https://github.com/zio/zio-config/blob/master/docs/index.md'
         'resources/zio/compare-and-swap.md': 'https://en.wikipedia.org/wiki/Compare-and-swap'
+        'resources/zio/zio-cache.md': 'https://zio.dev/zio-cache'
