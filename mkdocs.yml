@@ -16,8 +16,6 @@ nav:
 plugins:
   - redirects:
       redirect_maps:
-        'resources/zio/examples.md': 'https://github.com/effectorientedprogramming/examples'
-        'resources/zio/examples/2024-09-02.md': 'https://github.com/effectorientedprogramming/examples/tree/2024-09-02'
         'resources/zio/sharing-layers-between-multiple-files.md':  'https://zio.dev/reference/test/sharing-layers-between-multiple-files/'
         'resources/zio/test-assertion-library.md': 'https://zio.dev/reference/test/assertions/'
         'resources/zio/docs.md':  'https://zio.dev/reference/'
@@ -26,3 +24,5 @@ plugins:
         'resources/zio/compare-and-swap.md': 'https://en.wikipedia.org/wiki/Compare-and-swap'
         'resources/zio/zio-cache.md': 'https://zio.dev/zio-cache'
         'resources/zio/ecosystem.md': 'https://zio.dev/ecosystem/'
+        # Never delete these since published books reference them
+        'resources/zio/examples/2024-09-02.md': 'https://github.com/effectorientedprogramming/examples/tree/2024-09-02'
