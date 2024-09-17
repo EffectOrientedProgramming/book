@@ -26,3 +26,4 @@ plugins:
         'resources/zio/zio-cache.md': 'https://zio.dev/zio-cache'
         'resources/zio/ecosystem.md': 'https://zio.dev/ecosystem/'
         'resources/zio/examples/2024-09-02.md': 'https://github.com/effectorientedprogramming/examples/tree/2024-09-02'
+        'resources/zio/examples/2024-09-17.md': 'https://github.com/effectorientedprogramming/examples/tree/2024-09-17'
