@@ -1,22 +1,32 @@
 site_name: Effect Oriented Programming
 site_url: https://EffectOrientedProgramming.com/
-site_description: Support Site for the Book
+site_description: A New Paradigm for Creating Reliable, Adaptable, Testable Systems - Using Scala and ZIO
 site_author: Bill Frasure, James Ward and Bruce Eckel
-# repo_url: https://github.com/EffectOrientedProgramming/book/
+#repo_url: https://github.com/EffectOrientedProgramming/examples/
+
+copyright: Copyright &copy; 2024 Bill Frasure, Bruce Eckel, James Ward
+
+extra:
+  generator: false
 
 nav:
   - Home: index.md
-  - Guide:
+  - EBook: https://leanpub.com/effect-oriented-programming
+#  - Print Book: TODO
+  - Examples: https://github.com/EffectOrientedProgramming/examples
+  - Setup:
     - Installing Scala & Tools: guide/scalatools.md
     - Running the Book Code: guide/examples.md
-  - About:
-    - Authors: about/authors.md
-    - License: about/license.md
+  - Error Reports: https://github.com/EffectOrientedProgramming/book/issues/new
 
 theme:
   name: material
   features:
     - navigation.tabs
+    - navigation.tabs.sticky
+
+#extra:
+
 
 plugins:
   - redirects:
