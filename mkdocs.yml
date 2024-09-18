@@ -13,6 +13,9 @@ nav:
     - Authors: about/authors.md
     - License: about/license.md
 
+theme:
+  name: material
+
 plugins:
   - redirects:
       redirect_maps:
