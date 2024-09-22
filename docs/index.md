@@ -4,7 +4,7 @@ hide:
 - toc
 ---
 
-# ![](EOPFrontCover.png)
+# ![](img/EOPFrontCover.png)
 
 ## A Paradigm for Creating Reliable, Adaptable, Testable Systems - Using Scala and ZIO
 
