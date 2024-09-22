@@ -135,14 +135,6 @@ sbt:EffectOrientedProgramming> runMain Chapter03_Superpowers.App0
 ```
 
 > **NOTE: Some output might be out-of-order vs. output shown in the book**.  
-> Nodes in the same layer of the dependency graph have arbitrary ordering.
-> The ordering of initialization in the dependency graph is only guaranteed in the sense that 'If B depends on A, then A will be constructed first.'
-> But whenever there are unrelated pieces, the ordering is arbitrary.
-> C could be constructed at any point:  
-> - Before A  
-> - In between A and B  
-> - After B  
-> As long as C doesn't depend on A or B.
 
 <!-- Run all programs with a single command: runMainClassesToleratesFailures -->
 
