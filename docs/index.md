@@ -4,7 +4,7 @@ hide:
 - toc
 ---
 
-# ![](img/EOPFrontCover.jpg)
+# ![](img/EOPFrontCover.png)
 
 Have you wondered what makes functional programming such a big deal, but haven't been able to get through any of the explanations?
 We wrote this book for you.
