@@ -1,6 +1,6 @@
 site_name: Effect Oriented Programming
 site_url: https://EffectOrientedProgramming.com/
-site_description: A New Paradigm for Creating Reliable, Adaptable, Testable Systems - Using Scala and ZIO
+site_description: A Paradigm for Creating Reliable, Adaptable, Testable Systems - Using Scala and ZIO
 site_author: Bill Frasure, James Ward and Bruce Eckel
 #repo_url: https://github.com/EffectOrientedProgramming/examples/
 

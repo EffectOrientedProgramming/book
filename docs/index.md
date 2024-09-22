@@ -4,9 +4,10 @@ hide:
 - toc
 ---
 
-# ![](img/EOPFrontCover.png)
+# ![](img/EOPFrontCover.jpg)
 
-Have you been wondering what makes functional programming such a big deal, but you haven't been able to get through any of the explanations? We wrote this book for you.
+Have you wondered what makes functional programming such a big deal, but you haven't been able to get through any of the explanations?
+We wrote this book for you.
 
 Four years in the making!
 
