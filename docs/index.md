@@ -9,11 +9,11 @@ hide:
 Have you wondered what makes functional programming such a big deal, but haven't been able to get through any of the explanations?
 We wrote this book for you.
 
-Four years in the making!
+- Four years in the making!
 
-Phone-friendly: the code listings are easily readable without phone gymnastics.
+- Phone-friendly: the code listings are easily readable without phone gymnastics.
 
-This is a small book—it took an enormous amount of effort to make it so!
+- A small book, and it took an enormous amount of effort to make it so!
 
 ---
 
