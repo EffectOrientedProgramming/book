@@ -18,6 +18,7 @@ nav:
     - Installing Scala & Tools: guide/scalatools.md
     - Running the Book Code: guide/examples.md
   - Error Reports: https://github.com/EffectOrientedProgramming/book/issues/new
+  - QR Code: img/qrcode.png
 
 theme:
   name: material
