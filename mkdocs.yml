@@ -11,8 +11,7 @@ extra:
 
 nav:
   - Home: index.md
-  - EBook: https://leanpub.com/effect-oriented-programming
-  - Print Book: https://shop.ingramspark.com/b/084?cV4mi8z66cc0yhK8YKd4XE5cM3MkCPduwX47LBcHLiB
+  - EBook: ebook/index.md
   - Examples: https://github.com/EffectOrientedProgramming/examples
   - Setup:
     - Installing Scala & Tools: guide/scalatools.md
