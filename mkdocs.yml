@@ -9,6 +9,7 @@ copyright: Copyright &copy; 2024 Bill Frasure, Bruce Eckel, James Ward
 extra:
   generator: false
 
+
 nav:
   - Home: index.md
   - EBook: ebook/index.md
@@ -24,8 +25,9 @@ theme:
   features:
     - navigation.tabs
     - navigation.tabs.sticky
+  favicon: 'img/favicon.png'
+  logo: 'img/favicon.png'
 
-#extra:
 
 
 plugins:
