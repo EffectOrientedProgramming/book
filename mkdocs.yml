@@ -26,7 +26,7 @@ theme:
     - navigation.tabs
     - navigation.tabs.sticky
   favicon: 'img/favicon.png'
-  logo: 'img/logo.png'
+  logo: 'img/Logo.png'
 
 
 
