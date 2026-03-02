@@ -22,9 +22,10 @@ The MCP server requires authentication using the **email address you used to pur
 
 1. Go to [claude.ai/settings/connectors](https://claude.ai/settings/connectors)
 2. Click **"Add custom connector"**
-3. Enter the server URL: `https://mcp.effectorientedprogramming.com`
+3. Enter a name for the connector, like "EOP Book" and the server URL: `https://mcp.effectorientedprogramming.com`
 4. Click **"Add"**
-5. Complete the authentication flow in the browser
+5. Locate the new connector and click **"Connect"** to initiate the authentication flow
+6. Complete the authentication flow in the browser
 
 In a chat, click the **"+"** button, select **"Connectors"**, and toggle the connector on.
 
