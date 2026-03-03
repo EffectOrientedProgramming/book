@@ -14,7 +14,7 @@ This means you can ask your AI assistant questions about the book, get code exam
 
 ## Authentication
 
-The MCP server requires authentication using the **email address you used to purchase the book**.
+The MCP server requires authentication using the **email address you used to purchase the EBook**.
 
 ## Setup Instructions
 
